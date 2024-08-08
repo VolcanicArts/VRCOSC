@@ -121,7 +121,7 @@
                                                                                Text="{Binding DisplayName, Mode=OneWay}"
                                                                                Margin="0 -3 0 0"
                                                                                HorizontalAlignment="Left"
-                                                                               VerticalAlignment="Center"/>
+                                                                               VerticalAlignment="Center" />
                                                                 </core:SpacedStackPanel>
                                                                 <core:ChatBoxTextBox
                                                                     FontSize="16"
@@ -155,71 +155,46 @@
                                                                                             Cursor="Hand"
                                                                                             Drop="VariableInstance_DropTarget"
                                                                                             DragEnter="VariableInstance_DragEnter"
+                                                                                            Padding="5 0"
                                                                                             DragLeave="VariableInstance_DragLeave">
                                                                                             <Border.Tag>
                                                                                                 <Binding />
                                                                                             </Border.Tag>
                                                                                             <Grid>
-                                                                                                <Grid.ColumnDefinitions>
-                                                                                                    <ColumnDefinition
-                                                                                                        Width="4*" />
-                                                                                                    <ColumnDefinition
-                                                                                                        Width="*" />
-                                                                                                    <ColumnDefinition
-                                                                                                        Width="4*" />
-                                                                                                </Grid.ColumnDefinitions>
                                                                                                 <TextBlock
-                                                                                                    Grid.Column="0"
                                                                                                     FontSize="14"
                                                                                                     Foreground="{StaticResource CForeground1}"
                                                                                                     TextAlignment="Left"
                                                                                                     HorizontalAlignment="Left"
                                                                                                     VerticalAlignment="Center"
                                                                                                     Text="{Binding DisplayNameWithModule}"
-                                                                                                    Margin="5 -2 0 0" />
-                                                                                                <Grid
-                                                                                                    Grid.Column="1"
-                                                                                                    HorizontalAlignment="Stretch"
-                                                                                                    VerticalAlignment="Stretch">
-                                                                                                    <fa6:ImageAwesome
-                                                                                                        Icon="Solid_GripLines"
-                                                                                                        PrimaryColor="{StaticResource CForeground2}"
-                                                                                                        Margin="11" />
-                                                                                                </Grid>
-                                                                                                <Grid
-                                                                                                    Grid.Column="2"
+                                                                                                    Margin="0 -2 0 0" />
+                                                                                                <fa6:ImageAwesome
+                                                                                                    Icon="Solid_GripLines"
+                                                                                                    PrimaryColor="{StaticResource CForeground2}"
+                                                                                                    HorizontalAlignment="Center"
+                                                                                                    VerticalAlignment="Center"
+                                                                                                    Margin="11" />
+                                                                                                <core:SpacedStackPanel
+                                                                                                    Spacing="5"
+                                                                                                    Orientation="Horizontal"
+                                                                                                    FlowDirection="RightToLeft"
                                                                                                     HorizontalAlignment="Right">
-                                                                                                    <Grid.ColumnDefinitions>
-                                                                                                        <ColumnDefinition
-                                                                                                            Width="Auto" />
-                                                                                                        <ColumnDefinition
-                                                                                                            Width="Auto" />
-                                                                                                    </Grid.ColumnDefinitions>
                                                                                                     <core:IconButton
-                                                                                                        Grid.Column="0"
-                                                                                                        ButtonColour="Gray"
-                                                                                                        Icon="Solid_Gear"
-                                                                                                        Click="VariableSettingButton_OnClick"
-                                                                                                        Width="22"
-                                                                                                        Height="22"
-                                                                                                        Margin="0 0 5 0">
-                                                                                                        <core:VRCOSCButton.Tag>
-                                                                                                            <Binding />
-                                                                                                        </core:VRCOSCButton.Tag>
-                                                                                                    </core:IconButton>
-                                                                                                    <core:IconButton
-                                                                                                        Grid.Column="1"
                                                                                                         ButtonColour="Red"
                                                                                                         Icon="Solid_Minus"
                                                                                                         Click="VariableRemoveButton_OnClick"
                                                                                                         Width="22"
                                                                                                         Height="22"
-                                                                                                        Margin="0 0 5 0">
-                                                                                                        <core:VRCOSCButton.Tag>
-                                                                                                            <Binding />
-                                                                                                        </core:VRCOSCButton.Tag>
-                                                                                                    </core:IconButton>
-                                                                                                </Grid>
+                                                                                                        Tag="{Binding}" />
+                                                                                                    <core:IconButton
+                                                                                                        ButtonColour="Gray"
+                                                                                                        Icon="Solid_Gear"
+                                                                                                        Click="VariableSettingButton_OnClick"
+                                                                                                        Width="22"
+                                                                                                        Height="22"
+                                                                                                        Tag="{Binding}" />
+                                                                                                </core:SpacedStackPanel>
                                                                                             </Grid>
                                                                                         </Border>
                                                                                     </ControlTemplate>
@@ -372,71 +347,46 @@
                                                                                             Cursor="Hand"
                                                                                             Drop="VariableInstance_DropTarget"
                                                                                             DragEnter="VariableInstance_DragEnter"
+                                                                                            Padding="5 0"
                                                                                             DragLeave="VariableInstance_DragLeave">
                                                                                             <Border.Tag>
                                                                                                 <Binding />
                                                                                             </Border.Tag>
                                                                                             <Grid>
-                                                                                                <Grid.ColumnDefinitions>
-                                                                                                    <ColumnDefinition
-                                                                                                        Width="4*" />
-                                                                                                    <ColumnDefinition
-                                                                                                        Width="*" />
-                                                                                                    <ColumnDefinition
-                                                                                                        Width="4*" />
-                                                                                                </Grid.ColumnDefinitions>
                                                                                                 <TextBlock
-                                                                                                    Grid.Column="0"
                                                                                                     FontSize="14"
                                                                                                     Foreground="{StaticResource CForeground1}"
                                                                                                     TextAlignment="Left"
                                                                                                     HorizontalAlignment="Left"
                                                                                                     VerticalAlignment="Center"
                                                                                                     Text="{Binding DisplayNameWithModule}"
-                                                                                                    Margin="5 0 0 0" />
-                                                                                                <Grid
-                                                                                                    Grid.Column="1"
-                                                                                                    HorizontalAlignment="Stretch"
-                                                                                                    VerticalAlignment="Stretch">
-                                                                                                    <fa6:ImageAwesome
-                                                                                                        Icon="Solid_GripLines"
-                                                                                                        PrimaryColor="{StaticResource CForeground2}"
-                                                                                                        Margin="11" />
-                                                                                                </Grid>
-                                                                                                <Grid
-                                                                                                    Grid.Column="2"
+                                                                                                    Margin="0 -2 0 0" />
+                                                                                                <fa6:ImageAwesome
+                                                                                                    Icon="Solid_GripLines"
+                                                                                                    PrimaryColor="{StaticResource CForeground2}"
+                                                                                                    HorizontalAlignment="Center"
+                                                                                                    VerticalAlignment="Center"
+                                                                                                    Margin="11" />
+                                                                                                <core:SpacedStackPanel
+                                                                                                    Spacing="5"
+                                                                                                    Orientation="Horizontal"
+                                                                                                    FlowDirection="RightToLeft"
                                                                                                     HorizontalAlignment="Right">
-                                                                                                    <Grid.ColumnDefinitions>
-                                                                                                        <ColumnDefinition
-                                                                                                            Width="Auto" />
-                                                                                                        <ColumnDefinition
-                                                                                                            Width="Auto" />
-                                                                                                    </Grid.ColumnDefinitions>
                                                                                                     <core:IconButton
-                                                                                                        Grid.Column="0"
-                                                                                                        ButtonColour="Gray"
-                                                                                                        Icon="Solid_Gear"
-                                                                                                        Click="VariableSettingButton_OnClick"
-                                                                                                        Width="22"
-                                                                                                        Height="22"
-                                                                                                        Margin="0 0 5 0">
-                                                                                                        <core:VRCOSCButton.Tag>
-                                                                                                            <Binding />
-                                                                                                        </core:VRCOSCButton.Tag>
-                                                                                                    </core:IconButton>
-                                                                                                    <core:IconButton
-                                                                                                        Grid.Column="1"
                                                                                                         ButtonColour="Red"
                                                                                                         Icon="Solid_Minus"
                                                                                                         Click="VariableRemoveButton_OnClick"
                                                                                                         Width="22"
                                                                                                         Height="22"
-                                                                                                        Margin="0 0 5 0">
-                                                                                                        <core:VRCOSCButton.Tag>
-                                                                                                            <Binding />
-                                                                                                        </core:VRCOSCButton.Tag>
-                                                                                                    </core:IconButton>
-                                                                                                </Grid>
+                                                                                                        Tag="{Binding}" />
+                                                                                                    <core:IconButton
+                                                                                                        ButtonColour="Gray"
+                                                                                                        Icon="Solid_Gear"
+                                                                                                        Click="VariableSettingButton_OnClick"
+                                                                                                        Width="22"
+                                                                                                        Height="22"
+                                                                                                        Tag="{Binding}" />
+                                                                                                </core:SpacedStackPanel>
                                                                                             </Grid>
                                                                                         </Border>
                                                                                     </ControlTemplate>

@@ -19,7 +19,6 @@
                         <ControlTemplate>
                             <core:HeaderFooterListView
                                 ItemsSource="{Binding Value, Mode=OneWay}"
-                                HorizontalAlignment="Stretch"
                                 Background="Transparent"
                                 BorderThickness="0"
                                 AlternationCount="2"

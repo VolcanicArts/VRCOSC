@@ -45,8 +45,6 @@
             <Setter Property="Width" Value="384" />
             <Setter Property="FontSize" Value="18" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
-            <Setter Property="Background" Value="{StaticResource CBackground3}" />
         </Style>
         <Style x:Key="SettingTextBoxStyle" TargetType="TextBox">
             <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
