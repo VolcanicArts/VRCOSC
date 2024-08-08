@@ -3,12 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              mc:Ignorable="d">
     <UserControl.Resources>
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground2}" />
+                                         Colour2="{StaticResource CBackground4}" />
     </UserControl.Resources>
     <core:HeaderFooterListView AlternationCount="2" ItemsSource="{Binding ModuleSetting.Attribute}" ShouldTruncateHeight="False">
         <core:HeaderFooterListView.Header>
@@ -47,44 +46,12 @@
                                     <TextBox Grid.Column="0"
                                              Text="{Binding Key.Value, UpdateSourceTrigger=PropertyChanged}"
                                              Background="{StaticResource CBackground5}"
-                                             Foreground="{StaticResource CForeground1}" FontSize="16"
-                                             HorizontalAlignment="Stretch"
-                                             VerticalContentAlignment="Center"
-                                             BorderThickness="0">
-                                        <TextBox.Template>
-                                            <ControlTemplate TargetType="TextBox">
-                                                <Border
-                                                    Background="{TemplateBinding Background}"
-                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                    CornerRadius="5" Padding="5 2">
-                                                    <ScrollViewer x:Name="PART_ContentHost"
-                                                                  FontSize="{TemplateBinding FontSize}"
-                                                                  VerticalAlignment="Center" />
-                                                </Border>
-                                            </ControlTemplate>
-                                        </TextBox.Template>
+                                             Foreground="{StaticResource CForeground1}" FontSize="16">
                                     </TextBox>
                                     <TextBox Grid.Column="2"
                                              Text="{Binding Value.Value, UpdateSourceTrigger=PropertyChanged}"
                                              Background="{StaticResource CBackground5}"
-                                             Foreground="{StaticResource CForeground1}" FontSize="16"
-                                             HorizontalAlignment="Stretch"
-                                             VerticalContentAlignment="Center"
-                                             BorderThickness="0">
-                                        <TextBox.Template>
-                                            <ControlTemplate TargetType="TextBox">
-                                                <Border
-                                                    Background="{TemplateBinding Background}"
-                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                    CornerRadius="5" Padding="5 2">
-                                                    <ScrollViewer x:Name="PART_ContentHost"
-                                                                  FontSize="{TemplateBinding FontSize}"
-                                                                  VerticalAlignment="Center" />
-                                                </Border>
-                                            </ControlTemplate>
-                                        </TextBox.Template>
+                                             Foreground="{StaticResource CForeground1}" FontSize="16">
                                     </TextBox>
                                     <core:IconButton Grid.Column="4" ButtonColour="Red"
                                                        Click="RemoveButton_OnClick"

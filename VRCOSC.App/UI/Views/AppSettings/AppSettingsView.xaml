@@ -135,7 +135,7 @@
                                     CornerRadius="5">
                                 <Grid>
                                     <TextBlock Text="Start In Tray" Style="{StaticResource SettingTitle}" />
-                                    <TextBlock Text="Sends VRCOSC go into the tray when it's opened?"
+                                    <TextBlock Text="Sends VRCOSC go into the tray when it's opened"
                                                Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                          Height="32"
