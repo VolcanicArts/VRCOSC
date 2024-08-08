@@ -101,12 +101,9 @@
             </Style>
         </ListView.ItemContainerStyle>
         <core:HeaderFooterListView.Footer>
-            <Border Grid.Row="2" Background="{StaticResource CBackground1}" Height="30">
-                <core:VRCOSCButton Width="90" Height="20" Click="AddButton_OnClick" ButtonColour="Green">
-                    <fa6:ImageAwesome Icon="Solid_Plus"
-                                      PrimaryColor="{StaticResource CForeground1}"
-                                      Margin="3" />
-                </core:VRCOSCButton>
+            <Border Background="{StaticResource CBackground1}">
+                <core:IconButton Width="100" Height="20" Margin="0 5" Click="AddButton_OnClick" ButtonColour="Green"
+                                 Icon="Solid_Plus" />
             </Border>
         </core:HeaderFooterListView.Footer>
     </core:HeaderFooterListView>

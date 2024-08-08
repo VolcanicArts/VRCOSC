@@ -67,8 +67,8 @@
             </Style>
         </ListView.ItemContainerStyle>
         <core:HeaderFooterListView.Footer>
-            <Border Background="{StaticResource CBackground1}" Height="30">
-                <core:IconButton Width="90" Height="20" Click="AddButton_OnClick" ButtonColour="Green"
+            <Border Background="{StaticResource CBackground1}">
+                <core:IconButton Width="100" Height="20" Margin="0 5" Click="AddButton_OnClick" ButtonColour="Green"
                                  Icon="Solid_Plus" />
             </Border>
         </core:HeaderFooterListView.Footer>
