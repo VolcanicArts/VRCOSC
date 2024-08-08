@@ -125,8 +125,6 @@ public abstract class Module
             cachePersistentProperties();
 
             Enabled.Subscribe(_ => moduleSerialisationManager.Serialise());
-            Settings.Values.ForEach(moduleSetting => moduleSetting.RequestSerialisation = () => moduleSerialisationManager.Serialise());
-            Parameters.Values.ForEach(moduleParameter => moduleParameter.RequestSerialisation = () => moduleSerialisationManager.Serialise());
 
             OnPostLoad();
         }
@@ -135,6 +133,11 @@ public abstract class Module
     internal void ImportConfig(string filePathOverride)
     {
         ModuleManager.GetInstance().ReloadAllModules(new Dictionary<string, string> { { FullID, filePathOverride } });
+    }
+
+    internal void Serialise()
+    {
+        moduleSerialisationManager.Serialise();
     }
 
     #endregion

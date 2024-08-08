@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -35,6 +36,11 @@ public sealed partial class ModuleParametersWindow
     private void ResetParameters_OnClick(object sender, RoutedEventArgs e)
     {
         Module.Parameters.Values.ForEach(parameter => parameter.SetDefault());
+    }
+
+    private void ModuleParametersWindow_OnClosing(object? sender, CancelEventArgs e)
+    {
+        Module.Serialise();
     }
 }
 

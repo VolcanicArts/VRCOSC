@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
@@ -49,5 +50,10 @@ public partial class ModuleSettingsWindow
 
             return groupsFormatted;
         }
+    }
+
+    private void ModuleSettingsWindow_OnClosing(object? sender, CancelEventArgs e)
+    {
+        Module.Serialise();
     }
 }

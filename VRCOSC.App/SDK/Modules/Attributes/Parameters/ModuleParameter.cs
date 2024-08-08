@@ -13,12 +13,7 @@ public class ModuleParameter : ModuleAttribute
 
     private readonly string defaultName;
 
-    public override void PreDeserialise()
-    {
-        Name = new Observable<string>(defaultName);
-        Name.Subscribe(_ => RequestSerialisation?.Invoke());
-    }
-
+    public override void PreDeserialise() => Name = new Observable<string>(defaultName);
     public override bool IsDefault() => Name.IsDefault;
     public override void SetDefault() => Name.SetDefault();
     public override object GetRawValue() => Name.Value;

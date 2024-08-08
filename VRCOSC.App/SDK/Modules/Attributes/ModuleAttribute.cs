@@ -1,8 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
-
 namespace VRCOSC.App.SDK.Modules.Attributes;
 
 public abstract class ModuleAttribute
@@ -71,11 +69,6 @@ public abstract class ModuleAttribute
     /// Retrieves the unknown serialisable value for this <see cref="ModuleAttribute"/>
     /// </summary>
     public abstract object GetSerialisableValue();
-
-    /// <summary>
-    /// Call to request serialisation of this <see cref="ModuleAttribute"/>
-    /// </summary>
-    public Action? RequestSerialisation;
 
     protected ModuleAttribute(string title, string description)
     {

@@ -28,12 +28,7 @@ public abstract class ListModuleSetting<T> : ModuleSetting, IListModuleSetting
     public override void PreDeserialise()
     {
         Attribute = new ObservableCollection<T>(getClonedDefaults());
-
-        Attribute.CollectionChanged += (_, _) =>
-        {
-            OnSettingChange?.Invoke();
-            RequestSerialisation?.Invoke();
-        };
+        Attribute.CollectionChanged += (_, _) => OnSettingChange?.Invoke();
     }
 
     public override bool IsDefault() => Attribute.SequenceEqual(DefaultValues);
@@ -96,11 +91,7 @@ public abstract class ValueListModuleSetting<T> : ListModuleSetting<Observable<T
 
             foreach (Observable<T> newItem in e.NewItems)
             {
-                newItem.Subscribe(_ =>
-                {
-                    OnSettingChange?.Invoke();
-                    RequestSerialisation?.Invoke();
-                });
+                newItem.Subscribe(_ => OnSettingChange?.Invoke());
             }
         }
     }

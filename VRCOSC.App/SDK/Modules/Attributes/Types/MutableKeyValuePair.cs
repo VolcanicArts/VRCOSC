@@ -50,19 +50,7 @@ public class MutableKeyValuePairListModuleSetting : ListModuleSetting<MutableKey
 
     protected override MutableKeyValuePair CloneValue(MutableKeyValuePair value) => new(value);
 
-    protected override MutableKeyValuePair ConstructValue(JToken token)
-    {
-        var instance = token.ToObject<MutableKeyValuePair>()!;
-        instance.Key.Subscribe(_ => RequestSerialisation?.Invoke());
-        instance.Value.Subscribe(_ => RequestSerialisation?.Invoke());
-        return instance;
-    }
+    protected override MutableKeyValuePair ConstructValue(JToken token) => token.ToObject<MutableKeyValuePair>()!;
 
-    protected override MutableKeyValuePair CreateNewItem()
-    {
-        var instance = new MutableKeyValuePair();
-        instance.Key.Subscribe(_ => RequestSerialisation?.Invoke());
-        instance.Value.Subscribe(_ => RequestSerialisation?.Invoke());
-        return instance;
-    }
+    protected override MutableKeyValuePair CreateNewItem() => new();
 }

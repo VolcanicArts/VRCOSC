@@ -5,7 +5,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
         xmlns:modules="clr-namespace:VRCOSC.App.UI.Windows.Modules"
-        mc:Ignorable="d" Width="1366" Height="768" MinWidth="1200" MinHeight="540">
+        mc:Ignorable="d" Width="1366" Height="768" MinWidth="1200" MinHeight="540"
+        Closing="ModuleParametersWindow_OnClosing">
     <Window.Resources>
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                          Colour2="{StaticResource CBackground4}" />
