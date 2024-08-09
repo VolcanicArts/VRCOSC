@@ -58,7 +58,7 @@ public class VRChatOscClient : OscClient
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e, $"Exception when trying to find parameter: {address}");
+            Logger.Error(e, $"Exception when trying to find parameter: {address}");
             return null;
         }
     }
