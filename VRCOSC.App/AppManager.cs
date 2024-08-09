@@ -143,6 +143,11 @@ public class AppManager
             ActionManifest = Storage.GetFullPath("openvr/action_manifest.json")
         });
 
+        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.FirstTimeSetupComplete))
+        {
+            OVRClient.RefreshManifest = true;
+        }
+
         OVRClient.OnShutdown += () => Application.Current.Dispatcher.Invoke(() =>
         {
             if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.OVRAutoClose))

@@ -8,13 +8,10 @@ namespace VRCOSC.App.SDK.OVR.Metadata;
 internal class OVRManifest
 {
     [JsonProperty("source")]
-    public string Source = "builtin";
+    public string Source = "volcanicarts";
 
     [JsonProperty("applications")]
-    public OVRApplication[] Applications =
-    {
-        new()
-    };
+    public OVRApplication[] Applications = [new OVRApplication()];
 }
 
 internal class OVRApplication
@@ -53,5 +50,5 @@ internal class OVRLocalisation
     public string Name = "VRCOSC";
 
     [JsonProperty("description")]
-    public string Description = "Modular OSC program creator made for VRChat";
+    public string Description = "Modular OSC program creator, toolkit, and router made for VRChat";
 }

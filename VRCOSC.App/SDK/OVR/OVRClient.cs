@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Valve.VR;
@@ -15,25 +16,26 @@ public class OVRClient
 {
     private static readonly string vrpath_file = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "openvr", "openvrpaths.vrpath");
     private static readonly uint vrevent_t_size = (uint)Unsafe.SizeOf<VREvent_t>();
-
-    internal Action? OnShutdown;
-
-    public bool HasInitialised { get; private set; }
+    public readonly OVRInput Input;
 
     public readonly OVRSystem System;
-    public readonly OVRInput Input;
     internal OVRMetadata? Metadata;
 
-    public HMD HMD => System.HMD;
-    public Controller LeftController => System.LeftController;
-    public Controller RightController => System.RightController;
-    public IEnumerable<Tracker> Trackers => System.Trackers;
+    internal Action? OnShutdown;
 
     internal OVRClient()
     {
         System = new OVRSystem();
         Input = new OVRInput(this);
     }
+
+    public bool HasInitialised { get; private set; }
+    public bool RefreshManifest { get; set; }
+
+    public HMD HMD => System.HMD;
+    public Controller LeftController => System.LeftController;
+    public Controller RightController => System.RightController;
+    public IEnumerable<Tracker> Trackers => System.Trackers;
 
     internal void SetMetadata(OVRMetadata metadata)
     {
@@ -47,11 +49,26 @@ public class OVRClient
 
         if (!OVRHelper.InitialiseOpenVR(Metadata.ApplicationType)) return;
 
-        OpenVR.Applications.AddApplicationManifest(Metadata.ApplicationManifest, false);
+        manageManifest();
+
         System.Init();
         Input.Init();
 
         HasInitialised = true;
+    }
+
+    private void manageManifest()
+    {
+        // TODO: Change this to contact OpenVR to find out the values for the manifest.
+        // If the manifest exists but the values have been updated in the app, remove and add the manifest
+        Debug.Assert(Metadata is not null);
+
+        if (!RefreshManifest) return;
+
+        OpenVR.Applications.RemoveApplicationManifest(Metadata.ApplicationManifest);
+        OpenVR.Applications.AddApplicationManifest(Metadata.ApplicationManifest, false);
+
+        RefreshManifest = false;
     }
 
     internal void Update()
@@ -84,11 +101,14 @@ public class OVRClient
         }
     }
 
-    public void TriggerLeftControllerHaptic(float durationSeconds, float frequency, float amplitude) => OVRHelper.TriggerHaptic(Input.LeftControllerHapticActionHandle, System.LeftController.Id, durationSeconds, frequency, amplitude);
-    public void TriggerRightControllerHaptic(float durationSeconds, float frequency, float amplitude) => OVRHelper.TriggerHaptic(Input.RightControllerHapticActionHandle, System.RightController.Id, durationSeconds, frequency, amplitude);
+    public void TriggerLeftControllerHaptic(float durationSeconds, float frequency, float amplitude) =>
+        OVRHelper.TriggerHaptic(Input.LeftControllerHapticActionHandle, System.LeftController.Id, durationSeconds, frequency, amplitude);
+
+    public void TriggerRightControllerHaptic(float durationSeconds, float frequency, float amplitude) =>
+        OVRHelper.TriggerHaptic(Input.RightControllerHapticActionHandle, System.RightController.Id, durationSeconds, frequency, amplitude);
 
     /// <summary>
-    /// Checks to see if the user is wearing their headset
+    ///     Checks to see if the user is wearing their headset
     /// </summary>
     public bool IsUserPresent()
     {
@@ -98,7 +118,7 @@ public class OVRClient
     }
 
     /// <summary>
-    /// Checks to see if the dashboard is visible
+    ///     Checks to see if the dashboard is visible
     /// </summary>
     public bool IsDashboardVisible()
     {
