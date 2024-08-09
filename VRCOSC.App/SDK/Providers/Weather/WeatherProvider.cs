@@ -94,9 +94,8 @@ public class WeatherProvider
 
             weather = currentResponse;
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            ExceptionHandler.Handle(e, $"{nameof(WeatherProvider)} experienced an issue");
             weather = null;
         }
 
@@ -129,9 +128,8 @@ public class WeatherProvider
             conditions = new Dictionary<int, WeatherCondition>();
             conditionResponse.ForEach(condition => conditions.Add(condition.Code, condition));
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            ExceptionHandler.Handle(e, $"{nameof(WeatherProvider)} experienced an issue");
             conditions = null;
         }
     }
