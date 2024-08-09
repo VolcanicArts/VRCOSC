@@ -48,8 +48,10 @@ public abstract class ListModuleSetting<T> : ModuleSetting, IListModuleSetting w
 
     public override bool Deserialise(object value)
     {
+        if (value is not JArray jArrayValue) return false;
+
         Attribute.Clear();
-        jArrayToEnumerable((JArray)value).ForEach(item => Attribute.Add(item));
+        jArrayToEnumerable(jArrayValue).ForEach(item => Attribute.Add(item));
         return true;
     }
 

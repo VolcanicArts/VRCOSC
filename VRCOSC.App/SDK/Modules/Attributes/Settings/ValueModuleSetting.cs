@@ -95,10 +95,19 @@ public class FloatModuleSetting : ValueModuleSetting<float>
 
     public override bool Deserialise(object ingestValue)
     {
-        if (ingestValue is not double floatIngestValue) return false;
+        if (ingestValue is double floatIngestValue)
+        {
+            Attribute.Value = (float)floatIngestValue;
+            return true;
+        }
 
-        Attribute.Value = (float)floatIngestValue;
-        return true;
+        if (ingestValue is long longIngestValue)
+        {
+            Attribute.Value = longIngestValue;
+            return true;
+        }
+
+        return false;
     }
 
     public FloatModuleSetting(string title, string description, Type viewType, float defaultValue)
