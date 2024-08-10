@@ -1,11 +1,12 @@
 ﻿<UserControl x:Class="VRCOSC.App.UI.Views.Settings.SettingsView"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
-      mc:Ignorable="d">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+             mc:Ignorable="d">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                  PanningMode="VerticalOnly">
         <Border Background="{StaticResource CBackground2}" Padding="5">
             <core:SpacedStackPanel Orientation="Vertical" Spacing="10" Visibility="Collapsed">
                 <TextBox Name="Username" Width="300" />

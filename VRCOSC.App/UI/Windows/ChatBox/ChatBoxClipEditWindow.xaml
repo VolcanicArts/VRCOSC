@@ -31,8 +31,9 @@
                 </Grid.ColumnDefinitions>
                 <!--> Module Selection <-->
                 <Border Grid.Column="0" Background="{StaticResource CBackground5}" CornerRadius="5">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
-                        <core:SpacedStackPanel Spacing="10">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                  PanningMode="VerticalOnly">
+                        <core:SpacedStackPanel Spacing="10" Margin="5">
                             <TextBlock Text="Select Modules" FontWeight="Bold" FontSize="18"
                                        Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
                             <core:SpacedListView x:Name="ModulesList" Spacing="5">
@@ -88,7 +89,8 @@
                     </Grid.RowDefinitions>
                     <!--> Clip element list <-->
                     <Border Grid.Row="0" Background="{StaticResource CBackground5}" CornerRadius="5">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                      PanningMode="VerticalOnly">
                             <core:SpacedStackPanel Orientation="Vertical" Spacing="10" Margin="10">
                                 <TextBlock Text="States" FontWeight="Bold" FontSize="30"
                                            Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
@@ -557,8 +559,9 @@
                 </Grid>
                 <!--> Variables View <-->
                 <Border Grid.Column="4" Background="{StaticResource CBackground5}" CornerRadius="5">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="5">
-                        <core:SpacedStackPanel Spacing="10" Orientation="Vertical">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                  PanningMode="VerticalOnly">
+                        <core:SpacedStackPanel Spacing="10" Orientation="Vertical" Margin="5">
                             <TextBlock Text="Available Variables" FontWeight="Bold" FontSize="18"
                                        Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
                             <core:SpacedListView ItemsSource="{Binding UIVariables}" Spacing="5">

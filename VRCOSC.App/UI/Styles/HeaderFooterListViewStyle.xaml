@@ -44,7 +44,7 @@
                                 </ContentPresenter.Visibility>
                             </ContentPresenter>
                             <ScrollViewer x:Name="ScrollViewer" Grid.Row="1" Background="{TemplateBinding Background}"
-                                          VerticalScrollBarVisibility="Auto" CanContentScroll="False">
+                                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False">
                                 <ItemsPresenter x:Name="ItemsPresenter" VerticalAlignment="Top" />
                                 <ScrollViewer.Height>
                                     <MultiBinding

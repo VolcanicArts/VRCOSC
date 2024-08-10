@@ -16,9 +16,6 @@
                 <ResourceDictionary Source="UI/Styles/TitleDescriptionContentStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Style TargetType="{x:Type core:IPPortTextBox}" BasedOn="{StaticResource {x:Type TextBox}}" />
-            <Style TargetType="{x:Type ScrollViewer}">
-                <Setter Property="PanningMode" Value="VerticalOnly" />
-            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

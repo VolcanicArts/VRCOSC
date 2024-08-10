@@ -11,7 +11,8 @@
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                          Colour2="{StaticResource CBackground4}" />
     </UserControl.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="10">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                  PanningMode="VerticalOnly" Padding="10">
         <core:SpacedStackPanel Spacing="5">
             <Border Background="{StaticResource CBackground1}" Padding="9" Height="45" CornerRadius="5">
                 <Grid>

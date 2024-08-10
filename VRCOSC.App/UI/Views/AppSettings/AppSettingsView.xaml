@@ -78,7 +78,8 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Border Grid.Column="0" Background="{StaticResource CBackground4}">
-            <ScrollViewer Padding="10" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Padding="10" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          PanningMode="VerticalOnly">
                 <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                     <RadioButton Click="GeneralTabButton_OnClick" IsChecked="True">
                         <TextBlock Text="General" />
@@ -105,7 +106,8 @@
             </ScrollViewer>
         </Border>
         <Border Grid.Column="1">
-            <ScrollViewer Padding="10" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Padding="10" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          PanningMode="VerticalOnly">
                 <Grid>
                     <Grid Name="GeneralContainer" Visibility="Collapsed">
                         <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
