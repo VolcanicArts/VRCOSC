@@ -69,8 +69,14 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
 
     public Observable(T initialValue = default(T))
     {
-        value = initialValue;
         DefaultValue = initialValue;
+        Value = initialValue;
+    }
+
+    public Observable(Observable<T> other)
+    {
+        DefaultValue = other.DefaultValue;
+        Value = other.Value;
     }
 
     public object? GetValue() => Value;
@@ -79,7 +85,7 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
     {
         if (newValue is not T castValue) throw new InvalidOperationException($"Attempted to set anonymous value of type {newValue.GetType().ToReadableName()} for type {typeof(T).ToReadableName()}");
 
-        value = castValue;
+        Value = castValue;
     }
 
     public void Subscribe(Action noValueAction, bool runOnceImmediately = false)
@@ -91,7 +97,7 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
     public void Subscribe(Action<T> action, bool runOnceImmediately = false)
     {
         actions.Add(action);
-        if (runOnceImmediately) action.Invoke(value);
+        if (runOnceImmediately) action.Invoke(Value);
     }
 
     public void Unsubscribe(Action noValueAction)
@@ -104,7 +110,7 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
         actions.Remove(action);
     }
 
-    public bool IsDefault => EqualityComparer<T>.Default.Equals(value, DefaultValue);
+    public bool IsDefault => EqualityComparer<T>.Default.Equals(Value, DefaultValue);
 
     public void SetDefault()
     {
@@ -120,7 +126,7 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
 
         foreach (var action in actions)
         {
-            action.Invoke(value);
+            action.Invoke(Value);
         }
     }
 
@@ -135,7 +141,7 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
     {
         try
         {
-            serializer.Serialize(writer, value);
+            serializer.Serialize(writer, Value);
         }
         catch (Exception e)
         {
@@ -155,22 +161,13 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
         }
     }
 
-    public object Clone()
-    {
-        var clone = (Observable<T>)Activator.CreateInstance(GetType(), args: [DefaultValue])!;
-        clone.Value = Value;
-        return clone;
-    }
+    public object Clone() => new Observable<T>(this);
 
     public bool Equals(Observable<T>? other)
     {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
 
-        return EqualityComparer<T>.Default.Equals(value, other.value) && EqualityComparer<T>.Default.Equals(DefaultValue, other.DefaultValue);
+        return EqualityComparer<T>.Default.Equals(Value, other.Value) && EqualityComparer<T>.Default.Equals(DefaultValue, other.DefaultValue);
     }
-
-    public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is Observable<T> other && Equals(other);
-
-    public override int GetHashCode() => HashCode.Combine(value, DefaultValue);
 }
