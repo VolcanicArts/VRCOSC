@@ -1,10 +1,13 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Windows.Input;
 using NAudio.CoreAudioApi;
 using PInvoke;
 
@@ -90,6 +93,90 @@ public static class EnumExtensions
     public static Array GetEnumValues(this Type enumType) => Enum.GetValues(enumType);
 
     public static Array GetValues<T>(this T @enum) where T : Enum => Enum.GetValues(@enum.GetType());
+}
+
+public static class KeyExtensions
+{
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern int ToUnicodeEx(
+        uint wVirtKey,
+        uint wScanCode,
+        byte[] lpKeyState,
+        [Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pwszBuff,
+        int cchBuff,
+        uint wFlags,
+        IntPtr dwhkl);
+
+    [DllImport("user32.dll")]
+    private static extern uint MapVirtualKey(uint uCode, uint uMapType);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetKeyboardLayout(uint idThread);
+
+    public static string ToReadableString(this Key key)
+    {
+        // Handle special cases for non-character keys
+        switch (key)
+        {
+            case Key.Tab:
+                return "Tab";
+
+            case Key.Enter:
+                return "Enter";
+
+            case Key.Escape:
+                return "Escape";
+
+            case Key.Space:
+                return "Space";
+
+            case Key.Back:
+                return "Backspace";
+
+            case Key.Insert:
+                return "Insert";
+
+            case Key.Delete:
+                return "Delete";
+
+            case Key.Home:
+                return "Home";
+
+            case Key.End:
+                return "End";
+
+            case Key.PageUp:
+                return "Page Up";
+
+            case Key.PageDown:
+                return "Page Down";
+
+            case Key.Left:
+                return "Left Arrow";
+
+            case Key.Right:
+                return "Right Arrow";
+
+            case Key.Up:
+                return "Up Arrow";
+
+            case Key.Down:
+                return "Down Arrow";
+        }
+
+        var virtualKey = (uint)KeyInterop.VirtualKeyFromKey(key);
+        var keyboardState = new byte[256];
+
+        // Only take the current key into account to stop modifiers from ruining the representation
+        keyboardState[virtualKey] = 0x80;
+
+        var scanCode = MapVirtualKey(virtualKey, 0x02);
+        var sb = new StringBuilder(10);
+        var keyboardLayout = GetKeyboardLayout(0);
+
+        var result = ToUnicodeEx(virtualKey, scanCode, keyboardState, sb, sb.Capacity, 0, keyboardLayout);
+        return result > 0 ? sb.Length == 1 ? sb.ToString().ToUpperInvariant() : sb.ToString() : key.ToString();
+    }
 }
 
 public static class TypeExtensions

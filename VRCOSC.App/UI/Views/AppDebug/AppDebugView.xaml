@@ -60,6 +60,18 @@
                             Icon="Solid_Rotate" />
                     </Grid>
                 </Border>
+                <Border Background="{StaticResource CBackground3}" Padding="8 4" Height="30">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Test Keybind Picker"
+                                   Foreground="{StaticResource CForeground1}" VerticalAlignment="Center"
+                                   FontSize="16" />
+                        <core:KeybindPicker Grid.Column="1" />
+                    </Grid>
+                </Border>
                 <Border Background="{StaticResource CBackground1}" Height="5" />
             </StackPanel>
         </Grid>
