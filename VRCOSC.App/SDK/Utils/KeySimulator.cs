@@ -67,7 +67,7 @@ public static class KeySimulator
     private const uint keyeventf_keyup = 0x0002;
     private const uint keyeventf_scancode = 0x0008;
 
-    public static async void ExecuteKeybind(Keybind keybind)
+    public static async Task ExecuteKeybind(Keybind keybind, int holdTimeMilli = 20)
     {
         var inputs = new Input[4];
         var inputIndex = 0;
@@ -105,7 +105,7 @@ public static class KeySimulator
 
         _ = SendInput((uint)inputIndex, inputs, Marshal.SizeOf(typeof(Input)));
 
-        await Task.Delay(100);
+        await Task.Delay(holdTimeMilli);
 
         inputs[inputIndex - 1].u.ki.dwFlags = keyeventf_keyup;
         _ = SendInput(1, new[] { inputs[inputIndex - 1] }, Marshal.SizeOf(typeof(Input)));
