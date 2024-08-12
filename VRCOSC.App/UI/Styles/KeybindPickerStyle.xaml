@@ -7,13 +7,18 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="core:KeybindPicker">
-                    <Border BorderBrush="{StaticResource CRed}" Background="{TemplateBinding Background}"
-                            CornerRadius="5">
+                    <Border Name="Border" BorderBrush="{TemplateBinding Background}" Background="{TemplateBinding Background}"
+                            CornerRadius="5" BorderThickness="2">
                         <TextBlock
                             Text="{TemplateBinding Keybind, Converter={StaticResource KeybindToStringConverter}}"
                             Foreground="{StaticResource CForeground1}" FontSize="{TemplateBinding FontSize}"
                             HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource CRed}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
