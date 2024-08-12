@@ -67,7 +67,7 @@ public static class KeySimulator
     private const uint keyeventf_keyup = 0x0002;
     private const uint keyeventf_scancode = 0x0008;
 
-    public static async Task ExecuteKeybind(Keybind keybind, int holdTimeMilli = 20)
+    public static async Task ExecuteKeybind(Keybind keybind, int holdTimeMilli = 50)
     {
         var inputs = new Input[4];
         var inputIndex = 0;
