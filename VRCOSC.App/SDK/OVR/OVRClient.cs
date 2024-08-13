@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -8,7 +8,6 @@ using System.Runtime.CompilerServices;
 using Valve.VR;
 using VRCOSC.App.SDK.OVR.Device;
 using VRCOSC.App.SDK.OVR.Metadata;
-using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.OVR;
 
@@ -28,7 +27,6 @@ public class OVRClient
     }
 
     public bool HasInitialised { get; private set; }
-    public bool RefreshManifest { get; set; }
     public float FPS { get; private set; }
 
     internal void SetMetadata(OVRMetadata metadata)
@@ -53,16 +51,11 @@ public class OVRClient
 
     private void manageManifest()
     {
-        // TODO: Change this to contact OpenVR to find out the values for the manifest.
-        // If the manifest exists but the values have been updated in the app, remove and add the manifest
         Debug.Assert(Metadata is not null);
 
-        if (!RefreshManifest) return;
-
-        OpenVR.Applications.RemoveApplicationManifest(Metadata.ApplicationManifest);
+        // Remove V1 manifest
+        OpenVR.Applications.RemoveApplicationManifest(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "VRCOSC", "openvr", "app.vrmanifest"));
         OpenVR.Applications.AddApplicationManifest(Metadata.ApplicationManifest, false);
-
-        RefreshManifest = false;
     }
 
     public TrackedDevice GetTrackedDevice(DeviceRole deviceRole) => OVRDeviceManager.GetTrackedDevice(deviceRole) ?? new TrackedDevice();

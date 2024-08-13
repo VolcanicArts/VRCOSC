@@ -12,7 +12,6 @@ using System.Windows.Forms;
 using System.Windows.Interop;
 using Newtonsoft.Json;
 using PInvoke;
-using Velopack.Locators;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Actions.Game;
 using VRCOSC.App.ChatBox;
@@ -166,11 +165,15 @@ public partial class MainWindow
         }
 
         var manifest = new OVRManifest();
-        manifest.Applications[0].BinaryPathWindows = VelopackLocator.GetDefault(null).IsPortable ? string.Empty : Path.Join(VelopackLocator.GetDefault(null).RootAppDir, "current", "VRCOSC.exe");
+#if DEBUG
+        manifest.Applications[0].BinaryPathWindows = Environment.ProcessPath!;
+#else
+        manifest.Applications[0].BinaryPathWindows = Path.Join(VelopackLocator.GetDefault(null).RootAppDir, "current", "VRCOSC.exe");
+#endif
         manifest.Applications[0].ActionManifestPath = runtimeOVRStorage.GetFullPath("action_manifest.json");
         manifest.Applications[0].ImagePath = runtimeOVRStorage.GetFullPath("SteamImage.png");
 
-        File.WriteAllText(Path.Combine(runtimeOVRPath, "app.vrmanifest"), JsonConvert.SerializeObject(manifest));
+        File.WriteAllText(Path.Join(runtimeOVRPath, "app.vrmanifest"), JsonConvert.SerializeObject(manifest, Formatting.Indented));
     }
 
     private static string getOriginalFileName(string fullResourceName)

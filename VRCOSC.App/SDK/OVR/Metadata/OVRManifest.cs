@@ -8,7 +8,7 @@ namespace VRCOSC.App.SDK.OVR.Metadata;
 internal class OVRManifest
 {
     [JsonProperty("source")]
-    public string Source = "volcanicarts";
+    public string Source = "builtin";
 
     [JsonProperty("applications")]
     public OVRApplication[] Applications = [new OVRApplication()];

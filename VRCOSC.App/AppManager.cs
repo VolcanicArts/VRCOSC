@@ -139,14 +139,9 @@ public class AppManager
         OVRClient.SetMetadata(new OVRMetadata
         {
             ApplicationType = EVRApplicationType.VRApplication_Background,
-            ApplicationManifest = Storage.GetFullPath("openvr/app.vrmanifest"),
-            ActionManifest = Storage.GetFullPath("openvr/action_manifest.json")
+            ApplicationManifest = Storage.GetFullPath("runtime/openvr/app.vrmanifest"),
+            ActionManifest = Storage.GetFullPath("runtime/openvr/action_manifest.json")
         });
-
-        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.FirstTimeSetupComplete))
-        {
-            OVRClient.RefreshManifest = true;
-        }
 
         OVRClient.OnShutdown += () => Application.Current.Dispatcher.Invoke(() =>
         {
