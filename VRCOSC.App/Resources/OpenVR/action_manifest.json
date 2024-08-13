@@ -6,7 +6,7 @@
 		},
 		{
 			"name": "/actions/haptic",
-			"usage": "hidden"
+			"usage": "leftright"
 		}
 	],
 	"actions": [

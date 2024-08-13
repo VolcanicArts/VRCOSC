@@ -3,8 +3,8 @@
 
 using System.Runtime.CompilerServices;
 using Valve.VR;
-using VRCOSC.App.OVR;
 using VRCOSC.App.SDK.OVR.Device;
+using VRCOSC.App.SDK.OVR.Input;
 
 namespace VRCOSC.App.SDK.OVR;
 
@@ -97,7 +97,7 @@ public class OVRInput
 
     private void updateDevices()
     {
-        var leftControllerState = ((Controller)OVRDeviceManager.GetTrackedDevice(DeviceRole.LeftHand)).Input;
+        var leftControllerState = ((Controller?)OVRDeviceManager.GetTrackedDevice(DeviceRole.LeftHand))?.Input ?? new InputStates();
 
         leftControllerState.A.Touched = OVRHelper.GetDigitalInput(leftControllerActions[0]).bState;
         leftControllerState.B.Touched = OVRHelper.GetDigitalInput(leftControllerActions[1]).bState;
@@ -108,7 +108,7 @@ public class OVRInput
         leftControllerState.RingFinger = OVRHelper.GetAnalogueInput(leftControllerActions[6]).x;
         leftControllerState.PinkyFinger = OVRHelper.GetAnalogueInput(leftControllerActions[7]).x;
 
-        var rightControllerState = ((Controller)OVRDeviceManager.GetTrackedDevice(DeviceRole.RightHand)).Input;
+        var rightControllerState = ((Controller?)OVRDeviceManager.GetTrackedDevice(DeviceRole.RightHand))?.Input ?? new InputStates();
 
         rightControllerState.A.Touched = OVRHelper.GetDigitalInput(rightControllerActions[0]).bState;
         rightControllerState.B.Touched = OVRHelper.GetDigitalInput(rightControllerActions[1]).bState;

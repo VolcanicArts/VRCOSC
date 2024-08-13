@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -6,8 +6,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Valve.VR;
-using VRCOSC.App.OVR;
+using VRCOSC.App.SDK.OVR.Device;
 using VRCOSC.App.SDK.OVR.Metadata;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.OVR;
 
@@ -44,6 +45,7 @@ public class OVRClient
 
         manageManifest();
 
+        OVRDeviceManager.Reset();
         Input.Init();
 
         HasInitialised = true;
@@ -63,6 +65,11 @@ public class OVRClient
         RefreshManifest = false;
     }
 
+    public TrackedDevice GetTrackedDevice(DeviceRole deviceRole) => OVRDeviceManager.GetTrackedDevice(deviceRole) ?? new TrackedDevice();
+    public HMD GetHMD() => (HMD)(OVRDeviceManager.GetTrackedDevice(DeviceRole.Head) ?? new HMD());
+    public Controller GetLeftController() => (Controller)(OVRDeviceManager.GetTrackedDevice(DeviceRole.LeftHand) ?? new Controller());
+    public Controller GetRightController() => (Controller)(OVRDeviceManager.GetTrackedDevice(DeviceRole.RightHand) ?? new Controller());
+
     internal void Update()
     {
         if (!HasInitialised) return;
@@ -73,6 +80,7 @@ public class OVRClient
 
         FPS = 1000.0f / OVRHelper.GetFrameTimeMilli();
 
+        OVRDeviceManager.Update();
         Input.Update();
     }
 
@@ -94,8 +102,15 @@ public class OVRClient
         }
     }
 
-    public void TriggerHaptic(DeviceRole device, float durationSeconds, float frequency, float amplitude) =>
-        OVRHelper.TriggerHaptic(Input.GetHapticActionHandle(device), OVRDeviceManager.GetTrackedDevice(device).Index, durationSeconds, frequency, amplitude);
+    public void TriggerHaptic(DeviceRole device, float durationSeconds, float frequency, float amplitude)
+    {
+        if (!HasInitialised) return;
+
+        var trackedDevice = OVRDeviceManager.GetTrackedDevice(device);
+        if (trackedDevice is null || !trackedDevice.IsConnected) return;
+
+        OVRHelper.TriggerHaptic(Input.GetHapticActionHandle(device), trackedDevice.Index, durationSeconds, frequency, amplitude);
+    }
 
     /// <summary>
     ///     Checks to see if the user is wearing their headset
@@ -104,7 +119,7 @@ public class OVRClient
     {
         if (!HasInitialised) return false;
 
-        var hmd = OVRDeviceManager.GetTrackedDevice(DeviceRole.Head);
+        var hmd = GetHMD();
         if (!hmd.IsConnected) return false;
 
         return OpenVR.System.GetTrackedDeviceActivityLevel(hmd.Index) == EDeviceActivityLevel.k_EDeviceActivityLevel_UserInteraction;

@@ -1,20 +1,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using Valve.VR;
-using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.OVR.Device;
 
-namespace VRCOSC.App.OVR;
+namespace VRCOSC.App.SDK.OVR;
 
-public static class OVRDeviceManager
+internal static class OVRDeviceManager
 {
     private static readonly Dictionary<string, DeviceRole> device_roles = new();
     private static readonly Dictionary<string, TrackedDevice> tracked_devices = new();
 
-    public static TrackedDevice GetTrackedDevice(DeviceRole role)
+    public static TrackedDevice? GetTrackedDevice(DeviceRole role)
     {
-        var trackedDevice = device_roles.Where(pair => pair.Value == role).Select(pair => tracked_devices[pair.Key]).Where(trackedDevice => trackedDevice.IsConnected).MaxBy(trackedDevice => trackedDevice.Index);
-        return trackedDevice ?? new TrackedDevice();
+        return device_roles.Where(pair => pair.Value == role).Select(pair => tracked_devices[pair.Key]).Where(trackedDevice => trackedDevice.IsConnected).MaxBy(trackedDevice => trackedDevice.Index);
     }
 
     public static void Update()
@@ -41,13 +39,14 @@ public static class OVRDeviceManager
         if (connectedHMDIndex == OpenVR.k_unTrackedDeviceIndexInvalid) return;
 
         var connectedHMDSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedHMDIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
+
         tracked_devices.TryAdd(connectedHMDSerial, new HMD
         {
             Index = connectedHMDIndex,
             SerialNumber = connectedHMDSerial
         });
 
-        device_roles.Add(connectedHMDSerial, DeviceRole.Head);
+        device_roles.TryAdd(connectedHMDSerial, DeviceRole.Head);
     }
 
     private static void auditLeftController()
@@ -60,26 +59,28 @@ public static class OVRDeviceManager
             if (connectedLeftControllerIndex == OpenVR.k_unTrackedDeviceIndexInvalid) return;
 
             var connectedLeftControllerSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedLeftControllerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
+
             tracked_devices.TryAdd(connectedLeftControllerSerial, new Controller
             {
                 Index = connectedLeftControllerIndex,
                 SerialNumber = connectedLeftControllerSerial
             });
 
-            device_roles.Add(connectedLeftControllerSerial, DeviceRole.LeftHand);
+            device_roles.TryAdd(connectedLeftControllerSerial, DeviceRole.LeftHand);
         }
         else
         {
             foreach (var connectedLeftControllerIndex in connectedLeftControllersIndexes)
             {
                 var connectedLeftControllerSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedLeftControllerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
+
                 tracked_devices.TryAdd(connectedLeftControllerSerial, new Controller
                 {
                     Index = connectedLeftControllerIndex,
                     SerialNumber = connectedLeftControllerSerial
                 });
 
-                device_roles.Add(connectedLeftControllerSerial, DeviceRole.LeftHand);
+                device_roles.TryAdd(connectedLeftControllerSerial, DeviceRole.LeftHand);
             }
         }
     }
@@ -94,26 +95,28 @@ public static class OVRDeviceManager
             if (connectedRightControllerIndex == OpenVR.k_unTrackedDeviceIndexInvalid) return;
 
             var connectedRightControllerSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedRightControllerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
+
             tracked_devices.TryAdd(connectedRightControllerSerial, new Controller
             {
                 Index = connectedRightControllerIndex,
                 SerialNumber = connectedRightControllerSerial
             });
 
-            device_roles.Add(connectedRightControllerSerial, DeviceRole.RightHand);
+            device_roles.TryAdd(connectedRightControllerSerial, DeviceRole.RightHand);
         }
         else
         {
             foreach (var connectedRightControllerIndex in connectedRightControllersIndexes)
             {
                 var connectedRightControllerSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedRightControllerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
+
                 tracked_devices.TryAdd(connectedRightControllerSerial, new Controller
                 {
                     Index = connectedRightControllerIndex,
                     SerialNumber = connectedRightControllerSerial
                 });
 
-                device_roles.Add(connectedRightControllerSerial, DeviceRole.RightHand);
+                device_roles.TryAdd(connectedRightControllerSerial, DeviceRole.RightHand);
             }
         }
     }
@@ -125,6 +128,7 @@ public static class OVRDeviceManager
         foreach (var connectedGenericDeviceIndex in connectedGenericDeviceIndexes)
         {
             var connectedGenericDeviceSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedGenericDeviceIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
+
             tracked_devices.TryAdd(connectedGenericDeviceSerial, new TrackedDevice
             {
                 Index = connectedGenericDeviceIndex,

@@ -5,24 +5,48 @@
 		"/actions/haptic": {
 			"haptics": [
 				{
-					"output": "/actions/haptic/out/hapticsleft",
+					"output": "/actions/haptic/out/lefthand",
 					"path": "/user/hand/left/output/haptic"
 				},
 				{
-					"output": "/actions/haptic/out/hapticsright",
+					"output": "/actions/haptic/out/righthand",
 					"path": "/user/hand/right/output/haptic"
-				}
-			],
-			"sources": [
-				{
-					"inputs": {},
-					"mode": "none",
-					"path": "/user/hand/left/input/b"
 				},
 				{
-					"inputs": {},
-					"mode": "none",
-					"path": "/user/hand/right/input/b"
+					"output": "/actions/haptic/out/leftfoot",
+					"path": "/user/foot/left/output/haptic"
+				},
+				{
+					"output": "/actions/haptic/out/rightfoot",
+					"path": "/user/foot/right/output/haptic"
+				},
+				{
+					"output": "/actions/haptic/out/waist",
+					"path": "/user/waist/output/haptic"
+				},
+				{
+					"output": "/actions/haptic/out/chest",
+					"path": "/user/chest/output/haptic"
+				},
+				{
+					"output": "/actions/haptic/out/leftknee",
+					"path": "/user/knee/left/output/haptic"
+				},
+				{
+					"output": "/actions/haptic/out/rightknee",
+					"path": "/user/knee/right/output/haptic"
+				},
+				{
+					"output": "/actions/haptic/out/leftelbow",
+					"path": "/user/elbow/left/output/haptic"
+				},
+				{
+					"output": "/actions/haptic/out/rightelbow",
+					"path": "/user/elbow/right/output/haptic"
+				},
+				{
+					"output": "/actions/haptic/out/head",
+					"path": "/user/head/output/haptic"
 				}
 			]
 		},
