@@ -10,9 +10,14 @@ internal static class OVRDeviceManager
     private static readonly Dictionary<string, DeviceRole> device_roles = new();
     private static readonly Dictionary<string, TrackedDevice> tracked_devices = new();
 
+    private static readonly object device_roles_lock = new();
+
     public static TrackedDevice? GetTrackedDevice(DeviceRole role)
     {
-        return device_roles.Where(pair => pair.Value == role).Select(pair => tracked_devices[pair.Key]).Where(trackedDevice => trackedDevice.IsConnected).MaxBy(trackedDevice => trackedDevice.Index);
+        lock (device_roles_lock)
+        {
+            return device_roles.Where(pair => pair.Value == role).Select(pair => tracked_devices[pair.Key]).Where(trackedDevice => trackedDevice.IsConnected).MaxBy(trackedDevice => trackedDevice.Index);
+        }
     }
 
     public static void Update()
@@ -46,7 +51,10 @@ internal static class OVRDeviceManager
             SerialNumber = connectedHMDSerial
         });
 
-        device_roles.TryAdd(connectedHMDSerial, DeviceRole.Head);
+        lock (device_roles_lock)
+        {
+            device_roles.TryAdd(connectedHMDSerial, DeviceRole.Head);
+        }
     }
 
     private static void auditLeftController()
@@ -66,7 +74,10 @@ internal static class OVRDeviceManager
                 SerialNumber = connectedLeftControllerSerial
             });
 
-            device_roles.TryAdd(connectedLeftControllerSerial, DeviceRole.LeftHand);
+            lock (device_roles_lock)
+            {
+                device_roles.TryAdd(connectedLeftControllerSerial, DeviceRole.LeftHand);
+            }
         }
         else
         {
@@ -80,7 +91,10 @@ internal static class OVRDeviceManager
                     SerialNumber = connectedLeftControllerSerial
                 });
 
-                device_roles.TryAdd(connectedLeftControllerSerial, DeviceRole.LeftHand);
+                lock (device_roles_lock)
+                {
+                    device_roles.TryAdd(connectedLeftControllerSerial, DeviceRole.LeftHand);
+                }
             }
         }
     }
@@ -102,7 +116,10 @@ internal static class OVRDeviceManager
                 SerialNumber = connectedRightControllerSerial
             });
 
-            device_roles.TryAdd(connectedRightControllerSerial, DeviceRole.RightHand);
+            lock (device_roles_lock)
+            {
+                device_roles.TryAdd(connectedRightControllerSerial, DeviceRole.RightHand);
+            }
         }
         else
         {
@@ -116,7 +133,10 @@ internal static class OVRDeviceManager
                     SerialNumber = connectedRightControllerSerial
                 });
 
-                device_roles.TryAdd(connectedRightControllerSerial, DeviceRole.RightHand);
+                lock (device_roles_lock)
+                {
+                    device_roles.TryAdd(connectedRightControllerSerial, DeviceRole.RightHand);
+                }
             }
         }
     }
