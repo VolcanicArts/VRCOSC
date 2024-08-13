@@ -3,6 +3,8 @@
 
 using System.Runtime.CompilerServices;
 using Valve.VR;
+using VRCOSC.App.OVR;
+using VRCOSC.App.SDK.OVR.Device;
 
 namespace VRCOSC.App.SDK.OVR;
 
@@ -16,10 +18,7 @@ public class OVRInput
     private ulong hapticActionSetHandle;
     private readonly ulong[] leftControllerActions = new ulong[8];
     private readonly ulong[] rightControllerActions = new ulong[8];
-    private readonly ulong[] hapticActions = new ulong[2];
-
-    internal ulong LeftControllerHapticActionHandle => hapticActions[0];
-    internal ulong RightControllerHapticActionHandle => hapticActions[1];
+    private readonly ulong[] hapticActions = new ulong[11];
 
     internal OVRInput(OVRClient client)
     {
@@ -31,6 +30,8 @@ public class OVRInput
         OpenVR.Input.SetActionManifestPath(client.Metadata!.ActionManifest);
         getActionHandles();
     }
+
+    public ulong GetHapticActionHandle(DeviceRole device) => hapticActions[(int)device];
 
     private void getActionHandles()
     {
@@ -52,8 +53,17 @@ public class OVRInput
         OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerring", ref rightControllerActions[6]);
         OpenVR.Input.GetActionHandle("/actions/main/in/rightfingerpinky", ref rightControllerActions[7]);
 
-        OpenVR.Input.GetActionHandle("/actions/haptic/out/hapticsleft", ref hapticActions[0]);
-        OpenVR.Input.GetActionHandle("/actions/haptic/out/hapticsright", ref hapticActions[1]);
+        OpenVR.Input.GetActionHandle("/actions/haptic/out/head", ref hapticActions[0]);
+        OpenVR.Input.GetActionHandle("/actions/haptic/out/chest", ref hapticActions[1]);
+        OpenVR.Input.GetActionHandle("/actions/haptic/out/waist", ref hapticActions[2]);
+        OpenVR.Input.GetActionHandle("/actions/haptic/out/lefthand", ref hapticActions[3]);
+        OpenVR.Input.GetActionHandle("/actions/haptic/out/righthand", ref hapticActions[4]);
+        OpenVR.Input.GetActionHandle("/actions/haptic/out/leftelbow", ref hapticActions[5]);
+        OpenVR.Input.GetActionHandle("/actions/haptic/out/rightelbow", ref hapticActions[6]);
+        OpenVR.Input.GetActionHandle("/actions/haptic/out/leftfoot", ref hapticActions[7]);
+        OpenVR.Input.GetActionHandle("/actions/haptic/out/rightfood", ref hapticActions[8]);
+        OpenVR.Input.GetActionHandle("/actions/haptic/out/leftknee", ref hapticActions[9]);
+        OpenVR.Input.GetActionHandle("/actions/haptic/out/rightknee", ref hapticActions[10]);
 
         OpenVR.Input.GetActionSetHandle("/actions/main", ref mainActionSetHandle);
         OpenVR.Input.GetActionSetHandle("/actions/haptic", ref hapticActionSetHandle);
@@ -87,7 +97,7 @@ public class OVRInput
 
     private void updateDevices()
     {
-        var leftControllerState = client.LeftController.Input;
+        var leftControllerState = ((Controller)OVRDeviceManager.GetTrackedDevice(DeviceRole.LeftHand)).Input;
 
         leftControllerState.A.Touched = OVRHelper.GetDigitalInput(leftControllerActions[0]).bState;
         leftControllerState.B.Touched = OVRHelper.GetDigitalInput(leftControllerActions[1]).bState;
@@ -98,7 +108,7 @@ public class OVRInput
         leftControllerState.RingFinger = OVRHelper.GetAnalogueInput(leftControllerActions[6]).x;
         leftControllerState.PinkyFinger = OVRHelper.GetAnalogueInput(leftControllerActions[7]).x;
 
-        var rightControllerState = client.RightController.Input;
+        var rightControllerState = ((Controller)OVRDeviceManager.GetTrackedDevice(DeviceRole.RightHand)).Input;
 
         rightControllerState.A.Touched = OVRHelper.GetDigitalInput(rightControllerActions[0]).bState;
         rightControllerState.B.Touched = OVRHelper.GetDigitalInput(rightControllerActions[1]).bState;

@@ -58,34 +58,9 @@ internal static class OVRHelper
         return data;
     }
 
-    internal static uint GetLeftControllerId()
-    {
-        var id = getControllerIdFromHint("left");
-        return id != OpenVR.k_unTrackedDeviceIndexInvalid ? id : OpenVR.System.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.LeftHand);
-    }
-
-    internal static uint GetRightControllerId()
-    {
-        var id = getControllerIdFromHint("right");
-        return id != OpenVR.k_unTrackedDeviceIndexInvalid ? id : OpenVR.System.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.RightHand);
-    }
-
     // GetTrackedDeviceIndexForControllerRole doesn't work when a tracker thinks it's a controller and assumes that role
     // We can forcibly find the correct indexes by using the model name
-    private static uint getControllerIdFromHint(string controllerHint)
-    {
-        var controllerIds = getAllControllersFromHint(controllerHint).ToList();
-
-        if (controllerIds.Count == 0) return OpenVR.k_unTrackedDeviceIndexInvalid;
-
-        // prioritise the latest connected controller
-        var connectedId = controllerIds.Where(index => OpenVR.System.IsTrackedDeviceConnected(index))
-                                       .LastOrDefault(OpenVR.k_unTrackedDeviceIndexInvalid);
-
-        return connectedId != OpenVR.k_unTrackedDeviceIndexInvalid ? connectedId : controllerIds.Last();
-    }
-
-    private static IEnumerable<uint> getAllControllersFromHint(string controllerHint)
+    public static IEnumerable<uint> GetAllControllersFromHint(string controllerHint)
     {
         return GetIndexesForTrackedDeviceClass(ETrackedDeviceClass.Controller)
             .Where(index => GetStringTrackedDeviceProperty(index, ETrackedDeviceProperty.Prop_RenderModelName_String).Contains(controllerHint, StringComparison.InvariantCultureIgnoreCase));

@@ -5,7 +5,7 @@ using VRCOSC.App.SDK.OVR.Input;
 
 namespace VRCOSC.App.SDK.OVR.Device;
 
-public class Controller : OVRDevice
+public class Controller : TrackedDevice
 {
-    public readonly InputStates Input = new();
+    public InputStates Input { get; } = new();
 }

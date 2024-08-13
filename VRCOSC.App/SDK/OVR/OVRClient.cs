@@ -2,12 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Valve.VR;
-using VRCOSC.App.SDK.OVR.Device;
+using VRCOSC.App.OVR;
 using VRCOSC.App.SDK.OVR.Metadata;
 
 namespace VRCOSC.App.SDK.OVR;
@@ -18,24 +17,18 @@ public class OVRClient
     private static readonly uint vrevent_t_size = (uint)Unsafe.SizeOf<VREvent_t>();
     public readonly OVRInput Input;
 
-    public readonly OVRSystem System;
     internal OVRMetadata? Metadata;
 
     internal Action? OnShutdown;
 
     internal OVRClient()
     {
-        System = new OVRSystem();
         Input = new OVRInput(this);
     }
 
     public bool HasInitialised { get; private set; }
     public bool RefreshManifest { get; set; }
-
-    public HMD HMD => System.HMD;
-    public Controller LeftController => System.LeftController;
-    public Controller RightController => System.RightController;
-    public IEnumerable<Tracker> Trackers => System.Trackers;
+    public float FPS { get; private set; }
 
     internal void SetMetadata(OVRMetadata metadata)
     {
@@ -51,7 +44,6 @@ public class OVRClient
 
         manageManifest();
 
-        System.Init();
         Input.Init();
 
         HasInitialised = true;
@@ -79,7 +71,8 @@ public class OVRClient
 
         if (!HasInitialised) return;
 
-        System.Update();
+        FPS = 1000.0f / OVRHelper.GetFrameTimeMilli();
+
         Input.Update();
     }
 
@@ -101,20 +94,20 @@ public class OVRClient
         }
     }
 
-    public void TriggerLeftControllerHaptic(float durationSeconds, float frequency, float amplitude) =>
-        OVRHelper.TriggerHaptic(Input.LeftControllerHapticActionHandle, System.LeftController.Id, durationSeconds, frequency, amplitude);
-
-    public void TriggerRightControllerHaptic(float durationSeconds, float frequency, float amplitude) =>
-        OVRHelper.TriggerHaptic(Input.RightControllerHapticActionHandle, System.RightController.Id, durationSeconds, frequency, amplitude);
+    public void TriggerHaptic(DeviceRole device, float durationSeconds, float frequency, float amplitude) =>
+        OVRHelper.TriggerHaptic(Input.GetHapticActionHandle(device), OVRDeviceManager.GetTrackedDevice(device).Index, durationSeconds, frequency, amplitude);
 
     /// <summary>
     ///     Checks to see if the user is wearing their headset
     /// </summary>
     public bool IsUserPresent()
     {
-        if (!HasInitialised || !HMD.IsConnected) return false;
+        if (!HasInitialised) return false;
 
-        return OpenVR.System.GetTrackedDeviceActivityLevel(HMD.Id) == EDeviceActivityLevel.k_EDeviceActivityLevel_UserInteraction;
+        var hmd = OVRDeviceManager.GetTrackedDevice(DeviceRole.Head);
+        if (!hmd.IsConnected) return false;
+
+        return OpenVR.System.GetTrackedDeviceActivityLevel(hmd.Index) == EDeviceActivityLevel.k_EDeviceActivityLevel_UserInteraction;
     }
 
     /// <summary>

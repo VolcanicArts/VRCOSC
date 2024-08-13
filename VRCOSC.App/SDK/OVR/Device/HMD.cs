@@ -3,6 +3,6 @@
 
 namespace VRCOSC.App.SDK.OVR.Device;
 
-public class HMD : OVRDevice
+public class HMD : TrackedDevice
 {
 }

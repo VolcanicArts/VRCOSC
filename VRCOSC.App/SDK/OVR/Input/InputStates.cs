@@ -5,8 +5,8 @@ namespace VRCOSC.App.SDK.OVR.Input;
 
 public class InputStates
 {
-    public readonly Button A = new();
-    public readonly Button B = new();
+    public Button A { get; } = new();
+    public Button B { get; } = new();
 
     public bool StickTouched { get; internal set; }
     public bool PadTouched { get; internal set; }

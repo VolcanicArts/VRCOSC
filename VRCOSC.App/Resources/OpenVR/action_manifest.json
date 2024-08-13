@@ -91,11 +91,47 @@
 			"type": "vector1"
 		},
 		{
-			"name": "/actions/haptic/out/hapticsleft",
+			"name": "/actions/haptic/out/lefthand",
 			"type": "vibration"
 		},
 		{
-			"name": "/actions/haptic/out/hapticsright",
+			"name": "/actions/haptic/out/righthand",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/leftfoot",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/rightfoot",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/waist",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/chest",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/leftknee",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/rightknee",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/leftelbow",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/rightelbow",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/head",
 			"type": "vibration"
 		}
 	],
