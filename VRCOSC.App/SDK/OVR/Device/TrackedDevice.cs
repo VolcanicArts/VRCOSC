@@ -40,8 +40,8 @@ public class TrackedDevice
     internal void Update()
     {
         IsConnected = OpenVR.System.IsTrackedDeviceConnected(Index);
-        ProvidesBatteryStatus = OVRHelper.GetBoolTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
-        IsCharging = OVRHelper.GetBoolTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
-        BatteryPercentage = OVRHelper.GetFloatTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float);
+        ProvidesBatteryStatus = IsConnected && OVRHelper.GetBoolTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
+        IsCharging = IsConnected && OVRHelper.GetBoolTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
+        BatteryPercentage = IsConnected ? OVRHelper.GetFloatTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float) : 0f;
     }
 }
