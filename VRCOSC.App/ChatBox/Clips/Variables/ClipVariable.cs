@@ -85,6 +85,8 @@ public abstract class ClipVariable
     {
         currentIndex = 0;
         bounceDirection = true;
+        previousScrollDirection = ScrollDirection;
+        previousOnlyScrollWhenTruncated = OnlyScrollWhenTruncated;
     }
 
     public virtual ClipVariable Clone()
@@ -127,6 +129,8 @@ public abstract class ClipVariable
 
     private int currentIndex;
     private bool bounceDirection;
+    private ClipVariableScrollDirection previousScrollDirection;
+    private bool previousOnlyScrollWhenTruncated;
 
     public virtual bool IsDefault() => CaseMode == ClipVariableCaseMode.Default &&
                                        TruncateLength == -1 &&
@@ -140,11 +144,24 @@ public abstract class ClipVariable
 
     public string GetFormattedValue()
     {
+        if (previousScrollDirection != ClipVariableScrollDirection.Bounce && ScrollDirection == ClipVariableScrollDirection.Bounce)
+            currentIndex = 0;
+
+        previousScrollDirection = ScrollDirection;
+
+        if (OnlyScrollWhenTruncated != previousOnlyScrollWhenTruncated)
+        {
+            currentIndex = 0;
+            previousOnlyScrollWhenTruncated = OnlyScrollWhenTruncated;
+        }
+
         var variableValue = ChatBoxManager.GetInstance().GetVariable(ModuleID, VariableID)!.Value.Value;
         var formattedValue = variableValue is not null ? Format(variableValue) : string.Empty;
         if (string.IsNullOrEmpty(formattedValue)) return string.Empty;
 
-        var willTruncate = TruncateLength >= 0 && formattedValue.Length > TruncateLength;
+        var formattedValueInfo = new StringInfo(formattedValue);
+
+        var willTruncate = TruncateLength >= 0 && formattedValueInfo.LengthInTextElements > TruncateLength;
         var willScroll = (!OnlyScrollWhenTruncated || willTruncate) && ScrollSpeed > 0;
         var addEllipses = IncludeEllipses && !willScroll && willTruncate;
 
@@ -159,30 +176,15 @@ public abstract class ClipVariable
             if (charsLeft == 0)
                 bounceDirection = !bounceDirection;
 
-            if (charsLeft < 0)
-            {
-                currentIndex = 0;
-                charsLeft = ScrollSpeed;
-            }
-
             var localScrollSpeed = ScrollSpeed;
             localScrollSpeed = charsLeft != 0 ? Math.Min(localScrollSpeed, charsLeft) : localScrollSpeed;
 
+            formattedValue = stringInfo.SubstringByTextElements(currentIndex, TruncateLength);
             currentIndex += bounceDirection ? localScrollSpeed : -localScrollSpeed;
-
-            try
-            {
-                formattedValue = formattedValue[currentIndex..(currentIndex + TruncateLength)];
-            }
-            catch
-            {
-                currentIndex = 0;
-                formattedValue = formattedValue[currentIndex..(currentIndex + TruncateLength)];
-            }
         }
         else
         {
-            if (willScroll)
+            if (willScroll && ScrollDirection != ClipVariableScrollDirection.Bounce)
             {
                 if (!string.IsNullOrEmpty(JoinString)) formattedValue += JoinString;
 
@@ -201,13 +203,10 @@ public abstract class ClipVariable
             var localTruncateLength = TruncateLength;
 
             if (addEllipses && stringInfo.LengthInTextElements > 3)
-            {
-                localTruncateLength -= 3;
-                formattedValue += "...";
-            }
+                formattedValue = $"{stringInfo.SubstringByTextElements(0, localTruncateLength - 3)}...";
 
             var localStringInfo = new StringInfo(formattedValue);
-            var position = currentIndex.Modulo(stringInfo.LengthInTextElements);
+            var position = currentIndex.Modulo(localStringInfo.LengthInTextElements);
             formattedValue = cropAndWrapText(localStringInfo, position, localTruncateLength < 0 ? localStringInfo.LengthInTextElements : localTruncateLength);
         }
 
@@ -226,7 +225,8 @@ public abstract class ClipVariable
     {
         var endPos = Math.Min(position + maxLength, text.LengthInTextElements);
         var subText = text.SubstringByTextElements(position, endPos - position);
-        return endPos != text.LengthInTextElements ? subText : subText + text.SubstringByTextElements(0, Math.Min(maxLength - subText.Length, position));
+        var subTextInfo = new StringInfo(subText);
+        return endPos != text.LengthInTextElements ? subText : subText + text.SubstringByTextElements(0, Math.Min(maxLength - subTextInfo.LengthInTextElements, position));
     }
 
     protected abstract string Format(object value);
