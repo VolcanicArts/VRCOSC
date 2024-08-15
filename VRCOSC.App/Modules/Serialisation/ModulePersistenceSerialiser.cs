@@ -28,7 +28,20 @@ public class ModulePersistenceSerialiser : ProfiledSerialiser<Module, Serialisab
             {
                 if (!Reference.TryGetPersistentProperty(propertyData.Key, out var propertyInfo)) return;
 
-                propertyInfo.SetValue(Reference, ((JToken?)propertyData.Value)?.ToObject(propertyInfo.PropertyType));
+                switch (propertyData.Value)
+                {
+                    case JToken token:
+                        propertyInfo.SetValue(Reference, token.ToObject(propertyInfo.PropertyType));
+                        break;
+
+                    case null:
+                        propertyInfo.SetValue(Reference, null);
+                        break;
+
+                    default:
+                        propertyInfo.SetValue(Reference, Convert.ChangeType(propertyData.Value, propertyInfo.PropertyType));
+                        break;
+                }
             }
             catch (Exception)
             {

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
@@ -67,7 +66,20 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 
                         try
                         {
-                            propertyInfo.SetValue(clipVariable, ((JToken?)pair.Value)?.ToObject(propertyInfo.PropertyType));
+                            switch (pair.Value)
+                            {
+                                case JToken token:
+                                    propertyInfo.SetValue(clipVariable, token.ToObject(propertyInfo.PropertyType));
+                                    break;
+
+                                case null:
+                                    propertyInfo.SetValue(clipVariable, null);
+                                    break;
+
+                                default:
+                                    propertyInfo.SetValue(clipVariable, Convert.ChangeType(pair.Value, propertyInfo.PropertyType));
+                                    break;
+                            }
                         }
                         catch (Exception)
                         {
@@ -108,7 +120,20 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 
                         try
                         {
-                            propertyInfo.SetValue(clipVariable, ((JToken?)pair.Value)?.ToObject(propertyInfo.PropertyType));
+                            switch (pair.Value)
+                            {
+                                case JToken token:
+                                    propertyInfo.SetValue(clipVariable, token.ToObject(propertyInfo.PropertyType));
+                                    break;
+
+                                case null:
+                                    propertyInfo.SetValue(clipVariable, null);
+                                    break;
+
+                                default:
+                                    propertyInfo.SetValue(clipVariable, Convert.ChangeType(pair.Value, propertyInfo.PropertyType));
+                                    break;
+                            }
                         }
                         catch (Exception)
                         {
