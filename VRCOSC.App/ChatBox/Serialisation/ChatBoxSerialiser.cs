@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Serialisation;
@@ -65,29 +67,11 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 
                         try
                         {
-                            object value;
-
-                            if (propertyInfo.PropertyType.IsEnum)
-                            {
-                                try
-                                {
-                                    value = Enum.ToObject(propertyInfo.PropertyType, pair.Value!);
-                                }
-                                catch (Exception)
-                                {
-                                    value = Enum.ToObject(propertyInfo.PropertyType, 0);
-                                }
-                            }
-                            else
-                            {
-                                value = Convert.ChangeType(pair.Value, propertyInfo.PropertyType)!;
-                            }
-
-                            propertyInfo.SetValue(clipVariable, value);
+                            propertyInfo.SetValue(clipVariable, ((JToken?)pair.Value)?.ToObject(propertyInfo.PropertyType));
                         }
                         catch (Exception)
                         {
-                            // if we can't convert the type, just set it to default
+                            // corrupt
                         }
                     }
 
@@ -124,29 +108,11 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
 
                         try
                         {
-                            object value;
-
-                            if (propertyInfo.PropertyType.IsEnum)
-                            {
-                                try
-                                {
-                                    value = Enum.ToObject(propertyInfo.PropertyType, pair.Value!);
-                                }
-                                catch (Exception)
-                                {
-                                    value = Enum.ToObject(propertyInfo.PropertyType, 0);
-                                }
-                            }
-                            else
-                            {
-                                value = Convert.ChangeType(pair.Value, propertyInfo.PropertyType)!;
-                            }
-
-                            propertyInfo.SetValue(clipVariable, value);
+                            propertyInfo.SetValue(clipVariable, ((JToken?)pair.Value)?.ToObject(propertyInfo.PropertyType));
                         }
                         catch (Exception)
                         {
-                            // if we can't convert the type, just set it to default
+                            // corrupt
                         }
                     }
 
@@ -160,7 +126,7 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
         return false;
     }
 
-    private Dictionary<ClipVariableOptionAttribute, PropertyInfo> getVariableOptionAttributes(Type? type)
+    private static Dictionary<ClipVariableOptionAttribute, PropertyInfo> getVariableOptionAttributes(Type? type)
     {
         var options = new Dictionary<ClipVariableOptionAttribute, PropertyInfo>();
 

@@ -3,7 +3,7 @@
 
 using System;
 using System.IO;
-using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -28,13 +28,11 @@ public class ModulePersistenceSerialiser : ProfiledSerialiser<Module, Serialisab
             {
                 if (!Reference.TryGetPersistentProperty(propertyData.Key, out var propertyInfo)) return;
 
-                var targetType = propertyInfo.PropertyType;
-                var propertyValue = JsonConvert.DeserializeObject(propertyData.Value.ToString(), targetType);
-                propertyInfo.SetValue(Reference, propertyValue);
+                propertyInfo.SetValue(Reference, ((JToken?)propertyData.Value)?.ToObject(propertyInfo.PropertyType));
             }
             catch (Exception)
             {
-                // probably fine to ignore since it's corrupted anyway
+                // corrupt
             }
         });
 

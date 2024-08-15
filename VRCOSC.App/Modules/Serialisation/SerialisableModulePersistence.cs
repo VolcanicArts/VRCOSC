@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Utils;
 
@@ -28,13 +27,12 @@ public class SerialisableModulePersistence
 
         reference.PersistentProperties.ForEach(pair =>
         {
-            var propertyValue = JsonConvert.SerializeObject(pair.Value.GetValue(reference));
             var propertyKey = pair.Key.SerialisedName;
 
             var serialisablePersistentProperty = new SerialisablePersistentProperty
             {
                 Key = propertyKey,
-                Value = new JRaw(propertyValue)
+                Value = pair.Value.GetValue(reference)
             };
 
             Properties.Add(serialisablePersistentProperty);
@@ -47,6 +45,6 @@ public class SerialisableModulePersistence
         public string Key = null!;
 
         [JsonProperty("value")]
-        public JRaw Value = null!;
+        public object? Value;
     }
 }
