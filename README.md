@@ -16,6 +16,22 @@ A modular OSC program creator and toolkit made for [VRChat](https://vrchat.com) 
 
 </div>
 
+## V2
+V2 is a rewrite of the app currently in beta. It'll be released when it's ready, but is a huge advancement over the current version.
+
+Featuring:
+- Module packages: Release a module on GitHub and have it appear in the app for anyone to download
+- Profiles: For those that want different modules per avatar, profiles can automatically change how the modules behave based on which avatar you're wearing
+- Better performance: With virtually 0 CPU usage and no GPU usage, it can quietly run in the background while you're in VR with no performance hit
+- Module generalisation: Have a prefab you've wanted to connect to VROSC? Now you can. All the parameters are generic and customisable
+- More module features: All the modules have been upgraded with more customisability, and more have been added
+- ChatBox V4: An improved animation system with truly limitless customisation
+- Improved SDK: For those that want to make and distribute modules with our framework, it's easier than ever
+
+If you're interested in beta testing the app, grab the V2 Beta role in the [Discord Server](https://discord.gg/vj4brHyvT5). Any and all feedback is welcomed!
+
+## About
+
 VRCOSC is intended to act as a wrapper around VRChat's OSC system to make creating OSC programs easier, provide interfaces for other APIs and frameworks that might be useful to an OSC project, and act as a centralised source for useful OSC programs so that a user will only need to download a single application. Our framework supports developing your own modules to save you the trouble of having to setup everything yourself, as well as allowing other people to seamlessly use your module on their PC. Check out how to create a module [here](https://github.com/VolcanicArts/VRCOSC/wiki/Module-Creation).
 
 VRCOSC's powerful ChatBox design system allows you to display what you want, when you want, how you want. Check out the ChatBox-Config forum channel of our [Discord Server](https://discord.gg/vj4brHyvT5) to see some of the configs people have created!
