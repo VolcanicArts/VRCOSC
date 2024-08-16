@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -15,18 +15,28 @@ public abstract class ValueModuleSetting<T> : ModuleSetting
 
     protected readonly T DefaultValue;
 
-    protected abstract Observable<T> CreateObservable();
-
     public override void PreDeserialise()
     {
-        Attribute = CreateObservable();
+        Attribute = new Observable<T>(DefaultValue);
         Attribute.Subscribe(_ => OnSettingChange?.Invoke());
     }
 
     public override bool IsDefault() => Attribute.IsDefault;
     public override void SetDefault() => Attribute.SetDefault();
+    public override object? GetRawValue() => Attribute.Value;
 
-    public override object GetRawValue() => Attribute.Value!;
+    public override bool Deserialise(object ingestValue)
+    {
+        try
+        {
+            Attribute.Value = (T)Convert.ChangeType(ingestValue, typeof(T));
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
 
     protected ValueModuleSetting(string title, string description, Type viewType, T defaultValue)
         : base(title, description, viewType)
@@ -37,16 +47,6 @@ public abstract class ValueModuleSetting<T> : ModuleSetting
 
 public class BoolModuleSetting : ValueModuleSetting<bool>
 {
-    protected override Observable<bool> CreateObservable() => new(DefaultValue);
-
-    public override bool Deserialise(object ingestValue)
-    {
-        if (ingestValue is not bool boolIngestValue) return false;
-
-        Attribute.Value = boolIngestValue;
-        return true;
-    }
-
     public BoolModuleSetting(string title, string description, Type viewType, bool defaultValue)
         : base(title, description, viewType, defaultValue)
     {
@@ -55,16 +55,6 @@ public class BoolModuleSetting : ValueModuleSetting<bool>
 
 public class StringModuleSetting : ValueModuleSetting<string>
 {
-    protected override Observable<string> CreateObservable() => new(DefaultValue);
-
-    public override bool Deserialise(object ingestValue)
-    {
-        if (ingestValue is not string stringIngestValue) return false;
-
-        Attribute.Value = stringIngestValue;
-        return true;
-    }
-
     public StringModuleSetting(string title, string description, Type viewType, string defaultValue)
         : base(title, description, viewType, defaultValue)
     {
@@ -73,16 +63,6 @@ public class StringModuleSetting : ValueModuleSetting<string>
 
 public class IntModuleSetting : ValueModuleSetting<int>
 {
-    protected override Observable<int> CreateObservable() => new(DefaultValue);
-
-    public override bool Deserialise(object ingestValue)
-    {
-        if (ingestValue is not long intIngestValue) return false;
-
-        Attribute.Value = (int)intIngestValue;
-        return true;
-    }
-
     public IntModuleSetting(string title, string description, Type viewType, int defaultValue)
         : base(title, description, viewType, defaultValue)
     {
@@ -91,25 +71,6 @@ public class IntModuleSetting : ValueModuleSetting<int>
 
 public class FloatModuleSetting : ValueModuleSetting<float>
 {
-    protected override Observable<float> CreateObservable() => new(DefaultValue);
-
-    public override bool Deserialise(object ingestValue)
-    {
-        if (ingestValue is double floatIngestValue)
-        {
-            Attribute.Value = (float)floatIngestValue;
-            return true;
-        }
-
-        if (ingestValue is long longIngestValue)
-        {
-            Attribute.Value = longIngestValue;
-            return true;
-        }
-
-        return false;
-    }
-
     public FloatModuleSetting(string title, string description, Type viewType, float defaultValue)
         : base(title, description, viewType, defaultValue)
     {
@@ -118,28 +79,6 @@ public class FloatModuleSetting : ValueModuleSetting<float>
 
 public class EnumModuleSetting : ValueModuleSetting<int>
 {
-    protected override Observable<int> CreateObservable() => new(DefaultValue);
-
-    public override bool Deserialise(object ingestValue)
-    {
-        if (ingestValue is not long intIngestValue) return false;
-
-        Attribute.Value = (int)intIngestValue;
-        return true;
-    }
-
-    public override bool GetValue<TValueType>(out TValueType? outValue) where TValueType : default
-    {
-        if (typeof(TValueType) == EnumType)
-        {
-            outValue = (TValueType)Enum.Parse(EnumType, Attribute.Value.ToString());
-            return true;
-        }
-
-        outValue = default;
-        return false;
-    }
-
     public Type EnumType { get; }
 
     public EnumModuleSetting(string title, string description, Type viewType, int defaultValue, Type enumType)
@@ -147,29 +86,57 @@ public class EnumModuleSetting : ValueModuleSetting<int>
     {
         EnumType = enumType;
     }
+
+    public override bool GetValue<TValueType>(out TValueType? outValue) where TValueType : default
+    {
+        if (typeof(TValueType) == EnumType)
+        {
+            outValue = (TValueType)Enum.ToObject(EnumType, Attribute.Value);
+            return true;
+        }
+
+        outValue = default;
+        return false;
+    }
 }
 
 public class SliderModuleSetting : ValueModuleSetting<float>
 {
-    public Type ValueType;
-
+    public Type ValueType { get; }
     public float MinValue { get; }
     public float MaxValue { get; }
     public float TickFrequency { get; }
 
-    protected override Observable<float> CreateObservable() => new(DefaultValue);
+    public SliderModuleSetting(string title, string description, Type viewType, float defaultValue, float minValue, float maxValue, float tickFrequency)
+        : base(title, description, viewType, defaultValue)
+    {
+        ValueType = typeof(float);
+
+        MinValue = minValue;
+        MaxValue = maxValue;
+        TickFrequency = tickFrequency;
+    }
+
+    public SliderModuleSetting(string title, string description, Type viewType, int defaultValue, int minValue, int maxValue, int tickFrequency)
+        : base(title, description, viewType, defaultValue)
+    {
+        ValueType = typeof(int);
+
+        MinValue = minValue;
+        MaxValue = maxValue;
+        TickFrequency = tickFrequency;
+    }
 
     public override bool Deserialise(object ingestValue)
     {
-        if (ingestValue is not double floatIngestValue) return false;
-
-        Attribute.Value = Math.Clamp((float)floatIngestValue, MinValue, MaxValue);
-        return true;
+        var result = base.Deserialise(ingestValue);
+        Attribute.Value = Math.Clamp(Attribute.Value, MinValue, MaxValue);
+        return result;
     }
 
     public override bool GetValue<TValueType>(out TValueType? outValue) where TValueType : default
     {
-        var value = (float)GetRawValue();
+        var value = (float)GetRawValue()!;
 
         if (typeof(TValueType) == typeof(float))
         {
@@ -235,6 +202,4 @@ public class DateTimeModuleSetting : ValueModuleSetting<DateTimeOffset>
 
         return true;
     }
-
-    protected override Observable<DateTimeOffset> CreateObservable() => new(DefaultValue);
 }

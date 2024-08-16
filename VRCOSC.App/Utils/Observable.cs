@@ -13,8 +13,9 @@ namespace VRCOSC.App.Utils;
 
 public interface IObservable
 {
+    public Type GetValueType();
     public object? GetValue();
-    public void SetValue(object value);
+    public void SetValue(object? value);
     public void Subscribe(Action noValueAction, bool runOnceImmediately = false);
 }
 
@@ -79,9 +80,11 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
         Value = other.Value;
     }
 
+    public Type GetValueType() => typeof(T);
+
     public object? GetValue() => Value;
 
-    public void SetValue(object newValue)
+    public void SetValue(object? newValue)
     {
         if (newValue is not T castValue) throw new InvalidOperationException($"Attempted to set anonymous value of type {newValue.GetType().ToReadableName()} for type {typeof(T).ToReadableName()}");
 
@@ -168,6 +171,8 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
 
-        return EqualityComparer<T>.Default.Equals(Value, other.Value) && EqualityComparer<T>.Default.Equals(DefaultValue, other.DefaultValue);
+        return EqualityComparer<T>.Default.Equals(Value, other.Value);
     }
+
+    public override bool Equals(object? obj) => obj is Observable<T> observable && Equals(observable);
 }

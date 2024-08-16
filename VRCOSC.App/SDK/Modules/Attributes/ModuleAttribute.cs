@@ -6,7 +6,6 @@ namespace VRCOSC.App.SDK.Modules.Attributes;
 public abstract class ModuleAttribute
 {
     public virtual string Title { get; }
-
     public virtual string Description { get; }
 
     /// <summary>
@@ -63,12 +62,12 @@ public abstract class ModuleAttribute
     /// <summary>
     /// Retrieves the unknown raw typed value for this <see cref="ModuleAttribute"/>.
     /// </summary>
-    public abstract object GetRawValue();
+    public abstract object? GetRawValue();
 
     /// <summary>
     /// Retrieves the unknown serialisable value for this <see cref="ModuleAttribute"/>
     /// </summary>
-    public abstract object GetSerialisableValue();
+    public virtual object? GetSerialisableValue() => GetRawValue();
 
     protected ModuleAttribute(string title, string description)
     {

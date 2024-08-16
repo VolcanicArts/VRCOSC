@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -21,9 +21,10 @@ public interface IListModuleSetting
 public abstract class ListModuleSetting<T> : ModuleSetting, IListModuleSetting where T : ICloneable, IEquatable<T>, new()
 {
     public ObservableCollection<T> Attribute { get; private set; } = null!;
-    protected readonly IEnumerable<T> DefaultValues;
+    protected IEnumerable<T> DefaultValues { get; }
 
     public override object GetRawValue() => Attribute.ToList();
+    public override bool IsDefault() => Attribute.SequenceEqual(DefaultValues);
 
     public override void PreDeserialise()
     {
@@ -31,27 +32,22 @@ public abstract class ListModuleSetting<T> : ModuleSetting, IListModuleSetting w
         Attribute.CollectionChanged += (_, _) => OnSettingChange?.Invoke();
     }
 
-    public override bool IsDefault() => Attribute.SequenceEqual(DefaultValues);
-
     public override void SetDefault()
     {
         Attribute.Clear();
         getClonedDefaults().ForEach(item => Attribute.Add(item));
     }
 
-    private IEnumerable<T> getClonedDefaults() => DefaultValues.Select(CloneValue);
-    private IEnumerable<T> jArrayToEnumerable(JArray array) => array.Select(ConstructValue);
+    private IEnumerable<T> getClonedDefaults() => DefaultValues.Select(value => (T)value.Clone());
 
-    protected virtual T CloneValue(T value) => (T)value.Clone();
-    protected virtual T ConstructValue(JToken token) => token.ToObject<T>()!;
-    protected virtual T CreateNewItem() => new();
+    protected virtual T CreateItem() => new();
 
     public override bool Deserialise(object value)
     {
         if (value is not JArray jArrayValue) return false;
 
         Attribute.Clear();
-        jArrayToEnumerable(jArrayValue).ForEach(item => Attribute.Add(item));
+        Attribute.AddRange(jArrayValue.Select(token => token.ToObject<T>()!));
         return true;
     }
 
@@ -65,19 +61,20 @@ public abstract class ListModuleSetting<T> : ModuleSetting, IListModuleSetting w
 
     public void Add()
     {
-        Attribute.Add(CreateNewItem());
+        Attribute.Add(CreateItem());
     }
 
     public void Remove(object instance)
     {
-        Attribute.Remove((T)instance);
+        if (instance is not T castInstance) throw new InvalidOperationException($"Cannot remove type {instance.GetType()} from list with type {typeof(T)}");
+
+        Attribute.Remove(castInstance);
     }
 }
 
 public abstract class ValueListModuleSetting<T> : ListModuleSetting<Observable<T>>
 {
     public override object GetRawValue() => Attribute.Select(observable => observable.Value).ToList();
-    public override bool IsDefault() => Attribute.Select(observable => observable.Value).SequenceEqual(DefaultValues.Select(defaultObservable => defaultObservable.Value));
 
     public override void PreDeserialise()
     {
@@ -97,9 +94,6 @@ public abstract class ValueListModuleSetting<T> : ListModuleSetting<Observable<T
         }
     }
 
-    protected override Observable<T> CloneValue(Observable<T> value) => (Observable<T>)value.Clone();
-    protected override Observable<T> ConstructValue(JToken token) => new(token.Value<T>()!);
-
     protected ValueListModuleSetting(string title, string description, Type viewType, IEnumerable<Observable<T>> defaultValues)
         : base(title, description, viewType, defaultValues)
     {
@@ -113,7 +107,7 @@ public class StringListModuleSetting : ValueListModuleSetting<string>
     {
     }
 
-    protected override Observable<string> CreateNewItem() => new(string.Empty);
+    protected override Observable<string> CreateItem() => new(string.Empty);
 }
 
 public class IntListModuleSetting : ValueListModuleSetting<int>
@@ -122,8 +116,6 @@ public class IntListModuleSetting : ValueListModuleSetting<int>
         : base(title, description, viewType, defaultValues.Select(value => new Observable<int>(value)))
     {
     }
-
-    protected override Observable<int> CreateNewItem() => new();
 }
 
 public class FloatListModuleSetting : ValueListModuleSetting<float>
@@ -132,6 +124,4 @@ public class FloatListModuleSetting : ValueListModuleSetting<float>
         : base(title, description, viewType, defaultValues.Select(value => new Observable<float>(value)))
     {
     }
-
-    protected override Observable<float> CreateNewItem() => new();
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -21,39 +21,31 @@ public class SettingsManagerSerialiser : Serialiser<SettingsManager, Serialisabl
     {
         var shouldReserialise = false;
 
-        data.Settings.ForEach(pair =>
+        foreach (var pair in data.Settings)
         {
-            try
+            if (!Enum.TryParse(pair.Key, out VRCOSCSetting key))
             {
-                if (!Enum.TryParse(pair.Key, out VRCOSCSetting key))
-                {
-                    shouldReserialise = true;
-                    return;
-                }
-
-                if (!Reference.Settings.ContainsKey(key)) return;
-
-                var observable = Reference.GetObservable(key);
-                var value = pair.Value;
-
-                if (value is null) return;
-
-                if (observable.GetValue()!.GetType().IsEnum)
-                    value = Enum.ToObject(observable.GetValue()!.GetType(), (long)value);
-
-                if (value is long longValue)
-                    value = (int)longValue;
-
-                if (value is double doubleValue)
-                    value = (float)doubleValue;
-
-                observable.SetValue(value);
+                shouldReserialise = true;
+                continue;
             }
-            catch (Exception)
+
+            if (!Reference.Settings.ContainsKey(key))
             {
-                // ignore errors since it's probably a change in type
+                shouldReserialise = true;
+                continue;
             }
-        });
+
+            var observable = Reference.GetObservable(key);
+            var targetType = observable.GetValueType();
+
+            if (!TryConvertToTargetType(pair.Value, targetType, out var parsedValue))
+            {
+                shouldReserialise = true;
+                continue;
+            }
+
+            observable.SetValue(parsedValue);
+        }
 
         return shouldReserialise;
     }

@@ -37,7 +37,8 @@ public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
                 return;
             }
 
-            setting.Deserialise(settingValue);
+            if (!setting.Deserialise(settingValue))
+                shouldReserialise = true;
         });
 
         data.Parameters.ForEach(parameterPair =>
@@ -52,7 +53,8 @@ public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
                 return;
             }
 
-            parameter.Deserialise(parameterValue);
+            if (!parameter.Deserialise(parameterValue))
+                shouldReserialise = true;
         });
 
         return shouldReserialise;

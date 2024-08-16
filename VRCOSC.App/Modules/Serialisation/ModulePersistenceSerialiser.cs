@@ -1,9 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.IO;
-using Newtonsoft.Json.Linq;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -22,32 +20,13 @@ public class ModulePersistenceSerialiser : ProfiledSerialiser<Module, Serialisab
 
     protected override bool ExecuteAfterDeserialisation(SerialisableModulePersistence data)
     {
-        data.Properties.ForEach(propertyData =>
+        foreach (var propertyData in data.Properties)
         {
-            try
-            {
-                if (!Reference.TryGetPersistentProperty(propertyData.Key, out var propertyInfo)) return;
+            if (!Reference.TryGetPersistentProperty(propertyData.Key, out var propertyInfo)) continue;
+            if (!TryConvertToTargetType(propertyData.Value, propertyInfo.PropertyType, out var parsedValue)) continue;
 
-                switch (propertyData.Value)
-                {
-                    case JToken token:
-                        propertyInfo.SetValue(Reference, token.ToObject(propertyInfo.PropertyType));
-                        break;
-
-                    case null:
-                        propertyInfo.SetValue(Reference, null);
-                        break;
-
-                    default:
-                        propertyInfo.SetValue(Reference, Convert.ChangeType(propertyData.Value, propertyInfo.PropertyType));
-                        break;
-                }
-            }
-            catch (Exception)
-            {
-                // corrupt
-            }
-        });
+            propertyInfo.SetValue(Reference, parsedValue);
+        }
 
         return false;
     }
