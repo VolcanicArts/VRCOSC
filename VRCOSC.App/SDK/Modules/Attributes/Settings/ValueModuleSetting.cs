@@ -153,26 +153,6 @@ public class SliderModuleSetting : ValueModuleSetting<float>
         outValue = default;
         return false;
     }
-
-    public SliderModuleSetting(string title, string description, Type viewType, float defaultValue, float minValue, float maxValue, float tickFrequency)
-        : base(title, description, viewType, defaultValue)
-    {
-        ValueType = typeof(float);
-
-        MinValue = minValue;
-        MaxValue = maxValue;
-        TickFrequency = tickFrequency;
-    }
-
-    public SliderModuleSetting(string title, string description, Type viewType, int defaultValue, int minValue, int maxValue, int tickFrequency)
-        : base(title, description, viewType, defaultValue)
-    {
-        ValueType = typeof(int);
-
-        MinValue = minValue;
-        MaxValue = maxValue;
-        TickFrequency = tickFrequency;
-    }
 }
 
 /// <summary>
