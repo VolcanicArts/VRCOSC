@@ -1,7 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using VRCOSC.App.Profiles.Serialisation;
@@ -63,39 +63,31 @@ public class ProfileManager
         ActiveProfile.Subscribe(_ => Serialise());
         DefaultProfile.Subscribe(_ => Serialise());
 
-        Profiles.CollectionChanged += (_, e) => onProfilesOnCollectionChanged(e.OldItems, e.NewItems);
-        onProfilesOnCollectionChanged(null, Profiles);
+        Profiles.OnCollectionChanged(onProfilesOnCollectionChanged, true);
 
         Serialise();
     }
 
-    private void onProfilesOnCollectionChanged(IList? oldItems, IList? newItems)
+    private void onProfilesOnCollectionChanged(IEnumerable<Profile> newItems, IEnumerable<Profile> oldItems)
     {
-        if (oldItems is not null)
+        foreach (Profile oldProfile in oldItems)
         {
-            foreach (Profile oldProfile in oldItems)
+            if (DefaultProfile.Value.ID.Equals(oldProfile.ID)) DefaultProfile.Value = Profiles[0];
+
+            if (ActiveProfile.Value.ID.Equals(oldProfile.ID))
             {
-                if (DefaultProfile.Value.ID.Equals(oldProfile.ID)) DefaultProfile.Value = Profiles[0];
-
-                if (ActiveProfile.Value.ID.Equals(oldProfile.ID))
-                {
-                    UIActiveProfile.Value = DefaultProfile.Value;
-                    AppManager.GetInstance().ChangeProfile(DefaultProfile.Value);
-                }
-
-                storage.DeleteDirectory($"profiles/{oldProfile.ID}");
+                UIActiveProfile.Value = DefaultProfile.Value;
+                AppManager.GetInstance().ChangeProfile(DefaultProfile.Value);
             }
+
+            storage.DeleteDirectory($"profiles/{oldProfile.ID}");
         }
 
-        if (newItems is not null)
+        foreach (Profile profile in newItems)
         {
-            foreach (Profile profile in newItems)
-            {
-                profile.Name.Subscribe(_ => Serialise());
-                profile.LinkedAvatars.CollectionChanged += (_, _) => Serialise();
-                profile.LinkedAvatars.CollectionChanged += (_, e) => onLinkedAvatarsOnCollectionChanged(e.OldItems, e.NewItems);
-                onLinkedAvatarsOnCollectionChanged(null, profile.LinkedAvatars);
-            }
+            profile.Name.Subscribe(_ => Serialise());
+            profile.LinkedAvatars.CollectionChanged += (_, _) => Serialise();
+            profile.LinkedAvatars.OnCollectionChanged(onLinkedAvatarsOnCollectionChanged);
         }
 
         Profiles.ForEach(profile => profile.UpdateUI());
@@ -103,9 +95,9 @@ public class ProfileManager
         Serialise();
     }
 
-    private void onLinkedAvatarsOnCollectionChanged(IList? _, IList? newItems)
+    private void onLinkedAvatarsOnCollectionChanged(IEnumerable<Observable<string>> newItems, IEnumerable<Observable<string>> oldItems)
     {
-        if (newItems is null) return;
+        if (!newItems.Any()) return;
 
         foreach (Observable<string> linkedAvatar in newItems)
         {

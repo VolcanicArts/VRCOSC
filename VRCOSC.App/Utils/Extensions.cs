@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -54,6 +55,27 @@ public static class CollectionExtensions
         }
 
         return collection;
+    }
+}
+
+public static class ObservableCollectionExtensions
+{
+    /// <summary>
+    /// Binds a callback to collection changed with the option of running once immediately.
+    /// Callback is (NewItems, OldItems)
+    /// </summary>
+    /// <remarks>When run once immediately is true, NewItems will contain the collection</remarks>
+    public static void OnCollectionChanged<T>(this ObservableCollection<T> collection, Action<IEnumerable<T>, IEnumerable<T>> callback, bool runOnceImmediately = false)
+    {
+        collection.CollectionChanged += (_, e) =>
+        {
+            callback.Invoke(e.NewItems?.Cast<T>() ?? Array.Empty<T>(), e.OldItems?.Cast<T>() ?? Array.Empty<T>());
+        };
+
+        if (runOnceImmediately)
+        {
+            callback.Invoke(collection, Array.Empty<T>());
+        }
     }
 }
 
