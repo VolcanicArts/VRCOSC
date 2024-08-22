@@ -9,15 +9,13 @@ namespace VRCOSC.App.Utils;
 
 public static class ExceptionHandler
 {
-    public static bool SilenceWindow = false;
-
     private static bool isWindowShowing;
 
     public static void Handle(Exception e, string message = "", bool isCritical = false)
     {
         Logger.Error(e, message, LoggingTarget.Runtime, true);
 
-        if (isWindowShowing || SilenceWindow) return;
+        if (isWindowShowing) return;
 
         var sb = new StringBuilder();
 
@@ -31,7 +29,13 @@ public static class ExceptionHandler
             sb.AppendLine();
         }
 
-        sb.AppendLine("Please report this on the Discord server");
+        if (!string.IsNullOrEmpty(e.Message))
+        {
+            sb.AppendLine(e.Message);
+            sb.AppendLine();
+        }
+
+        sb.AppendLine(isCritical ? "Please report this on the Discord server" : "Please report this on the Discord server or ask for help if you're developing a module");
         sb.AppendLine();
         sb.AppendLine("Press OK to join the Discord server");
         sb.AppendLine("Press Cancel to ignore the error");
