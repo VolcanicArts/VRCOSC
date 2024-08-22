@@ -373,6 +373,21 @@ public abstract class Module
     /// <param name="legacy">Whether the parameter is legacy and should no longer be used in favour of the other parameters</param>
     protected void RegisterParameter<T>(Enum lookup, string defaultName, ParameterMode mode, string title, string description, bool legacy = false) where T : struct
     {
+        if (isLoaded)
+        {
+            throw new InvalidOperationException($"{FullID} attempted to register a parameter after the module has been loaded");
+        }
+
+        if (Parameters.ContainsKey(lookup))
+        {
+            throw new InvalidOperationException($"{FullID} attempted to add an already existing lookup ({lookup.ToLookup()}) to its parameters");
+        }
+
+        if (typeof(T) != typeof(bool) && typeof(T) != typeof(int) && typeof(T) != typeof(float))
+        {
+            throw new InvalidOperationException($"{FullID} attempted to register a parameter with an invalid type");
+        }
+
         Parameters.Add(lookup, new ModuleParameter(title, description, defaultName, mode, typeof(T), legacy));
     }
 
