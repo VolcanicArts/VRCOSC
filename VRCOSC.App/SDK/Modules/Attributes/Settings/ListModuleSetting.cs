@@ -11,14 +11,19 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
 
-public interface IListModuleSetting
+public abstract class ListModuleSetting : ModuleSetting
 {
-    public int Count();
-    public void Add();
-    public void Remove(object instance);
+    protected ListModuleSetting(string title, string description, Type viewType)
+        : base(title, description, viewType)
+    {
+    }
+
+    public abstract int Count();
+    public abstract void Add();
+    public abstract void Remove(object instance);
 }
 
-public abstract class ListModuleSetting<T> : ModuleSetting, IListModuleSetting where T : ICloneable, IEquatable<T>, new()
+public abstract class ListModuleSetting<T> : ListModuleSetting where T : ICloneable, IEquatable<T>, new()
 {
     public ObservableCollection<T> Attribute { get; private set; } = null!;
     protected IEnumerable<T> DefaultValues { get; }
@@ -57,14 +62,14 @@ public abstract class ListModuleSetting<T> : ModuleSetting, IListModuleSetting w
         DefaultValues = defaultValues;
     }
 
-    public int Count() => Attribute.Count;
+    public override int Count() => Attribute.Count;
 
-    public void Add()
+    public override void Add()
     {
         Attribute.Add(CreateItem());
     }
 
-    public void Remove(object instance)
+    public override void Remove(object instance)
     {
         if (instance is not T castInstance) throw new InvalidOperationException($"Cannot remove type {instance.GetType()} from list with type {typeof(T)}");
 

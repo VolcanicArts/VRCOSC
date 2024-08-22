@@ -208,6 +208,15 @@ public static class TypeExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown type provided")
         };
     }
+
+    public static bool HasConstructorThatAccepts(this Type targetType, params Type[] parameterTypes)
+    {
+        return targetType.GetConstructors().Any(constructorInfo =>
+        {
+            var parameters = constructorInfo.GetParameters();
+            return parameters.Length == parameterTypes.Length && !parameters.Where((parameterInfo, i) => !parameterInfo.ParameterType.IsAssignableTo(parameterTypes[i])).Any();
+        });
+    }
 }
 
 public static class ProcessExtensions

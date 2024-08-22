@@ -11,12 +11,12 @@ public partial class ListTextBoxSettingView
 {
     public ModuleSetting ModuleSetting { get; }
 
-    private readonly IListModuleSetting listModuleSetting;
+    private readonly ListModuleSetting listModuleSetting;
 
-    public ListTextBoxSettingView(Module _, IListModuleSetting moduleSetting)
+    public ListTextBoxSettingView(Module _, ListModuleSetting moduleSetting)
     {
         listModuleSetting = moduleSetting;
-        ModuleSetting = (ModuleSetting)moduleSetting;
+        ModuleSetting = moduleSetting;
 
         InitializeComponent();
 

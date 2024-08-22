@@ -76,6 +76,7 @@ public abstract class Module
     internal UserControl? RuntimeView { get; private set; }
 
     private readonly object loadLock = new();
+    private bool isLoaded;
 
     public string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER TITLE";
     public string TitleWithPackage => PackageID == "local" ? $"(Local) {Title}" : Title;
@@ -108,6 +109,8 @@ public abstract class Module
     {
         lock (loadLock)
         {
+            isLoaded = false;
+
             Settings.Clear();
             Parameters.Clear();
             Groups.Clear();
@@ -125,6 +128,8 @@ public abstract class Module
             cachePersistentProperties();
 
             Enabled.Subscribe(_ => moduleSerialisationManager.Serialise());
+
+            isLoaded = true;
 
             OnPostLoad();
         }
@@ -447,16 +452,22 @@ public abstract class Module
         addSetting(lookup, new MutableKeyValuePairListModuleSetting(title, description, typeof(MutableKeyValuePairListSettingView), defaultValues, keyTitle, valueTitle));
     }
 
-    private void validateSettingsLookup(Enum lookup)
-    {
-        if (!Settings.ContainsKey(lookup.ToLookup())) return;
-
-        ExceptionHandler.Handle(new InvalidOperationException($"{FullID} attempted to add an already existing lookup ({lookup.ToLookup()}) to its settings"));
-    }
-
     private void addSetting(Enum lookup, ModuleSetting moduleSetting)
     {
-        validateSettingsLookup(lookup);
+        if (isLoaded)
+        {
+            throw new InvalidOperationException($"{FullID} attempted to create a module setting after the module has been loaded");
+        }
+
+        if (!moduleSetting.ViewType.HasConstructorThatAccepts(typeof(Module), typeof(ModuleSetting)))
+        {
+            throw new InvalidOperationException($"{FullID} attempted to create a module setting who's view doesn't have a constructor of (Module, ModuleSetting)");
+        }
+
+        if (Settings.ContainsKey(lookup.ToLookup()))
+        {
+            throw new InvalidOperationException($"{FullID} attempted to add an already existing lookup ({lookup.ToLookup()}) to its settings");
+        }
 
         moduleSetting.ParentModule = this;
         Settings.Add(lookup.ToLookup(), moduleSetting);
