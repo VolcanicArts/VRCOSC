@@ -73,7 +73,7 @@ public abstract class Module
     private SerialisationManager moduleSerialisationManager = null!;
     private SerialisationManager persistenceSerialisationManager = null!;
 
-    internal UserControl? RuntimeView { get; private set; }
+    internal Type? RuntimeViewType { get; private set; }
 
     private readonly object loadLock = new();
     private bool isLoaded;
@@ -207,32 +207,40 @@ public abstract class Module
 
     internal async Task Start()
     {
-        State.Value = ModuleState.Starting;
-
-        parameterNameEnum.Clear();
-        parameterNameRegex.Clear();
-
-        var validParameters = Parameters.Where(parameter => !string.IsNullOrWhiteSpace(parameter.Value.Name.Value)).ToList();
-
-        validParameters.ForEach(pair =>
+        try
         {
-            parameterNameEnum.Add(pair.Value.Name.Value, pair.Key);
-            parameterNameRegex.Add(pair.Value.Name.Value, parameterToRegex(pair.Value.Name.Value));
-        });
+            State.Value = ModuleState.Starting;
 
-        loadPersistentProperties();
+            parameterNameEnum.Clear();
+            parameterNameRegex.Clear();
 
-        var startResult = await OnModuleStart();
+            var validParameters = Parameters.Where(parameter => !string.IsNullOrWhiteSpace(parameter.Value.Name.Value)).ToList();
 
-        if (!startResult)
-        {
-            await Stop();
-            return;
+            validParameters.ForEach(pair =>
+            {
+                parameterNameEnum.Add(pair.Value.Name.Value, pair.Key);
+                parameterNameRegex.Add(pair.Value.Name.Value, parameterToRegex(pair.Value.Name.Value));
+            });
+
+            loadPersistentProperties();
+
+            var startResult = await OnModuleStart();
+
+            if (!startResult)
+            {
+                await Stop();
+                return;
+            }
+
+            initialiseUpdateAttributes(GetType());
+
+            State.Value = ModuleState.Started;
         }
-
-        State.Value = ModuleState.Started;
-
-        initialiseUpdateAttributes(GetType());
+        catch (Exception e)
+        {
+            State.Value = ModuleState.Stopped;
+            ExceptionHandler.Handle(e, $"{FullID} experienced a problem while starting");
+        }
     }
 
     internal async Task Stop()
@@ -264,9 +272,8 @@ public abstract class Module
                 {
                     case ModuleUpdateMode.Custom:
                         var updateTask = new Repeater(() => invokeMethod(method));
-                        updateTask.Start(TimeSpan.FromMilliseconds(updateAttribute.DeltaMilliseconds));
+                        updateTask.Start(TimeSpan.FromMilliseconds(updateAttribute.DeltaMilliseconds), updateAttribute.UpdateImmediately);
                         updateTasks.Add(updateTask);
-                        if (updateAttribute.UpdateImmediately) invokeMethod(method);
                         break;
 
                     case ModuleUpdateMode.ChatBox:
@@ -753,11 +760,25 @@ public abstract class Module
     /// <summary>
     /// Allows you to set the view that shows up in the `runtime` tab of the run screen
     /// </summary>
-    /// <param name="view">This should be the instance of your view</param>
-    /// <remarks>You are required to manage your runtime view based on what your module is doing. If you want to remove the runtime view, pass null</remarks>
-    protected void SetRuntimeView(UserControl? view)
+    /// <param name="viewType">This should be the <see cref="Type"/> of your view</param>
+    protected void SetRuntimeView(Type viewType)
     {
-        RuntimeView = view;
+        if (isLoaded)
+        {
+            throw new InvalidOperationException($"{FullID} attempted to set the runtime view after the module has been loaded");
+        }
+
+        if (!viewType.IsAssignableTo(typeof(UserControl)))
+        {
+            throw new InvalidOperationException($"{FullID} attempted to set a runtime view which does not extend UserControl");
+        }
+
+        if (!viewType.HasConstructorThatAccepts(typeof(Module)))
+        {
+            throw new InvalidOperationException($"{FullID} attempted to set a runtime view which does not have a constructor of (Module)");
+        }
+
+        RuntimeViewType = viewType;
     }
 
     /// <summary>

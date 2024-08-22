@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
@@ -24,7 +25,12 @@ public partial class RuntimeTabView
         AppManager.GetInstance().State.Subscribe(_ => Dispatcher.Invoke(() =>
         {
             Pages.Clear();
-            Pages.AddRange(ModuleManager.GetInstance().RunningModules.Where(module => module.RuntimeView is not null).Select(module => new RuntimeView(module.Title, module.RuntimeView!)));
+
+            if (AppManager.GetInstance().State.Value == AppManagerState.Started)
+            {
+                Pages.AddRange(ModuleManager.GetInstance().RunningModules.Where(module => module.RuntimeViewType is not null).Select(module => new RuntimeView(module.Title, (UserControl)Activator.CreateInstance(module.RuntimeViewType!, args: [module])!)));
+            }
+
             PageListVisibility.Value = AppManager.GetInstance().State.Value == AppManagerState.Started ? Visibility.Visible : Visibility.Collapsed;
         }));
     }
