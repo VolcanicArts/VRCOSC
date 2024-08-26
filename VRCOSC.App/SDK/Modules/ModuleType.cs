@@ -10,8 +10,9 @@ namespace VRCOSC.App.SDK.Modules;
 public enum ModuleType
 {
     Generic,
-    Integrations,
     Health,
+    Integrations,
+    SteamVR,
     NSFW
 }
 
@@ -20,8 +21,9 @@ public static class ModuleTypeExtensions
     public static Brush ToColour(this ModuleType type) => type switch
     {
         ModuleType.Generic => Brushes.White,
-        ModuleType.Integrations => (Brush)Application.Current.FindResource("CYellow"),
         ModuleType.Health => (Brush)Application.Current.FindResource("CRed"),
+        ModuleType.Integrations => (Brush)Application.Current.FindResource("CYellow"),
+        ModuleType.SteamVR => Brushes.Purple,
         ModuleType.NSFW => Brushes.Black,
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
     };
