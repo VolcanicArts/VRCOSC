@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.App.Actions;
 
-public abstract class CompositeProgressAction : ProgressAction
+public class CompositeProgressAction : ProgressAction
 {
     public override string Title => currentChild is CompositeProgressAction compositeCurrentChild ? compositeCurrentChild.Title : currentChild?.Title ?? string.Empty;
 

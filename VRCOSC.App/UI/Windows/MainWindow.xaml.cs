@@ -13,7 +13,6 @@ using System.Windows.Interop;
 using Newtonsoft.Json;
 using PInvoke;
 using VRCOSC.App.Actions;
-using VRCOSC.App.Actions.Game;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages;
@@ -113,7 +112,7 @@ public partial class MainWindow
 
     private async void load()
     {
-        var loadingAction = new LoadGameAction();
+        var loadingAction = new CompositeProgressAction();
 
         //loadingAction.AddAction(new DynamicAsyncProgressAction("Checking for updates", async () => await AppManager.GetInstance().VelopackUpdater.CheckForUpdatesAsync()));
         loadingAction.AddAction(new DynamicProgressAction("Loading profiles", () => ProfileManager.GetInstance().Load()));
