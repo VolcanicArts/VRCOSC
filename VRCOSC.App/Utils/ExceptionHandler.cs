@@ -53,7 +53,7 @@ public static class ExceptionHandler
 
         isWindowShowing = true;
 
-        var result = MessageBox.Show(sb.ToString(), $"VRCOSC has experienced a {(isCritical ? "critical" : "non-critical")} exception", MessageBoxButton.OKCancel, MessageBoxImage.Error);
+        var result = MessageBox.Show(sb.ToString(), $"VRCOSC has experienced a {(isCritical ? "critical" : "non-critical")} exception", MessageBoxButton.OKCancel, isCritical ? MessageBoxImage.Error : MessageBoxImage.Warning);
 
         if (result == MessageBoxResult.OK)
         {
