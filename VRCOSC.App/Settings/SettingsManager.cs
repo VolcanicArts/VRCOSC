@@ -66,7 +66,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.AutoSwitchMicrophone, true);
         setDefault(VRCOSCSetting.SelectedInputDeviceID, string.Empty);
         setDefault(VRCOSCSetting.SelectedSpeechEngine, SpeechEngine.Whisper);
-        setDefault(VRCOSCSetting.SpeechConfidence, 0.6f);
+        setDefault(VRCOSCSetting.SpeechConfidence, 0.4f);
         setDefault(VRCOSCSetting.Whisper_ModelPath, string.Empty);
     }
 

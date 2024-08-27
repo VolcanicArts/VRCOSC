@@ -95,15 +95,27 @@ public class AppManager
 
         SpeechEngine = new WhisperSpeechEngine();
 
-        SpeechEngine.OnResult += result => ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
+        SpeechEngine.OnPartialResult += result => ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
         {
             try
             {
-                module.OnSpeechResult(result);
+                module.OnPartialSpeechResult(result);
             }
             catch (Exception e)
             {
-                ExceptionHandler.Handle(e, $"{((Module)module).FullID} experienced an issue calling OnResult");
+                ExceptionHandler.Handle(e, $"{((Module)module).FullID} experienced an issue calling {nameof(ISpeechHandler.OnPartialSpeechResult)}");
+            }
+        });
+
+        SpeechEngine.OnFinalResult += result => ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
+        {
+            try
+            {
+                module.OnFinalSpeechResult(result);
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e, $"{((Module)module).FullID} experienced an issue calling {nameof(ISpeechHandler.OnFinalSpeechResult)}");
             }
         });
 

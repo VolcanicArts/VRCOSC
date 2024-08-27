@@ -17,6 +17,11 @@ internal class AudioProcessor
     private readonly AudioCapture? audioCapture;
     private readonly WhisperProcessor? whisper;
 
+    private const int default_samples_to_check = 24000; // sample rate is 16000 so check the last 1.5 seconds of audio
+    private const float silence_threshold = 0.04f;
+
+    private SpeechResult? speechResult;
+
     public AudioProcessor(MMDevice device)
     {
         var modelFilePath = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.Whisper_ModelPath);
@@ -27,19 +32,31 @@ internal class AudioProcessor
 
             whisper = builder.CreateBuilder()
                              .WithProbabilities()
+                             .WithThreads(8)
                              .WithNoContext()
+                             .WithSingleSegment()
+                             .WithMaxSegmentLength(int.MaxValue)
                              .Build();
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, "Please make sure the model path for Whisper is correct");
+        }
 
+        try
+        {
             audioCapture = new AudioCapture(device);
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            ExceptionHandler.Handle("The model path for Whisper is incorrect");
+            ExceptionHandler.Handle(e);
         }
     }
 
     public void Start()
     {
+        speechResult = null;
+
         audioCapture?.ClearBuffer();
         audioCapture?.StartCapture();
     }
@@ -49,20 +66,64 @@ internal class AudioProcessor
         audioCapture?.StopCapture();
     }
 
-    public async Task<SpeechResult?> GetResult()
+    public async Task<SpeechResult?> GetResultAsync()
     {
-        if (audioCapture is null) return new SpeechResult(string.Empty, 0f);
-
-        if (!audioCapture.IsCapturing) return null;
+        if (audioCapture is null || !audioCapture.IsCapturing) return null;
 
         var data = audioCapture.GetBufferedData();
         if (data.Length == 0) return null;
 
-        var speechResult = await processWithWhisper(data);
+        if (isSilent(data))
+        {
+            SpeechResult? finalSpeechResult = null;
+
+            if (speechResult is not null)
+            {
+                finalSpeechResult = new SpeechResult(speechResult);
+            }
+
+            speechResult = null;
+            audioCapture.ClearBuffer();
+
+#if DEBUG
+            if (finalSpeechResult is not null)
+            {
+                Logger.Log("Final result: " + finalSpeechResult.Text + " - " + finalSpeechResult.Confidence);
+            }
+#endif
+
+            return finalSpeechResult;
+        }
+
+        speechResult = await processWithWhisper(data, false);
+
+#if DEBUG
+        Logger.Log("Result: " + speechResult?.Text);
+#endif
+
         return speechResult;
     }
 
-    private async Task<SpeechResult> processWithWhisper(float[] data)
+    private bool isSilent(float[] buffer)
+    {
+        var samplesToCheck = buffer.Length < default_samples_to_check ? buffer.Length : default_samples_to_check;
+
+        var sum = 0d;
+
+        for (int i = buffer.Length - samplesToCheck; i < buffer.Length; i++)
+        {
+            var sample = buffer[i];
+            sum += sample * sample;
+        }
+
+        var rms = Math.Sqrt(sum / samplesToCheck) * 100d;
+#if DEBUG
+        Logger.Log($"RMS: {rms}");
+#endif
+        return rms < silence_threshold;
+    }
+
+    private async Task<SpeechResult?> processWithWhisper(float[] data, bool final)
     {
         var segmentData = new List<SegmentData>();
 
@@ -71,16 +132,11 @@ internal class AudioProcessor
             segmentData.Add(result);
         }
 
-        if (segmentData.Count == 0) return new SpeechResult(string.Empty, 0f);
+        if (segmentData.Count == 0) return null;
 
         var segment = segmentData.Last();
         var text = segment.Text.Trim();
         var confidence = segment.Probability;
-        return new SpeechResult(text, confidence);
-    }
-
-    public void ClearBuffer()
-    {
-        audioCapture?.ClearBuffer();
+        return new SpeechResult(final, text, confidence);
     }
 }

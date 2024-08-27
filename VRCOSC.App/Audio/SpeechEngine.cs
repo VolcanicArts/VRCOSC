@@ -7,10 +7,19 @@ namespace VRCOSC.App.Audio;
 
 public abstract class SpeechEngine
 {
-    public Action<string>? OnResult;
+    public Action<string>? OnPartialResult;
+    public Action<string>? OnFinalResult;
 
     public abstract void Initialise();
     public abstract void Teardown();
 }
 
-public record SpeechResult(string Text, float Confidence);
+public record SpeechResult(bool IsFinal, string Text, float Confidence)
+{
+    public SpeechResult(SpeechResult speechResult)
+    {
+        IsFinal = speechResult.IsFinal;
+        Text = speechResult.Text;
+        Confidence = speechResult.Confidence;
+    }
+}
