@@ -29,8 +29,8 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="20" Foreground="{StaticResource CForeground1}" Text="{Binding Key}"/>
-                                    <ComboBox Grid.Column="1" Tag="{Binding Key}" SelectedItem="{Binding Value}" SelectionChanged="Selector_OnSelectionChanged" FontSize="15" Foreground="{StaticResource CBackground1}" ItemsSource="{Binding Path=ComboBoxSource, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"></ComboBox>
+                                    <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="18" Foreground="{StaticResource CForeground1}" Text="{Binding Key}"/>
+                                    <ComboBox Grid.Column="1" Tag="{Binding Key}" SelectedItem="{Binding Value.Role, Mode=OneWay}" SelectionChanged="Selector_OnSelectionChanged" FontSize="18" Foreground="{StaticResource CBackground1}" ItemsSource="{Binding Path=ComboBoxSource, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"></ComboBox>
                                 </Grid>
                             </Border>
                         </ControlTemplate>

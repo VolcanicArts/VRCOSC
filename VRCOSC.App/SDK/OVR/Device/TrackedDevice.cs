@@ -42,7 +42,7 @@ public class TrackedDevice
     /// <summary>
     /// The role of this device as set by the user
     /// </summary>
-    public DeviceRole Role { get; set; }
+    public DeviceRole Role { get; internal set; }
 
     internal void Update()
     {

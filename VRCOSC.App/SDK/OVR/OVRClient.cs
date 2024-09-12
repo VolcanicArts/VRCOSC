@@ -44,7 +44,6 @@ public class OVRClient
 
         manageManifest();
 
-        OVRDeviceManager.GetInstance().Reset();
         Input.Init();
 
         HasInitialised = true;

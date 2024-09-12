@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Valve.VR;
 using VRCOSC.App.OVR.Serialisation;
@@ -17,6 +18,7 @@ public class OVRDeviceManager
     // serial number : tracked device
     internal ObservableDictionary<string, TrackedDevice> TrackedDevices { get; } = new();
 
+    private readonly List<string> auditedDevices = [];
     private readonly object deviceRolesLock = new();
 
     private readonly SerialisationManager serialisationManager = new();
@@ -50,23 +52,15 @@ public class OVRDeviceManager
         }
     }
 
-    public void Reset()
-    {
-        TrackedDevices.Clear();
-    }
-
     private void addTrackedDevice<T>(string serialNumber, uint index, DeviceRole initialRole) where T : TrackedDevice
     {
+        if (auditedDevices.Contains(serialNumber)) return;
+
         if (TrackedDevices.TryGetValue(serialNumber, out var existingDevice))
         {
-            var existingRole = existingDevice.Role;
-
-            TrackedDevice replacementDevice = Activator.CreateInstance<T>();
-            replacementDevice.SerialNumber = serialNumber;
-            replacementDevice.Index = index;
-            replacementDevice.Role = existingRole;
-
-            TrackedDevices[serialNumber] = replacementDevice;
+            existingDevice.Index = index;
+            TrackedDevices.Remove(serialNumber);
+            TrackedDevices.Add(serialNumber, existingDevice);
         }
         else
         {
@@ -77,6 +71,8 @@ public class OVRDeviceManager
 
             TrackedDevices.Add(serialNumber, newDevice);
         }
+
+        auditedDevices.Add(serialNumber);
     }
 
     private void auditHMD()

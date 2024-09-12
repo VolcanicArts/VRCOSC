@@ -6,28 +6,31 @@ using System.Collections.Generic;
 using System.Windows.Controls;
 using VRCOSC.App.OVR;
 using VRCOSC.App.SDK.OVR;
+using VRCOSC.App.SDK.OVR.Device;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.AppSettings;
 
 public partial class OVRDeviceView
 {
-    public ObservableDictionary<string, DeviceRole> TrackedDevices { get; } = [];
+    public ObservableDictionary<string, TrackedDevice> TrackedDevices { get; } = [];
     public IEnumerable<DeviceRole> ComboBoxSource => Enum.GetValues<DeviceRole>();
 
     public OVRDeviceView()
     {
-        OVRDeviceManager.GetInstance().TrackedDevices.OnCollectionChanged((newItems, _) =>
-        {
-            foreach (var pair in newItems)
-            {
-                TrackedDevices.Add(pair.Key, pair.Value.Role);
-            }
-        }, true);
-
         InitializeComponent();
 
         DataContext = this;
+
+        OVRDeviceManager.GetInstance().TrackedDevices.OnCollectionChanged((_, _) => Dispatcher.Invoke(() =>
+        {
+            TrackedDevices.Clear();
+
+            foreach (var pair in OVRDeviceManager.GetInstance().TrackedDevices)
+            {
+                TrackedDevices.Add(pair.Key, pair.Value);
+            }
+        }));
     }
 
     private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -35,7 +38,11 @@ public partial class OVRDeviceView
         var element = (ComboBox)sender;
         var serialNumber = (string)element.Tag;
 
-        OVRDeviceManager.GetInstance().TrackedDevices[serialNumber].Role = (DeviceRole)element.SelectedItem;
+        // race condition check
+        if (OVRDeviceManager.GetInstance().TrackedDevices.ContainsKey(serialNumber))
+        {
+            OVRDeviceManager.GetInstance().TrackedDevices[serialNumber].Role = (DeviceRole)element.SelectedItem;
+        }
     }
 }
 
