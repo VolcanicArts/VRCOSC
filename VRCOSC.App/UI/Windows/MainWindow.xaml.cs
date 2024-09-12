@@ -15,6 +15,7 @@ using PInvoke;
 using VRCOSC.App.Actions;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
+using VRCOSC.App.OVR;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
@@ -221,6 +222,8 @@ public partial class MainWindow
         {
             appManager.CancelStartRequest();
         }
+
+        OVRDeviceManager.GetInstance().Serialise();
     }
 
     private void MainWindow_OnClosed(object? sender, EventArgs e)

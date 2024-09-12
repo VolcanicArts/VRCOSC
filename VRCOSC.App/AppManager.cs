@@ -21,6 +21,7 @@ using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
+using VRCOSC.App.OVR;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
 using VRCOSC.App.SDK.Handlers;
@@ -157,6 +158,8 @@ public class AppManager
 
         OVRClient.OnShutdown += () => Application.Current.Dispatcher.Invoke(() =>
         {
+            OVRDeviceManager.GetInstance().Serialise();
+
             if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.OVRAutoClose))
             {
                 Application.Current.Shutdown();
@@ -164,6 +167,8 @@ public class AppManager
         });
 
         OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
+
+        OVRDeviceManager.GetInstance().Deserialise();
     }
 
     public void InitialLoadComplete()
@@ -204,6 +209,8 @@ public class AppManager
     {
         OVRClient.Init();
         OVRClient.SetAutoLaunch(SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.OVRAutoOpen));
+
+        OVRDeviceManager.GetInstance().Update();
 
         RenderOptions.ProcessRenderMode = OVRClient.HasInitialised ? RenderMode.SoftwareOnly : RenderMode.Default;
     });

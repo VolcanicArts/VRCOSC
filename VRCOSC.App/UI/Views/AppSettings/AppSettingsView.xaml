@@ -93,6 +93,9 @@
                     <RadioButton Click="AutomationTabButton_OnClick">
                         <TextBlock Text="Automation" />
                     </RadioButton>
+                    <RadioButton Click="OVRTabButton_OnClick">
+                        <TextBlock Text="SteamVR" />
+                    </RadioButton>
                     <RadioButton Click="UpdatesTabButton_OnClick">
                         <TextBlock Text="Updates" />
                     </RadioButton>
@@ -294,6 +297,9 @@
                                 </Grid>
                             </Border>
                         </core:SpacedStackPanel>
+                    </Grid>
+                    <Grid Name="OVRContainer" Visibility="Collapsed">
+                        <local:OVRDeviceView/>
                     </Grid>
                     <Grid Name="SpeechContainer" Visibility="Collapsed">
                         <core:SpacedStackPanel Orientation="Vertical" Spacing="5">

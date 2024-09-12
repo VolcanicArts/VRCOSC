@@ -175,6 +175,7 @@ public partial class AppSettingsView
         DeveloperContainer.Visibility = pageIndex == 4 ? Visibility.Visible : Visibility.Collapsed;
         PackagesContainer.Visibility = pageIndex == 5 ? Visibility.Visible : Visibility.Collapsed;
         SpeechContainer.Visibility = pageIndex == 6 ? Visibility.Visible : Visibility.Collapsed;
+        OVRContainer.Visibility = pageIndex == 7 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void GeneralTabButton_OnClick(object sender, RoutedEventArgs e)
@@ -210,6 +211,11 @@ public partial class AppSettingsView
     private void SpeechTabButton_OnClick(object sender, RoutedEventArgs e)
     {
         setPage(6);
+    }
+
+    private void OVRTabButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setPage(7);
     }
 
     private void Whisper_OpenModelList_OnClick(object sender, RoutedEventArgs e)

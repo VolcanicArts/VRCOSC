@@ -137,6 +137,7 @@ internal static class OVRHelper
 
     internal static void TriggerHaptic(ulong action, uint device, float durationSeconds, float frequency, float amplitude)
     {
+        if (action == OpenVR.k_ulInvalidActionHandle) return;
         if (device == OpenVR.k_unTrackedDeviceIndexInvalid) return;
 
         OpenVR.Input.TriggerHapticVibrationAction(action, 0, durationSeconds, frequency, amplitude, device);

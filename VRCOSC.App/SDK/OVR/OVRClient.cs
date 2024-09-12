@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Valve.VR;
+using VRCOSC.App.OVR;
 using VRCOSC.App.SDK.OVR.Device;
 using VRCOSC.App.SDK.OVR.Metadata;
 
@@ -43,7 +44,7 @@ public class OVRClient
 
         manageManifest();
 
-        OVRDeviceManager.Reset();
+        OVRDeviceManager.GetInstance().Reset();
         Input.Init();
 
         HasInitialised = true;
@@ -58,10 +59,10 @@ public class OVRClient
         OpenVR.Applications.AddApplicationManifest(Metadata.ApplicationManifest, false);
     }
 
-    public TrackedDevice GetTrackedDevice(DeviceRole deviceRole) => OVRDeviceManager.GetTrackedDevice(deviceRole) ?? new TrackedDevice();
-    public HMD GetHMD() => (HMD)(OVRDeviceManager.GetTrackedDevice(DeviceRole.Head) ?? new HMD());
-    public Controller GetLeftController() => (Controller)(OVRDeviceManager.GetTrackedDevice(DeviceRole.LeftHand) ?? new Controller());
-    public Controller GetRightController() => (Controller)(OVRDeviceManager.GetTrackedDevice(DeviceRole.RightHand) ?? new Controller());
+    public TrackedDevice GetTrackedDevice(DeviceRole deviceRole) => OVRDeviceManager.GetInstance().GetTrackedDevice(deviceRole) ?? new TrackedDevice();
+    public HMD GetHMD() => (HMD)(OVRDeviceManager.GetInstance().GetTrackedDevice(DeviceRole.Head) ?? new HMD());
+    public Controller GetLeftController() => (Controller)(OVRDeviceManager.GetInstance().GetTrackedDevice(DeviceRole.LeftHand) ?? new Controller());
+    public Controller GetRightController() => (Controller)(OVRDeviceManager.GetInstance().GetTrackedDevice(DeviceRole.RightHand) ?? new Controller());
 
     internal void Update()
     {
@@ -73,7 +74,6 @@ public class OVRClient
 
         FPS = 1000.0f / OVRHelper.GetFrameTimeMilli();
 
-        OVRDeviceManager.Update();
         Input.Update();
     }
 
@@ -95,14 +95,14 @@ public class OVRClient
         }
     }
 
-    public void TriggerHaptic(DeviceRole device, float durationSeconds, float frequency, float amplitude)
+    public void TriggerHaptic(DeviceRole deviceRole, float durationSeconds, float frequency, float amplitude)
     {
-        if (!HasInitialised) return;
+        if (!HasInitialised || deviceRole == DeviceRole.Unset) return;
 
-        var trackedDevice = OVRDeviceManager.GetTrackedDevice(device);
+        var trackedDevice = OVRDeviceManager.GetInstance().GetTrackedDevice(deviceRole);
         if (trackedDevice is null || !trackedDevice.IsConnected) return;
 
-        OVRHelper.TriggerHaptic(Input.GetHapticActionHandle(device), trackedDevice.Index, durationSeconds, frequency, amplitude);
+        OVRHelper.TriggerHaptic(Input.GetHapticActionHandle(deviceRole), trackedDevice.Index, durationSeconds, frequency, amplitude);
     }
 
     /// <summary>
