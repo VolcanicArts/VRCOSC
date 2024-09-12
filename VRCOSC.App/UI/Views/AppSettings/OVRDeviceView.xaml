@@ -12,7 +12,9 @@
     </UserControl.Resources>
     <core:HeaderFooterListView HideFooterWhenEmpty="True" ShouldTruncateHeight="False" ItemsSource="{Binding TrackedDevices}" AlternationCount="2">
         <core:HeaderFooterListView.Header>
-            <Border Background="{StaticResource CBackground1}" Height="5"/>
+            <Border Background="{StaticResource CBackground1}" Height="40">
+                <TextBlock Text="SteamVR Devices" Foreground="{StaticResource CForeground1}" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="10 0"/>
+            </Border>
         </core:HeaderFooterListView.Header>
         <ListView.ItemContainerStyle>
             <Style TargetType="ListViewItem">
