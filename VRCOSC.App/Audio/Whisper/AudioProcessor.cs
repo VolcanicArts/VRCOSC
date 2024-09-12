@@ -18,7 +18,7 @@ internal class AudioProcessor
     private readonly WhisperProcessor? whisper;
 
     private const int default_samples_to_check = 24000; // sample rate is 16000 so check the last 1.5 seconds of audio
-    private const float silence_threshold = 0.04f;
+    private const float silence_threshold = 0.15f;
 
     private SpeechResult? speechResult;
 
@@ -79,7 +79,7 @@ internal class AudioProcessor
 
             if (speechResult is not null)
             {
-                finalSpeechResult = new SpeechResult(speechResult);
+                finalSpeechResult = await processWithWhisper(data, true);
             }
 
             speechResult = null;
@@ -116,7 +116,7 @@ internal class AudioProcessor
             sum += sample * sample;
         }
 
-        var rms = Math.Sqrt(sum / samplesToCheck) * 100d;
+        var rms = Math.Sqrt(sum / samplesToCheck);
 #if DEBUG
         Logger.Log($"RMS: {rms}");
 #endif
