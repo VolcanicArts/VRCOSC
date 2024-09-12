@@ -55,7 +55,8 @@ public class AppManager
 
     public readonly Storage Storage = new($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/{APP_NAME}");
 
-    public Observable<AppManagerState> State = new(AppManagerState.Stopped);
+    public Observable<AppManagerState> State { get; } = new(AppManagerState.Stopped);
+    public Observable<Theme> ProxyTheme { get; } = new(Theme.Dark);
 
     public VelopackUpdater VelopackUpdater = null!;
     public ConnectionManager ConnectionManager = null!;
@@ -84,7 +85,7 @@ public class AppManager
 
     public void Initialise()
     {
-        ChangeTheme(SettingsManager.GetInstance().GetValue<Theme>(VRCOSCSetting.Theme));
+        SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Subscribe(theme => ProxyTheme.Value = theme, true);
 
         //VelopackUpdater = new VelopackUpdater();
         ConnectionManager = new ConnectionManager();
@@ -541,31 +542,6 @@ public class AppManager
         {
             await Task.Delay(100);
             await startAsync();
-        }
-    }
-
-    #endregion
-
-    #region Themes
-
-    public void ChangeTheme(Theme theme)
-    {
-        return;
-
-        var mergedDictionaries = Application.Current.Resources.MergedDictionaries;
-
-        switch (theme)
-        {
-            case Theme.Dark:
-                mergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/VRCOSC.App;component/UI/Themes/Dark.xaml") });
-                break;
-
-            case Theme.Light:
-                mergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/VRCOSC.App;component/UI/Themes/Light.xaml") });
-                break;
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(theme), theme, null);
         }
     }
 

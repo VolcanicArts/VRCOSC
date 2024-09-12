@@ -1,12 +1,12 @@
 ﻿<Application x:Class="VRCOSC.App.MainApp"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:core="clr-namespace:VRCOSC.App.UI.Core">
+             xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+             xmlns:themes="clr-namespace:VRCOSC.App.UI.Themes">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="UI/Themes/Light.xaml" />
-                <ResourceDictionary Source="UI/Themes/Dark.xaml" />
+                <themes:ThemeResourceDictionary/>
                 <ResourceDictionary Source="UI/Styles/VRCOSCCheckBoxStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/VRCOSCButtonStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/IconButtonStyle.xaml" />
