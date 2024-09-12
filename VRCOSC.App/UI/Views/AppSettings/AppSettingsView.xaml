@@ -10,7 +10,7 @@
              Background="Transparent">
     <UserControl.Resources>
         <local:IpPortValidationRule x:Key="IpPortValidationRule" />
-        <Style TargetType="TextBlock">
+        <Style x:Key="RadioTextBlockStyle" TargetType="TextBlock">
             <Setter Property="TextWrapping" Value="Wrap" />
             <Setter Property="FontSize" Value="18" />
             <Setter Property="HorizontalAlignment" Value="Center" />
@@ -82,28 +82,28 @@
                           PanningMode="VerticalOnly">
                 <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                     <RadioButton Click="GeneralTabButton_OnClick" IsChecked="True">
-                        <TextBlock Text="General" />
+                        <TextBlock Text="General" Style="{StaticResource RadioTextBlockStyle}" />
                     </RadioButton>
                     <RadioButton Click="PackagesTabButton_OnClick">
-                        <TextBlock Text="Packages" />
+                        <TextBlock Text="Packages" Style="{StaticResource RadioTextBlockStyle}" />
                     </RadioButton>
                     <RadioButton Click="OscTabButton_OnClick">
-                        <TextBlock Text="OSC" />
+                        <TextBlock Text="OSC" Style="{StaticResource RadioTextBlockStyle}" />
                     </RadioButton>
                     <RadioButton Click="AutomationTabButton_OnClick">
-                        <TextBlock Text="Automation" />
+                        <TextBlock Text="Automation" Style="{StaticResource RadioTextBlockStyle}" />
                     </RadioButton>
                     <RadioButton Click="OVRTabButton_OnClick">
-                        <TextBlock Text="SteamVR" />
+                        <TextBlock Text="SteamVR" Style="{StaticResource RadioTextBlockStyle}" />
                     </RadioButton>
                     <RadioButton Click="UpdatesTabButton_OnClick">
-                        <TextBlock Text="Updates" />
+                        <TextBlock Text="Updates" Style="{StaticResource RadioTextBlockStyle}" />
                     </RadioButton>
                     <RadioButton Click="SpeechTabButton_OnClick">
-                        <TextBlock Text="Speech" />
+                        <TextBlock Text="Speech" Style="{StaticResource RadioTextBlockStyle}" />
                     </RadioButton>
                     <RadioButton Click="DeveloperTabButton_OnClick">
-                        <TextBlock Text="Developer" />
+                        <TextBlock Text="Developer" Style="{StaticResource RadioTextBlockStyle}" />
                     </RadioButton>
                 </core:SpacedStackPanel>
             </ScrollViewer>
