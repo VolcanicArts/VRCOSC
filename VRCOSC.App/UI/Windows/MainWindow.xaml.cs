@@ -34,6 +34,10 @@ using VRCOSC.App.UI.Views.Settings;
 using VRCOSC.App.Utils;
 using Application = System.Windows.Application;
 
+#if !DEBUG
+using Velopack.Locators;
+#endif
+
 namespace VRCOSC.App.UI.Windows;
 
 public partial class MainWindow
