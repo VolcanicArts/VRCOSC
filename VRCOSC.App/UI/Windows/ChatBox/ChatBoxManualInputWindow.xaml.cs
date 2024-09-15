@@ -27,6 +27,7 @@ public partial class ChatBoxManualInputWindow
         base.OnClosed(e);
 
         ChatBoxManager.GetInstance().IsManualTextOpen = false;
+        ChatBoxManager.GetInstance().ClearText();
     }
 
     private void SendButton_OnClick(object sender, RoutedEventArgs e)
