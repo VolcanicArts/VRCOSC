@@ -6,16 +6,16 @@ namespace VRCOSC.App.SDK.OVR;
 // DO NOT change the order of these. They correspond to action set handles
 public enum DeviceRole
 {
-    Head,
-    Chest,
-    Waist,
-    LeftHand,
-    RightHand,
-    LeftElbow,
-    RightElbow,
-    LeftFoot,
-    RightFoot,
-    LeftKnee,
-    RightKnee,
+    Head = 0,
+    Chest = 1,
+    Waist = 2,
+    LeftHand = 3,
+    RightHand = 4,
+    LeftElbow = 5,
+    RightElbow = 6,
+    LeftFoot = 7,
+    RightFoot = 8,
+    LeftKnee = 9,
+    RightKnee = 10,
     Unset = -1
 }

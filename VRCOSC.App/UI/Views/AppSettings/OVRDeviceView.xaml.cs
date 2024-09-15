@@ -30,7 +30,7 @@ public partial class OVRDeviceView
             {
                 TrackedDevices.Add(pair.Key, pair.Value);
             }
-        }));
+        }), true);
     }
 
     private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -38,10 +38,6 @@ public partial class OVRDeviceView
         var element = (ComboBox)sender;
         var serialNumber = (string)element.Tag;
 
-        // race condition check
-        if (OVRDeviceManager.GetInstance().TrackedDevices.ContainsKey(serialNumber))
-        {
-            OVRDeviceManager.GetInstance().TrackedDevices[serialNumber].Role = (DeviceRole)element.SelectedItem;
-        }
+        OVRDeviceManager.GetInstance().AddOrUpdateDeviceRole(serialNumber, (DeviceRole)element.SelectedItem);
     }
 }

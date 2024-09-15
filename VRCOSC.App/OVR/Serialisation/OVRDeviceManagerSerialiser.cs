@@ -1,7 +1,6 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.App.SDK.OVR.Device;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -21,11 +20,7 @@ internal class OVRDeviceManagerSerialiser : Serialiser<OVRDeviceManager, Seriali
     {
         foreach (var (serialNumber, deviceRole) in data.DeviceRoles)
         {
-            Reference.TrackedDevices.Add(serialNumber, new TrackedDevice
-            {
-                SerialNumber = serialNumber,
-                Role = deviceRole
-            });
+            Reference.AddOrUpdateDeviceRole(serialNumber, deviceRole);
         }
 
         return false;
