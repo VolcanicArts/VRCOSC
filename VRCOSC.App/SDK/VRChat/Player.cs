@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.VRChat;
 
@@ -60,111 +61,119 @@ public sealed class Player
 
     internal bool Update(string parameterName, object value)
     {
-        if (!Enum.TryParse(parameterName, out VRChatAvatarParameter vrChatInputParameter)) return false;
-
-        switch (vrChatInputParameter)
+        try
         {
-            case VRChatAvatarParameter.Viseme:
-                Viseme = (Viseme)(int)value;
-                break;
+            if (!Enum.TryParse(parameterName, out VRChatAvatarParameter vrChatInputParameter)) return false;
 
-            case VRChatAvatarParameter.Voice:
-                Voice = (float)value;
-                break;
+            switch (vrChatInputParameter)
+            {
+                case VRChatAvatarParameter.Viseme:
+                    Viseme = (Viseme)(int)value;
+                    break;
 
-            case VRChatAvatarParameter.GestureLeft:
-                GestureLeft = (Gesture)(int)value;
-                break;
+                case VRChatAvatarParameter.Voice:
+                    Voice = (float)value;
+                    break;
 
-            case VRChatAvatarParameter.GestureRight:
-                GestureRight = (Gesture)(int)value;
-                break;
+                case VRChatAvatarParameter.GestureLeft:
+                    GestureLeft = (Gesture)(int)value;
+                    break;
 
-            case VRChatAvatarParameter.GestureLeftWeight:
-                GestureLeftWeight = (float)value;
-                break;
+                case VRChatAvatarParameter.GestureRight:
+                    GestureRight = (Gesture)(int)value;
+                    break;
 
-            case VRChatAvatarParameter.GestureRightWeight:
-                GestureRightWeight = (float)value;
-                break;
+                case VRChatAvatarParameter.GestureLeftWeight:
+                    GestureLeftWeight = (float)value;
+                    break;
 
-            case VRChatAvatarParameter.AngularY:
-                AngularY = (float)value;
-                break;
+                case VRChatAvatarParameter.GestureRightWeight:
+                    GestureRightWeight = (float)value;
+                    break;
 
-            case VRChatAvatarParameter.VelocityX:
-                VelocityX = (float)value;
-                break;
+                case VRChatAvatarParameter.AngularY:
+                    AngularY = (float)value;
+                    break;
 
-            case VRChatAvatarParameter.VelocityY:
-                VelocityY = (float)value;
-                break;
+                case VRChatAvatarParameter.VelocityX:
+                    VelocityX = (float)value;
+                    break;
 
-            case VRChatAvatarParameter.VelocityZ:
-                VelocityZ = (float)value;
-                break;
+                case VRChatAvatarParameter.VelocityY:
+                    VelocityY = (float)value;
+                    break;
 
-            case VRChatAvatarParameter.Upright:
-                Upright = (float)value;
-                break;
+                case VRChatAvatarParameter.VelocityZ:
+                    VelocityZ = (float)value;
+                    break;
 
-            case VRChatAvatarParameter.Grounded:
-                Grounded = (bool)value;
-                break;
+                case VRChatAvatarParameter.Upright:
+                    Upright = (float)value;
+                    break;
 
-            case VRChatAvatarParameter.Seated:
-                Seated = (bool)value;
-                break;
+                case VRChatAvatarParameter.Grounded:
+                    Grounded = (bool)value;
+                    break;
 
-            case VRChatAvatarParameter.AFK:
-                AFK = (bool)value;
-                break;
+                case VRChatAvatarParameter.Seated:
+                    Seated = (bool)value;
+                    break;
 
-            case VRChatAvatarParameter.TrackingType:
-                TrackingType = (TrackingType)(int)value;
-                break;
+                case VRChatAvatarParameter.AFK:
+                    AFK = (bool)value;
+                    break;
 
-            case VRChatAvatarParameter.VRMode:
-                IsVR = (int)value == 1;
-                break;
+                case VRChatAvatarParameter.TrackingType:
+                    TrackingType = (TrackingType)(int)value;
+                    break;
 
-            case VRChatAvatarParameter.MuteSelf:
-                IsMuted = (bool)value;
-                break;
+                case VRChatAvatarParameter.VRMode:
+                    IsVR = (int)value == 1;
+                    break;
 
-            case VRChatAvatarParameter.InStation:
-                InStation = (bool)value;
-                break;
+                case VRChatAvatarParameter.MuteSelf:
+                    IsMuted = (bool)value;
+                    break;
 
-            case VRChatAvatarParameter.Earmuffs:
-                Earmuffs = (bool)value;
-                break;
+                case VRChatAvatarParameter.InStation:
+                    InStation = (bool)value;
+                    break;
 
-            case VRChatAvatarParameter.ScaleModified:
-                ScaleModified = (bool)value;
-                break;
+                case VRChatAvatarParameter.Earmuffs:
+                    Earmuffs = (bool)value;
+                    break;
 
-            case VRChatAvatarParameter.ScaleFactor:
-                ScaleFactor = (float)value;
-                break;
+                case VRChatAvatarParameter.ScaleModified:
+                    ScaleModified = (bool)value;
+                    break;
 
-            case VRChatAvatarParameter.ScaleFactorInverse:
-                ScaleFactorInverse = (float)value;
-                break;
+                case VRChatAvatarParameter.ScaleFactor:
+                    ScaleFactor = (float)value;
+                    break;
 
-            case VRChatAvatarParameter.EyeHeightAsMeters:
-                EyeHeightAsMeters = (float)value;
-                break;
+                case VRChatAvatarParameter.ScaleFactorInverse:
+                    ScaleFactorInverse = (float)value;
+                    break;
 
-            case VRChatAvatarParameter.EyeHeightAsPercent:
-                EyeHeightAsPercent = (float)value;
-                break;
+                case VRChatAvatarParameter.EyeHeightAsMeters:
+                    EyeHeightAsMeters = (float)value;
+                    break;
 
-            default:
-                throw new ArgumentOutOfRangeException(nameof(vrChatInputParameter), vrChatInputParameter.ToString(), $"Unknown {nameof(VRChatAvatarParameter)}");
+                case VRChatAvatarParameter.EyeHeightAsPercent:
+                    EyeHeightAsPercent = (float)value;
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(vrChatInputParameter), vrChatInputParameter.ToString(), $"Unknown {nameof(VRChatAvatarParameter)}");
+            }
+
+            return true;
         }
-
-        return true;
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"Error while processing default parameter {parameterName}. Type {value.GetType().ToReadableName()}. Value {value}");
+            return false;
+        }
     }
 
     private static string actionToAddress(VRChatButtonInput action) => $"/input/{action}";
