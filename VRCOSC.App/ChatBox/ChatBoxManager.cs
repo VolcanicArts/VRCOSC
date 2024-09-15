@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
@@ -138,8 +139,25 @@ public class ChatBoxManager : INotifyPropertyChanged
 
             if (!chatBoxValidationSerialiser.IsValid)
             {
-                Logger.Log("ChatBox could not validate all data");
-                ExceptionHandler.Handle("ChatBox could not load all data.\nThis is usually the fault of a module not loading correctly or a missing config.\nPlease make sure all your modules are up-to-date and have correct configs.");
+                if (!string.IsNullOrEmpty(filePathOverride))
+                {
+                    Logger.Log("ChatBox could not validate all data when importing");
+
+                    var result = MessageBox.Show("ChatBox could not import all data.\nThis is usually the fault of missing data from a module or module updates.\nPlease make sure all your modules are up-to-date and have correct configs.\n\nPress OK to import anyway", "ChatBox validation failed"
+                        , MessageBoxButton.OKCancel, MessageBoxImage.Error);
+
+                    if (result == MessageBoxResult.OK)
+                    {
+                        Logger.Log("Force importing the config");
+                        Deserialise(filePathOverride, true);
+                    }
+                }
+                else
+                {
+                    Logger.Log("ChatBox could not validate all data");
+                    ExceptionHandler.Handle("ChatBox could not load all data.\nThis is usually the fault of a module not loading correctly or a missing config.\nPlease make sure all your modules are up-to-date and have correct configs.");
+                }
+
                 return;
             }
         }
