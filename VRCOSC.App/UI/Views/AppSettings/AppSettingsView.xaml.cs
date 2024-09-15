@@ -130,6 +130,12 @@ public partial class AppSettingsView
         set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechConfidence).Value = value / 100f;
     }
 
+    public int SpeechNoiseCutoffSliderValue
+    {
+        get => (int)(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechNoiseCutoff).Value * 100f);
+        set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechNoiseCutoff).Value = value / 100f;
+    }
+
     private List<DeviceDisplay> audioInputDevices = null!;
 
     public AppSettingsView()

@@ -18,7 +18,6 @@ internal class AudioProcessor
     private readonly WhisperProcessor? whisper;
 
     private const int default_samples_to_check = 24000; // sample rate is 16000 so check the last 1.5 seconds of audio
-    private const float silence_threshold = 0.15f;
 
     private SpeechResult? speechResult;
 
@@ -120,7 +119,7 @@ internal class AudioProcessor
 #if DEBUG
         Logger.Log($"RMS: {rms}");
 #endif
-        return rms < silence_threshold;
+        return rms < SettingsManager.GetInstance().GetValue<float>(VRCOSCSetting.SpeechNoiseCutoff);
     }
 
     private async Task<SpeechResult?> processWithWhisper(float[] data, bool final)
