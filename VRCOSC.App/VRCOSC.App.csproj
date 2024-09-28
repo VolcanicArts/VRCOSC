@@ -33,7 +33,7 @@
         <PackageReference Include="Octokit" Version="13.0.1" />
         <PackageReference Include="PInvoke.User32" Version="0.7.124" />
         <PackageReference Include="Semver" Version="2.3.0" />
-        <PackageReference Include="Velopack" Version="0.0.594" />
+        <PackageReference Include="Velopack" Version="0.0.626" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />
         <PackageReference Include="VRChat.API" Version="1.18.1" />
         <PackageReference Include="Whisper.net" Version="1.5.0" />

@@ -13,6 +13,7 @@ using VRCOSC.App.Audio;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Themes;
 using VRCOSC.App.UI.Views.Settings;
+using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using SpeechEngine = VRCOSC.App.Settings.SpeechEngine;
 
@@ -134,6 +135,14 @@ public partial class AppSettingsView
     {
         get => (int)(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechNoiseCutoff).Value * 100f);
         set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechNoiseCutoff).Value = value / 100f;
+    }
+
+    public IEnumerable<UpdateChannel> UpdateChannelSource => Enum.GetValues<UpdateChannel>();
+
+    public UpdateChannel SelectedUpdateChannel
+    {
+        get => SettingsManager.GetInstance().GetObservable<UpdateChannel>(VRCOSCSetting.UpdateChannel).Value;
+        set => SettingsManager.GetInstance().GetObservable<UpdateChannel>(VRCOSCSetting.UpdateChannel).Value = value;
     }
 
     private List<DeviceDisplay> audioInputDevices = null!;

@@ -119,7 +119,7 @@ public partial class MainWindow
     {
         var loadingAction = new CompositeProgressAction();
 
-        //loadingAction.AddAction(new DynamicAsyncProgressAction("Checking for updates", async () => await AppManager.GetInstance().VelopackUpdater.CheckForUpdatesAsync()));
+        loadingAction.AddAction(new DynamicAsyncProgressAction("Checking for updates", () => AppManager.GetInstance().VelopackUpdater.CheckForUpdatesAsync()));
         loadingAction.AddAction(new DynamicProgressAction("Loading profiles", () => ProfileManager.GetInstance().Load()));
         loadingAction.AddAction(PackageManager.GetInstance().Load());
         loadingAction.AddAction(new DynamicProgressAction("Loading modules", () => ModuleManager.GetInstance().LoadAllModules()));

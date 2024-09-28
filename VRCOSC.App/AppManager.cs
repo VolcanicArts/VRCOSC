@@ -87,7 +87,7 @@ public class AppManager
     {
         SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Subscribe(theme => ProxyTheme.Value = theme, true);
 
-        //VelopackUpdater = new VelopackUpdater();
+        VelopackUpdater = new VelopackUpdater();
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
@@ -186,8 +186,7 @@ public class AppManager
         openvrUpdateTask = new Repeater(updateOVRClient);
         openvrUpdateTask.Start(TimeSpan.FromSeconds(1d / 60d));
 
-        //if (VelopackUpdater.IsUpdateAvailable)
-        //    VelopackUpdater.ShowUpdate();
+        VelopackUpdater.ShowUpdateIfAvailable();
     }
 
     private void updateOVRClient()

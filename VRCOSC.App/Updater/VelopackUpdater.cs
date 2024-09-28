@@ -1,17 +1,17 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Velopack;
 using Velopack.Sources;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
-using Application = System.Windows.Application;
 
 namespace VRCOSC.App.Updater;
 
-public partial class VelopackUpdater
+public class VelopackUpdater
 {
     private const string repo_url = "https://github.com/VolcanicArts/VRCOSC";
 
@@ -26,6 +26,7 @@ public partial class VelopackUpdater
         {
             constructUpdateManager();
             await CheckForUpdatesAsync();
+            ShowUpdateIfAvailable();
         });
 
         constructUpdateManager();
@@ -34,15 +35,16 @@ public partial class VelopackUpdater
     private void constructUpdateManager()
     {
         var updateChannel = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCSetting.UpdateChannel);
+        var allowPreRelease = updateChannel == UpdateChannel.Beta;
 
-        updateManager = new UpdateManager(new GithubSource(repo_url, null, true), new UpdateOptions
+        updateManager = new UpdateManager(new GithubSource(repo_url, null, allowPreRelease), new UpdateOptions
         {
             ExplicitChannel = updateChannel.ToString().ToLowerInvariant(),
             AllowVersionDowngrade = true
         });
     }
 
-    public async Task CheckForUpdatesAsync()
+    public async Task<bool> CheckForUpdatesAsync()
     {
         Logger.Log("Checking for update");
 
@@ -50,47 +52,32 @@ public partial class VelopackUpdater
         {
             Logger.Log("Portable app detected. Cancelling update check");
             updateInfo = null;
-            return;
+            return false;
         }
 
         updateInfo = await updateManager.CheckForUpdatesAsync();
-        Logger.Log(updateInfo is null ? "No updates available" : "Update available");
+        Logger.Log(updateInfo is null ? "No updates available" : "Updates available");
+        return updateInfo is not null;
     }
 
-    public async void ShowUpdate()
+    public async void ShowUpdateIfAvailable()
     {
-        var result = MessageBox.Show($"A new update is available. Would you like to update?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo!.TargetFullRelease.Version}", "Update Available", MessageBoxButtons.YesNo);
+        if (!IsUpdateAvailable) return;
+
+        var upgradeMessage = $"A new update is available! Would you like to update?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo!.TargetFullRelease.Version}";
+        var downgradeMessage = $"Updating will downgrade due to switching channels. Are you sure you want to downgrade?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo!.TargetFullRelease.Version}";
+
+        var result = MessageBox.Show(updateInfo.IsDowngrade ? downgradeMessage : upgradeMessage, "Update Available", MessageBoxButtons.YesNo);
         if (result == DialogResult.No) return;
 
-        await executeUpdate();
-    }
-
-    private async Task executeUpdate()
-    {
-        if (updateInfo is null) return;
-
-        Logger.Log("Executing update");
-
-        await downloadUpdate();
-        applyUpdate();
-    }
-
-    private async Task downloadUpdate()
-    {
-        Logger.Log("Downloading update");
-        await updateManager.DownloadUpdatesAsync(updateInfo!, handleDownloadProgress);
-        Logger.Log("Update complete");
-    }
-
-    private void applyUpdate()
-    {
-        Logger.Log("Applying update");
-        updateManager.WaitExitThenApplyUpdates(updateInfo!);
-        Application.Current.MainWindow!.Close();
-    }
-
-    private void handleDownloadProgress(int progress)
-    {
-        Logger.Log($"Progress: {progress}");
+        try
+        {
+            await updateManager.DownloadUpdatesAsync(updateInfo);
+            updateManager.ApplyUpdatesAndRestart(null);
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, "An error occurred when trying to update");
+        }
     }
 }

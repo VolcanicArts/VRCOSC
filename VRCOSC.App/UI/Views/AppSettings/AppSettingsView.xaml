@@ -415,7 +415,23 @@
                             </core:SpacedStackPanel>
                         </core:SpacedStackPanel>
                     </Grid>
-                    <Grid Name="UpdatesContainer" Visibility="Collapsed" />
+                    <Grid Name="UpdatesContainer" Visibility="Collapsed">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Update Channel" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="The current update channel being used"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <ComboBox Name="UpdateChannelComboBox"
+                                              ItemsSource="{Binding UpdateChannelSource}"
+                                              SelectedItem="{Binding SelectedUpdateChannel}"
+                                              Style="{StaticResource SettingComboBoxStyle}" />
+                                </Grid>
+                            </Border>
+                        </core:SpacedStackPanel>
+                    </Grid>
                     <Grid Name="DeveloperContainer" Visibility="Collapsed">
                         <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
