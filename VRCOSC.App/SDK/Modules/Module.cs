@@ -831,7 +831,7 @@ public abstract class Module
     /// </summary>
     /// <param name="lookup">The lookup of the setting</param>
     /// <returns>The container if successful, otherwise pushes an exception and returns default</returns>
-    protected ModuleSetting? GetSetting(Enum lookup) => GetSetting<ModuleSetting>(lookup);
+    protected ModuleSetting GetSetting(Enum lookup) => GetSetting<ModuleSetting>(lookup);
 
     /// <summary>
     /// Retrieves the container of the setting using the provided lookup and type param for custom <see cref="ModuleSetting"/>s. This allows for creating more complex UI callback behaviour.
@@ -840,23 +840,26 @@ public abstract class Module
     /// <typeparam name="T">The custom <see cref="ModuleSetting"/> type</typeparam>
     /// <param name="lookup">The lookup of the setting</param>
     /// <returns>The container if successful, otherwise pushes an exception and returns default</returns>
-    protected T? GetSetting<T>(Enum lookup) where T : ModuleSetting => GetSetting<T>(lookup.ToLookup());
+    protected T GetSetting<T>(Enum lookup) where T : ModuleSetting => GetSetting<T>(lookup.ToLookup());
 
-    internal T? GetSetting<T>(string lookup) where T : ModuleSetting
+    internal T GetSetting<T>(string lookup) where T : ModuleSetting
     {
         lock (loadLock)
         {
             if (Settings.TryGetValue(lookup, out var setting)) return (T)setting;
 
-            return default;
+            throw new InvalidOperationException($"Setting with lookup '{lookup}' doesn't exist");
         }
     }
 
-    internal ModuleParameter? GetParameter(string lookup)
+    internal ModuleParameter GetParameter(string lookup)
     {
         lock (loadLock)
         {
-            return Parameters.SingleOrDefault(pair => pair.Key.ToLookup() == lookup).Value;
+            var moduleParameter = Parameters.SingleOrDefault(pair => pair.Key.ToLookup() == lookup);
+            if (Parameters.Any(pair => pair.Key.ToLookup() == lookup)) return moduleParameter.Value;
+
+            throw new InvalidOperationException($"Parameter with lookup '{lookup}' doesn't exist");
         }
     }
 
@@ -866,13 +869,15 @@ public abstract class Module
     /// <param name="lookup">The lookup of the setting</param>
     /// <typeparam name="T">The value type of the setting</typeparam>
     /// <returns>The value if successful, otherwise pushes an exception and returns default</returns>
-    protected T? GetSettingValue<T>(Enum lookup)
+    protected T GetSettingValue<T>(Enum lookup)
     {
         lock (loadLock)
         {
-            if (!Settings.ContainsKey(lookup.ToLookup())) return default;
+            var moduleSetting = GetSetting(lookup);
 
-            return Settings[lookup.ToLookup()].GetValue<T>(out var value) ? value : default;
+            if (moduleSetting.GetValue<T>(out var value)) return value;
+
+            throw new InvalidOperationException($"Could not get the value of setting with lookup '{lookup.ToLookup()}'");
         }
     }
 

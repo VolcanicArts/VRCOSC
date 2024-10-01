@@ -1,6 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+
 namespace VRCOSC.App.SDK.Modules.Attributes;
 
 public abstract class ModuleAttribute
@@ -45,7 +47,7 @@ public abstract class ModuleAttribute
     /// </summary>
     /// <typeparam name="TValueType">The type to attempt to convert the value to</typeparam>
     /// <returns>True if the value was converted successfully, otherwise false</returns>
-    public virtual bool GetValue<TValueType>(out TValueType? outValue)
+    public virtual bool GetValue<TValueType>(out TValueType outValue)
     {
         var value = GetRawValue();
 
@@ -55,8 +57,7 @@ public abstract class ModuleAttribute
             return true;
         }
 
-        outValue = default;
-        return false;
+        throw new InvalidOperationException($"Unable to cast value of module attribute to '{typeof(TValueType)}'");
     }
 
     /// <summary>
