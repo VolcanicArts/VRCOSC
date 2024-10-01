@@ -13,9 +13,8 @@ namespace VRCOSC.App.SDK.Providers.PiShock;
 public class PiShockProvider
 {
     private const string app_name = "VRCOSC";
-    private const string base_api_url = "https://do.pishock.com/api";
-    private const string action_api_url = base_api_url + "/apioperate";
-    private const string info_api_url = base_api_url + "/GetShockerInfo";
+    private const string action_api_url = "https://ps.pishock.com/pishock/operate";
+    private const string info_api_url = "https://do.pishock.com/api/GetShockerInfo";
 
     private readonly HttpClient client = new();
 
