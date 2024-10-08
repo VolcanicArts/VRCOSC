@@ -68,7 +68,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.SelectedSpeechEngine, SpeechEngine.Whisper);
         setDefault(VRCOSCSetting.SpeechConfidence, 0.4f);
         setDefault(VRCOSCSetting.Whisper_ModelPath, string.Empty);
-        setDefault(VRCOSCSetting.SpeechNoiseCutoff, 0.15f);
+        setDefault(VRCOSCSetting.SpeechNoiseCutoff, 0.14f);
         setDefault(VRCOSCSetting.MicrophoneVolumeAdjustment, 1f);
     }
 
