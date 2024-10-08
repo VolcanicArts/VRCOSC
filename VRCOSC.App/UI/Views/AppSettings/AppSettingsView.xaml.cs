@@ -137,9 +137,9 @@ public partial class AppSettingsView
         set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechNoiseCutoff).Value = value / 100f;
     }
 
-    public int MicrophoneVolumeAdjustmentSliderValue
+    public double MicrophoneVolumeAdjustmentSliderValue
     {
-        get => (int)Interpolation.Map(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.MicrophoneVolumeAdjustment).Value, 0, 3, 0, 300);
+        get => Interpolation.Map(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.MicrophoneVolumeAdjustment).Value, 0, 3, 0, 300);
         set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.MicrophoneVolumeAdjustment).Value = (float)Interpolation.Map(value, 0, 300, 0, 3);
     }
 

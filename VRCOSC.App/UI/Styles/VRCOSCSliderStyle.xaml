@@ -1,0 +1,62 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:core="clr-namespace:VRCOSC.App.UI.Core">
+    <core:VRCOSCSliderToTextConverter x:Key="ValueConverter" Mode="Value"/>
+    <core:VRCOSCSliderToTextConverter x:Key="MinConverter" Mode="Min"/>
+    <core:VRCOSCSliderToTextConverter x:Key="MaxConverter" Mode="Max"/>
+    <Style TargetType="core:VRCOSCSlider">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="core:VRCOSCSlider">
+                    <Grid>
+                        <Slider TickPlacement="BottomRight" IsSnapToTickEnabled="True">
+                            <Slider.Value>
+                                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Value"/>
+                            </Slider.Value>
+                            <Slider.Minimum>
+                                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="MinValue"/>
+                            </Slider.Minimum>
+                            <Slider.Maximum>
+                                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="MaxValue"/>
+                            </Slider.Maximum>
+                            <Slider.TickFrequency>
+                                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="TickFrequency"/>
+                            </Slider.TickFrequency>
+                        </Slider>
+                        <TextBlock
+                            HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                            Foreground="{StaticResource CForeground1}" FontSize="14">
+                            <TextBlock.Text>
+                                <MultiBinding Converter="{StaticResource ValueConverter}">
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}"/>
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Value"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                        <TextBlock
+                            HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                            Foreground="{StaticResource CForeground1}" FontSize="14">
+                            <TextBlock.Text>
+                                <MultiBinding Converter="{StaticResource MinConverter}">
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}"/>
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="MinValue"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                        <TextBlock
+                            HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                            Foreground="{StaticResource CForeground1}" FontSize="14">
+                            <TextBlock.Text>
+                                <MultiBinding Converter="{StaticResource MaxConverter}">
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}"/>
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="MaxValue"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

@@ -15,6 +15,7 @@
                 <ResourceDictionary Source="UI/Styles/SpacedListView.xaml" />
                 <ResourceDictionary Source="UI/Styles/TitleDescriptionContentStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/KeybindPickerStyle.xaml" />
+                <ResourceDictionary Source="UI/Styles/VRCOSCSliderStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Style TargetType="{x:Type core:IPPortTextBox}" BasedOn="{StaticResource {x:Type TextBox}}" />
         </ResourceDictionary>
