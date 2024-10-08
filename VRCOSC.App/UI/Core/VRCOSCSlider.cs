@@ -67,6 +67,8 @@ public class VRCOSCSlider : UserControl
         set => SetValue(ToStringFormatProperty, value);
     }
 
+    public bool IsPercentage { get; set; }
+
     static VRCOSCSlider()
     {
         DefaultStyleKeyProperty.OverrideMetadata(typeof(VRCOSCSlider), new FrameworkPropertyMetadata(typeof(VRCOSCSlider)));
@@ -95,7 +97,7 @@ public class VRCOSCSliderToTextConverter : IMultiValueConverter
                     return slider.Value.ToString(slider.ToStringFormat);
 
                 case SliderType.Int:
-                    return $"{(int)Math.Round(slider.Value)}%";
+                    return $"{(int)Math.Round(slider.Value)}" + (slider.IsPercentage ? "%" : string.Empty);
 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -110,7 +112,7 @@ public class VRCOSCSliderToTextConverter : IMultiValueConverter
                     return slider.MinValue.ToString(slider.ToStringFormat);
 
                 case SliderType.Int:
-                    return $"{(int)Math.Round(slider.MinValue)}%";
+                    return $"{(int)Math.Round(slider.MinValue)}" + (slider.IsPercentage ? "%" : string.Empty);
 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -125,7 +127,7 @@ public class VRCOSCSliderToTextConverter : IMultiValueConverter
                     return slider.MaxValue.ToString(slider.ToStringFormat);
 
                 case SliderType.Int:
-                    return $"{(int)Math.Round(slider.MaxValue)}%";
+                    return $"{(int)Math.Round(slider.MaxValue)}" + (slider.IsPercentage ? "%" : string.Empty);
 
                 default:
                     throw new ArgumentOutOfRangeException();
