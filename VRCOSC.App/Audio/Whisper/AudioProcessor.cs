@@ -72,6 +72,9 @@ internal class AudioProcessor
         var data = audioCapture.GetBufferedData();
         if (data.Length == 0) return null;
 
+        // adjust volume as some microphones output quiet streams
+        adjustVolume(data, SettingsManager.GetInstance().GetValue<float>(VRCOSCSetting.MicrophoneVolumeAdjustment));
+
         if (isSilent(data))
         {
             SpeechResult? finalSpeechResult = null;
@@ -101,6 +104,24 @@ internal class AudioProcessor
 #endif
 
         return speechResult;
+    }
+
+    private void adjustVolume(float[] samples, float multiplier)
+    {
+        // multiplier is 0 to 3. Increase it to be 0 to 30 to get more range 
+        multiplier *= 10;
+
+        for (int i = 0; i < samples.Length; i++)
+        {
+            samples[i] *= multiplier;
+
+            samples[i] = samples[i] switch
+            {
+                > 1.0f => 1.0f,
+                < -1.0f => -1.0f,
+                _ => samples[i]
+            };
+        }
     }
 
     private bool isSilent(float[] buffer)

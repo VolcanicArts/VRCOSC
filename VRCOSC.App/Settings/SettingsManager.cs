@@ -69,6 +69,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.SpeechConfidence, 0.4f);
         setDefault(VRCOSCSetting.Whisper_ModelPath, string.Empty);
         setDefault(VRCOSCSetting.SpeechNoiseCutoff, 0.15f);
+        setDefault(VRCOSCSetting.MicrophoneVolumeAdjustment, 1f);
     }
 
     public Observable<T> GetObservable<T>(VRCOSCSetting lookup)
@@ -115,7 +116,8 @@ public enum VRCOSCSetting
     SelectedSpeechEngine,
     Whisper_ModelPath,
     SpeechConfidence,
-    SpeechNoiseCutoff
+    SpeechNoiseCutoff,
+    MicrophoneVolumeAdjustment
 }
 
 public enum SpeechEngine

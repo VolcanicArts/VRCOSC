@@ -35,9 +35,11 @@
         <PackageReference Include="Semver" Version="2.3.0" />
         <PackageReference Include="Velopack" Version="0.0.626" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />
-        <PackageReference Include="VRChat.API" Version="1.18.1" />
-        <PackageReference Include="Whisper.net" Version="1.5.0" />
-        <PackageReference Include="Whisper.net.Runtime" Version="1.5.0" />
+        <PackageReference Include="VRChat.API" Version="1.18.5" />
+        <PackageReference Include="Whisper.net" Version="1.7.0" />
+        <PackageReference Include="Whisper.net.Runtime" Version="1.7.0" />
+        <PackageReference Include="Whisper.net.Runtime.Cuda.Windows" Version="1.7.0" />
+        <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.7.0" />
     </ItemGroup>
 
     <ItemGroup>

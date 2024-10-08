@@ -37,7 +37,7 @@ public class WhisperSpeechEngine : SpeechEngine
         Debug.Assert(audioProcessor is not null);
 
         var result = await audioProcessor.GetResultAsync();
-        if (result is null) return;
+        if (result is null || result.Text.Contains('*')) return;
 
         var requiredConfidence = SettingsManager.GetInstance().GetValue<float>(VRCOSCSetting.SpeechConfidence);
 
