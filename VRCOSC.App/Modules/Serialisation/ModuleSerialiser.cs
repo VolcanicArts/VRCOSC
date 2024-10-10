@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.IO;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
@@ -29,32 +30,34 @@ public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
         {
             var (settingKey, settingValue) = settingPair;
 
-            var setting = Reference.GetSetting<ModuleSetting>(settingKey);
-
-            if (setting is null)
+            try
             {
-                shouldReserialise = true;
-                return;
-            }
+                var setting = Reference.GetSetting<ModuleSetting>(settingKey);
 
-            if (!setting.Deserialise(settingValue))
+                if (!setting.Deserialise(settingValue))
+                    shouldReserialise = true;
+            }
+            catch (Exception)
+            {
+                // setting doesn't exist
                 shouldReserialise = true;
+            }
         });
 
         data.Parameters.ForEach(parameterPair =>
         {
             var (parameterKey, parameterValue) = parameterPair;
 
-            var parameter = Reference.GetParameter(parameterKey);
-
-            if (parameter is null)
+            try
             {
-                shouldReserialise = true;
-                return;
+                var parameter = Reference.GetParameter(parameterKey);
+                parameter.Enabled.Value = parameterValue.Enabled;
+                parameter.Name.Value = parameterValue.ParameterName;
             }
-
-            if (!parameter.Deserialise(parameterValue))
-                shouldReserialise = true;
+            catch (Exception)
+            {
+                // parameter doesn't exist
+            }
         });
 
         return shouldReserialise;
