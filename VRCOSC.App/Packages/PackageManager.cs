@@ -43,7 +43,6 @@ public class PackageManager
 
         builtinSources.Add(OfficialModulesSource = new PackageSource(this, "VolcanicArts", "VRCOSC-Modules", PackageType.Official));
         builtinSources.Add(new PackageSource(this, "DJDavid98", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
-        builtinSources.Add(new PackageSource(this, "TahvoDev", "AxHaptics", PackageType.Curated));
 
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));
