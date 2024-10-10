@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -57,6 +57,10 @@ public abstract class ClipVariable
                 else if (propertyInfo.PropertyType.IsEnum)
                 {
                     viewInstance = new DropdownVariableOptionView(this, propertyInfo);
+                }
+                else if (propertyInfo.PropertyType == typeof(List<string>))
+                {
+                    viewInstance = new ListVariableOptionView(this, propertyInfo);
                 }
 
                 var renderableClipVariableOption = new RenderableClipVariableOption(propertyInfo, displayName, description, viewInstance);
