@@ -17,44 +17,44 @@
         <Border Padding="10" Background="{StaticResource CBackground2}">
             <Grid VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="36" />
-                    <RowDefinition Height="8" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <core:SpacedStackPanel Grid.Row="0" Spacing="7" Orientation="Horizontal">
-                    <core:VRCOSCButton Width="200" ButtonColour="Blue" Click="ResetParameters_OnClick">
-                        <TextBlock Text="Reset To Default" FontSize="20" Foreground="{StaticResource CForeground1}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </core:VRCOSCButton>
-                </core:SpacedStackPanel>
-                <core:HeaderFooterListView Grid.Row="2" ItemsSource="{Binding UIParameters}" AlternationCount="2">
+                <core:HeaderFooterListView ItemsSource="{Binding UIParameters}" AlternationCount="2">
                     <core:HeaderFooterListView.Header>
                         <Border Background="{StaticResource CBackground1}" Height="40">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="15" />
-                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="10" />
+                                    <ColumnDefinition Width="70" />
+                                    <ColumnDefinition Width="20" />
+                                    <ColumnDefinition Width="*" MinWidth="200" MaxWidth="300" />
                                     <ColumnDefinition Width="*" MinWidth="400" />
                                     <ColumnDefinition Width="130" />
                                     <ColumnDefinition Width="130" />
-                                    <ColumnDefinition Width="300" />
+                                    <ColumnDefinition Width="*" MaxWidth="300" />
                                     <ColumnDefinition Width="7" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                           Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
+                                           Text="Enabled" />
+                                <TextBlock Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Left"
                                            Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
                                            Text="Title" />
-                                <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Left"
+                                <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left"
                                            Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
                                            Text="Description" />
-                                <TextBlock Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                           Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
-                                           Text="Type" />
-                                <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                           Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
-                                           Text="Send/Receive" />
                                 <TextBlock Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Center"
                                            Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
-                                           Text="Name" />
+                                           Text="Type" />
+                                <TextBlock Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                           Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
+                                           Text="Send/Receive" />
+                                <Grid Grid.Column="7">
+                                    <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
+                                               Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
+                                               Text="Name" />
+                                    <core:IconButton Icon="Solid_RotateLeft" Height="25" Width="25" ButtonColour="Blue" VerticalAlignment="Center" HorizontalAlignment="Right" Click="ResetParameters_OnClick"/>
+                                </Grid>
                             </Grid>
                         </Border>
                     </core:HeaderFooterListView.Header>
@@ -67,36 +67,39 @@
                                                 Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="15" />
-                                                    <ColumnDefinition Width="300" />
+                                                    <ColumnDefinition Width="10" />
+                                                    <ColumnDefinition Width="70" />
+                                                    <ColumnDefinition Width="20" />
+                                                    <ColumnDefinition Width="*" MinWidth="200" MaxWidth="300" />
                                                     <ColumnDefinition Width="*" MinWidth="400" />
                                                     <ColumnDefinition Width="130" />
                                                     <ColumnDefinition Width="130" />
-                                                    <ColumnDefinition Width="300" />
+                                                    <ColumnDefinition Width="*" MaxWidth="300" />
                                                     <ColumnDefinition Width="7" />
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="1" VerticalAlignment="Center"
+                                                <core:VRCOSCCheckBox Grid.Column="1" Height="30" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="{Binding Enabled.Value}"/>
+                                                <TextBlock Grid.Column="3" VerticalAlignment="Center"
                                                            HorizontalAlignment="Left"
                                                            Foreground="{StaticResource CForeground1}"
                                                            FontSize="16"
                                                            Text="{Binding Title, Mode=OneTime}" />
-                                                <TextBlock Grid.Column="2" VerticalAlignment="Center"
+                                                <TextBlock Grid.Column="4" VerticalAlignment="Center"
                                                            HorizontalAlignment="Left"
                                                            Foreground="{StaticResource CForeground1}"
                                                            FontSize="16"
                                                            Text="{Binding Description, Mode=OneTime}"
                                                            TextWrapping="Wrap" Padding="0 5" />
-                                                <TextBlock Grid.Column="3" VerticalAlignment="Center"
+                                                <TextBlock Grid.Column="5" VerticalAlignment="Center"
                                                            HorizontalAlignment="Center"
                                                            Foreground="{StaticResource CForeground1}"
                                                            FontSize="16"
                                                            Text="{Binding ExpectedType, Mode=OneTime, Converter={StaticResource TypeToReadableTypeConverter}}" />
-                                                <TextBlock Grid.Column="4" VerticalAlignment="Center"
+                                                <TextBlock Grid.Column="6" VerticalAlignment="Center"
                                                            HorizontalAlignment="Center"
                                                            Foreground="{StaticResource CForeground1}"
                                                            FontSize="16"
                                                            Text="{Binding Mode, Mode=OneTime, Converter={StaticResource ParameterModeToStringConverter}}" />
-                                                <TextBox Grid.Column="5"
+                                                <TextBox Grid.Column="7"
                                                          Text="{Binding Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                          FontSize="14" VerticalAlignment="Center"
                                                          Background="{StaticResource CBackground2}"

@@ -5,28 +5,18 @@ using System;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.SDK.Modules.Attributes.Parameters;
+namespace VRCOSC.App.SDK.Modules;
 
-public class ModuleParameter : ModuleAttribute
+public class ModuleParameter
 {
-    public Observable<string> Name { get; private set; } = null!;
+    public Observable<bool> Enabled { get; } = new(true);
+    public Observable<string> Name { get; }
 
-    private readonly string defaultName;
+    private readonly string title;
 
-    public override void PreDeserialise() => Name = new Observable<string>(defaultName);
-    public override bool IsDefault() => Name.IsDefault;
-    public override void SetDefault() => Name.SetDefault();
-    public override object GetRawValue() => Name.Value;
+    public string Title => Legacy ? $"Legacy: {title}" : title;
 
-    public override bool Deserialise(object ingestValue)
-    {
-        if (ingestValue is not string stringIngestValue) return false;
-
-        Name.Value = stringIngestValue;
-        return true;
-    }
-
-    public override string Title => Legacy ? $"Legacy: {base.Title}" : base.Title;
+    public string Description { get; }
 
     /// <summary>
     /// The mode for this <see cref="ModuleParameter"/>
@@ -44,11 +34,15 @@ public class ModuleParameter : ModuleAttribute
     public bool Legacy { get; }
 
     public ModuleParameter(string title, string description, string defaultName, ParameterMode mode, Type expectedType, bool legacy)
-        : base(title, description)
     {
-        this.defaultName = defaultName;
+        Name = new Observable<string>(defaultName);
+
+        this.title = title;
+        Description = description;
         Mode = mode;
         ExpectedType = expectedType;
         Legacy = legacy;
     }
+
+    public bool IsDefault() => Enabled.IsDefault && Name.IsDefault;
 }

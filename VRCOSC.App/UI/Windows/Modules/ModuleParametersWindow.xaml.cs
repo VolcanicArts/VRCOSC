@@ -9,7 +9,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using VRCOSC.App.SDK.Modules;
-using VRCOSC.App.SDK.Modules.Attributes.Parameters;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
@@ -35,7 +34,7 @@ public sealed partial class ModuleParametersWindow
 
     private void ResetParameters_OnClick(object sender, RoutedEventArgs e)
     {
-        Module.Parameters.Values.ForEach(parameter => parameter.SetDefault());
+        Module.Parameters.Values.ForEach(parameter => parameter.Name.SetDefault());
     }
 
     private void ModuleParametersWindow_OnClosing(object? sender, CancelEventArgs e)

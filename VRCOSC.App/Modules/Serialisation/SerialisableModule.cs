@@ -16,10 +16,10 @@ public class SerialisableModule : SerialisableVersion
     public bool Enabled;
 
     [JsonProperty("settings")]
-    public Dictionary<string, object> Settings = new();
+    public Dictionary<string, object?> Settings = new();
 
     [JsonProperty("parameters")]
-    public Dictionary<string, object> Parameters = new();
+    public Dictionary<string, SerialisableParameter> Parameters = new();
 
     [JsonConstructor]
     public SerialisableModule()
@@ -32,6 +32,25 @@ public class SerialisableModule : SerialisableVersion
 
         Enabled = module.Enabled.Value;
         module.Settings.Where(pair => !pair.Value.IsDefault()).ForEach(pair => Settings.Add(pair.Key, pair.Value.GetSerialisableValue()));
-        module.Parameters.Where(pair => !pair.Value.IsDefault()).ForEach(pair => Parameters.Add(pair.Key.ToLookup(), pair.Value.GetSerialisableValue()));
+        module.Parameters.Where(pair => !pair.Value.IsDefault()).ForEach(pair => Parameters.Add(pair.Key.ToLookup(), new SerialisableParameter(pair.Value)));
+    }
+}
+
+public class SerialisableParameter
+{
+    [JsonProperty("enabled")]
+    public bool Enabled;
+
+    [JsonProperty("parameter_name")]
+    public string ParameterName;
+
+    public SerialisableParameter()
+    {
+    }
+
+    public SerialisableParameter(ModuleParameter moduleParameter)
+    {
+        Enabled = moduleParameter.Enabled.Value;
+        ParameterName = moduleParameter.Name.Value;
     }
 }
