@@ -25,8 +25,10 @@ public abstract class ValueModuleSetting<T> : ModuleSetting
     public override void SetDefault() => Attribute.SetDefault();
     public override object? GetRawValue() => Attribute.Value;
 
-    public override bool Deserialise(object ingestValue)
+    public override bool Deserialise(object? ingestValue)
     {
+        if (ingestValue is null) return false;
+
         try
         {
             Attribute.Value = (T)Convert.ChangeType(ingestValue, typeof(T));

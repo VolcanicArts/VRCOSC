@@ -47,7 +47,7 @@ public abstract class ListModuleSetting<T> : ListModuleSetting where T : IClonea
 
     protected virtual T CreateItem() => new();
 
-    public override bool Deserialise(object value)
+    public override bool Deserialise(object? value)
     {
         if (value is not JArray jArrayValue) return false;
 

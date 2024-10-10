@@ -40,7 +40,7 @@ public abstract class ModuleAttribute
     /// </summary>
     /// <param name="ingestValue">The value to attempt to deserialise</param>
     /// <returns>True if the deserialisation was successful, otherwise false</returns>
-    public abstract bool Deserialise(object ingestValue);
+    public abstract bool Deserialise(object? ingestValue);
 
     /// <summary>
     /// Retrieves the value for this <see cref="ModuleAttribute"/> using a provided expected type
