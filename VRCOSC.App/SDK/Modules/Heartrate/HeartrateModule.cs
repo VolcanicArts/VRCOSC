@@ -196,8 +196,16 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     [ModuleUpdate(ModuleUpdateMode.ChatBox)]
     private void updateChatBox()
     {
-        SetVariableValue(HeartrateVariable.Current, (int)currentValue);
-        SetVariableValue(HeartrateVariable.Average, (int)currentAverage);
+        if (isReceiving)
+        {
+            SetVariableValue(HeartrateVariable.Current, (int)currentValue);
+            SetVariableValue(HeartrateVariable.Average, (int)currentAverage);
+        }
+        else
+        {
+            SetVariableValue(HeartrateVariable.Current, 0);
+            SetVariableValue(HeartrateParameter.Average, 0);
+        }
     }
 
     [ModuleUpdate(ModuleUpdateMode.Custom)]
