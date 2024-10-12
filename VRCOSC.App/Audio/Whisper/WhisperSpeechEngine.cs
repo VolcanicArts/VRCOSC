@@ -39,17 +39,18 @@ public class WhisperSpeechEngine : SpeechEngine
         var result = await audioProcessor.GetResultAsync();
         if (result is null || result.Text.Contains('*')) return;
 
+        // filter out things like [BLANK AUDIO]
+        if (result.Text.StartsWith('[')) return;
+
         var requiredConfidence = SettingsManager.GetInstance().GetValue<float>(VRCOSCSetting.SpeechConfidence);
+        if (result.Confidence < requiredConfidence) return;
 
-        if (result.Confidence >= requiredConfidence)
-        {
-            var text = result.Text;
+        var text = result.Text;
 
-            if (result.IsFinal)
-                OnFinalResult?.Invoke(text);
-            else
-                OnPartialResult?.Invoke(text);
-        }
+        if (result.IsFinal)
+            OnFinalResult?.Invoke(text);
+        else
+            OnPartialResult?.Invoke(text);
     }
 
     public override void Teardown()

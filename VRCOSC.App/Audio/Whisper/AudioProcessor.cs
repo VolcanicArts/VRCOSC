@@ -33,8 +33,7 @@ internal class AudioProcessor
                              .WithProbabilities()
                              .WithThreads(8)
                              .WithNoContext()
-                             .WithSingleSegment()
-                             .WithMaxSegmentLength(int.MaxValue)
+                             .WithMaxSegmentLength(144)
                              .Build();
         }
         catch (Exception e)
@@ -108,7 +107,7 @@ internal class AudioProcessor
 
     private void adjustVolume(float[] samples, float multiplier)
     {
-        // multiplier is 0 to 3. Increase it to be 0 to 30 to get more range 
+        // multiplier is 0 to 3. Increase it to be 0 to 30 to get more range
         multiplier *= 10;
 
         for (int i = 0; i < samples.Length; i++)
