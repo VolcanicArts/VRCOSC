@@ -33,7 +33,8 @@ internal class AudioProcessor
                              .WithProbabilities()
                              .WithThreads(8)
                              .WithNoContext()
-                             .WithMaxSegmentLength(144)
+                             .WithSingleSegment()
+                             .WithMaxSegmentLength(int.MaxValue)
                              .Build();
         }
         catch (Exception e)
@@ -83,15 +84,18 @@ internal class AudioProcessor
                 finalSpeechResult = await processWithWhisper(data, true);
             }
 
-            speechResult = null;
-            audioCapture.ClearBuffer();
-
-#if DEBUG
             if (finalSpeechResult is not null)
             {
+#if DEBUG
                 Logger.Log("Final result: " + finalSpeechResult.Text + " - " + finalSpeechResult.Confidence);
-            }
 #endif
+            }
+
+#if DEBUG
+            Logger.Log("Clearing buffer");
+#endif
+            speechResult = null;
+            audioCapture.ClearBuffer();
 
             return finalSpeechResult;
         }
