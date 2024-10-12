@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -31,6 +31,7 @@ using VRCOSC.App.UI.Views.Profiles;
 using VRCOSC.App.UI.Views.Router;
 using VRCOSC.App.UI.Views.Run;
 using VRCOSC.App.UI.Views.Settings;
+using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using Application = System.Windows.Application;
 
@@ -71,7 +72,8 @@ public partial class MainWindow
         InitializeComponent();
         DataContext = this;
 
-        Title = $"{AppManager.APP_NAME} {AppManager.Version}";
+        var installedUpdateChannel = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCSetting.InstalledUpdateChannel);
+        Title = installedUpdateChannel == UpdateChannel.Beta ? $"{AppManager.APP_NAME} {AppManager.Version} BETA" : $"{AppManager.APP_NAME} {AppManager.Version}";
 
         setupTrayIcon();
         copyOpenVrFiles();

@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NuGet.Versioning;
 using Velopack;
 using Velopack.Sources;
 using VRCOSC.App.Settings;
@@ -64,15 +65,19 @@ public class VelopackUpdater
     {
         if (!IsUpdateAvailable) return;
 
-        var upgradeMessage = $"A new update is available! Would you like to update?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo!.TargetFullRelease.Version}";
-        var downgradeMessage = $"Updating will downgrade due to switching channels. Are you sure you want to downgrade?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo!.TargetFullRelease.Version}";
+        // switching channels will cause an update to the same version. No need to update
+        if (SemanticVersion.Parse(AppManager.Version) == updateInfo!.TargetFullRelease.Version) return;
 
-        var result = MessageBox.Show(updateInfo.IsDowngrade ? downgradeMessage : upgradeMessage, "Update Available", MessageBoxButtons.YesNo);
+        var upgradeMessage = $"A new update is available! Would you like to update?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo.TargetFullRelease.Version}";
+        var downgradeMessage = $"Updating will downgrade due to switching channels. Are you sure you want to downgrade?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo.TargetFullRelease.Version}";
+
+        var result = MessageBox.Show(updateInfo.IsDowngrade ? downgradeMessage : upgradeMessage, "Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
         if (result == DialogResult.No) return;
 
         try
         {
             await updateManager.DownloadUpdatesAsync(updateInfo);
+            SettingsManager.GetInstance().GetObservable<UpdateChannel>(VRCOSCSetting.InstalledUpdateChannel).Value = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCSetting.UpdateChannel);
             updateManager.ApplyUpdatesAndRestart(null);
         }
         catch (Exception e)

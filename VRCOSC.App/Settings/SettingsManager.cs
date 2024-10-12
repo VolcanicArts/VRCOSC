@@ -55,6 +55,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.AllowPreReleasePackages, true); // TODO: Change on app release
         setDefault(VRCOSCSetting.TrayOnClose, false);
         setDefault(VRCOSCSetting.UpdateChannel, UpdateChannel.Beta); // TODO: Change on app release
+        setDefault(VRCOSCSetting.InstalledUpdateChannel, UpdateChannel.Beta);
         setDefault(VRCOSCSetting.ChatBoxSendInterval, 1500);
         setDefault(VRCOSCSetting.ChatBoxWorldBlacklist, true);
         setDefault(VRCOSCSetting.ShowRelevantModules, true);
@@ -103,6 +104,7 @@ public enum VRCOSCSetting
     AllowPreReleasePackages,
     TrayOnClose,
     UpdateChannel,
+    InstalledUpdateChannel,
     ChatBoxSendInterval,
     ChatBoxWorldBlacklist,
     ShowRelevantModules,
@@ -124,3 +126,4 @@ public enum SpeechEngine
 {
     Whisper
 }
+
