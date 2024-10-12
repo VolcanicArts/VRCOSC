@@ -21,7 +21,7 @@ public partial class AppDebugView
         InitializeComponent();
         DataContext = this;
 
-        repeater = new Repeater(() => Port9000BoundProcess.Value = $"{executePowerShellCommand("Get-Process -Id (Get-NetUDPEndpoint -LocalPort 9000).OwningProcess | Select-Object -ExpandProperty ProcessName") ?? "Nothing"}");
+        repeater = new Repeater(() => Port9000BoundProcess.Value = $"{(executePowerShellCommand("Get-Process -Id (Get-NetUDPEndpoint -LocalPort 9000).OwningProcess | Select-Object -ExpandProperty ProcessName") ?? "Nothing").ReplaceLineEndings(string.Empty)}");
         repeater.Start(TimeSpan.FromSeconds(5), true);
     }
 
