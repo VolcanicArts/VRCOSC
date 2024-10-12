@@ -399,7 +399,7 @@ public abstract class Module
     /// <summary>
     /// Allows you to create custom module settings to be listed in the module
     /// </summary>
-    protected void CreateCustom(Enum lookup, ModuleSetting moduleSetting)
+    protected void CreateCustomSetting(Enum lookup, ModuleSetting moduleSetting)
     {
         addSetting(lookup, moduleSetting);
     }
