@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -64,7 +64,6 @@ public class SettingsManager
         setDefault(VRCOSCSetting.IncomingEndpoint, "127.0.0.1:9001");
         setDefault(VRCOSCSetting.UseCustomEndpoints, false);
         setDefault(VRCOSCSetting.EnableAppDebug, false);
-        setDefault(VRCOSCSetting.AutoSwitchMicrophone, true);
         setDefault(VRCOSCSetting.SelectedInputDeviceID, string.Empty);
         setDefault(VRCOSCSetting.SelectedSpeechEngine, SpeechEngine.Whisper);
         setDefault(VRCOSCSetting.SpeechConfidence, 0.4f);
@@ -113,7 +112,6 @@ public enum VRCOSCSetting
     IncomingEndpoint,
     UseCustomEndpoints,
     EnableAppDebug,
-    AutoSwitchMicrophone,
     SelectedInputDeviceID,
     SelectedSpeechEngine,
     Whisper_ModelPath,

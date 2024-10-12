@@ -17,6 +17,8 @@ using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using SpeechEngine = VRCOSC.App.Settings.SpeechEngine;
 
+// ReSharper disable UnusedMember.Global
+
 namespace VRCOSC.App.UI.Views.AppSettings;
 
 public partial class AppSettingsView
@@ -107,12 +109,6 @@ public partial class AppSettingsView
         set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Value = value;
     }
 
-    public bool AutoSwitchMicrophone
-    {
-        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AutoSwitchMicrophone).Value;
-        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AutoSwitchMicrophone).Value = value;
-    }
-
     public SpeechEngine SelectedSpeechEngine
     {
         get => SettingsManager.GetInstance().GetObservable<SpeechEngine>(VRCOSCSetting.SelectedSpeechEngine).Value;
@@ -160,7 +156,6 @@ public partial class AppSettingsView
         DataContext = this;
 
         SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID).Subscribe(updateDeviceListAndSelection, true);
-        SpeechEngineComboBox.ItemsSource = Enum.GetValues<SpeechEngine>();
 
         setPage(0);
     }
@@ -180,11 +175,6 @@ public partial class AppSettingsView
         var deviceId = (string)comboBox.SelectedValue;
 
         SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID).Value = deviceId;
-    }
-
-    private void SpeechEngineComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        // TODO: If more speech engines are added, swap between engine views
     }
 
     private void setPage(int pageIndex)

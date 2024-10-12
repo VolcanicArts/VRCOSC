@@ -15,8 +15,18 @@ public class WhisperSpeechEngine : SpeechEngine
 
     public override void Initialise()
     {
-        var captureDeviceId = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedInputDeviceID);
-        var captureDevice = AudioDeviceHelper.GetDeviceByID(captureDeviceId);
+        var captureDeviceId = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID);
+        captureDeviceId.Subscribe(onCaptureDeviceIdChanged, true);
+    }
+
+    private async void onCaptureDeviceIdChanged(string newDeviceId)
+    {
+        audioProcessor?.Stop();
+
+        if (repeater is not null)
+            await repeater.StopAsync();
+
+        var captureDevice = AudioDeviceHelper.GetDeviceByID(newDeviceId);
 
         if (captureDevice is null)
         {
@@ -24,11 +34,13 @@ public class WhisperSpeechEngine : SpeechEngine
             return;
         }
 
+        Logger.Log($"Switching microphone to {captureDevice.FriendlyName}");
+
         audioProcessor = new AudioProcessor(captureDevice);
         audioProcessor.Start();
 
         repeater = new Repeater(processResult);
-        // Do not change this from 1.5. It's tuned
+        // Do not change this from 1.5
         repeater.Start(TimeSpan.FromSeconds(1.5f));
     }
 
@@ -53,9 +65,17 @@ public class WhisperSpeechEngine : SpeechEngine
             OnPartialResult?.Invoke(text);
     }
 
-    public override void Teardown()
+    public override async void Teardown()
     {
+        var captureDeviceId = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID);
+        captureDeviceId.Unsubscribe(onCaptureDeviceIdChanged);
+
         audioProcessor?.Stop();
-        _ = repeater?.StopAsync();
+
+        if (repeater is not null)
+            await repeater.StopAsync();
+
+        audioProcessor = null;
+        repeater = null;
     }
 }

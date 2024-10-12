@@ -125,14 +125,10 @@ public class AppManager
         {
             try
             {
-                return;
-
-                if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoSwitchMicrophone)) return;
                 if (flow != DataFlow.Capture) return;
                 if (role != Role.Multimedia) return;
 
-                Logger.Log("Automatic microphone change detected. Switching to new microphone");
-                // TODO: Figure out why this is erroring only when modules are running
+                Logger.Log("Microphone change detected. Switching to new microphone");
                 SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID).Value = deviceId;
             }
             catch (Exception e)
