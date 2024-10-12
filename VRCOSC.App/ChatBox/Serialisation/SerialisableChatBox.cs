@@ -205,7 +205,16 @@ public class SerialisableClipVariable
 
         options.AddRange(type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)
                              .Where(propertyInfo => propertyInfo.GetCustomAttribute<ClipVariableOptionAttribute>() is not null)
-                             .Select(propertyInfo => new KeyValuePair<string, object?>(propertyInfo.GetCustomAttribute<ClipVariableOptionAttribute>()!.SerialisedName, propertyInfo.GetValue(instance))));
+                             .Select(propertyInfo =>
+                             {
+                                 var value = propertyInfo.GetValue(instance);
+
+                                 // store as UTC ticks
+                                 if (value is DateTimeOffset dateTimeOffset)
+                                     value = dateTimeOffset.UtcTicks;
+
+                                 return new KeyValuePair<string, object?>(propertyInfo.GetCustomAttribute<ClipVariableOptionAttribute>()!.SerialisedName, value);
+                             }));
 
         return options;
     }

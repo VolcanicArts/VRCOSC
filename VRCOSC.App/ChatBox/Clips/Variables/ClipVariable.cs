@@ -62,6 +62,10 @@ public abstract class ClipVariable
                 {
                     viewInstance = new ListVariableOptionView(this, propertyInfo);
                 }
+                else if (propertyInfo.PropertyType == typeof(DateTimeOffset))
+                {
+                    viewInstance = new DateTimeVariableOptionView(this, propertyInfo);
+                }
 
                 var renderableClipVariableOption = new RenderableClipVariableOption(propertyInfo, displayName, description, viewInstance);
                 optionsList.Add(renderableClipVariableOption);

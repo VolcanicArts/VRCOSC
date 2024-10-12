@@ -129,7 +129,7 @@ public class SliderModuleSetting : ValueModuleSetting<float>
         TickFrequency = tickFrequency;
     }
 
-    public override bool Deserialise(object ingestValue)
+    public override bool Deserialise(object? ingestValue)
     {
         var result = base.Deserialise(ingestValue);
         Attribute.Value = Math.Clamp(Attribute.Value, MinValue, MaxValue);
@@ -169,7 +169,7 @@ public class DateTimeModuleSetting : ValueModuleSetting<DateTimeOffset>
 
     public override object GetSerialisableValue() => Attribute.Value.UtcTicks;
 
-    public override bool Deserialise(object ingestValue)
+    public override bool Deserialise(object? ingestValue)
     {
         if (ingestValue is not long ingestUtcTicks) return false;
 

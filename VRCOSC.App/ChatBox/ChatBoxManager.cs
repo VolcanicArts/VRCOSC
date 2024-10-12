@@ -99,6 +99,14 @@ public class ChatBoxManager : INotifyPropertyChanged
             ClipVariableType = typeof(StringClipVariable),
             ValueType = typeof(string)
         });
+
+        VariableReferences.Add(new ClipVariableReference
+        {
+            VariableID = BuiltInVariables.Timer.ToLookup(),
+            DisplayName = { Value = "Timer" },
+            ClipVariableType = typeof(TimerClipVariable),
+            ValueType = typeof(TimeSpan)
+        });
     }
 
     public void Unload()
@@ -247,6 +255,7 @@ public class ChatBoxManager : INotifyPropertyChanged
     {
         GetVariable(null, BuiltInVariables.FocusedWindow.ToLookup())!.SetValue(ProcessExtensions.GetActiveWindowTitle());
         GetVariable(null, BuiltInVariables.Text.ToLookup())!.SetValue(string.Empty);
+        GetVariable(null, BuiltInVariables.Timer.ToLookup())!.SetValue(TimeSpan.Zero);
     }
 
     private void evaluateClips()
@@ -461,5 +470,6 @@ public class ChatBoxManager : INotifyPropertyChanged
 public enum BuiltInVariables
 {
     Text,
-    FocusedWindow
+    FocusedWindow,
+    Timer
 }

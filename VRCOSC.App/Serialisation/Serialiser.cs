@@ -140,6 +140,12 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
                     outValue = Enum.ToObject(targetType, subValue);
                     return true;
 
+                case long utcTicks when targetType == typeof(DateTimeOffset):
+                    var utcDateTime = new DateTime(utcTicks, DateTimeKind.Utc);
+                    var localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, TimeZoneInfo.Local);
+                    outValue = new DateTimeOffset(localDateTime, TimeZoneInfo.Local.GetUtcOffset(localDateTime));
+                    return true;
+
                 default:
                     outValue = Convert.ChangeType(value, targetType);
                     return true;
