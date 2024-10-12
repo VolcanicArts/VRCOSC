@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using VRCOSC.App.Packages;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings.Serialisation;
 using VRCOSC.App.UI.Themes;
@@ -46,7 +45,6 @@ public class SettingsManager
     {
         setDefault(VRCOSCSetting.FirstTimeSetupComplete, false);
         setDefault(VRCOSCSetting.StartInTray, false);
-        setDefault(VRCOSCSetting.PackageFilter, (int)(PackageListingFilter.Type_Official | PackageListingFilter.Type_Curated | PackageListingFilter.Type_Community)); // TODO: Remove community on release
         setDefault(VRCOSCSetting.AutomaticProfileSwitching, false);
         setDefault(VRCOSCSetting.VRCAutoStart, false);
         setDefault(VRCOSCSetting.VRCAutoStop, false);
@@ -94,7 +92,6 @@ public enum VRCOSCSetting
 {
     FirstTimeSetupComplete,
     StartInTray,
-    PackageFilter,
     AutomaticProfileSwitching,
     VRCAutoStart,
     VRCAutoStop,
