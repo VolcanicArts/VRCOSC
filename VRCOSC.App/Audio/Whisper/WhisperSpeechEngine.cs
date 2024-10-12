@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
@@ -65,7 +66,7 @@ public class WhisperSpeechEngine : SpeechEngine
             OnPartialResult?.Invoke(text);
     }
 
-    public override async void Teardown()
+    public override async Task Teardown()
     {
         var captureDeviceId = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID);
         captureDeviceId.Unsubscribe(onCaptureDeviceIdChanged);

@@ -475,7 +475,7 @@ public class AppManager
 
         State.Value = AppManagerState.Stopping;
 
-        SpeechEngine.Teardown();
+        await SpeechEngine.Teardown();
 
         VRChatLogReader.Stop();
         await VRChatOscClient.DisableReceive();

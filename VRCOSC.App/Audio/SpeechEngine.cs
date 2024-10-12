@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Audio;
 
@@ -11,7 +12,7 @@ public abstract class SpeechEngine
     public Action<string>? OnFinalResult;
 
     public abstract void Initialise();
-    public abstract void Teardown();
+    public abstract Task Teardown();
 }
 
 public record SpeechResult(bool IsFinal, string Text, float Confidence)
