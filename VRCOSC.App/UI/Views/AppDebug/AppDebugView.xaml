@@ -29,7 +29,7 @@
                 <Border Background="{StaticResource CBackground1}" Padding="8 4">
                     <TextBlock Text="Debug Panel"
                                FontSize="18"
-                               FontWeight="Bold"
+                               FontWeight="SemiBold"
                                Foreground="{StaticResource CForeground2}" />
                 </Border>
                 <Border Background="{StaticResource CBackground3}" Padding="8 4" Height="30">
