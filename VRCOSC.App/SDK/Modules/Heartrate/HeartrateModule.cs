@@ -200,11 +200,13 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         {
             SetVariableValue(HeartrateVariable.Current, (int)currentValue);
             SetVariableValue(HeartrateVariable.Average, (int)currentAverage);
+            ChangeState(HeartrateState.Connected);
         }
         else
         {
             SetVariableValue(HeartrateVariable.Current, 0);
             SetVariableValue(HeartrateParameter.Average, 0);
+            ChangeState(HeartrateState.Disconnected);
         }
     }
 
