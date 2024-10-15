@@ -210,12 +210,16 @@ public class Clip : INotifyPropertyChanged
         try
         {
             var runningLinkedModules = LinkedModules.Where(moduleID => ModuleManager.GetInstance().IsModuleRunning(moduleID)).ToList();
-            var activeStateIDs = runningLinkedModules.Select(moduleID => ChatBoxManager.GetInstance().StateValues.GetValueOrDefault(moduleID)).ToList().RemoveIf(stateID => stateID is null);
+
+            var activeStateIDs = runningLinkedModules.Where(moduleID => ChatBoxManager.GetInstance().StateValues.GetValueOrDefault(moduleID) is not null)
+                                                     .Select(moduleID => $"{moduleID}.{ChatBoxManager.GetInstance().StateValues[moduleID]}")
+                                                     .ToList();
 
             // takes a copy of the states to not remove from the original collection
             // first removes if a state has non-running modules or less/more compounded states compared to the running modules
             // second removes if a state has invalid module states compared to the active module states
-            return States.ToList().RemoveIf(clipState => !clipState.States.Keys.ContainsSame(runningLinkedModules) || !clipState.States.Values.ContainsSame(activeStateIDs)).SingleOrDefault();
+            // because modules can have the same state names, we fully qualify the states based on their owning modules
+            return States.ToList().RemoveIf(clipState => !clipState.States.Keys.ContainsSame(runningLinkedModules) || !activeStateIDs.ContainsSame(clipState.States.Select(state => $"{state.Key}.{state.Value}"))).SingleOrDefault();
         }
         catch (Exception e)
         {
