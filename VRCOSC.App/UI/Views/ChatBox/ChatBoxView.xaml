@@ -313,6 +313,7 @@
                                                                                 HorizontalAlignment="Stretch"
                                                                                 VerticalAlignment="Center"
                                                                                 TextAlignment="Center"
+                                                                                TextTrimming="CharacterEllipsis"
                                                                                 FontSize="20"
                                                                                 Foreground="{StaticResource CForeground1}" />
                                                                         </Border>
