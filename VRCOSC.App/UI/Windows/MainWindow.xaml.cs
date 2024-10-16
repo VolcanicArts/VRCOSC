@@ -58,6 +58,7 @@ public partial class MainWindow
     private readonly Storage storage = AppManager.GetInstance().Storage;
 
     public Observable<bool> ShowAppDebug { get; } = new();
+    public Observable<bool> ShowRouter { get; } = new();
 
     public MainWindow()
     {
@@ -66,6 +67,7 @@ public partial class MainWindow
 
         SettingsManager.GetInstance().Load();
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
+        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableRouter).Subscribe(newValue => ShowRouter.Value = newValue, true);
 
         AppManager.GetInstance().Initialise();
 

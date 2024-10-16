@@ -102,8 +102,8 @@
                     <RadioButton Click="SpeechTabButton_OnClick">
                         <TextBlock Text="Speech" Style="{StaticResource RadioTextBlockStyle}" />
                     </RadioButton>
-                    <RadioButton Click="DeveloperTabButton_OnClick">
-                        <TextBlock Text="Developer" Style="{StaticResource RadioTextBlockStyle}" />
+                    <RadioButton Click="AdvancedTabButton_OnClick">
+                        <TextBlock Text="Advanced" Style="{StaticResource RadioTextBlockStyle}" />
                     </RadioButton>
                 </core:SpacedStackPanel>
             </ScrollViewer>
@@ -408,7 +408,7 @@
                             </Border>
                         </core:SpacedStackPanel>
                     </Grid>
-                    <Grid Name="DeveloperContainer" Visibility="Collapsed">
+                    <Grid Name="AdvancedContainer" Visibility="Collapsed">
                         <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
@@ -421,6 +421,19 @@
                                                          Height="32"
                                                          Width="32"
                                                          IsChecked="{Binding EnableAppDebug}" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Enable Router" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="Gain access to the router page. This should only be used when necessary"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding EnableRouter}" />
                                 </Grid>
                             </Border>
                         </core:SpacedStackPanel>

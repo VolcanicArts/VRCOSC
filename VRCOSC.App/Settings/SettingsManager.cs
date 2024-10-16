@@ -62,6 +62,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.IncomingEndpoint, "127.0.0.1:9001");
         setDefault(VRCOSCSetting.UseCustomEndpoints, false);
         setDefault(VRCOSCSetting.EnableAppDebug, false);
+        setDefault(VRCOSCSetting.EnableRouter, false);
         setDefault(VRCOSCSetting.SelectedInputDeviceID, string.Empty);
         setDefault(VRCOSCSetting.SelectedSpeechEngine, SpeechEngine.Whisper);
         setDefault(VRCOSCSetting.SpeechConfidence, 0.4f);
@@ -109,6 +110,7 @@ public enum VRCOSCSetting
     IncomingEndpoint,
     UseCustomEndpoints,
     EnableAppDebug,
+    EnableRouter,
     SelectedInputDeviceID,
     SelectedSpeechEngine,
     Whisper_ModelPath,

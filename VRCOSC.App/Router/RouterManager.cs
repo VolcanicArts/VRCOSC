@@ -9,6 +9,7 @@ using VRCOSC.App.OSC.Client;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Router.Serialisation;
 using VRCOSC.App.Serialisation;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Router;
@@ -23,6 +24,8 @@ public class RouterManager
 
     private readonly List<(RouterInstance, OscSender)> senders = new();
 
+    private bool started;
+
     public RouterManager()
     {
         serialisationManager = new SerialisationManager();
@@ -31,6 +34,7 @@ public class RouterManager
 
     public void Load()
     {
+        started = false;
         Routes.Clear();
 
         Routes.CollectionChanged += (_, e) =>
@@ -52,6 +56,8 @@ public class RouterManager
 
     public void Start()
     {
+        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.EnableRouter)) return;
+
         foreach (var route in Routes)
         {
             try
@@ -76,10 +82,14 @@ public class RouterManager
         }
 
         AppManager.GetInstance().VRChatOscClient.OnParameterReceived += onParameterReceived;
+
+        started = true;
     }
 
     public void Stop()
     {
+        if (!started) return;
+
         AppManager.GetInstance().VRChatOscClient.OnParameterReceived -= onParameterReceived;
 
         foreach (var (route, sender) in senders)

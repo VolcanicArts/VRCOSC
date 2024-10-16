@@ -94,7 +94,8 @@
                             <RadioButton GroupName="TabBar" Click="ModulesButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_List" />
                             </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="RouterButton_OnClick">
+                            <RadioButton GroupName="TabBar" Click="RouterButton_OnClick"
+                                         Visibility="{Binding ShowRouter.Value, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <fa6:ImageAwesome Icon="Solid_ShareNodes" />
                             </RadioButton>
                             <RadioButton GroupName="TabBar" Click="ChatBoxButton_OnClick">

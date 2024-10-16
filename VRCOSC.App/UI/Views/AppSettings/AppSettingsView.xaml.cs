@@ -109,6 +109,12 @@ public partial class AppSettingsView
         set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Value = value;
     }
 
+    public bool EnableRouter
+    {
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableRouter).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableRouter).Value = value;
+    }
+
     public SpeechEngine SelectedSpeechEngine
     {
         get => SettingsManager.GetInstance().GetObservable<SpeechEngine>(VRCOSCSetting.SelectedSpeechEngine).Value;
@@ -183,7 +189,7 @@ public partial class AppSettingsView
         OscContainer.Visibility = pageIndex == 1 ? Visibility.Visible : Visibility.Collapsed;
         AutomationContainer.Visibility = pageIndex == 2 ? Visibility.Visible : Visibility.Collapsed;
         UpdatesContainer.Visibility = pageIndex == 3 ? Visibility.Visible : Visibility.Collapsed;
-        DeveloperContainer.Visibility = pageIndex == 4 ? Visibility.Visible : Visibility.Collapsed;
+        AdvancedContainer.Visibility = pageIndex == 4 ? Visibility.Visible : Visibility.Collapsed;
         PackagesContainer.Visibility = pageIndex == 5 ? Visibility.Visible : Visibility.Collapsed;
         SpeechContainer.Visibility = pageIndex == 6 ? Visibility.Visible : Visibility.Collapsed;
         OVRContainer.Visibility = pageIndex == 7 ? Visibility.Visible : Visibility.Collapsed;
@@ -209,7 +215,7 @@ public partial class AppSettingsView
         setPage(3);
     }
 
-    private void DeveloperTabButton_OnClick(object sender, RoutedEventArgs e)
+    private void AdvancedTabButton_OnClick(object sender, RoutedEventArgs e)
     {
         setPage(4);
     }
