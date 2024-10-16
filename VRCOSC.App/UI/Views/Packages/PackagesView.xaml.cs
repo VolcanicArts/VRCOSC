@@ -8,7 +8,6 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using VRCOSC.App.Actions.Packages;
 using VRCOSC.App.Packages;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows;
@@ -30,8 +29,6 @@ public sealed partial class PackagesView
         filterDataGrid(string.Empty);
     }
 
-    public Visibility UpdateAllButtonVisibility => PackageManager.GetInstance().Sources.Any(packageSource => packageSource.IsUpdateAvailable()) ? Visibility.Visible : Visibility.Collapsed;
-
     private async void RefreshButton_OnClick(object sender, RoutedEventArgs e)
     {
         if (AppManager.GetInstance().State.Value is AppManagerState.Starting or AppManagerState.Started)
@@ -40,18 +37,6 @@ public sealed partial class PackagesView
         }
 
         _ = MainWindow.GetInstance().ShowLoadingOverlay("Refreshing All Packages", PackageManager.GetInstance().RefreshAllSources(true));
-    }
-
-    private void UpdateAllButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        var updateAllPackagesAction = new UpdateAllPackagesAction();
-
-        foreach (var packageSource in PackageManager.GetInstance().Sources.Where(packageSource => packageSource.IsUpdateAvailable()))
-        {
-            updateAllPackagesAction.AddAction(PackageManager.GetInstance().InstallPackage(packageSource));
-        }
-
-        _ = MainWindow.GetInstance().ShowLoadingOverlay("Updating All Packages", updateAllPackagesAction);
     }
 
     private void filterDataGrid(string filterText)
@@ -78,7 +63,6 @@ public sealed partial class PackagesView
 
     public void Refresh() => Dispatcher.Invoke(() =>
     {
-        OnPropertyChanged(nameof(UpdateAllButtonVisibility));
         PackageList.ItemsSource = null;
         filterDataGrid(SearchTextBox.Text);
     });

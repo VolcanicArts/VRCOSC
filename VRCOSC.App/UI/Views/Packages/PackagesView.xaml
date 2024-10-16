@@ -69,9 +69,6 @@
                         </Grid>
                     </Border>
                     <core:IconButton Width="36" ButtonColour="Blue" Click="RefreshButton_OnClick" Icon="Solid_Rotate" />
-                    <core:IconButton Width="36" ButtonColour="Blue" Click="UpdateAllButton_OnClick"
-                                     Icon="Regular_CircleDown"
-                                     Visibility="{Binding UpdateAllButtonVisibility, Mode=OneWay}" />
                 </core:SpacedStackPanel>
                 <core:HeaderFooterListView Grid.Row="2" x:Name="PackageList" AlternationCount="2" HideFooterWhenEmpty="True">
                     <core:HeaderFooterListView.Header>
