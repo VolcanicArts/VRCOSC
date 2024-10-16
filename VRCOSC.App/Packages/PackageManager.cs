@@ -10,6 +10,7 @@ using VRCOSC.App.Actions.Packages;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages.Serialisation;
 using VRCOSC.App.Serialisation;
+using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
 
@@ -46,6 +47,8 @@ public class PackageManager
 
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));
+
+        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AllowPreReleasePackages).Subscribe(async _ => await MainWindow.GetInstance().ShowLoadingOverlay("Refreshing Packages", RefreshAllSources(false)));
     }
 
     public PackageSource? GetPackage(string packageID) => Sources.FirstOrDefault(packageSource => packageSource.PackageID == packageID);

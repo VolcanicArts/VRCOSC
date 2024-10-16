@@ -35,12 +35,13 @@ public class PackageSource
 
     public PackageSourceState State { get; private set; } = PackageSourceState.Unknown;
     public string? PackageID => Repository?.PackageFile?.PackageID;
-    public string? LatestVersion => Repository?.Releases.FirstOrDefault()?.Version;
-
-    // TODO: Update this when the setting changes
-    public List<PackageRelease> FilteredReleases => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPrerelease) || !packageRelease.IsPrerelease).ToList();
+    public string LatestVersion => LatestRelease.Version;
     public PackageRelease LatestRelease => FilteredReleases.First();
     public PackageRelease? InstalledRelease => FilteredReleases.SingleOrDefault(packageRelease => packageRelease.Version == InstalledVersion);
+
+    public List<PackageRelease> FilteredReleases => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPrerelease)
+                                                                                                 || !packageRelease.IsPrerelease
+                                                                                                 || packageRelease.Version == InstalledVersion).ToList();
 
     public bool IsInstalled() => packageManager.IsInstalled(this);
 
@@ -178,7 +179,7 @@ public class PackageSource
             if (IsUnavailable())
                 return "Unavailable";
 
-            return LatestVersion!;
+            return LatestVersion;
         }
     }
 
