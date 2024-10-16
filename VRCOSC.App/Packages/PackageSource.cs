@@ -36,12 +36,14 @@ public class PackageSource
     public PackageSourceState State { get; private set; } = PackageSourceState.Unknown;
     public string? PackageID => Repository?.PackageFile?.PackageID;
     public string LatestVersion => LatestRelease.Version;
-    public PackageRelease LatestRelease => FilteredReleases.First();
+    public PackageRelease LatestRelease => filterReleases(false).First();
     public PackageRelease? InstalledRelease => FilteredReleases.SingleOrDefault(packageRelease => packageRelease.Version == InstalledVersion);
 
-    public List<PackageRelease> FilteredReleases => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPrerelease)
-                                                                                                 || !packageRelease.IsPrerelease
-                                                                                                 || packageRelease.Version == InstalledVersion).ToList();
+    public List<PackageRelease> FilteredReleases => filterReleases(true);
+
+    private List<PackageRelease> filterReleases(bool includeInstalledRelease) => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPrerelease)
+                                                                                                                              || !packageRelease.IsPrerelease
+                                                                                                                              || (packageRelease.Version == InstalledVersion && includeInstalledRelease)).ToList();
 
     public bool IsInstalled() => packageManager.IsInstalled(this);
 
