@@ -8,7 +8,7 @@
         <ApplicationIcon>app.ico</ApplicationIcon>
         <Company>VRCOSC</Company>
         <Product>VRCOSC</Product>
-        <LangVersion>12</LangVersion>
+        <LangVersion>latestmajor</LangVersion>
         <AssemblyName>VRCOSC</AssemblyName>
         <AssemblyVersion>$(GlobalVersion)</AssemblyVersion>
         <FileVersion>$(GlobalVersion)</FileVersion>

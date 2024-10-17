@@ -17,7 +17,7 @@
         <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/VolcanicArts/VRCOSC</RepositoryUrl>
         <Company>VRCOSC</Company>
-        <LangVersion>12</LangVersion>
+        <LangVersion>latestmajor</LangVersion>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
