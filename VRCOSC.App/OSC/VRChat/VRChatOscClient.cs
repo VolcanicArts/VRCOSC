@@ -3,6 +3,7 @@
 
 using System;
 using System.Net.Http;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using VRCOSC.App.OSC.Client;
@@ -48,7 +49,8 @@ public class VRChatOscClient : OscClient
         {
             if (connectionManager.VRChatQueryPort is null) return null;
 
-            var url = $"http://127.0.0.1:{connectionManager.VRChatQueryPort}{address}";
+            var addressEncoded = UrlEncoder.Default.Encode(address);
+            var url = $"http://127.0.0.1:{connectionManager.VRChatQueryPort}{addressEncoded}";
 
             var response = await client.GetAsync(new Uri(url));
             if (!response.IsSuccessStatusCode) return null;
