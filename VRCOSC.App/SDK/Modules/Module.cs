@@ -369,19 +369,13 @@ public abstract class Module
     protected void RegisterParameter<T>(Enum lookup, string defaultName, ParameterMode mode, string title, string description, bool legacy = false) where T : struct
     {
         if (isLoaded)
-        {
             throw new InvalidOperationException($"{FullID} attempted to register a parameter after the module has been loaded");
-        }
 
         if (Parameters.ContainsKey(lookup))
-        {
             throw new InvalidOperationException($"{FullID} attempted to add an already existing lookup ({lookup.ToLookup()}) to its parameters");
-        }
 
         if (typeof(T) != typeof(bool) && typeof(T) != typeof(int) && typeof(T) != typeof(float))
-        {
             throw new InvalidOperationException($"{FullID} attempted to register a parameter with an invalid type");
-        }
 
         Parameters.Add(lookup, new ModuleParameter(title, description, defaultName, mode, typeof(T), legacy));
     }
@@ -393,6 +387,15 @@ public abstract class Module
     /// <param name="lookups">The settings lookups to put in this group</param>
     protected void CreateGroup(string title, params Enum[] lookups)
     {
+        if (isLoaded)
+            throw new InvalidOperationException($"{FullID} attempted to create a group after the module has been loaded");
+
+        if (Groups.ContainsKey(title))
+            throw new InvalidOperationException($"{FullID} attempted to create a group '{title}' which already exists");
+
+        if (lookups.Any(newLookup => Groups.Any(pair => pair.Value.Contains(newLookup.ToLookup()))))
+            throw new InvalidOperationException($"{FullID} attempted to add a setting to a group when it's already in a group");
+
         Groups.Add(title, lookups.Select(lookup => lookup.ToLookup()).ToList());
     }
 
@@ -472,19 +475,13 @@ public abstract class Module
     private void addSetting(Enum lookup, ModuleSetting moduleSetting)
     {
         if (isLoaded)
-        {
             throw new InvalidOperationException($"{FullID} attempted to create a module setting after the module has been loaded");
-        }
 
         if (!moduleSetting.ViewType.HasConstructorThatAccepts(typeof(Module), typeof(ModuleSetting)))
-        {
             throw new InvalidOperationException($"{FullID} attempted to create a module setting who's view doesn't have a constructor of (Module, ModuleSetting)");
-        }
 
         if (Settings.ContainsKey(lookup.ToLookup()))
-        {
             throw new InvalidOperationException($"{FullID} attempted to add an already existing lookup ({lookup.ToLookup()}) to its settings");
-        }
 
         moduleSetting.ParentModule = this;
         Settings.Add(lookup.ToLookup(), moduleSetting);
@@ -774,19 +771,13 @@ public abstract class Module
     protected void SetRuntimeView(Type viewType)
     {
         if (isLoaded)
-        {
             throw new InvalidOperationException($"{FullID} attempted to set the runtime view after the module has been loaded");
-        }
 
         if (!viewType.IsAssignableTo(typeof(UserControl)))
-        {
             throw new InvalidOperationException($"{FullID} attempted to set a runtime view which does not extend UserControl");
-        }
 
         if (!viewType.HasConstructorThatAccepts(typeof(Module)))
-        {
-            throw new InvalidOperationException($"{FullID} attempted to set a runtime view which does not have a constructor of (Module)");
-        }
+            throw new InvalidOperationException($"{FullID} attempted to set a runtime view which does not have a constructor of ({GetType().Name})");
 
         RuntimeViewType = viewType;
     }
@@ -811,7 +802,7 @@ public abstract class Module
     {
         if (!Parameters.TryGetValue(lookup, out var moduleParameter))
         {
-            ExceptionHandler.Handle(new InvalidOperationException($"Lookup `{lookup}` has not been registered. Please register it by calling RegisterParameter in OnPreLoad"));
+            ExceptionHandler.Handle(new InvalidOperationException($"Parameter `{lookup}` has not been registered. Please register it by calling RegisterParameter in OnPreLoad"));
             return;
         }
 
