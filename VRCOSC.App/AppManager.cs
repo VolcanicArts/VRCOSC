@@ -425,12 +425,12 @@ public class AppManager
     {
         State.Value = AppManagerState.Starting;
 
-        VRChatLogReader.Start();
         RouterManager.GetInstance().Start();
         VRChatOscClient.EnableSend();
         ChatBoxManager.GetInstance().Start();
         await VRChatClient.Player.RetrieveAll();
         await ModuleManager.GetInstance().StartAsync();
+        VRChatLogReader.Start();
 
         updateTask = new Repeater(update);
         updateTask.Start(TimeSpan.FromSeconds(1d / 60d));
@@ -487,13 +487,13 @@ public class AppManager
 
         await SpeechEngine.Teardown();
 
-        VRChatLogReader.Stop();
         await VRChatOscClient.DisableReceive();
         VRChatOscClient.OnParameterReceived -= onParameterReceived;
 
         if (updateTask is not null)
             await updateTask.StopAsync();
 
+        VRChatLogReader.Stop();
         await ModuleManager.GetInstance().StopAsync();
         await ChatBoxManager.GetInstance().Stop();
         VRChatClient.Teardown();

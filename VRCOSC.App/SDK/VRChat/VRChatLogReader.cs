@@ -46,7 +46,7 @@ internal class VRChatLogReader
         }
 
         processTask = new Repeater(process);
-        processTask.Start(TimeSpan.FromMilliseconds(200));
+        processTask.Start(TimeSpan.FromMilliseconds(200), true);
     }
 
     internal static async void Stop()
