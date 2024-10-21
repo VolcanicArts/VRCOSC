@@ -49,6 +49,7 @@ public class VRChatOscClient : OscClient
         {
             if (connectionManager.VRChatQueryPort is null) return null;
 
+            address = address.Replace(" ", "%20");
             var url = $"http://127.0.0.1:{connectionManager.VRChatQueryPort}{address}";
 
             var response = await client.GetAsync(new Uri(url));
