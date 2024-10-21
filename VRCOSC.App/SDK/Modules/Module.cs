@@ -909,13 +909,6 @@ public abstract class Module
     {
         lock (loadLock)
         {
-            if (message.IsAvatarChangeEvent)
-            {
-                var avatarConfig = AvatarConfigLoader.LoadConfigFor((string)message.ParameterValue);
-                invokeAvatarChange(avatarConfig);
-                return;
-            }
-
             var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
 
             try
@@ -964,7 +957,7 @@ public abstract class Module
         }
     }
 
-    private void invokeAvatarChange(AvatarConfig? avatarConfig)
+    internal void InvokeAvatarChange(AvatarConfig? avatarConfig)
     {
         try
         {

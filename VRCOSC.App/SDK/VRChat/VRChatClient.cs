@@ -10,7 +10,6 @@ namespace VRCOSC.App.SDK.VRChat;
 public class VRChatClient
 {
     public readonly Player Player;
-    public AvatarConfig? AvatarConfig;
 
     private bool lastKnownOpenState;
 
@@ -22,18 +21,10 @@ public class VRChatClient
     public void Teardown()
     {
         Player.ResetAll();
-        AvatarConfig = null;
     }
 
-    public async void HandleAvatarChange(VRChatOscMessage message)
+    public async void HandleAvatarChange()
     {
-        var avatarId = (string)message.ParameterValue;
-
-        if (!avatarId.StartsWith("local"))
-        {
-            AvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
-        }
-
         await Player.RetrieveAll();
     }
 

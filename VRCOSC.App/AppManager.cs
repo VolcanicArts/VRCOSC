@@ -235,7 +235,17 @@ public class AppManager
         {
             if (message.IsAvatarChangeEvent)
             {
-                VRChatClient.HandleAvatarChange(message);
+                var avatarId = (string)message.ParameterValue;
+
+                AvatarConfig? avatarConfig = null;
+
+                if (!avatarId.StartsWith("local"))
+                {
+                    avatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
+                }
+
+                VRChatClient.HandleAvatarChange();
+                ModuleManager.GetInstance().AvatarChange(avatarConfig);
 
                 if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) continue;
 

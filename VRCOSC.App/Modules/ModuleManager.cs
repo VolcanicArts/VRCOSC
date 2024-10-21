@@ -14,6 +14,7 @@ using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules.Serialisation;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Modules;
+using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -74,6 +75,11 @@ internal class ModuleManager : INotifyPropertyChanged
     public void ChatBoxUpdate()
     {
         RunningModules.ForEach(module => module.InvokeChatBoxUpdate());
+    }
+
+    public void AvatarChange(AvatarConfig? avatarConfig)
+    {
+        RunningModules.ForEach(module => module.InvokeAvatarChange(avatarConfig));
     }
 
     #endregion
