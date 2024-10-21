@@ -145,6 +145,8 @@ public partial class AppSettingsView
         set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.MicrophoneVolumeAdjustment).Value = (float)Interpolation.Map(value, 0, 300, 0, 3);
     }
 
+    public Observable<Visibility> UsingCustomEndpoints { get; } = new(Visibility.Collapsed);
+
     public IEnumerable<UpdateChannel> UpdateChannelSource => Enum.GetValues<UpdateChannel>();
 
     public UpdateChannel SelectedUpdateChannel
@@ -162,6 +164,7 @@ public partial class AppSettingsView
         DataContext = this;
 
         SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID).Subscribe(updateDeviceListAndSelection, true);
+        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Subscribe(value => UsingCustomEndpoints.Value = value ? Visibility.Visible : Visibility.Collapsed, true);
 
         setPage(0);
     }

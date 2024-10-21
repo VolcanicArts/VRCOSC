@@ -198,7 +198,7 @@
                                 <Grid>
                                     <TextBlock Text="Use Custom Endpoints" Style="{StaticResource SettingTitle}" />
                                     <TextBlock
-                                        Text="Should VRCOSC use the defined endpoints below instead of OSCQuery?"
+                                        Text="Should VRCOSC use custom endpoints instead of OSCQuery?"
                                         Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                          Height="32"
@@ -207,7 +207,7 @@
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
-                                    CornerRadius="5">
+                                    CornerRadius="5" Visibility="{Binding UsingCustomEndpoints.Value}">
                                 <Grid>
                                     <TextBlock Text="Outgoing Endpoint" Style="{StaticResource SettingTitle}" />
                                     <TextBlock
@@ -225,11 +225,11 @@
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
-                                    CornerRadius="5">
+                                    CornerRadius="5" Visibility="{Binding UsingCustomEndpoints.Value}">
                                 <Grid>
                                     <TextBlock Text="Incoming Endpoint" Style="{StaticResource SettingTitle}" />
                                     <TextBlock
-                                        Text="Where should VRCOSC receive data from?"
+                                        Text="Where should VRCOSC receive OSC data from?"
                                         Style="{StaticResource SettingDescription}" />
                                     <TextBox Style="{StaticResource SettingTextBoxStyle}">
                                         <TextBox.Text>
