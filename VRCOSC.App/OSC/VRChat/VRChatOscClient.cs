@@ -23,7 +23,7 @@ public class VRChatOscClient : OscClient
 
     public VRChatOscClient()
     {
-        client.Timeout = TimeSpan.FromMilliseconds(5);
+        client.Timeout = TimeSpan.FromMilliseconds(50);
 
         OnMessageSent += message => { OnParameterSent?.Invoke(new VRChatOscMessage(message)); };
 
@@ -49,8 +49,7 @@ public class VRChatOscClient : OscClient
         {
             if (connectionManager.VRChatQueryPort is null) return null;
 
-            var addressEncoded = UrlEncoder.Default.Encode(address);
-            var url = $"http://127.0.0.1:{connectionManager.VRChatQueryPort}{addressEncoded}";
+            var url = $"http://127.0.0.1:{connectionManager.VRChatQueryPort}{address}";
 
             var response = await client.GetAsync(new Uri(url));
             if (!response.IsSuccessStatusCode) return null;
