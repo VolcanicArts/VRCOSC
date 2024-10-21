@@ -20,7 +20,7 @@ internal class VRChatLogReader
 
     private static readonly Regex datetime_regex = new(@"^(\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}).+$");
     private static readonly Regex world_exit_regex = new("^.+Fetching world information for (wrld_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$");
-    private static readonly Regex world_enter_regex = new("^.+Finished entering world\\.$");
+    private static readonly Regex world_enter_regex = new(@"^.+Finished entering world\.$");
 
     private static readonly List<string> line_buffer = new();
     private static string? logFile;
@@ -70,7 +70,7 @@ internal class VRChatLogReader
         lock (process_lock)
         {
             readLinesFromFile();
-            if (!line_buffer.Any()) return;
+            if (line_buffer.Count == 0) return;
 
             checkWorldExit();
             checkWorldEnter();
