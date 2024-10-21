@@ -17,6 +17,8 @@ internal class VRChatLogReader
 {
     private static readonly string logfile_location = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).Replace("Roaming", "LocalLow"), "VRChat", "VRChat");
     private const string logfile_pattern = "output_log_*";
+
+    private static readonly Regex datetime_regex = new(@"^(\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}).+$");
     private static readonly Regex world_exit_regex = new("^.+Fetching world information for (wrld_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$");
     private static readonly Regex world_enter_regex = new("^.+Finished entering world\\.$");
 
@@ -25,6 +27,7 @@ internal class VRChatLogReader
     private static long byteOffset;
     private static Repeater? processTask;
     private static readonly object process_lock = new();
+    private static DateTime? startDateTime;
 
     private static string? currentWorldID { get; set; }
 
@@ -32,6 +35,8 @@ internal class VRChatLogReader
 
     internal static void Start()
     {
+        startDateTime = DateTime.Now;
+
         reset();
 
         if (!Directory.Exists(logfile_location))
@@ -98,7 +103,7 @@ internal class VRChatLogReader
 
             while (linesRead < 100 && streamReader.ReadLine() is { } line)
             {
-                if (!string.IsNullOrWhiteSpace(line))
+                if (!string.IsNullOrWhiteSpace(line) && isValidLogLine(line))
                     line_buffer.Add(line);
 
                 byteOffset += Encoding.UTF8.GetBytes(line).Length;
@@ -109,6 +114,16 @@ internal class VRChatLogReader
         {
             ExceptionHandler.Handle(e, "Could not read partial lines from log file");
         }
+    }
+
+    // checks that there's a date at the start of the line and that the date is after we've started
+    private static bool isValidLogLine(string line)
+    {
+        var foundDateTime = datetime_regex.Matches(line).LastOrDefault()?.Groups.Values.LastOrDefault()?.Value;
+        if (foundDateTime is null) return false;
+
+        var parsedDate = DateTime.ParseExact(foundDateTime, "yyyy.MM.dd HH:mm:ss", null);
+        return parsedDate > startDateTime;
     }
 
     private static void checkWorldExit()
