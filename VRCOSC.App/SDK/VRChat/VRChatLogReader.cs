@@ -104,10 +104,12 @@ internal class VRChatLogReader
             while (linesRead < 100 && streamReader.ReadLine() is { } line)
             {
                 if (!string.IsNullOrWhiteSpace(line) && isValidLogLine(line))
+                {
                     line_buffer.Add(line);
+                    linesRead++;
+                }
 
                 byteOffset += Encoding.UTF8.GetBytes(line).Length;
-                linesRead++;
             }
         }
         catch (Exception e)
