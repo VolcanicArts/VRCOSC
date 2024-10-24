@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -199,10 +199,9 @@ public class PackageSource
     {
         get
         {
-            if (IsUnavailable())
-                return (Brush)Application.Current.FindResource("CRedL");
+            if (IsUnavailable()) return (Brush)Application.Current.FindResource("CRedL");
 
-            return (Brush)Application.Current.FindResource("CForeground1");
+            return LatestRelease.IsPrerelease ? Brushes.DarkOrange : (Brush)Application.Current.FindResource("CForeground1");
         }
     }
 

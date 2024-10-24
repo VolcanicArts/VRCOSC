@@ -3,11 +3,14 @@
 
 using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using VRCOSC.App.Packages;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows;
@@ -146,4 +149,19 @@ public sealed partial class PackagesView
         if (!comboBox.IsDropDownOpen)
             FocusTaker.Focus();
     }
+}
+
+public class PackageReleaseVersionColourConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is PackageRelease packageRelease)
+        {
+            return packageRelease.IsPrerelease ? Brushes.DarkOrange : Brushes.Black;
+        }
+
+        return Brushes.Black;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
