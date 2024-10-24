@@ -51,6 +51,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.OVRAutoOpen, false);
         setDefault(VRCOSCSetting.OVRAutoClose, false);
         setDefault(VRCOSCSetting.AllowPreReleasePackages, true); // TODO: Change on app release
+        setDefault(VRCOSCSetting.AutoUpdatePackages, true);
         setDefault(VRCOSCSetting.TrayOnClose, false);
         setDefault(VRCOSCSetting.UpdateChannel, UpdateChannel.Beta); // TODO: Change on app release
         setDefault(VRCOSCSetting.InstalledUpdateChannel, UpdateChannel.Beta);
@@ -99,6 +100,7 @@ public enum VRCOSCSetting
     OVRAutoOpen,
     OVRAutoClose,
     AllowPreReleasePackages,
+    AutoUpdatePackages,
     TrayOnClose,
     UpdateChannel,
     InstalledUpdateChannel,

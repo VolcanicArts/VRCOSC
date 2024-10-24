@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -36,14 +36,14 @@ public class PackageSource
     public PackageSourceState State { get; private set; } = PackageSourceState.Unknown;
     public string? PackageID => Repository?.PackageFile?.PackageID;
     public string LatestVersion => LatestRelease.Version;
-    public PackageRelease LatestRelease => filterReleases(false).First();
+    public PackageRelease LatestRelease => filterReleases(false, true).First();
     public PackageRelease? InstalledRelease => FilteredReleases.SingleOrDefault(packageRelease => packageRelease.Version == InstalledVersion);
 
-    public List<PackageRelease> FilteredReleases => filterReleases(true);
+    public List<PackageRelease> FilteredReleases => filterReleases(true, true);
 
-    private List<PackageRelease> filterReleases(bool includeInstalledRelease) => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPrerelease)
-                                                                                                                              || !packageRelease.IsPrerelease
-                                                                                                                              || (packageRelease.Version == InstalledVersion && includeInstalledRelease)).ToList();
+    private List<PackageRelease> filterReleases(bool includeInstalledRelease, bool includePreReleases) => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPrerelease && includePreReleases)
+                                                                                                                                                       || !packageRelease.IsPrerelease
+                                                                                                                                                       || (packageRelease.Version == InstalledVersion && includeInstalledRelease)).ToList();
 
     public bool IsInstalled() => packageManager.IsInstalled(this);
 
@@ -54,6 +54,16 @@ public class PackageSource
         var installedVersion = SemVersion.Parse(InstalledVersion, SemVersionStyles.Any);
         var latestVersion = SemVersion.Parse(LatestVersion, SemVersionStyles.Any);
         return installedVersion.ComparePrecedenceTo(latestVersion) < 0;
+    }
+
+    public PackageRelease? GetLatestNonPreRelease()
+    {
+        if (InstalledRelease?.IsPrerelease ?? false) return null;
+
+        var latestNonPreRelease = filterReleases(true, false).First();
+        var installedVersion = SemVersion.Parse(InstalledVersion, SemVersionStyles.Any);
+        var latestNonPreReleaseVersion = SemVersion.Parse(latestNonPreRelease.Version, SemVersionStyles.Any);
+        return installedVersion.ComparePrecedenceTo(latestNonPreReleaseVersion) == -1 ? latestNonPreRelease : null;
     }
 
     public bool IsUnavailable() => State is PackageSourceState.MissingRepo or PackageSourceState.NoReleases or PackageSourceState.InvalidPackageFile or PackageSourceState.Unknown;

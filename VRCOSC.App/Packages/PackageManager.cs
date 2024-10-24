@@ -48,22 +48,22 @@ public class PackageManager
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));
 
-        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AllowPreReleasePackages).Subscribe(async _ => await MainWindow.GetInstance().ShowLoadingOverlay("Refreshing Packages", RefreshAllSources(false)));
+        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AllowPreReleasePackages).Subscribe(() => MainWindow.GetInstance().PackagesView.Refresh());
     }
 
     public PackageSource? GetPackage(string packageID) => Sources.FirstOrDefault(packageSource => packageSource.PackageID == packageID);
     public PackageSource? GetPackageSourceForRelease(PackageRelease packageRelease) => Sources.FirstOrDefault(packageSource => packageSource.FilteredReleases.Contains(packageRelease));
 
-    public PackageLoadAction Load()
+    public CompositeProgressAction Load()
     {
         builtinSources.ForEach(source => Sources.Add(source));
         serialisationManager.Deserialise();
         return RefreshAllSources(CacheExpireTime <= DateTime.Now);
     }
 
-    public PackageLoadAction RefreshAllSources(bool forceRemoteGrab)
+    public CompositeProgressAction RefreshAllSources(bool forceRemoteGrab)
     {
-        var packageLoadAction = new PackageLoadAction();
+        var packageLoadAction = new CompositeProgressAction();
 
         if (forceRemoteGrab)
         {
@@ -87,18 +87,46 @@ public class PackageManager
         return packageLoadAction;
     }
 
-    public PackageInstallAction InstallPackage(PackageSource packageSource, PackageRelease? packageRelease = null)
+    public CompositeProgressAction? UpdateAllInstalledPackages()
+    {
+        var compositeAction = new CompositeProgressAction();
+        var shouldDoAction = false;
+
+        foreach (var packageSource in Sources.Where(source => source.IsInstalled()))
+        {
+            var latestNonPreRelease = packageSource.GetLatestNonPreRelease();
+            if (latestNonPreRelease is null) continue;
+
+            compositeAction.AddAction(InstallPackage(packageSource, latestNonPreRelease, false));
+            shouldDoAction = true;
+        }
+
+        if (!shouldDoAction) return null;
+
+        compositeAction.OnComplete += () =>
+        {
+            serialisationManager.Serialise();
+            MainWindow.GetInstance().PackagesView.Refresh();
+        };
+
+        return compositeAction;
+    }
+
+    public PackageInstallAction InstallPackage(PackageSource packageSource, PackageRelease? packageRelease = null, bool reloadAll = true)
     {
         packageRelease ??= packageSource.LatestRelease;
-        var isInstalled = InstalledPackages.ContainsKey(packageSource.PackageID!);
-        var installAction = new PackageInstallAction(storage, packageSource, packageRelease, isInstalled);
+        var installAction = new PackageInstallAction(storage, packageSource, packageRelease, IsInstalled(packageSource));
 
         installAction.OnComplete += () =>
         {
             InstalledPackages[packageSource.PackageID!] = packageRelease.Version;
-            serialisationManager.Serialise();
-            ModuleManager.GetInstance().ReloadAllModules();
-            MainWindow.GetInstance().PackagesView.Refresh();
+
+            if (reloadAll)
+            {
+                serialisationManager.Serialise();
+                ModuleManager.GetInstance().ReloadAllModules();
+                MainWindow.GetInstance().PackagesView.Refresh();
+            }
         };
 
         return installAction;
@@ -122,9 +150,9 @@ public class PackageManager
     public bool IsInstalled(PackageSource packageSource) => packageSource.PackageID is not null && InstalledPackages.ContainsKey(packageSource.PackageID);
     public string GetInstalledVersion(PackageSource packageSource) => packageSource.PackageID is not null && InstalledPackages.TryGetValue(packageSource.PackageID, out var version) ? version : string.Empty;
 
-    private FindCommunityPackagesAction loadCommunityPackages()
+    private CompositeProgressAction loadCommunityPackages()
     {
-        var findCommunityPackages = new FindCommunityPackagesAction();
+        var findCommunityPackages = new CompositeProgressAction();
 
         var searchProgressAction = new SearchRepositoriesAction(community_tag);
         findCommunityPackages.AddAction(searchProgressAction);

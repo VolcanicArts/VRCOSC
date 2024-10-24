@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Actions;
 
@@ -14,8 +15,10 @@ public class CompositeProgressAction : ProgressAction
     private readonly List<ProgressAction> children = new();
     private ProgressAction? currentChild => children.FirstOrDefault(child => !child.IsComplete);
 
-    public void AddAction(ProgressAction child)
+    public void AddAction(ProgressAction? child)
     {
+        if (child is null) return;
+
         children.Add(child);
     }
 
@@ -30,8 +33,6 @@ public class CompositeProgressAction : ProgressAction
     public override float GetProgress()
     {
         var multiplier = 1f / children.Count;
-        return children.Sum(child => child.IsComplete ? multiplier : map(child.GetProgress(), 0f, 1f, 0f, multiplier));
+        return children.Sum(child => child.IsComplete ? multiplier : (float)Interpolation.Map(child.GetProgress(), 0f, 1f, 0f, multiplier));
     }
-
-    private static float map(float source, float sMin, float sMax, float dMin, float dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
 }

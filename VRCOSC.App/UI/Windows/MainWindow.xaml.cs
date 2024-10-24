@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Windows.Interop;
 using Newtonsoft.Json;
 using PInvoke;
+using Semver;
 using VRCOSC.App.Actions;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules;
@@ -123,21 +124,38 @@ public partial class MainWindow
     {
         var loadingAction = new CompositeProgressAction();
 
-        loadingAction.AddAction(new DynamicAsyncProgressAction("Checking for updates", () => AppManager.GetInstance().VelopackUpdater.CheckForUpdatesAsync()));
-        loadingAction.AddAction(new DynamicProgressAction("Loading profiles", () => ProfileManager.GetInstance().Load()));
+        //loadingAction.AddAction(new DynamicAsyncProgressAction("Checking for updates", () => AppManager.GetInstance().VelopackUpdater.CheckForUpdatesAsync()));
         loadingAction.AddAction(PackageManager.GetInstance().Load());
-        loadingAction.AddAction(new DynamicProgressAction("Loading modules", () => ModuleManager.GetInstance().LoadAllModules()));
-        loadingAction.AddAction(new DynamicProgressAction("Loading chatbox", () => ChatBoxManager.GetInstance().Load()));
-        loadingAction.AddAction(new DynamicProgressAction("Loading routes", () => RouterManager.GetInstance().Load()));
+
+        var installedVersion = SettingsManager.GetInstance().GetValue<string>(VRCOSCMetadata.InstalledVersion);
+
+        if (!string.IsNullOrEmpty(installedVersion))
+        {
+            var installedVersionParsed = SemVersion.Parse(installedVersion, SemVersionStyles.Any);
+            var currentVersion = SemVersion.Parse(AppManager.Version, SemVersionStyles.Any);
+
+            // refresh packages if we've upgraded or downgraded version
+            if (SemVersion.ComparePrecedence(installedVersionParsed, currentVersion) != 0)
+            {
+                loadingAction.AddAction(PackageManager.GetInstance().RefreshAllSources(true));
+            }
+        }
+
+        SettingsManager.GetInstance().GetObservable<string>(VRCOSCMetadata.InstalledVersion).Value = AppManager.Version;
+
+        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages))
+        {
+            loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().UpdateAllInstalledPackages()));
+        }
+
+        loadingAction.AddAction(new DynamicProgressAction("Loading Profiles", () => ProfileManager.GetInstance().Load()));
+        loadingAction.AddAction(new DynamicProgressAction("Loading Modules", () => ModuleManager.GetInstance().LoadAllModules()));
+        loadingAction.AddAction(new DynamicProgressAction("Loading ChatBox", () => ChatBoxManager.GetInstance().Load()));
+        loadingAction.AddAction(new DynamicProgressAction("Loading Router", () => RouterManager.GetInstance().Load()));
 
         if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.FirstTimeSetupComplete))
         {
-            loadingAction.AddAction(new DynamicAsyncProgressAction("Performing first time setup", async () =>
-            {
-                var officialModulesPackage = PackageManager.GetInstance().OfficialModulesSource;
-                var packageInstallAction = PackageManager.GetInstance().InstallPackage(officialModulesPackage);
-                await packageInstallAction.Execute();
-            }));
+            loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource)));
         }
 
         loadingAction.OnComplete += () =>
@@ -146,7 +164,6 @@ public partial class MainWindow
             {
                 SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.FirstTimeSetupComplete).Value = true;
                 MainWindowContent.FadeInFromZero(500);
-                LoadingOverlay.FadeOutFromOne(500);
                 AppManager.GetInstance().InitialLoadComplete();
 
                 if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.StartInTray))

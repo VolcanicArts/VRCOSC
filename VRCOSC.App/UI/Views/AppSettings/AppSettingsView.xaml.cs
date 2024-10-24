@@ -29,6 +29,12 @@ public partial class AppSettingsView
         set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AllowPreReleasePackages).Value = value;
     }
 
+    public bool AutoUpdatePackages
+    {
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AutoUpdatePackages).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AutoUpdatePackages).Value = value;
+    }
+
     public bool VRCAutoStart
     {
         get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.VRCAutoStart).Value;

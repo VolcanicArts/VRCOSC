@@ -12,7 +12,7 @@ public class PackageInstallAction : CompositeProgressAction
     public PackageInstallAction(Storage storage, PackageSource packageSource, PackageRelease packageRelease, bool shouldUninstall)
     {
         if (shouldUninstall) AddAction(new PackageUninstallAction(storage, packageSource));
-        AddAction(new PackageSourceRefreshAction(packageSource, true));
+        //AddAction(new PackageSourceRefreshAction(packageSource, true));
         AddAction(new PackageDownloadAction(storage, packageSource, packageRelease));
     }
 
@@ -33,6 +33,12 @@ public class PackageInstallAction : CompositeProgressAction
             {
                 AddAction(new PackageAssetDownloadAction(targetDirectory, packageSource, packageRelease, assetName));
             }
+        }
+
+        protected override Task Perform()
+        {
+            Logger.Log($"Installing {packageSource.InternalReference}");
+            return base.Perform();
         }
 
         private class PackageAssetDownloadAction : ProgressAction

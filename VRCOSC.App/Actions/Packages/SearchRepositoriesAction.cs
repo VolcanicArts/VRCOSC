@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Threading.Tasks;
 using Octokit;
 using VRCOSC.App.Packages;
@@ -23,7 +24,7 @@ public class SearchRepositoriesAction : ResultableProgressAction<SearchRepositor
         var repos = await GitHubProxy.Client.Search.SearchRepo(new SearchRepositoriesRequest
         {
             Topic = tag
-        });
+        }).WaitAsync(TimeSpan.FromSeconds(5));
 
         Result = repos;
     }
