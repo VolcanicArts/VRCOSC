@@ -17,6 +17,7 @@ public class SettingsManager
     public static SettingsManager GetInstance() => instance ??= new SettingsManager();
 
     public readonly Dictionary<VRCOSCSetting, IObservable> Settings = new();
+    public readonly Dictionary<VRCOSCMetadata, IObservable> Metadata = new();
 
     private readonly Storage storage = AppManager.GetInstance().Storage;
     private readonly SerialisationManager serialisationManager;
@@ -32,6 +33,7 @@ public class SettingsManager
         writeDefaults();
 
         Settings.ForEach(pair => pair.Value.Subscribe(() => serialisationManager.Serialise()));
+        Metadata.ForEach(pair => pair.Value.Subscribe(() => serialisationManager.Serialise()));
 
         serialisationManager.Deserialise();
     }
@@ -41,9 +43,13 @@ public class SettingsManager
         Settings[lookup] = (IObservable)Activator.CreateInstance(typeof(Observable<T>), defaultValue)!;
     }
 
+    private void setDefault<T>(VRCOSCMetadata lookup, T? defaultValue)
+    {
+        Metadata[lookup] = (IObservable)Activator.CreateInstance(typeof(Observable<T>), defaultValue)!;
+    }
+
     private void writeDefaults()
     {
-        setDefault(VRCOSCSetting.FirstTimeSetupComplete, false);
         setDefault(VRCOSCSetting.StartInTray, false);
         setDefault(VRCOSCSetting.AutomaticProfileSwitching, false);
         setDefault(VRCOSCSetting.VRCAutoStart, false);
@@ -54,7 +60,6 @@ public class SettingsManager
         setDefault(VRCOSCSetting.AutoUpdatePackages, true);
         setDefault(VRCOSCSetting.TrayOnClose, false);
         setDefault(VRCOSCSetting.UpdateChannel, UpdateChannel.Beta); // TODO: Change on app release
-        setDefault(VRCOSCSetting.InstalledUpdateChannel, UpdateChannel.Beta);
         setDefault(VRCOSCSetting.ChatBoxSendInterval, 1500);
         setDefault(VRCOSCSetting.ChatBoxWorldBlacklist, true);
         setDefault(VRCOSCSetting.ShowRelevantModules, true);
@@ -70,12 +75,24 @@ public class SettingsManager
         setDefault(VRCOSCSetting.Whisper_ModelPath, string.Empty);
         setDefault(VRCOSCSetting.SpeechNoiseCutoff, 0.14f);
         setDefault(VRCOSCSetting.MicrophoneVolumeAdjustment, 1f);
+
+        setDefault(VRCOSCMetadata.InstalledVersion, string.Empty);
+        setDefault(VRCOSCMetadata.InstalledUpdateChannel, UpdateChannel.Beta); // TODO: Change on app release
+        setDefault(VRCOSCMetadata.FirstTimeSetupComplete, false);
     }
 
     public Observable<T> GetObservable<T>(VRCOSCSetting lookup)
     {
         if (!Settings.TryGetValue(lookup, out var observable)) throw new InvalidOperationException("Setting doesn't exist");
         if (observable is not Observable<T> castObservable) throw new InvalidOperationException($"Setting is not of type {typeof(T).ToReadableName()}");
+
+        return castObservable;
+    }
+
+    public Observable<T> GetObservable<T>(VRCOSCMetadata lookup)
+    {
+        if (!Metadata.TryGetValue(lookup, out var observable)) throw new InvalidOperationException("Metadata doesn't exist");
+        if (observable is not Observable<T> castObservable) throw new InvalidOperationException($"Metadata is not of type {typeof(T).ToReadableName()}");
 
         return castObservable;
     }
@@ -87,12 +104,19 @@ public class SettingsManager
         return observable;
     }
 
+    public IObservable GetObservable(VRCOSCMetadata lookup)
+    {
+        if (!Metadata.TryGetValue(lookup, out var observable)) throw new InvalidOperationException("Metadata doesn't exist");
+
+        return observable;
+    }
+
     public T GetValue<T>(VRCOSCSetting lookup) => GetObservable<T>(lookup).Value!;
+    public T GetValue<T>(VRCOSCMetadata lookup) => GetObservable<T>(lookup).Value!;
 }
 
 public enum VRCOSCSetting
 {
-    FirstTimeSetupComplete,
     StartInTray,
     AutomaticProfileSwitching,
     VRCAutoStart,
@@ -103,7 +127,6 @@ public enum VRCOSCSetting
     AutoUpdatePackages,
     TrayOnClose,
     UpdateChannel,
-    InstalledUpdateChannel,
     ChatBoxSendInterval,
     ChatBoxWorldBlacklist,
     ShowRelevantModules,
@@ -121,8 +144,14 @@ public enum VRCOSCSetting
     MicrophoneVolumeAdjustment
 }
 
+public enum VRCOSCMetadata
+{
+    InstalledVersion,
+    FirstTimeSetupComplete,
+    InstalledUpdateChannel
+}
+
 public enum SpeechEngine
 {
     Whisper
 }
-

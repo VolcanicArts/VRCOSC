@@ -75,7 +75,7 @@ public partial class MainWindow
         InitializeComponent();
         DataContext = this;
 
-        var installedUpdateChannel = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCSetting.InstalledUpdateChannel);
+        var installedUpdateChannel = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCMetadata.InstalledUpdateChannel);
         Title = installedUpdateChannel == UpdateChannel.Beta ? $"{AppManager.APP_NAME} {AppManager.Version} BETA" : $"{AppManager.APP_NAME} {AppManager.Version}";
 
         setupTrayIcon();
@@ -153,7 +153,7 @@ public partial class MainWindow
         loadingAction.AddAction(new DynamicProgressAction("Loading ChatBox", () => ChatBoxManager.GetInstance().Load()));
         loadingAction.AddAction(new DynamicProgressAction("Loading Router", () => RouterManager.GetInstance().Load()));
 
-        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.FirstTimeSetupComplete))
+        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
         {
             loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource)));
         }
@@ -162,7 +162,7 @@ public partial class MainWindow
         {
             Dispatcher.Invoke(() =>
             {
-                SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.FirstTimeSetupComplete).Value = true;
+                SettingsManager.GetInstance().GetObservable<bool>(VRCOSCMetadata.FirstTimeSetupComplete).Value = true;
                 MainWindowContent.FadeInFromZero(500);
                 AppManager.GetInstance().InitialLoadComplete();
 

@@ -13,6 +13,9 @@ public class SerialisableSettingsManager : SerialisableVersion
     [JsonProperty("settings")]
     public Dictionary<string, object?> Settings = new();
 
+    [JsonProperty("metadata")]
+    public Dictionary<string, object?> Metadata = new();
+
     [JsonConstructor]
     public SerialisableSettingsManager()
     {
@@ -23,5 +26,6 @@ public class SerialisableSettingsManager : SerialisableVersion
         Version = 1;
 
         settingsManager.Settings.ForEach(pair => Settings.Add(pair.Key.ToString(), pair.Value.GetValue()));
+        settingsManager.Metadata.ForEach(pair => Metadata.Add(pair.Key.ToString(), pair.Value.GetValue()));
     }
 }

@@ -77,7 +77,7 @@ public class VelopackUpdater
         try
         {
             await updateManager.DownloadUpdatesAsync(updateInfo);
-            SettingsManager.GetInstance().GetObservable<UpdateChannel>(VRCOSCSetting.InstalledUpdateChannel).Value = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCSetting.UpdateChannel);
+            SettingsManager.GetInstance().GetObservable<UpdateChannel>(VRCOSCMetadata.InstalledUpdateChannel).Value = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCSetting.UpdateChannel);
             updateManager.ApplyUpdatesAndRestart(null);
         }
         catch (Exception e)

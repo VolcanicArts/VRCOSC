@@ -47,6 +47,32 @@ public class SettingsManagerSerialiser : Serialiser<SettingsManager, Serialisabl
             observable.SetValue(parsedValue);
         }
 
+        foreach (var pair in data.Metadata)
+        {
+            if (!Enum.TryParse(pair.Key, out VRCOSCMetadata key))
+            {
+                shouldReserialise = true;
+                continue;
+            }
+
+            if (!Reference.Metadata.ContainsKey(key))
+            {
+                shouldReserialise = true;
+                continue;
+            }
+
+            var observable = Reference.GetObservable(key);
+            var targetType = observable.GetValueType();
+
+            if (!TryConvertToTargetType(pair.Value, targetType, out var parsedValue))
+            {
+                shouldReserialise = true;
+                continue;
+            }
+
+            observable.SetValue(parsedValue);
+        }
+
         return shouldReserialise;
     }
 }
