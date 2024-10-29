@@ -39,6 +39,7 @@
         <PackageReference Include="Whisper.net" Version="1.7.1" />
         <PackageReference Include="Whisper.net.Runtime" Version="1.7.1" />
         <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.7.1" />
+        <PackageReference Include="WindowsInput" Version="6.4.1" />
     </ItemGroup>
 
     <ItemGroup>

@@ -2,13 +2,13 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using VRCOSC.App.SDK.Utils;
-using VRCOSC.App.Utils;
 
 // ReSharper disable InconsistentNaming
 
@@ -25,6 +25,9 @@ public class KeybindPicker : UserControl
         set => SetValue(KeybindProperty, value);
     }
 
+    private readonly List<Key> Modifiers = [];
+    private readonly List<Key> Keys = [];
+
     static KeybindPicker()
     {
         DefaultStyleKeyProperty.OverrideMetadata(typeof(KeybindPicker), new FrameworkPropertyMetadata(typeof(KeybindPicker)));
@@ -34,40 +37,52 @@ public class KeybindPicker : UserControl
     {
         MouseDown += KeybindPicker_OnMouseDown;
         PreviewKeyDown += KeybindPicker_OnPreviewKeyDown;
+        PreviewKeyUp += KeybindPicker_OnPreviewKeyUp;
     }
 
     private void KeybindPicker_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
         Focus();
         e.Handled = true;
+
+        Modifiers.Clear();
+        Keys.Clear();
+    }
+
+    private void KeybindPicker_OnPreviewKeyUp(object sender, KeyEventArgs e)
+    {
+        Modifiers.Remove(e.Key);
+        Keys.Remove(e.Key);
     }
 
     private void KeybindPicker_OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
+        if (e.IsRepeat) return;
+
         if (e.Key == Key.Escape && IsKeyboardFocused)
         {
             Keyboard.ClearFocus();
             return;
         }
 
-        if (e.Key != Key.LeftCtrl && e.Key != Key.RightCtrl &&
-            e.Key != Key.LeftShift && e.Key != Key.RightShift &&
-            e.Key != Key.LeftAlt && e.Key != Key.RightAlt &&
-            e.Key != Key.LWin && e.Key != Key.RWin)
+        if (e.Key is Key.LeftCtrl or Key.RightCtrl or Key.LeftShift or Key.RightShift or Key.LeftAlt or Key.RightAlt or Key.LWin or Key.RWin)
         {
-            var key = e.Key;
-
-            var keybind = new Keybind
-            {
-                Modifiers = Keyboard.Modifiers,
-                Key = key
-            };
-
-            Keybind = keybind;
-
-            e.Handled = true;
-            Keyboard.ClearFocus();
+            Modifiers.Add(e.Key);
+            return;
         }
+
+        Keys.Add(e.Key);
+
+        var keybind = new Keybind
+        {
+            Modifiers = Modifiers,
+            Keys = Keys
+        };
+
+        Keybind = keybind;
+
+        e.Handled = true;
+        Keyboard.ClearFocus();
     }
 }
 
@@ -77,21 +92,9 @@ public class KeybindToStringConverter : IValueConverter
     {
         if (value is Keybind keybind)
         {
-            var modifiersString = string.Empty;
+            if (keybind.Modifiers.Count == 0 && keybind.Keys.Count == 0) return "None";
 
-            if (keybind.Modifiers.HasFlag(ModifierKeys.Control))
-                modifiersString += "Ctrl + ";
-
-            if (keybind.Modifiers.HasFlag(ModifierKeys.Shift))
-                modifiersString += "Shift + ";
-
-            if (keybind.Modifiers.HasFlag(ModifierKeys.Alt))
-                modifiersString += "Alt + ";
-
-            if (keybind.Modifiers.HasFlag(ModifierKeys.Windows))
-                modifiersString += "Win + ";
-
-            return modifiersString + keybind.Key.ToReadableString();
+            return $"{string.Join(" + ", keybind.Modifiers)} + {string.Join(" + ", keybind.Keys)}";
         }
 
         return string.Empty;

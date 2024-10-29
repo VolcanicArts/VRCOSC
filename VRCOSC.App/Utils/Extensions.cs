@@ -184,6 +184,24 @@ public static class KeyExtensions
 
             case Key.Down:
                 return "Down Arrow";
+
+            case Key.LeftCtrl:
+                return "Left Ctrl";
+
+            case Key.RightCtrl:
+                return "Right Ctrl";
+
+            case Key.LeftShift:
+                return "Left Shift";
+
+            case Key.RightShift:
+                return "Right Shift";
+
+            case Key.LeftAlt:
+                return "Left Alt";
+
+            case Key.RightAlt:
+                return "Right Alt";
         }
 
         var virtualKey = (uint)KeyInterop.VirtualKeyFromKey(key);

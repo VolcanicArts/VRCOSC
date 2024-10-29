@@ -2,139 +2,38 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Newtonsoft.Json;
+using WindowsInput;
+using WindowsInput.Events;
 
 namespace VRCOSC.App.SDK.Utils;
 
 public static class KeySimulator
 {
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern uint SendInput(uint nInputs, Input[] pInputs, int cbSize);
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct Input
+    public static async Task ExecuteKeybind(Keybind keybind, KeybindMode mode = KeybindMode.Press)
     {
-        public int type;
-        public InputUnion u;
-    }
+        var keys = keybind.Modifiers.Concat(keybind.Keys).Select(key => (KeyCode)KeyInterop.VirtualKeyFromKey(key));
 
-    [StructLayout(LayoutKind.Explicit)]
-    private struct InputUnion
-    {
-        [FieldOffset(0)]
-        public Mouseinput mi;
-
-        [FieldOffset(0)]
-        public Keybdinput ki;
-
-        [FieldOffset(0)]
-        public Hardwareinput hi;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct Mouseinput
-    {
-        public int dx;
-        public int dy;
-        public int mouseData;
-        public int dwFlags;
-        public int time;
-        public IntPtr dwExtraInfo;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct Keybdinput
-    {
-        public ushort wVk;
-        public ushort wScan;
-        public uint dwFlags;
-        public uint time;
-        public IntPtr dwExtraInfo;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct Hardwareinput
-    {
-        public int uMsg;
-        public short wParamL;
-        public short wParamH;
-    }
-
-    private const int input_keyboard = 1;
-    private const uint keyeventf_keyup = 0x0002;
-    private const uint keyeventf_scancode = 0x0008;
-
-    public static async Task ExecuteKeybind(Keybind keybind, int holdTimeMilli = 50)
-    {
-        var inputs = new Input[4];
-        var inputIndex = 0;
-
-        if (keybind.Modifiers != ModifierKeys.None)
+        switch (mode)
         {
-            foreach (ModifierKeys modifier in Enum.GetValues(typeof(ModifierKeys)))
-            {
-                if (modifier is ModifierKeys.None) continue;
+            case KeybindMode.Press:
+                await Simulate.Events().ClickChord(keys).Wait(50).Invoke();
+                break;
 
-                if (keybind.Modifiers.HasFlag(modifier))
-                {
-                    inputs[inputIndex].type = input_keyboard;
+            case KeybindMode.Hold:
+                await Simulate.Events().Hold(keys).Invoke();
+                break;
 
-                    inputs[inputIndex].u.ki = new Keybdinput
-                    {
-                        wVk = (ushort)KeyInterop.VirtualKeyFromKey(getKeyFromModifier(modifier)),
-                        dwFlags = 0,
-                        dwExtraInfo = IntPtr.Zero
-                    };
-                    inputIndex++;
-                }
-            }
-        }
-
-        inputs[inputIndex].type = input_keyboard;
-
-        inputs[inputIndex].u.ki = new Keybdinput
-        {
-            wVk = (ushort)KeyInterop.VirtualKeyFromKey(keybind.Key),
-            dwFlags = 0,
-            dwExtraInfo = IntPtr.Zero
-        };
-        inputIndex++;
-
-        _ = SendInput((uint)inputIndex, inputs, Marshal.SizeOf(typeof(Input)));
-
-        await Task.Delay(holdTimeMilli);
-
-        inputs[inputIndex - 1].u.ki.dwFlags = keyeventf_keyup;
-        _ = SendInput(1, new[] { inputs[inputIndex - 1] }, Marshal.SizeOf(typeof(Input)));
-
-        for (var i = 0; i < inputIndex - 1; i++)
-        {
-            inputs[i].u.ki.dwFlags = keyeventf_keyup;
-            _ = SendInput(1, new[] { inputs[i] }, Marshal.SizeOf(typeof(Input)));
-        }
-    }
-
-    private static Key getKeyFromModifier(ModifierKeys modifier)
-    {
-        switch (modifier)
-        {
-            case ModifierKeys.Alt:
-                return Key.LeftAlt;
-
-            case ModifierKeys.Control:
-                return Key.LeftCtrl;
-
-            case ModifierKeys.Shift:
-                return Key.LeftShift;
-
-            case ModifierKeys.Windows:
-                return Key.LWin;
+            case KeybindMode.Release:
+                await Simulate.Events().Release(keys).Invoke();
+                break;
 
             default:
-                throw new ArgumentOutOfRangeException(nameof(modifier), modifier, null);
+                throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
         }
     }
 }
@@ -143,8 +42,15 @@ public static class KeySimulator
 public class Keybind
 {
     [JsonProperty("modifiers")]
-    public ModifierKeys Modifiers { get; set; }
+    public List<Key> Modifiers { get; set; } = [];
 
-    [JsonProperty("key")]
-    public Key Key { get; set; }
+    [JsonProperty("keys")]
+    public List<Key> Keys { get; set; } = [];
+}
+
+public enum KeybindMode
+{
+    Press,
+    Hold,
+    Release
 }
