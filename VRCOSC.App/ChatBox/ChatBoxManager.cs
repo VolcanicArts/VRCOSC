@@ -62,9 +62,8 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public Observable<bool> IsLoaded { get; } = new();
 
-    public bool IsManualTextOpen;
-
     public Clip? CurrentClip { get; private set; }
+    public string ManualText { get; set; } = string.Empty;
 
     private ChatBoxManager()
     {
@@ -246,7 +245,14 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         TriggeredEvents.Clear();
 
-        if (IsManualTextOpen) return;
+        if (!string.IsNullOrEmpty(ManualText))
+        {
+            CurrentClip = null;
+            currentText = ManualText;
+            SendText(ManualText);
+            setTyping(false);
+            return;
+        }
 
         evaluateClips();
     }

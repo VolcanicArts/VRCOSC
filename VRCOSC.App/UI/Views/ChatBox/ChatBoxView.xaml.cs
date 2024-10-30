@@ -531,21 +531,6 @@ public partial class ChatBoxView
         ChatBoxManager.GetInstance().Deserialise(string.Empty, true);
     }
 
-    private void WriteButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (manualInputWindow is null)
-        {
-            manualInputWindow = new ChatBoxManualInputWindow();
-            manualInputWindow.Closed += (_, _) => manualInputWindow = null;
-            manualInputWindow.Show();
-        }
-        else
-        {
-            manualInputWindow.WindowState = WindowState.Normal;
-            manualInputWindow.Focus();
-        }
-    }
-
     private void CopyClip_OnClick(object sender, RoutedEventArgs e)
     {
         CopiedClip = SelectedClip;
@@ -586,6 +571,17 @@ public partial class ChatBoxView
         CopiedClip = null;
         PasteClipButtonVisibility.Value = Visibility.Collapsed;
         RightClickMenu.FadeOutFromOne(50);
+    }
+
+    private void ManualTextTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+    {
+        ChatBoxManager.ManualText = ManualTextTextBox.Text;
+    }
+
+    private void ManualTextEraser_OnClick(object sender, RoutedEventArgs e)
+    {
+        ManualTextTextBox.Text = string.Empty;
+        ManualTextTextBox.Focus();
     }
 }
 
