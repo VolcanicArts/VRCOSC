@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -21,7 +21,7 @@ using SpeechEngine = VRCOSC.App.Settings.SpeechEngine;
 
 namespace VRCOSC.App.UI.Views.AppSettings;
 
-public partial class AppSettingsView
+public partial class AppSettingsView : INotifyPropertyChanged
 {
     public bool AllowPreReleasePackages
     {
@@ -244,25 +244,24 @@ public partial class AppSettingsView
         setPage(7);
     }
 
-    private void Whisper_OpenModelList_OnClick(object sender, RoutedEventArgs e)
+    private void AutoInstallModel_OnClick(object sender, RoutedEventArgs e)
     {
-        openUrl("https://huggingface.co/ggerganov/whisper.cpp/tree/main");
+        var action = new FileDownloadAction("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true", AppManager.GetInstance().Storage.GetStorageForDirectory("runtime/whisper"), "ggml-tiny.bin");
+
+        action.OnComplete += () =>
+        {
+            SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.Whisper_ModelPath).Value = AppManager.GetInstance().Storage.GetStorageForDirectory("runtime/whisper").GetFullPath("ggml-tiny.bin");
+            OnPropertyChanged(nameof(WhisperModelFilePath));
+        };
+
+        _ = MainWindow.GetInstance().ShowLoadingOverlay("Installing Model", action);
     }
 
-    private static void openUrl(string url)
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
-        try
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = url,
-                UseShellExecute = true
-            });
-        }
-        catch (Exception e)
-        {
-            ExceptionHandler.Handle(e);
-        }
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
 

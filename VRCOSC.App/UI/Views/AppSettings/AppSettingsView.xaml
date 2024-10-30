@@ -327,15 +327,18 @@
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
-                                    CornerRadius="5" Visibility="Collapsed">
+                                    CornerRadius="5">
                                 <Grid>
-                                    <TextBlock Text="Auto-Switch" Style="{StaticResource SettingTitle}" />
-                                    <TextBlock Text="Should VRCOSC auto-switch microphone when Windows does?"
-                                               Style="{StaticResource SettingDescription}" />
-                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                         Height="32"
-                                                         Width="32"
-                                                         IsChecked="{Binding AutoSwitchMicrophone}" />
+                                    <TextBlock Text="Model Path" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="The path of the model file Whisper should use"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <core:SpacedStackPanel Orientation="Horizontal" FlowDirection="LeftToRight" Spacing="5" HorizontalAlignment="Right">
+                                        <core:VRCOSCButton ButtonColour="Blue" Click="AutoInstallModel_OnClick" Height="30" Width="170">
+                                            <TextBlock Text="Auto Install Model" FontSize="15" Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </core:VRCOSCButton>
+                                        <TextBox Style="{StaticResource SettingTextBoxStyle}" Text="{Binding WhisperModelFilePath}" />
+                                    </core:SpacedStackPanel>
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="60"
@@ -378,26 +381,6 @@
                                     <TextBlock Grid.Column="0" Text="Noise level cutoff. When above this recognition will occur"
                                                Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCSlider Grid.Column="1" Value="{Binding SpeechNoiseCutoffSliderValue}" MinValue="0" MaxValue="100" TickFrequency="2" SliderType="Int" IsPercentage="True"/>
-                                </Grid>
-                            </Border>
-                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
-                                    CornerRadius="5">
-                                <Grid>
-                                    <TextBlock Text="Model Path" Style="{StaticResource SettingTitle}" />
-                                    <TextBlock
-                                        Text="The path of the model file Whisper should use. Recommended: ggml-tiny.bin"
-                                        Style="{StaticResource SettingDescription}" />
-                                    <TextBox Style="{StaticResource SettingTextBoxStyle}"
-                                             Text="{Binding WhisperModelFilePath}" />
-                                </Grid>
-                            </Border>
-                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
-                                    CornerRadius="5">
-                                <Grid>
-                                    <core:VRCOSCButton ButtonColour="Gray" Click="Whisper_OpenModelList_OnClick">
-                                        <TextBlock Text="Open Model List" Style="{StaticResource SettingTitle}"
-                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                    </core:VRCOSCButton>
                                 </Grid>
                             </Border>
                         </core:SpacedStackPanel>
