@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Interop;
+using System.Windows.Threading;
 using Newtonsoft.Json;
 using PInvoke;
 using Semver;
@@ -119,6 +120,14 @@ public partial class MainWindow
             Directory.Move(dir, destDir);
         }
     }
+
+    public DispatcherOperation CloseChildren() => Dispatcher.InvokeAsync(() =>
+    {
+        foreach (Window window in Application.Current.Windows)
+        {
+            if (window != GetInstance()) window.Close();
+        }
+    });
 
     private async void load()
     {

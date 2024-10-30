@@ -522,10 +522,7 @@ public class AppManager
 
         Logger.Log($"Changing profile from {currentProfile.Name.Value} ({currentProfile.ID}) to {newProfile.Name.Value} ({newProfile.ID})");
 
-        foreach (Window window in Application.Current.Windows)
-        {
-            if (window != MainWindow.GetInstance()) window.Close();
-        }
+        MainWindow.GetInstance().CloseChildren().Wait();
 
         var beforeState = State.Value;
 
