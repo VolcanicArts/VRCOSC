@@ -13,107 +13,105 @@
     <Grid>
         <Border Name="RunContent" Padding="10">
             <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="50" />
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*" />
                     <ColumnDefinition Width="5" />
                     <ColumnDefinition Width="7*" />
                 </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
+                <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="3" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch" Padding="5" CornerRadius="5">
                     <ScrollViewer Name="LogScrollViewer" VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
                         <StackPanel Name="LogStackPanel" Orientation="Vertical" />
                     </ScrollViewer>
                 </Border>
-                <Grid Grid.Column="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="5" />
-                        <RowDefinition Height="50" />
-                    </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch" Padding="5" CornerRadius="5">
+                <Border Grid.Row="0" Grid.Column="2" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch" Padding="5" CornerRadius="5">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="5" />
+                            <RowDefinition Height="40" />
+                        </Grid.RowDefinitions>
                         <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="5" />
-                                <RowDefinition Height="40" />
-                            </Grid.RowDefinitions>
-                            <Grid>
-                                <tabs:RuntimeTabView x:Name="RuntimeView" />
-                                <tabs:AvatarParameterTabView x:Name="ParameterView" />
-                                <tabs:ChatBoxTabView x:Name="ChatBoxView" />
-                            </Grid>
-                            <Grid Grid.Row="2" HorizontalAlignment="Center">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <Border Background="{StaticResource CBackground1}" CornerRadius="5">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <!--> View Selector Visual <-->
-                                        <Border Name="ViewSelector" Height="40" Width="160" Padding="5"
-                                                HorizontalAlignment="Left">
-                                            <Border.RenderTransform>
-                                                <TranslateTransform />
-                                            </Border.RenderTransform>
-                                            <Border Background="{StaticResource CBackground6}"
-                                                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                                    CornerRadius="5" />
-                                        </Border>
-                                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                    Orientation="Horizontal">
-                                            <core:VRCOSCButton Click="RuntimeViewButton_Click">
-                                                <Border Height="30" Width="160">
-                                                    <TextBlock Text="Runtime" TextAlignment="Center"
-                                                               VerticalAlignment="Center"
-                                                               Foreground="{StaticResource CForeground1}" FontSize="16"
-                                                               FontWeight="Bold" />
-                                                </Border>
-                                            </core:VRCOSCButton>
-                                            <core:VRCOSCButton Click="AvatarParameterViewButton_Click">
-                                                <Border Height="30" Width="160">
-                                                    <TextBlock Text="Avatar" TextAlignment="Center"
-                                                               VerticalAlignment="Center"
-                                                               Foreground="{StaticResource CForeground1}" FontSize="16"
-                                                               FontWeight="Bold" />
-                                                </Border>
-                                            </core:VRCOSCButton>
-                                            <core:VRCOSCButton Click="ChatBoxViewButton_Click">
-                                                <Border Height="30" Width="160">
-                                                    <TextBlock Text="ChatBox" TextAlignment="Center"
-                                                               VerticalAlignment="Center"
-                                                               Foreground="{StaticResource CForeground1}" FontSize="16"
-                                                               FontWeight="Bold" />
-                                                </Border>
-                                            </core:VRCOSCButton>
-                                        </StackPanel>
-                                    </Grid>
-                                </Border>
-                            </Grid>
+                            <tabs:RuntimeTabView x:Name="RuntimeView" />
+                            <tabs:AvatarParameterTabView x:Name="ParameterView" />
+                            <tabs:ChatBoxTabView x:Name="ChatBoxView" />
                         </Grid>
-                    </Border>
-                    <Border Grid.Row="2" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch" Padding="10" CornerRadius="5">
-                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                            <core:SpacedStackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Spacing="10">
-                                <core:IconButton x:Name="StartButton" Width="120" VerticalAlignment="Stretch"
-                                                 CornerRadius="5" ButtonColour="Green" Click="PlayButtonOnClick"
-                                                 Icon="Solid_Play" />
-                            </core:SpacedStackPanel>
-                            <core:SpacedStackPanel FlowDirection="RightToLeft" Orientation="Horizontal" Spacing="10">
-                                <core:IconButton x:Name="StopButton" Width="120" VerticalAlignment="Stretch"
-                                                 CornerRadius="5" ButtonColour="Red" Click="StopButtonOnClick"
-                                                 Icon="Solid_Stop" />
-                                <core:IconButton x:Name="RestartButton" Width="120" VerticalAlignment="Stretch"
-                                                 CornerRadius="5" ButtonColour="Blue" Click="RestartButtonOnClick"
-                                                 Icon="Solid_ArrowRotateRight" />
-                            </core:SpacedStackPanel>
+                        <Grid Grid.Row="2" HorizontalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border Background="{StaticResource CBackground1}" CornerRadius="5">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <!--> View Selector Visual <-->
+                                    <Border Name="ViewSelector" Height="40" Width="160" Padding="5"
+                                            HorizontalAlignment="Left">
+                                        <Border.RenderTransform>
+                                            <TranslateTransform />
+                                        </Border.RenderTransform>
+                                        <Border Background="{StaticResource CBackground6}"
+                                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                CornerRadius="5" />
+                                    </Border>
+                                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                Orientation="Horizontal">
+                                        <core:VRCOSCButton Click="RuntimeViewButton_Click">
+                                            <Border Height="30" Width="160">
+                                                <TextBlock Text="Runtime" TextAlignment="Center"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{StaticResource CForeground1}" FontSize="16"
+                                                           FontWeight="Bold" />
+                                            </Border>
+                                        </core:VRCOSCButton>
+                                        <core:VRCOSCButton Click="AvatarParameterViewButton_Click">
+                                            <Border Height="30" Width="160">
+                                                <TextBlock Text="Avatar" TextAlignment="Center"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{StaticResource CForeground1}" FontSize="16"
+                                                           FontWeight="Bold" />
+                                            </Border>
+                                        </core:VRCOSCButton>
+                                        <core:VRCOSCButton Click="ChatBoxViewButton_Click">
+                                            <Border Height="30" Width="160">
+                                                <TextBlock Text="ChatBox" TextAlignment="Center"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{StaticResource CForeground1}" FontSize="16"
+                                                           FontWeight="Bold" />
+                                            </Border>
+                                        </core:VRCOSCButton>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
                         </Grid>
-                    </Border>
-                </Grid>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="2" Grid.Column="2" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch" Padding="10" CornerRadius="5">
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <core:SpacedStackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Spacing="10">
+                            <core:IconButton x:Name="StartButton" Width="120" VerticalAlignment="Stretch"
+                                             CornerRadius="5" ButtonColour="Green" Click="PlayButtonOnClick"
+                                             Icon="Solid_Play" />
+                        </core:SpacedStackPanel>
+                        <core:SpacedStackPanel FlowDirection="RightToLeft" Orientation="Horizontal" Spacing="10">
+                            <core:IconButton x:Name="StopButton" Width="120" VerticalAlignment="Stretch"
+                                             CornerRadius="5" ButtonColour="Red" Click="StopButtonOnClick"
+                                             Icon="Solid_Stop" />
+                            <core:IconButton x:Name="RestartButton" Width="120" VerticalAlignment="Stretch"
+                                             CornerRadius="5" ButtonColour="Blue" Click="RestartButtonOnClick"
+                                             Icon="Solid_ArrowRotateRight" />
+                        </core:SpacedStackPanel>
+                    </Grid>
+                </Border>
             </Grid>
         </Border>
         <Grid Name="WaitingOverlay" Visibility="Collapsed" Opacity="0">
