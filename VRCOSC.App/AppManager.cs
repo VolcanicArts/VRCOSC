@@ -74,7 +74,6 @@ public class AppManager
 
     private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
     private readonly object oscMessageQueueLock = new();
-    private readonly AudioEndpointNotificationClient audioNotificationClient = new();
 
     public AppManager()
     {
@@ -121,30 +120,12 @@ public class AppManager
             }
         });
 
-        audioNotificationClient.DeviceChanged += (flow, role, deviceId) => Application.Current.Dispatcher.Invoke(() =>
-        {
-            try
-            {
-                if (flow != DataFlow.Capture) return;
-                if (role != Role.Multimedia) return;
-
-                Logger.Log("Microphone change detected. Switching to new microphone");
-                SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID).Value = deviceId;
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e);
-            }
-        });
-
         var chosenInputDeviceSetting = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID);
 
-        if (string.IsNullOrEmpty(chosenInputDeviceSetting.Value))
+        if (!string.IsNullOrEmpty(chosenInputDeviceSetting.Value) && AudioDeviceHelper.GetDeviceByID(chosenInputDeviceSetting.Value) is null)
         {
-            chosenInputDeviceSetting.Value = WasapiCapture.GetDefaultCaptureDevice().ID;
+            chosenInputDeviceSetting.Value = string.Empty;
         }
-
-        AudioDeviceHelper.RegisterCallbackClient(audioNotificationClient);
 
         OVRClient.SetMetadata(new OVRMetadata
         {

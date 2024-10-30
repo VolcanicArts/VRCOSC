@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -16,6 +16,12 @@ public static class AudioDeviceHelper
     {
         using var deviceEnumerator = new MMDeviceEnumerator();
         deviceEnumerator.RegisterEndpointNotificationCallback(client);
+    }
+
+    public static void UnRegisterCallbackClient(IMMNotificationClient client)
+    {
+        using var deviceEnumerator = new MMDeviceEnumerator();
+        deviceEnumerator.UnregisterEndpointNotificationCallback(client);
     }
 
     public static List<MMDevice> GetAllInputDevices()

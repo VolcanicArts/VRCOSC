@@ -1,21 +1,23 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using VRCOSC.App.Actions.Files;
 using VRCOSC.App.Audio;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Themes;
 using VRCOSC.App.UI.Views.Settings;
+using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
-using SpeechEngine = VRCOSC.App.Settings.SpeechEngine;
 
 // ReSharper disable UnusedMember.Global
 
@@ -177,7 +179,14 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
     private void updateDeviceListAndSelection(string? newDeviceId) => Dispatcher.Invoke(() =>
     {
-        MicrophoneComboBox.ItemsSource = audioInputDevices = AudioDeviceHelper.GetAllInputDevices().Select(mmDevice => new DeviceDisplay(mmDevice.ID, mmDevice.FriendlyName)).ToList();
+        audioInputDevices =
+        [
+            new DeviceDisplay(string.Empty, "-- Use Default --")
+        ];
+
+        audioInputDevices.AddRange(AudioDeviceHelper.GetAllInputDevices().Select(mmDevice => new DeviceDisplay(mmDevice.ID, mmDevice.FriendlyName)));
+
+        MicrophoneComboBox.ItemsSource = audioInputDevices;
 
         if (newDeviceId is null) return;
 

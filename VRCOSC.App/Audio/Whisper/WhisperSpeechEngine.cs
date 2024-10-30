@@ -1,9 +1,10 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using NAudio.CoreAudioApi;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
@@ -13,11 +14,35 @@ public class WhisperSpeechEngine : SpeechEngine
 {
     private AudioProcessor? audioProcessor;
     private Repeater? repeater;
+    private AudioEndpointNotificationClient? audioNotificationClient;
 
     public override void Initialise()
     {
         var captureDeviceId = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID);
         captureDeviceId.Subscribe(onCaptureDeviceIdChanged, true);
+
+        audioNotificationClient = new AudioEndpointNotificationClient();
+
+        audioNotificationClient.DeviceChanged += (flow, role, _) =>
+        {
+            try
+            {
+                if (flow != DataFlow.Capture) return;
+                if (role != Role.Multimedia) return;
+
+                if (string.IsNullOrEmpty(SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedInputDeviceID)))
+                {
+                    Logger.Log("Default microphone change detected. Switching to new microphone");
+                    onCaptureDeviceIdChanged(string.Empty);
+                }
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e);
+            }
+        };
+
+        AudioDeviceHelper.RegisterCallbackClient(audioNotificationClient);
     }
 
     private async void onCaptureDeviceIdChanged(string newDeviceId)
@@ -27,7 +52,7 @@ public class WhisperSpeechEngine : SpeechEngine
         if (repeater is not null)
             await repeater.StopAsync();
 
-        var captureDevice = AudioDeviceHelper.GetDeviceByID(newDeviceId);
+        var captureDevice = string.IsNullOrEmpty(newDeviceId) ? WasapiCapture.GetDefaultCaptureDevice() : AudioDeviceHelper.GetDeviceByID(newDeviceId);
 
         if (captureDevice is null)
         {
@@ -70,6 +95,11 @@ public class WhisperSpeechEngine : SpeechEngine
     {
         var captureDeviceId = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID);
         captureDeviceId.Unsubscribe(onCaptureDeviceIdChanged);
+
+        if (audioNotificationClient is not null)
+            AudioDeviceHelper.UnRegisterCallbackClient(audioNotificationClient);
+
+        audioNotificationClient = null;
 
         audioProcessor?.Stop();
 
