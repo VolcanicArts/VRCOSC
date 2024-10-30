@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -14,6 +14,7 @@ public class WhisperSpeechEngine : SpeechEngine
 {
     private AudioProcessor? audioProcessor;
     private Repeater? repeater;
+    private SpeechResult? result;
     private AudioEndpointNotificationClient? audioNotificationClient;
 
     public override void Initialise()
@@ -74,21 +75,37 @@ public class WhisperSpeechEngine : SpeechEngine
     {
         Debug.Assert(audioProcessor is not null);
 
-        var result = await audioProcessor.GetResultAsync();
-        if (result is null || result.Text.Contains('*')) return;
+        var newResult = await audioProcessor.GetResultAsync();
+        if (newResult is not null) result = newResult;
+
+        if (result is null) return;
 
         // filter out things like [BLANK AUDIO]
-        if (result.Text.StartsWith('[')) return;
+        if (result.Text.StartsWith('[') || result.Text.Contains('*')) return;
 
         var requiredConfidence = SettingsManager.GetInstance().GetValue<float>(VRCOSCSetting.SpeechConfidence);
         if (result.Confidence < requiredConfidence) return;
 
         var text = result.Text;
 
-        if (result.IsFinal)
+        if (text.Length >= 144)
+        {
+            audioProcessor.ClearBuffer();
+            // trigger final result so anything waiting for text considers this block
             OnFinalResult?.Invoke(text);
+            result = null;
+            return;
+        }
+
+        if (result.IsFinal)
+        {
+            OnFinalResult?.Invoke(text);
+            result = null;
+        }
         else
+        {
             OnPartialResult?.Invoke(text);
+        }
     }
 
     public override async Task Teardown()
@@ -108,5 +125,6 @@ public class WhisperSpeechEngine : SpeechEngine
 
         audioProcessor = null;
         repeater = null;
+        result = null;
     }
 }

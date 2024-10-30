@@ -20,6 +20,7 @@ internal class AudioProcessor
     private const int default_samples_to_check = 24000; // sample rate is 16000 so check the last 1.5 seconds of audio
 
     private SpeechResult? speechResult;
+    private bool isProcessing;
 
     public AudioProcessor(MMDevice device)
     {
@@ -39,7 +40,7 @@ internal class AudioProcessor
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e, "Please make sure the model path for Whisper is correct");
+            ExceptionHandler.Handle(e, "Please make sure the model path for Whisper is correct in the speech settings");
         }
 
         try
@@ -55,6 +56,7 @@ internal class AudioProcessor
     public void Start()
     {
         speechResult = null;
+        isProcessing = false;
 
         audioCapture?.ClearBuffer();
         audioCapture?.StartCapture();
@@ -67,6 +69,7 @@ internal class AudioProcessor
 
     public async Task<SpeechResult?> GetResultAsync()
     {
+        if (isProcessing) return null;
         if (audioCapture is null || !audioCapture.IsCapturing) return null;
 
         var data = audioCapture.GetBufferedData();
@@ -81,33 +84,36 @@ internal class AudioProcessor
 
             if (speechResult is not null)
             {
+                isProcessing = true;
                 finalSpeechResult = await processWithWhisper(data, true);
+                isProcessing = false;
             }
 
             if (finalSpeechResult is not null)
             {
 #if DEBUG
-                Logger.Log("Final result: " + finalSpeechResult.Text + " - " + finalSpeechResult.Confidence);
+                Logger.Log($"Final result: {finalSpeechResult.Text} - {finalSpeechResult.Confidence}");
 #endif
             }
 
-#if DEBUG
-            Logger.Log("Clearing buffer");
-#endif
             speechResult = null;
             audioCapture.ClearBuffer();
 
             return finalSpeechResult;
         }
 
+        isProcessing = true;
         speechResult = await processWithWhisper(data, false);
+        isProcessing = false;
 
 #if DEBUG
-        Logger.Log("Result: " + speechResult?.Text);
+        Logger.Log($"Result: {speechResult?.Text}");
 #endif
 
         return speechResult;
     }
+
+    public void ClearBuffer() => audioCapture?.ClearBuffer();
 
     private void adjustVolume(float[] samples, float multiplier)
     {
