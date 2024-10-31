@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d">
-    <TextBox Text="{Binding Attribute.Value, UpdateSourceTrigger=PropertyChanged}"
+    <TextBox Text="{Binding Attribute.Value}"
              Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}" FontSize="16"
              HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
 </UserControl>
