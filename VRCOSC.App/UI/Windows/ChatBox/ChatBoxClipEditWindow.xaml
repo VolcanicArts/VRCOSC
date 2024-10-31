@@ -18,6 +18,7 @@
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                          Colour2="{StaticResource CBackground2}" />
         <chatBox:BoolToThicknessConverter x:Key="BoolToThicknessConverter" />
+        <core:IndexConverter x:Key="IndexConverter"/>
     </Window.Resources>
     <Grid>
         <Border Padding="10" Background="{StaticResource CBackground2}">
@@ -91,11 +92,11 @@
                     <Border Grid.Row="0" Background="{StaticResource CBackground5}" CornerRadius="5">
                         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                                       PanningMode="VerticalOnly">
-                            <core:SpacedStackPanel Orientation="Vertical" Spacing="10" Margin="10">
+                            <core:SpacedStackPanel Orientation="Vertical" Spacing="10" Margin="20 10">
                                 <TextBlock Text="States" FontWeight="Bold" FontSize="30"
                                            Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
                                            Visibility="{Binding HasStates, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                <core:SpacedListView ItemsSource="{Binding UIStates}" Spacing="10">
+                                <core:SpacedListView ItemsSource="{Binding UIStates}" Spacing="20">
                                     <b:Interaction.Behaviors>
                                         <core:IgnoreMouseWheelBehavior />
                                     </b:Interaction.Behaviors>
@@ -163,14 +164,28 @@
                                                                                                 <Binding />
                                                                                             </Border.Tag>
                                                                                             <Grid>
-                                                                                                <TextBlock
-                                                                                                    FontSize="14"
-                                                                                                    Foreground="{StaticResource CForeground1}"
-                                                                                                    TextAlignment="Left"
-                                                                                                    HorizontalAlignment="Left"
-                                                                                                    VerticalAlignment="Center"
-                                                                                                    Text="{Binding DisplayNameWithModule}"
-                                                                                                    Margin="0 -2 0 0" />
+                                                                                                <core:SpacedStackPanel
+                                                                                                    Spacing="5"
+                                                                                                    Orientation="Horizontal"
+                                                                                                    FlowDirection="LeftToRight"
+                                                                                                    HorizontalAlignment="Left">
+                                                                                                    <TextBlock
+                                                                                                        FontSize="12"
+                                                                                                        Foreground="{StaticResource CForeground3}"
+                                                                                                        TextAlignment="Left"
+                                                                                                        HorizontalAlignment="Left"
+                                                                                                        VerticalAlignment="Center"
+                                                                                                        Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}, Converter={StaticResource IndexConverter}}"
+                                                                                                        />
+                                                                                                    <TextBlock
+                                                                                                        FontSize="14"
+                                                                                                        Foreground="{StaticResource CForeground1}"
+                                                                                                        TextAlignment="Left"
+                                                                                                        HorizontalAlignment="Left"
+                                                                                                        VerticalAlignment="Center"
+                                                                                                        Text="{Binding DisplayNameWithModule}"
+                                                                                                        Margin="0 -2 0 0" />
+                                                                                                </core:SpacedStackPanel>
                                                                                                 <fa6:ImageAwesome
                                                                                                     Icon="Solid_GripLines"
                                                                                                     PrimaryColor="{StaticResource CForeground2}"
@@ -205,24 +220,22 @@
                                                                         </Style>
                                                                     </ListView.ItemContainerStyle>
                                                                     <core:HeaderFooterListView.Footer>
-                                                                        <Border
+                                                                        <Border x:Name="dropTarget"
+                                                                            HorizontalAlignment="Stretch"
                                                                             Background="{StaticResource CBackground1}"
-                                                                            Height="30" Padding="4">
-                                                                            <Border x:Name="dropTarget"
-                                                                                Width="100"
-                                                                                Background="{StaticResource CBackground7}"
-                                                                                CornerRadius="5"
-                                                                                AllowDrop="True"
-                                                                                Drop="VariableReference_DropTarget"
-                                                                                DragEnter="VariableReference_DragEnter">
-                                                                                <Border.Tag>
-                                                                                    <Binding />
-                                                                                </Border.Tag>
-                                                                                <TextBlock Text="Drop Variable"
-                                                                                    Foreground="{StaticResource CForeground2}"
-                                                                                    HorizontalAlignment="Center"
-                                                                                    VerticalAlignment="Center" />
-                                                                            </Border>
+                                                                            Height="30"
+                                                                            AllowDrop="True"
+                                                                            Drop="VariableReference_DropTarget"
+                                                                            DragEnter="VariableReference_DragEnter">
+                                                                            <Border.Tag>
+                                                                                <Binding />
+                                                                            </Border.Tag>
+                                                                            <TextBlock Text="Drop Variables Here"
+                                                                                Foreground="{StaticResource CForeground3}"
+                                                                                Margin="0 -3 0 0"
+                                                                                FontSize="14"
+                                                                                HorizontalAlignment="Center"
+                                                                                VerticalAlignment="Center" />
                                                                         </Border>
                                                                     </core:HeaderFooterListView.Footer>
                                                                 </core:HeaderFooterListView>
@@ -285,10 +298,18 @@
                                         </Style>
                                     </ListView.ItemContainerStyle>
                                 </core:SpacedListView>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="8*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="1" Background="{StaticResource CBackground8}" Height="6" HorizontalAlignment="Stretch" CornerRadius="3"/>
+                                </Grid>
                                 <TextBlock Text="Events" FontWeight="Bold" FontSize="30"
                                            Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
                                            Visibility="{Binding HasEvents, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                <core:SpacedListView ItemsSource="{Binding UIEvents}" Spacing="10">
+                                <core:SpacedListView ItemsSource="{Binding UIEvents}" Spacing="20">
                                     <b:Interaction.Behaviors>
                                         <core:IgnoreMouseWheelBehavior />
                                     </b:Interaction.Behaviors>
@@ -355,14 +376,28 @@
                                                                                                 <Binding />
                                                                                             </Border.Tag>
                                                                                             <Grid>
-                                                                                                <TextBlock
-                                                                                                    FontSize="14"
-                                                                                                    Foreground="{StaticResource CForeground1}"
-                                                                                                    TextAlignment="Left"
-                                                                                                    HorizontalAlignment="Left"
-                                                                                                    VerticalAlignment="Center"
-                                                                                                    Text="{Binding DisplayNameWithModule}"
-                                                                                                    Margin="0 -2 0 0" />
+                                                                                                <core:SpacedStackPanel
+                                                                                                    Spacing="5"
+                                                                                                    Orientation="Horizontal"
+                                                                                                    FlowDirection="LeftToRight"
+                                                                                                    HorizontalAlignment="Left">
+                                                                                                    <TextBlock
+                                                                                                        FontSize="12"
+                                                                                                        Foreground="{StaticResource CForeground3}"
+                                                                                                        TextAlignment="Left"
+                                                                                                        HorizontalAlignment="Left"
+                                                                                                        VerticalAlignment="Center"
+                                                                                                        Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}, Converter={StaticResource IndexConverter}}"
+                                                                                                        />
+                                                                                                    <TextBlock
+                                                                                                        FontSize="14"
+                                                                                                        Foreground="{StaticResource CForeground1}"
+                                                                                                        TextAlignment="Left"
+                                                                                                        HorizontalAlignment="Left"
+                                                                                                        VerticalAlignment="Center"
+                                                                                                        Text="{Binding DisplayNameWithModule}"
+                                                                                                        Margin="0 -2 0 0" />
+                                                                                                </core:SpacedStackPanel>
                                                                                                 <fa6:ImageAwesome
                                                                                                     Icon="Solid_GripLines"
                                                                                                     PrimaryColor="{StaticResource CForeground2}"
@@ -397,24 +432,22 @@
                                                                         </Style>
                                                                     </ListView.ItemContainerStyle>
                                                                     <core:HeaderFooterListView.Footer>
-                                                                        <Border
+                                                                        <Border x:Name="dropTarget"
+                                                                            HorizontalAlignment="Stretch"
                                                                             Background="{StaticResource CBackground1}"
-                                                                            Height="30" Padding="4">
-                                                                            <Border x:Name="dropTarget"
-                                                                                Width="100"
-                                                                                Background="{StaticResource CBackground7}"
-                                                                                CornerRadius="5"
-                                                                                AllowDrop="True"
-                                                                                Drop="VariableReference_DropTarget"
-                                                                                DragEnter="VariableReference_DragEnter">
-                                                                                <Border.Tag>
-                                                                                    <Binding />
-                                                                                </Border.Tag>
-                                                                                <TextBlock Text="Drop Variable"
-                                                                                    Foreground="{StaticResource CForeground2}"
-                                                                                    HorizontalAlignment="Center"
-                                                                                    VerticalAlignment="Center" />
-                                                                            </Border>
+                                                                            Height="30"
+                                                                            AllowDrop="True"
+                                                                            Drop="VariableReference_DropTarget"
+                                                                            DragEnter="VariableReference_DragEnter">
+                                                                            <Border.Tag>
+                                                                                <Binding />
+                                                                            </Border.Tag>
+                                                                            <TextBlock Text="Drop Variables Here"
+                                                                                Foreground="{StaticResource CForeground3}"
+                                                                                Margin="0 -3 0 0"
+                                                                                FontSize="14"
+                                                                                HorizontalAlignment="Center"
+                                                                                VerticalAlignment="Center" />
                                                                         </Border>
                                                                     </core:HeaderFooterListView.Footer>
                                                                 </core:HeaderFooterListView>
@@ -489,7 +522,7 @@
                                                                             Margin="4 0 0 0"
                                                                             FontSize="16" />
                                                                         <TextBox Grid.Column="1"
-                                                                            Text="{Binding Length.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}"
+                                                                            Text="{Binding Length.Value, Converter={StaticResource TextBoxParsingConverter}}"
                                                                             Foreground="{StaticResource CForeground1}"
                                                                             FontSize="16"
                                                                             VerticalAlignment="Center"

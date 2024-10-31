@@ -108,3 +108,19 @@ public class TypeToReadableTypeConverter : IValueConverter
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
+
+public class IndexConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is ListViewItem listViewItem)
+        {
+            var listView = ItemsControl.ItemsControlFromItemContainer(listViewItem) as ListView;
+            return listView?.ItemContainerGenerator.IndexFromContainer(listViewItem) ?? -1;
+        }
+
+        return -1;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
