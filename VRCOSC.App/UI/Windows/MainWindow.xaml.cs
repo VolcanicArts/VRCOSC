@@ -174,12 +174,6 @@ public partial class MainWindow
                 SettingsManager.GetInstance().GetObservable<bool>(VRCOSCMetadata.FirstTimeSetupComplete).Value = true;
                 MainWindowContent.FadeInFromZero(500);
                 AppManager.GetInstance().InitialLoadComplete();
-
-                if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.StartInTray))
-                {
-                    inTray = true;
-                    handleTrayTransition();
-                }
             });
         };
 
@@ -274,6 +268,15 @@ public partial class MainWindow
 
     private bool inTray;
     private readonly NotifyIcon trayIcon = new();
+
+    private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.StartInTray))
+        {
+            inTray = true;
+            handleTrayTransition();
+        }
+    }
 
     private void setupTrayIcon()
     {
