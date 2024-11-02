@@ -140,7 +140,7 @@
                                     CornerRadius="5">
                                 <Grid>
                                     <TextBlock Text="Start In Tray" Style="{StaticResource SettingTitle}" />
-                                    <TextBlock Text="Sends VRCOSC go into the tray when it's opened"
+                                    <TextBlock Text="Sends VRCOSC into the tray when opened"
                                                Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                          Height="32"
@@ -179,7 +179,7 @@
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
                                 <Grid>
-                                    <TextBlock Text="Allow Pre-release Packages" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Allow Pre-Release Packages" Style="{StaticResource SettingTitle}" />
                                     <TextBlock Text="Should the package listing list pre-releases?"
                                                Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
@@ -192,7 +192,7 @@
                                     CornerRadius="5">
                                 <Grid>
                                     <TextBlock Text="Auto Update Packages" Style="{StaticResource SettingTitle}" />
-                                    <TextBlock Text="Should installed packages be auto-updated to their latest non-prerelease version?"
+                                    <TextBlock Text="Should installed packages be auto-updated to their latest non-pre-release version?"
                                                Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                          Height="32"
@@ -287,7 +287,7 @@
                                     CornerRadius="5">
                                 <Grid>
                                     <TextBlock Text="Auto-open with SteamVR" Style="{StaticResource SettingTitle}" />
-                                    <TextBlock Text="Tells VRCOSC to open when SteamVR starts"
+                                    <TextBlock Text="Tells VRCOSC to open when SteamVR opens"
                                                Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                          Height="32"
@@ -299,7 +299,7 @@
                                     CornerRadius="5">
                                 <Grid>
                                     <TextBlock Text="Auto-close with SteamVR" Style="{StaticResource SettingTitle}" />
-                                    <TextBlock Text="Tells VRCOSC to close when SteamVR stops"
+                                    <TextBlock Text="Tells VRCOSC to close when SteamVR closes"
                                                Style="{StaticResource SettingDescription}" />
                                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
                                                          Height="32"
