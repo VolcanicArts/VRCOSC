@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
-using NAudio.CoreAudioApi;
 using org.mariuszgromada.math.mxparser;
 using Valve.VR;
 using VRCOSC.App.Audio;

@@ -32,10 +32,10 @@
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Octokit" Version="13.0.1" />
         <PackageReference Include="PInvoke.User32" Version="0.7.124" />
-        <PackageReference Include="Semver" Version="2.3.0" />
-        <PackageReference Include="Velopack" Version="0.0.626" />
+        <PackageReference Include="Semver" Version="3.0.0" />
+        <PackageReference Include="Velopack" Version="0.0.869" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />
-        <PackageReference Include="VRChat.API" Version="1.18.5" />
+        <PackageReference Include="VRChat.API" Version="1.18.6" />
         <PackageReference Include="Whisper.net" Version="1.7.1" />
         <PackageReference Include="Whisper.net.Runtime" Version="1.7.1" />
         <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.7.1" />

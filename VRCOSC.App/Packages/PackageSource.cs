@@ -158,7 +158,7 @@ public class PackageSource
 
             var releases = await GitHubProxy.Client.Repository.Release.GetAll(RepoOwner, RepoName);
 
-            var sortedDictionary = new SortedDictionary<SemVersion, PackageRelease>();
+            var sortedDictionary = new SortedDictionary<SemVersion, PackageRelease>(SemVersion.SortOrderComparer);
 
             foreach (Release release in releases)
             {
