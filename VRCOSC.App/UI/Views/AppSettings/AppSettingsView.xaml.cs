@@ -255,7 +255,7 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
     private void AutoInstallModel_OnClick(object sender, RoutedEventArgs e)
     {
-        var action = new FileDownloadAction("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true", AppManager.GetInstance().Storage.GetStorageForDirectory("runtime/whisper"), "ggml-tiny.bin");
+        var action = new FileDownloadAction(new Uri("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true"), AppManager.GetInstance().Storage.GetStorageForDirectory("runtime/whisper"), "ggml-tiny.bin");
 
         action.OnComplete += () =>
         {

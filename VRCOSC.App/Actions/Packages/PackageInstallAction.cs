@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Threading.Tasks;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Utils;
@@ -66,7 +67,7 @@ public class PackageInstallAction : CompositeProgressAction
 
                 var fileDownload = new FileDownload();
                 fileDownload.ProgressChanged += p => localProgress = p;
-                await fileDownload.DownloadFileAsync($"{packageSource.URL}/releases/download/{packageRelease.Version}/{assetName}", targetDirectory.GetFullPath(assetName, true));
+                await fileDownload.DownloadFileAsync(new Uri($"{packageSource.URL}/releases/download/{packageRelease.Version}/{assetName}"), targetDirectory.GetFullPath(assetName, true));
 
                 localProgress = 1f;
             }

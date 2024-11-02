@@ -12,10 +12,10 @@ public class FileDownload
 {
     public event Action<float>? ProgressChanged;
 
-    public async Task DownloadFileAsync(string url, string filePath)
+    public async Task DownloadFileAsync(Uri url, string filePath)
     {
         using var client = new HttpClient();
-        using var response = await client.GetAsync(new Uri(url), HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+        using var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
