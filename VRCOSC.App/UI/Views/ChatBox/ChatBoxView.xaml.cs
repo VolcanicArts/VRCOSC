@@ -351,7 +351,7 @@ public partial class ChatBoxView
             clipEditWindow = new ChatBoxClipEditWindow(SelectedClip);
             clipEditWindow.Closed += (_, _) => clipEditWindowCache.Remove(clipEditWindow);
             clipEditWindowCache.Add(clipEditWindow);
-            clipEditWindow.Show();
+            clipEditWindow.ShowDialog();
         }
         else
         {
