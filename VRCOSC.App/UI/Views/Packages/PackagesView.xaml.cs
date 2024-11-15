@@ -2,10 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -106,7 +104,6 @@ public sealed partial class PackagesView
         var packageSource = (PackageSource)element.Tag;
 
         var action = PackageManager.GetInstance().InstallPackage(packageSource);
-        action.OnComplete += Refresh;
         _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {packageSource.DisplayName}", action);
     }
 
@@ -120,15 +117,7 @@ public sealed partial class PackagesView
         if (result != MessageBoxResult.Yes) return;
 
         var action = PackageManager.GetInstance().UninstallPackage(package);
-        action.OnComplete += Refresh;
         _ = MainWindow.GetInstance().ShowLoadingOverlay($"Uninstalling {package.DisplayName}", action);
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private void InstalledVersion_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -138,7 +127,6 @@ public sealed partial class PackagesView
         var packageRelease = packageSource.FilteredReleases[element.SelectedIndex];
 
         var action = PackageManager.GetInstance().InstallPackage(packageSource, packageRelease);
-        action.OnComplete += Refresh;
         _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {packageSource.DisplayName} - {packageRelease.Version}", action);
     }
 
