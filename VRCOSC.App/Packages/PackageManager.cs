@@ -161,13 +161,13 @@ public class PackageManager
         {
             var repos = searchProgressAction.Result!;
 
-            repos.Items.Where(repo => repo.Name != "VRCOSC").ToList().ForEach(repo =>
+            foreach (var repo in repos.Items.Where(repo => repo.Name != "VRCOSC"))
             {
                 var packageSource = new PackageSource(this, repo.Owner.HtmlUrl.Split('/').Last(), repo.Name);
-                if (builtinSources.Any(comparedSource => comparedSource.InternalReference == packageSource.InternalReference)) return;
+                if (builtinSources.Any(comparedSource => comparedSource.InternalReference == packageSource.InternalReference)) continue;
 
                 Sources.Add(packageSource);
-            });
+            }
         }));
 
         return findCommunityPackages;

@@ -51,11 +51,11 @@ public class PackageRelease
     [JsonProperty("version")]
     public string Version { get; set; } = null!;
 
-    [JsonProperty("is_prerelease")]
-    public bool IsPrerelease { get; set; }
+    [JsonProperty("prerelease")]
+    public bool IsPreRelease { get; set; }
 
-    [JsonProperty("dll_files")]
-    public List<string> DllFiles = new();
+    [JsonProperty("assets")]
+    public List<string> Assets = new();
 
     [JsonConstructor]
     public PackageRelease()
@@ -65,7 +65,7 @@ public class PackageRelease
     public PackageRelease(Release release)
     {
         Version = release.TagName;
-        IsPrerelease = release.Prerelease;
-        DllFiles = release.Assets.Where(asset => asset.Name.Contains(".dll")).Select(asset => asset.Name).ToList();
+        IsPreRelease = release.Prerelease;
+        Assets = release.Assets.Where(asset => asset.Name.EndsWith(".dll") || asset.Name.EndsWith(".zip")).Select(asset => asset.Name).ToList();
     }
 }

@@ -157,7 +157,7 @@ public class PackageReleaseVersionColourConverter : IValueConverter
     {
         if (value is PackageRelease packageRelease)
         {
-            return packageRelease.IsPrerelease ? Brushes.DarkOrange : Brushes.Black;
+            return packageRelease.IsPreRelease ? Brushes.DarkOrange : Brushes.Black;
         }
 
         return Brushes.Black;

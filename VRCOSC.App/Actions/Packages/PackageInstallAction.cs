@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.IO.Compression;
 using System.Threading.Tasks;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Utils;
@@ -28,9 +29,8 @@ public class PackageInstallAction : CompositeProgressAction
             this.packageSource = packageSource;
 
             var targetDirectory = storage.GetStorageForDirectory(packageSource.PackageID!);
-            var assetNames = packageRelease.DllFiles;
 
-            foreach (var assetName in assetNames)
+            foreach (var assetName in packageRelease.Assets)
             {
                 AddAction(new PackageAssetDownloadAction(targetDirectory, packageSource, packageRelease, assetName));
             }
@@ -68,6 +68,16 @@ public class PackageInstallAction : CompositeProgressAction
                 var fileDownload = new FileDownload();
                 fileDownload.ProgressChanged += p => localProgress = p;
                 await fileDownload.DownloadFileAsync(new Uri($"{packageSource.URL}/releases/download/{packageRelease.Version}/{assetName}"), targetDirectory.GetFullPath(assetName, true));
+
+                if (assetName.EndsWith(".zip"))
+                {
+                    var zipPath = targetDirectory.GetFullPath(assetName);
+                    var extractPath = targetDirectory.GetFullPath(string.Empty);
+
+                    ZipFile.ExtractToDirectory(zipPath, extractPath);
+
+                    targetDirectory.Delete(assetName);
+                }
 
                 localProgress = 1f;
             }

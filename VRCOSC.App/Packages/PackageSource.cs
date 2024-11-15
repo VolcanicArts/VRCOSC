@@ -41,8 +41,8 @@ public class PackageSource
 
     public List<PackageRelease> FilteredReleases => filterReleases(true, true);
 
-    private List<PackageRelease> filterReleases(bool includeInstalledRelease, bool includePreReleases) => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPrerelease && includePreReleases)
-                                                                                                                                                       || !packageRelease.IsPrerelease
+    private List<PackageRelease> filterReleases(bool includeInstalledRelease, bool includePreReleases) => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPreRelease && includePreReleases)
+                                                                                                                                                       || !packageRelease.IsPreRelease
                                                                                                                                                        || (packageRelease.Version == InstalledVersion && includeInstalledRelease)).ToList();
 
     public bool IsInstalled() => packageManager.IsInstalled(this);
@@ -58,7 +58,7 @@ public class PackageSource
 
     public PackageRelease? GetLatestNonPreRelease()
     {
-        if (InstalledRelease?.IsPrerelease ?? false) return null;
+        if (InstalledRelease?.IsPreRelease ?? false) return null;
 
         var latestNonPreRelease = filterReleases(true, false).First();
         var installedVersion = SemVersion.Parse(InstalledVersion, SemVersionStyles.Any);
@@ -201,7 +201,7 @@ public class PackageSource
         {
             if (IsUnavailable()) return (Brush)Application.Current.FindResource("CRedL");
 
-            return LatestRelease.IsPrerelease ? Brushes.DarkOrange : (Brush)Application.Current.FindResource("CForeground1");
+            return LatestRelease.IsPreRelease ? Brushes.DarkOrange : (Brush)Application.Current.FindResource("CForeground1");
         }
     }
 
