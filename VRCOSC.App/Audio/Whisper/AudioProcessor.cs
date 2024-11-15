@@ -40,6 +40,7 @@ internal class AudioProcessor
         }
         catch (Exception e)
         {
+            whisper = null;
             ExceptionHandler.Handle(e, "Please make sure the model path for Whisper is correct in the speech settings");
         }
 
@@ -154,9 +155,11 @@ internal class AudioProcessor
 
     private async Task<SpeechResult?> processWithWhisper(float[] data, bool final)
     {
+        if (whisper is null) return null;
+
         var segmentData = new List<SegmentData>();
 
-        await foreach (var result in whisper!.ProcessAsync(data))
+        await foreach (var result in whisper.ProcessAsync(data))
         {
             segmentData.Add(result);
         }
