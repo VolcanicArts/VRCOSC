@@ -95,6 +95,7 @@ public class PackageSource
         if (State is PackageSourceState.Unknown) State = PackageSourceState.Valid;
 
         Logger.Log($"{InternalReference} resulted in {State}");
+        PackageManager.GetInstance().Serialise();
     }
 
     public string DisplayName => Repository?.PackageFile?.DisplayName ?? RepoName;

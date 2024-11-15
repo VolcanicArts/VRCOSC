@@ -107,7 +107,7 @@ public sealed partial class PackagesView
 
         var action = PackageManager.GetInstance().InstallPackage(packageSource);
         action.OnComplete += Refresh;
-        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {packageSource.DisplayName} - {packageSource.LatestVersion}", action);
+        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {packageSource.DisplayName}", action);
     }
 
     private void UninstallButton_OnClick(object sender, RoutedEventArgs e)

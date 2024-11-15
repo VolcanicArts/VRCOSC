@@ -61,6 +61,8 @@ public class PackageManager
         return RefreshAllSources(CacheExpireTime <= DateTime.Now);
     }
 
+    public void Serialise() => serialisationManager.Serialise();
+
     public CompositeProgressAction RefreshAllSources(bool forceRemoteGrab)
     {
         var packageLoadAction = new CompositeProgressAction();
@@ -97,7 +99,7 @@ public class PackageManager
             var latestNonPreRelease = packageSource.GetLatestNonPreRelease();
             if (latestNonPreRelease is null) continue;
 
-            compositeAction.AddAction(InstallPackage(packageSource, latestNonPreRelease, false));
+            compositeAction.AddAction(InstallPackage(packageSource, latestNonPreRelease, false, false));
             shouldDoAction = true;
         }
 
@@ -112,14 +114,13 @@ public class PackageManager
         return compositeAction;
     }
 
-    public PackageInstallAction InstallPackage(PackageSource packageSource, PackageRelease? packageRelease = null, bool reloadAll = true)
+    public PackageInstallAction InstallPackage(PackageSource packageSource, PackageRelease? packageRelease = null, bool reloadAll = true, bool refreshBeforeInstall = true)
     {
-        packageRelease ??= packageSource.LatestRelease;
-        var installAction = new PackageInstallAction(storage, packageSource, packageRelease, IsInstalled(packageSource));
+        var installAction = new PackageInstallAction(storage, packageSource, packageRelease, IsInstalled(packageSource), refreshBeforeInstall);
 
         installAction.OnComplete += () =>
         {
-            InstalledPackages[packageSource.PackageID!] = packageRelease.Version;
+            InstalledPackages[packageSource.PackageID!] = packageRelease?.Version ?? packageSource.LatestVersion;
 
             if (reloadAll)
             {

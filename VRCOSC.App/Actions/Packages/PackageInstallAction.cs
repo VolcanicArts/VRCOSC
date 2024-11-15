@@ -11,34 +11,41 @@ namespace VRCOSC.App.Actions.Packages;
 
 public class PackageInstallAction : CompositeProgressAction
 {
-    public PackageInstallAction(Storage storage, PackageSource packageSource, PackageRelease packageRelease, bool shouldUninstall)
+    public PackageInstallAction(Storage storage, PackageSource packageSource, PackageRelease? packageRelease, bool shouldUninstall, bool refreshBeforeInstall = true)
     {
         if (shouldUninstall) AddAction(new PackageUninstallAction(storage, packageSource));
-        //AddAction(new PackageSourceRefreshAction(packageSource, true));
+        if (refreshBeforeInstall) AddAction(new PackageSourceRefreshAction(packageSource, true));
+
         AddAction(new PackageDownloadAction(storage, packageSource, packageRelease));
     }
 
     private class PackageDownloadAction : CompositeProgressAction
     {
+        private readonly Storage storage;
         private readonly PackageSource packageSource;
+        private readonly PackageRelease? packageRelease;
 
         public override string Title => $"Downloading all {packageSource.DisplayName} files";
 
-        public PackageDownloadAction(Storage storage, PackageSource packageSource, PackageRelease packageRelease)
+        public PackageDownloadAction(Storage storage, PackageSource packageSource, PackageRelease? packageRelease)
         {
+            this.storage = storage;
             this.packageSource = packageSource;
-
-            var targetDirectory = storage.GetStorageForDirectory(packageSource.PackageID!);
-
-            foreach (var assetName in packageRelease.Assets)
-            {
-                AddAction(new PackageAssetDownloadAction(targetDirectory, packageSource, packageRelease, assetName));
-            }
+            this.packageRelease = packageRelease;
         }
 
         protected override Task Perform()
         {
             Logger.Log($"Installing {packageSource.InternalReference}");
+
+            var targetDirectory = storage.GetStorageForDirectory(packageSource.PackageID!);
+            var release = packageRelease ?? packageSource.LatestRelease;
+
+            foreach (var assetName in release.Assets)
+            {
+                AddAction(new PackageAssetDownloadAction(targetDirectory, packageSource, release, assetName));
+            }
+
             return base.Perform();
         }
 
