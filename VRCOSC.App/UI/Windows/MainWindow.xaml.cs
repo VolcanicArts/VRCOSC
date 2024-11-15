@@ -129,7 +129,7 @@ public partial class MainWindow
         }
     });
 
-    private async void load()
+    private void load()
     {
         var loadingAction = new CompositeProgressAction();
 
@@ -177,7 +177,7 @@ public partial class MainWindow
             });
         };
 
-        await ShowLoadingOverlay("Welcome to VRCOSC", loadingAction);
+        _ = ShowLoadingOverlay("Welcome to VRCOSC", loadingAction);
     }
 
     private void copyOpenVrFiles()
