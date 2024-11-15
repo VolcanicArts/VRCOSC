@@ -12,6 +12,7 @@ using System.Windows;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
+using VRCOSC.App.ChatBox.Clips.Variables.Instances.BuiltIn;
 using VRCOSC.App.ChatBox.Serialisation;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
@@ -105,6 +106,14 @@ public class ChatBoxManager : INotifyPropertyChanged
             DisplayName = { Value = "Timer" },
             ClipVariableType = typeof(TimerClipVariable),
             ValueType = typeof(TimeSpan)
+        });
+
+        VariableReferences.Add(new ClipVariableReference
+        {
+            VariableID = BuiltInVariables.FileReader.ToLookup(),
+            DisplayName = { Value = "File Reader" },
+            ClipVariableType = typeof(FileReaderClipVariable),
+            ValueType = typeof(string)
         });
     }
 
@@ -262,6 +271,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         GetVariable(null, BuiltInVariables.FocusedWindow.ToLookup())!.SetValue(ProcessExtensions.GetActiveWindowTitle());
         GetVariable(null, BuiltInVariables.Text.ToLookup())!.SetValue(string.Empty);
         GetVariable(null, BuiltInVariables.Timer.ToLookup())!.SetValue(TimeSpan.Zero);
+        GetVariable(null, BuiltInVariables.FileReader.ToLookup())!.SetValue(string.Empty);
     }
 
     private void evaluateClips()
@@ -477,5 +487,6 @@ public enum BuiltInVariables
 {
     Text,
     FocusedWindow,
-    Timer
+    Timer,
+    FileReader
 }

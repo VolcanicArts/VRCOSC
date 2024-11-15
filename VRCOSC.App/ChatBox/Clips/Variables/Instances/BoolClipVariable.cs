@@ -20,9 +20,7 @@ public class BoolClipVariable : ClipVariable
     [ClipVariableOption("when_false", "When False", "What string should be used when this variable is false?")]
     public string WhenFalse { get; set; } = "False";
 
-    public override bool IsDefault() => base.IsDefault() &&
-                                        WhenTrue == "True" &&
-                                        WhenFalse == "False";
+    public override bool IsDefault() => base.IsDefault() && WhenTrue == "True" && WhenFalse == "False";
 
     public override BoolClipVariable Clone()
     {

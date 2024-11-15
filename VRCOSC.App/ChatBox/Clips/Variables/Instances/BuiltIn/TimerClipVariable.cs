@@ -3,7 +3,7 @@
 
 using System;
 
-namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
+namespace VRCOSC.App.ChatBox.Clips.Variables.Instances.BuiltIn;
 
 internal class TimerClipVariable : TimeSpanClipVariable
 {
@@ -18,6 +18,8 @@ internal class TimerClipVariable : TimeSpanClipVariable
 
     [ClipVariableOption("datetime", "Date/Time", "The chosen date/time to count to")]
     public DateTimeOffset DateTime { get; set; } = DateTimeOffset.Now;
+
+    public override bool IsDefault() => base.IsDefault() && DateTime == DateTimeOffset.Now;
 
     protected override string Format(object value)
     {

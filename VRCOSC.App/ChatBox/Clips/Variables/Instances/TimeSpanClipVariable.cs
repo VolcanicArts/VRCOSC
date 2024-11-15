@@ -22,7 +22,7 @@ public class TimeSpanClipVariable : ClipVariable
     [ClipVariableOption("include_negative_sign", "Include Negative Sign", "When a time span is negative, should we include a '-' sign?")]
     public bool IncludeNegativeSign { get; set; } = true;
 
-    public override bool IsDefault() => base.IsDefault() && TimeFormat == @"mm\:ss";
+    public override bool IsDefault() => base.IsDefault() && TimeFormat == @"mm\:ss" && IncludeNegativeSign;
 
     public override TimeSpanClipVariable Clone()
     {

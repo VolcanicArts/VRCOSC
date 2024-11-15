@@ -14,8 +14,5 @@ public class StringClipVariable : ClipVariable
     {
     }
 
-    protected override string Format(object value)
-    {
-        return (string)value;
-    }
+    protected override string Format(object value) => (string)value;
 }

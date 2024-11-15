@@ -19,8 +19,6 @@ public class IntClipVariable : ClipVariable
     {
     }
 
-    public override bool IsDefault() => base.IsDefault() && Mode == IntVariableMode.Standard && MinValue == 0 && MaxValue == 100 && SymbolList.Count == 0;
-
     [ClipVariableOption("mode", "Mode", "What mode should we use for formatting?")]
     public IntVariableMode Mode { get; set; } = IntVariableMode.Standard;
 
@@ -32,6 +30,8 @@ public class IntClipVariable : ClipVariable
 
     [ClipVariableOption("symbol_list", "Symbols", "The symbols to interpolate between\nRequires Symbol mode")]
     public List<string> SymbolList { get; set; } = new();
+
+    public override bool IsDefault() => base.IsDefault() && Mode == IntVariableMode.Standard && MinValue == 0 && MaxValue == 100 && SymbolList.Count == 0;
 
     protected override string Format(object value)
     {
