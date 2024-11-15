@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -94,7 +95,7 @@ public class KeybindToStringConverter : IValueConverter
         {
             if (keybind.Modifiers.Count == 0 && keybind.Keys.Count == 0) return "None";
 
-            return $"{string.Join(" + ", keybind.Modifiers)} + {string.Join(" + ", keybind.Keys)}";
+            return string.Join(" + ", keybind.Modifiers.Concat(keybind.Keys));
         }
 
         return string.Empty;
