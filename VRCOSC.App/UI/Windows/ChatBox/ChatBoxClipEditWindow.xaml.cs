@@ -187,8 +187,12 @@ public partial class ChatBoxClipEditWindow
 
             var newIndex = draggedClipElement.Variables.IndexOf(droppedInstance);
 
-            draggedClipElement.Variables.Remove(draggedInstance);
-            draggedClipElement.Variables.Insert(newIndex, draggedInstance);
+            draggedClipElement.Variables.Move(draggedClipElement.Variables.IndexOf(draggedInstance), newIndex);
+
+            // force whole list to update
+            var variables = draggedClipElement.Variables.ToList();
+            draggedClipElement.Variables.Clear();
+            draggedClipElement.Variables.AddRange(variables);
 
             draggedInstance = null;
             border.BorderThickness = new Thickness(0);
