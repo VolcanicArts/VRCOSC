@@ -3,7 +3,9 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using VRCOSC.App.Profiles.Serialisation;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
@@ -12,7 +14,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Profiles;
 
-public class ProfileManager
+public class ProfileManager : INotifyPropertyChanged
 {
     private static ProfileManager? instance;
     internal static ProfileManager GetInstance() => instance ??= new ProfileManager();
@@ -44,7 +46,12 @@ public class ProfileManager
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new ProfileManagerSerialiser(storage, this));
 
-        ActiveProfile.Subscribe(newProfile => Logger.Log($"Active profile changed to {newProfile.ID}"));
+        ActiveProfile.Subscribe(newProfile =>
+        {
+            Logger.Log($"Active profile changed to {newProfile.ID}");
+            OnPropertyChanged(nameof(UIActiveProfile.Value));
+        });
+
         DefaultProfile.Subscribe(newProfile => Logger.Log($"Default profile changed to {newProfile.ID}"));
     }
 
@@ -153,6 +160,22 @@ public class ProfileManager
     public ProfileEditWindow? ProfileEditWindow { get; private set; }
 
     public Observable<Profile> UIActiveProfile { get; } = new();
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+
+        field = value;
+        OnPropertyChanged(propertyName);
+        return true;
+    }
 
     #endregion
 }
