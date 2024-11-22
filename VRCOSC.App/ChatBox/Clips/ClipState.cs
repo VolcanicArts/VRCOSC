@@ -38,7 +38,7 @@ public class ClipState : ClipElement
 
                 var name = module.Title;
 
-                if (!string.Equals(stateReference.StateID, "default", StringComparison.InvariantCultureIgnoreCase))
+                if (!string.Equals(stateReference.DisplayName.Value, "default", StringComparison.InvariantCultureIgnoreCase))
                     name += $" ({stateReference.DisplayName.Value})";
 
                 names.Add(name);
