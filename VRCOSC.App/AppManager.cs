@@ -502,7 +502,9 @@ public class AppManager
 
         Logger.Log($"Changing profile from {currentProfile.Name.Value} ({currentProfile.ID}) to {newProfile.Name.Value} ({newProfile.ID})");
 
-        MainWindow.GetInstance().CloseChildren().Wait();
+        MainWindow.GetInstance().CloseChildren();
+        // delay hack for exceptions
+        await Task.Delay(100);
 
         var beforeState = State.Value;
 
