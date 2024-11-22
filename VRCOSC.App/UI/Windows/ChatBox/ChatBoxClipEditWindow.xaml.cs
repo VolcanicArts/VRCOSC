@@ -123,12 +123,22 @@ public partial class ChatBoxClipEditWindow
         var variableInstance = (ClipVariable)element.Tag;
 
         var clipState = ReferenceClip.States.FirstOrDefault(clipState => clipState.Variables.Contains(variableInstance));
-        clipState?.Variables.Remove(variableInstance);
-        clipState?.UpdateUI();
+
+        if (clipState is not null)
+        {
+            clipState.Variables.Remove(variableInstance);
+            clipState.UpdateUI();
+            updateVariablesList(clipState);
+        }
 
         var clipEvent = ReferenceClip.Events.FirstOrDefault(clipEvent => clipEvent.Variables.Contains(variableInstance));
-        clipEvent?.Variables.Remove(variableInstance);
-        clipEvent?.UpdateUI();
+
+        if (clipEvent is not null)
+        {
+            clipEvent.Variables.Remove(variableInstance);
+            clipEvent.UpdateUI();
+            updateVariablesList(clipEvent);
+        }
     }
 
     private ClipVariable? draggedInstance;
@@ -190,13 +200,18 @@ public partial class ChatBoxClipEditWindow
             draggedClipElement.Variables.Move(draggedClipElement.Variables.IndexOf(draggedInstance), newIndex);
 
             // force whole list to update
-            var variables = draggedClipElement.Variables.ToList();
-            draggedClipElement.Variables.Clear();
-            draggedClipElement.Variables.AddRange(variables);
+            updateVariablesList(draggedClipElement);
 
             draggedInstance = null;
             border.BorderThickness = new Thickness(0);
         }
+    }
+
+    private void updateVariablesList(ClipElement clipElement)
+    {
+        var variables = clipElement.Variables.ToList();
+        clipElement.Variables.Clear();
+        clipElement.Variables.AddRange(variables);
     }
 
     private void VariableInstance_DragEnter(object sender, DragEventArgs e)
