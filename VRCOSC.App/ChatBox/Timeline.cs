@@ -42,6 +42,7 @@ public class Timeline : INotifyPropertyChanged
         Length.Subscribe(_ =>
         {
             Clips.ForEach(clip => clip.ChatBoxLengthChange());
+            Enumerable.Range(0, LayerCount).ForEach(GenerateDroppableAreas);
             ChatBoxManager.GetInstance().Serialise();
             OnPropertyChanged(nameof(UILength));
         });
