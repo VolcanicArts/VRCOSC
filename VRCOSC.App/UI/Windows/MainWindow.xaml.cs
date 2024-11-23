@@ -120,14 +120,6 @@ public partial class MainWindow
         }
     }
 
-    public void CloseChildren() => Dispatcher.InvokeAsync(() =>
-    {
-        foreach (Window window in Application.Current.Windows)
-        {
-            if (window != GetInstance()) window.Close();
-        }
-    });
-
     private void load()
     {
         var loadingAction = new CompositeProgressAction();

@@ -30,7 +30,6 @@ using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Themes;
-using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using VRCOSC.App.VRChatAPI;
@@ -492,7 +491,7 @@ public class AppManager
 
     #region Profiles
 
-    public async void ChangeProfile(Profile newProfile)
+    public void ChangeProfile(Profile newProfile) => Application.Current.Dispatcher.Invoke(async () =>
     {
         var currentProfile = ProfileManager.GetInstance().ActiveProfile.Value;
         if (currentProfile == newProfile) return;
@@ -502,9 +501,10 @@ public class AppManager
 
         Logger.Log($"Changing profile from {currentProfile.Name.Value} ({currentProfile.ID}) to {newProfile.Name.Value} ({newProfile.ID})");
 
-        MainWindow.GetInstance().CloseChildren();
-        // delay hack for exceptions
-        await Task.Delay(100);
+        foreach (var window in Application.Current.Windows.OfType<Window>().Where(w => w != Application.Current.MainWindow))
+        {
+            window.Close();
+        }
 
         var beforeState = State.Value;
 
@@ -527,7 +527,7 @@ public class AppManager
             await Task.Delay(100);
             await startAsync();
         }
-    }
+    });
 
     #endregion
 }

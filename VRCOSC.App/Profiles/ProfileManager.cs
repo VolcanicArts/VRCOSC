@@ -49,6 +49,7 @@ public class ProfileManager : INotifyPropertyChanged
         ActiveProfile.Subscribe(newProfile =>
         {
             Logger.Log($"Active profile changed to {newProfile.ID}");
+            UIActiveProfile.Value = newProfile;
             OnPropertyChanged(nameof(UIActiveProfile.Value));
         });
 
