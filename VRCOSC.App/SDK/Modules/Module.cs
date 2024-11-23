@@ -936,7 +936,7 @@ public abstract class Module
 
             var parameterData = Parameters[lookup];
 
-            if (!parameterData.Mode.HasFlag(ParameterMode.Read)) return;
+            if (!parameterData.Enabled.Value || !parameterData.Mode.HasFlag(ParameterMode.Read)) return;
 
             if (!receivedParameter.IsValueType(parameterData.ExpectedType))
             {
