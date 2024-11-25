@@ -3,8 +3,5 @@
     "version": "8.0.0",
     "rollForward": "latestMajor",
     "allowPrerelease": false
-  },
-  "msbuild-sdks": {
-    "Microsoft.Windows.SDK.NET": "10.0.22621.30"
   }
 }
