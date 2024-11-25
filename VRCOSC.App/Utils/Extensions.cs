@@ -304,4 +304,48 @@ public static class ProcessExtensions
 
         processAudioVolume.Volume = percentage;
     }
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+    private const int sw_minimize = 6;
+    private const int sw_restore = 9;
+
+    private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+    public static void SetWindowVisibility(this Process process, bool visible)
+    {
+        if (process == null) throw new ArgumentNullException(nameof(process));
+
+        var windowHandle = findWindowByProcessId(process.Id);
+        if (windowHandle == IntPtr.Zero) throw new InvalidOperationException("The process does not have a visible main window");
+
+        ShowWindow(windowHandle, visible ? sw_restore : sw_minimize);
+    }
+
+    private static IntPtr findWindowByProcessId(int processId)
+    {
+        IntPtr windowHandle = IntPtr.Zero;
+
+        EnumWindows((hWnd, _) =>
+        {
+            GetWindowThreadProcessId(hWnd, out uint windowProcessId);
+
+            if (windowProcessId == processId)
+            {
+                windowHandle = hWnd;
+                return false;
+            }
+
+            return true;
+        }, IntPtr.Zero);
+
+        return windowHandle;
+    }
 }
