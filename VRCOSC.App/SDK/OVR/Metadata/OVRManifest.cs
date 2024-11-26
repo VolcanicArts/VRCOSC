@@ -1,11 +1,14 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 
 namespace VRCOSC.App.SDK.OVR.Metadata;
 
-internal class OVRManifest
+// Public this
+
+public class OVRManifest
 {
     [JsonProperty("source")]
     public string Source = "builtin";
@@ -14,7 +17,7 @@ internal class OVRManifest
     public OVRApplication[] Applications = [new OVRApplication()];
 }
 
-internal class OVRApplication
+public class OVRApplication
 {
     [JsonProperty("app_key")]
     public string AppKey = "volcanicarts.vrcosc";
@@ -38,13 +41,13 @@ internal class OVRApplication
     public OVRStrings Strings = new();
 }
 
-internal class OVRStrings
+public class OVRStrings
 {
     [JsonProperty("en_us")]
-    public OVRLocalisation Localisation = new();
+    public OVRLocalisation Localisation = new();    
 }
 
-internal class OVRLocalisation
+public class OVRLocalisation
 {
     [JsonProperty("name")]
     public string Name = "VRCOSC";

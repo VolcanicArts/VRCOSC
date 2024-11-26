@@ -22,11 +22,11 @@ using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox;
-
+// Yeusepe
 public class ChatBoxManager : INotifyPropertyChanged
 {
     private static ChatBoxManager? instance;
-    internal static ChatBoxManager GetInstance() => instance ??= new ChatBoxManager();
+    public static ChatBoxManager GetInstance() => instance ??= new ChatBoxManager();
 
     public ObservableCollection<ClipStateReference> StateReferences = new();
     public ObservableCollection<ClipEventReference> EventReferences = new();

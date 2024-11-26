@@ -20,10 +20,11 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Modules;
 
-internal class ModuleManager : INotifyPropertyChanged
+// Yeusepe
+public class ModuleManager : INotifyPropertyChanged
 {
     private static ModuleManager? instance;
-    internal static ModuleManager GetInstance() => instance ??= new ModuleManager();
+    public static ModuleManager GetInstance() => instance ??= new ModuleManager();
 
     private readonly Storage storage = AppManager.GetInstance().Storage;
 

@@ -49,7 +49,7 @@ public class AppManager
     public static string Version => $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
 
     private static AppManager? instance;
-    internal static AppManager GetInstance() => instance ??= new AppManager();
+    public static AppManager GetInstance() => instance ??= new AppManager();
 
     public readonly Storage Storage = new($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/{APP_NAME}");
 

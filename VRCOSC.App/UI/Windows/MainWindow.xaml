@@ -89,8 +89,11 @@
                 <Border Grid.Column="0" Background="{StaticResource CBackground1}">
                     <Grid>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-                            <RadioButton GroupName="TabBar" Click="PackagesButton_OnClick" IsChecked="True">
-                                <fa6:ImageAwesome Icon="Solid_Download" />
+
+                            <RadioButton GroupName="TabBar"
+                                         Click="RunButton_OnClick"
+                                         IsChecked="True">
+                                <fa6:ImageAwesome Icon="Solid_Play" />
                             </RadioButton>
                             <RadioButton GroupName="TabBar" Click="ModulesButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_List" />
@@ -99,11 +102,9 @@
                                          Visibility="{Binding ShowRouter.Value, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <fa6:ImageAwesome Icon="Solid_ShareNodes" />
                             </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="ChatBoxButton_OnClick">
+                            <RadioButton GroupName="TabBar"
+                                         Click="ChatBoxButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_Message" />
-                            </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="RunButton_OnClick">
-                                <fa6:ImageAwesome Icon="Solid_Play" />
                             </RadioButton>
                             <RadioButton GroupName="TabBar" Click="SettingsButton_OnClick" Visibility="Collapsed">
                                 <fa6:ImageAwesome Icon="Solid_UserGear" />
@@ -114,6 +115,10 @@
                             </RadioButton>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
+                            <RadioButton GroupName="TabBar"
+                                         Click="PackagesButton_OnClick">
+                                <fa6:ImageAwesome Icon="Solid_Download" />
+                            </RadioButton>
                             <RadioButton GroupName="TabBar" Click="ProfilesButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_User" />
                             </RadioButton>

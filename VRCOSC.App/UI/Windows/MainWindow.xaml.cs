@@ -61,6 +61,7 @@ public partial class MainWindow
     public Observable<bool> ShowAppDebug { get; } = new();
     public Observable<bool> ShowRouter { get; } = new();
 
+    // YEUSEPE: Changed the default view to run. 
     public MainWindow()
     {
         // TODO: Enable when out of beta
@@ -91,7 +92,7 @@ public partial class MainWindow
         ProfilesView = new ProfilesView();
         AppSettingsView = new AppSettingsView();
 
-        setContent(PackagesView);
+        setContent(RunView);
 
         load();
     }

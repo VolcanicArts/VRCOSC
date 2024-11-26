@@ -124,53 +124,67 @@ public class OVRDeviceManager
         addTrackedDevice<HMD>(connectedHMDSerial, DeviceRole.Head, connectedHMDIndex);
     }
 
-    private void auditLeftController()
+    // YEUSEPE: The code has been rewritten to make it easier to work with and avoid repeating the same steps for left and right controllers.
+    // Here's what was changed:
+    // 1. A single method called `AuditController` now handles both left and right controllers. 
+    //    - You tell it whether to check the left or right controller by passing the role (e.g., LeftHand or RightHand) and a hint ("left" or "right").
+    // 2. The method `HandleSingleController` is used when no controllers are found. It checks for a single connected controller and adds it if valid.
+    // 3. The method `TryAddTrackedDevice` is used to add a controller. 
+    //    - It checks if the controller is valid (not null or empty) before adding it, making the code safer and preventing crashes.
+    // 4. The methods for checking left and right controllers (`AuditLeftController` and `AuditRightController`) now just call `AuditController` with the correct settings for left or right.
+    // This makes the code easier to understand, avoids repeating the same logic, and ensures it works correctly for both controllers.
+
+
+    private void AuditController(ETrackedControllerRole role, DeviceRole deviceRole, string hint)
     {
-        var connectedLeftControllersIndexes = OVRHelper.GetAllControllersFromHint("left").ToList();
+        var controllerIndexes = OVRHelper.GetAllControllersFromHint(hint)?.ToList();
 
-        if (connectedLeftControllersIndexes.Count == 0)
+        if (controllerIndexes == null || controllerIndexes.Count == 0)
         {
-            var connectedLeftControllerIndex = OpenVR.System.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.LeftHand);
-            if (connectedLeftControllerIndex == OpenVR.k_unTrackedDeviceIndexInvalid) return;
-
-            var connectedLeftControllerSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedLeftControllerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
-
-            addTrackedDevice<Controller>(connectedLeftControllerSerial, DeviceRole.LeftHand, connectedLeftControllerIndex);
+            HandleSingleController(role, deviceRole);
         }
         else
         {
-            foreach (var connectedLeftControllerIndex in connectedLeftControllersIndexes)
+            foreach (var index in controllerIndexes)
             {
-                var connectedLeftControllerSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedLeftControllerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
-
-                addTrackedDevice<Controller>(connectedLeftControllerSerial, DeviceRole.LeftHand, connectedLeftControllerIndex);
+                TryAddTrackedDevice(index, deviceRole);
             }
         }
+    }
+
+    private void HandleSingleController(ETrackedControllerRole role, DeviceRole deviceRole)
+    {
+        if (OpenVR.System == null) return;
+
+        var controllerIndex = OpenVR.System.GetTrackedDeviceIndexForControllerRole(role);
+        if (controllerIndex == OpenVR.k_unTrackedDeviceIndexInvalid) return;
+
+        TryAddTrackedDevice(controllerIndex, deviceRole);
+    }
+
+    private void TryAddTrackedDevice(uint controllerIndex, DeviceRole role)
+    {
+        if (OpenVR.System == null) return;
+
+        var serialNumber = OVRHelper.GetStringTrackedDeviceProperty(controllerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
+
+        if (!string.IsNullOrEmpty(serialNumber))
+        {
+            addTrackedDevice<Controller>(serialNumber, role, controllerIndex);
+        }
+    }
+
+    // Usage examples:
+    private void auditLeftController()
+    {
+        AuditController(ETrackedControllerRole.LeftHand, DeviceRole.LeftHand, "left");
     }
 
     private void auditRightController()
     {
-        var connectedRightControllersIndexes = OVRHelper.GetAllControllersFromHint("right").ToList();
-
-        if (connectedRightControllersIndexes.Count == 0)
-        {
-            var connectedRightControllerIndex = OpenVR.System.GetTrackedDeviceIndexForControllerRole(ETrackedControllerRole.RightHand);
-            if (connectedRightControllerIndex == OpenVR.k_unTrackedDeviceIndexInvalid) return;
-
-            var connectedRightControllerSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedRightControllerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
-
-            addTrackedDevice<Controller>(connectedRightControllerSerial, DeviceRole.RightHand, connectedRightControllerIndex);
-        }
-        else
-        {
-            foreach (var connectedRightControllerIndex in connectedRightControllersIndexes)
-            {
-                var connectedRightControllerSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedRightControllerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
-
-                addTrackedDevice<Controller>(connectedRightControllerSerial, DeviceRole.RightHand, connectedRightControllerIndex);
-            }
-        }
+        AuditController(ETrackedControllerRole.RightHand, DeviceRole.RightHand, "right");
     }
+
 
     private void auditGenericTrackedDevices()
     {

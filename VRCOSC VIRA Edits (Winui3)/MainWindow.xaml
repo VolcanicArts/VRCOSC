@@ -1,0 +1,80 @@
+<Window x:Class="VRCOSC_VIRA_Edits__Winui3_.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:VRCOSC_VIRA_Edits__Winui3_"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d">
+
+    <Window.SystemBackdrop>
+        <DesktopAcrylicBackdrop />
+    </Window.SystemBackdrop>
+
+    <Grid x:Name="MainLayout">
+        <!-- NavigationView as the main content -->
+        <NavigationView x:Name="Navigation"
+                        IsPaneOpen="False">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Icon="Home"
+                                    Content="Home"
+                                    Tag="home" />
+                <NavigationViewItem Content="Modules"
+                                    Tag="plugins">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xEA86;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Chat Box"
+                                    Tag="chatbox">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8F2;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Routing"
+                                    Tag="modules">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xEDA3;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem Content="Profiles"
+                                    Tag="profiles">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE77B;" />
+                        <!-- User glyph -->
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
+            <Frame x:Name="contentFrame" />
+        </NavigationView>
+
+        <!-- Overlay element -->
+        <Border x:Name="LoadingOverlay"
+                Background="#AA000000" 
+                Visibility="Collapsed"
+                VerticalAlignment="Stretch"
+                HorizontalAlignment="Stretch">
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="10">
+                <TextBlock x:Name="LoadingTitle"
+                           Text="Loading..."
+                           FontSize="20"
+                           Foreground="White"
+                           TextAlignment="Center" />
+                <TextBlock x:Name="LoadingDescription"
+                           Text="Please wait..."
+                           FontSize="16"
+                           Foreground="White"
+                           TextAlignment="Center" />
+                <ProgressBar x:Name="ProgressBar"
+                             Minimum="0"
+                             Maximum="1"
+                             Width="200"
+                             Height="10"
+                             IsIndeterminate="True" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

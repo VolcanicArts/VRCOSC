@@ -16,10 +16,11 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Packages;
 
+// Yeusepe
 public class PackageManager
 {
     private static PackageManager? instance;
-    internal static PackageManager GetInstance() => instance ??= new PackageManager();
+    public static PackageManager GetInstance() => instance ??= new PackageManager();
 
     private const string community_tag = "vrcosc-package";
 
@@ -36,6 +37,10 @@ public class PackageManager
     public DateTime CacheExpireTime = DateTime.UnixEpoch;
 
     public PackageSource OfficialModulesSource { get; }
+
+    // Yeusepe
+    public event Action? PackagesUpdated;
+    private void NotifyPackagesUpdated() => PackagesUpdated?.Invoke();
 
     public PackageManager()
     {
@@ -83,7 +88,7 @@ public class PackageManager
         {
             if (forceRemoteGrab) CacheExpireTime = DateTime.Now + TimeSpan.FromDays(1);
             serialisationManager.Serialise();
-            MainWindow.GetInstance().PackagesView.Refresh();
+            NotifyPackagesUpdated(); // Notify UI
         };
 
         return packageLoadAction;
@@ -108,7 +113,7 @@ public class PackageManager
         compositeAction.OnComplete += () =>
         {
             serialisationManager.Serialise();
-            MainWindow.GetInstance().PackagesView.Refresh();
+            NotifyPackagesUpdated(); // Notify UI
         };
 
         return compositeAction;

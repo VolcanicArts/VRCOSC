@@ -26,12 +26,21 @@ internal static class OVRHelper
     private static readonly uint inputanalogactiondata_t_size = (uint)Unsafe.SizeOf<InputAnalogActionData_t>();
     private static readonly uint inputdigitalactiondata_t_size = (uint)Unsafe.SizeOf<InputDigitalActionData_t>();
 
+    // YEUSEPE
     internal static bool InitialiseOpenVR(EVRApplicationType applicationType)
     {
         var err = EVRInitError.None;
         OpenVR.Init(ref err, applicationType);
-        return err == EVRInitError.None;
+
+        if (err != EVRInitError.None)
+        {
+            OnError?.Invoke($"OpenVR.Init failed with error: {err}");
+            return false;
+        }
+
+        return true;
     }
+
 
     internal static float GetFrameTimeMilli()
     {
@@ -72,13 +81,37 @@ internal static class OVRHelper
         return indexes.Length != 0 ? indexes[0] : OpenVR.k_unTrackedDeviceIndexInvalid;
     }
 
+
+    // YEUSEPE: Added a safety check try catch to this, as devices can be nullified. 
     internal static IEnumerable<uint> GetIndexesForTrackedDeviceClass(ETrackedDeviceClass klass)
     {
+        if (!IsSystemAvailable()) yield break;
+
+
         for (uint i = 0; i < OpenVR.k_unMaxTrackedDeviceCount; i++)
         {
-            if (OpenVR.System.GetTrackedDeviceClass(i) == klass) yield return i;
+            if (SafeCheckDeviceClass(i, klass))
+            {
+                yield return i;
+            }
         }
     }
+
+    private static bool SafeCheckDeviceClass(uint index, ETrackedDeviceClass klass)
+    {
+        try
+        {
+            return OpenVR.System.GetTrackedDeviceClass(index) == klass;
+        }
+        catch (Exception ex)
+        {
+            // Handle exception, e.g., log it
+            // Console.WriteLine($"Error at index {index}: {ex.Message}, {ex.InnerException}, {ex.StackTrace}");
+            return false;
+        }
+    }
+
+
 
     internal static bool GetBoolTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
@@ -142,4 +175,16 @@ internal static class OVRHelper
 
         OpenVR.Input.TriggerHapticVibrationAction(action, 0, durationSeconds, frequency, amplitude, device);
     }
+
+    // YEUSEPE: Added a function to check that the system is correctly intitialized. 
+    private static bool IsSystemAvailable()
+    {
+        if (OpenVR.System == null)
+        {
+            // OnError?.Invoke("OpenVR.System is not initialized or has been shut down.");
+            return false;
+        }
+        return true;
+    }
+
 }

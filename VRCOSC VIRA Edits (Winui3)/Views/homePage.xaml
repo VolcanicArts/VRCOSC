@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="VRCOSC_VIRA_Edits__Winui3_.Views.homePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:VRCOSC_VIRA_Edits__Winui3_.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:lottie="using:CommunityToolkit.WinUI.Lottie"
+    mc:Ignorable="d"
+      Background="Transparent">
+
+    <Page.Resources>
+        <!-- Storyboard to fade out the Hider (make it disappear) -->
+        <Storyboard x:Name="FadeOutStoryboard">
+            <DoubleAnimation Storyboard.TargetName="Hider"
+                             Storyboard.TargetProperty="Opacity"
+                             From="1.0"
+                             To="0.0"
+                             Duration="0:0:0.3"
+                             EasingFunction="{StaticResource QuadraticEaseOut}" />
+        </Storyboard>
+
+        <!-- Storyboard to fade in the Hider (make it appear) -->
+        <Storyboard x:Name="FadeInStoryboard">
+            <DoubleAnimation Storyboard.TargetName="Hider"
+                             Storyboard.TargetProperty="Opacity"
+                             From="0.0"
+                             To="1.0"
+                             Duration="0:0:0.3"
+                             EasingFunction="{StaticResource QuadraticEaseOut}" />
+        </Storyboard>
+
+        <!-- Easing function for a smooth transition -->
+        <QuadraticEase x:Key="QuadraticEaseOut"
+                       EasingMode="EaseOut" />
+    </Page.Resources>
+
+    <Grid Padding="40"
+          HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock x:Name="Greet"
+                   Text="Good Day!"
+                   FontSize="40"
+                   FontWeight="Bold"
+                   
+                   VerticalAlignment="Top"
+                   HorizontalAlignment="Left"
+                   TextWrapping="Wrap"
+                   Margin="10,0,0,20"
+                   Grid.Column="0"
+                   Grid.Row="0" />
+        <Border Background="#3B757575"
+                Padding="10"
+                CornerRadius="40"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Top"
+                Grid.Column="0"
+                Grid.Row="1">
+            <StackPanel Orientation="Horizontal"
+                        Margin="10,0,0,0">
+                <Grid Width="150"
+                      Height="150">
+                    <!-- Rounded corner border wrapping the AnimatedVisualPlayer -->
+                    <Border CornerRadius="35"
+                            Width="150"
+                            Height="150">
+                        <AnimatedVisualPlayer x:Name="Gradient"
+                                              AutoPlay="True"
+                                              Stretch="Uniform"
+                                              Width="150"
+                                              Height="150">
+                            <lottie:LottieVisualSource UriSource="https://lottie.host/a7c3973f-1aeb-45c4-8882-faf43e021d18/3uM3EyAwGg.json" />
+                        </AnimatedVisualPlayer>
+                    </Border>
+
+                    <!-- Gray overlay -->
+                    <Rectangle x:Name="Hider"
+                               Fill="Gray"
+                               RadiusX="34"
+                               RadiusY="34" />
+                </Grid>
+
+
+
+                <StackPanel Orientation="Vertical"
+                            Margin="20"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Right">
+                    <TextBlock Text="Server Status:"
+                               FontSize="20"
+                               FontWeight="Thin"
+                               
+                               VerticalAlignment="Top"
+                               HorizontalAlignment="Left"
+                               Margin="1,0,0,0"
+                               TextWrapping="Wrap" />
+
+                    <TextBlock x:Name="serverStatus"
+                               Text="Disconnected"
+                               FontSize="40"
+                               
+                               VerticalAlignment="Top"
+                               HorizontalAlignment="Left"
+                               TextWrapping="Wrap" />
+
+                    <Button x:Name="connect"
+                            
+                            Click="connect_Click"
+                            HorizontalAlignment="Left"
+                            Margin="0,35,0,0"
+                            FontSize="15"
+                            Padding="15,12,15,10"
+                            CornerRadius="20">Connect</Button>
+
+                    <TeachingTip x:Name="ProblemsConnecting"
+                                 Target="{x:Bind connect}"
+                                 
+                                 Title="Uh Oh"
+                                 Subtitle="It seems VIRA is having problems connecting. If it persists, get support on our discord!">
+                        <TeachingTip.IconSource>
+                            <SymbolIconSource Symbol="Refresh" />
+                        </TeachingTip.IconSource>
+                    </TeachingTip>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        <StackPanel Grid.Column="1"
+                    Grid.Row="1">
+            <TextBlock Text="Quick Settings"
+                       FontSize="30"
+                       FontWeight="Thin"
+                       
+                       VerticalAlignment="Top"
+                       HorizontalAlignment="Left"
+                       Margin="10,0,0,0"
+                       TextWrapping="Wrap" />
+            <Border Background="#3B757575"
+                    Padding="10"
+                    Margin="10"
+                    CornerRadius="40"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+
+            </Border>
+        </StackPanel>
+    </Grid>
+</Page>

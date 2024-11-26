@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "VRCOSC VIRA Edits (Winui3) (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "VRCOSC VIRA Edits (Winui3) (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
