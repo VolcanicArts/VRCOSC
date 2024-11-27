@@ -89,10 +89,10 @@
                 <Border Grid.Column="0" Background="{StaticResource CBackground1}">
                     <Grid>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-                            <RadioButton GroupName="TabBar" Click="PackagesButton_OnClick" IsChecked="True">
+                            <RadioButton GroupName="TabBar" Click="PackagesButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_Download" />
                             </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="ModulesButton_OnClick">
+                            <RadioButton GroupName="TabBar" Click="ModulesButton_OnClick" IsChecked="True">
                                 <fa6:ImageAwesome Icon="Solid_List" />
                             </RadioButton>
                             <RadioButton GroupName="TabBar" Click="RouterButton_OnClick"

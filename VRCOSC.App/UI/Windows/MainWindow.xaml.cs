@@ -91,7 +91,7 @@ public partial class MainWindow
         ProfilesView = new ProfilesView();
         AppSettingsView = new AppSettingsView();
 
-        setContent(PackagesView);
+        setContent(ModulesView);
 
         load();
     }
