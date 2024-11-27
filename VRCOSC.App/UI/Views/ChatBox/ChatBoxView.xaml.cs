@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -551,7 +551,7 @@ public partial class ChatBoxView
 
         var (lowerBound, upperBound) = ChatBoxManager.GetInstance().Timeline.GetBoundsNearestTo(closestSecond, layer, false, true);
 
-        var newClipEnd = Math.Min(CopiedClip.End.Value, upperBound);
+        var newClipEnd = Math.Min(lowerBound + (CopiedClip.End.Value - CopiedClip.Start.Value), upperBound);
 
         var newClip = new Clip
         {
