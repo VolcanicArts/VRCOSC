@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Actions.Packages;
 using VRCOSC.App.Modules;
@@ -116,6 +117,11 @@ public class PackageManager
 
     public PackageInstallAction InstallPackage(PackageSource packageSource, PackageRelease? packageRelease = null, bool reloadAll = true, bool refreshBeforeInstall = true)
     {
+        foreach (var window in Application.Current.Windows.OfType<Window>().Where(w => w != Application.Current.MainWindow))
+        {
+            window.Close();
+        }
+
         var installAction = new PackageInstallAction(storage, packageSource, packageRelease, IsInstalled(packageSource), refreshBeforeInstall);
 
         installAction.OnComplete += () =>
@@ -135,6 +141,11 @@ public class PackageManager
 
     public PackageUninstallAction UninstallPackage(PackageSource packageSource)
     {
+        foreach (var window in Application.Current.Windows.OfType<Window>().Where(w => w != Application.Current.MainWindow))
+        {
+            window.Close();
+        }
+
         var uninstallAction = new PackageUninstallAction(storage, packageSource);
 
         uninstallAction.OnComplete += () =>
