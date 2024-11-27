@@ -6,11 +6,12 @@ using System.ComponentModel;
 using System.Linq;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Windows.Modules;
 
-public partial class ModuleSettingsWindow
+public partial class ModuleSettingsWindow : IManagedWindow
 {
     public Module Module { get; }
 
@@ -56,4 +57,6 @@ public partial class ModuleSettingsWindow
     {
         Module.Serialise();
     }
+
+    public object GetComparer() => Module;
 }

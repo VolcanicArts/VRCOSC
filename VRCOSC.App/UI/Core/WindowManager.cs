@@ -6,70 +6,61 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
-using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Core;
 
 public class WindowManager
 {
-    private readonly List<Window> childWindows = new();
-    private bool removeFromList = true;
+    private readonly List<IManagedWindow> childWindows = [];
 
     public WindowManager(Window parentWindow)
     {
-        parentWindow.Closing += parentWindowOnClosing;
+        parentWindow.Closing += parentWindowClosing;
     }
 
     public WindowManager(DependencyObject dp)
     {
         var parentWindow = Window.GetWindow(dp);
+        if (parentWindow is null) throw new InvalidOperationException("Please construct the WindowManager in the Loaded event and not the constructor");
 
-        if (parentWindow is null)
-        {
-            ExceptionHandler.Handle("Please construct the WindowManager in the Loaded event and not the constructor");
-            return;
-        }
-
-        parentWindow.Closing += parentWindowOnClosing;
+        parentWindow.Closing += parentWindowClosing;
     }
 
-    private void parentWindowOnClosing(object? sender, CancelEventArgs e)
+    private void parentWindowClosing(object? sender, CancelEventArgs e)
     {
-        removeFromList = false;
-
-        foreach (var childWindow in childWindows)
+        foreach (var childWindow in childWindows.ToList().Cast<Window>())
         {
             childWindow.Close();
         }
     }
 
-    private void childWindowOnClosed(object? sender, EventArgs e)
+    private void childWindowClosed(object? sender, EventArgs e)
     {
-        if (!removeFromList) return;
-
-        childWindows.Remove((Window)sender!);
+        childWindows.Remove((IManagedWindow)sender!);
     }
 
-    public void SpawnChild(Window childWindow)
+    public void TrySpawnChild(IManagedWindow childWindow)
     {
-        childWindow.Closed += childWindowOnClosed;
-        childWindows.Add(childWindow);
+        if (childWindow is not Window) throw new InvalidOperationException($"An {nameof(IManagedWindow)} must extend {nameof(Window)}");
 
-        childWindow.Show();
-    }
+        var window = (Window?)childWindows.FirstOrDefault(compareWindow => compareWindow.GetComparer() == childWindow.GetComparer());
 
-    public bool TrySpawnChild(Window childWindow)
-    {
-        var existingWindow = childWindows.FirstOrDefault(compareWindow => compareWindow.GetType() == childWindow.GetType());
-
-        if (existingWindow is not null)
+        if (window is not null)
         {
-            existingWindow.WindowState = WindowState.Normal;
-            existingWindow.Focus();
-            return false;
+            window.WindowState = WindowState.Normal;
+            window.Focus();
+            return;
         }
 
-        SpawnChild(childWindow);
-        return true;
+        window = (Window)childWindow;
+        window.Closed += childWindowClosed;
+        window.Show();
+
+        childWindows.Add(childWindow);
     }
+}
+
+public interface IManagedWindow
+{
+    public object GetComparer();
 }

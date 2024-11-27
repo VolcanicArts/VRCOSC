@@ -4,16 +4,19 @@
 using System.Collections.Generic;
 using System.Windows;
 using VRCOSC.App.SDK.Modules;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Windows.Modules;
 
-public partial class ModulePrefabsWindow
+public partial class ModulePrefabsWindow : IManagedWindow
 {
+    private readonly Module module;
     public IEnumerable<ModulePrefabAttribute> Prefabs { get; }
 
     public ModulePrefabsWindow(Module module)
     {
+        this.module = module;
         Prefabs = module.Prefabs;
         Title = $"{module.Title.Pluralise()} Prefabs";
         DataContext = this;
@@ -28,4 +31,6 @@ public partial class ModulePrefabsWindow
 
         prefabAttribute.Url.OpenExternally();
     }
+
+    public object GetComparer() => module;
 }

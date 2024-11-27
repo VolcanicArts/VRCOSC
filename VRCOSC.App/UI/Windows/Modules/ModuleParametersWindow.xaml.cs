@@ -10,13 +10,14 @@ using System.Windows;
 using System.Windows.Data;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
 
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace VRCOSC.App.UI.Windows.Modules;
 
-public sealed partial class ModuleParametersWindow
+public sealed partial class ModuleParametersWindow : IManagedWindow
 {
     public Module Module { get; }
 
@@ -41,6 +42,8 @@ public sealed partial class ModuleParametersWindow
     {
         Module.Serialise();
     }
+
+    public object GetComparer() => Module;
 }
 
 public class ParameterModeToStringConverter : IValueConverter

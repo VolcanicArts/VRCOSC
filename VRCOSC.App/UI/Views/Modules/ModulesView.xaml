@@ -6,7 +6,8 @@
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              mc:Ignorable="d"
              Background="Transparent"
-             d:DesignWidth="1366" d:DesignHeight="748">
+             d:DesignWidth="1366" d:DesignHeight="748"
+             Loaded="ModulesView_OnLoaded">
     <UserControl.Resources>
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
                                          Colour2="{StaticResource CBackground4}" />

@@ -5,6 +5,7 @@ using System.Windows;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.SDK.Modules;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows.Modules;
 using VRCOSC.App.Utils;
 
@@ -12,14 +13,18 @@ namespace VRCOSC.App.UI.Views.Modules;
 
 public partial class ModulesView
 {
-    private ModuleSettingsWindow? moduleSettingsWindow;
-    private ModuleParametersWindow? moduleParametersWindow;
+    private WindowManager windowManager;
 
     public ModulesView()
     {
         InitializeComponent();
 
         DataContext = ModuleManager.GetInstance();
+    }
+
+    private void ModulesView_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        windowManager = new WindowManager(this);
     }
 
     private void ImportButton_OnClick(object sender, RoutedEventArgs e)
@@ -44,16 +49,7 @@ public partial class ModulesView
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        if (moduleParametersWindow is null)
-        {
-            moduleParametersWindow = new ModuleParametersWindow(module);
-            moduleParametersWindow.Closed += (_, _) => moduleParametersWindow = null;
-            moduleParametersWindow.Show();
-        }
-        else
-        {
-            moduleParametersWindow.Focus();
-        }
+        windowManager.TrySpawnChild(new ModuleParametersWindow(module));
     }
 
     private void SettingsButton_OnClick(object sender, RoutedEventArgs e)
@@ -61,16 +57,7 @@ public partial class ModulesView
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        if (moduleSettingsWindow is null)
-        {
-            moduleSettingsWindow = new ModuleSettingsWindow(module);
-            moduleSettingsWindow.Closed += (_, _) => moduleSettingsWindow = null;
-            moduleSettingsWindow.Show();
-        }
-        else
-        {
-            moduleSettingsWindow.Focus();
-        }
+        windowManager.TrySpawnChild(new ModuleSettingsWindow(module));
     }
 
     private void InfoButton_OnClick(object sender, RoutedEventArgs e)
@@ -86,6 +73,6 @@ public partial class ModulesView
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        new ModulePrefabsWindow(module).Show();
+        windowManager.TrySpawnChild(new ModulePrefabsWindow(module));
     }
 }
