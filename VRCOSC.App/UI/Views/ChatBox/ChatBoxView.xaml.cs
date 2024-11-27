@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -423,6 +423,7 @@ public partial class ChatBoxView
 
         // Clearing the clips doesn't fire the collection changed event. This fixes it
         ChatBoxManager.GetInstance().Timeline.Clips.RemoveIf(_ => true);
+        SelectedClip = null;
     }
 
     private void showRightClickMenu(int? layer, Clip? clip)
