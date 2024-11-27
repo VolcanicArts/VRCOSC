@@ -14,13 +14,7 @@
         <Border Background="{StaticResource CBackground2}" Padding="5">
             <core:HeaderFooterListView ItemsSource="{Binding Prefabs}" AlternationCount="2">
                 <core:HeaderFooterListView.Header>
-                    <Border Background="{StaticResource CBackground1}"
-                            Padding="7" Height="40">
-                        <TextBlock Text="Download Prefabs"
-                                   FontSize="20"
-                                   FontWeight="Bold"
-                                   Foreground="{StaticResource CForeground2}" />
-                    </Border>
+                    <Border Background="{StaticResource CBackground1}" Height="5"/>
                 </core:HeaderFooterListView.Header>
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
@@ -35,9 +29,8 @@
                                                        Foreground="{StaticResource CForeground1}"
                                                        HorizontalAlignment="Left" VerticalAlignment="Center" />
                                             <core:IconButton HorizontalAlignment="Right" ButtonColour="Blue"
-                                                             Icon="Solid_Download"
-                                                               Click="DownloadButton_OnClick" Tag="{Binding}">
-                                            </core:IconButton>
+                                                             Icon="Solid_ArrowUpRightFromSquare"
+                                                               Click="OpenExternallyButton_OnClick" Tag="{Binding}"/>
                                         </Grid>
                                     </Border>
                                 </ControlTemplate>

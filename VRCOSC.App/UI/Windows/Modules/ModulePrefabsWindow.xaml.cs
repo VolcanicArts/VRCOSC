@@ -24,7 +24,7 @@ public partial class ModulePrefabsWindow : IManagedWindow
         InitializeComponent();
     }
 
-    private void DownloadButton_OnClick(object sender, RoutedEventArgs e)
+    private void OpenExternallyButton_OnClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
         var prefabAttribute = (ModulePrefabAttribute)element.Tag;
