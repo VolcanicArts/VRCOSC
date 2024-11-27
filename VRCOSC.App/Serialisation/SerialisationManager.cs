@@ -65,10 +65,9 @@ public class SerialisationManager
         var deserialisationResult = serialiser.Deserialise(filePathOverride);
         if (deserialisationResult != DeserialisationResult.Success) return deserialisationResult;
 
-        // TODO: Why is this a thing?
-        if (string.IsNullOrEmpty(filePathOverride) && serialisers[latestSerialiserVersion] == serialiser) return DeserialisationResult.Success;
+        // serialise immediately if we've deserialised from a file path override, or we're not on the latest serialiser
+        if (!string.IsNullOrEmpty(filePathOverride) || serialisers[latestSerialiserVersion] != serialiser) Serialise();
 
-        Serialise();
         return DeserialisationResult.Success;
     }
 
