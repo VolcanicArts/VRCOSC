@@ -36,15 +36,12 @@ public class ReceivedParameter
     /// Retrieves the value as type <typeparamref name="T"/>
     /// </summary>
     /// <typeparam name="T">The type to get the value as</typeparam>
-    /// <returns>The value as type <typeparamref name="T"/> if applicable, otherwise default</returns>
-    public virtual T? GetValue<T>()
+    /// <returns>The value as type <typeparamref name="T"/> if applicable</returns>
+    public virtual T GetValue<T>()
     {
-        if (Value is T valueAsType)
-        {
-            return valueAsType;
-        }
+        if (Value is T valueAsType) return valueAsType;
 
-        return default;
+        throw new InvalidOperationException($"Please call {nameof(IsValueType)} to validate a value's type before calling {nameof(GetValue)}");
     }
 
     /// <summary>
@@ -115,15 +112,25 @@ public class RegisteredParameter : ReceivedParameter
         if (typeof(T) != moduleParameter.ExpectedType)
             throw new InvalidCastException($"Parameter's value was expected as {moduleParameter.ExpectedType.ToReadableName()} and you're trying to use it as {typeof(T).ToReadableName()}");
 
-        return base.GetValue<T>()!;
+        return base.GetValue<T>();
     }
 
     /// <summary>
     /// Gets a wildcard value as a specified type <typeparamref name="T"/> at <paramref name="position"/>
     /// </summary>
-    public T? WildcardAs<T>(int position) => wildcards[position].GetValue<T>();
+    public T GetWildcard<T>(int position) => wildcards[position].GetValue<T>();
 
-    public bool IsWildcardType<T>(int position) => wildcards[position].IsValueType<T>();
+    /// <summary>
+    /// Checks a wildcard's value type <typeparamref name="T"/> at <paramref name="position"/>
+    /// </summary>
+    /// <returns>True if the value is exactly the type passed, otherwise false</returns>
+    public bool IsWildcardType<T>(int position) => IsWildcardType(typeof(T), position);
+
+    /// <summary>
+    /// Checks a wildcard's value type <paramref name="type"/> at <paramref name="position"/>
+    /// </summary>
+    /// <returns>True if the value is exactly the type passed, otherwise false</returns>
+    public bool IsWildcardType(Type type, int position) => wildcards[position].IsValueType(type);
 }
 
 public class Wildcard
@@ -135,22 +142,12 @@ public class Wildcard
         this.value = value;
     }
 
-    public T? GetValue<T>()
+    public T GetValue<T>()
     {
-        if (value is T valueAsType)
-        {
-            return valueAsType;
-        }
+        if (value is T valueAsType) return valueAsType;
 
-        return default;
+        throw new InvalidOperationException($"Please call {nameof(RegisteredParameter.IsWildcardType)} to validate a wildcard's type before calling {nameof(RegisteredParameter.GetWildcard)}");
     }
-
-    /// <summary>
-    /// Checks if the received value is of type <typeparamref name="T"/>
-    /// </summary>
-    /// <typeparam name="T">The type to check against the value</typeparam>
-    /// <returns>True if the value is exactly the type passed, otherwise false</returns>
-    public bool IsValueType<T>() => IsValueType(typeof(T));
 
     /// <summary>
     /// Checks if the received value is of type <paramref name="type"/>
