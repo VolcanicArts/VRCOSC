@@ -42,14 +42,16 @@ public static class WPFUtils
 
     public static void PositionWindow(Window window, DependencyObject parent, ScreenChoice screenChoice, HorizontalPosition horizontal, VerticalPosition vertical)
     {
-        PositionWindow(window, Window.GetWindow(parent), screenChoice, horizontal, vertical);
+        var parentWindow = Window.GetWindow(parent);
+        Debug.Assert(parentWindow is not null);
+        PositionWindow(window, parentWindow, screenChoice, horizontal, vertical);
     }
 
-    public static void PositionWindow(Window window, Window? parent, ScreenChoice screenChoice, HorizontalPosition horizontal, VerticalPosition vertical)
+    public static void PositionWindow(Window window, Window parent, ScreenChoice screenChoice, HorizontalPosition horizontal, VerticalPosition vertical)
     {
         var targetScreen = screenChoice switch
         {
-            ScreenChoice.SameAsParent => Screen.FromHandle(new WindowInteropHelper(parent!).Handle),
+            ScreenChoice.SameAsParent => Screen.FromHandle(new WindowInteropHelper(parent).Handle),
             ScreenChoice.PrimaryScreen => Screen.PrimaryScreen,
             _ => throw new ArgumentOutOfRangeException()
         };
