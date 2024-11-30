@@ -118,7 +118,7 @@
                                     CornerRadius="5">
                                 <Grid>
                                     <TextBlock Text="Theme" Style="{StaticResource SettingTitle}" />
-                                    <TextBlock Text="What theme should the app be in?"
+                                    <TextBlock Text="What theme should the app be in? (Requires Restart)"
                                                Style="{StaticResource SettingDescription}" />
                                     <ComboBox ItemsSource="{Binding ThemeSource}" SelectedIndex="{Binding Theme}"
                                               Style="{StaticResource SettingComboBoxStyle}" />
