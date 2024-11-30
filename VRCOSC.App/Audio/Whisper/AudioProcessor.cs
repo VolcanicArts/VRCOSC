@@ -155,20 +155,28 @@ internal class AudioProcessor
 
     private async Task<SpeechResult?> processWithWhisper(float[] data, bool final)
     {
-        if (whisper is null) return null;
-
-        var segmentData = new List<SegmentData>();
-
-        await foreach (var result in whisper.ProcessAsync(data))
+        try
         {
-            segmentData.Add(result);
+            if (whisper is null) return null;
+
+            var segmentData = new List<SegmentData>();
+
+            await foreach (var result in whisper.ProcessAsync(data))
+            {
+                segmentData.Add(result);
+            }
+
+            if (segmentData.Count == 0) return null;
+
+            var segment = segmentData.Last();
+            var text = segment.Text.Trim();
+            var confidence = segment.Probability;
+            return new SpeechResult(final, text, confidence);
         }
-
-        if (segmentData.Count == 0) return null;
-
-        var segment = segmentData.Last();
-        var text = segment.Text.Trim();
-        var confidence = segment.Probability;
-        return new SpeechResult(final, text, confidence);
+        catch (Exception e)
+        {
+            Logger.Error(e, "Exception when attempting to process with Whisper");
+            return null;
+        }
     }
 }
