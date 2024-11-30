@@ -1,7 +1,9 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Windows;
+using System.Windows.Controls;
+using VRCOSC.App.ChatBox;
 using VRCOSC.App.UI.Windows.ChatBox;
 
 namespace VRCOSC.App.UI.Views.Run.Tabs;
@@ -16,5 +18,25 @@ public partial class ChatBoxTabView
     private void PopoutChatBox_OnClick(object sender, RoutedEventArgs e)
     {
         new ChatBoxPreviewWindow().Show();
+    }
+}
+
+    private void LiveTextTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
+    {
+        ChatBoxManager.GetInstance().LiveText = LiveTextTextBox.Text;
+    }
+
+    private void LiveTextEraser_OnClick(object sender, RoutedEventArgs e)
+    {
+        LiveTextTextBox.Text = string.Empty;
+        LiveTextTextBox.Focus();
+    }
+
+    private void ChatBoxTabView_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        AppManager.GetInstance().State.Subscribe(newState =>
+        {
+            if (newState == AppManagerState.Stopped) LiveTextTextBox.Text = string.Empty;
+        }, true);
     }
 }

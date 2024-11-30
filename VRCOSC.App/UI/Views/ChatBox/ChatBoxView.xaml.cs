@@ -574,17 +574,6 @@ public partial class ChatBoxView
         PasteClipButtonVisibility.Value = Visibility.Collapsed;
         RightClickMenu.FadeOutFromOne(50);
     }
-
-    private void ManualTextTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
-    {
-        ChatBoxManager.ManualText = ManualTextTextBox.Text;
-    }
-
-    private void ManualTextEraser_OnClick(object sender, RoutedEventArgs e)
-    {
-        ManualTextTextBox.Text = string.Empty;
-        ManualTextTextBox.Focus();
-    }
 }
 
 public enum ClipDragPoint
