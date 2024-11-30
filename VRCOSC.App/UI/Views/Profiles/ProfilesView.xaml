@@ -90,6 +90,11 @@
                                                                  Click="EditProfile_ButtonClick"
                                                                  Icon="Solid_PenToSquare"
                                                                  Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}" />
+                                                <core:IconButton ButtonColour="Blue"
+                                                                 Width="30"
+                                                                 Click="CopyProfile_ButtonClick"
+                                                                 Icon="Solid_Copy"
+                                                                 Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}" />
                                             </core:SpacedStackPanel>
                                         </Grid>
                                     </Border>

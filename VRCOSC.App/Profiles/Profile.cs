@@ -38,11 +38,15 @@ public class Profile : INotifyPropertyChanged
         ID = id;
     }
 
+    /// <summary>
+    /// Clones this profile
+    /// </summary>
+    /// <remarks>Does NOT copy the ID, as this is intended to be used for making soft copies</remarks>
     public Profile Clone()
     {
-        return new Profile(ID)
+        return new Profile
         {
-            Name = new Observable<string>(Name.Value),
+            Name = new Observable<string>($"{Name.Value} New"),
             LinkedAvatars = new ObservableCollection<Observable<string>>(LinkedAvatars.Select(linkedAvatarObservable => new Observable<string>(linkedAvatarObservable.Value)))
         };
     }

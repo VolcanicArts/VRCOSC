@@ -55,6 +55,33 @@ public class Storage
         return resolvedPath;
     }
 
+    public void CopyTo(string fullDestinationDirPath, bool recursive = true)
+    {
+        copyDirectory(BasePath, fullDestinationDirPath, recursive);
+    }
+
+    private void copyDirectory(string sourceDir, string destinationDir, bool recursive)
+    {
+        var dir = new DirectoryInfo(sourceDir);
+        var dirs = dir.GetDirectories();
+
+        Directory.CreateDirectory(destinationDir);
+
+        foreach (FileInfo file in dir.GetFiles())
+        {
+            string targetFilePath = Path.Combine(destinationDir, file.Name);
+            file.CopyTo(targetFilePath);
+        }
+
+        if (!recursive) return;
+
+        foreach (DirectoryInfo subDir in dirs)
+        {
+            string newDestinationDir = Path.Combine(destinationDir, subDir.Name);
+            copyDirectory(subDir.FullName, newDestinationDir, true);
+        }
+    }
+
     /// <summary>
     /// Check whether a file exists at the specified path.
     /// </summary>

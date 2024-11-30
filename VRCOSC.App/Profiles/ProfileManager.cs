@@ -145,6 +145,16 @@ public class ProfileManager : INotifyPropertyChanged
         return true;
     }
 
+    public void CopyProfile(Profile originalProfile)
+    {
+        var copiedProfile = originalProfile.Clone();
+
+        var originalProfileDirectory = storage.GetStorageForDirectory($"profiles/{originalProfile.ID}");
+        originalProfileDirectory.CopyTo(storage.GetFullPath($"profiles/{copiedProfile.ID}"));
+
+        Profiles.Add(copiedProfile);
+    }
+
     #region UI
 
     public void SpawnProfileEditWindow(Profile? profile = null)

@@ -40,4 +40,12 @@ public partial class ProfilesView
     {
         ProfileManager.GetInstance().SpawnProfileEditWindow();
     }
+
+    private void CopyProfile_ButtonClick(object sender, RoutedEventArgs e)
+    {
+        var button = (Button)sender;
+        var profile = (Profile)button.Tag;
+
+        ProfileManager.GetInstance().CopyProfile(profile);
+    }
 }
