@@ -9,7 +9,6 @@ using System.Runtime.CompilerServices;
 using VRCOSC.App.Profiles.Serialisation;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
-using VRCOSC.App.UI.Windows.Profiles;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Profiles;
@@ -157,19 +156,6 @@ public class ProfileManager : INotifyPropertyChanged
 
     #region UI
 
-    public void SpawnProfileEditWindow(Profile? profile = null)
-    {
-        ProfileEditWindow = new ProfileEditWindow(profile);
-        ProfileEditWindow.ShowDialog();
-    }
-
-    public void ExitProfileEditWindow()
-    {
-        ProfileEditWindow?.Close();
-    }
-
-    public ProfileEditWindow? ProfileEditWindow { get; private set; }
-
     public Observable<Profile> UIActiveProfile { get; } = new();
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -177,15 +163,6 @@ public class ProfileManager : INotifyPropertyChanged
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
     }
 
     #endregion

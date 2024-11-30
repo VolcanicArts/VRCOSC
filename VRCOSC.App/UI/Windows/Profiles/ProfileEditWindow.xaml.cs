@@ -7,11 +7,12 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using VRCOSC.App.Profiles;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Windows.Profiles;
 
-public partial class ProfileEditWindow
+public partial class ProfileEditWindow : IManagedWindow
 {
     public Profile? OriginalProfile { get; }
     public Profile Profile { get; }
@@ -39,9 +40,11 @@ public partial class ProfileEditWindow
         DataContext = Profile;
     }
 
+    private bool isValidForSave() => !string.IsNullOrEmpty(Profile.Name.Value);
+
     private void globalProfileNameChanged()
     {
-        NameTextBox.BorderBrush = !Profile.IsValidForSave() ? Brushes.Red : Brushes.Transparent;
+        NameTextBox.BorderBrush = isValidForSave() ? Brushes.Transparent : Brushes.Red;
     }
 
     private void profileNameChanged(string? newName)
@@ -76,7 +79,7 @@ public partial class ProfileEditWindow
 
     private void SaveEdit_ButtonClick(object sender, RoutedEventArgs e)
     {
-        if (!Profile.IsValidForSave()) return;
+        if (!isValidForSave()) return;
 
         if (OriginalProfile is null)
         {
@@ -94,4 +97,7 @@ public partial class ProfileEditWindow
     {
         Profile.LinkedAvatars.Add(new Observable<string>(string.Empty));
     }
+
+    // generate a new object if there's no original profile to let the user have multiple new profile windows open
+    public object GetComparer() => OriginalProfile ?? new object();
 }

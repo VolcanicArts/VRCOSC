@@ -4,16 +4,25 @@
 using System.Windows;
 using System.Windows.Controls;
 using VRCOSC.App.Profiles;
+using VRCOSC.App.UI.Core;
+using VRCOSC.App.UI.Windows.Profiles;
 
 namespace VRCOSC.App.UI.Views.Profiles;
 
 public partial class ProfilesView
 {
+    private WindowManager windowManager = null!;
+
     public ProfilesView()
     {
         InitializeComponent();
 
         DataContext = ProfileManager.GetInstance();
+    }
+
+    private void ProfilesView_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        windowManager = new WindowManager(this);
     }
 
     private void RemoveProfile_ButtonClick(object sender, RoutedEventArgs e)
@@ -24,7 +33,6 @@ public partial class ProfilesView
         var result = MessageBox.Show("Are you sure you want to delete this profile?\nDeleting will remove all saved module, persistence, and ChatBox data", "Uninstall Warning", MessageBoxButton.YesNo);
         if (result != MessageBoxResult.Yes) return;
 
-        ProfileManager.GetInstance().ExitProfileEditWindow();
         ProfileManager.GetInstance().Profiles.Remove(profile);
     }
 
@@ -33,12 +41,12 @@ public partial class ProfilesView
         var button = (Button)sender;
         var profile = (Profile)button.Tag;
 
-        ProfileManager.GetInstance().SpawnProfileEditWindow(profile);
+        windowManager.TrySpawnChild(new ProfileEditWindow(profile));
     }
 
     private void AddProfile_ButtonClick(object sender, RoutedEventArgs e)
     {
-        ProfileManager.GetInstance().SpawnProfileEditWindow();
+        windowManager.TrySpawnChild(new ProfileEditWindow(null));
     }
 
     private void CopyProfile_ButtonClick(object sender, RoutedEventArgs e)

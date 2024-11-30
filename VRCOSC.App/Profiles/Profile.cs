@@ -69,14 +69,6 @@ public class Profile : INotifyPropertyChanged
         profile.LinkedAvatars.AddRange(LinkedAvatars.Select(linkedAvatarObservable => new Observable<string>(linkedAvatarObservable.Value)));
     }
 
-    public bool IsValidForSave()
-    {
-        var profileNameDuplication = ProfileManager.GetInstance().Profiles.Where(profile => profile != ProfileManager.GetInstance().ProfileEditWindow!.OriginalProfile).Any(profile => string.Equals(profile.Name.Value, Name.Value, StringComparison.InvariantCultureIgnoreCase));
-        var isEmpty = string.IsNullOrEmpty(Name.Value);
-
-        return !profileNameDuplication && !isEmpty;
-    }
-
     public Visibility UIRemoveProfileButtonVisibility => ProfileManager.GetInstance().Profiles.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
 
     public void UpdateUI()

@@ -6,6 +6,7 @@
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              mc:Ignorable="d"
              d:DesignWidth="1366" d:DesignHeight="748"
+             Loaded="ProfilesView_OnLoaded"
              Background="Transparent">
     <UserControl.Resources>
         <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
