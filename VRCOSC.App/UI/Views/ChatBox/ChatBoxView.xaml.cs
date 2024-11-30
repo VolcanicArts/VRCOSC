@@ -350,6 +350,7 @@ public partial class ChatBoxView
         {
             clipEditWindow = new ChatBoxClipEditWindow(SelectedClip);
             clipEditWindow.Closed += (_, _) => clipEditWindowCache.Remove(clipEditWindow);
+            WPFUtils.PositionWindow(clipEditWindow, this, ScreenChoice.SameAsParent, HorizontalPosition.Center, VerticalPosition.Center);
             clipEditWindowCache.Add(clipEditWindow);
             clipEditWindow.ShowDialog();
         }

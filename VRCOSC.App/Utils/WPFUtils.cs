@@ -40,6 +40,11 @@ public static class WPFUtils
         return null;
     }
 
+    public static void PositionWindow(Window window, DependencyObject parent, ScreenChoice screenChoice, HorizontalPosition horizontal, VerticalPosition vertical)
+    {
+        PositionWindow(window, Window.GetWindow(parent), screenChoice, horizontal, vertical);
+    }
+
     public static void PositionWindow(Window window, Window? parent, ScreenChoice screenChoice, HorizontalPosition horizontal, VerticalPosition vertical)
     {
         var targetScreen = screenChoice switch
