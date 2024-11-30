@@ -117,7 +117,7 @@
                             <RadioButton GroupName="TabBar" Click="ProfilesButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_User" />
                             </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="AppSettingsButton_OnClick">
+                            <RadioButton Name="AppSettingsTabButton" GroupName="TabBar" Click="AppSettingsButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_Gear" />
                             </RadioButton>
                         </StackPanel>

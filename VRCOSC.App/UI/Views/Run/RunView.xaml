@@ -10,6 +10,9 @@
              mc:Ignorable="d"
              Background="Transparent"
              d:DesignWidth="1377" d:DesignHeight="764">
+    <UserControl.Resources>
+        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" Invert="True"/>
+    </UserControl.Resources>
     <Grid>
         <Border Name="RunContent" Padding="10">
             <Grid>
@@ -101,6 +104,9 @@
                             <core:IconButton x:Name="StartButton" Width="120" VerticalAlignment="Stretch"
                                              CornerRadius="5" ButtonColour="Green" Click="PlayButtonOnClick"
                                              Icon="Solid_Play" />
+                            <core:VRCOSCButton Visibility="{Binding AutoStartQuestionClicked.Value, Converter={StaticResource BoolToVisibilityConverter}}" ButtonColour="Gray" Click="AutoStartQuestion_OnClick" CornerRadius="5">
+                                <TextBlock Text="Auto Start With VRChat?" Foreground="{StaticResource CForeground1}" FontSize="15" Margin="10 5"/>
+                            </core:VRCOSCButton>
                         </core:SpacedStackPanel>
                         <core:SpacedStackPanel FlowDirection="RightToLeft" Orientation="Horizontal" Spacing="10">
                             <core:IconButton x:Name="StopButton" Width="120" VerticalAlignment="Stretch"

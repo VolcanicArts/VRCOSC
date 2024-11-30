@@ -35,6 +35,7 @@ using VRCOSC.App.UI.Views.Settings;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using Application = System.Windows.Application;
+using ButtonBase = System.Windows.Controls.Primitives.ButtonBase;
 
 #if !DEBUG
 using Velopack.Locators;
@@ -406,5 +407,11 @@ public partial class MainWindow
     private void AppSettingsButton_OnClick(object sender, RoutedEventArgs e)
     {
         setContent(AppSettingsView);
+    }
+
+    public void FocusAppSettings()
+    {
+        AppSettingsTabButton.IsChecked = true;
+        AppSettingsTabButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
     }
 }

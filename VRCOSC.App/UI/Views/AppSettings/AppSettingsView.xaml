@@ -90,7 +90,7 @@
                     <RadioButton Click="OscTabButton_OnClick">
                         <TextBlock Text="OSC" Style="{StaticResource RadioTextBlockStyle}" />
                     </RadioButton>
-                    <RadioButton Click="AutomationTabButton_OnClick">
+                    <RadioButton Name="AutomationTabButton" Click="AutomationTabButton_OnClick">
                         <TextBlock Text="Automation" Style="{StaticResource RadioTextBlockStyle}" />
                     </RadioButton>
                     <RadioButton Click="OVRTabButton_OnClick">

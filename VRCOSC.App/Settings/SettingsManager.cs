@@ -78,6 +78,7 @@ public class SettingsManager
         setDefault(VRCOSCMetadata.InstalledVersion, string.Empty);
         setDefault(VRCOSCMetadata.InstalledUpdateChannel, UpdateChannel.Beta); // TODO: Change on app release
         setDefault(VRCOSCMetadata.FirstTimeSetupComplete, false);
+        setDefault(VRCOSCMetadata.AutoStartQuestionClicked, false);
     }
 
     public Observable<T> GetObservable<T>(VRCOSCSetting lookup)
@@ -147,5 +148,6 @@ public enum VRCOSCMetadata
 {
     InstalledVersion,
     FirstTimeSetupComplete,
-    InstalledUpdateChannel
+    InstalledUpdateChannel,
+    AutoStartQuestionClicked
 }

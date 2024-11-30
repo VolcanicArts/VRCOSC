@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using VRCOSC.App.Actions.Files;
 using VRCOSC.App.Audio;
 using VRCOSC.App.Settings;
@@ -175,6 +176,12 @@ public partial class AppSettingsView : INotifyPropertyChanged
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Subscribe(value => UsingCustomEndpoints.Value = value ? Visibility.Visible : Visibility.Collapsed, true);
 
         setPage(0);
+    }
+
+    public void FocusAutomationTab()
+    {
+        AutomationTabButton.IsChecked = true;
+        AutomationTabButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
     }
 
     private void updateDeviceListAndSelection(string? newDeviceId) => Dispatcher.Invoke(() =>

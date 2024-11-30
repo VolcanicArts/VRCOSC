@@ -8,7 +8,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Core;
+using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.Run;
@@ -29,6 +31,8 @@ public partial class RunView : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
+
+    public Observable<bool> AutoStartQuestionClicked => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCMetadata.AutoStartQuestionClicked);
 
     public RunView()
     {
@@ -199,5 +203,12 @@ public partial class RunView : INotifyPropertyChanged
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private void AutoStartQuestion_OnClick(object sender, RoutedEventArgs e)
+    {
+        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCMetadata.AutoStartQuestionClicked).Value = true;
+        MainWindow.GetInstance().FocusAppSettings();
+        MainWindow.GetInstance().AppSettingsView.FocusAutomationTab();
     }
 }
