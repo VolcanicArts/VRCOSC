@@ -41,14 +41,25 @@ public class Profile : INotifyPropertyChanged
     /// <summary>
     /// Clones this profile
     /// </summary>
-    /// <remarks>Does NOT copy the ID, as this is intended to be used for making soft copies</remarks>
-    public Profile Clone()
+    /// <param name="hardCopy">Hard copy means the ID and name won't be changed. Soft copying will generate a new ID and append 'New' to the profile name</param>
+    public Profile Clone(bool hardCopy)
     {
-        return new Profile
+        if (hardCopy)
         {
-            Name = new Observable<string>($"{Name.Value} New"),
-            LinkedAvatars = new ObservableCollection<Observable<string>>(LinkedAvatars.Select(linkedAvatarObservable => new Observable<string>(linkedAvatarObservable.Value)))
-        };
+            return new Profile(ID)
+            {
+                Name = new Observable<string>($"{Name.Value}"),
+                LinkedAvatars = new ObservableCollection<Observable<string>>(LinkedAvatars.Select(linkedAvatarObservable => new Observable<string>(linkedAvatarObservable.Value)))
+            };
+        }
+        else
+        {
+            return new Profile
+            {
+                Name = new Observable<string>($"{Name.Value} New"),
+                LinkedAvatars = new ObservableCollection<Observable<string>>(LinkedAvatars.Select(linkedAvatarObservable => new Observable<string>(linkedAvatarObservable.Value)))
+            };
+        }
     }
 
     public void CopyTo(Profile profile)

@@ -147,7 +147,7 @@ public class ProfileManager : INotifyPropertyChanged
 
     public void CopyProfile(Profile originalProfile)
     {
-        var copiedProfile = originalProfile.Clone();
+        var copiedProfile = originalProfile.Clone(false);
 
         var originalProfileDirectory = storage.GetStorageForDirectory($"profiles/{originalProfile.ID}");
         originalProfileDirectory.CopyTo(storage.GetFullPath($"profiles/{copiedProfile.ID}"));

@@ -21,7 +21,7 @@ public partial class ProfileEditWindow
         InitializeComponent();
 
         OriginalProfile = profile;
-        Profile = OriginalProfile?.Clone() ?? new Profile();
+        Profile = OriginalProfile?.Clone(true) ?? new Profile();
 
         Profile.Name.Subscribe(globalProfileNameChanged);
 
