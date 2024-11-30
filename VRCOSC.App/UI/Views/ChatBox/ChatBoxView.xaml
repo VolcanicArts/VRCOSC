@@ -102,8 +102,10 @@
                 <Border Grid.Row="0" Grid.Column="2" Background="{StaticResource CBackground3}" CornerRadius="5"
                         Padding="5">
                     <Grid>
-                        <TextBlock Text="Select A Clip" FontSize="30" TextAlignment="Center" VerticalAlignment="Center"
-                                   Foreground="{StaticResource CForeground1}" />
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5" VerticalAlignment="Center">
+                            <TextBlock Text="Left click to select a clip" FontSize="25" TextAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource CForeground1}" />
+                            <TextBlock Text="Right click to create a clip" FontSize="25" TextAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource CForeground1}" />
+                        </core:SpacedStackPanel>
                         <Grid x:Name="SelectedClipGrid" Visibility="Collapsed">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="3*" />
