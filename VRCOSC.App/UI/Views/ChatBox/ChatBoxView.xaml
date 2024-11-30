@@ -43,6 +43,8 @@
                                 <RowDefinition Height="30" />
                                 <RowDefinition Height="*" />
                                 <RowDefinition Height="30" />
+                                <RowDefinition Height="5" />
+                                <RowDefinition Height="30" />
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -63,6 +65,13 @@
                                 Click="ExportButton_OnClick" />
                             <core:IconButton
                                 Grid.Row="2"
+                                Grid.Column="0"
+                                Grid.ColumnSpan="3"
+                                ButtonColour="Gray"
+                                Icon="Regular_CircleQuestion"
+                                Click="HelpButton_OnClick" />
+                            <core:IconButton
+                                Grid.Row="4"
                                 Grid.Column="0"
                                 Grid.ColumnSpan="3"
                                 ButtonColour="Red"
