@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Interop;
@@ -14,12 +13,15 @@ public static class WPFUtils
 {
     public static T? FindVisualParent<T>(this DependencyObject element, string name) where T : DependencyObject
     {
-        var parent = VisualTreeHelper.GetParent(element);
+        while (true)
+        {
+            var parent = VisualTreeHelper.GetParent(element);
 
-        if (parent is T parentAsType && ((FrameworkElement)parent).Name == name)
-            return parentAsType;
+            if (parent is null) return null;
+            if (parent is T parentAsType && ((FrameworkElement)parent).Name == name) return parentAsType;
 
-        return FindVisualParent<T>(parent, name);
+            element = parent;
+        }
     }
 
     public static T? FindVisualChild<T>(this DependencyObject element, string name) where T : DependencyObject
@@ -40,27 +42,39 @@ public static class WPFUtils
         return null;
     }
 
-    public static void PositionWindow(Window window, DependencyObject parent, ScreenChoice screenChoice, HorizontalPosition horizontal, VerticalPosition vertical)
+    public static void SetPosition(this Window window, DependencyObject? parent, ScreenChoice screenChoice, HorizontalPosition horizontal, VerticalPosition vertical)
     {
-        var parentWindow = Window.GetWindow(parent);
-        Debug.Assert(parentWindow is not null);
-        PositionWindow(window, parentWindow, screenChoice, horizontal, vertical);
+        if (screenChoice == ScreenChoice.SameAsParent)
+        {
+            if (parent is null) throw new InvalidOperationException("Cannot copy parent's window's screen if parent is null");
+
+            var parentWindow = Window.GetWindow(parent);
+            window.SetPosition(parentWindow, screenChoice, horizontal, vertical);
+        }
+        else
+        {
+            window.SetPosition((Window?)null, screenChoice, horizontal, vertical);
+        }
     }
 
-    public static void PositionWindow(Window window, Window parent, ScreenChoice screenChoice, HorizontalPosition horizontal, VerticalPosition vertical)
+    public static void SetPosition(this Window window, Window? parentWindow, ScreenChoice screenChoice, HorizontalPosition horizontal, VerticalPosition vertical)
     {
-        var targetScreen = screenChoice switch
-        {
-            ScreenChoice.SameAsParent => Screen.FromHandle(new WindowInteropHelper(parent).Handle),
-            ScreenChoice.PrimaryScreen => Screen.PrimaryScreen,
-            _ => throw new ArgumentOutOfRangeException()
-        };
+        Screen targetScreen;
 
-        Debug.Assert(targetScreen is not null);
+        if (screenChoice == ScreenChoice.SameAsParent)
+        {
+            if (parentWindow is null) throw new InvalidOperationException("Cannot copy parent's screen if parent is null");
+
+            targetScreen = Screen.FromHandle(new WindowInteropHelper(parentWindow).Handle);
+        }
+        else
+        {
+            targetScreen = Screen.PrimaryScreen!;
+        }
 
         var workingArea = targetScreen.WorkingArea;
 
-        double x = horizontal switch
+        var x = horizontal switch
         {
             HorizontalPosition.Left => workingArea.Left,
             HorizontalPosition.Center => workingArea.Left + (workingArea.Width - window.Width) / 2,
@@ -68,7 +82,7 @@ public static class WPFUtils
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        double y = vertical switch
+        var y = vertical switch
         {
             VerticalPosition.Top => workingArea.Top,
             VerticalPosition.Center => workingArea.Top + (workingArea.Height - window.Height) / 2,
@@ -98,5 +112,5 @@ public enum VerticalPosition
 public enum ScreenChoice
 {
     SameAsParent,
-    PrimaryScreen
+    Primary
 }

@@ -12,7 +12,7 @@ namespace VRCOSC.App.UI.Core;
 
 public class WindowManager
 {
-    private Window parentWindow;
+    private readonly Window parentWindow;
     private readonly List<IManagedWindow> childWindows = [];
 
     public WindowManager(Window parentWindow)
@@ -23,10 +23,7 @@ public class WindowManager
 
     public WindowManager(DependencyObject dp)
     {
-        var parentWindow = Window.GetWindow(dp);
-        if (parentWindow is null) throw new InvalidOperationException("Please construct the WindowManager in the Loaded event and not the constructor");
-
-        this.parentWindow = parentWindow;
+        parentWindow = Window.GetWindow(dp) ?? throw new InvalidOperationException("Please construct the WindowManager in the Loaded event and not the constructor");
         parentWindow.Closing += parentWindowClosing;
     }
 
@@ -58,9 +55,7 @@ public class WindowManager
 
         window = (Window)childWindow;
         window.Closed += childWindowClosed;
-
-        WPFUtils.PositionWindow(window, parentWindow, ScreenChoice.SameAsParent, HorizontalPosition.Center, VerticalPosition.Center);
-
+        window.SetPosition(parentWindow, ScreenChoice.SameAsParent, HorizontalPosition.Center, VerticalPosition.Center);
         window.Show();
 
         childWindows.Add(childWindow);

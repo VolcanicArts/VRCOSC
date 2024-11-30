@@ -257,7 +257,7 @@ public partial class MainWindow
 
     private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
     {
-        WPFUtils.PositionWindow(this, null, ScreenChoice.PrimaryScreen, HorizontalPosition.Center, VerticalPosition.Center);
+        this.SetPosition(null, ScreenChoice.Primary, HorizontalPosition.Center, VerticalPosition.Center);
 
         if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.StartInTray))
         {

@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -350,7 +350,7 @@ public partial class ChatBoxView
         {
             clipEditWindow = new ChatBoxClipEditWindow(SelectedClip);
             clipEditWindow.Closed += (_, _) => clipEditWindowCache.Remove(clipEditWindow);
-            WPFUtils.PositionWindow(clipEditWindow, this, ScreenChoice.SameAsParent, HorizontalPosition.Center, VerticalPosition.Center);
+            clipEditWindow.SetPosition(this, ScreenChoice.SameAsParent, HorizontalPosition.Center, VerticalPosition.Center);
             clipEditWindowCache.Add(clipEditWindow);
             clipEditWindow.ShowDialog();
         }

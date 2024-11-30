@@ -19,7 +19,7 @@ public partial class ChatBoxTabView
     private void PopoutChatBox_OnClick(object sender, RoutedEventArgs e)
     {
         var previewWindow = new ChatBoxPreviewWindow();
-        WPFUtils.PositionWindow(previewWindow, this, ScreenChoice.SameAsParent, HorizontalPosition.Center, VerticalPosition.Center);
+        previewWindow.SetPosition(this, ScreenChoice.SameAsParent, HorizontalPosition.Center, VerticalPosition.Center);
         previewWindow.Show();
     }
 
