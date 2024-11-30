@@ -7,8 +7,8 @@ namespace VRCOSC.App.SDK.Modules.Attributes;
 
 public abstract class ModuleAttribute
 {
-    public virtual string Title { get; }
-    public virtual string Description { get; }
+    public string Title { get; }
+    public string Description { get; }
 
     /// <summary>
     /// Called before this <see cref="ModuleAttribute"/> deserialises

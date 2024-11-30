@@ -6,9 +6,9 @@ using VRCOSC.App.SDK.Modules.Attributes.Settings;
 
 namespace VRCOSC.App.UI.Views.Modules.Settings;
 
-public partial class DropdownSettingView
+public partial class EnumDropdownSettingView
 {
-    public DropdownSettingView(Module _, EnumModuleSetting enumModuleSetting)
+    public EnumDropdownSettingView(Module _, EnumModuleSetting enumModuleSetting)
     {
         InitializeComponent();
 

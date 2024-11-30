@@ -2,6 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using VRCOSC.App.SDK.Modules.Attributes.Types;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
@@ -99,6 +102,18 @@ public class EnumModuleSetting : ValueModuleSetting<int>
 
         outValue = default;
         return false;
+    }
+}
+
+public class DropdownListModuleSetting : StringModuleSetting
+{
+    public IEnumerable<DropdownItem> Items { get; internal set; }
+
+    public DropdownListModuleSetting(string title, string description, Type viewType, IEnumerable<DropdownItem> items, DropdownItem defaultItem)
+        : base(title, description, viewType, defaultItem.ID)
+    {
+        // take a copy to stop developers holding a reference
+        Items = items.ToList().AsReadOnly();
     }
 }
 

@@ -444,7 +444,12 @@ public abstract class Module
 
     protected void CreateDropdown<T>(Enum lookup, string title, string description, T defaultValue) where T : Enum
     {
-        addSetting(lookup, new EnumModuleSetting(title, description, typeof(DropdownSettingView), Convert.ToInt32(defaultValue), typeof(T)));
+        addSetting(lookup, new EnumModuleSetting(title, description, typeof(EnumDropdownSettingView), Convert.ToInt32(defaultValue), typeof(T)));
+    }
+
+    protected void CreateDropdown(Enum lookup, string title, string description, IEnumerable<DropdownItem> items, DropdownItem defaultItem)
+    {
+        addSetting(lookup, new DropdownListModuleSetting(title, description, typeof(ListItemDropdownSettingView), items, defaultItem));
     }
 
     protected void CreateDateTime(Enum lookup, string title, string description, DateTimeOffset defaultValue)
