@@ -255,19 +255,21 @@ public partial class MainWindow
         }
     }
 
-    #region Tray
-
-    private bool inTray;
-    private readonly NotifyIcon trayIcon = new();
-
     private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
     {
+        WPFUtils.PositionWindow(this, null, ScreenChoice.PrimaryScreen, HorizontalPosition.Center, VerticalPosition.Center);
+
         if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.StartInTray))
         {
             inTray = true;
             handleTrayTransition();
         }
     }
+
+    #region Tray
+
+    private bool inTray;
+    private readonly NotifyIcon trayIcon = new();
 
     private void setupTrayIcon()
     {
