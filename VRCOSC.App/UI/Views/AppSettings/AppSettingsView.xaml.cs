@@ -132,8 +132,8 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
     public string WhisperModelFilePath
     {
-        get => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.Whisper_ModelPath).Value;
-        set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.Whisper_ModelPath).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value;
+        set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = value;
     }
 
     public int SpeechConfidenceSliderValue
@@ -150,8 +150,8 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
     public double MicrophoneVolumeAdjustmentSliderValue
     {
-        get => Interpolation.Map(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.MicrophoneVolumeAdjustment).Value, 0, 3, 0, 300);
-        set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.MicrophoneVolumeAdjustment).Value = (float)Interpolation.Map(value, 0, 300, 0, 3);
+        get => Interpolation.Map(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value, 0, 3, 0, 300);
+        set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value = (float)Interpolation.Map(value, 0, 300, 0, 3);
     }
 
     public Observable<Visibility> UsingCustomEndpoints { get; } = new(Visibility.Collapsed);
@@ -172,7 +172,7 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
         DataContext = this;
 
-        SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID).Subscribe(updateDeviceListAndSelection, true);
+        SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedMicrophoneID).Subscribe(updateDeviceListAndSelection, true);
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Subscribe(value => UsingCustomEndpoints.Value = value ? Visibility.Visible : Visibility.Collapsed, true);
 
         setPage(0);
@@ -205,7 +205,7 @@ public partial class AppSettingsView : INotifyPropertyChanged
         var comboBox = (ComboBox)sender;
         var deviceId = (string)comboBox.SelectedValue;
 
-        SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID).Value = deviceId;
+        SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedMicrophoneID).Value = deviceId;
     }
 
     private void setPage(int pageIndex)
@@ -266,7 +266,7 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
         action.OnComplete += () =>
         {
-            SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.Whisper_ModelPath).Value = AppManager.GetInstance().Storage.GetStorageForDirectory("runtime/whisper").GetFullPath("ggml-tiny.bin");
+            SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = AppManager.GetInstance().Storage.GetStorageForDirectory("runtime/whisper").GetFullPath("ggml-tiny.bin");
             OnPropertyChanged(nameof(WhisperModelFilePath));
         };
 

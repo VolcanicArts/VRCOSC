@@ -47,7 +47,7 @@ public class ClipEvent : ClipElement
     {
         get
         {
-            if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ShowRelevantModules)) return true;
+            if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ShowRelevantElementsOnly)) return true;
 
             var selectedClip = MainWindow.GetInstance().ChatBoxView.SelectedClip;
             Debug.Assert(selectedClip is not null);

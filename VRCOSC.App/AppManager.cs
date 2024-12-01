@@ -118,7 +118,7 @@ public class AppManager
             }
         });
 
-        var chosenInputDeviceSetting = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID);
+        var chosenInputDeviceSetting = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedMicrophoneID);
 
         if (!string.IsNullOrEmpty(chosenInputDeviceSetting.Value) && AudioDeviceHelper.GetDeviceByID(chosenInputDeviceSetting.Value) is null)
         {

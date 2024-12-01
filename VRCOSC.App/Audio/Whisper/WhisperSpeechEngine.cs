@@ -19,7 +19,7 @@ public class WhisperSpeechEngine : SpeechEngine
 
     public override void Initialise()
     {
-        var captureDeviceId = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID);
+        var captureDeviceId = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedMicrophoneID);
         captureDeviceId.Subscribe(onCaptureDeviceIdChanged, true);
 
         audioNotificationClient = new AudioEndpointNotificationClient();
@@ -31,7 +31,7 @@ public class WhisperSpeechEngine : SpeechEngine
                 if (flow != DataFlow.Capture) return;
                 if (role != Role.Multimedia) return;
 
-                if (string.IsNullOrEmpty(SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedInputDeviceID)))
+                if (string.IsNullOrEmpty(SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedMicrophoneID)))
                 {
                     Logger.Log("Default microphone change detected. Switching to new microphone");
                     onCaptureDeviceIdChanged(string.Empty);
@@ -110,7 +110,7 @@ public class WhisperSpeechEngine : SpeechEngine
 
     public override async Task Teardown()
     {
-        var captureDeviceId = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedInputDeviceID);
+        var captureDeviceId = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedMicrophoneID);
         captureDeviceId.Unsubscribe(onCaptureDeviceIdChanged);
 
         if (audioNotificationClient is not null)

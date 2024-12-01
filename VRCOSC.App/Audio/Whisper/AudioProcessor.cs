@@ -24,7 +24,7 @@ internal class AudioProcessor
 
     public AudioProcessor(MMDevice device)
     {
-        var modelFilePath = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.Whisper_ModelPath);
+        var modelFilePath = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SpeechModelPath);
 
         try
         {
@@ -77,7 +77,7 @@ internal class AudioProcessor
         if (data.Length == 0) return null;
 
         // adjust volume as some microphones output quiet streams
-        adjustVolume(data, SettingsManager.GetInstance().GetValue<float>(VRCOSCSetting.MicrophoneVolumeAdjustment));
+        adjustVolume(data, SettingsManager.GetInstance().GetValue<float>(VRCOSCSetting.SpeechMicVolumeAdjustment));
 
         if (isSilent(data))
         {

@@ -56,27 +56,27 @@ public class SettingsManager
         setDefault(VRCOSCSetting.VRCAutoStop, false);
         setDefault(VRCOSCSetting.OVRAutoOpen, false);
         setDefault(VRCOSCSetting.OVRAutoClose, false);
-        setDefault(VRCOSCSetting.AllowPreReleasePackages, false); // TODO: Change on app release
+        setDefault(VRCOSCSetting.AllowPreReleasePackages, false);
         setDefault(VRCOSCSetting.AutoUpdatePackages, true);
         setDefault(VRCOSCSetting.TrayOnClose, false);
-        setDefault(VRCOSCSetting.UpdateChannel, UpdateChannel.Live); // TODO: Change on app release
+        setDefault(VRCOSCSetting.UpdateChannel, UpdateChannel.Live);
         setDefault(VRCOSCSetting.ChatBoxSendInterval, 1500);
         setDefault(VRCOSCSetting.ChatBoxWorldBlacklist, true);
-        setDefault(VRCOSCSetting.ShowRelevantModules, true);
+        setDefault(VRCOSCSetting.ShowRelevantElementsOnly, true);
         setDefault(VRCOSCSetting.Theme, Theme.Dark);
         setDefault(VRCOSCSetting.OutgoingEndpoint, "127.0.0.1:9000");
         setDefault(VRCOSCSetting.IncomingEndpoint, "127.0.0.1:9001");
         setDefault(VRCOSCSetting.UseCustomEndpoints, false);
         setDefault(VRCOSCSetting.EnableAppDebug, false);
         setDefault(VRCOSCSetting.EnableRouter, false);
-        setDefault(VRCOSCSetting.SelectedInputDeviceID, string.Empty);
+        setDefault(VRCOSCSetting.SelectedMicrophoneID, string.Empty);
+        setDefault(VRCOSCSetting.SpeechModelPath, string.Empty);
         setDefault(VRCOSCSetting.SpeechConfidence, 0.4f);
-        setDefault(VRCOSCSetting.Whisper_ModelPath, string.Empty);
         setDefault(VRCOSCSetting.SpeechNoiseCutoff, 0.14f);
-        setDefault(VRCOSCSetting.MicrophoneVolumeAdjustment, 1f);
+        setDefault(VRCOSCSetting.SpeechMicVolumeAdjustment, 1f);
 
         setDefault(VRCOSCMetadata.InstalledVersion, string.Empty);
-        setDefault(VRCOSCMetadata.InstalledUpdateChannel, UpdateChannel.Live); // TODO: Change on app release
+        setDefault(VRCOSCMetadata.InstalledUpdateChannel, UpdateChannel.Live);
         setDefault(VRCOSCMetadata.FirstTimeSetupComplete, false);
         setDefault(VRCOSCMetadata.AutoStartQuestionClicked, false);
     }
@@ -129,19 +129,19 @@ public enum VRCOSCSetting
     UpdateChannel,
     ChatBoxSendInterval,
     ChatBoxWorldBlacklist,
-    ShowRelevantModules,
+    ShowRelevantElementsOnly,
     Theme,
     OutgoingEndpoint,
     IncomingEndpoint,
     UseCustomEndpoints,
     EnableAppDebug,
     EnableRouter,
-    SelectedInputDeviceID,
+    SelectedMicrophoneID,
     SelectedSpeechEngine,
-    Whisper_ModelPath,
+    SpeechModelPath,
     SpeechConfidence,
     SpeechNoiseCutoff,
-    MicrophoneVolumeAdjustment
+    SpeechMicVolumeAdjustment
 }
 
 public enum VRCOSCMetadata
