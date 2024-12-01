@@ -3,7 +3,7 @@
 # VRCOSC
 A modular OSC program creator, animation system, toolkit, and debugger made for [VRChat](https://vrchat.com)
 
-<img src="https://github.com/VolcanicArts/VRCOSC/assets/29819296/a6828e41-ad72-4068-a195-42dc6508ceff" width=70% height=70%>
+<img src="https://github.com/user-attachments/assets/61945157-d185-4134-a655-d6a9923eba23" width=75% height=75%>
 
 [![downloads](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/total?style=for-the-badge&label=Downloads%20Total)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![downloads@latest](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/latest/total?style=for-the-badge&label=Downloads%20For%20Latest)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
