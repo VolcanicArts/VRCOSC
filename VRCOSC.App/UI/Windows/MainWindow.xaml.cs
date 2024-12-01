@@ -26,6 +26,7 @@ using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Views.AppDebug;
 using VRCOSC.App.UI.Views.AppSettings;
 using VRCOSC.App.UI.Views.ChatBox;
+using VRCOSC.App.UI.Views.Information;
 using VRCOSC.App.UI.Views.Modules;
 using VRCOSC.App.UI.Views.Packages;
 using VRCOSC.App.UI.Views.Profiles;
@@ -56,6 +57,7 @@ public partial class MainWindow
     public readonly AppDebugView AppDebugView;
     public readonly ProfilesView ProfilesView;
     public readonly AppSettingsView AppSettingsView;
+    public readonly InformationView InformationView;
 
     private readonly Storage storage = AppManager.GetInstance().Storage;
 
@@ -91,6 +93,7 @@ public partial class MainWindow
         AppDebugView = new AppDebugView();
         ProfilesView = new ProfilesView();
         AppSettingsView = new AppSettingsView();
+        InformationView = new InformationView();
 
         setContent(ModulesView);
 
@@ -157,6 +160,7 @@ public partial class MainWindow
         if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
         {
             loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource)));
+            loadingAction.AddAction(new DynamicProgressAction(string.Empty, () => new FirstTimeInstallWindow().Show()));
         }
 
         loadingAction.OnComplete += () =>
@@ -407,6 +411,11 @@ public partial class MainWindow
     private void AppSettingsButton_OnClick(object sender, RoutedEventArgs e)
     {
         setContent(AppSettingsView);
+    }
+
+    private void InformationButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setContent(InformationView);
     }
 
     public void FocusAppSettings()

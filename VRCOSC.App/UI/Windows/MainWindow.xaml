@@ -120,6 +120,9 @@
                             <RadioButton Name="AppSettingsTabButton" GroupName="TabBar" Click="AppSettingsButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_Gear" />
                             </RadioButton>
+                            <RadioButton GroupName="TabBar" Click="InformationButton_OnClick">
+                                <fa6:ImageAwesome Icon="Solid_Info" />
+                            </RadioButton>
                         </StackPanel>
                     </Grid>
                 </Border>
