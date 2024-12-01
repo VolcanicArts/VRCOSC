@@ -40,9 +40,9 @@ namespace VRCOSC.App;
 public class AppManager
 {
 #if DEBUG
-    public const string APP_NAME = "VRCOSC-V2-Dev";
+    public const string APP_NAME = "VRCOSC-Dev";
 #else
-    public const string APP_NAME = "VRCOSC-V2";
+    public const string APP_NAME = "VRCOSC";
 #endif
 
     private static Version assemblyVersion => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version();

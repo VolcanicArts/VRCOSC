@@ -66,8 +66,7 @@ public partial class MainWindow
 
     public MainWindow()
     {
-        // TODO: Enable when out of beta
-        // backupV1Files();
+        backupV1Files();
 
         SettingsManager.GetInstance().Load();
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
@@ -128,7 +127,7 @@ public partial class MainWindow
     {
         var loadingAction = new CompositeProgressAction();
 
-        //loadingAction.AddAction(new DynamicAsyncProgressAction("Checking for updates", () => AppManager.GetInstance().VelopackUpdater.CheckForUpdatesAsync()));
+        loadingAction.AddAction(new DynamicAsyncProgressAction("Checking for updates", () => AppManager.GetInstance().VelopackUpdater.CheckForUpdatesAsync()));
         loadingAction.AddAction(PackageManager.GetInstance().Load());
 
         var installedVersion = SettingsManager.GetInstance().GetValue<string>(VRCOSCMetadata.InstalledVersion);

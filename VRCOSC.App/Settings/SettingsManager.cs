@@ -56,10 +56,10 @@ public class SettingsManager
         setDefault(VRCOSCSetting.VRCAutoStop, false);
         setDefault(VRCOSCSetting.OVRAutoOpen, false);
         setDefault(VRCOSCSetting.OVRAutoClose, false);
-        setDefault(VRCOSCSetting.AllowPreReleasePackages, true); // TODO: Change on app release
+        setDefault(VRCOSCSetting.AllowPreReleasePackages, false); // TODO: Change on app release
         setDefault(VRCOSCSetting.AutoUpdatePackages, true);
         setDefault(VRCOSCSetting.TrayOnClose, false);
-        setDefault(VRCOSCSetting.UpdateChannel, UpdateChannel.Beta); // TODO: Change on app release
+        setDefault(VRCOSCSetting.UpdateChannel, UpdateChannel.Live); // TODO: Change on app release
         setDefault(VRCOSCSetting.ChatBoxSendInterval, 1500);
         setDefault(VRCOSCSetting.ChatBoxWorldBlacklist, true);
         setDefault(VRCOSCSetting.ShowRelevantModules, true);
@@ -76,7 +76,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.MicrophoneVolumeAdjustment, 1f);
 
         setDefault(VRCOSCMetadata.InstalledVersion, string.Empty);
-        setDefault(VRCOSCMetadata.InstalledUpdateChannel, UpdateChannel.Beta); // TODO: Change on app release
+        setDefault(VRCOSCMetadata.InstalledUpdateChannel, UpdateChannel.Live); // TODO: Change on app release
         setDefault(VRCOSCMetadata.FirstTimeSetupComplete, false);
         setDefault(VRCOSCMetadata.AutoStartQuestionClicked, false);
     }
