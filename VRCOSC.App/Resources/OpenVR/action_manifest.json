@@ -1,0 +1,148 @@
+{
+	"action_sets": [
+		{
+			"name": "/actions/main",
+			"usage": "leftright"
+		},
+		{
+			"name": "/actions/haptic",
+			"usage": "leftright"
+		}
+	],
+	"actions": [
+		{
+			"name": "/actions/main/in/lefta",
+			"requirement": "mandatory",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/leftb",
+			"requirement": "mandatory",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/leftpad",
+			"requirement": "mandatory",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/leftstick",
+			"requirement": "mandatory",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/leftfingerindex",
+			"requirement": "mandatory",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/main/in/leftfingermiddle",
+			"requirement": "mandatory",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/main/in/leftfingerring",
+			"requirement": "mandatory",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/main/in/leftfingerpinky",
+			"requirement": "mandatory",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/main/in/righta",
+			"requirement": "mandatory",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/rightb",
+			"requirement": "mandatory",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/rightpad",
+			"requirement": "mandatory",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/rightstick",
+			"requirement": "mandatory",
+			"type": "boolean"
+		},
+		{
+			"name": "/actions/main/in/rightfingerindex",
+			"requirement": "mandatory",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/main/in/rightfingermiddle",
+			"requirement": "mandatory",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/main/in/rightfingerring",
+			"requirement": "mandatory",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/main/in/rightfingerpinky",
+			"requirement": "mandatory",
+			"type": "vector1"
+		},
+		{
+			"name": "/actions/haptic/out/lefthand",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/righthand",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/leftfoot",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/rightfoot",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/waist",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/chest",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/leftknee",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/rightknee",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/leftelbow",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/rightelbow",
+			"type": "vibration"
+		},
+		{
+			"name": "/actions/haptic/out/head",
+			"type": "vibration"
+		}
+	],
+	"default_bindings": [
+		{
+			"binding_url": "knuckles_bindings.json",
+			"controller_type": "knuckles"
+		},
+		{
+			"binding_url": "oculus_touch_bindings.json",
+			"controller_type": "oculus_touch"
+		}
+	]
+}

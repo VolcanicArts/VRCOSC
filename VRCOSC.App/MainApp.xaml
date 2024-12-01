@@ -1,0 +1,23 @@
+﻿<Application x:Class="VRCOSC.App.MainApp"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+             xmlns:themes="clr-namespace:VRCOSC.App.UI.Themes">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <themes:ThemeResourceDictionary/>
+                <ResourceDictionary Source="UI/Styles/VRCOSCCheckBoxStyle.xaml" />
+                <ResourceDictionary Source="UI/Styles/VRCOSCButtonStyle.xaml" />
+                <ResourceDictionary Source="UI/Styles/IconButtonStyle.xaml" />
+                <ResourceDictionary Source="UI/Styles/TextBoxStyle.xaml" />
+                <ResourceDictionary Source="UI/Styles/HeaderFooterListViewStyle.xaml" />
+                <ResourceDictionary Source="UI/Styles/SpacedListView.xaml" />
+                <ResourceDictionary Source="UI/Styles/TitleDescriptionContentStyle.xaml" />
+                <ResourceDictionary Source="UI/Styles/KeybindPickerStyle.xaml" />
+                <ResourceDictionary Source="UI/Styles/VRCOSCSliderStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="{x:Type core:IPPortTextBox}" BasedOn="{StaticResource {x:Type TextBox}}" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

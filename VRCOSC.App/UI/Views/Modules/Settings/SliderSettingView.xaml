@@ -1,0 +1,19 @@
+﻿<UserControl x:Class="VRCOSC.App.UI.Views.Modules.Settings.SliderSettingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d">
+    <Grid Height="50">
+        <Slider Value="{Binding SliderValue.Value}" Minimum="{Binding SliderModuleSetting.MinValue, Mode=OneTime}"
+                Maximum="{Binding SliderModuleSetting.MaxValue, Mode=OneTime}"
+                TickFrequency="{Binding SliderModuleSetting.TickFrequency, Mode=OneTime}" TickPlacement="BottomRight"
+                IsSnapToTickEnabled="True" LostMouseCapture="Slider_LostMouseCapture" />
+        <TextBlock Text="{Binding SliderModuleSetting.MinValue, Mode=OneTime}" HorizontalAlignment="Left"
+                   VerticalAlignment="Bottom" Foreground="{StaticResource CForeground1}" FontSize="16" />
+        <TextBlock Name="SliderValueText" HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                   Foreground="{StaticResource CForeground1}" FontSize="16" />
+        <TextBlock Text="{Binding SliderModuleSetting.MaxValue, Mode=OneTime}" HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom" Foreground="{StaticResource CForeground1}" FontSize="16" />
+    </Grid>
+</UserControl>

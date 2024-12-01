@@ -1,0 +1,439 @@
+﻿<UserControl x:Class="VRCOSC.App.UI.Views.AppSettings.AppSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:VRCOSC.App.UI.Views.AppSettings"
+             xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+             mc:Ignorable="d"
+             d:DesignWidth="1366" d:DesignHeight="748"
+             Background="Transparent">
+    <UserControl.Resources>
+        <local:IpPortValidationRule x:Key="IpPortValidationRule" />
+        <Style x:Key="RadioTextBlockStyle" TargetType="TextBlock">
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
+            <Setter Property="Margin" Value="7" />
+        </Style>
+        <Style TargetType="RadioButton">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border Background="{StaticResource CBackground3}"
+                                BorderBrush="{StaticResource CBackground5}"
+                                BorderThickness="2"
+                                CornerRadius="5"
+                                x:Name="Border">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="{StaticResource CBackground6}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SettingComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="384" />
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="SettingTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
+            <Setter Property="Background" Value="{StaticResource CBackground3}" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Width" Value="384" />
+            <Setter Property="FontSize" Value="18" />
+        </Style>
+        <Style x:Key="SettingTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Margin" Value="0 -3" />
+        </Style>
+        <Style x:Key="SettingDescription" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="{StaticResource CForeground2}" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="Margin" Value="0 -2" />
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Grid.Column="0" Background="{StaticResource CBackground4}">
+            <ScrollViewer Padding="10" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          PanningMode="VerticalOnly">
+                <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                    <RadioButton Click="GeneralTabButton_OnClick" IsChecked="True">
+                        <TextBlock Text="General" Style="{StaticResource RadioTextBlockStyle}" />
+                    </RadioButton>
+                    <RadioButton Click="PackagesTabButton_OnClick">
+                        <TextBlock Text="Packages" Style="{StaticResource RadioTextBlockStyle}" />
+                    </RadioButton>
+                    <RadioButton Click="OscTabButton_OnClick">
+                        <TextBlock Text="OSC" Style="{StaticResource RadioTextBlockStyle}" />
+                    </RadioButton>
+                    <RadioButton Name="AutomationTabButton" Click="AutomationTabButton_OnClick">
+                        <TextBlock Text="Automation" Style="{StaticResource RadioTextBlockStyle}" />
+                    </RadioButton>
+                    <RadioButton Click="OVRTabButton_OnClick">
+                        <TextBlock Text="SteamVR" Style="{StaticResource RadioTextBlockStyle}" />
+                    </RadioButton>
+                    <RadioButton Click="UpdatesTabButton_OnClick">
+                        <TextBlock Text="Updates" Style="{StaticResource RadioTextBlockStyle}" />
+                    </RadioButton>
+                    <RadioButton Click="SpeechTabButton_OnClick">
+                        <TextBlock Text="Speech" Style="{StaticResource RadioTextBlockStyle}" />
+                    </RadioButton>
+                    <RadioButton Click="AdvancedTabButton_OnClick">
+                        <TextBlock Text="Advanced" Style="{StaticResource RadioTextBlockStyle}" />
+                    </RadioButton>
+                </core:SpacedStackPanel>
+            </ScrollViewer>
+        </Border>
+        <Border Grid.Column="1">
+            <ScrollViewer Padding="10" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          PanningMode="VerticalOnly">
+                <Grid>
+                    <Grid Name="GeneralContainer" Visibility="Collapsed">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Theme" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="What theme should the app be in? (Requires Restart)"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <ComboBox ItemsSource="{Binding ThemeSource}" SelectedIndex="{Binding Theme}"
+                                              Style="{StaticResource SettingComboBoxStyle}" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Tray On Close" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Sends VRCOSC to the tray instead of exiting when closing"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding TrayOnClose}" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Start In Tray" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Sends VRCOSC into the tray when opened"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding StartInTray}" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Use ChatBox Blacklist" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="This stops VRCOSC from writing to the ChatBox in certain club and event worlds"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding UseChatBoxBlacklist}" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="ChatBox Send Interval" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="The time between writing to the ChatBox in milliseconds. Defaults to 1500"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <TextBox Style="{StaticResource SettingTextBoxStyle}"
+                                             Text="{Binding ChatBoxSendInterval}" />
+                                </Grid>
+                            </Border>
+                        </core:SpacedStackPanel>
+                    </Grid>
+                    <Grid Name="PackagesContainer" Visibility="Collapsed">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Allow Pre-Release Packages" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Should the package listing list pre-releases?"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding AllowPreReleasePackages}" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Auto Update Packages" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Should installed packages be auto-updated to their latest non-pre-release version?"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding AutoUpdatePackages}" />
+                                </Grid>
+                            </Border>
+                        </core:SpacedStackPanel>
+                    </Grid>
+                    <Grid Name="OscContainer" Visibility="Collapsed">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Use Custom Endpoints" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="Should VRCOSC use custom endpoints instead of OSCQuery?"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding UseCustomEndpoints}" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5" Visibility="{Binding UsingCustomEndpoints.Value}">
+                                <Grid>
+                                    <TextBlock Text="Outgoing Endpoint" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="Where should VRCOSC send OSC data to?"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <TextBox Style="{StaticResource SettingTextBoxStyle}">
+                                        <TextBox.Text>
+                                            <Binding Path="OutgoingEndpoint" UpdateSourceTrigger="PropertyChanged">
+                                                <Binding.ValidationRules>
+                                                    <StaticResource ResourceKey="IpPortValidationRule" />
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5" Visibility="{Binding UsingCustomEndpoints.Value}">
+                                <Grid>
+                                    <TextBlock Text="Incoming Endpoint" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="Where should VRCOSC receive OSC data from?"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <TextBox Style="{StaticResource SettingTextBoxStyle}">
+                                        <TextBox.Text>
+                                            <Binding Path="IncomingEndpoint" UpdateSourceTrigger="PropertyChanged">
+                                                <Binding.ValidationRules>
+                                                    <StaticResource ResourceKey="IpPortValidationRule" />
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                </Grid>
+                            </Border>
+                        </core:SpacedStackPanel>
+                    </Grid>
+                    <Grid Name="AutomationContainer" Visibility="Collapsed">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Auto-start with VRChat" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="Allows VRCOSC to automatically start the modules when VRChat opens"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding VRCAutoStart}" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Auto-stop with VRChat" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="Allows VRCOSC to automatically stop the modules when VRChat closes"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding VRCAutoStop}" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Auto-open with SteamVR" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Tells VRCOSC to open when SteamVR opens"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding OVRAutoOpen}" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Auto-close with SteamVR" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Tells VRCOSC to close when SteamVR closes"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding OVRAutoClose}" />
+                                </Grid>
+                            </Border>
+                        </core:SpacedStackPanel>
+                    </Grid>
+                    <Grid Name="OVRContainer" Visibility="Collapsed">
+                        <local:OVRDeviceView/>
+                    </Grid>
+                    <Grid Name="SpeechContainer" Visibility="Collapsed">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Input Microphone" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Choose which microphone VRCOSC should use"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <ComboBox Name="MicrophoneComboBox"
+                                              SelectionChanged="MicrophoneComboBox_SelectionChanged"
+                                              Style="{StaticResource SettingComboBoxStyle}"
+                                              SelectedValuePath="ID" DisplayMemberPath="Name" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Model Path" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="The path of the model file Whisper should use"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <core:SpacedStackPanel Orientation="Horizontal" FlowDirection="LeftToRight" Spacing="5" HorizontalAlignment="Right">
+                                        <core:VRCOSCButton ButtonColour="Blue" Click="AutoInstallModel_OnClick" Height="30" Width="170">
+                                            <TextBlock Text="Auto Install Model" FontSize="15" Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </core:VRCOSCButton>
+                                        <TextBox Style="{StaticResource SettingTextBoxStyle}" Text="{Binding WhisperModelFilePath}" />
+                                    </core:SpacedStackPanel>
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="60"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="5*" />
+                                        <ColumnDefinition Width="5*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Speech Confidence"
+                                               Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Grid.Column="0" Text="How confident should Whisper be to send a result?"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCSlider Grid.Column="1" Value="{Binding SpeechConfidenceSliderValue}" MinValue="0" MaxValue="100" TickFrequency="2" SliderType="Int" IsPercentage="True"/>
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="60"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="5*" />
+                                        <ColumnDefinition Width="5*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Microphone Volume Adjustment"
+                                               Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Grid.Column="0" Text="Adjust the microphone volume level"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCSlider Grid.Column="1" Value="{Binding MicrophoneVolumeAdjustmentSliderValue}" MinValue="0" MaxValue="300" TickFrequency="5" SliderType="Int" IsPercentage="True"/>
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="60"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="5*" />
+                                        <ColumnDefinition Width="5*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Noise Level Cutoff"
+                                               Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Grid.Column="0" Text="Noise level cutoff. When above this recognition will occur"
+                                               Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCSlider Grid.Column="1" Value="{Binding SpeechNoiseCutoffSliderValue}" MinValue="0" MaxValue="100" TickFrequency="2" SliderType="Int" IsPercentage="True"/>
+                                </Grid>
+                            </Border>
+                        </core:SpacedStackPanel>
+                    </Grid>
+                    <Grid Name="UpdatesContainer" Visibility="Collapsed">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Update Channel" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="The current update channel being used"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <ComboBox Name="UpdateChannelComboBox"
+                                              ItemsSource="{Binding UpdateChannelSource}"
+                                              SelectedItem="{Binding SelectedUpdateChannel}"
+                                              Style="{StaticResource SettingComboBoxStyle}" />
+                                </Grid>
+                            </Border>
+                        </core:SpacedStackPanel>
+                    </Grid>
+                    <Grid Name="AdvancedContainer" Visibility="Collapsed">
+                        <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Enable Debug Mode" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="Gain access to the debug page, detailed module logs, and other information"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding EnableAppDebug}" />
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Enable Router" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="Gain access to the router page. This should only be used when necessary"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding EnableRouter}" />
+                                </Grid>
+                            </Border>
+                        </core:SpacedStackPanel>
+                    </Grid>
+                </Grid>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

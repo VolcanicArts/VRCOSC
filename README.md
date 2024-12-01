@@ -1,18 +1,18 @@
 <div align="center">
 
 # VRCOSC
-A modular OSC program creator and toolkit made for [VRChat](https://vrchat.com) built on top of the [osu!framework](https://github.com/ppy/osu-framework)
+A modular OSC program creator, animation system, toolkit, and debugger made for [VRChat](https://vrchat.com)
 
 <img src="https://github.com/VolcanicArts/VRCOSC/assets/29819296/a6828e41-ad72-4068-a195-42dc6508ceff" width=70% height=70%>
 
-[![release version](https://img.shields.io/github/v/release/VolcanicArts/VRCOSC?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![downloads](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/total?style=for-the-badge&label=Downloads%20Total)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![downloads@latest](https://img.shields.io/github/downloads/VolcanicArts/VRCOSC/latest/total?style=for-the-badge&label=Downloads%20For%20Latest)](https://github.com/VolcanicArts/VRCOSC/releases/latest)
 [![commits](https://img.shields.io/github/commit-activity/m/VolcanicArts/VRCOSC/v2-wpf?style=for-the-badge)](https://github.com/VolcanicArts/VRCOSC/commits/v2-wpf)
 <br>
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/O5O8FF9YO)
-<br>
+<br/>
 [![discord](https://discordapp.com/api/guilds/1000862183963496519/widget.png?style=shield)](https://discord.gg/vj4brHyvT5)
+[![docs](https://img.shields.io/badge/Documentation-2b2b2b?logo=docusaurus)](https://vrcosc.com/docs/welcome)
 
 </div>
 
@@ -37,57 +37,59 @@ VRCOSC is intended to act as a wrapper around VRChat's OSC system to make creati
 VRCOSC's powerful ChatBox design system allows you to display what you want, when you want, how you want. Check out the ChatBox-Config forum channel of our [Discord Server](https://discord.gg/vj4brHyvT5) to see some of the configs people have created!
 The ChatBox uses a [community-created list](https://github.com/cyberkitsune/chatbox-club-blacklist/blob/master/npblacklist.json) to block all modules apart from the accessibility and health related modules (SpeechToText, Pulsoid, and Hyperate) from using the ChatBox when in club/event worlds as a courtesy to performers and event staff. You can turn this off in VRCOSC's settings, but we recommend you keep it on for respect.
 
-VRCOSC's router lets you route other OSC programs through our app to stop port binding issues. Common setups can be found on the [Routing Wiki](https://github.com/VolcanicArts/VRCOSC/wiki/VRCOSC-Router) page.
-
-We have a [Discord Server](https://discord.gg/vj4brHyvT5) for posting suggestions or to get help with anything to do with VRCOSC.
-
-If you like VRCOSC, please star the repo. It really helps!
+Our powerful ChatBox animation system allows you to display what you want, when you want, how you want.
+Community configs are available, or you can make your own by following [the docs](https://vrcosc.com/docs/V2/chatbox)!
 
 Featuring:
-- Responsive GUI generation
+- Modern GUI
 - Automated configuration management
-- A powerful ChatBox design system
-- An in-built router to work with other OSC apps
+- A powerful ChatBox animation system
+- Profiles that can link to avatars
+- A built-in router
 - Program modularity for easy development
 - Automatic updates
 - Common API interfaces
 - Drag-and-drop Unity prefabs
+- Debug tools
 
 ## Getting Started
-- Download `VRCOSCSetup.exe` from the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) page
+- Download and run `VRCOSCSetup.exe` from the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) page
 - Tick the modules you'd like to use
-- Download any prefabs you want and add them to your avatar (Guides are available inside each prefab)
+- (Optional) Download any prefabs you want and add them to your avatar (Guides are available inside each prefab)
 - Press the run button!
 
-Check the [FAQ](https://github.com/VolcanicArts/VRCOSC/wiki/FAQ) if you have any issues with installing or using any of the prefabs.
+Check the [FAQ](https://vrcosc.com/docs/faq) if you have any issues with installing, using the app, or using any of the prefabs.
+Join the [Discord Server](https://discord.gg/vj4brHyvT5) if you need any other help.
 
 ## Official Modules
-If you have a module idea join the [Discord Server](https://discord.gg/vj4brHyvT5) and tell us or [create it yourself](https://github.com/VolcanicArts/VRCOSC/wiki/Module-Creation)!
+If you have a module idea join the [Discord Server](https://discord.gg/vj4brHyvT5) and tell us or [create it yourself](https://vrcosc.com/docs/category/sdk)!
 
-Note: The VRCOSC-Controls.unitypackage prefab is global controls for VRCOSC. It does not require a module to use.
+All modules support sending generic parameters that are standardised so that public avatars can utilise these features.
+Most modules have ChatBox support, providing generic variables for you to customise in limitless ways.
 
-All prefabs listed can be downloaded from the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) page
+The official modules source code is located [here](https://github.com/VolcanicArts/VRCOSC-Modules).
 
-| Module | Description | Prefab |
-| :---: | :--- | :---: |
-| Media | Allows for media display in the ChatBox and full control over media from your action menu | VRCOSC-Media.unitypackage |
-| Pulsoid [![pulsoid](https://pulsoid.net/s/github-badge)](https://pulsoid.net/) | Connects to [Pulsoid](https://pulsoid.net/) to display your live heartrate in-game - [Supported Devices](https://www.blog.pulsoid.net/monitors) | VRCOSC-Heartrate.unitypackage |
-| HypeRate | Connects to [HypeRate.io](https://www.hyperate.io/) to display your live heartrate in-game - [Supported Devices](https://www.hyperate.io/supported-devices) | VRCOSC-Heartrate.unitypackage |
-| Speech To Text | Run Speech To Text using any language model and display the result in your ChatBox | |
-| Clock | Sends your local time as hours, minutes, and seconds to be displayed on a wrist watch | VRCOSC-Watch.unitypackage |
-| PiShock | Allow you to control groups of PiShock shockers directly from your avatar | VRCOSC-PiShock.unitypackage |
-| Hardware Stats | Gather's hardware stats to send to your avatar and display in the ChatBox | |
-| Haptic Control | Allows for triggering controller haptics using variables from your avatar | |
-| OpenVR Statistics | Gets statistics from your OpenVR (SteamVR) session | VRCOSC-Trackers.unitypackage |
-| OpenVR Controller Statistics | Gets controller statistics from your OpenVR (SteamVR) session | |
-| Gesture Extensions | Allows for custom gestures to be sent to VRChat from your Index controllers | |
-| AFK Display | Displays how long you've been AFK for in the ChatBox | |
-| Process Manager | Open and close apps on your PC using avatar parameters | |
-| Weather | Gets weather from a postcode/zipcode/city to display in the ChatBox | |
-| Counter | Counts how many times a parameter on your avatar changes to be displayed in the ChatBox | |
-| ChatBox Text | Displays custom text in the ChatBox that can also function like a ticker tape | |
-| Discord | Allows for toggling of mute and deafen from the action menu | VRCOSC-Discord.unitypackage |
-| Exchange Rate | Retrieves exchange rate information for currencies and displays them in the ChatBox | |
+|       Module Name        | Description                                                                                                                                                                                                            |
+|:------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|          Media           | Allows for media (Spotify, YouTube, etc) display in the ChatBox and full control over media from your action menu                                                                                                      |
+|         Pulsoid          | Connects to [Pulsoid](https://pulsoid.net/) to display your live heartrate in-game - [Supported Devices](https://www.blog.pulsoid.net/monitors) [![pulsoid](https://pulsoid.net/s/github-badge)](https://pulsoid.net/) |
+|         HypeRate         | Connects to [HypeRate.io](https://www.hyperate.io/) to display your live heartrate in-game - [Supported Devices](https://www.hyperate.io/supported-devices)                                                            |
+|      Speech To Text      | Listens to your speech and displays the result in the ChatBox                                                                                                                                                          |
+|      Voice Commands      | Control avatar parameters with your voice                                                                                                                                                                              |
+|         DateTime         | Sends your local date/time as day, month, year, hours, minutes, and seconds to avatar parameters                                                                                                                       |
+|         Counter          | Counts how many times a parameter on your avatar has changed to be displayed in the ChatBox                                                                                                                            |
+|         PiShock          | Control groups of PiShock shockers directly from your avatar, or with your voice                                                                                                                                       |
+|          Maths           | Define complex equations to drive avatar parameters                                                                                                                                                                    |
+|         Keybinds         | Trigger keybinds using avatar parameters                                                                                                                                                                               |
+|      Client Events       | Listens for events from VRChat and triggers parameters on your avatar                                                                                                                                                  |
+|      Hardware Stats      | Gathers hardware stats to send to your avatar and ChatBox                                                                                                                                                              |
+|      SteamVR Stats       | Gets statistics from your SteamVR session                                                                                                                                                                              |
+|  SteamVR Haptic Control  | Control SteamVR haptics on your devices                                                                                                                                                                                |
+| Index Gesture Extensions | Allows for custom gestures to be sent to VRChat from your Index controllers                                                                                                                                            |
+|      AFK Detection       | Detects when you're AFK in VRChat or SteamVR                                                                                                                                                                           |
+|     Process Manager      | Open and close apps on your PC using avatar parameters                                                                                                                                                                 |
+|        Stopwatch         | A simple stopwatch                                                                                                                                                                                                     |
+|         Weather          | Gets weather from a postcode/zipcode/city to display in the ChatBox                                                                                                                                                    |
 
 ## License
 This program is licensed under the [GNU General Public License V3](https://www.gnu.org/licenses/gpl-3.0.en.html). Please see [the license file](LICENSE) for more information.
