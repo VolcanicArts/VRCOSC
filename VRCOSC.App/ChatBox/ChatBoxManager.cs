@@ -308,14 +308,17 @@ public class ChatBoxManager : INotifyPropertyChanged
 
         if (isClipExactSame && !hasBeen20Seconds) return;
 
+        if (newClip.ShouldUseMinimalBackground())
+        {
+            if (newText.Length >= 144) newText = newText.Substring(0, 142);
+            newText += "\u0003\u001f";
+        }
+
         CurrentClip = newClip;
         currentClipChanged = DateTimeOffset.Now;
         currentText = newText;
         currentIsTyping = newIsTyping;
         currentUseMinimalBackground = newUseMinimalBackground;
-
-        if (newClip.ShouldUseMinimalBackground())
-            newText += "\u0003\u001f";
 
         SendText(newText);
         setTyping(newIsTyping);
