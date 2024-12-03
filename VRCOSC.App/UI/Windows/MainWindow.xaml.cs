@@ -255,16 +255,17 @@ public partial class MainWindow
 
         foreach (Window window in Application.Current.Windows)
         {
-            if (window != this) window.Close();
+            if (window != Application.Current.MainWindow) window.Close();
         }
     }
 
-    private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+    private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
     {
         this.SetPosition(null, ScreenChoice.Primary, HorizontalPosition.Center, VerticalPosition.Center);
 
         if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.StartInTray))
         {
+            await Task.Delay(100); // just in case
             inTray = true;
             handleTrayTransition();
         }
@@ -310,21 +311,34 @@ public partial class MainWindow
 
     private void handleTrayTransition()
     {
-        if (inTray)
+        try
         {
-            foreach (Window window in Application.Current.Windows)
+            var mainWindow = Application.Current.MainWindow;
+            if (mainWindow is null) throw new InvalidOperationException("Main window is null");
+
+            if (inTray)
             {
-                User32.ShowWindow(new WindowInteropHelper(window).Handle, User32.WindowShowStyle.SW_HIDE);
+                foreach (Window window in Application.Current.Windows)
+                {
+                    if (window == mainWindow)
+                    {
+                        User32.ShowWindow(new WindowInteropHelper(mainWindow).Handle, User32.WindowShowStyle.SW_HIDE);
+                    }
+                    else
+                    {
+                        window.Close();
+                    }
+                }
+            }
+            else
+            {
+                User32.ShowWindow(new WindowInteropHelper(mainWindow).Handle, User32.WindowShowStyle.SW_SHOWDEFAULT);
+                mainWindow.Activate();
             }
         }
-        else
+        catch (Exception e)
         {
-            foreach (Window window in Application.Current.Windows)
-            {
-                User32.ShowWindow(new WindowInteropHelper(window).Handle, User32.WindowShowStyle.SW_SHOWDEFAULT);
-                window.Show();
-                window.Activate();
-            }
+            ExceptionHandler.Handle(e, "Main window has experienced an exception");
         }
     }
 
