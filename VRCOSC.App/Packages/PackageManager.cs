@@ -115,8 +115,10 @@ public class PackageManager
         return compositeAction;
     }
 
-    public PackageInstallAction InstallPackage(PackageSource packageSource, PackageRelease? packageRelease = null, bool reloadAll = true, bool refreshBeforeInstall = true)
+    public PackageInstallAction? InstallPackage(PackageSource packageSource, PackageRelease? packageRelease = null, bool reloadAll = true, bool refreshBeforeInstall = true)
     {
+        if (!packageSource.IsAvailable()) return null;
+
         foreach (var window in Application.Current.Windows.OfType<Window>().Where(w => w != Application.Current.MainWindow))
         {
             window.Close();
