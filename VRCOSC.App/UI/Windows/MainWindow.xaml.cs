@@ -158,7 +158,7 @@ public partial class MainWindow
 
         if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
         {
-            loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource)));
+            loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource, closeWindows: false)));
             loadingAction.AddAction(new DynamicProgressAction(string.Empty, () => new FirstTimeInstallWindow().Show()));
         }
 
