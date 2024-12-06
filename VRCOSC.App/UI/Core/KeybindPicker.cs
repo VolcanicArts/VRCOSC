@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using VRCOSC.App.SDK.Utils;
+using VRCOSC.App.Utils;
 
 // ReSharper disable InconsistentNaming
 
@@ -28,6 +29,7 @@ public class KeybindPicker : UserControl
 
     private readonly List<Key> Modifiers = [];
     private readonly List<Key> Keys = [];
+    private int keyDownCount;
 
     static KeybindPicker()
     {
@@ -48,42 +50,46 @@ public class KeybindPicker : UserControl
 
         Modifiers.Clear();
         Keys.Clear();
+        keyDownCount = 0;
     }
 
     private void KeybindPicker_OnPreviewKeyUp(object sender, KeyEventArgs e)
     {
-        Modifiers.Remove(e.Key);
-        Keys.Remove(e.Key);
+        keyDownCount--;
+
+        if (keyDownCount != 0) return;
+
+        Keybind = new Keybind
+        {
+            Modifiers = Modifiers.ToList(),
+            Keys = Keys.ToList()
+        };
+
+        Keyboard.ClearFocus();
     }
 
     private void KeybindPicker_OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
+        e.Handled = true;
+
         if (e.IsRepeat) return;
 
-        if (e.Key == Key.Escape && IsKeyboardFocused)
+        var key = e.Key == Key.System ? e.SystemKey : e.Key;
+
+        if (key is Key.LWin or Key.RWin) return;
+
+        keyDownCount++;
+
+        if (Modifiers.Contains(key) || Keys.Contains(key)) return;
+
+        if (key is Key.LeftCtrl or Key.RightCtrl or Key.LeftShift or Key.RightShift or Key.LeftAlt or Key.RightAlt)
         {
-            Keyboard.ClearFocus();
-            return;
+            Modifiers.Add(key);
         }
-
-        if (e.Key is Key.LeftCtrl or Key.RightCtrl or Key.LeftShift or Key.RightShift or Key.LeftAlt or Key.RightAlt or Key.LWin or Key.RWin)
+        else
         {
-            Modifiers.Add(e.Key);
-            return;
+            Keys.Add(key);
         }
-
-        Keys.Add(e.Key);
-
-        var keybind = new Keybind
-        {
-            Modifiers = Modifiers,
-            Keys = Keys
-        };
-
-        Keybind = keybind;
-
-        e.Handled = true;
-        Keyboard.ClearFocus();
     }
 }
 
@@ -95,7 +101,7 @@ public class KeybindToStringConverter : IValueConverter
         {
             if (keybind.Modifiers.Count == 0 && keybind.Keys.Count == 0) return "None";
 
-            return string.Join(" + ", keybind.Modifiers.Concat(keybind.Keys));
+            return string.Join(" + ", keybind.Modifiers.Concat(keybind.Keys).Select(key => key.ToReadableString()));
         }
 
         return string.Empty;
