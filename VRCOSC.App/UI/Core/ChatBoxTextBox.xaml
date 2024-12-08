@@ -1,0 +1,30 @@
+﻿<TextBox x:Class="VRCOSC.App.UI.Core.ChatBoxTextBox"
+         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+         mc:Ignorable="d"
+         VerticalAlignment="Top"
+         TextAlignment="Center"
+         Margin="-1"
+         HorizontalAlignment="Stretch"
+         BorderBrush="Transparent"
+         SizeChanged="TextBox_SizeChanged"
+         PreviewKeyDown="TextBox_PreviewKeyDown"
+         DataObject.Pasting="TextBox_Pasting"
+         d:DesignHeight="50" d:DesignWidth="300">
+    <TextBox.Template>
+        <ControlTemplate
+            TargetType="TextBox">
+            <Border
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="5"
+                Padding="0 0 0 4">
+                <ScrollViewer
+                    x:Name="PART_ContentHost" />
+            </Border>
+        </ControlTemplate>
+    </TextBox.Template>
+</TextBox>

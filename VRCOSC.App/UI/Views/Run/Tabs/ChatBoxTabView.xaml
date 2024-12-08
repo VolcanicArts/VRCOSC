@@ -1,0 +1,41 @@
+﻿<UserControl x:Class="VRCOSC.App.UI.Views.Run.Tabs.ChatBoxTabView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+             xmlns:chatBox="clr-namespace:VRCOSC.App.UI.Views.ChatBox"
+             Loaded="ChatBoxTabView_OnLoaded"
+             mc:Ignorable="d">
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <chatBox:ChatBoxPreviewView HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <core:IconButton Icon="Solid_ArrowUpRightFromSquare" Width="35" Height="35" HorizontalAlignment="Right"
+                         ButtonColour="Gray"
+                         VerticalAlignment="Top" Margin="10" Click="PopoutChatBox_OnClick" />
+
+        </Grid>
+        <Border Grid.Row="2" Background="{StaticResource CBackground2}" CornerRadius="10" Padding="10" Height="45">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Margin="0 -2 0 0" FontSize="17" Foreground="{StaticResource CForeground1}" VerticalAlignment="Center" Text="Live Text:"/>
+                <TextBox Name="LiveTextTextBox" Grid.Column="2" FontSize="16" TextChanged="LiveTextTextBox_OnTextChanged"/>
+                <core:IconButton Grid.Column="4" ButtonColour="Blue" Icon="Solid_Eraser" Click="LiveTextEraser_OnClick"/>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

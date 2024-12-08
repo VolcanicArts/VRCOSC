@@ -1,0 +1,26 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:core="clr-namespace:VRCOSC.App.UI.Core">
+    <core:KeybindToStringConverter x:Key="KeybindToStringConverter" />
+    <Style TargetType="core:KeybindPicker">
+        <Setter Property="Focusable" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="core:KeybindPicker">
+                    <Border Name="Border" BorderBrush="{TemplateBinding Background}" Background="{TemplateBinding Background}"
+                            CornerRadius="5" BorderThickness="2">
+                        <TextBlock
+                            Text="{TemplateBinding Keybind, Converter={StaticResource KeybindToStringConverter}}"
+                            Foreground="{StaticResource CForeground1}" FontSize="{TemplateBinding FontSize}"
+                            HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource CRed}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

@@ -1,0 +1,67 @@
+﻿<UserControl x:Class="VRCOSC.App.UI.Views.AppDebug.AppDebugView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+             mc:Ignorable="d"
+             d:DesignWidth="1366" d:DesignHeight="748"
+             Background="Transparent">
+    <UserControl.Resources>
+        <core:RectSizeConverter x:Key="RectSizeConverter" />
+    </UserControl.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                  PanningMode="VerticalOnly" CanContentScroll="False">
+        <Grid x:Name="Grid" Margin="10" VerticalAlignment="Top">
+            <Grid.Clip>
+                <RectangleGeometry
+                    RadiusX="5"
+                    RadiusY="5">
+                    <RectangleGeometry.Rect>
+                        <MultiBinding Converter="{StaticResource RectSizeConverter}">
+                            <Binding Path="ActualWidth" ElementName="Grid" />
+                            <Binding Path="ActualHeight" ElementName="Grid" />
+                        </MultiBinding>
+                    </RectangleGeometry.Rect>
+                </RectangleGeometry>
+            </Grid.Clip>
+            <StackPanel>
+                <Border Background="{StaticResource CBackground1}" Padding="8 4">
+                    <TextBlock Text="Debug Panel"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource CForeground2}" />
+                </Border>
+                <Border Background="{StaticResource CBackground3}" Padding="8 4" Height="30">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="What port 9000 is currently bound to"
+                                   Foreground="{StaticResource CForeground1}"
+                                   VerticalAlignment="Center" FontSize="16" />
+                        <TextBlock Grid.Column="1" Text="{Binding Port9000BoundProcess.Value}" FontSize="16"
+                                   Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+                <Border Background="{StaticResource CBackground4}" Padding="8 4" Height="30">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Reload the modules from disk"
+                                   Foreground="{StaticResource CForeground1}" VerticalAlignment="Center"
+                                   FontSize="16" />
+                        <core:IconButton
+                            ButtonColour="Blue" Grid.Column="1" Click="ReloadModules_OnClick" Width="100"
+                            Icon="Solid_Rotate" />
+                    </Grid>
+                </Border>
+                <Border Background="{StaticResource CBackground1}" Height="5" />
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>
