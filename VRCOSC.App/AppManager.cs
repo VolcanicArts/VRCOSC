@@ -14,6 +14,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using org.mariuszgromada.math.mxparser;
 using Valve.VR;
+using VRCOSC.App.Actions.Files;
 using VRCOSC.App.Audio;
 using VRCOSC.App.Audio.Whisper;
 using VRCOSC.App.ChatBox;
@@ -31,6 +32,7 @@ using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Startup;
 using VRCOSC.App.UI.Themes;
+using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using VRCOSC.App.VRChatAPI;
@@ -413,19 +415,40 @@ public class AppManager
         await ModuleManager.GetInstance().StartAsync();
         VRChatLogReader.Start();
 
+        if (ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().Any())
+        {
+            if (string.IsNullOrWhiteSpace(SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SpeechModelPath)))
+            {
+                var result = MessageBox.Show("You have enabled modules that require the speech engine.\nWould you like to automatically set it up?", "Set Up Speech Engine?", MessageBoxButton.YesNo);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    await installSpeechModel();
+                }
+            }
+
+            SpeechEngine.Initialise();
+        }
+
         updateTask = new Repeater(update);
         updateTask.Start(TimeSpan.FromSeconds(1d / 60d));
 
         VRChatOscClient.OnParameterReceived += onParameterReceived;
         VRChatOscClient.EnableReceive();
 
-        if (ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().Any())
-            SpeechEngine.Initialise();
-
         State.Value = AppManagerState.Started;
 
         sendMetadataParameters();
         sendControlParameters();
+    }
+
+    private Task installSpeechModel()
+    {
+        var action = new FileDownloadAction(new Uri("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true"), Storage.GetStorageForDirectory("runtime/whisper"), "ggml-tiny.bin");
+
+        action.OnComplete += () => { SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = Storage.GetStorageForDirectory("runtime/whisper").GetFullPath("ggml-tiny.bin"); };
+
+        return MainWindow.GetInstance().ShowLoadingOverlay("Installing Model", action);
     }
 
     private void initialiseOSCClient(IPAddress sendAddress, int sendPort, IPAddress receiveAddress, int receivePort)
