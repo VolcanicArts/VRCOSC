@@ -13,12 +13,15 @@
     <core:HeaderFooterListView Margin="10" AlternationCount="2" ItemsSource="{Binding Instances}">
         <core:HeaderFooterListView.Header>
             <Border Background="{StaticResource CBackground1}"
-                    Padding="7" Height="35">
+                    Padding="7" Height="40">
                 <TextBlock Text="Startup Apps"
                            FontSize="18"
                            FontWeight="SemiBold"
                            Foreground="{StaticResource CForeground2}"
-                           Margin="0 -2 0 0"/>
+                           Margin="0 -2 0 0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Left"
+                           TextAlignment="Left"/>
             </Border>
         </core:HeaderFooterListView.Header>
         <ListView.ItemContainerStyle>

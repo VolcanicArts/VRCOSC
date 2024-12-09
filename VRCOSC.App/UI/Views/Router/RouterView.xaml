@@ -66,7 +66,6 @@
                                                 Grid.Column="0"
                                                 Text="{Binding Name.Value}"
                                                 Foreground="{StaticResource CForeground1}"
-                                                Background="{StaticResource CBackground1}"
                                                 FontSize="16"
                                                 VerticalAlignment="Center"
                                                 VerticalContentAlignment="Center">
@@ -75,22 +74,18 @@
                                                 Grid.Column="2"
                                                 Text="{Binding Endpoint.Value}"
                                                 Foreground="{StaticResource CForeground1}"
-                                                Background="{StaticResource CBackground1}"
                                                 FontSize="16"
                                                 VerticalAlignment="Center"
                                                 VerticalContentAlignment="Center">
                                             </core:IPPortTextBox>
-                                            <core:VRCOSCButton
+                                            <core:IconButton
                                                 Grid.Column="4"
                                                 ButtonColour="Red"
                                                 Width="28" Height="28"
                                                 Tag="{Binding}"
-                                                Click="RemoveInstance_OnClick">
-                                                <fa6:ImageAwesome
-                                                    Icon="Solid_Minus"
-                                                    PrimaryColor="{StaticResource CForeground1}"
-                                                    Margin="5" />
-                                            </core:VRCOSCButton>
+                                                Click="RemoveInstance_OnClick"
+                                                Icon="Solid_Minus">
+                                            </core:IconButton>
                                         </Grid>
                                     </Border>
                                 </ControlTemplate>
