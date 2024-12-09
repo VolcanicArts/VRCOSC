@@ -105,25 +105,32 @@ public partial class MainWindow
 
     private void backupV1Files()
     {
-        if (!storage.Exists("framework.ini")) return;
-
-        var sourceDir = storage.GetFullPath(string.Empty);
-        var destinationDir = storage.GetStorageForDirectory("v1-backup").GetFullPath(string.Empty);
-
-        foreach (var file in Directory.GetFiles(sourceDir))
+        try
         {
-            var fileName = Path.GetFileName(file);
-            var destFile = Path.Combine(destinationDir, fileName);
-            File.Move(file, destFile);
+            if (!storage.Exists("framework.ini")) return;
+
+            var sourceDir = storage.GetFullPath(string.Empty);
+            var destinationDir = storage.GetStorageForDirectory("v1-backup").GetFullPath(string.Empty);
+
+            foreach (var file in Directory.GetFiles(sourceDir))
+            {
+                var fileName = Path.GetFileName(file);
+                var destFile = Path.Combine(destinationDir, fileName);
+                File.Move(file, destFile, false);
+            }
+
+            foreach (var dir in Directory.GetDirectories(sourceDir))
+            {
+                var dirName = Path.GetFileName(dir);
+                if (dirName == "v1-backup") continue;
+
+                var destDir = Path.Combine(destinationDir, dirName);
+                Directory.Move(dir, destDir);
+            }
         }
-
-        foreach (var dir in Directory.GetDirectories(sourceDir))
+        catch (Exception e)
         {
-            var dirName = Path.GetFileName(dir);
-            if (dirName == "v1-backup") continue;
-
-            var destDir = Path.Combine(destinationDir, dirName);
-            Directory.Move(dir, destDir);
+            Logger.Error(e, "Could not backup V1 files");
         }
     }
 
