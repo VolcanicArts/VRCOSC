@@ -105,6 +105,9 @@
                             <RadioButton GroupName="TabBar" Click="RunButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_Play" />
                             </RadioButton>
+                            <RadioButton GroupName="TabBar" Click="StartupButton_OnClick">
+                                <fa6:ImageAwesome Icon="Solid_Share"/>
+                            </RadioButton>
                             <RadioButton GroupName="TabBar" Click="SettingsButton_OnClick" Visibility="Collapsed">
                                 <fa6:ImageAwesome Icon="Solid_UserGear" />
                             </RadioButton>

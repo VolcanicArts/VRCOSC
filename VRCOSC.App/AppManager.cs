@@ -29,6 +29,7 @@ using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Settings;
+using VRCOSC.App.Startup;
 using VRCOSC.App.UI.Themes;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
@@ -404,6 +405,7 @@ public class AppManager
     {
         State.Value = AppManagerState.Starting;
 
+        StartupManager.GetInstance().OpenFileLocations();
         RouterManager.GetInstance().Start();
         VRChatOscClient.EnableSend();
         ChatBoxManager.GetInstance().Start();

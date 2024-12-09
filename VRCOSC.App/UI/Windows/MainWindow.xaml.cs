@@ -22,6 +22,7 @@ using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
 using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
+using VRCOSC.App.Startup;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Views.AppDebug;
 using VRCOSC.App.UI.Views.AppSettings;
@@ -33,6 +34,7 @@ using VRCOSC.App.UI.Views.Profiles;
 using VRCOSC.App.UI.Views.Router;
 using VRCOSC.App.UI.Views.Run;
 using VRCOSC.App.UI.Views.Settings;
+using VRCOSC.App.UI.Views.Startup;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using Application = System.Windows.Application;
@@ -53,6 +55,7 @@ public partial class MainWindow
     public readonly RouterView RouterView;
     public readonly SettingsView SettingsView;
     public readonly ChatBoxView ChatBoxView;
+    public readonly StartupView StartupView;
     public readonly RunView RunView;
     public readonly AppDebugView AppDebugView;
     public readonly ProfilesView ProfilesView;
@@ -88,6 +91,7 @@ public partial class MainWindow
         RouterView = new RouterView();
         SettingsView = new SettingsView();
         ChatBoxView = new ChatBoxView();
+        StartupView = new StartupView();
         RunView = new RunView();
         AppDebugView = new AppDebugView();
         ProfilesView = new ProfilesView();
@@ -155,6 +159,7 @@ public partial class MainWindow
         loadingAction.AddAction(new DynamicProgressAction("Loading Modules", () => ModuleManager.GetInstance().LoadAllModules()));
         loadingAction.AddAction(new DynamicProgressAction("Loading ChatBox", () => ChatBoxManager.GetInstance().Load()));
         loadingAction.AddAction(new DynamicProgressAction("Loading Router", () => RouterManager.GetInstance().Load()));
+        loadingAction.AddAction(new DynamicProgressAction("Loading Startup", () => StartupManager.GetInstance().Load()));
 
         if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
         {
@@ -404,6 +409,11 @@ public partial class MainWindow
     private void ChatBoxButton_OnClick(object sender, RoutedEventArgs e)
     {
         setContent(ChatBoxView);
+    }
+
+    private void StartupButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setContent(StartupView);
     }
 
     private void RunButton_OnClick(object sender, RoutedEventArgs e)
