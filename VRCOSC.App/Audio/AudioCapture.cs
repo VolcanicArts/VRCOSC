@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Audio;
 
@@ -52,26 +53,34 @@ internal class AudioCapture
     {
         lock (lockObject)
         {
-            var targetWaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(16000, 1);
-            var inputFormat = capture.WaveFormat;
+            try
+            {
+                var targetFormat = WaveFormat.CreateIeeeFloatWaveFormat(16000, 1);
+                var inputFormat = capture.WaveFormat;
 
-            var bufferArray = buffer.ToArray();
-            var bytesRecorded = bufferArray.Length;
+                var bufferArray = buffer.ToArray();
+                var bytesRecorded = bufferArray.Length;
 
-            using var memoryStream = new MemoryStream(bufferArray, 0, bytesRecorded);
-            using var waveStream = new RawSourceWaveStream(memoryStream, inputFormat);
-            using var resampler = new MediaFoundationResampler(waveStream, targetWaveFormat);
-            resampler.ResamplerQuality = 60;
+                using var memoryStream = new MemoryStream(bufferArray, 0, bytesRecorded);
+                using var waveStream = new RawSourceWaveStream(memoryStream, inputFormat);
+                using var resampler = new MediaFoundationResampler(waveStream, targetFormat);
+                resampler.ResamplerQuality = 60;
 
-            var maxBytesNeeded = (int)(buffer.Length * (targetWaveFormat.SampleRate / (float)inputFormat.SampleRate) * (targetWaveFormat.BitsPerSample / (float)inputFormat.BitsPerSample) * (targetWaveFormat.Channels / (float)inputFormat.Channels));
-            var resampledBuffer = new byte[maxBytesNeeded];
-            var bytesRead = resampler.Read(resampledBuffer, 0, maxBytesNeeded);
+                var maxBytesNeeded = (int)(buffer.Length * (targetFormat.SampleRate / (float)inputFormat.SampleRate) * (targetFormat.BitsPerSample / (float)inputFormat.BitsPerSample) * (targetFormat.Channels / (float)inputFormat.Channels));
+                var resampledBuffer = new byte[maxBytesNeeded];
+                var bytesRead = resampler.Read(resampledBuffer, 0, maxBytesNeeded);
 
-            Array.Resize(ref resampledBuffer, bytesRead);
+                Array.Resize(ref resampledBuffer, bytesRead);
 
-            var floatArray = new float[resampledBuffer.Length / sizeof(float)];
-            Buffer.BlockCopy(resampledBuffer, 0, floatArray, 0, resampledBuffer.Length);
-            return floatArray;
+                var floatArray = new float[resampledBuffer.Length / sizeof(float)];
+                Buffer.BlockCopy(resampledBuffer, 0, floatArray, 0, resampledBuffer.Length);
+                return floatArray;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "The selected microphone has provided bad data");
+                return Array.Empty<float>();
+            }
         }
     }
 
