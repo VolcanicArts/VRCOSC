@@ -20,10 +20,10 @@ public class DateTimeClipVariable : ClipVariable
     [ClipVariableOption("datetime_format", "Date/Time Format", "How should the date/time be formatted?")]
     public string DateTimeFormat { get; set; } = "yyyy/MM/dd HH:mm:ss";
 
-    [ClipVariableOption("timezone_id", "Time Zone ID", "What timezone should this date/time be converted to?\nNote: Daylight savings is handled automatically")]
-    public string TimeZoneID { get; set; } = TimeZoneInfo.Local.Id;
+    [ClipVariableOption("timezone_id", "Time Zone ID", "What timezone should this date/time be converted to?\nLeave empty for your local timezone\nNote: Daylight savings is handled automatically")]
+    public string TimeZoneID { get; set; } = string.Empty;
 
-    public override bool IsDefault() => base.IsDefault() && DateTimeFormat == "yyyy/MM/dd HH:mm:ss" && TimeZoneID == TimeZoneInfo.Local.Id;
+    public override bool IsDefault() => base.IsDefault() && DateTimeFormat == "yyyy/MM/dd HH:mm:ss" && TimeZoneID == string.Empty;
 
     public override DateTimeClipVariable Clone()
     {
@@ -41,12 +41,21 @@ public class DateTimeClipVariable : ClipVariable
 
         try
         {
-            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
-            var convertedDateTime = TimeZoneInfo.ConvertTimeFromUtc(dateTimeValue.UtcDateTime, timeZoneInfo);
+            DateTime convertedDateTime;
+
+            if (string.IsNullOrEmpty(TimeZoneID))
+            {
+                convertedDateTime = TimeZoneInfo.ConvertTimeFromUtc(dateTimeValue.UtcDateTime, TimeZoneInfo.Local);
+            }
+            else
+            {
+                var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
+                convertedDateTime = TimeZoneInfo.ConvertTimeFromUtc(dateTimeValue.UtcDateTime, timeZoneInfo);
+            }
 
             try
             {
-                return convertedDateTime.ToString(DateTimeFormat, CultureInfo.CurrentCulture);
+                return convertedDateTime.ToString(DateTimeFormat, CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
