@@ -41,7 +41,7 @@ internal class AudioProcessor
         catch (Exception e)
         {
             whisper = null;
-            ExceptionHandler.Handle(e, "Please make sure the model path for Whisper is correct in the speech settings");
+            ExceptionHandler.Handle(e, "The Whisper model path is empty or incorrect. Please go into the app's speech settings and restore the model by clicking 'Auto Install Model'");
         }
 
         try
@@ -50,6 +50,7 @@ internal class AudioProcessor
         }
         catch (Exception e)
         {
+            audioCapture = null;
             ExceptionHandler.Handle(e);
         }
     }
@@ -59,8 +60,10 @@ internal class AudioProcessor
         speechResult = null;
         isProcessing = false;
 
-        audioCapture?.ClearBuffer();
-        audioCapture?.StartCapture();
+        if (whisper is null || audioCapture is null) return;
+
+        audioCapture.ClearBuffer();
+        audioCapture.StartCapture();
     }
 
     public void Stop()
