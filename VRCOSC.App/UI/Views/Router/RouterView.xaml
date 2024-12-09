@@ -19,22 +19,22 @@
                 <core:HeaderFooterListView.Header>
                     <Border Background="{StaticResource CBackground1}"
                             VerticalAlignment="Center"
-                            Padding="10 5 5 5">
+                            Height="40" Padding="7">
                         <Grid>
                             <TextBlock
                                 Text="Router"
-                                Foreground="{StaticResource CForeground1}"
-                                FontSize="20"
+                                Foreground="{StaticResource CForeground2}"
+                                FontSize="18"
                                 VerticalAlignment="Center"
                                 HorizontalAlignment="Left"
-                                FontWeight="DemiBold" />
+                                FontWeight="SemiBold" />
                             <core:VRCOSCButton
                                 ButtonColour="Blue"
                                 Foreground="{StaticResource CForeground1}"
                                 VerticalAlignment="Center"
                                 HorizontalAlignment="Right"
-                                Width="30"
-                                Height="30"
+                                Width="25"
+                                Height="25"
                                 Click="InfoButton_OnClick">
                                 <fa6:ImageAwesome
                                     Icon="Solid_Info"
@@ -58,73 +58,30 @@
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="5" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="5" />
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
-                                            <Grid Grid.Column="0">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="5" />
-                                                    <ColumnDefinition Width="*" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBox
-                                                    Grid.Column="0"
-                                                    Text="{Binding Name.Value}"
-                                                    Foreground="{StaticResource CForeground1}"
-                                                    Background="{StaticResource CBackground1}"
-                                                    BorderThickness="0"
-                                                    FontSize="16"
-                                                    HorizontalAlignment="Stretch"
-                                                    VerticalAlignment="Center"
-                                                    VerticalContentAlignment="Center">
-                                                    <b:Interaction.Behaviors>
-                                                        <core:InterceptManipulationEventsBehavior />
-                                                    </b:Interaction.Behaviors>
-                                                    <TextBox.Template>
-                                                        <ControlTemplate
-                                                            TargetType="TextBox">
-                                                            <Border
-                                                                Background="{TemplateBinding Background}"
-                                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                                CornerRadius="5"
-                                                                Padding="3 5">
-                                                                <ScrollViewer
-                                                                    x:Name="PART_ContentHost" />
-                                                            </Border>
-                                                        </ControlTemplate>
-                                                    </TextBox.Template>
-                                                </TextBox>
-                                                <core:IPPortTextBox
-                                                    Grid.Column="2"
-                                                    Text="{Binding Endpoint.Value}"
-                                                    Foreground="{StaticResource CForeground1}"
-                                                    Background="{StaticResource CBackground1}"
-                                                    BorderThickness="0"
-                                                    FontSize="16"
-                                                    HorizontalAlignment="Stretch"
-                                                    VerticalAlignment="Center"
-                                                    VerticalContentAlignment="Center">
-                                                    <b:Interaction.Behaviors>
-                                                        <core:InterceptManipulationEventsBehavior />
-                                                    </b:Interaction.Behaviors>
-                                                    <TextBox.Template>
-                                                        <ControlTemplate
-                                                            TargetType="TextBox">
-                                                            <Border 
-                                                                Background="{TemplateBinding Background}"
-                                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                                CornerRadius="5"
-                                                                Padding="3 5">
-                                                                <ScrollViewer
-                                                                    x:Name="PART_ContentHost" />
-                                                            </Border>
-                                                        </ControlTemplate>
-                                                    </TextBox.Template>
-                                                </core:IPPortTextBox>
-                                            </Grid>
-                                            <core:VRCOSCButton
+                                            <TextBox
+                                                Grid.Column="0"
+                                                Text="{Binding Name.Value}"
+                                                Foreground="{StaticResource CForeground1}"
+                                                Background="{StaticResource CBackground1}"
+                                                FontSize="16"
+                                                VerticalAlignment="Center"
+                                                VerticalContentAlignment="Center">
+                                            </TextBox>
+                                            <core:IPPortTextBox
                                                 Grid.Column="2"
+                                                Text="{Binding Endpoint.Value}"
+                                                Foreground="{StaticResource CForeground1}"
+                                                Background="{StaticResource CBackground1}"
+                                                FontSize="16"
+                                                VerticalAlignment="Center"
+                                                VerticalContentAlignment="Center">
+                                            </core:IPPortTextBox>
+                                            <core:VRCOSCButton
+                                                Grid.Column="4"
                                                 ButtonColour="Red"
                                                 Width="28" Height="28"
                                                 Tag="{Binding}"
@@ -142,12 +99,10 @@
                     </Style>
                 </ListView.ItemContainerStyle>
                 <core:HeaderFooterListView.Footer>
-                    <Border Background="{StaticResource CBackground1}" Padding="5">
-                        <core:VRCOSCButton ButtonColour="Green" Height="25" Width="100" CornerRadius="5"
-                                           Click="AddInstance_OnClick">
-                            <fa6:ImageAwesome Icon="Solid_Plus" Margin="5"
-                                              PrimaryColor="{StaticResource CForeground1}" />
-                        </core:VRCOSCButton>
+                    <Border Height="35" Padding="7" Background="{StaticResource CBackground1}">
+                        <core:IconButton ButtonColour="Green" Width="70"
+                                         Icon="Solid_Plus"
+                                         Click="AddInstance_OnClick" />
                     </Border>
                 </core:HeaderFooterListView.Footer>
             </core:HeaderFooterListView>
