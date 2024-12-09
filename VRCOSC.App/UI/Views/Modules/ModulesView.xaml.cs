@@ -13,7 +13,9 @@ namespace VRCOSC.App.UI.Views.Modules;
 
 public partial class ModulesView
 {
-    private WindowManager windowManager;
+    private WindowManager settingsWindowManager = null!;
+    private WindowManager parametersWindowManager = null!;
+    private WindowManager prefabsWindowManager = null!;
 
     public ModulesView()
     {
@@ -24,7 +26,9 @@ public partial class ModulesView
 
     private void ModulesView_OnLoaded(object sender, RoutedEventArgs e)
     {
-        windowManager = new WindowManager(this);
+        settingsWindowManager = new WindowManager(this);
+        parametersWindowManager = new WindowManager(this);
+        prefabsWindowManager = new WindowManager(this);
     }
 
     private void ImportButton_OnClick(object sender, RoutedEventArgs e)
@@ -49,7 +53,7 @@ public partial class ModulesView
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        windowManager.TrySpawnChild(new ModuleParametersWindow(module));
+        parametersWindowManager.TrySpawnChild(new ModuleParametersWindow(module));
     }
 
     private void SettingsButton_OnClick(object sender, RoutedEventArgs e)
@@ -57,7 +61,7 @@ public partial class ModulesView
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        windowManager.TrySpawnChild(new ModuleSettingsWindow(module));
+        settingsWindowManager.TrySpawnChild(new ModuleSettingsWindow(module));
     }
 
     private void InfoButton_OnClick(object sender, RoutedEventArgs e)
@@ -73,6 +77,6 @@ public partial class ModulesView
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        windowManager.TrySpawnChild(new ModulePrefabsWindow(module));
+        prefabsWindowManager.TrySpawnChild(new ModulePrefabsWindow(module));
     }
 }
