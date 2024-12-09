@@ -184,7 +184,7 @@
                                                                                                         HorizontalAlignment="Left"
                                                                                                         VerticalAlignment="Center"
                                                                                                         Text="{Binding DisplayNameWithModule}"
-                                                                                                        Margin="0 -2 0 0" />
+                                                                                                        Margin="0 -3 0 0" />
                                                                                                 </core:SpacedStackPanel>
                                                                                                 <fa6:ImageAwesome
                                                                                                     Icon="Solid_GripLines"
@@ -396,7 +396,7 @@
                                                                                                         HorizontalAlignment="Left"
                                                                                                         VerticalAlignment="Center"
                                                                                                         Text="{Binding DisplayNameWithModule}"
-                                                                                                        Margin="0 -2 0 0" />
+                                                                                                        Margin="0 -3 0 0" />
                                                                                                 </core:SpacedStackPanel>
                                                                                                 <fa6:ImageAwesome
                                                                                                     Icon="Solid_GripLines"

@@ -26,7 +26,7 @@ public class RouterManager
 
     private bool started;
 
-    public RouterManager()
+    private RouterManager()
     {
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new RouterManagerSerialiser(AppManager.GetInstance().Storage, this));
@@ -37,21 +37,18 @@ public class RouterManager
         started = false;
         Routes.Clear();
 
-        Routes.CollectionChanged += (_, e) =>
-        {
-            if (e.NewItems is not null)
-            {
-                foreach (RouterInstance routerInstance in e.NewItems)
-                {
-                    routerInstance.Name.Subscribe(_ => serialisationManager.Serialise());
-                    routerInstance.Endpoint.Subscribe(_ => serialisationManager.Serialise());
-                }
-            }
-
-            serialisationManager.Serialise();
-        };
-
         serialisationManager.Deserialise();
+
+        Routes.OnCollectionChanged((newItems, _) =>
+        {
+            foreach (var newInstance in newItems)
+            {
+                newInstance.Name.Subscribe(_ => serialisationManager.Serialise());
+                newInstance.Endpoint.Subscribe(_ => serialisationManager.Serialise());
+            }
+        }, true);
+
+        Routes.OnCollectionChanged((_, _) => serialisationManager.Serialise());
     }
 
     public void Start()

@@ -114,6 +114,7 @@ public partial class ChatBoxClipEditWindow
         var variableInstance = (ClipVariable)element.Tag;
 
         var clipVariableWindow = new ClipVariableEditWindow(variableInstance);
+        clipVariableWindow.SetPosition(this, ScreenChoice.SameAsParent, HorizontalPosition.Center, VerticalPosition.Center);
         clipVariableWindow.ShowDialog();
     }
 

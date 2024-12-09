@@ -11,8 +11,6 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Heartrate;
 
-[ModuleType(ModuleType.Health)]
-[ModulePrefab("VRCOSC-Heartrate", "https://github.com/VolcanicArts/VRCOSC/releases/download/2024.220.1/VRCOSC-Heartrate-2023.629.0.unitypackage")]
 public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 {
     protected T? HeartrateProvider;

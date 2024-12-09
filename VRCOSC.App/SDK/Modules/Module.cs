@@ -925,16 +925,7 @@ public abstract class Module
                 ExceptionHandler.Handle(e, $"Module {FullID} experienced an exception calling {nameof(OnAnyParameterReceived)}");
             }
 
-            string? parameterName = null;
-
-            foreach (var parameter in Parameters.Values)
-            {
-                var match = parameterNameRegex[parameter.Name.Value].Match(receivedParameter.Name);
-                if (!match.Success) continue;
-
-                parameterName = match.Groups[1].Captures[0].Value;
-            }
-
+            var parameterName = Parameters.Values.FirstOrDefault(parameter => parameterNameRegex[parameter.Name.Value].Match(receivedParameter.Name).Success)?.Name.Value;
             if (parameterName is null) return;
 
             if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;

@@ -174,6 +174,7 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
         SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedMicrophoneID).Subscribe(updateDeviceListAndSelection, true);
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Subscribe(value => UsingCustomEndpoints.Value = value ? Visibility.Visible : Visibility.Collapsed, true);
+        SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Subscribe(_ => OnPropertyChanged(nameof(WhisperModelFilePath)));
 
         setPage(0);
     }

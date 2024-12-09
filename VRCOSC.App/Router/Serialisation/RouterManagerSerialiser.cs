@@ -8,6 +8,7 @@ namespace VRCOSC.App.Router.Serialisation;
 
 public class RouterManagerSerialiser : ProfiledSerialiser<RouterManager, SerialisableRouterManager>
 {
+    protected override string Directory => "configuration";
     protected override string FileName => "router.json";
 
     public RouterManagerSerialiser(Storage storage, RouterManager reference)

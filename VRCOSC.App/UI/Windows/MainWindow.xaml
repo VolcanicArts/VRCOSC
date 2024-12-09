@@ -95,22 +95,25 @@
                             <RadioButton GroupName="TabBar" Click="ModulesButton_OnClick" IsChecked="True">
                                 <fa6:ImageAwesome Icon="Solid_List" />
                             </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="RouterButton_OnClick"
-                                         Visibility="{Binding ShowRouter.Value, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <fa6:ImageAwesome Icon="Solid_ShareNodes" />
-                            </RadioButton>
                             <RadioButton GroupName="TabBar" Click="ChatBoxButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_Message" />
                             </RadioButton>
                             <RadioButton GroupName="TabBar" Click="RunButton_OnClick">
                                 <fa6:ImageAwesome Icon="Solid_Play" />
                             </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="SettingsButton_OnClick" Visibility="Collapsed">
-                                <fa6:ImageAwesome Icon="Solid_UserGear" />
+                            <RadioButton GroupName="TabBar" Click="StartupButton_OnClick">
+                                <fa6:ImageAwesome Icon="Solid_Share"/>
+                            </RadioButton>
+                            <RadioButton GroupName="TabBar" Click="RouterButton_OnClick"
+                                         Visibility="{Binding ShowRouter.Value, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <fa6:ImageAwesome Icon="Solid_ShareNodes" />
                             </RadioButton>
                             <RadioButton GroupName="TabBar" Click="DebugButton_OnClick"
                                          Visibility="{Binding ShowAppDebug.Value, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <fa6:ImageAwesome Icon="Solid_Bug" />
+                            </RadioButton>
+                            <RadioButton GroupName="TabBar" Click="SettingsButton_OnClick" Visibility="Collapsed">
+                                <fa6:ImageAwesome Icon="Solid_UserGear" />
                             </RadioButton>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
