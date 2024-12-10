@@ -56,11 +56,12 @@ public class ProfileManager : INotifyPropertyChanged
     }
 
     public void Serialise() => serialisationManager.Serialise();
-    public void Deserialise() => serialisationManager.Deserialise();
 
     public void Load()
     {
-        serialisationManager.Deserialise(false);
+        Logger.Log("Loading profiles");
+        var deserialisationResult = serialisationManager.Deserialise(false);
+        Logger.Log($"Profiles ended in {deserialisationResult}");
 
         checkForDefault();
 
@@ -115,6 +116,8 @@ public class ProfileManager : INotifyPropertyChanged
     private void checkForDefault()
     {
         if (Profiles.Any()) return;
+
+        Logger.Log("Setting up default profile");
 
         var defaultProfile = new Profile
         {
