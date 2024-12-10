@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -45,7 +45,7 @@ public class FloatClipVariable : ClipVariable
         if (float.IsPositiveInfinity(floatValue)) return "\u221e";
         if (float.IsNegativeInfinity(floatValue)) return "-\u221e";
 
-        if (Mode == FloatVariableMode.Standard)
+        if (Mode == FloatVariableMode.Standard || SymbolList.Count == 0)
         {
             try
             {
