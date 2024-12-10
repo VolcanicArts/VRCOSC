@@ -24,12 +24,13 @@ public partial class ChatBoxClipEditWindow
 
     public bool ShowRelevantModules
     {
-        get => SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ShowRelevantElementsOnly);
+        get => SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.FilterByEnabledModules);
         set
         {
-            SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.ShowRelevantElementsOnly).Value = value;
+            SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.FilterByEnabledModules).Value = value;
             ReferenceClip.States.ForEach(clipState => clipState.UpdateUI());
             ReferenceClip.Events.ForEach(clipEvent => clipEvent.UpdateUI());
+            ReferenceClip.UpdateUI();
         }
     }
 
@@ -40,22 +41,20 @@ public partial class ChatBoxClipEditWindow
         DataContext = referenceClip;
         ReferenceClip = referenceClip;
 
-        ModulesList.ItemsSource = ModuleManager.GetInstance().Modules.Values.SelectMany(moduleList => moduleList).Where(module => ChatBoxManager.GetInstance().DoesModuleHaveStates(module.FullID)).OrderBy(module => module.IsRemote).ThenBy(module => module.PackageID).ThenBy(module => module.Title);
+        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.FilterByEnabledModules).Subscribe(() =>
+        {
+            var selectableModules = ModuleManager.GetInstance().Modules.Values.SelectMany(moduleList => moduleList)
+                                                 .Where(module => ChatBoxManager.GetInstance().DoesModuleHaveStates(module.FullID))
+                                                 .Where(module => module.Enabled.Value || !SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.FilterByEnabledModules))
+                                                 .OrderBy(module => module.IsRemote).ThenBy(module => module.PackageID).ThenBy(module => module.Title).ToList();
+
+            ModulesList.ItemsSource = selectableModules;
+            SelectListPrompt.Visibility = selectableModules.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        }, true);
+
         ShowRelevantModulesCheckBox.DataContext = this;
 
         ReferenceClip.Name.Subscribe(newName => Title = $"Editing {newName} Clip", true);
-    }
-
-    private void OnLoaded(object sender, RoutedEventArgs e)
-    {
-        for (var index = 0; index < ModulesList.Items.Count; index++)
-        {
-            var listViewItem = ModulesList.ItemContainerGenerator.ContainerFromIndex(index);
-            var module = (Module)ModulesList.Items[index];
-
-            var isLinkedCheckBox = listViewItem.FindVisualChild<CheckBox>("IsLinkedCheckBox")!;
-            isLinkedCheckBox.IsChecked = ReferenceClip.LinkedModules.Contains(module.FullID);
-        }
     }
 
     private void OnClosed(object? sender, EventArgs e)
@@ -267,4 +266,19 @@ public class TextBoxParsingConverter : IValueConverter
 
         return value;
     }
+}
+
+public class IsModuleSelectedConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is Module module)
+        {
+            return MainWindow.GetInstance().ChatBoxView.SelectedClip!.LinkedModules.Contains(module.FullID);
+        }
+
+        return false;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }

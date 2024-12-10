@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.ChatBox.Clips;
@@ -47,7 +48,7 @@ public class Clip : INotifyPropertyChanged
             ChatBoxManager.GetInstance().VariableReferences.Where(clipVariableReference => clipVariableReference.ModuleID is null).OrderBy(reference => reference.DisplayName.Value).ForEach(clipVariableReference => builtInVariables.Add(clipVariableReference));
             finalDict.Add("Built-In", builtInVariables);
 
-            var modules = LinkedModules.Select(moduleID => ModuleManager.GetInstance().GetModuleOfID(moduleID)).OrderBy(module => module.Title);
+            var modules = LinkedModules.Select(moduleID => ModuleManager.GetInstance().GetModuleOfID(moduleID)).Where(module => module.Enabled.Value || !SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.FilterByEnabledModules)).OrderBy(module => module.Title);
 
             foreach (var module in modules)
             {
@@ -56,6 +57,11 @@ public class Clip : INotifyPropertyChanged
 
             return finalDict;
         }
+    }
+
+    public void UpdateUI()
+    {
+        OnPropertyChanged(nameof(UIVariables));
     }
 
     public bool HasStates => States.Any();

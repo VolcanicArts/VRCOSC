@@ -62,7 +62,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.UpdateChannel, UpdateChannel.Live);
         setDefault(VRCOSCSetting.ChatBoxSendInterval, 1500);
         setDefault(VRCOSCSetting.ChatBoxWorldBlacklist, true);
-        setDefault(VRCOSCSetting.ShowRelevantElementsOnly, true);
+        setDefault(VRCOSCSetting.FilterByEnabledModules, true);
         setDefault(VRCOSCSetting.Theme, Theme.Dark);
         setDefault(VRCOSCSetting.OutgoingEndpoint, "127.0.0.1:9000");
         setDefault(VRCOSCSetting.IncomingEndpoint, "127.0.0.1:9001");
@@ -129,7 +129,7 @@ public enum VRCOSCSetting
     UpdateChannel,
     ChatBoxSendInterval,
     ChatBoxWorldBlacklist,
-    ShowRelevantElementsOnly,
+    FilterByEnabledModules,
     Theme,
     OutgoingEndpoint,
     IncomingEndpoint,

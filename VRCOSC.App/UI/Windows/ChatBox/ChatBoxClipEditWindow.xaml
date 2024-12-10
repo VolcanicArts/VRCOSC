@@ -10,7 +10,6 @@
         xmlns:chatBox1="clr-namespace:VRCOSC.App.UI.Windows.ChatBox"
         mc:Ignorable="d"
         Width="1366" Height="768" MinWidth="1200" MinHeight="540"
-        Loaded="OnLoaded"
         Closed="OnClosed">
     <Window.Resources>
         <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
@@ -19,6 +18,7 @@
                                          Colour2="{StaticResource CBackground2}" />
         <chatBox:BoolToThicknessConverter x:Key="BoolToThicknessConverter" />
         <core:IndexConverter x:Key="IndexConverter"/>
+        <chatBox1:IsModuleSelectedConverter x:Key="IsModuleSelectedConverter"/>
     </Window.Resources>
     <Grid>
         <Border Padding="10" Background="{StaticResource CBackground2}">
@@ -32,54 +32,58 @@
                 </Grid.ColumnDefinitions>
                 <!--> Module Selection <-->
                 <Border Grid.Column="0" Background="{StaticResource CBackground5}" CornerRadius="5">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
-                                  PanningMode="VerticalOnly">
-                        <core:SpacedStackPanel Spacing="10" Margin="5">
-                            <TextBlock Text="Select Modules" FontWeight="Bold" FontSize="18"
-                                       Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
-                            <core:SpacedListView x:Name="ModulesList" Spacing="5">
-                                <b:Interaction.Behaviors>
-                                    <core:IgnoreMouseWheelBehavior />
-                                </b:Interaction.Behaviors>
-                                <ListView.ItemContainerStyle>
-                                    <Style TargetType="ListViewItem">
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate>
-                                                    <Border Height="30" Background="{StaticResource CBackground7}"
-                                                            CornerRadius="5">
-                                                        <Grid>
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="*" />
-                                                                <ColumnDefinition Width="Auto" />
-                                                            </Grid.ColumnDefinitions>
-                                                            <TextBlock Grid.Column="0" FontSize="15"
-                                                                       Foreground="{StaticResource CForeground1}"
-                                                                       Text="{Binding TitleWithPackage, Mode=OneWay}"
-                                                                       HorizontalAlignment="Left"
-                                                                       Padding="5" />
-                                                            <core:VRCOSCCheckBox Name="IsLinkedCheckBox"
-                                                                Grid.Column="1"
-                                                                Width="25" Height="25"
-                                                                Margin="2.5"
-                                                                HorizontalAlignment="Right"
-                                                                VerticalAlignment="Center"
-                                                                Checked="ModuleSelectionCheckBox_Checked"
-                                                                Unchecked="ModuleSelectionCheckBox_UnChecked">
-                                                                <CheckBox.Tag>
-                                                                    <Binding />
-                                                                </CheckBox.Tag>
-                                                            </core:VRCOSCCheckBox>
-                                                        </Grid>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                            </core:SpacedListView>
-                        </core:SpacedStackPanel>
-                    </ScrollViewer>
+                    <Grid>
+                        <TextBlock x:Name="SelectListPrompt" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" FontSize="22" FontWeight="DemiBold" Foreground="{StaticResource CForeground1}" Margin="50" Text="Enable Some Modules!" TextWrapping="WrapWithOverflow"/>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                      PanningMode="VerticalOnly">
+                            <core:SpacedStackPanel Spacing="10" Margin="5">
+                                <TextBlock Text="Select Modules" FontWeight="Bold" FontSize="18"
+                                           Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
+                                <core:SpacedListView x:Name="ModulesList" Spacing="5">
+                                    <b:Interaction.Behaviors>
+                                        <core:IgnoreMouseWheelBehavior />
+                                    </b:Interaction.Behaviors>
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate>
+                                                        <Border Height="30" Background="{StaticResource CBackground7}"
+                                                                CornerRadius="5">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*" />
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Grid.Column="0" FontSize="15"
+                                                                           Foreground="{StaticResource CForeground1}"
+                                                                           Text="{Binding TitleWithPackage, Mode=OneWay}"
+                                                                           HorizontalAlignment="Left"
+                                                                           Padding="5" />
+                                                                <core:VRCOSCCheckBox Name="IsLinkedCheckBox"
+                                                                    Grid.Column="1"
+                                                                    Width="25" Height="25"
+                                                                    Margin="2.5"
+                                                                    HorizontalAlignment="Right"
+                                                                    VerticalAlignment="Center"
+                                                                    Checked="ModuleSelectionCheckBox_Checked"
+                                                                    Unchecked="ModuleSelectionCheckBox_UnChecked"
+                                                                    IsChecked="{Binding Mode=OneWay, Converter={StaticResource IsModuleSelectedConverter}}">
+                                                                    <CheckBox.Tag>
+                                                                        <Binding />
+                                                                    </CheckBox.Tag>
+                                                                </core:VRCOSCCheckBox>
+                                                            </Grid>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                </core:SpacedListView>
+                            </core:SpacedStackPanel>
+                        </ScrollViewer>
+                    </Grid>
                 </Border>
                 <!--> Center <-->
                 <Grid Grid.Column="2">
@@ -580,7 +584,7 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" HorizontalAlignment="Left"
-                                           Text="Show Relevant Elements Only" FontSize="15" Padding="5"
+                                           Text="Filter By Enabled Modules" FontSize="15" Padding="5"
                                            Foreground="{StaticResource CForeground1}" />
                                 <core:VRCOSCCheckBox Grid.Column="2" x:Name="ShowRelevantModulesCheckBox"
                                                      IsChecked="{Binding ShowRelevantModules}"
