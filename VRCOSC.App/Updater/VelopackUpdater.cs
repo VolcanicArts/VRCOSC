@@ -27,7 +27,7 @@ public class VelopackUpdater
         {
             constructUpdateManager();
             await CheckForUpdatesAsync();
-            ShowUpdateIfAvailable();
+            await ShowUpdateIfAvailable();
         });
 
         constructUpdateManager();
@@ -45,23 +45,19 @@ public class VelopackUpdater
         });
     }
 
-    public async Task<bool> CheckForUpdatesAsync()
+    public bool IsInstalled() => updateManager.IsInstalled;
+
+    public async Task CheckForUpdatesAsync()
     {
         Logger.Log("Checking for update");
 
-        if (!updateManager.IsInstalled)
-        {
-            Logger.Log("Portable app detected. Cancelling update check");
-            updateInfo = null;
-            return false;
-        }
+        if (!IsInstalled()) return;
 
         updateInfo = await updateManager.CheckForUpdatesAsync();
         Logger.Log(updateInfo is null ? "No updates available" : "Updates available");
-        return updateInfo is not null;
     }
 
-    public async void ShowUpdateIfAvailable()
+    public async Task ShowUpdateIfAvailable()
     {
         if (!IsUpdateAvailable) return;
 

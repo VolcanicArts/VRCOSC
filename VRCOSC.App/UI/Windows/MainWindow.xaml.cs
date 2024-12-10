@@ -50,40 +50,68 @@ public partial class MainWindow
 {
     public static MainWindow GetInstance() => (MainWindow)Application.Current.MainWindow;
 
-    public readonly PackagesView PackagesView;
-    public readonly ModulesView ModulesView;
-    public readonly RouterView RouterView;
-    public readonly SettingsView SettingsView;
-    public readonly ChatBoxView ChatBoxView;
-    public readonly StartupView StartupView;
-    public readonly RunView RunView;
-    public readonly AppDebugView AppDebugView;
-    public readonly ProfilesView ProfilesView;
-    public readonly AppSettingsView AppSettingsView;
-    public readonly InformationView InformationView;
+    public PackagesView PackagesView = null!;
+    public ModulesView ModulesView = null!;
+    public RouterView RouterView = null!;
+    public SettingsView SettingsView = null!;
+    public ChatBoxView ChatBoxView = null!;
+    public StartupView StartupView = null!;
+    public RunView RunView = null!;
+    public AppDebugView AppDebugView = null!;
+    public ProfilesView ProfilesView = null!;
+    public AppSettingsView AppSettingsView = null!;
+    public InformationView InformationView = null!;
 
     private readonly Storage storage = AppManager.GetInstance().Storage;
+    private VelopackUpdater velopackUpdater = null!;
 
     public Observable<bool> ShowAppDebug { get; } = new();
     public Observable<bool> ShowRouter { get; } = new();
 
     public MainWindow()
     {
-        backupV1Files();
+        InitializeComponent();
+        DataContext = this;
 
+        backupV1Files();
+        setupTrayIcon();
+        startApp();
+    }
+
+    private async void startApp()
+    {
         SettingsManager.GetInstance().Load();
+
+        velopackUpdater = new VelopackUpdater();
+
+        if (!velopackUpdater.IsInstalled())
+        {
+            Logger.Log("Portable app detected. Cancelling update check");
+        }
+        else
+        {
+            var updateLoadingAction = new DynamicAsyncProgressAction("Gathering remote info", () => velopackUpdater.CheckForUpdatesAsync());
+            await ShowLoadingOverlay("Checking For Updates", updateLoadingAction);
+
+            if (velopackUpdater.IsUpdateAvailable)
+            {
+                await velopackUpdater.ShowUpdateIfAvailable();
+                return;
+            }
+
+            await Task.Delay(200);
+        }
+
+        Logger.Log("No updates. Proceeding with loading");
+
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableRouter).Subscribe(newValue => ShowRouter.Value = newValue, true);
 
         AppManager.GetInstance().Initialise();
 
-        InitializeComponent();
-        DataContext = this;
-
         var installedUpdateChannel = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCMetadata.InstalledUpdateChannel);
         Title = installedUpdateChannel == UpdateChannel.Beta ? $"{AppManager.APP_NAME} {AppManager.Version} BETA" : $"{AppManager.APP_NAME} {AppManager.Version}";
 
-        setupTrayIcon();
         copyOpenVrFiles();
 
         PackagesView = new PackagesView();
@@ -100,7 +128,7 @@ public partial class MainWindow
 
         setContent(ModulesView);
 
-        load();
+        await load();
     }
 
     private void backupV1Files()
@@ -134,11 +162,9 @@ public partial class MainWindow
         }
     }
 
-    private void load()
+    private async Task load()
     {
         var loadingAction = new CompositeProgressAction();
-
-        loadingAction.AddAction(new DynamicAsyncProgressAction("Checking for updates", () => AppManager.GetInstance().VelopackUpdater.CheckForUpdatesAsync()));
         loadingAction.AddAction(PackageManager.GetInstance().Load());
 
         var installedVersion = SettingsManager.GetInstance().GetValue<string>(VRCOSCMetadata.InstalledVersion);
@@ -184,7 +210,7 @@ public partial class MainWindow
             });
         };
 
-        _ = ShowLoadingOverlay("Welcome to VRCOSC", loadingAction);
+        await ShowLoadingOverlay("Welcome to VRCOSC", loadingAction);
     }
 
     private void copyOpenVrFiles()

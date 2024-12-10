@@ -33,7 +33,6 @@ using VRCOSC.App.Settings;
 using VRCOSC.App.Startup;
 using VRCOSC.App.UI.Themes;
 using VRCOSC.App.UI.Windows;
-using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using VRCOSC.App.VRChatAPI;
 using Module = VRCOSC.App.SDK.Modules.Module;
@@ -59,7 +58,6 @@ public class AppManager
     public Observable<AppManagerState> State { get; } = new(AppManagerState.Stopped);
     public Observable<Theme> ProxyTheme { get; } = new(Theme.Dark);
 
-    public VelopackUpdater VelopackUpdater = null!;
     public ConnectionManager ConnectionManager = null!;
     public VRChatOscClient VRChatOscClient = null!;
     public VRChatClient VRChatClient = null!;
@@ -87,7 +85,6 @@ public class AppManager
     {
         SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Subscribe(theme => ProxyTheme.Value = theme, true);
 
-        VelopackUpdater = new VelopackUpdater();
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
@@ -163,8 +160,6 @@ public class AppManager
 
         openvrUpdateTask = new Repeater(updateOVRClient);
         openvrUpdateTask.Start(TimeSpan.FromSeconds(1d / 60d));
-
-        VelopackUpdater.ShowUpdateIfAvailable();
     }
 
     private void updateOVRClient()
