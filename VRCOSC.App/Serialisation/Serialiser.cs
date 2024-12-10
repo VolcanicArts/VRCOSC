@@ -36,19 +36,21 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
     public string FullPath => baseStorage.GetStorageForDirectory(Directory).GetFullPath(FileName);
     public bool DoesFileExist() => baseStorage.GetStorageForDirectory(Directory).Exists(FileName);
 
-    public bool TryGetVersion([NotNullWhen(true)] out int? version)
+    public bool TryGetVersion([NotNullWhen(true)] out int? version, string filePathOverride = "")
     {
-        if (!DoesFileExist())
+        if (string.IsNullOrEmpty(filePathOverride) && !DoesFileExist())
         {
             version = null;
             return false;
         }
 
+        var filePath = string.IsNullOrEmpty(filePathOverride) ? FullPath : filePathOverride;
+
         try
         {
             lock (serialisationLock)
             {
-                var data = JsonConvert.DeserializeObject<SerialisableVersion>(Encoding.Unicode.GetString(File.ReadAllBytes(FullPath)));
+                var data = performDeserialisation<SerialisableVersion>(filePath);
 
                 if (data is null)
                 {
@@ -75,7 +77,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         {
             lock (serialisationLock)
             {
-                var data = JsonConvert.DeserializeObject<TSerialisable>(Encoding.Unicode.GetString(File.ReadAllBytes(filePath)));
+                var data = performDeserialisation<TSerialisable>(filePath);
                 if (data is null) return DeserialisationResult.CorruptFile;
 
                 if (ExecuteAfterDeserialisation(data)) Serialise();
@@ -97,7 +99,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
             lock (serialisationLock)
             {
                 var data = (TSerialisable)Activator.CreateInstance(typeof(TSerialisable), Reference)!;
-                var bytes = Encoding.Unicode.GetBytes(JsonConvert.SerializeObject(data, Formatting.Indented));
+                var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data, Formatting.Indented));
                 using var stream = baseStorage.GetStorageForDirectory(Directory).CreateFileSafely(FileName);
                 stream.Write(bytes);
             }
@@ -108,6 +110,36 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         {
             ExceptionHandler.Handle(e, $"{GetType().Name} experienced an issue");
             return SerialisationResult.GenericError;
+        }
+    }
+
+    private T? performDeserialisation<T>(string filePath) where T : class
+    {
+        var bytes = File.ReadAllBytes(filePath);
+
+        if (bytes is [0xFF, 0xFE, ..])
+        {
+            bytes = bytes[2..];
+            Logger.Log("Skipping BOM");
+        }
+
+        try
+        {
+            // read legacy files encoded as UTF-16
+            return JsonConvert.DeserializeObject<T>(Encoding.Unicode.GetString(bytes));
+        }
+        catch
+        {
+            try
+            {
+                // read converted files encoded as UTF-8
+                return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(bytes));
+            }
+            catch
+            {
+                Logger.Log($"'{filePath}' was unable to be read as UTF8");
+                return null;
+            }
         }
     }
 

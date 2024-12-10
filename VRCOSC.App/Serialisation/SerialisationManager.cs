@@ -50,13 +50,13 @@ public class SerialisationManager
 
         foreach (var (version, serialiser) in serialisers.OrderBy(pair => pair.Key))
         {
-            if (!serialiser.TryGetVersion(out var foundVersion)) continue;
+            if (!serialiser.TryGetVersion(out var foundVersion, filePathOverride)) continue;
             if (version != foundVersion) continue;
 
             return deserialise(serialiser, filePathOverride);
         }
 
-        // Since we've got to this point that means the file is corrupt
+        // At this point the file is corrupt
         return DeserialisationResult.CorruptFile;
     }
 
