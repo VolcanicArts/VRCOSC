@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -84,14 +84,18 @@ public class ClipEvent : ClipElement
         Behaviour = new Observable<ClipEventBehaviour>(reference.DefaultBehaviour);
     }
 
-    public override ClipEvent Clone()
+    public override ClipEvent Clone(bool copySettings = true)
     {
-        var clone = (ClipEvent)base.Clone();
+        var clone = (ClipEvent)base.Clone(copySettings);
 
         clone.ModuleID = ModuleID;
         clone.EventID = EventID;
-        clone.Length.Value = Length.Value;
-        clone.Behaviour.Value = Behaviour.Value;
+
+        if (copySettings)
+        {
+            clone.Length.Value = Length.Value;
+            clone.Behaviour.Value = Behaviour.Value;
+        }
 
         return clone;
     }

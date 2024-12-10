@@ -46,15 +46,18 @@ public class ClipElement : INotifyPropertyChanged
         return localFormat;
     }
 
-    public virtual ClipElement Clone()
+    public virtual ClipElement Clone(bool copySettings = true)
     {
         var clone = (ClipElement)Activator.CreateInstance(GetType())!;
 
-        clone.Format.Value = Format.Value;
-        clone.Enabled.Value = Enabled.Value;
-        clone.ShowTyping.Value = ShowTyping.Value;
-        clone.UseMinimalBackground.Value = UseMinimalBackground.Value;
-        clone.Variables.AddRange(Variables.Select(variable => variable.Clone()));
+        if (copySettings)
+        {
+            clone.Format.Value = Format.Value;
+            clone.Enabled.Value = Enabled.Value;
+            clone.ShowTyping.Value = ShowTyping.Value;
+            clone.UseMinimalBackground.Value = UseMinimalBackground.Value;
+            clone.Variables.AddRange(Variables.Select(variable => variable.Clone()));
+        }
 
         return clone;
     }
