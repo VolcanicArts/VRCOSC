@@ -23,20 +23,20 @@ public class Repeater
 
         cancellationTokenSource = new CancellationTokenSource();
 
-        if (runOnceImmediately)
-        {
-            try
-            {
-                action.Invoke();
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e, $"{nameof(Repeater)} has experienced an exception");
-            }
-        }
-
         _ = Task.Run(async () =>
         {
+            if (runOnceImmediately)
+            {
+                try
+                {
+                    action.Invoke();
+                }
+                catch (Exception e)
+                {
+                    ExceptionHandler.Handle(e, $"{nameof(Repeater)} has experienced an exception");
+                }
+            }
+
             while (!cancellationTokenSource.Token.IsCancellationRequested)
             {
                 try
