@@ -284,6 +284,9 @@ public partial class MainWindow
         }
 
         OVRDeviceManager.GetInstance().Serialise();
+        RouterManager.GetInstance().Serialise();
+        StartupManager.GetInstance().Serialise();
+        SettingsManager.GetInstance().Serialise();
     }
 
     private void MainWindow_OnClosed(object? sender, EventArgs e)

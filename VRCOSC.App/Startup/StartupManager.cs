@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -25,6 +25,8 @@ public class StartupManager
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new StartupManagerSerialiser(AppManager.GetInstance().Storage, this));
     }
+
+    public void Serialise() => serialisationManager.Serialise();
 
     public void Load()
     {

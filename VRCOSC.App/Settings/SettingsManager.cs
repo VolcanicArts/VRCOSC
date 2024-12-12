@@ -28,6 +28,8 @@ public class SettingsManager
         serialisationManager.RegisterSerialiser(1, new SettingsManagerSerialiser(storage, this));
     }
 
+    public void Serialise() => serialisationManager.Serialise();
+
     public void Load()
     {
         writeDefaults();

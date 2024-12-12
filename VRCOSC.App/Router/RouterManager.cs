@@ -32,6 +32,8 @@ public class RouterManager
         serialisationManager.RegisterSerialiser(1, new RouterManagerSerialiser(AppManager.GetInstance().Storage, this));
     }
 
+    public void Serialise() => serialisationManager.Serialise();
+
     public void Load()
     {
         started = false;
