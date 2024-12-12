@@ -81,7 +81,7 @@ public class WhisperSpeechEngine : SpeechEngine
         if (result is null) return;
 
         // filter out things like [BLANK AUDIO]
-        if (result.Text.StartsWith('[') || result.Text.Contains('*')) return;
+        if (result.Text.StartsWith('[')) return;
 
         var requiredConfidence = SettingsManager.GetInstance().GetValue<float>(VRCOSCSetting.SpeechConfidence);
         if (result.Confidence < requiredConfidence) return;
