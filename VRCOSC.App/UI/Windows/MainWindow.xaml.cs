@@ -73,6 +73,7 @@ public partial class MainWindow
 
         backupV1Files();
         setupTrayIcon();
+        copyOpenVrFiles();
         startApp();
     }
 
@@ -95,19 +96,14 @@ public partial class MainWindow
                 await velopackUpdater.ExecuteUpdate();
                 return;
             }
+
+            Logger.Log("No updates. Proceeding with loading");
         }
-
-        Logger.Log("No updates. Proceeding with loading");
-
-        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
-        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableRouter).Subscribe(newValue => ShowRouter.Value = newValue, true);
 
         AppManager.GetInstance().Initialise();
 
         var installedUpdateChannel = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCMetadata.InstalledUpdateChannel);
         Title = installedUpdateChannel == UpdateChannel.Beta ? $"{AppManager.APP_NAME} {AppManager.Version} BETA" : $"{AppManager.APP_NAME} {AppManager.Version}";
-
-        copyOpenVrFiles();
 
         PackagesView = new PackagesView();
         ModulesView = new ModulesView();
@@ -121,6 +117,9 @@ public partial class MainWindow
         InformationView = new InformationView();
 
         setContent(ModulesView);
+
+        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
+        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableRouter).Subscribe(newValue => ShowRouter.Value = newValue, true);
 
         await load();
     }
