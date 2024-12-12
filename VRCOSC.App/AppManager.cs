@@ -152,13 +152,13 @@ public class AppManager
         VRChatOscClient.Init(ConnectionManager);
         ConnectionManager.Init();
 
-        vrchatCheckTask = new Repeater(checkForVRChatAutoStart);
+        vrchatCheckTask = new Repeater($"{nameof(AppManager)}-{nameof(checkForVRChatAutoStart)}", checkForVRChatAutoStart);
         vrchatCheckTask.Start(TimeSpan.FromSeconds(2));
 
-        openvrCheckTask = new Repeater(checkForOpenVR);
+        openvrCheckTask = new Repeater($"{nameof(AppManager)}-{nameof(checkForOpenVR)}", checkForOpenVR);
         openvrCheckTask.Start(TimeSpan.FromSeconds(2));
 
-        openvrUpdateTask = new Repeater(updateOVRClient);
+        openvrUpdateTask = new Repeater($"{nameof(AppManager)}-{nameof(updateOVRClient)}", updateOVRClient);
         openvrUpdateTask.Start(TimeSpan.FromSeconds(1d / 60d));
     }
 
@@ -425,7 +425,7 @@ public class AppManager
             SpeechEngine.Initialise();
         }
 
-        updateTask = new Repeater(update);
+        updateTask = new Repeater($"{nameof(AppManager)}-{nameof(update)}", update);
         updateTask.Start(TimeSpan.FromSeconds(1d / 60d));
 
         VRChatOscClient.OnParameterReceived += onParameterReceived;

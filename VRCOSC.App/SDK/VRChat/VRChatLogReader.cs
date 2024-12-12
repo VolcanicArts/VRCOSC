@@ -45,7 +45,7 @@ internal class VRChatLogReader
             return;
         }
 
-        processTask = new Repeater(process);
+        processTask = new Repeater($"{nameof(VRChatLogReader)}-{nameof(process)}", process);
         processTask.Start(TimeSpan.FromMilliseconds(200), true);
     }
 

@@ -266,7 +266,7 @@ public abstract class Module
                 switch (updateAttribute.Mode)
                 {
                     case ModuleUpdateMode.Custom:
-                        var updateTask = new Repeater(() => invokeMethod(method));
+                        var updateTask = new Repeater($"{nameof(Module)}-{nameof(invokeMethod)}", () => invokeMethod(method));
                         updateTask.Start(TimeSpan.FromMilliseconds(updateAttribute.DeltaMilliseconds), updateAttribute.UpdateImmediately);
                         updateTasks.Add(updateTask);
                         break;

@@ -66,7 +66,7 @@ public class WhisperSpeechEngine : SpeechEngine
         audioProcessor = new AudioProcessor(captureDevice);
         audioProcessor.Start();
 
-        repeater = new Repeater(processResult);
+        repeater = new Repeater($"{nameof(WhisperSpeechEngine)}-{nameof(processResult)}", processResult);
         // Do not change this from 1.5
         repeater.Start(TimeSpan.FromSeconds(1.5f));
     }
