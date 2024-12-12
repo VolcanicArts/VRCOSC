@@ -95,8 +95,6 @@ public partial class MainWindow
                 await velopackUpdater.ExecuteUpdate();
                 return;
             }
-
-            await Task.Delay(200);
         }
 
         Logger.Log("No updates. Proceeding with loading");
@@ -184,27 +182,31 @@ public partial class MainWindow
             loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().UpdateAllInstalledPackages()));
         }
 
-        loadingAction.AddAction(new DynamicProgressAction("Loading Profiles", () => ProfileManager.GetInstance().Load()));
-        loadingAction.AddAction(new DynamicProgressAction("Loading Modules", () => ModuleManager.GetInstance().LoadAllModules()));
-        loadingAction.AddAction(new DynamicProgressAction("Loading ChatBox", () => ChatBoxManager.GetInstance().Load()));
-        loadingAction.AddAction(new DynamicProgressAction("Loading Router", () => RouterManager.GetInstance().Load()));
-        loadingAction.AddAction(new DynamicProgressAction("Loading Startup", () => StartupManager.GetInstance().Load()));
+        loadingAction.AddAction(new DynamicProgressAction("Loading Managers", () =>
+        {
+            ProfileManager.GetInstance().Load();
+            ModuleManager.GetInstance().LoadAllModules();
+            ChatBoxManager.GetInstance().Load();
+            RouterManager.GetInstance().Load();
+            StartupManager.GetInstance().Load();
+        }));
 
         if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
         {
-            loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource, closeWindows: false)));
-            loadingAction.AddAction(new DynamicProgressAction(string.Empty, () => new FirstTimeInstallWindow().Show()));
+            loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource)));
         }
 
-        loadingAction.OnComplete += () =>
+        loadingAction.OnComplete += () => Dispatcher.Invoke(() =>
         {
-            Dispatcher.Invoke(() =>
+            if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
             {
+                new FirstTimeInstallWindow().Show();
                 SettingsManager.GetInstance().GetObservable<bool>(VRCOSCMetadata.FirstTimeSetupComplete).Value = true;
-                MainWindowContent.FadeInFromZero(500);
-                AppManager.GetInstance().InitialLoadComplete();
-            });
-        };
+            }
+
+            MainWindowContent.FadeInFromZero(500);
+            AppManager.GetInstance().InitialLoadComplete();
+        });
 
         await ShowLoadingOverlay("Welcome to VRCOSC", loadingAction);
     }
