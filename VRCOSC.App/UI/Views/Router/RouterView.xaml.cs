@@ -16,10 +16,9 @@ public partial class RouterView
 
     public RouterView()
     {
+        InitializeComponent();
         RouterManager = RouterManager.GetInstance();
         DataContext = this;
-
-        InitializeComponent();
     }
 
     private void AddInstance_OnClick(object sender, RoutedEventArgs e)

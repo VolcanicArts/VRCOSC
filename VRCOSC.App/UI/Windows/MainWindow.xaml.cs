@@ -33,7 +33,6 @@ using VRCOSC.App.UI.Views.Packages;
 using VRCOSC.App.UI.Views.Profiles;
 using VRCOSC.App.UI.Views.Router;
 using VRCOSC.App.UI.Views.Run;
-using VRCOSC.App.UI.Views.Settings;
 using VRCOSC.App.UI.Views.Startup;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
@@ -53,7 +52,6 @@ public partial class MainWindow
     public PackagesView PackagesView = null!;
     public ModulesView ModulesView = null!;
     public RouterView RouterView = null!;
-    public SettingsView SettingsView = null!;
     public ChatBoxView ChatBoxView = null!;
     public StartupView StartupView = null!;
     public RunView RunView = null!;
@@ -116,7 +114,6 @@ public partial class MainWindow
         PackagesView = new PackagesView();
         ModulesView = new ModulesView();
         RouterView = new RouterView();
-        SettingsView = new SettingsView();
         ChatBoxView = new ChatBoxView();
         StartupView = new StartupView();
         RunView = new RunView();
@@ -438,7 +435,6 @@ public partial class MainWindow
 
     private void SettingsButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setContent(SettingsView);
     }
 
     private void ChatBoxButton_OnClick(object sender, RoutedEventArgs e)

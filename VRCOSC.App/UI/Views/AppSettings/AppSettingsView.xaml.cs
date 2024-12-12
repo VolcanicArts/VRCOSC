@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -261,7 +261,7 @@ public partial class AppSettingsView : INotifyPropertyChanged
         setPage(7);
     }
 
-    private void AutoInstallModel_OnClick(object sender, RoutedEventArgs e)
+    private async void AutoInstallModel_OnClick(object sender, RoutedEventArgs e)
     {
         var action = new FileDownloadAction(new Uri("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true"), AppManager.GetInstance().Storage.GetStorageForDirectory("runtime/whisper"), "ggml-tiny.bin");
 
@@ -271,15 +271,12 @@ public partial class AppSettingsView : INotifyPropertyChanged
             OnPropertyChanged(nameof(WhisperModelFilePath));
         };
 
-        _ = MainWindow.GetInstance().ShowLoadingOverlay("Installing Model", action);
+        await MainWindow.GetInstance().ShowLoadingOverlay("Installing Model", action);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
 
 public class IpPortValidationRule : ValidationRule
