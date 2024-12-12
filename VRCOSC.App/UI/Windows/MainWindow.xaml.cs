@@ -382,7 +382,7 @@ public partial class MainWindow
 
     #endregion
 
-    public async Task ShowLoadingOverlay(string title, ProgressAction progressAction) => await Dispatcher.Invoke(async () =>
+    public Task ShowLoadingOverlay(string title, ProgressAction progressAction) => Dispatcher.Invoke(() =>
     {
         LoadingTitle.Text = title;
 
@@ -409,7 +409,7 @@ public partial class MainWindow
 
         LoadingOverlay.FadeIn(150);
 
-        await progressAction.Execute();
+        return progressAction.Execute();
     });
 
     public void HideLoadingOverlay() => Dispatcher.Invoke(() => LoadingOverlay.FadeOut(150));
