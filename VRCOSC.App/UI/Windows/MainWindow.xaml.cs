@@ -90,12 +90,11 @@ public partial class MainWindow
         }
         else
         {
-            var updateLoadingAction = new DynamicAsyncProgressAction("Gathering remote info", () => velopackUpdater.CheckForUpdatesAsync());
-            await ShowLoadingOverlay("Checking For Updates", updateLoadingAction);
+            await velopackUpdater.CheckForUpdatesAsync();
 
-            if (velopackUpdater.IsUpdateAvailable)
+            if (velopackUpdater.IsUpdateAvailable())
             {
-                await velopackUpdater.ShowUpdateIfAvailable();
+                await velopackUpdater.ExecuteUpdate();
                 return;
             }
 
