@@ -418,7 +418,7 @@ public class AppManager
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    await installSpeechModel();
+                    await InstallSpeechModel();
                 }
             }
 
@@ -437,10 +437,10 @@ public class AppManager
         sendControlParameters();
     }
 
-    private Task installSpeechModel() => Application.Current.Dispatcher.Invoke(() =>
+    public Task InstallSpeechModel() => Application.Current.Dispatcher.Invoke(() =>
     {
-        var action = new FileDownloadAction(new Uri("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true"), Storage.GetStorageForDirectory("runtime/whisper"), "ggml-tiny.bin");
-        action.OnComplete += () => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = Storage.GetStorageForDirectory("runtime/whisper").GetFullPath("ggml-tiny.bin");
+        var action = new FileDownloadAction(new Uri("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin?download=true"), Storage.GetStorageForDirectory("runtime/whisper"), "ggml-small.bin");
+        action.OnComplete += () => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = Storage.GetStorageForDirectory("runtime/whisper").GetFullPath("ggml-small.bin");
         return MainWindow.GetInstance().ShowLoadingOverlay("Installing Model", action);
     });
 

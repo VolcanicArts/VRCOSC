@@ -11,12 +11,10 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using VRCOSC.App.Actions.Files;
 using VRCOSC.App.Audio;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Themes;
 using VRCOSC.App.UI.Views.Settings;
-using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 
@@ -263,15 +261,7 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
     private async void AutoInstallModel_OnClick(object sender, RoutedEventArgs e)
     {
-        var action = new FileDownloadAction(new Uri("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true"), AppManager.GetInstance().Storage.GetStorageForDirectory("runtime/whisper"), "ggml-tiny.bin");
-
-        action.OnComplete += () =>
-        {
-            SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = AppManager.GetInstance().Storage.GetStorageForDirectory("runtime/whisper").GetFullPath("ggml-tiny.bin");
-            OnPropertyChanged(nameof(WhisperModelFilePath));
-        };
-
-        await MainWindow.GetInstance().ShowLoadingOverlay("Installing Model", action);
+        await AppManager.GetInstance().InstallSpeechModel();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
