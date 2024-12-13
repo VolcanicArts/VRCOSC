@@ -134,6 +134,12 @@ public partial class AppSettingsView : INotifyPropertyChanged
         set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = value;
     }
 
+    public bool SpeechTranslate
+    {
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechTranslate).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechTranslate).Value = value;
+    }
+
     public int SpeechConfidenceSliderValue
     {
         get => (int)(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechConfidence).Value * 100f);

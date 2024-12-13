@@ -76,6 +76,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.SpeechConfidence, 0.4f);
         setDefault(VRCOSCSetting.SpeechNoiseCutoff, 0.14f);
         setDefault(VRCOSCSetting.SpeechMicVolumeAdjustment, 1f);
+        setDefault(VRCOSCSetting.SpeechTranslate, false);
 
         setDefault(VRCOSCMetadata.InstalledVersion, string.Empty);
         setDefault(VRCOSCMetadata.InstalledUpdateChannel, UpdateChannel.Live);
@@ -143,7 +144,8 @@ public enum VRCOSCSetting
     SpeechModelPath,
     SpeechConfidence,
     SpeechNoiseCutoff,
-    SpeechMicVolumeAdjustment
+    SpeechMicVolumeAdjustment,
+    SpeechTranslate
 }
 
 public enum VRCOSCMetadata
