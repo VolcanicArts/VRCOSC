@@ -47,7 +47,7 @@ namespace VRCOSC.App.UI.Windows;
 
 public partial class MainWindow
 {
-    public static MainWindow GetInstance() => (MainWindow)Application.Current.MainWindow;
+    public static MainWindow GetInstance() => Application.Current.Dispatcher.Invoke(() => (MainWindow)Application.Current.MainWindow!);
 
     public PackagesView PackagesView = null!;
     public ModulesView ModulesView = null!;
@@ -382,7 +382,7 @@ public partial class MainWindow
 
     #endregion
 
-    public Task ShowLoadingOverlay(string title, ProgressAction progressAction) => Dispatcher.Invoke(() =>
+    public Task ShowLoadingOverlay(string title, ProgressAction progressAction)
     {
         LoadingTitle.Text = title;
 
@@ -410,9 +410,9 @@ public partial class MainWindow
         LoadingOverlay.FadeIn(150);
 
         return progressAction.Execute();
-    });
+    }
 
-    public void HideLoadingOverlay() => Dispatcher.Invoke(() => LoadingOverlay.FadeOut(150));
+    public void HideLoadingOverlay() => LoadingOverlay.FadeOut(150);
 
     private void setContent(object userControl)
     {
