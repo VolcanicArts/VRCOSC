@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -291,12 +291,12 @@ public class Clip : INotifyPropertyChanged
     {
         foreach (string moduleID in e.NewItems!)
         {
-            var statesCopy = States.Select(clipState => clipState.Clone(false)).ToList();
+            var statesCopy = States.Select(clipState => clipState.Clone()).ToList();
             var statesToAdd = ChatBoxManager.GetInstance().StateReferences.Where(reference => reference.ModuleID == moduleID);
 
             foreach (var stateReference in statesToAdd)
             {
-                var innerStatesCopy = statesCopy.Select(clipState => clipState.Clone(false)).ToList();
+                var innerStatesCopy = statesCopy.Select(clipState => clipState.Clone()).ToList();
 
                 innerStatesCopy.ForEach(innerClipStateCopy => innerClipStateCopy.States.Add(stateReference.ModuleID, stateReference.StateID));
 

@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -96,9 +96,9 @@ public class ClipState : ClipElement
         States.AddRange(original.States);
     }
 
-    public override ClipState Clone(bool copySettings = true)
+    public override ClipState Clone()
     {
-        var clone = (ClipState)base.Clone(copySettings);
+        var clone = (ClipState)base.Clone();
 
         clone.States.AddRange(States);
         clone.IsBuiltIn = IsBuiltIn;
