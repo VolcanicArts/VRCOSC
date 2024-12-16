@@ -14,40 +14,16 @@ namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
 /// </summary>
 public abstract class ValueModuleSetting<T> : ModuleSetting
 {
-    public Observable<T> Attribute { get; private set; } = null!;
-
-    protected readonly T DefaultValue;
-
-    public override void PreDeserialise()
-    {
-        Attribute = new Observable<T>(DefaultValue);
-        Attribute.Subscribe(_ => OnSettingChange?.Invoke());
-    }
-
-    public override bool IsDefault() => Attribute.IsDefault;
-    public override void SetDefault() => Attribute.SetDefault();
-    public override object? GetRawValue() => Attribute.Value;
-
-    public override bool Deserialise(object? ingestValue)
-    {
-        if (ingestValue is null) return false;
-
-        try
-        {
-            Attribute.Value = (T)Convert.ChangeType(ingestValue, typeof(T));
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
-        }
-    }
+    public Observable<T> Attribute { get; }
 
     protected ValueModuleSetting(string title, string description, Type viewType, T defaultValue)
         : base(title, description, viewType)
     {
-        DefaultValue = defaultValue;
+        Attribute = new Observable<T>(defaultValue);
+        Attribute.Subscribe(_ => OnSettingChange?.Invoke());
     }
+
+    internal override bool IsDefault() => Attribute.IsDefault;
 }
 
 public class BoolModuleSetting : ValueModuleSetting<bool>
@@ -55,6 +31,28 @@ public class BoolModuleSetting : ValueModuleSetting<bool>
     public BoolModuleSetting(string title, string description, Type viewType, bool defaultValue)
         : base(title, description, viewType, defaultValue)
     {
+    }
+
+    internal override bool Deserialise(object? ingestValue)
+    {
+        if (ingestValue is not bool boolValue) return false;
+
+        Attribute.Value = boolValue;
+        return true;
+    }
+
+    internal override object Serialise() => Attribute.Value;
+
+    public override bool GetValue<T>(out T returnValue)
+    {
+        if (typeof(T) == typeof(bool))
+        {
+            returnValue = (T)Convert.ChangeType(Attribute.Value, typeof(T));
+            return true;
+        }
+
+        returnValue = (T)Convert.ChangeType(false, typeof(T));
+        return false;
     }
 }
 
@@ -64,6 +62,28 @@ public class StringModuleSetting : ValueModuleSetting<string>
         : base(title, description, viewType, defaultValue)
     {
     }
+
+    internal override bool Deserialise(object? ingestValue)
+    {
+        if (ingestValue is not string stringValue) return false;
+
+        Attribute.Value = stringValue;
+        return true;
+    }
+
+    internal override object Serialise() => Attribute.Value;
+
+    public override bool GetValue<T>(out T returnValue)
+    {
+        if (typeof(T) == typeof(string))
+        {
+            returnValue = (T)Convert.ChangeType(Attribute.Value, typeof(T));
+            return true;
+        }
+
+        returnValue = (T)Convert.ChangeType(string.Empty, typeof(T));
+        return false;
+    }
 }
 
 public class IntModuleSetting : ValueModuleSetting<int>
@@ -71,6 +91,29 @@ public class IntModuleSetting : ValueModuleSetting<int>
     public IntModuleSetting(string title, string description, Type viewType, int defaultValue)
         : base(title, description, viewType, defaultValue)
     {
+    }
+
+    internal override bool Deserialise(object? ingestValue)
+    {
+        // json stores as long
+        if (ingestValue is not long longValue) return false;
+
+        Attribute.Value = (int)longValue;
+        return true;
+    }
+
+    internal override object Serialise() => Attribute.Value;
+
+    public override bool GetValue<T>(out T returnValue)
+    {
+        if (typeof(T) == typeof(int))
+        {
+            returnValue = (T)Convert.ChangeType(Attribute.Value, typeof(T));
+            return true;
+        }
+
+        returnValue = (T)Convert.ChangeType(0, typeof(T));
+        return false;
     }
 }
 
@@ -80,11 +123,34 @@ public class FloatModuleSetting : ValueModuleSetting<float>
         : base(title, description, viewType, defaultValue)
     {
     }
+
+    internal override bool Deserialise(object? ingestValue)
+    {
+        // json stores as double
+        if (ingestValue is not double doubleValue) return false;
+
+        Attribute.Value = (float)doubleValue;
+        return true;
+    }
+
+    internal override object Serialise() => Attribute.Value;
+
+    public override bool GetValue<T>(out T returnValue)
+    {
+        if (typeof(T) == typeof(float))
+        {
+            returnValue = (T)Convert.ChangeType(Attribute.Value, typeof(T));
+            return true;
+        }
+
+        returnValue = (T)Convert.ChangeType(0f, typeof(T));
+        return false;
+    }
 }
 
 public class EnumModuleSetting : ValueModuleSetting<int>
 {
-    public Type EnumType { get; }
+    internal readonly Type EnumType;
 
     public EnumModuleSetting(string title, string description, Type viewType, int defaultValue, Type enumType)
         : base(title, description, viewType, defaultValue)
@@ -92,15 +158,25 @@ public class EnumModuleSetting : ValueModuleSetting<int>
         EnumType = enumType;
     }
 
-    public override bool GetValue<TValueType>(out TValueType? outValue) where TValueType : default
+    internal override bool Deserialise(object? ingestValue)
     {
-        if (typeof(TValueType) == EnumType)
+        if (ingestValue is not int intValue) return false;
+
+        Attribute.Value = intValue;
+        return true;
+    }
+
+    internal override object Serialise() => Attribute.Value;
+
+    public override bool GetValue<TOut>(out TOut returnValue)
+    {
+        if (EnumType == typeof(TOut))
         {
-            outValue = (TValueType)Enum.ToObject(EnumType, Attribute.Value);
+            returnValue = (TOut)Enum.ToObject(EnumType, Attribute.Value);
             return true;
         }
 
-        outValue = default;
+        returnValue = (TOut)Enum.ToObject(typeof(TOut), 0);
         return false;
     }
 }
@@ -144,30 +220,34 @@ public class SliderModuleSetting : ValueModuleSetting<float>
         TickFrequency = tickFrequency;
     }
 
-    public override bool Deserialise(object? ingestValue)
+    internal override object Serialise() => Attribute.Value;
+
+    internal override bool Deserialise(object? ingestValue)
     {
-        var result = base.Deserialise(ingestValue);
-        Attribute.Value = Math.Clamp(Attribute.Value, MinValue, MaxValue);
-        return result;
+        // json stores as double
+        if (ingestValue is not double doubleValue) return false;
+
+        var floatValue = (float)doubleValue;
+        Attribute.Value = Math.Clamp(floatValue, MinValue, MaxValue);
+
+        return true;
     }
 
-    public override bool GetValue<TValueType>(out TValueType? outValue) where TValueType : default
+    public override bool GetValue<TOut>(out TOut returnValue)
     {
-        var value = (float)GetRawValue()!;
-
-        if (typeof(TValueType) == typeof(float))
+        if (typeof(TOut) == typeof(float) && ValueType == typeof(float))
         {
-            outValue = (TValueType)Convert.ChangeType(value, TypeCode.Single);
+            returnValue = (TOut)Convert.ChangeType(Attribute.Value, typeof(TOut));
             return true;
         }
 
-        if (typeof(TValueType) == typeof(int))
+        if (typeof(TOut) == typeof(int) && ValueType == typeof(int))
         {
-            outValue = (TValueType)Convert.ChangeType(value, TypeCode.Int32);
+            returnValue = (TOut)Convert.ChangeType(Attribute.Value, typeof(TOut));
             return true;
         }
 
-        outValue = default;
+        returnValue = (TOut)Convert.ChangeType(0f, typeof(TOut));
         return false;
     }
 }
@@ -182,9 +262,9 @@ public class DateTimeModuleSetting : ValueModuleSetting<DateTimeOffset>
     {
     }
 
-    public override object GetSerialisableValue() => Attribute.Value.UtcTicks;
+    internal override object Serialise() => Attribute.Value.UtcTicks;
 
-    public override bool Deserialise(object? ingestValue)
+    internal override bool Deserialise(object? ingestValue)
     {
         if (ingestValue is not long ingestUtcTicks) return false;
 
@@ -198,5 +278,17 @@ public class DateTimeModuleSetting : ValueModuleSetting<DateTimeOffset>
         Attribute.Value = dateTimeOffset;
 
         return true;
+    }
+
+    public override bool GetValue<T>(out T returnValue)
+    {
+        if (typeof(T) == typeof(DateTimeOffset))
+        {
+            returnValue = (T)Convert.ChangeType(Attribute.Value, typeof(T));
+            return true;
+        }
+
+        returnValue = (T)Convert.ChangeType(DateTimeOffset.FromUnixTimeSeconds(0), typeof(T));
+        return false;
     }
 }

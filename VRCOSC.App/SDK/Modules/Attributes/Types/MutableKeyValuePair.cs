@@ -48,4 +48,6 @@ public class MutableKeyValuePairListModuleSetting : ListModuleSetting<MutableKey
         KeyTitle = keyTitle;
         ValueTitle = valueTitle;
     }
+
+    protected override MutableKeyValuePair CreateItem() => new();
 }

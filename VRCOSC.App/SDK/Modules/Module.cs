@@ -16,7 +16,6 @@ using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
-using VRCOSC.App.SDK.Modules.Attributes;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.SDK.Modules.Attributes.Types;
 using VRCOSC.App.SDK.OVR;
@@ -116,9 +115,7 @@ public abstract class Module
 
             OnPreLoad();
 
-            Settings.Values.ForEach(moduleSetting => moduleSetting.PreDeserialise());
             moduleSerialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
-            Settings.Values.ForEach(moduleSetting => moduleSetting.PostDeserialise());
 
             cachePersistentProperties();
 
