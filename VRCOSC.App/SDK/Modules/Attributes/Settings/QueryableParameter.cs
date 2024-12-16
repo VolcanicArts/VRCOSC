@@ -8,41 +8,77 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
 
-public interface IQueryableParameter
+public class QueryResult
 {
+    public bool IsValid { get; internal set; }
+    public bool JustBecameValid { get; internal set; }
+    public bool JustBecameInvalid { get; internal set; }
 }
 
-public class QueryableParameter<TAction> : QueryableParameter, IEquatable<QueryableParameter<TAction>> where TAction : Enum
+public class ActionableQueryResult : QueryResult
 {
-    public Observable<TAction> ChosenResult { get; } = new();
+    private readonly object actionResult;
 
-    public bool Evaluate(bool value, out TAction result)
+    public ActionableQueryResult(QueryResult other, object actionResult)
     {
-        var evaluateResult = Evaluate(value);
-        result = evaluateResult ? ChosenResult.Value : default!;
-        return evaluateResult;
+        IsValid = other.IsValid;
+        JustBecameValid = other.JustBecameValid;
+        JustBecameInvalid = other.JustBecameInvalid;
+        this.actionResult = actionResult;
     }
 
-    public bool Evaluate(int value, out TAction result)
+    public T GetActionResult<T>()
     {
-        var evaluateResult = Evaluate(value);
-        result = evaluateResult ? ChosenResult.Value : default!;
-        return evaluateResult;
+        return (T)actionResult;
+    }
+}
+
+public class ActionableQueryableParameter : QueryableParameter, IEquatable<ActionableQueryableParameter>
+{
+    public ActionableQueryableParameter(Type actionEnumType)
+    {
+        ActionEnumType = actionEnumType;
     }
 
-    public bool Evaluate(float value, out TAction result)
+    internal Type ActionEnumType { get; }
+
+    public Observable<object> Action { get; } = new();
+
+    public new ActionableQueryResult Evaluate(ReceivedParameter parameter)
     {
-        var evaluateResult = Evaluate(value);
-        result = evaluateResult ? ChosenResult.Value : default!;
-        return evaluateResult;
+        return parameter.Type switch
+        {
+            ParameterType.Bool => Evaluate(parameter.GetValue<bool>()),
+            ParameterType.Int => Evaluate(parameter.GetValue<int>()),
+            ParameterType.Float => Evaluate(parameter.GetValue<float>()),
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
-    public bool Equals(QueryableParameter<TAction>? other)
+    protected new ActionableQueryResult Evaluate(bool value)
+    {
+        var queryResult = base.Evaluate(value);
+        return new ActionableQueryResult(queryResult, Action.Value);
+    }
+
+    protected new ActionableQueryResult Evaluate(int value)
+    {
+        var queryResult = base.Evaluate(value);
+        return new ActionableQueryResult(queryResult, Action.Value);
+    }
+
+    protected new ActionableQueryResult Evaluate(float value)
+    {
+        var queryResult = base.Evaluate(value);
+        return new ActionableQueryResult(queryResult, Action.Value);
+    }
+
+    public bool Equals(ActionableQueryableParameter? other)
     {
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
 
-        return ChosenResult.Equals(other.ChosenResult);
+        return Action.Equals(other.Action);
     }
 
     public override bool Equals(object? obj)
@@ -51,13 +87,13 @@ public class QueryableParameter<TAction> : QueryableParameter, IEquatable<Querya
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
 
-        return Equals((QueryableParameter<TAction>)obj);
+        return Equals((ActionableQueryableParameter)obj);
     }
 
-    public override int GetHashCode() => ChosenResult.GetHashCode();
+    public override int GetHashCode() => Action.GetHashCode();
 }
 
-public class QueryableParameter : IQueryableParameter, ICloneable, IEquatable<QueryableParameter>
+public class QueryableParameter : ICloneable, IEquatable<QueryableParameter>
 {
     public Observable<string> Name { get; } = new(string.Empty);
     public Observable<ParameterType> Type { get; } = new();
@@ -73,7 +109,9 @@ public class QueryableParameter : IQueryableParameter, ICloneable, IEquatable<Qu
     private int previousIntValue;
     private float previousFloatValue;
 
-    internal bool Evaluate(ReceivedParameter parameter)
+    private bool previousValid;
+
+    public QueryResult Evaluate(ReceivedParameter parameter)
     {
         return parameter.Type switch
         {
@@ -84,36 +122,52 @@ public class QueryableParameter : IQueryableParameter, ICloneable, IEquatable<Qu
         };
     }
 
-    public bool Evaluate(bool value)
+    protected QueryResult Evaluate(bool value)
     {
-        // TODO: Instead of returning bool, return a query result
-        // This allows for whether the query is true, and if it's
-        // just become true for the first times since becoming false
+        var queryResult = new QueryResult();
 
-        if (Type.Value != ParameterType.Bool) return false;
+        var valid = evaluate(value);
 
-        var success = evaluate(value);
+        queryResult.IsValid = valid;
+        queryResult.JustBecameValid = valid && !previousValid;
+        queryResult.JustBecameInvalid = !valid && previousValid;
+
         previousBoolValue = value;
-        return success;
+        previousValid = valid;
+
+        return queryResult;
     }
 
-    public bool Evaluate(int value)
+    protected QueryResult Evaluate(int value)
     {
-        if (Type.Value != ParameterType.Int) return false;
+        var queryResult = new QueryResult();
 
-        var success = evaluate(value);
+        var valid = evaluate(value);
+
+        queryResult.IsValid = valid;
+        queryResult.JustBecameValid = valid && !previousValid;
+        queryResult.JustBecameInvalid = !valid && previousValid;
+
         previousIntValue = value;
-        return success;
+        previousValid = valid;
+
+        return queryResult;
     }
 
-    public bool Evaluate(float value)
+    protected QueryResult Evaluate(float value)
     {
-        if (Type.Value != ParameterType.Float) return false;
+        var queryResult = new QueryResult();
 
-        var success = evaluate(value);
+        var valid = evaluate(value);
+
+        queryResult.IsValid = valid;
+        queryResult.JustBecameValid = valid && !previousValid;
+        queryResult.JustBecameInvalid = !valid && previousValid;
+
         previousFloatValue = value;
+        previousValid = valid;
 
-        return success;
+        return queryResult;
     }
 
     private bool evaluate(object value) => Comparison.Value switch

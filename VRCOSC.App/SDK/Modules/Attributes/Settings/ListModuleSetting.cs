@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using Newtonsoft.Json.Linq;
-using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
@@ -142,30 +141,7 @@ public class QueryableParameterListModuleSetting : ListModuleSetting<QueryablePa
         ActionType = actionType;
     }
 
-    public bool Evaluate(ReceivedParameter parameter)
-    {
-        foreach (var instance in Attribute.Where(instance => instance.Name.Value == parameter.Name && instance.Type.Value == parameter.Type))
-        {
-            if (instance.Evaluate(parameter))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public override void Add()
-    {
-        if (ActionType is null)
-        {
-            Attribute.Add(new QueryableParameter());
-        }
-        else
-        {
-            Attribute.Add((QueryableParameter)Activator.CreateInstance(typeof(QueryableParameter<>).MakeGenericType(ActionType))!);
-        }
-    }
+    protected override QueryableParameter CreateItem() => ActionType is null ? new QueryableParameter() : new ActionableQueryableParameter(ActionType);
 
     public override bool Deserialise(object? value)
     {
@@ -174,7 +150,7 @@ public class QueryableParameterListModuleSetting : ListModuleSetting<QueryablePa
         if (value is not JArray jArrayValue) return false;
 
         Attribute.Clear();
-        Attribute.AddRange(jArrayValue.Select(token => token.ToObject(typeof(QueryableParameter<>).MakeGenericType(ActionType))).Cast<QueryableParameter>());
+        Attribute.AddRange(jArrayValue.Select(token => (QueryableParameter)token.ToObject(typeof(ActionableQueryableParameter))!));
         return true;
     }
 }

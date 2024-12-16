@@ -43,7 +43,7 @@
                                         </Grid>
                                         <core:SpacedStackPanel Orientation="Horizontal" Spacing="10" Visibility="{Binding ModuleSetting, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Converter={StaticResource HasActionVisibilityConverter}}">
                                             <TextBlock Text="Then" Foreground="{StaticResource CForeground1}" FontSize="17" VerticalAlignment="Center"/>
-                                            <ComboBox Width="125" FontSize="15" VerticalAlignment="Center" VerticalContentAlignment="Center" ItemsSource="{Binding QueryableParameterActionTypeItemsSource, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" SelectedValue="{Binding ChosenResult.Value}"/>
+                                            <ComboBox Width="125" FontSize="15" VerticalAlignment="Center" VerticalContentAlignment="Center" ItemsSource="{Binding QueryableParameterActionTypeItemsSource, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" SelectedValue="{Binding Action.Value}"/>
                                         </core:SpacedStackPanel>
                                     </core:SpacedStackPanel>
                                 </Border>
