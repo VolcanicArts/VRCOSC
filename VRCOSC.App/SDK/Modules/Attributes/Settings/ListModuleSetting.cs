@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
@@ -128,5 +129,52 @@ public class FloatListModuleSetting : ValueListModuleSetting<float>
     public FloatListModuleSetting(string title, string description, Type viewType, IEnumerable<float> defaultValues)
         : base(title, description, viewType, defaultValues.Select(value => new Observable<float>(value)))
     {
+    }
+}
+
+public class QueryableParameterListModuleSetting : ListModuleSetting<QueryableParameter>
+{
+    internal readonly Type? ActionType;
+
+    public QueryableParameterListModuleSetting(string title, string description, Type viewType, Type? actionType = null)
+        : base(title, description, viewType, [])
+    {
+        ActionType = actionType;
+    }
+
+    public bool Evaluate(ReceivedParameter parameter)
+    {
+        foreach (var instance in Attribute.Where(instance => instance.Name.Value == parameter.Name && instance.Type.Value == parameter.Type))
+        {
+            if (instance.Evaluate(parameter))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public override void Add()
+    {
+        if (ActionType is null)
+        {
+            Attribute.Add(new QueryableParameter());
+        }
+        else
+        {
+            Attribute.Add((QueryableParameter)Activator.CreateInstance(typeof(QueryableParameter<>).MakeGenericType(ActionType))!);
+        }
+    }
+
+    public override bool Deserialise(object? value)
+    {
+        if (ActionType is null) return base.Deserialise(value);
+
+        if (value is not JArray jArrayValue) return false;
+
+        Attribute.Clear();
+        Attribute.AddRange(jArrayValue.Select(token => token.ToObject(typeof(QueryableParameter<>).MakeGenericType(ActionType))).Cast<QueryableParameter>());
+        return true;
     }
 }

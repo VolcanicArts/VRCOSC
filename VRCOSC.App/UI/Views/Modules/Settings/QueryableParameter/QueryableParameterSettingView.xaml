@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="VRCOSC.App.UI.Views.Modules.Settings.QueryableParameter.QueryableParameterSettingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300"
+             Loaded="QueryableParameterSettingView_OnLoaded">
+    <core:HeaderFooterListView ShouldTruncateHeight="False" HideHeaderWhenEmpty="True">
+        <core:HeaderFooterListView.Header>
+            <Border Background="{StaticResource CBackground1}" Height="5" />
+        </core:HeaderFooterListView.Header>
+        <core:HeaderFooterListView.Footer>
+            <Border Background="{StaticResource CBackground1}">
+                <core:IconButton Width="100" Height="20" Margin="0 5" Click="EditButton_OnClick" ButtonColour="Blue"
+                                 Icon="Solid_Plus" />
+            </Border>
+        </core:HeaderFooterListView.Footer>
+    </core:HeaderFooterListView>
+</UserControl>

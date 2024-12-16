@@ -25,6 +25,7 @@ using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Views.Modules.Settings;
+using VRCOSC.App.UI.Views.Modules.Settings.QueryableParameter;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules;
@@ -475,6 +476,16 @@ public abstract class Module
     protected void CreateKeyValuePairList(Enum lookup, string title, string description, IEnumerable<MutableKeyValuePair> defaultValues, string keyTitle, string valueTitle)
     {
         addSetting(lookup, new MutableKeyValuePairListModuleSetting(title, description, typeof(MutableKeyValuePairListSettingView), defaultValues, keyTitle, valueTitle));
+    }
+
+    protected void CreateQueryableParameterList(Enum lookup, string title, string description)
+    {
+        addSetting(lookup, new QueryableParameterListModuleSetting(title, description, typeof(QueryableParameterSettingView)));
+    }
+
+    protected void CreateQueryableParameterList<TAction>(Enum lookup, string title, string description) where TAction : Enum
+    {
+        addSetting(lookup, new QueryableParameterListModuleSetting(title, description, typeof(QueryableParameterSettingView), typeof(TAction)));
     }
 
     private void addSetting(Enum lookup, ModuleSetting moduleSetting)
