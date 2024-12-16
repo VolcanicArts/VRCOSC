@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
@@ -26,14 +25,14 @@ public class ModuleParameter
     /// <summary>
     /// The expected type for this <see cref="ModuleParameter"/>
     /// </summary>
-    public Type ExpectedType { get; }
+    public ParameterType ExpectedType { get; }
 
     /// <summary>
     /// Whether this <see cref="ModuleParameter"/> should be marked as legacy
     /// </summary>
     public bool Legacy { get; }
 
-    public ModuleParameter(string title, string description, string defaultName, ParameterMode mode, Type expectedType, bool legacy)
+    public ModuleParameter(string title, string description, string defaultName, ParameterMode mode, ParameterType expectedType, bool legacy)
     {
         Name = new Observable<string>(defaultName);
 

@@ -377,7 +377,7 @@ public abstract class Module
         if (typeof(T) != typeof(bool) && typeof(T) != typeof(int) && typeof(T) != typeof(float))
             throw new InvalidOperationException($"{FullID} attempted to register a parameter with an invalid type");
 
-        Parameters.Add(lookup, new ModuleParameter(title, description, defaultName, mode, typeof(T), legacy));
+        Parameters.Add(lookup, new ModuleParameter(title, description, defaultName, mode, ParameterTypeUtils.GetTypeFromType<T>(), legacy));
     }
 
     /// <summary>
@@ -934,9 +934,9 @@ public abstract class Module
 
             if (!parameterData.Enabled.Value || !parameterData.Mode.HasFlag(ParameterMode.Read)) return;
 
-            if (!receivedParameter.IsValueType(parameterData.ExpectedType))
+            if (receivedParameter.Type != parameterData.ExpectedType)
             {
-                Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType.ToReadableName()}` but received type `{receivedParameter.Value.GetType().ToReadableName()}`");
+                Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType.ToString()}` but received type `{receivedParameter.Type.ToString()}`");
                 return;
             }
 

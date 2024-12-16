@@ -16,7 +16,12 @@ public class ReceivedParameter
     /// <summary>
     /// The received name of the parameter
     /// </summary>
-    public readonly string Name;
+    public string Name { get; }
+
+    /// <summary>
+    /// The type of this parameter
+    /// </summary>
+    public ParameterType Type { get; }
 
     internal readonly object Value;
 
@@ -24,12 +29,14 @@ public class ReceivedParameter
     {
         Name = name;
         Value = value;
+        Type = ParameterTypeUtils.GetTypeFromValue(value);
     }
 
     internal ReceivedParameter(ReceivedParameter other)
     {
         Name = other.Name;
         Value = other.Value;
+        Type = other.Type;
     }
 
     /// <summary>
@@ -55,7 +62,7 @@ public class ReceivedParameter
     /// Checks if the received value is of type <paramref name="type"/>
     /// </summary>
     /// <returns>True if the value is exactly the type passed, otherwise false</returns>
-    public bool IsValueType(Type type) => Value.GetType() == type;
+    public bool IsValueType(Type type) => ParameterTypeUtils.GetTypeFromType(type) == Type;
 }
 
 /// <summary>
@@ -109,8 +116,8 @@ public class RegisteredParameter : ReceivedParameter
 
     public override T GetValue<T>()
     {
-        if (typeof(T) != moduleParameter.ExpectedType)
-            throw new InvalidCastException($"Parameter's value was expected as {moduleParameter.ExpectedType.ToReadableName()} and you're trying to use it as {typeof(T).ToReadableName()}");
+        if (ParameterTypeUtils.GetTypeFromType<T>() != moduleParameter.ExpectedType)
+            throw new InvalidCastException($"Parameter's value was expected as {moduleParameter.ExpectedType} and you're trying to use it as {typeof(T).ToReadableName()}");
 
         return base.GetValue<T>();
     }

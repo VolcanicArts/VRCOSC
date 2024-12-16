@@ -257,7 +257,7 @@ public class AppManager
 
     private void handleControlParameter(ReceivedParameter parameter)
     {
-        if (parameter.Name == "VRCOSC/Controls/ChatBox/Enabled" && parameter.IsValueType<bool>())
+        if (parameter is { Name: "VRCOSC/Controls/ChatBox/Enabled", Type: ParameterType.Bool })
         {
             ChatBoxManager.GetInstance().SendEnabled = parameter.GetValue<bool>();
         }
