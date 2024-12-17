@@ -22,7 +22,7 @@ public abstract class ListModuleSetting : ModuleSetting
     public abstract void Remove(object item);
 }
 
-public abstract class ListModuleSetting<T> : ListModuleSetting
+public abstract class ListModuleSetting<T> : ListModuleSetting where T : IEquatable<T>
 {
     protected readonly IEnumerable<T> DefaultValues;
     public ObservableCollection<T> Attribute { get; }
