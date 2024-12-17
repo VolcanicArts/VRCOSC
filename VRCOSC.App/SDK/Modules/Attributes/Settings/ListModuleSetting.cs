@@ -19,7 +19,6 @@ public abstract class ListModuleSetting : ModuleSetting
     {
     }
 
-    public abstract int Count();
     public abstract void Add();
     public abstract void Remove(object item);
 }
@@ -39,7 +38,6 @@ public abstract class ListModuleSetting<T> : ListModuleSetting where T : IEquata
 
     internal override bool IsDefault() => Attribute.SequenceEqual(DefaultValues);
 
-    public override int Count() => Attribute.Count;
     public override void Add() => Attribute.Add(CreateItem());
 
     public override void Remove(object item)
