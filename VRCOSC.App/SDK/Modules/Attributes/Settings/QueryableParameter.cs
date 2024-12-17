@@ -73,27 +73,10 @@ public class ActionableQueryableParameter : QueryableParameter, IEquatable<Actio
         return new ActionableQueryResult(queryResult, Action.Value);
     }
 
-    public bool Equals(ActionableQueryableParameter? other)
-    {
-        if (other is null) return false;
-        if (ReferenceEquals(this, other)) return true;
-
-        return Action.Equals(other.Action);
-    }
-
-    public override bool Equals(object? obj)
-    {
-        if (obj is null) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != GetType()) return false;
-
-        return Equals((ActionableQueryableParameter)obj);
-    }
-
-    public override int GetHashCode() => Action.GetHashCode();
+    public bool Equals(ActionableQueryableParameter? other) => base.Equals(other) && Action.Equals(other.Action);
 }
 
-public class QueryableParameter : ICloneable, IEquatable<QueryableParameter>
+public class QueryableParameter : IEquatable<QueryableParameter>
 {
     public Observable<string> Name { get; } = new(string.Empty);
     public Observable<ParameterType> Type { get; } = new();
@@ -214,13 +197,11 @@ public class QueryableParameter : ICloneable, IEquatable<QueryableParameter>
         _ => throw new ArgumentOutOfRangeException()
     };
 
-    public object Clone()
-    {
-        return this;
-    }
-
     public bool Equals(QueryableParameter? other)
     {
-        return false;
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+
+        return Name.Equals(other.Name) && Type.Equals(other.Type) && Comparison.Equals(other.Comparison) && BoolValue.Equals(other.BoolValue) && IntValue.Equals(other.IntValue) && FloatValue.Equals(other.FloatValue);
     }
 }
