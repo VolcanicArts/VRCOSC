@@ -141,7 +141,7 @@ public class FloatModuleSetting : ValueModuleSetting<float>
     }
 }
 
-public class EnumModuleSetting : ValueModuleSetting<int>
+public class EnumModuleSetting : IntModuleSetting
 {
     internal readonly Type EnumType;
 
@@ -151,23 +151,15 @@ public class EnumModuleSetting : ValueModuleSetting<int>
         EnumType = enumType;
     }
 
-    internal override bool Deserialise(object? ingestValue)
+    public override bool GetValue<T>(out T returnValue)
     {
-        if (ingestValue is not int intValue) return false;
-
-        Attribute.Value = intValue;
-        return true;
-    }
-
-    public override bool GetValue<TOut>(out TOut returnValue)
-    {
-        if (EnumType == typeof(TOut))
+        if (typeof(T) == EnumType)
         {
-            returnValue = (TOut)Enum.ToObject(EnumType, Attribute.Value);
+            returnValue = (T)Enum.ToObject(EnumType, Attribute.Value);
             return true;
         }
 
-        returnValue = (TOut)Enum.ToObject(typeof(TOut), 0);
+        returnValue = (T)Enum.ToObject(typeof(T), 0);
         return false;
     }
 }
@@ -245,21 +237,21 @@ public class SliderModuleSetting : ValueModuleSetting<float>
         return true;
     }
 
-    public override bool GetValue<TOut>(out TOut returnValue)
+    public override bool GetValue<T>(out T returnValue)
     {
-        if (typeof(TOut) == typeof(float) && ValueType == typeof(float))
+        if (typeof(T) == typeof(float) && ValueType == typeof(float))
         {
-            returnValue = (TOut)Convert.ChangeType(Attribute.Value, typeof(TOut));
+            returnValue = (T)Convert.ChangeType(Attribute.Value, typeof(T));
             return true;
         }
 
-        if (typeof(TOut) == typeof(int) && ValueType == typeof(int))
+        if (typeof(T) == typeof(int) && ValueType == typeof(int))
         {
-            returnValue = (TOut)Convert.ChangeType(Attribute.Value, typeof(TOut));
+            returnValue = (T)Convert.ChangeType(Attribute.Value, typeof(T));
             return true;
         }
 
-        returnValue = (TOut)Convert.ChangeType(0f, typeof(TOut));
+        returnValue = (T)Convert.ChangeType(0f, typeof(T));
         return false;
     }
 }
