@@ -11,7 +11,7 @@ namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
 /// <summary>
 /// For use with value types
 /// </summary>
-public abstract class ValueModuleSetting<T> : ModuleSetting
+public abstract class ValueModuleSetting<T> : ModuleSetting where T : notnull
 {
     public Observable<T> Attribute { get; }
 
@@ -21,6 +21,8 @@ public abstract class ValueModuleSetting<T> : ModuleSetting
         Attribute = new Observable<T>(defaultValue);
         Attribute.Subscribe(_ => OnSettingChange?.Invoke());
     }
+
+    internal override object Serialise() => Attribute.Value;
 
     internal override bool IsDefault() => Attribute.IsDefault;
 }
@@ -39,8 +41,6 @@ public class BoolModuleSetting : ValueModuleSetting<bool>
         Attribute.Value = boolValue;
         return true;
     }
-
-    internal override object Serialise() => Attribute.Value;
 
     public override bool GetValue<T>(out T returnValue)
     {
@@ -69,8 +69,6 @@ public class StringModuleSetting : ValueModuleSetting<string>
         Attribute.Value = stringValue;
         return true;
     }
-
-    internal override object Serialise() => Attribute.Value;
 
     public override bool GetValue<T>(out T returnValue)
     {
@@ -101,8 +99,6 @@ public class IntModuleSetting : ValueModuleSetting<int>
         return true;
     }
 
-    internal override object Serialise() => Attribute.Value;
-
     public override bool GetValue<T>(out T returnValue)
     {
         if (typeof(T) == typeof(int))
@@ -131,8 +127,6 @@ public class FloatModuleSetting : ValueModuleSetting<float>
         Attribute.Value = (float)doubleValue;
         return true;
     }
-
-    internal override object Serialise() => Attribute.Value;
 
     public override bool GetValue<T>(out T returnValue)
     {
@@ -164,8 +158,6 @@ public class EnumModuleSetting : ValueModuleSetting<int>
         Attribute.Value = intValue;
         return true;
     }
-
-    internal override object Serialise() => Attribute.Value;
 
     public override bool GetValue<TOut>(out TOut returnValue)
     {
@@ -241,8 +233,6 @@ public class SliderModuleSetting : ValueModuleSetting<float>
         MaxValue = maxValue;
         TickFrequency = tickFrequency;
     }
-
-    internal override object Serialise() => Attribute.Value;
 
     internal override bool Deserialise(object? ingestValue)
     {
