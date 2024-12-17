@@ -53,10 +53,10 @@ public sealed class Player
 
     private async Task retrieve(string parameterName)
     {
-        var value = await AppManager.GetInstance().VRChatOscClient.FindParameterValue(parameterName);
-        if (value is null) return;
+        var receivedParameter = await AppManager.GetInstance().VRChatOscClient.FindParameter(parameterName);
+        if (receivedParameter is null) return;
 
-        Update(parameterName, value);
+        Update(parameterName, receivedParameter.Value);
     }
 
     internal bool Update(string parameterName, object value)
