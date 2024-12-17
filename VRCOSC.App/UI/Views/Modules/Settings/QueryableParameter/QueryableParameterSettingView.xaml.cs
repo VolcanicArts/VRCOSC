@@ -12,7 +12,7 @@ public partial class QueryableParameterSettingView
 {
     private WindowManager windowManager = null!;
 
-    public QueryableParameterListModuleSetting ModuleSetting { get; }
+    public object ModuleSetting { get; }
 
     public QueryableParameterSettingView(Module _, QueryableParameterListModuleSetting moduleSetting)
     {
@@ -20,9 +20,23 @@ public partial class QueryableParameterSettingView
         ModuleSetting = moduleSetting;
     }
 
+    public QueryableParameterSettingView(Module _, ActionableQueryableParameterListModuleSetting moduleSetting)
+    {
+        InitializeComponent();
+        ModuleSetting = moduleSetting;
+    }
+
     private void EditButton_OnClick(object sender, RoutedEventArgs e)
     {
-        windowManager.TrySpawnChild(new QueryableParameterEditWindow(ModuleSetting));
+        if (ModuleSetting is QueryableParameterListModuleSetting queryableParameterListModuleSetting)
+        {
+            windowManager.TrySpawnChild(new QueryableParameterEditWindow(queryableParameterListModuleSetting));
+        }
+
+        if (ModuleSetting is ActionableQueryableParameterListModuleSetting actionableQueryableParameterListModuleSetting)
+        {
+            windowManager.TrySpawnChild(new QueryableParameterEditWindow(actionableQueryableParameterListModuleSetting));
+        }
     }
 
     private void QueryableParameterSettingView_OnLoaded(object sender, RoutedEventArgs e)

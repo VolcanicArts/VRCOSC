@@ -18,9 +18,9 @@ public partial class QueryableParameterEditWindow : IManagedWindow
     public IEnumerable<ParameterType> QueryableParameterTypeItemsSource => typeof(ParameterType).GetEnumValues().Cast<ParameterType>();
     public IEnumerable<KeyValuePair<string, ComparisonOperation>> QueryableParameterOperationItemsSource => ComparisonOperationUtils.DISPLAY_LIST;
     public IEnumerable<BoolValue> BoolValueItemsSource => typeof(BoolValue).GetEnumValues().Cast<BoolValue>();
-    public Array QueryableParameterActionTypeItemsSource => ModuleSetting.ActionType?.GetEnumValues() ?? Array.Empty<object>();
+    public Array QueryableParameterActionTypeItemsSource { get; init; } = Array.Empty<object>();
 
-    public QueryableParameterListModuleSetting ModuleSetting { get; }
+    public ListModuleSetting ModuleSetting { get; }
 
     public QueryableParameterEditWindow(QueryableParameterListModuleSetting moduleSetting)
     {
@@ -29,6 +29,17 @@ public partial class QueryableParameterEditWindow : IManagedWindow
         DataContext = this;
 
         Title = $"Edit {moduleSetting.Title.Pluralise()} Queryable Parameters";
+    }
+
+    public QueryableParameterEditWindow(ActionableQueryableParameterListModuleSetting moduleSetting)
+    {
+        InitializeComponent();
+        ModuleSetting = moduleSetting;
+        DataContext = this;
+
+        Title = $"Edit {moduleSetting.Title.Pluralise()} Queryable Parameters";
+
+        QueryableParameterActionTypeItemsSource = moduleSetting.ActionType.GetEnumValues();
     }
 
     private void AddButton_OnClick(object sender, RoutedEventArgs e)

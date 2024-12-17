@@ -113,24 +113,23 @@ public class FloatListModuleSetting : ValueListModuleSetting<float>
 
 public class QueryableParameterListModuleSetting : ListModuleSetting<QueryableParameter>
 {
-    internal readonly Type? ActionType;
+    public QueryableParameterListModuleSetting(string title, string description, Type viewType)
+        : base(title, description, viewType, [])
+    {
+    }
 
-    public QueryableParameterListModuleSetting(string title, string description, Type viewType, Type? actionType = null)
+    protected override QueryableParameter CreateItem() => new();
+}
+
+public class ActionableQueryableParameterListModuleSetting : ListModuleSetting<ActionableQueryableParameter>
+{
+    public readonly Type ActionType;
+
+    public ActionableQueryableParameterListModuleSetting(string title, string description, Type viewType, Type actionType)
         : base(title, description, viewType, [])
     {
         ActionType = actionType;
     }
 
-    protected override QueryableParameter CreateItem() => ActionType is null ? new QueryableParameter() : new ActionableQueryableParameter(ActionType);
-
-    public override bool Deserialise(object? value)
-    {
-        if (ActionType is null) return base.Deserialise(value);
-
-        if (value is not JArray jArrayValue) return false;
-
-        Attribute.Clear();
-        Attribute.AddRange(jArrayValue.Select(token => (QueryableParameter)token.ToObject(typeof(ActionableQueryableParameter))!));
-        return true;
-    }
+    protected override ActionableQueryableParameter CreateItem() => new(ActionType);
 }

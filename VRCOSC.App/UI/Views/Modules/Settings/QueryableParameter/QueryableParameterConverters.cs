@@ -75,9 +75,14 @@ public class QueryableParameterHasActionVisibilityConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is QueryableParameterListModuleSetting moduleSetting)
+        if (value is QueryableParameterListModuleSetting _)
         {
-            return moduleSetting.ActionType is null ? Visibility.Collapsed : Visibility.Visible;
+            return Visibility.Collapsed;
+        }
+
+        if (value is ActionableQueryableParameterListModuleSetting _)
+        {
+            return Visibility.Visible;
         }
 
         return null;
