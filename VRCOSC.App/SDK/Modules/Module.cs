@@ -444,9 +444,30 @@ public abstract class Module
         addSetting(lookup, new EnumModuleSetting(title, description, typeof(EnumDropdownSettingView), Convert.ToInt32(defaultValue), typeof(T)));
     }
 
-    protected void CreateDropdown(Enum lookup, string title, string description, IEnumerable<DropdownItem> items, DropdownItem defaultItem)
+    protected void CreateDropdown(Enum lookup, string title, string description, IEnumerable<object> items, object defaultItem, string titlePath, string valuePath)
     {
-        addSetting(lookup, new DropdownListModuleSetting(title, description, typeof(ListItemDropdownSettingView), items, defaultItem));
+        var titleProperty = defaultItem.GetType().GetProperty(titlePath);
+        var valueProperty = defaultItem.GetType().GetProperty(valuePath);
+
+        if (titleProperty is null || valueProperty is null)
+        {
+            throw new InvalidOperationException("You must have a property for both the titlePath and valuePath");
+        }
+
+        var titleValue = titleProperty.GetValue(defaultItem);
+        var valueValue = valueProperty.GetValue(defaultItem);
+
+        if (titleValue is null || valueValue is null)
+        {
+            throw new InvalidOperationException("You must have a property for both the titlePath and valuePath");
+        }
+
+        if (titleValue.ToString() is null || valueValue.ToString() is null)
+        {
+            throw new InvalidOperationException("Your titlePath and valuePath properties must be convertable to a string");
+        }
+
+        addSetting(lookup, new DropdownListModuleSetting(title, description, typeof(ListItemDropdownSettingView), items, valueValue.ToString()!, titlePath, valuePath));
     }
 
     protected void CreateDateTime(Enum lookup, string title, string description, DateTimeOffset defaultValue)

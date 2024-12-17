@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using VRCOSC.App.SDK.Modules.Attributes.Types;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
@@ -183,13 +182,36 @@ public class EnumModuleSetting : ValueModuleSetting<int>
 
 public class DropdownListModuleSetting : StringModuleSetting
 {
-    public IEnumerable<DropdownItem> Items { get; internal set; }
+    private readonly Type itemType;
 
-    public DropdownListModuleSetting(string title, string description, Type viewType, IEnumerable<DropdownItem> items, DropdownItem defaultItem)
-        : base(title, description, viewType, defaultItem.ID)
+    public string TitlePath { get; }
+    public string ValuePath { get; }
+
+    public IEnumerable<object> Items { get; }
+
+    public DropdownListModuleSetting(string title, string description, Type viewType, IEnumerable<object> items, string defaultValue, string titlePath, string valuePath)
+        : base(title, description, viewType, defaultValue)
     {
+        itemType = items.GetType().GenericTypeArguments[0];
+
+        TitlePath = titlePath;
+        ValuePath = valuePath;
+
         // take a copy to stop developers holding a reference
         Items = items.ToList().AsReadOnly();
+    }
+
+    public override bool GetValue<T>(out T returnValue)
+    {
+        if (typeof(T) == itemType)
+        {
+            var valueProperty = itemType.GetProperty(ValuePath);
+            returnValue = (T)Items.First(item => valueProperty!.GetValue(item)!.ToString()! == Attribute.Value);
+            return true;
+        }
+
+        returnValue = (T)new object();
+        return false;
     }
 }
 
