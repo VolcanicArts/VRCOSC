@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using VRCOSC.App.Utils;
@@ -20,89 +19,70 @@ public abstract class ListModuleSetting : ModuleSetting
 
     public abstract int Count();
     public abstract void Add();
-    public abstract void Remove(object instance);
+    public abstract void Remove(object item);
 }
 
-public abstract class ListModuleSetting<T> : ListModuleSetting where T : ICloneable, IEquatable<T>, new()
+public abstract class ListModuleSetting<T> : ListModuleSetting where T : IEquatable<T>
 {
-    public ObservableCollection<T> Attribute { get; private set; } = null!;
-    protected IEnumerable<T> DefaultValues { get; }
-
-    public override object GetRawValue() => Attribute.ToList();
-    public override bool IsDefault() => Attribute.SequenceEqual(DefaultValues);
-
-    public override void PreDeserialise()
-    {
-        Attribute = new ObservableCollection<T>(getClonedDefaults());
-        Attribute.CollectionChanged += (_, _) => OnSettingChange?.Invoke();
-    }
-
-    public override void SetDefault()
-    {
-        Attribute.Clear();
-        getClonedDefaults().ForEach(item => Attribute.Add(item));
-    }
-
-    private IEnumerable<T> getClonedDefaults() => DefaultValues.Select(value => (T)value.Clone());
-
-    protected virtual T CreateItem() => new();
-
-    public override bool Deserialise(object? value)
-    {
-        if (value is not JArray jArrayValue) return false;
-
-        Attribute.Clear();
-        Attribute.AddRange(jArrayValue.Select(token => token.ToObject<T>()!));
-        return true;
-    }
+    protected readonly IEnumerable<T> DefaultValues;
+    public ObservableCollection<T> Attribute { get; }
 
     protected ListModuleSetting(string title, string description, Type viewType, IEnumerable<T> defaultValues)
         : base(title, description, viewType)
     {
         DefaultValues = defaultValues;
+        Attribute = new ObservableCollection<T>(defaultValues);
+        Attribute.OnCollectionChanged((_, _) => OnSettingChange?.Invoke());
     }
+
+    internal override bool IsDefault() => Attribute.SequenceEqual(DefaultValues);
 
     public override int Count() => Attribute.Count;
+    public override void Add() => Attribute.Add(CreateItem());
 
-    public override void Add()
+    public override void Remove(object item)
     {
-        Attribute.Add(CreateItem());
+        if (item is not T castItem) throw new InvalidOperationException($"Cannot remove type {item.GetType().ToReadableName()} from list with type {typeof(T).ToReadableName()}");
+
+        Attribute.Remove(castItem);
     }
 
-    public override void Remove(object instance)
-    {
-        if (instance is not T castInstance) throw new InvalidOperationException($"Cannot remove type {instance.GetType()} from list with type {typeof(T)}");
+    protected abstract T CreateItem();
 
-        Attribute.Remove(castInstance);
+    public override bool GetValue<TOut>(out TOut returnValue)
+    {
+        if (typeof(List<T>).IsAssignableTo(typeof(TOut)))
+        {
+            returnValue = (TOut)Convert.ChangeType(Attribute.ToList(), typeof(TOut));
+            return true;
+        }
+
+        returnValue = (TOut)Convert.ChangeType(Array.Empty<object>(), typeof(TOut));
+        return false;
+    }
+
+    internal override object Serialise() => Attribute.ToList();
+
+    internal override bool Deserialise(object? ingestValue)
+    {
+        if (ingestValue is not JArray jArrayValue) return false;
+
+        Attribute.Clear();
+        Attribute.AddRange(jArrayValue.Select(token => token.ToObject<T>()!));
+        return true;
     }
 }
 
 public abstract class ValueListModuleSetting<T> : ListModuleSetting<Observable<T>>
 {
-    public override object GetRawValue() => Attribute.Select(observable => observable.Value).ToList();
-
-    public override void PreDeserialise()
-    {
-        base.PreDeserialise();
-
-        Attribute.CollectionChanged += (_, e) => subscribeToNewItems(e);
-        return;
-
-        void subscribeToNewItems(NotifyCollectionChangedEventArgs e)
-        {
-            if (e.NewItems is null) return;
-
-            foreach (Observable<T> newItem in e.NewItems)
-            {
-                newItem.Subscribe(_ => OnSettingChange?.Invoke());
-            }
-        }
-    }
-
     protected ValueListModuleSetting(string title, string description, Type viewType, IEnumerable<Observable<T>> defaultValues)
         : base(title, description, viewType, defaultValues)
     {
     }
+
+    internal override bool IsDefault() => Attribute.Count == DefaultValues.Count() && Attribute.All(o => o.IsDefault);
+
+    protected override Observable<T> CreateItem() => new();
 }
 
 public class StringListModuleSetting : ValueListModuleSetting<string>

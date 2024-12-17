@@ -37,7 +37,7 @@
                                                                     <Border
                                                                         Background="{StaticResource CBackground1}"
                                                                         Opacity="0.5"
-                                                                        Visibility="{Binding IsEnabled, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                                                        Visibility="{Binding IsEnabled.Value, Converter={StaticResource BoolToVisibilityConverter}}" />
                                                                 </Grid>
                                                             </ControlTemplate>
                                                         </Setter.Value>

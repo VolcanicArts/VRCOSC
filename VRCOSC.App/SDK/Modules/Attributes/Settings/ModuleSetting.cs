@@ -2,26 +2,29 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows.Controls;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
 
-public abstract class ModuleSetting : ModuleAttribute, INotifyPropertyChanged
+public abstract class ModuleSetting
 {
-    internal Module ParentModule { get; set; }
+    internal Module ParentModule { get; set; } = null!;
+
+    /// <summary>
+    /// The title of this <see cref="ModuleSetting"/>
+    /// </summary>
+    public string Title { get; }
+
+    /// <summary>
+    /// The description of this <see cref="ModuleSetting"/>
+    /// </summary>
+    public string Description { get; }
 
     /// <summary>
     /// The type of <see cref="UserControl"/> to instance when this <see cref="ModuleSetting"/> needs to be rendered
     /// </summary>
     public Type ViewType { get; }
-
-    /// <summary>
-    /// Called whenever this <see cref="ModuleSetting"/>'s value changed
-    /// </summary>
-    public Action? OnSettingChange;
 
     /// <summary>
     /// Creates a new <see cref="UserControl"/> instance of <see cref="ViewType"/>
@@ -42,31 +45,19 @@ public abstract class ModuleSetting : ModuleAttribute, INotifyPropertyChanged
         }
     }
 
-    private bool isEnabled = true;
+    public Action? OnSettingChange;
 
-    /// <summary>
-    /// When true, the user can edit this <see cref="ModuleSetting"/>, otherwise, the UI prevents the user from editing this <see cref="ModuleSetting"/>
-    /// </summary>
-    public bool IsEnabled
-    {
-        get => isEnabled;
-        set
-        {
-            isEnabled = value;
-            OnPropertyChanged();
-        }
-    }
+    public Observable<bool> IsEnabled { get; } = new(true);
+
+    internal abstract bool Deserialise(object? ingestValue);
+    internal abstract object? Serialise();
+    internal abstract bool IsDefault();
+    public abstract bool GetValue<T>(out T returnValue);
 
     protected ModuleSetting(string title, string description, Type viewType)
-        : base(title, description)
     {
+        Title = title;
+        Description = description;
         ViewType = viewType;
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
