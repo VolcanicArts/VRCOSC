@@ -375,7 +375,7 @@ public abstract class Module
         if (typeof(T) != typeof(bool) && typeof(T) != typeof(int) && typeof(T) != typeof(float))
             throw new InvalidOperationException($"{FullID} attempted to register a parameter with an invalid type");
 
-        Parameters.Add(lookup, new ModuleParameter(title, description, defaultName, mode, ParameterTypeUtils.GetTypeFromType<T>(), legacy));
+        Parameters.Add(lookup, new ModuleParameter(title, description, defaultName, mode, ParameterTypeFactory.CreateFrom<T>(), legacy));
     }
 
     /// <summary>

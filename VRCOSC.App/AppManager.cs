@@ -236,9 +236,9 @@ public class AppManager
                 if (wasPlayerUpdated) ModuleManager.GetInstance().PlayerUpdate();
 
                 if (message.ParameterName.StartsWith("VRCOSC/Controls")) handleControlParameter(new ReceivedParameter(message.ParameterName, message.ParameterValue));
-            }
 
-            ModuleManager.GetInstance().ParameterReceived(message);
+                ModuleManager.GetInstance().ParameterReceived(message);
+            }
         }
     }
 
