@@ -18,7 +18,7 @@
         <queryableParameter:BoolValueConverter x:Key="BoolValueConverter"/>
     </Window.Resources>
     <Border Padding="10" Background="{StaticResource CBackground2}">
-        <core:HeaderFooterListView ItemsSource="{Binding ModuleSetting.Attribute}" AlternationCount="2" HideHeaderWhenEmpty="True">
+        <core:HeaderFooterListView x:Name="ParameterList" AlternationCount="2" HideHeaderWhenEmpty="True">
             <core:HeaderFooterListView.Header>
                 <Border Background="{StaticResource CBackground1}" Height="5" />
             </core:HeaderFooterListView.Header>

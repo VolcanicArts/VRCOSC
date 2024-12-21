@@ -4,11 +4,10 @@
 using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.SDK.Modules.Attributes.Types;
+namespace VRCOSC.App.SDK.Parameters.Queryable;
 
 public class QueryResult
 {
@@ -30,10 +29,6 @@ public class ActionableQueryResult<T> : QueryResult
     }
 }
 
-public interface IQueryableParameter
-{
-}
-
 [JsonObject(MemberSerialization.OptIn)]
 public class ActionableQueryableParameter<T> : QueryableParameter, IEquatable<ActionableQueryableParameter<T>> where T : Enum
 {
@@ -50,7 +45,7 @@ public class ActionableQueryableParameter<T> : QueryableParameter, IEquatable<Ac
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class QueryableParameter : IQueryableParameter, IEquatable<QueryableParameter>
+public class QueryableParameter : IEquatable<QueryableParameter>
 {
     [JsonProperty("name")]
     public Observable<string> Name { get; } = new(string.Empty);

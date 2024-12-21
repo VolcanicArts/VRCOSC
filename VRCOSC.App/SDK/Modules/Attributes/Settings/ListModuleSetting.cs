@@ -5,9 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using VRCOSC.App.SDK.Modules.Attributes.Types;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
@@ -108,53 +106,5 @@ public class FloatListModuleSetting : ValueListModuleSetting<float>
     public FloatListModuleSetting(string title, string description, Type viewType, IEnumerable<float> defaultValues)
         : base(title, description, viewType, defaultValues.Select(value => new Observable<float>(value)))
     {
-    }
-}
-
-public class QueryableParameterListModuleSetting : ListModuleSetting<QueryableParameter>
-{
-    public QueryableParameterListModuleSetting(string title, string description, Type viewType)
-        : base(title, description, viewType, [])
-    {
-    }
-
-    protected override QueryableParameter CreateItem() => new();
-
-    public async Task Init()
-    {
-        foreach (var queryableParameter in Attribute)
-        {
-            await queryableParameter.Init();
-        }
-    }
-}
-
-public class ActionableQueryableParameterListModuleSetting : ListModuleSetting<QueryableParameter>
-{
-    public Type ActionType { get; }
-
-    public ActionableQueryableParameterListModuleSetting(string title, string description, Type viewType, Type actionType)
-        : base(title, description, viewType, [])
-    {
-        ActionType = actionType;
-    }
-
-    protected override QueryableParameter CreateItem() => (QueryableParameter)Activator.CreateInstance(typeof(ActionableQueryableParameter<>).MakeGenericType(ActionType))!;
-
-    internal override bool Deserialise(object? ingestValue)
-    {
-        if (ingestValue is not JArray jArrayValue) return false;
-
-        Attribute.Clear();
-        Attribute.AddRange(jArrayValue.Select(token => (QueryableParameter)token.ToObject(typeof(ActionableQueryableParameter<>).MakeGenericType(ActionType))!));
-        return true;
-    }
-
-    public async Task Init()
-    {
-        foreach (var queryableParameter in Attribute)
-        {
-            await queryableParameter.Init();
-        }
     }
 }

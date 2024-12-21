@@ -2,9 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Windows;
-using VRCOSC.App.SDK.Modules;
-using VRCOSC.App.SDK.Modules.Attributes.Settings;
+using VRCOSC.App.SDK.Parameters.Queryable;
 using VRCOSC.App.UI.Core;
+
+// ReSharper disable InconsistentNaming
 
 namespace VRCOSC.App.UI.Views.Modules.Settings.QueryableParameter;
 
@@ -12,35 +13,27 @@ public partial class QueryableParameterSettingView
 {
     private WindowManager windowManager = null!;
 
-    public object ModuleSetting { get; }
+    public static readonly DependencyProperty QueryableParameterListProperty =
+        DependencyProperty.Register(nameof(QueryableParameterList), typeof(QueryableParameterList), typeof(QueryableParameterSettingView), new PropertyMetadata(null));
 
-    public QueryableParameterSettingView(Module _, QueryableParameterListModuleSetting moduleSetting)
+    public QueryableParameterList QueryableParameterList
     {
-        InitializeComponent();
-        ModuleSetting = moduleSetting;
+        get => (QueryableParameterList)GetValue(QueryableParameterListProperty);
+        set => SetValue(QueryableParameterListProperty, value);
     }
 
-    public QueryableParameterSettingView(Module _, ActionableQueryableParameterListModuleSetting moduleSetting)
+    public QueryableParameterSettingView()
     {
         InitializeComponent();
-        ModuleSetting = moduleSetting;
-    }
-
-    private void EditButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        if (ModuleSetting is QueryableParameterListModuleSetting queryableParameterListModuleSetting)
-        {
-            windowManager.TrySpawnChild(new QueryableParameterEditWindow(queryableParameterListModuleSetting));
-        }
-
-        if (ModuleSetting is ActionableQueryableParameterListModuleSetting actionableQueryableParameterListModuleSetting)
-        {
-            windowManager.TrySpawnChild(new QueryableParameterEditWindow(actionableQueryableParameterListModuleSetting));
-        }
     }
 
     private void QueryableParameterSettingView_OnLoaded(object sender, RoutedEventArgs e)
     {
         windowManager = new WindowManager(this);
+    }
+
+    private void EditButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        windowManager.TrySpawnChild(new QueryableParameterEditWindow(QueryableParameterList));
     }
 }
