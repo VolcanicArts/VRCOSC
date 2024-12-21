@@ -7,23 +7,29 @@ namespace VRCOSC.App.SDK.Parameters;
 
 public enum ParameterType
 {
-    Bool,
-    Int,
-    Float
+    Bool = 0,
+    Int = 1,
+    Float = 2
 }
 
-public static class ParameterTypeUtils
+public static class ParameterTypeFactory
 {
-    public static ParameterType GetTypeFromType(Type type)
+    public static ParameterType CreateFrom(Type type)
     {
         if (type == typeof(bool)) return ParameterType.Bool;
         if (type == typeof(int)) return ParameterType.Int;
         if (type == typeof(float)) return ParameterType.Float;
 
-        throw new InvalidOperationException("Parameters can only be of type bool, int, or float");
+        throw new InvalidOperationException($"Parameters can only be of type bool, int, or float");
     }
 
-    public static ParameterType GetTypeFromType<T>() => GetTypeFromType(typeof(T));
+    /// <summary>
+    /// Takes in <typeparamref name="T"/> and attempts to create a <see cref="ParameterType"/> from it
+    /// </summary>
+    public static ParameterType CreateFrom<T>() => CreateFrom(typeof(T));
 
-    public static ParameterType GetTypeFromValue(object value) => GetTypeFromType(value.GetType());
+    /// <summary>
+    /// Takes in <paramref name="value"/> and attempts to create a <see cref="ParameterType"/> from its <see cref="Type"/>
+    /// </summary>
+    public static ParameterType CreateFrom(object value) => CreateFrom(value.GetType());
 }

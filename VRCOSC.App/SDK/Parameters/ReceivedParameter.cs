@@ -19,17 +19,21 @@ public class ReceivedParameter
     public string Name { get; }
 
     /// <summary>
+    /// The raw value of this parameter. Useful when used alongside <see cref="Type"/>
+    /// </summary>
+    /// <remarks>If you want to get this as a specific value, call <see cref="GetValue{T}"/></remarks>
+    public object Value { get; }
+
+    /// <summary>
     /// The type of this parameter
     /// </summary>
     public ParameterType Type { get; }
-
-    internal readonly object Value;
 
     internal ReceivedParameter(string name, object value)
     {
         Name = name;
         Value = value;
-        Type = ParameterTypeUtils.GetTypeFromValue(value);
+        Type = ParameterTypeFactory.CreateFrom(value);
     }
 
     internal ReceivedParameter(ReceivedParameter other)
@@ -62,21 +66,21 @@ public class ReceivedParameter
     /// Checks if the received value is of type <paramref name="type"/>
     /// </summary>
     /// <returns>True if the value is exactly the type passed, otherwise false</returns>
-    public bool IsValueType(Type type) => ParameterTypeUtils.GetTypeFromType(type) == Type;
+    public bool IsValueType(Type type) => ParameterTypeFactory.CreateFrom(type) == Type;
 }
 
 /// <summary>
 /// A <see cref="ReceivedParameter"/> that is associated with a <see cref="ModuleParameter"/>
 /// </summary>
-public class RegisteredParameter : ReceivedParameter
+public sealed class RegisteredParameter : ReceivedParameter
 {
     /// <summary>
     /// The lookup of the module parameter
     /// </summary>
-    public readonly Enum Lookup;
+    public Enum Lookup { get; }
 
     private readonly ModuleParameter moduleParameter;
-    private readonly List<Wildcard> wildcards = new();
+    private readonly List<Wildcard> wildcards = [];
 
     internal RegisteredParameter(ReceivedParameter other, Enum lookup, ModuleParameter moduleParameter)
         : base(other)
@@ -116,7 +120,7 @@ public class RegisteredParameter : ReceivedParameter
 
     public override T GetValue<T>()
     {
-        if (ParameterTypeUtils.GetTypeFromType<T>() != moduleParameter.ExpectedType)
+        if (ParameterTypeFactory.CreateFrom<T>() != moduleParameter.ExpectedType)
             throw new InvalidCastException($"Parameter's value was expected as {moduleParameter.ExpectedType} and you're trying to use it as {typeof(T).ToReadableName()}");
 
         return base.GetValue<T>();
