@@ -26,6 +26,11 @@ public class QueryableParameterList
     {
         Parameters.Add(Activator.CreateInstance(queryableParameterType)!);
     }
+
+    public void Remove(object instance)
+    {
+        Parameters.Remove(instance);
+    }
 }
 
 public class QueryableParameterListConverter : JsonConverter<QueryableParameterList>

@@ -102,24 +102,32 @@ public class QueryableParameter : IEquatable<QueryableParameter>
 
     public QueryResult Evaluate(ReceivedParameter parameter)
     {
-        var valid = parameter.Type switch
+        try
         {
-            ParameterType.Bool => Evaluate(parameter.GetValue<bool>()),
-            ParameterType.Int => Evaluate(parameter.GetValue<int>()),
-            ParameterType.Float => Evaluate(parameter.GetValue<float>()),
-            _ => throw new ArgumentOutOfRangeException(nameof(parameter.Type), parameter.Type, null)
-        };
+            var valid = parameter.Type switch
+            {
+                ParameterType.Bool => Evaluate(parameter.GetValue<bool>()),
+                ParameterType.Int => Evaluate(parameter.GetValue<int>()),
+                ParameterType.Float => Evaluate(parameter.GetValue<float>()),
+                _ => throw new ArgumentOutOfRangeException(nameof(parameter.Type), parameter.Type, null)
+            };
 
-        var queryResult = new QueryResult
+            var queryResult = new QueryResult
+            {
+                IsValid = valid,
+                JustBecameValid = valid && !previousValid,
+                JustBecameInvalid = !valid && previousValid
+            };
+
+            previousValid = valid;
+
+            return queryResult;
+        }
+        catch (Exception e)
         {
-            IsValid = valid,
-            JustBecameValid = valid && !previousValid,
-            JustBecameInvalid = !valid && previousValid
-        };
-
-        previousValid = valid;
-
-        return queryResult;
+            ExceptionHandler.Handle(e, $"{nameof(QueryableParameter)} has experienced an exception when evaluating");
+            return new QueryResult();
+        }
     }
 
     protected bool Evaluate(bool value)

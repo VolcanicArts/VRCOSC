@@ -18,7 +18,14 @@ public enum ComparisonOperation
 
 public static class ComparisonOperationUtils
 {
-    public static readonly IEnumerable<KeyValuePair<string, ComparisonOperation>> DISPLAY_LIST = new List<KeyValuePair<string, ComparisonOperation>>
+    public static readonly IEnumerable<KeyValuePair<string, ComparisonOperation>> BOOL_DISPLAY_LIST = new List<KeyValuePair<string, ComparisonOperation>>
+    {
+        new("Changed", ComparisonOperation.Changed),
+        new("Equal To", ComparisonOperation.EqualTo),
+        new("Not Equal To", ComparisonOperation.NotEqualTo),
+    };
+
+    public static readonly IEnumerable<KeyValuePair<string, ComparisonOperation>> VALUE_DISPLAY_LIST = new List<KeyValuePair<string, ComparisonOperation>>
     {
         new("Changed", ComparisonOperation.Changed),
         new("Equal To", ComparisonOperation.EqualTo),
