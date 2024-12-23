@@ -120,27 +120,27 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         if (bytes is [0xFF, 0xFE, ..])
         {
             bytes = bytes[2..];
-            Logger.Log("Skipping BOM");
-        }
-
-        try
-        {
-            // read legacy files encoded as UTF-16
+            Logger.Log("Found BOM. Deserialising as UTF16");
             return JsonConvert.DeserializeObject<T>(Encoding.Unicode.GetString(bytes));
         }
-        catch
+
+        var utf16Str = Encoding.Unicode.GetString(bytes);
+        var utf8Str = Encoding.UTF8.GetString(bytes);
+
+        if (utf16Str.StartsWith('{'))
         {
-            try
-            {
-                // read converted files encoded as UTF-8
-                return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(bytes));
-            }
-            catch
-            {
-                Logger.Log($"'{filePath}' was unable to be read as UTF8");
-                return null;
-            }
+            Logger.Log($"Deserialising {filePath} as UTF16", LoggingTarget.Information);
+            return JsonConvert.DeserializeObject<T>(utf16Str);
         }
+
+        if (utf8Str.StartsWith('{'))
+        {
+            Logger.Log($"Deserialising {filePath} as UTF8", LoggingTarget.Information);
+            return JsonConvert.DeserializeObject<T>(utf8Str);
+        }
+
+        Logger.Log($"'{filePath}' was unable to be deserialised");
+        return null;
     }
 
     /// <summary>
