@@ -437,12 +437,12 @@ public class AppManager
         sendControlParameters();
     }
 
-    public Task InstallSpeechModel()
+    public Task InstallSpeechModel() => Application.Current.Dispatcher.Invoke(() =>
     {
         var action = new FileDownloadAction(new Uri("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin?download=true"), Storage.GetStorageForDirectory("runtime/whisper"), "ggml-small.bin");
         action.OnComplete += () => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = Storage.GetStorageForDirectory("runtime/whisper").GetFullPath("ggml-small.bin");
         return MainWindow.GetInstance().ShowLoadingOverlay("Installing Model", action);
-    }
+    });
 
     private void initialiseOSCClient(IPAddress sendAddress, int sendPort, IPAddress receiveAddress, int receivePort)
     {
