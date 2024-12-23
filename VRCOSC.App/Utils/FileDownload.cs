@@ -24,9 +24,11 @@ public class FileDownload
 
     private async Task downloadFileFromStreamAsync(Stream stream, string filePath, long? totalSize)
     {
-        using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
+        const int buffer_size = 2048 * 8;
 
-        var buffer = new byte[8192];
+        using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, buffer_size, true);
+
+        var buffer = new byte[buffer_size];
         var totalRead = 0L;
         var isMoreToRead = true;
 
@@ -42,7 +44,7 @@ public class FileDownload
             {
                 await fileStream.WriteAsync(buffer.AsMemory(0, read)).ConfigureAwait(false);
                 totalRead += read;
-                var progress = totalSize.HasValue ? (float)totalRead / totalSize.Value * 100 : 0;
+                var progress = totalSize.HasValue ? (float)totalRead / totalSize.Value : 0;
                 ProgressChanged?.Invoke(progress);
             }
         } while (isMoreToRead);

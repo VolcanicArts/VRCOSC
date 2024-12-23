@@ -45,6 +45,7 @@
             <Setter Property="Width" Value="384" />
             <Setter Property="FontSize" Value="18" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="MaxDropDownHeight" Value="200"/>
         </Style>
         <Style x:Key="SettingTextBoxStyle" TargetType="TextBox">
             <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
@@ -339,6 +340,19 @@
                                         </core:VRCOSCButton>
                                         <TextBox Style="{StaticResource SettingTextBoxStyle}" Text="{Binding WhisperModelFilePath}" />
                                     </core:SpacedStackPanel>
+                                </Grid>
+                            </Border>
+                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
+                                    CornerRadius="5">
+                                <Grid>
+                                    <TextBlock Text="Should Translate?" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock
+                                        Text="Should Whisper translate into English?"
+                                        Style="{StaticResource SettingDescription}" />
+                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                         Height="32"
+                                                         Width="32"
+                                                         IsChecked="{Binding SpeechTranslate}" />
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="60"

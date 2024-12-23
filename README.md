@@ -24,11 +24,8 @@ and act as a centralised source for useful OSC programs so that a user will only
 Our framework supports developing your own modules to save you the trouble of having to set up everything yourself,
 as well as allowing other people to seamlessly use your module on their PC. See how to create a module [here](https://vrcosc.com/docs/v2/sdk/getting-started).
 
-VRCOSC's powerful ChatBox design system allows you to display what you want, when you want, how you want. Check out the ChatBox-Config forum channel of our [Discord Server](https://discord.gg/vj4brHyvT5) to see some of the configs people have created!
+VRCOSC's powerful ChatBox design system allows you to display what you want, when you want, how you want. Check out the ChatBox-Config forum channel of our [Discord Server](https://discord.gg/vj4brHyvT5) to see some of the configs people have created or you can make your own by following [the docs](https://vrcosc.com/docs/v2/chatbox)!
 The ChatBox uses a [community-created list](https://github.com/cyberkitsune/chatbox-club-blacklist/blob/master/npblacklist.json) to block the ChatBox from being used in certain worlds. You can turn this off in the app settings, but we recommend you keep it on for respect.
-
-Our powerful ChatBox animation system allows you to display what you want, when you want, how you want.
-Community configs are available, or you can make your own by following [the docs](https://vrcosc.com/docs/v2/chatbox)!
 
 Featuring:
 - Modern GUI
@@ -44,8 +41,8 @@ Featuring:
 
 ## Getting Started
 - Download and run `VRCOSCSetup.exe` from the [Releases](https://github.com/VolcanicArts/VRCOSC/releases/latest) page
-- Tick the modules you'd like to use
-- (Optional) Download any prefabs you want and add them to your avatar (Guides are available inside each prefab)
+- Enable the modules you'd like to use
+- (Optional) Download any prefabs you want and add them to your avatar from [here](https://vrcosc.com/docs/downloads#prefabs)
 - Press the run button!
 
 Check the [FAQ](https://vrcosc.com/docs/faq) if you have any issues with installing, using the app, or using any of the prefabs.

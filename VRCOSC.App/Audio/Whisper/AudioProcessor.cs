@@ -15,7 +15,7 @@ namespace VRCOSC.App.Audio.Whisper;
 internal class AudioProcessor
 {
     private readonly AudioCapture? audioCapture;
-    private readonly WhisperProcessor? whisper;
+    private WhisperProcessor? whisper;
 
     private const int default_samples_to_check = 24000; // sample rate is 16000 so check the last 1.5 seconds of audio
 
@@ -24,26 +24,6 @@ internal class AudioProcessor
 
     public AudioProcessor(MMDevice device)
     {
-        var modelFilePath = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SpeechModelPath);
-
-        try
-        {
-            var builder = WhisperFactory.FromPath(modelFilePath);
-
-            whisper = builder.CreateBuilder()
-                             .WithProbabilities()
-                             .WithThreads(8)
-                             .WithNoContext()
-                             .WithSingleSegment()
-                             .WithMaxSegmentLength(int.MaxValue)
-                             .Build();
-        }
-        catch (Exception e)
-        {
-            whisper = null;
-            ExceptionHandler.Handle(e, "The Whisper model path is empty or incorrect. Please go into the app's speech settings and restore the model by clicking 'Auto Install Model'");
-        }
-
         try
         {
             audioCapture = new AudioCapture(device);
@@ -55,10 +35,46 @@ internal class AudioProcessor
         }
     }
 
+    private void buildWhisperProcessor()
+    {
+        var modelFilePath = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SpeechModelPath);
+
+        try
+        {
+            var builder = WhisperFactory.FromPath(modelFilePath).CreateBuilder();
+
+            builder = builder.WithProbabilities()
+                             .WithThreads(8)
+                             .WithNoContext()
+                             .WithSingleSegment()
+                             .WithMaxSegmentLength(int.MaxValue)
+                             .WithLanguageDetection();
+
+            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.SpeechTranslate))
+            {
+                builder.WithLanguage("en");
+            }
+
+            // translation for any-to-any technically works but is unsupported
+            // for future reference, to get any-to-any to work you have to do:
+            // WithLanguageDetection
+            // WithLanguage(targetLanguage)
+
+            whisper = builder.Build();
+        }
+        catch (Exception e)
+        {
+            whisper = null;
+            ExceptionHandler.Handle(e, "The Whisper model path is empty or incorrect. Please go into the app's speech settings and restore the model by clicking 'Auto Install Model'");
+        }
+    }
+
     public void Start()
     {
         speechResult = null;
         isProcessing = false;
+
+        buildWhisperProcessor();
 
         if (whisper is null || audioCapture is null) return;
 
@@ -69,6 +85,8 @@ internal class AudioProcessor
     public void Stop()
     {
         audioCapture?.StopCapture();
+        whisper?.Dispose();
+        whisper = null;
     }
 
     public async Task<SpeechResult?> GetResultAsync()
@@ -95,9 +113,7 @@ internal class AudioProcessor
 
             if (finalSpeechResult is not null)
             {
-#if DEBUG
-                Logger.Log($"Final result: {finalSpeechResult.Text} - {finalSpeechResult.Confidence}");
-#endif
+                Logger.Log($"Final result: {finalSpeechResult.Text} - {finalSpeechResult.Confidence}", LoggingTarget.Information);
             }
 
             speechResult = null;
@@ -110,9 +126,7 @@ internal class AudioProcessor
         speechResult = await processWithWhisper(data, false);
         isProcessing = false;
 
-#if DEBUG
-        Logger.Log($"Result: {speechResult?.Text}");
-#endif
+        Logger.Log($"Result: {speechResult?.Text}", LoggingTarget.Information);
 
         return speechResult;
     }
@@ -150,9 +164,7 @@ internal class AudioProcessor
         }
 
         var rms = Math.Sqrt(sum / samplesToCheck);
-#if DEBUG
-        Logger.Log($"RMS: {rms}");
-#endif
+        Logger.Log($"RMS: {rms}", LoggingTarget.Information);
         return rms < SettingsManager.GetInstance().GetValue<float>(VRCOSCSetting.SpeechNoiseCutoff);
     }
 

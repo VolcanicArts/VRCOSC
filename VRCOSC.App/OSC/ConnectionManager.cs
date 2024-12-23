@@ -38,7 +38,7 @@ public class ConnectionManager
 
     public void Init()
     {
-        refreshTask = new Repeater(refreshServices);
+        refreshTask = new Repeater($"{nameof(ConnectionManager)}-{nameof(refreshServices)}", refreshServices);
         refreshTask.Start(TimeSpan.FromMilliseconds(refresh_interval));
 
         VRCOSCReceivePort = getAvailableUDPPort();

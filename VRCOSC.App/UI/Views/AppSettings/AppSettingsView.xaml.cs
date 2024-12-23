@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -11,12 +11,10 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using VRCOSC.App.Actions.Files;
 using VRCOSC.App.Audio;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Themes;
 using VRCOSC.App.UI.Views.Settings;
-using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 
@@ -134,6 +132,12 @@ public partial class AppSettingsView : INotifyPropertyChanged
     {
         get => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value;
         set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = value;
+    }
+
+    public bool SpeechTranslate
+    {
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechTranslate).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechTranslate).Value = value;
     }
 
     public int SpeechConfidenceSliderValue
@@ -261,25 +265,14 @@ public partial class AppSettingsView : INotifyPropertyChanged
         setPage(7);
     }
 
-    private void AutoInstallModel_OnClick(object sender, RoutedEventArgs e)
+    private async void AutoInstallModel_OnClick(object sender, RoutedEventArgs e)
     {
-        var action = new FileDownloadAction(new Uri("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true"), AppManager.GetInstance().Storage.GetStorageForDirectory("runtime/whisper"), "ggml-tiny.bin");
-
-        action.OnComplete += () =>
-        {
-            SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = AppManager.GetInstance().Storage.GetStorageForDirectory("runtime/whisper").GetFullPath("ggml-tiny.bin");
-            OnPropertyChanged(nameof(WhisperModelFilePath));
-        };
-
-        _ = MainWindow.GetInstance().ShowLoadingOverlay("Installing Model", action);
+        await AppManager.GetInstance().InstallSpeechModel();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
 
 public class IpPortValidationRule : ValidationRule

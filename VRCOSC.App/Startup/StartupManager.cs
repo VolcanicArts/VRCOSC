@@ -26,6 +26,8 @@ public class StartupManager
         serialisationManager.RegisterSerialiser(1, new StartupManagerSerialiser(AppManager.GetInstance().Storage, this));
     }
 
+    public void Serialise() => serialisationManager.Serialise();
+
     public void Load()
     {
         serialisationManager.Deserialise();
@@ -51,6 +53,8 @@ public class StartupManager
 
             try
             {
+                if (string.IsNullOrEmpty(fileLocation)) continue;
+
                 if (!File.Exists(fileLocation))
                 {
                     ExceptionHandler.Handle($"File location '{fileLocation}' does not exist when attempting to startup");

@@ -30,7 +30,7 @@ public partial class ProfilesView
         var button = (Button)sender;
         var profile = (Profile)button.Tag;
 
-        var result = MessageBox.Show("Are you sure you want to delete this profile?\nDeleting will remove all saved module, persistence, and ChatBox data", "Uninstall Warning", MessageBoxButton.YesNo);
+        var result = MessageBox.Show("Are you sure you want to delete this profile?\nDeleting will remove all saved module, persistence, and ChatBox data", "Profile Delete Warning", MessageBoxButton.YesNo);
         if (result != MessageBoxResult.Yes) return;
 
         ProfileManager.GetInstance().Profiles.Remove(profile);

@@ -1,0 +1,75 @@
+﻿<Window x:Class="VRCOSC.App.UI.Views.Modules.Settings.QueryableParameter.QueryableParameterEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+        xmlns:queryableParameter="clr-namespace:VRCOSC.App.UI.Views.Modules.Settings.QueryableParameter"
+        xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
+        mc:Ignorable="d"
+        Title="Edit Parameters" Height="450" Width="1200">
+    <Window.Resources>
+        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
+                                         Colour2="{StaticResource CBackground4}" />
+        <queryableParameter:QueryableParameterValueEntryVisibilityConverter x:Key="ValueEntryVisibilityConverter"/>
+        <queryableParameter:QueryableParameterBoolValueEntryVisibilityConverter x:Key="BoolValueEntryVisibilityConverter"/>
+        <queryableParameter:QueryableParameterIntValueEntryVisibilityConverter x:Key="IntValueEntryVisibilityConverter"/>
+        <queryableParameter:QueryableParameterFloatValueEntryVisibilityConverter x:Key="FloatValueEntryVisibilityConverter"/>
+        <queryableParameter:QueryableParameterHasActionVisibilityConverter x:Key="HasActionVisibilityConverter"/>
+        <queryableParameter:BoolValueConverter x:Key="BoolValueConverter"/>
+        <queryableParameter:ComparisonComboBoxItemsSourceConverter x:Key="ComparisonComboBoxItemsSourceConverter"/>
+    </Window.Resources>
+    <Border Padding="10" Background="{StaticResource CBackground2}">
+        <core:HeaderFooterListView x:Name="ParameterList" AlternationCount="2" HideHeaderWhenEmpty="True">
+            <core:HeaderFooterListView.Header>
+                <Border Background="{StaticResource CBackground1}" Height="5" />
+            </core:HeaderFooterListView.Header>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate>
+                                <Border
+                                    Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
+                                    Padding="5">
+                                    <Grid>
+                                        <core:SpacedStackPanel Orientation="Horizontal" Spacing="10" Height="30" Margin="2">
+                                            <TextBlock Text="When" Foreground="{StaticResource CForeground1}" FontSize="17" VerticalAlignment="Center"/>
+                                            <TextBox FontSize="17" VerticalAlignment="Center" VerticalContentAlignment="Center" Text="{Binding Name.Value}" Width="300"/>
+                                            <ComboBox Width="65" FontSize="15" VerticalAlignment="Center" VerticalContentAlignment="Center" ItemsSource="{Binding QueryableParameterTypeItemsSource, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" SelectedValue="{Binding Type.Value}"/>
+                                            <TextBlock Text="Becomes" Foreground="{StaticResource CForeground1}" FontSize="17" VerticalAlignment="Center"/>
+                                            <ComboBox FontSize="15" VerticalAlignment="Center" VerticalContentAlignment="Center" DisplayMemberPath="Key" SelectedValuePath="Value" SelectedValue="{Binding Comparison.Value}" ItemsSource="{Binding Type.Value, Converter={StaticResource ComparisonComboBoxItemsSourceConverter}}">
+                                            </ComboBox>
+                                            <Grid Visibility="{Binding Comparison.Value, Converter={StaticResource ValueEntryVisibilityConverter}}">
+                                                <ComboBox Visibility="{Binding Type.Value, Converter={StaticResource BoolValueEntryVisibilityConverter}}" FontSize="15" VerticalAlignment="Center" VerticalContentAlignment="Center" ItemsSource="{Binding BoolValueItemsSource, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" SelectedValue="{Binding BoolValue.Value, Converter={StaticResource BoolValueConverter}}"/>
+                                                <TextBox Visibility="{Binding Type.Value, Converter={StaticResource IntValueEntryVisibilityConverter}}" FontSize="17" VerticalAlignment="Center" VerticalContentAlignment="Center" Text="{Binding IntValue.Value}" Width="150"/>
+                                                <TextBox Visibility="{Binding Type.Value, Converter={StaticResource FloatValueEntryVisibilityConverter}}" FontSize="17" VerticalAlignment="Center" VerticalContentAlignment="Center" Text="{Binding FloatValue.Value}" Width="150"/>
+                                            </Grid>
+                                            <core:SpacedStackPanel Orientation="Horizontal" Spacing="10" Visibility="{Binding ModuleSetting, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Converter={StaticResource HasActionVisibilityConverter}}">
+                                                <TextBlock Text="Then" Foreground="{StaticResource CForeground1}" FontSize="17" VerticalAlignment="Center"/>
+                                                <ComboBox FontSize="15" VerticalAlignment="Center" VerticalContentAlignment="Center" ItemsSource="{Binding QueryableParameterActionTypeItemsSource, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" SelectedValue="{Binding Action.Value}"/>
+                                            </core:SpacedStackPanel>
+                                        </core:SpacedStackPanel>
+                                        <core:VRCOSCButton HorizontalAlignment="Right" ButtonColour="Red"
+                                                           Click="RemoveButton_OnClick"
+                                                           Height="30" Width="30" Tag="{Binding}">
+                                            <fa6:ImageAwesome Icon="Solid_Minus"
+                                                              PrimaryColor="{StaticResource CForeground1}"
+                                                              Margin="4" />
+                                        </core:VRCOSCButton>
+                                    </Grid>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <core:HeaderFooterListView.Footer>
+                <Border Background="{StaticResource CBackground1}">
+                    <core:IconButton Width="100" Height="20" Margin="0 5" Click="AddButton_OnClick" ButtonColour="Green"
+                                     Icon="Solid_Plus" />
+                </Border>
+            </core:HeaderFooterListView.Footer>
+        </core:HeaderFooterListView>
+    </Border>
+</Window>

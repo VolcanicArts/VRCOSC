@@ -62,8 +62,6 @@ public class PackageManager
         return RefreshAllSources(CacheExpireTime <= DateTime.Now);
     }
 
-    public void Serialise() => serialisationManager.Serialise();
-
     public CompositeProgressAction RefreshAllSources(bool forceRemoteGrab)
     {
         var packageLoadAction = new CompositeProgressAction();

@@ -9,34 +9,36 @@ namespace VRCOSC.App.Utils;
 
 public class Repeater
 {
+    private readonly string name;
     private readonly Action action;
     private CancellationTokenSource? cancellationTokenSource;
 
-    public Repeater(Action action)
+    public Repeater(string name, Action action)
     {
+        this.name = name;
         this.action = action;
     }
 
     public void Start(TimeSpan interval, bool runOnceImmediately = false)
     {
-        if (cancellationTokenSource is not null) throw new InvalidOperationException("Repeater is already started");
+        if (cancellationTokenSource is not null) throw new InvalidOperationException($"{nameof(Repeater)}:{name} is already started");
 
         cancellationTokenSource = new CancellationTokenSource();
 
-        if (runOnceImmediately)
-        {
-            try
-            {
-                action.Invoke();
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e, $"{nameof(Repeater)} has experienced an exception");
-            }
-        }
-
         _ = Task.Run(async () =>
         {
+            if (runOnceImmediately)
+            {
+                try
+                {
+                    action.Invoke();
+                }
+                catch (Exception e)
+                {
+                    ExceptionHandler.Handle(e, $"{nameof(Repeater)}:{name} has experienced an exception");
+                }
+            }
+
             while (!cancellationTokenSource.Token.IsCancellationRequested)
             {
                 try
@@ -50,7 +52,7 @@ public class Repeater
                 }
                 catch (Exception e)
                 {
-                    ExceptionHandler.Handle(e, $"{nameof(Repeater)} has experienced an exception");
+                    ExceptionHandler.Handle(e, $"{nameof(Repeater)}:{name} has experienced an exception");
                 }
             }
         }, cancellationTokenSource.Token);

@@ -32,6 +32,7 @@ public partial class ChatBoxTabView
     {
         LiveTextTextBox.Text = string.Empty;
         LiveTextTextBox.Focus();
+        ChatBoxManager.GetInstance().ClearText();
     }
 
     private void ChatBoxTabView_OnLoaded(object sender, RoutedEventArgs e)

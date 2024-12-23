@@ -111,10 +111,6 @@ public static class IntegerExtensions
 public static class EnumExtensions
 {
     public static string ToLookup(this Enum @enum) => @enum.ToString().ToLowerInvariant();
-
-    public static Array GetEnumValues(this Type enumType) => Enum.GetValues(enumType);
-
-    public static Array GetValues<T>(this T @enum) where T : Enum => Enum.GetValues(@enum.GetType());
 }
 
 public static class KeyExtensions

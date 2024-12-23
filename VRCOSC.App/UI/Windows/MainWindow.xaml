@@ -134,7 +134,7 @@
                 </Border>
             </Grid>
         </Border>
-        <Grid Name="LoadingOverlay" Visibility="Visible" Opacity="1" IsHitTestVisible="False">
+        <Grid Name="LoadingOverlay" Visibility="Collapsed" Opacity="0" IsHitTestVisible="False">
             <Rectangle ClipToBounds="True">
                 <b:Interaction.Behaviors>
                     <utils:BlurBackgroundBehavior BlurContainer="{Binding ElementName=MainWindowContent}" />

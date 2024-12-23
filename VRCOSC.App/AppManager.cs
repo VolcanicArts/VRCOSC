@@ -33,7 +33,6 @@ using VRCOSC.App.Settings;
 using VRCOSC.App.Startup;
 using VRCOSC.App.UI.Themes;
 using VRCOSC.App.UI.Windows;
-using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using VRCOSC.App.VRChatAPI;
 using Module = VRCOSC.App.SDK.Modules.Module;
@@ -59,7 +58,6 @@ public class AppManager
     public Observable<AppManagerState> State { get; } = new(AppManagerState.Stopped);
     public Observable<Theme> ProxyTheme { get; } = new(Theme.Dark);
 
-    public VelopackUpdater VelopackUpdater = null!;
     public ConnectionManager ConnectionManager = null!;
     public VRChatOscClient VRChatOscClient = null!;
     public VRChatClient VRChatClient = null!;
@@ -87,7 +85,6 @@ public class AppManager
     {
         SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Subscribe(theme => ProxyTheme.Value = theme, true);
 
-        VelopackUpdater = new VelopackUpdater();
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
@@ -155,16 +152,14 @@ public class AppManager
         VRChatOscClient.Init(ConnectionManager);
         ConnectionManager.Init();
 
-        vrchatCheckTask = new Repeater(checkForVRChatAutoStart);
+        vrchatCheckTask = new Repeater($"{nameof(AppManager)}-{nameof(checkForVRChatAutoStart)}", checkForVRChatAutoStart);
         vrchatCheckTask.Start(TimeSpan.FromSeconds(2));
 
-        openvrCheckTask = new Repeater(checkForOpenVR);
+        openvrCheckTask = new Repeater($"{nameof(AppManager)}-{nameof(checkForOpenVR)}", checkForOpenVR);
         openvrCheckTask.Start(TimeSpan.FromSeconds(2));
 
-        openvrUpdateTask = new Repeater(updateOVRClient);
+        openvrUpdateTask = new Repeater($"{nameof(AppManager)}-{nameof(updateOVRClient)}", updateOVRClient);
         openvrUpdateTask.Start(TimeSpan.FromSeconds(1d / 60d));
-
-        VelopackUpdater.ShowUpdateIfAvailable();
     }
 
     private void updateOVRClient()
@@ -241,9 +236,9 @@ public class AppManager
                 if (wasPlayerUpdated) ModuleManager.GetInstance().PlayerUpdate();
 
                 if (message.ParameterName.StartsWith("VRCOSC/Controls")) handleControlParameter(new ReceivedParameter(message.ParameterName, message.ParameterValue));
-            }
 
-            ModuleManager.GetInstance().ParameterReceived(message);
+                ModuleManager.GetInstance().ParameterReceived(message);
+            }
         }
     }
 
@@ -262,7 +257,7 @@ public class AppManager
 
     private void handleControlParameter(ReceivedParameter parameter)
     {
-        if (parameter.Name == "VRCOSC/Controls/ChatBox/Enabled" && parameter.IsValueType<bool>())
+        if (parameter is { Name: "VRCOSC/Controls/ChatBox/Enabled", Type: ParameterType.Bool })
         {
             ChatBoxManager.GetInstance().SendEnabled = parameter.GetValue<bool>();
         }
@@ -423,14 +418,14 @@ public class AppManager
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    await installSpeechModel();
+                    await InstallSpeechModel();
                 }
             }
 
             SpeechEngine.Initialise();
         }
 
-        updateTask = new Repeater(update);
+        updateTask = new Repeater($"{nameof(AppManager)}-{nameof(update)}", update);
         updateTask.Start(TimeSpan.FromSeconds(1d / 60d));
 
         VRChatOscClient.OnParameterReceived += onParameterReceived;
@@ -442,14 +437,12 @@ public class AppManager
         sendControlParameters();
     }
 
-    private Task installSpeechModel()
+    public Task InstallSpeechModel() => Application.Current.Dispatcher.Invoke(() =>
     {
-        var action = new FileDownloadAction(new Uri("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin?download=true"), Storage.GetStorageForDirectory("runtime/whisper"), "ggml-tiny.bin");
-
-        action.OnComplete += () => { SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = Storage.GetStorageForDirectory("runtime/whisper").GetFullPath("ggml-tiny.bin"); };
-
+        var action = new FileDownloadAction(new Uri("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin?download=true"), Storage.GetStorageForDirectory("runtime/whisper"), "ggml-small.bin");
+        action.OnComplete += () => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = Storage.GetStorageForDirectory("runtime/whisper").GetFullPath("ggml-small.bin");
         return MainWindow.GetInstance().ShowLoadingOverlay("Installing Model", action);
-    }
+    });
 
     private void initialiseOSCClient(IPAddress sendAddress, int sendPort, IPAddress receiveAddress, int receivePort)
     {

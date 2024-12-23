@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -37,7 +37,7 @@ public class IntClipVariable : ClipVariable
     {
         var intValue = (int)value;
 
-        if (Mode == IntVariableMode.Standard)
+        if (Mode == IntVariableMode.Standard || SymbolList.Count == 0)
         {
             return intValue == int.MaxValue ? "\u221e" : intValue.ToString(CultureInfo.CurrentCulture);
         }

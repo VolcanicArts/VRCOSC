@@ -9,7 +9,8 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Attributes.Types;
 
-public class MutableKeyValuePair : IEquatable<MutableKeyValuePair>, ICloneable
+[JsonObject(MemberSerialization.OptIn)]
+public class MutableKeyValuePair : IEquatable<MutableKeyValuePair>
 {
     [JsonProperty("key")]
     public Observable<string> Key { get; } = new(string.Empty);
@@ -17,14 +18,9 @@ public class MutableKeyValuePair : IEquatable<MutableKeyValuePair>, ICloneable
     [JsonProperty("value")]
     public Observable<string> Value { get; } = new(string.Empty);
 
+    [JsonConstructor]
     public MutableKeyValuePair()
     {
-    }
-
-    public MutableKeyValuePair(MutableKeyValuePair other)
-    {
-        Key.Value = other.Key.Value;
-        Value.Value = other.Value.Value;
     }
 
     public bool Equals(MutableKeyValuePair? other)
@@ -33,8 +29,6 @@ public class MutableKeyValuePair : IEquatable<MutableKeyValuePair>, ICloneable
 
         return Key.Value.Equals(other.Key.Value) && Value.Value.Equals(other.Value.Value);
     }
-
-    public object Clone() => new MutableKeyValuePair(this);
 }
 
 public class MutableKeyValuePairListModuleSetting : ListModuleSetting<MutableKeyValuePair>
@@ -48,4 +42,6 @@ public class MutableKeyValuePairListModuleSetting : ListModuleSetting<MutableKey
         KeyTitle = keyTitle;
         ValueTitle = valueTitle;
     }
+
+    protected override MutableKeyValuePair CreateItem() => new();
 }

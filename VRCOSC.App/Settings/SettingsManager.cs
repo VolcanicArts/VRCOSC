@@ -28,6 +28,8 @@ public class SettingsManager
         serialisationManager.RegisterSerialiser(1, new SettingsManagerSerialiser(storage, this));
     }
 
+    public void Serialise() => serialisationManager.Serialise();
+
     public void Load()
     {
         writeDefaults();
@@ -62,7 +64,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.UpdateChannel, UpdateChannel.Live);
         setDefault(VRCOSCSetting.ChatBoxSendInterval, 1500);
         setDefault(VRCOSCSetting.ChatBoxWorldBlacklist, true);
-        setDefault(VRCOSCSetting.ShowRelevantElementsOnly, true);
+        setDefault(VRCOSCSetting.FilterByEnabledModules, true);
         setDefault(VRCOSCSetting.Theme, Theme.Dark);
         setDefault(VRCOSCSetting.OutgoingEndpoint, "127.0.0.1:9000");
         setDefault(VRCOSCSetting.IncomingEndpoint, "127.0.0.1:9001");
@@ -74,6 +76,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.SpeechConfidence, 0.4f);
         setDefault(VRCOSCSetting.SpeechNoiseCutoff, 0.14f);
         setDefault(VRCOSCSetting.SpeechMicVolumeAdjustment, 1f);
+        setDefault(VRCOSCSetting.SpeechTranslate, false);
 
         setDefault(VRCOSCMetadata.InstalledVersion, string.Empty);
         setDefault(VRCOSCMetadata.InstalledUpdateChannel, UpdateChannel.Live);
@@ -129,7 +132,7 @@ public enum VRCOSCSetting
     UpdateChannel,
     ChatBoxSendInterval,
     ChatBoxWorldBlacklist,
-    ShowRelevantElementsOnly,
+    FilterByEnabledModules,
     Theme,
     OutgoingEndpoint,
     IncomingEndpoint,
@@ -141,7 +144,8 @@ public enum VRCOSCSetting
     SpeechModelPath,
     SpeechConfidence,
     SpeechNoiseCutoff,
-    SpeechMicVolumeAdjustment
+    SpeechMicVolumeAdjustment,
+    SpeechTranslate
 }
 
 public enum VRCOSCMetadata

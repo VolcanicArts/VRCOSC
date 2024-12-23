@@ -16,7 +16,6 @@ using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
-using VRCOSC.App.SDK.Modules.Attributes;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.SDK.Modules.Attributes.Types;
 using VRCOSC.App.SDK.OVR;
@@ -116,9 +115,7 @@ public abstract class Module
 
             OnPreLoad();
 
-            Settings.Values.ForEach(moduleSetting => moduleSetting.PreDeserialise());
             moduleSerialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
-            Settings.Values.ForEach(moduleSetting => moduleSetting.PostDeserialise());
 
             cachePersistentProperties();
 
@@ -266,7 +263,7 @@ public abstract class Module
                 switch (updateAttribute.Mode)
                 {
                     case ModuleUpdateMode.Custom:
-                        var updateTask = new Repeater(() => invokeMethod(method));
+                        var updateTask = new Repeater($"{nameof(Module)}-{nameof(invokeMethod)}", () => invokeMethod(method));
                         updateTask.Start(TimeSpan.FromMilliseconds(updateAttribute.DeltaMilliseconds), updateAttribute.UpdateImmediately);
                         updateTasks.Add(updateTask);
                         break;
@@ -342,7 +339,7 @@ public abstract class Module
     /// <param name="message">The message to log to the terminal</param>
     protected void Log(string message)
     {
-        Logger.Log($"[{Title}]: {message}", "terminal");
+        Logger.Log($"[{Title}]: {message}", LoggingTarget.Terminal);
     }
 
     /// <summary>
@@ -377,7 +374,7 @@ public abstract class Module
         if (typeof(T) != typeof(bool) && typeof(T) != typeof(int) && typeof(T) != typeof(float))
             throw new InvalidOperationException($"{FullID} attempted to register a parameter with an invalid type");
 
-        Parameters.Add(lookup, new ModuleParameter(title, description, defaultName, mode, typeof(T), legacy));
+        Parameters.Add(lookup, new ModuleParameter(title, description, defaultName, mode, ParameterTypeFactory.CreateFrom<T>(), legacy));
     }
 
     /// <summary>
@@ -447,9 +444,30 @@ public abstract class Module
         addSetting(lookup, new EnumModuleSetting(title, description, typeof(EnumDropdownSettingView), Convert.ToInt32(defaultValue), typeof(T)));
     }
 
-    protected void CreateDropdown(Enum lookup, string title, string description, IEnumerable<DropdownItem> items, DropdownItem defaultItem)
+    protected void CreateDropdown(Enum lookup, string title, string description, IEnumerable<object> items, object defaultItem, string titlePath, string valuePath)
     {
-        addSetting(lookup, new DropdownListModuleSetting(title, description, typeof(ListItemDropdownSettingView), items, defaultItem));
+        var titleProperty = defaultItem.GetType().GetProperty(titlePath);
+        var valueProperty = defaultItem.GetType().GetProperty(valuePath);
+
+        if (titleProperty is null || valueProperty is null)
+        {
+            throw new InvalidOperationException("You must have a property for both the titlePath and valuePath");
+        }
+
+        var titleValue = titleProperty.GetValue(defaultItem);
+        var valueValue = valueProperty.GetValue(defaultItem);
+
+        if (titleValue is null || valueValue is null)
+        {
+            throw new InvalidOperationException("You must have a property for both the titlePath and valuePath");
+        }
+
+        if (titleValue.ToString() is null || valueValue.ToString() is null)
+        {
+            throw new InvalidOperationException("Your titlePath and valuePath properties must be convertable to a string");
+        }
+
+        addSetting(lookup, new DropdownListModuleSetting(title, description, typeof(ListItemDropdownSettingView), items, valueValue.ToString()!, titlePath, valuePath));
     }
 
     protected void CreateDateTime(Enum lookup, string title, string description, DateTimeOffset defaultValue)
@@ -475,6 +493,16 @@ public abstract class Module
     protected void CreateKeyValuePairList(Enum lookup, string title, string description, IEnumerable<MutableKeyValuePair> defaultValues, string keyTitle, string valueTitle)
     {
         addSetting(lookup, new MutableKeyValuePairListModuleSetting(title, description, typeof(MutableKeyValuePairListSettingView), defaultValues, keyTitle, valueTitle));
+    }
+
+    protected void CreateQueryableParameterList(Enum lookup, string title, string description)
+    {
+        addSetting(lookup, new QueryableParameterListModuleSetting(title, description));
+    }
+
+    protected void CreateQueryableParameterList<TAction>(Enum lookup, string title, string description) where TAction : Enum
+    {
+        addSetting(lookup, new ActionableQueryableParameterListModuleSetting(title, description, typeof(TAction)));
     }
 
     private void addSetting(Enum lookup, ModuleSetting moduleSetting)
@@ -876,35 +904,35 @@ public abstract class Module
     /// Retrieves a parameter's value using OSCQuery
     /// </summary>
     /// <param name="lookup">The lookup of the registered parameter</param>
+    protected Task<ReceivedParameter?> FindParameter(Enum lookup) => FindParameter(Parameters[lookup].Name.Value);
+
+    /// <summary>
+    /// Retrieves a parameter's value using OSCQuery
+    /// </summary>
+    /// <param name="parameterName">The name of the parameter</param>
+    protected Task<ReceivedParameter?> FindParameter(string parameterName) => AppManager.GetInstance().VRChatOscClient.FindParameter(parameterName);
+
+    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
     protected Task<object?> FindParameterValue(Enum lookup)
     {
         var parameterName = Parameters[lookup].Name.Value;
         return FindParameterValue(parameterName);
     }
 
-    /// <summary>
-    /// Retrieves a parameter's value using OSCQuery
-    /// </summary>
-    /// <param name="parameterName">The name of the parameter</param>
+    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
     protected Task<object?> FindParameterValue(string parameterName)
     {
         return AppManager.GetInstance().VRChatOscClient.FindParameterValue(parameterName);
     }
 
-    /// <summary>
-    /// Retrieves a parameter's type using OSCQuery
-    /// </summary>
-    /// <param name="lookup">The lookup of the registered parameter</param>
+    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
     protected Task<TypeCode?> FindParameterType(Enum lookup)
     {
         var parameterName = Parameters[lookup].Name.Value;
         return FindParameterType(parameterName);
     }
 
-    /// <summary>
-    /// Retrieves a parameter's type using OSCQuery
-    /// </summary>
-    /// <param name="parameterName">The name of the parameter</param>
+    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
     protected Task<TypeCode?> FindParameterType(string parameterName)
     {
         return AppManager.GetInstance().VRChatOscClient.FindParameterType(parameterName);
@@ -934,9 +962,9 @@ public abstract class Module
 
             if (!parameterData.Enabled.Value || !parameterData.Mode.HasFlag(ParameterMode.Read)) return;
 
-            if (!receivedParameter.IsValueType(parameterData.ExpectedType))
+            if (receivedParameter.Type != parameterData.ExpectedType)
             {
-                Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType.ToReadableName()}` but received type `{receivedParameter.Value.GetType().ToReadableName()}`");
+                Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType.ToString()}` but received type `{receivedParameter.Type.ToString()}`");
                 return;
             }
 

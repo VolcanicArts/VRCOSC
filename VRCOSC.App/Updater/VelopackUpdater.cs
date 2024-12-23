@@ -19,15 +19,13 @@ public class VelopackUpdater
     private UpdateManager updateManager = null!;
     private UpdateInfo? updateInfo;
 
-    public bool IsUpdateAvailable => updateInfo is not null;
-
     public VelopackUpdater()
     {
         SettingsManager.GetInstance().GetObservable<UpdateChannel>(VRCOSCSetting.UpdateChannel).Subscribe(async () =>
         {
             constructUpdateManager();
             await CheckForUpdatesAsync();
-            ShowUpdateIfAvailable();
+            await ExecuteUpdate();
         });
 
         constructUpdateManager();
@@ -45,44 +43,43 @@ public class VelopackUpdater
         });
     }
 
-    public async Task<bool> CheckForUpdatesAsync()
+    public bool IsInstalled() => updateManager.IsInstalled;
+    public bool IsUpdateAvailable() => updateInfo is not null;
+
+    public async Task CheckForUpdatesAsync()
     {
         Logger.Log("Checking for update");
 
-        if (!updateManager.IsInstalled)
-        {
-            Logger.Log("Portable app detected. Cancelling update check");
-            updateInfo = null;
-            return false;
-        }
+        if (!IsInstalled()) return;
 
         updateInfo = await updateManager.CheckForUpdatesAsync();
         Logger.Log(updateInfo is null ? "No updates available" : "Updates available");
-        return updateInfo is not null;
     }
 
-    public async void ShowUpdateIfAvailable()
+    public async Task<bool> ExecuteUpdate()
     {
-        if (!IsUpdateAvailable) return;
-
-        // switching channels will cause an update to the same version. No need to update
-        if (SemanticVersion.Parse(AppManager.Version) == updateInfo!.TargetFullRelease.Version) return;
-
-        var upgradeMessage = $"A new update is available! Would you like to update?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo.TargetFullRelease.Version}";
-        var downgradeMessage = $"Updating will downgrade due to switching channels. Are you sure you want to downgrade?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo.TargetFullRelease.Version}";
-
-        var result = MessageBox.Show(updateInfo.IsDowngrade ? downgradeMessage : upgradeMessage, "Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-        if (result == DialogResult.No) return;
-
         try
         {
+            if (updateInfo is null) return false;
+
+            // switching channels will cause an update to the same version. No need to update
+            if (SemanticVersion.Parse(AppManager.Version) == updateInfo.TargetFullRelease.Version) return false;
+
+            var upgradeMessage = $"A new update is available for VRCOSC!\nWould you like to update?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo.TargetFullRelease.Version}";
+            var downgradeMessage = $"Updating will downgrade due to switching channels.\nAre you sure you want to downgrade?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo.TargetFullRelease.Version}";
+
+            var result = MessageBox.Show(updateInfo.IsDowngrade ? downgradeMessage : upgradeMessage, "VRCOSC Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            if (result == DialogResult.No) return false;
+
             await updateManager.DownloadUpdatesAsync(updateInfo);
             SettingsManager.GetInstance().GetObservable<UpdateChannel>(VRCOSCMetadata.InstalledUpdateChannel).Value = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCSetting.UpdateChannel);
             updateManager.ApplyUpdatesAndRestart(null);
+            return true;
         }
         catch (Exception e)
         {
             ExceptionHandler.Handle(e, "An error occurred when trying to update");
+            return false;
         }
     }
 }

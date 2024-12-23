@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using Valve.VR;
 
 namespace VRCOSC.App.SDK.OVR.Device;
@@ -51,6 +52,6 @@ public class TrackedDevice
         IsConnected = OpenVR.System.IsTrackedDeviceConnected(Index);
         ProvidesBatteryStatus = IsConnected && OVRHelper.GetBoolTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
         IsCharging = IsConnected && OVRHelper.GetBoolTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
-        BatteryPercentage = IsConnected ? OVRHelper.GetFloatTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float) : 0f;
+        BatteryPercentage = MathF.Max(0f, IsConnected ? OVRHelper.GetFloatTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float) : 0f);
     }
 }

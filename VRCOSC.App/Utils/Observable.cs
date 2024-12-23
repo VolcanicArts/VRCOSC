@@ -173,6 +173,4 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
 
         return EqualityComparer<T>.Default.Equals(Value, other.Value);
     }
-
-    public override bool Equals(object? obj) => obj is Observable<T> observable && Equals(observable);
 }

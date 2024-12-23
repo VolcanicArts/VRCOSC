@@ -16,7 +16,7 @@ public partial class SettingsView
         {
             StateDisplay.Text = newState.ToString();
             TokenDisplay.Text = newState == AuthenticationState.LoggedIn ? AppManager.GetInstance().VRChatAPIClient.AuthHandler.AuthToken : string.Empty;
-        }, true);
+        });
     }
 
     private void Login_OnClick(object sender, RoutedEventArgs e)

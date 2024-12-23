@@ -198,8 +198,8 @@ public class ChatBoxManager : INotifyPropertyChanged
         var sendInterval = SettingsManager.GetInstance().GetValue<int>(VRCOSCSetting.ChatBoxSendInterval);
 
         startTime = DateTimeOffset.Now;
-        sendTask = new Repeater(chatBoxUpdate);
-        updateTask = new Repeater(update);
+        sendTask = new Repeater($"{nameof(ChatBoxManager)}-{nameof(chatBoxUpdate)}", chatBoxUpdate);
+        updateTask = new Repeater($"{nameof(ChatBoxManager)}-{nameof(update)}", update);
         SendEnabled = true;
         isClear = true;
         currentIsTyping = false;

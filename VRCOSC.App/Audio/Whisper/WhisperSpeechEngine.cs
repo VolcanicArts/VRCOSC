@@ -66,7 +66,7 @@ public class WhisperSpeechEngine : SpeechEngine
         audioProcessor = new AudioProcessor(captureDevice);
         audioProcessor.Start();
 
-        repeater = new Repeater(processResult);
+        repeater = new Repeater($"{nameof(WhisperSpeechEngine)}-{nameof(processResult)}", processResult);
         // Do not change this from 1.5
         repeater.Start(TimeSpan.FromSeconds(1.5f));
     }
@@ -81,7 +81,7 @@ public class WhisperSpeechEngine : SpeechEngine
         if (result is null) return;
 
         // filter out things like [BLANK AUDIO]
-        if (result.Text.StartsWith('[') || result.Text.Contains('*')) return;
+        if (result.Text.StartsWith('[')) return;
 
         var requiredConfidence = SettingsManager.GetInstance().GetValue<float>(VRCOSCSetting.SpeechConfidence);
         if (result.Confidence < requiredConfidence) return;

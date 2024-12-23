@@ -6,7 +6,7 @@ namespace VRCOSC.App.Serialisation;
 public interface ISerialiser
 {
     public bool DoesFileExist();
-    public bool TryGetVersion(out int? version);
+    public bool TryGetVersion(out int? version, string filePathOverride = "");
     public DeserialisationResult Deserialise(string filePathOverride);
     public SerialisationResult Serialise();
 }

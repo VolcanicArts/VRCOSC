@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using VRCOSC.App.OSC.Client;
 using VRCOSC.App.OSC.Query;
+using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.OSC.VRChat;
@@ -66,35 +67,32 @@ public class VRChatOscClient : OscClient
         }
     }
 
-    public async Task<object?> FindParameterValue(string parameterName)
+    public async Task<ReceivedParameter?> FindParameter(string parameterName)
     {
         var node = await findParameter(parameterName);
         if (node?.Value is null || node.Value.Length == 0) return null;
 
-        return node.OscType switch
+        object parameterValue = node.OscType switch
         {
-            "s" => Convert.ToString(node.Value[0]),
             "f" => Convert.ToSingle(node.Value[0]),
             "i" => Convert.ToInt32(node.Value[0]),
             "T" => Convert.ToBoolean(node.Value[0]),
             "F" => Convert.ToBoolean(node.Value[0]),
             _ => throw new InvalidOperationException($"Unknown type '{node.OscType}'")
         };
+
+        return new ReceivedParameter(parameterName, parameterValue);
     }
 
-    public async Task<TypeCode?> FindParameterType(string parameterName)
+    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
+    public async Task<object?> FindParameterValue(string parameterName) => (await FindParameter(parameterName))?.Value;
+
+    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
+    public async Task<TypeCode?> FindParameterType(string parameterName) => (await FindParameter(parameterName))?.Type switch
     {
-        var node = await findParameter(parameterName);
-        if (node is null) return null;
-
-        return node.OscType switch
-        {
-            "s" => TypeCode.String,
-            "f" => TypeCode.Single,
-            "i" => TypeCode.Int32,
-            "T" => TypeCode.Boolean,
-            "F" => TypeCode.Boolean,
-            _ => throw new InvalidOperationException($"Unknown type '{node.OscType}'")
-        };
-    }
+        ParameterType.Bool => TypeCode.Boolean,
+        ParameterType.Int => TypeCode.Int32,
+        ParameterType.Float => TypeCode.Single,
+        _ => throw new ArgumentOutOfRangeException()
+    };
 }

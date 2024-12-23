@@ -33,7 +33,6 @@ using VRCOSC.App.UI.Views.Packages;
 using VRCOSC.App.UI.Views.Profiles;
 using VRCOSC.App.UI.Views.Router;
 using VRCOSC.App.UI.Views.Run;
-using VRCOSC.App.UI.Views.Settings;
 using VRCOSC.App.UI.Views.Startup;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
@@ -48,48 +47,67 @@ namespace VRCOSC.App.UI.Windows;
 
 public partial class MainWindow
 {
-    public static MainWindow GetInstance() => (MainWindow)Application.Current.MainWindow;
+    public static MainWindow GetInstance() => Application.Current.Dispatcher.Invoke(() => (MainWindow)Application.Current.MainWindow!);
 
-    public readonly PackagesView PackagesView;
-    public readonly ModulesView ModulesView;
-    public readonly RouterView RouterView;
-    public readonly SettingsView SettingsView;
-    public readonly ChatBoxView ChatBoxView;
-    public readonly StartupView StartupView;
-    public readonly RunView RunView;
-    public readonly AppDebugView AppDebugView;
-    public readonly ProfilesView ProfilesView;
-    public readonly AppSettingsView AppSettingsView;
-    public readonly InformationView InformationView;
+    public PackagesView PackagesView = null!;
+    public ModulesView ModulesView = null!;
+    public RouterView RouterView = null!;
+    public ChatBoxView ChatBoxView = null!;
+    public StartupView StartupView = null!;
+    public RunView RunView = null!;
+    public AppDebugView AppDebugView = null!;
+    public ProfilesView ProfilesView = null!;
+    public AppSettingsView AppSettingsView = null!;
+    public InformationView InformationView = null!;
 
     private readonly Storage storage = AppManager.GetInstance().Storage;
+    private VelopackUpdater velopackUpdater = null!;
 
     public Observable<bool> ShowAppDebug { get; } = new();
     public Observable<bool> ShowRouter { get; } = new();
 
     public MainWindow()
     {
-        backupV1Files();
-
-        SettingsManager.GetInstance().Load();
-        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
-        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableRouter).Subscribe(newValue => ShowRouter.Value = newValue, true);
-
-        AppManager.GetInstance().Initialise();
-
         InitializeComponent();
         DataContext = this;
+
+        backupV1Files();
+        setupTrayIcon();
+        copyOpenVrFiles();
+        startApp();
+    }
+
+    private async void startApp()
+    {
+        SettingsManager.GetInstance().Load();
+
+        velopackUpdater = new VelopackUpdater();
+
+        if (!velopackUpdater.IsInstalled())
+        {
+            Logger.Log("Portable app detected. Cancelling update check");
+        }
+        else
+        {
+            await velopackUpdater.CheckForUpdatesAsync();
+
+            if (velopackUpdater.IsUpdateAvailable())
+            {
+                var isUpdating = await velopackUpdater.ExecuteUpdate();
+                if (isUpdating) return;
+            }
+
+            Logger.Log("No updates. Proceeding with loading");
+        }
+
+        AppManager.GetInstance().Initialise();
 
         var installedUpdateChannel = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCMetadata.InstalledUpdateChannel);
         Title = installedUpdateChannel == UpdateChannel.Beta ? $"{AppManager.APP_NAME} {AppManager.Version} BETA" : $"{AppManager.APP_NAME} {AppManager.Version}";
 
-        setupTrayIcon();
-        copyOpenVrFiles();
-
         PackagesView = new PackagesView();
         ModulesView = new ModulesView();
         RouterView = new RouterView();
-        SettingsView = new SettingsView();
         ChatBoxView = new ChatBoxView();
         StartupView = new StartupView();
         RunView = new RunView();
@@ -100,7 +118,10 @@ public partial class MainWindow
 
         setContent(ModulesView);
 
-        load();
+        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
+        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableRouter).Subscribe(newValue => ShowRouter.Value = newValue, true);
+
+        await load();
     }
 
     private void backupV1Files()
@@ -134,11 +155,9 @@ public partial class MainWindow
         }
     }
 
-    private void load()
+    private async Task load()
     {
         var loadingAction = new CompositeProgressAction();
-
-        loadingAction.AddAction(new DynamicAsyncProgressAction("Checking for updates", () => AppManager.GetInstance().VelopackUpdater.CheckForUpdatesAsync()));
         loadingAction.AddAction(PackageManager.GetInstance().Load());
 
         var installedVersion = SettingsManager.GetInstance().GetValue<string>(VRCOSCMetadata.InstalledVersion);
@@ -162,29 +181,33 @@ public partial class MainWindow
             loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().UpdateAllInstalledPackages()));
         }
 
-        loadingAction.AddAction(new DynamicProgressAction("Loading Profiles", () => ProfileManager.GetInstance().Load()));
-        loadingAction.AddAction(new DynamicProgressAction("Loading Modules", () => ModuleManager.GetInstance().LoadAllModules()));
-        loadingAction.AddAction(new DynamicProgressAction("Loading ChatBox", () => ChatBoxManager.GetInstance().Load()));
-        loadingAction.AddAction(new DynamicProgressAction("Loading Router", () => RouterManager.GetInstance().Load()));
-        loadingAction.AddAction(new DynamicProgressAction("Loading Startup", () => StartupManager.GetInstance().Load()));
+        loadingAction.AddAction(new DynamicProgressAction("Loading Managers", () =>
+        {
+            ProfileManager.GetInstance().Load();
+            ModuleManager.GetInstance().LoadAllModules();
+            ChatBoxManager.GetInstance().Load();
+            RouterManager.GetInstance().Load();
+            StartupManager.GetInstance().Load();
+        }));
 
         if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
         {
-            loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource, closeWindows: false)));
-            loadingAction.AddAction(new DynamicProgressAction(string.Empty, () => new FirstTimeInstallWindow().Show()));
+            loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource)));
         }
 
-        loadingAction.OnComplete += () =>
+        loadingAction.OnComplete += () => Dispatcher.Invoke(() =>
         {
-            Dispatcher.Invoke(() =>
+            if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
             {
+                new FirstTimeInstallWindow().Show();
                 SettingsManager.GetInstance().GetObservable<bool>(VRCOSCMetadata.FirstTimeSetupComplete).Value = true;
-                MainWindowContent.FadeInFromZero(500);
-                AppManager.GetInstance().InitialLoadComplete();
-            });
-        };
+            }
 
-        _ = ShowLoadingOverlay("Welcome to VRCOSC", loadingAction);
+            MainWindowContent.FadeInFromZero(500);
+            AppManager.GetInstance().InitialLoadComplete();
+        });
+
+        await ShowLoadingOverlay("Welcome to VRCOSC", loadingAction);
     }
 
     private void copyOpenVrFiles()
@@ -259,6 +282,9 @@ public partial class MainWindow
         }
 
         OVRDeviceManager.GetInstance().Serialise();
+        RouterManager.GetInstance().Serialise();
+        StartupManager.GetInstance().Serialise();
+        SettingsManager.GetInstance().Serialise();
     }
 
     private void MainWindow_OnClosed(object? sender, EventArgs e)
@@ -356,7 +382,7 @@ public partial class MainWindow
 
     #endregion
 
-    public async Task ShowLoadingOverlay(string title, ProgressAction progressAction) => await Dispatcher.Invoke(async () =>
+    public Task ShowLoadingOverlay(string title, ProgressAction progressAction)
     {
         LoadingTitle.Text = title;
 
@@ -383,10 +409,10 @@ public partial class MainWindow
 
         LoadingOverlay.FadeIn(150);
 
-        await progressAction.Execute();
-    });
+        return progressAction.Execute();
+    }
 
-    public void HideLoadingOverlay() => Dispatcher.Invoke(() => LoadingOverlay.FadeOut(150));
+    public void HideLoadingOverlay() => LoadingOverlay.FadeOut(150);
 
     private void setContent(object userControl)
     {
@@ -410,7 +436,6 @@ public partial class MainWindow
 
     private void SettingsButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setContent(SettingsView);
     }
 
     private void ChatBoxButton_OnClick(object sender, RoutedEventArgs e)

@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -54,14 +54,24 @@ public class ClipState : ClipElement
         {
             if (IsBuiltIn) return true;
 
-            if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ShowRelevantElementsOnly)) return true;
+            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.FilterByEnabledModules))
+            {
+                var selectedClip = MainWindow.GetInstance().ChatBoxView.SelectedClip;
+                Debug.Assert(selectedClip is not null);
 
-            var selectedClip = MainWindow.GetInstance().ChatBoxView.SelectedClip;
-            Debug.Assert(selectedClip is not null);
+                var enabledModuleIDs = ModuleManager.GetInstance().GetEnabledModuleIDs().Where(moduleID => selectedClip.LinkedModules.Contains(moduleID)).OrderBy(moduleID => moduleID);
+                var clipStateModuleIDs = States.Select(pair => pair.Key).OrderBy(s => s);
+                return enabledModuleIDs.SequenceEqual(clipStateModuleIDs);
+            }
+            else
+            {
+                var selectedClip = MainWindow.GetInstance().ChatBoxView.SelectedClip;
+                Debug.Assert(selectedClip is not null);
 
-            var enabledModuleIDs = ModuleManager.GetInstance().GetEnabledModuleIDs().Where(moduleID => selectedClip.LinkedModules.Contains(moduleID)).OrderBy(moduleID => moduleID);
-            var clipStateModuleIDs = States.Select(pair => pair.Key).OrderBy(s => s);
-            return enabledModuleIDs.SequenceEqual(clipStateModuleIDs);
+                var enabledModuleIDs = ModuleManager.GetInstance().Modules.Values.SelectMany(moduleList => moduleList).Where(module => selectedClip.LinkedModules.Contains(module.FullID)).Select(module => module.FullID).OrderBy(moduleID => moduleID);
+                var clipStateModuleIDs = States.Select(pair => pair.Key).OrderBy(s => s);
+                return enabledModuleIDs.SequenceEqual(clipStateModuleIDs);
+            }
         }
     }
 
