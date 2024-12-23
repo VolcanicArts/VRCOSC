@@ -495,6 +495,16 @@ public abstract class Module
         addSetting(lookup, new MutableKeyValuePairListModuleSetting(title, description, typeof(MutableKeyValuePairListSettingView), defaultValues, keyTitle, valueTitle));
     }
 
+    protected void CreateQueryableParameterList(Enum lookup, string title, string description)
+    {
+        addSetting(lookup, new QueryableParameterListModuleSetting(title, description));
+    }
+
+    protected void CreateQueryableParameterList<TAction>(Enum lookup, string title, string description) where TAction : Enum
+    {
+        addSetting(lookup, new ActionableQueryableParameterListModuleSetting(title, description, typeof(TAction)));
+    }
+
     private void addSetting(Enum lookup, ModuleSetting moduleSetting)
     {
         if (isLoaded)
