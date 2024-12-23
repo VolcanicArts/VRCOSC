@@ -56,28 +56,30 @@ public class VelopackUpdater
         Logger.Log(updateInfo is null ? "No updates available" : "Updates available");
     }
 
-    public async Task ExecuteUpdate()
+    public async Task<bool> ExecuteUpdate()
     {
         try
         {
-            if (updateInfo is null) return;
+            if (updateInfo is null) return false;
 
             // switching channels will cause an update to the same version. No need to update
-            if (SemanticVersion.Parse(AppManager.Version) == updateInfo.TargetFullRelease.Version) return;
+            if (SemanticVersion.Parse(AppManager.Version) == updateInfo.TargetFullRelease.Version) return false;
 
             var upgradeMessage = $"A new update is available for VRCOSC!\nWould you like to update?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo.TargetFullRelease.Version}";
             var downgradeMessage = $"Updating will downgrade due to switching channels.\nAre you sure you want to downgrade?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo.TargetFullRelease.Version}";
 
             var result = MessageBox.Show(updateInfo.IsDowngrade ? downgradeMessage : upgradeMessage, "VRCOSC Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-            if (result == DialogResult.No) return;
+            if (result == DialogResult.No) return false;
 
             await updateManager.DownloadUpdatesAsync(updateInfo);
             SettingsManager.GetInstance().GetObservable<UpdateChannel>(VRCOSCMetadata.InstalledUpdateChannel).Value = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCSetting.UpdateChannel);
             updateManager.ApplyUpdatesAndRestart(null);
+            return true;
         }
         catch (Exception e)
         {
             ExceptionHandler.Handle(e, "An error occurred when trying to update");
+            return false;
         }
     }
 }

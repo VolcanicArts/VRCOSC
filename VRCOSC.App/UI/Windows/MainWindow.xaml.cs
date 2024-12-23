@@ -93,8 +93,8 @@ public partial class MainWindow
 
             if (velopackUpdater.IsUpdateAvailable())
             {
-                await velopackUpdater.ExecuteUpdate();
-                return;
+                var isUpdating = await velopackUpdater.ExecuteUpdate();
+                if (isUpdating) return;
             }
 
             Logger.Log("No updates. Proceeding with loading");
