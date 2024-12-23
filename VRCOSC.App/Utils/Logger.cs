@@ -539,5 +539,7 @@ public enum LoggingTarget
     /// <summary>
     /// Logging target for network-related events.
     /// </summary>
-    Network
+    Network,
+
+    Terminal
 }

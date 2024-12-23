@@ -339,7 +339,7 @@ public abstract class Module
     /// <param name="message">The message to log to the terminal</param>
     protected void Log(string message)
     {
-        Logger.Log($"[{Title}]: {message}", "terminal");
+        Logger.Log($"[{Title}]: {message}", LoggingTarget.Terminal);
     }
 
     /// <summary>

@@ -113,9 +113,7 @@ internal class AudioProcessor
 
             if (finalSpeechResult is not null)
             {
-#if DEBUG
-                Logger.Log($"Final result: {finalSpeechResult.Text} - {finalSpeechResult.Confidence}");
-#endif
+                Logger.Log($"Final result: {finalSpeechResult.Text} - {finalSpeechResult.Confidence}", LoggingTarget.Information);
             }
 
             speechResult = null;
@@ -128,9 +126,7 @@ internal class AudioProcessor
         speechResult = await processWithWhisper(data, false);
         isProcessing = false;
 
-#if DEBUG
-        Logger.Log($"Result: {speechResult?.Text}");
-#endif
+        Logger.Log($"Result: {speechResult?.Text}", LoggingTarget.Information);
 
         return speechResult;
     }
@@ -168,9 +164,7 @@ internal class AudioProcessor
         }
 
         var rms = Math.Sqrt(sum / samplesToCheck);
-#if DEBUG
-        Logger.Log($"RMS: {rms}");
-#endif
+        Logger.Log($"RMS: {rms}", LoggingTarget.Information);
         return rms < SettingsManager.GetInstance().GetValue<float>(VRCOSCSetting.SpeechNoiseCutoff);
     }
 

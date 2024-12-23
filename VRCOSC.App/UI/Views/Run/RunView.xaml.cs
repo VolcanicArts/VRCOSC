@@ -127,7 +127,7 @@ public partial class RunView : INotifyPropertyChanged
 
     private void onLogEntry(LogEntry e) => Dispatcher.Invoke(() =>
     {
-        if (e.LoggerName != "terminal" && !e.Message!.Contains("router")) return;
+        if (e.Target != LoggingTarget.Terminal) return;
 
         var dateTimeText = $"[{DateTime.Now:HH:mm:ss}] {e.Message}";
 

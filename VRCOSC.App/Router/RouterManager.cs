@@ -66,7 +66,7 @@ public class RouterManager
 
                 var endpoint = new IPEndPoint(IPAddress.Parse(address), port);
 
-                Logger.Log($"Starting router instance `{route.Name.Value}` on {endpoint}");
+                Logger.Log($"Starting router instance `{route.Name.Value}` on {endpoint}", LoggingTarget.Terminal);
 
                 var sender = new OscSender();
                 sender.Initialise(endpoint);
@@ -93,7 +93,7 @@ public class RouterManager
 
         foreach (var (route, sender) in senders)
         {
-            Logger.Log($"Stopping router instance '{route.Name.Value}'");
+            Logger.Log($"Stopping router instance '{route.Name.Value}'", LoggingTarget.Terminal);
             sender.Disable();
         }
 
