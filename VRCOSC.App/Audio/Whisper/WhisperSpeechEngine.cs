@@ -48,7 +48,8 @@ public class WhisperSpeechEngine : SpeechEngine
 
     private async void onCaptureDeviceIdChanged(string newDeviceId)
     {
-        audioProcessor?.Stop();
+        if (audioProcessor is not null)
+            await audioProcessor.Stop();
 
         if (repeater is not null)
             await repeater.StopAsync();
@@ -118,7 +119,8 @@ public class WhisperSpeechEngine : SpeechEngine
 
         audioNotificationClient = null;
 
-        audioProcessor?.Stop();
+        if (audioProcessor is not null)
+            await audioProcessor.Stop();
 
         if (repeater is not null)
             await repeater.StopAsync();
