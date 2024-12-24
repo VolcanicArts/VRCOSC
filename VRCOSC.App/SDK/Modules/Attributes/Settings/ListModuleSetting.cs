@@ -49,9 +49,9 @@ public abstract class ListModuleSetting<T> : ListModuleSetting where T : IEquata
 
     public override TOut GetValue<TOut>()
     {
-        if (!typeof(List<T>).IsAssignableTo(typeof(TOut))) throw new InvalidCastException($"{typeof(List<T>).Name} cannot be cast to {typeof(TOut).Name}");
+        if (Attribute.ToList() is not TOut castList) throw new InvalidCastException($"{typeof(List<T>).Name} cannot be cast to {typeof(TOut).Name}");
 
-        return (TOut)Convert.ChangeType(Attribute.ToList(), typeof(TOut));
+        return castList;
     }
 
     protected override object Serialise() => Attribute.ToList();

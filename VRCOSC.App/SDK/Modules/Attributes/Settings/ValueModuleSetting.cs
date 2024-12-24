@@ -36,9 +36,9 @@ public abstract class ValueModuleSetting<T> : ModuleSetting where T : notnull
 
     public override TOut GetValue<TOut>()
     {
-        if (!typeof(T).IsAssignableTo(typeof(TOut))) throw new InvalidCastException($"Unable to cast {typeof(T).Name} to {typeof(TOut).Name}");
+        if (Attribute.Value is not TOut castValue) throw new InvalidCastException($"Unable to cast {typeof(T).Name} to {typeof(TOut).Name}");
 
-        return (TOut)Convert.ChangeType(Attribute.Value, typeof(TOut));
+        return castValue;
     }
 }
 
@@ -169,9 +169,9 @@ public class SliderModuleSetting : FloatModuleSetting
     {
         if (ValueType == typeof(float))
         {
-            if (typeof(float).IsAssignableTo(typeof(TOut)))
+            if (Attribute.Value is TOut castValue)
             {
-                return (TOut)Convert.ChangeType(Attribute.Value, typeof(TOut));
+                return castValue;
             }
 
             throw new InvalidCastException($"{typeof(TOut).Name} cannot be cast to a float");
@@ -179,9 +179,9 @@ public class SliderModuleSetting : FloatModuleSetting
 
         if (ValueType == typeof(int))
         {
-            if (typeof(int).IsAssignableTo(typeof(TOut)))
+            if ((int)Attribute.Value is TOut castValue)
             {
-                return (TOut)Convert.ChangeType((int)Attribute.Value, typeof(TOut));
+                return castValue;
             }
 
             throw new InvalidCastException($"{typeof(TOut).Name} cannot be cast to an int");
