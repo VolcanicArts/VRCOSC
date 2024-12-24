@@ -13,19 +13,22 @@ public class QueryableParameterListModuleSetting : ModuleSetting
 {
     public QueryableParameterList QueryableParameterList { get; }
 
-    public QueryableParameterListModuleSetting(string title, string description)
+    public Type? ActionType { get; }
+
+    public QueryableParameterListModuleSetting(string title, string description, Type? actionType)
         : base(title, description, typeof(QueryableParameterListModuleSettingView))
     {
-        QueryableParameterList = CreateParameterList();
+        QueryableParameterList = createParameterList();
+        ActionType = actionType;
     }
 
-    internal override bool Deserialise(object? ingestValue)
+    protected override bool Deserialise(object? ingestValue)
     {
         if (ingestValue is not JArray jArrayValue) return false;
 
         QueryableParameterList.Parameters.Clear();
 
-        foreach (var ingestItem in jArrayValue.Select(CreateQueryableParameter))
+        foreach (var ingestItem in jArrayValue.Select(createQueryableParameter))
         {
             QueryableParameterList.Parameters.Add(ingestItem);
         }
@@ -33,38 +36,17 @@ public class QueryableParameterListModuleSetting : ModuleSetting
         return true;
     }
 
-    protected virtual object CreateQueryableParameter(JToken token) => token.ToObject<QueryableParameter>()!;
+    private object createQueryableParameter(JToken token) => ActionType is null ? token.ToObject<QueryableParameter>()! : token.ToObject(typeof(ActionableQueryableParameter<>).MakeGenericType(ActionType))!;
+    private QueryableParameterList createParameterList() => ActionType is null ? new QueryableParameterList(typeof(QueryableParameter)) : new QueryableParameterList(typeof(ActionableQueryableParameter<>).MakeGenericType(ActionType));
 
-    internal override object Serialise() => QueryableParameterList.Parameters;
+    protected override object Serialise() => QueryableParameterList.Parameters;
 
-    internal override bool IsDefault() => QueryableParameterList.Parameters.Count == 0;
+    protected override bool IsDefault() => QueryableParameterList.Parameters.Count == 0;
 
-    public override bool GetValue<T>(out T returnValue)
+    public override TOut GetValue<TOut>()
     {
-        if (typeof(T) != typeof(QueryableParameterList))
-        {
-            returnValue = default(T);
-            return false;
-        }
+        if (typeof(TOut) != typeof(QueryableParameterList)) throw new InvalidCastException($"Requested type must only be {nameof(QueryableParameterList)}");
 
-        returnValue = (T)Convert.ChangeType(QueryableParameterList, typeof(T));
-        return true;
+        return (TOut)Convert.ChangeType(QueryableParameterList, typeof(TOut));
     }
-
-    protected virtual QueryableParameterList CreateParameterList() => new(typeof(QueryableParameter));
-}
-
-public sealed class ActionableQueryableParameterListModuleSetting : QueryableParameterListModuleSetting
-{
-    public Type ActionType { get; }
-
-    public ActionableQueryableParameterListModuleSetting(string title, string description, Type actionType)
-        : base(title, description)
-    {
-        ActionType = actionType;
-    }
-
-    protected override object CreateQueryableParameter(JToken token) => token.ToObject(typeof(ActionableQueryableParameter<>).MakeGenericType(ActionType))!;
-
-    protected override QueryableParameterList CreateParameterList() => new(typeof(ActionableQueryableParameter<>).MakeGenericType(ActionType));
 }

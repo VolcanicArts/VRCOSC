@@ -497,12 +497,12 @@ public abstract class Module
 
     protected void CreateQueryableParameterList(Enum lookup, string title, string description)
     {
-        addSetting(lookup, new QueryableParameterListModuleSetting(title, description));
+        addSetting(lookup, new QueryableParameterListModuleSetting(title, description, null));
     }
 
     protected void CreateQueryableParameterList<TAction>(Enum lookup, string title, string description) where TAction : Enum
     {
-        addSetting(lookup, new ActionableQueryableParameterListModuleSetting(title, description, typeof(TAction)));
+        addSetting(lookup, new QueryableParameterListModuleSetting(title, description, typeof(TAction)));
     }
 
     private void addSetting(Enum lookup, ModuleSetting moduleSetting)
@@ -883,7 +883,7 @@ public abstract class Module
     }
 
     /// <summary>
-    /// Retrieves a <see cref="ModuleSetting"/>'s value as a shorthand for <see cref="ModuleAttribute.GetValue{TValueType}"/>
+    /// Retrieves a <see cref="ModuleSetting"/>'s value as a shorthand for <see cref="ModuleSetting.GetValue{TValueType}"/>
     /// </summary>
     /// <param name="lookup">The lookup of the setting</param>
     /// <typeparam name="T">The value type of the setting</typeparam>
@@ -892,11 +892,15 @@ public abstract class Module
     {
         lock (loadLock)
         {
-            var moduleSetting = GetSetting(lookup);
-
-            if (moduleSetting.GetValue<T>(out var value)) return value;
-
-            throw new InvalidOperationException($"Could not get the value of setting with lookup '{lookup.ToLookup()}'");
+            try
+            {
+                return GetSetting(lookup).GetValue<T>();
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e, $"'{FullID}' experienced a problem when getting value of setting '{lookup.ToLookup()}'");
+                return default!;
+            }
         }
     }
 

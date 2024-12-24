@@ -34,7 +34,7 @@ public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
             {
                 var setting = Reference.GetSetting<ModuleSetting>(settingKey);
 
-                if (!setting.Deserialise(settingValue))
+                if (!setting.InternalDeserialise(settingValue))
                     shouldReserialise = true;
             }
             catch (Exception)

@@ -34,7 +34,7 @@ public abstract class ListModuleSetting<T> : ListModuleSetting where T : IEquata
         Attribute.OnCollectionChanged((_, _) => OnSettingChange?.Invoke());
     }
 
-    internal override bool IsDefault() => Attribute.SequenceEqual(DefaultValues);
+    protected override bool IsDefault() => Attribute.SequenceEqual(DefaultValues);
 
     public override void Add() => Attribute.Add(CreateItem());
 
@@ -47,21 +47,16 @@ public abstract class ListModuleSetting<T> : ListModuleSetting where T : IEquata
 
     protected abstract T CreateItem();
 
-    public override bool GetValue<TOut>(out TOut returnValue)
+    public override TOut GetValue<TOut>()
     {
-        if (typeof(List<T>).IsAssignableTo(typeof(TOut)))
-        {
-            returnValue = (TOut)Convert.ChangeType(Attribute.ToList(), typeof(TOut));
-            return true;
-        }
+        if (!typeof(List<T>).IsAssignableTo(typeof(TOut))) throw new InvalidCastException($"{typeof(List<T>).Name} cannot be cast to {typeof(TOut).Name}");
 
-        returnValue = (TOut)Convert.ChangeType(Array.Empty<object>(), typeof(TOut));
-        return false;
+        return (TOut)Convert.ChangeType(Attribute.ToList(), typeof(TOut));
     }
 
-    internal override object Serialise() => Attribute.ToList();
+    protected override object Serialise() => Attribute.ToList();
 
-    internal override bool Deserialise(object? ingestValue)
+    protected override bool Deserialise(object? ingestValue)
     {
         if (ingestValue is not JArray jArrayValue) return false;
 
@@ -78,7 +73,7 @@ public abstract class ValueListModuleSetting<T> : ListModuleSetting<Observable<T
     {
     }
 
-    internal override bool IsDefault() => Attribute.Count == DefaultValues.Count() && Attribute.All(o => o.IsDefault);
+    protected override bool IsDefault() => Attribute.Count == DefaultValues.Count() && Attribute.All(o => o.IsDefault);
 
     protected override Observable<T> CreateItem() => new();
 }
