@@ -66,14 +66,14 @@ public abstract class ListModuleSetting<T> : ListModuleSetting where T : IEquata
     }
 }
 
-public abstract class ValueListModuleSetting<T> : ListModuleSetting<Observable<T>>
+public abstract class ValueListModuleSetting<T> : ListModuleSetting<Observable<T>> where T : notnull
 {
-    protected ValueListModuleSetting(string title, string description, Type viewType, IEnumerable<Observable<T>> defaultValues)
-        : base(title, description, viewType, defaultValues)
+    protected ValueListModuleSetting(string title, string description, Type viewType, IEnumerable<T> defaultValues)
+        : base(title, description, viewType, defaultValues.Select(value => new Observable<T>(value)))
     {
     }
 
-    protected override bool IsDefault() => Attribute.Count == DefaultValues.Count() && Attribute.All(o => o.IsDefault);
+    protected override bool IsDefault() => base.IsDefault() && Attribute.All(o => o.IsDefault);
 
     protected override Observable<T> CreateItem() => new();
 }
@@ -81,7 +81,7 @@ public abstract class ValueListModuleSetting<T> : ListModuleSetting<Observable<T
 public class StringListModuleSetting : ValueListModuleSetting<string>
 {
     public StringListModuleSetting(string title, string description, Type viewType, IEnumerable<string> defaultValues)
-        : base(title, description, viewType, defaultValues.Select(value => new Observable<string>(value)))
+        : base(title, description, viewType, defaultValues)
     {
     }
 
@@ -91,7 +91,7 @@ public class StringListModuleSetting : ValueListModuleSetting<string>
 public class IntListModuleSetting : ValueListModuleSetting<int>
 {
     public IntListModuleSetting(string title, string description, Type viewType, IEnumerable<int> defaultValues)
-        : base(title, description, viewType, defaultValues.Select(value => new Observable<int>(value)))
+        : base(title, description, viewType, defaultValues)
     {
     }
 }
@@ -99,7 +99,7 @@ public class IntListModuleSetting : ValueListModuleSetting<int>
 public class FloatListModuleSetting : ValueListModuleSetting<float>
 {
     public FloatListModuleSetting(string title, string description, Type viewType, IEnumerable<float> defaultValues)
-        : base(title, description, viewType, defaultValues.Select(value => new Observable<float>(value)))
+        : base(title, description, viewType, defaultValues)
     {
     }
 }

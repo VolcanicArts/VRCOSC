@@ -464,7 +464,7 @@ public abstract class Module
 
         if (titleValue.ToString() is null || valueValue.ToString() is null)
         {
-            throw new InvalidOperationException("Your titlePath and valuePath properties must be convertable to a string");
+            throw new InvalidOperationException("Your titlePath and valuePath properties must be convertible to a string");
         }
 
         addSetting(lookup, new DropdownListModuleSetting(title, description, typeof(ListItemDropdownSettingView), items, valueValue.ToString()!, titlePath, valuePath));
