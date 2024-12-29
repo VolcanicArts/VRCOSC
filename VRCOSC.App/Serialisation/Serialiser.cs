@@ -154,18 +154,14 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
     /// Attempts to convert the <paramref name="value"/> to the <paramref name="targetType"/>
     /// </summary>
     /// <remarks>This has some special logic to handle different types automatically</remarks>
-    protected bool TryConvertToTargetType(object? value, Type targetType, out object? outValue)
+    protected bool TryConvertToTargetType(object value, Type targetType, out object outValue)
     {
         try
         {
             switch (value)
             {
-                case null:
-                    outValue = null;
-                    return true;
-
                 case JToken token:
-                    outValue = token.ToObject(targetType);
+                    outValue = token.ToObject(targetType)!;
                     return true;
 
                 case var subValue when targetType.IsAssignableTo(typeof(Enum)):
@@ -185,9 +181,8 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         }
         catch (Exception e)
         {
-            Logger.Error(e, "Error converting value to target type");
-            outValue = null;
-            return false;
+            ExceptionHandler.Handle(e, $"'{FullPath}' was unable to convert {value.GetType().ToReadableName()} to {targetType.ToReadableName()}");
+            throw;
         }
     }
 }

@@ -11,10 +11,10 @@ namespace VRCOSC.App.Settings.Serialisation;
 public class SerialisableSettingsManager : SerialisableVersion
 {
     [JsonProperty("settings")]
-    public Dictionary<string, object?> Settings = new();
+    public Dictionary<string, object> Settings = new();
 
     [JsonProperty("metadata")]
-    public Dictionary<string, object?> Metadata = new();
+    public Dictionary<string, object> Metadata = new();
 
     [JsonConstructor]
     public SerialisableSettingsManager()
