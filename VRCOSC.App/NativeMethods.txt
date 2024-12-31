@@ -1,0 +1,7 @@
+ShowWindow
+GetForegroundWindow
+EnumWindows
+GetWindowThreadProcessId
+ToUnicodeEx
+MapVirtualKey
+GetKeyboardLayout

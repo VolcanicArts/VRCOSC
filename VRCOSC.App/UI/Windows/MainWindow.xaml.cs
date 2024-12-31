@@ -10,8 +10,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Interop;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
 using Newtonsoft.Json;
-using PInvoke;
 using Semver;
 using VRCOSC.App.Actions;
 using VRCOSC.App.ChatBox;
@@ -408,7 +410,7 @@ public partial class MainWindow
                 {
                     if (window == mainWindow)
                     {
-                        User32.ShowWindow(new WindowInteropHelper(mainWindow).Handle, User32.WindowShowStyle.SW_HIDE);
+                        PInvoke.ShowWindow(new HWND(new WindowInteropHelper(mainWindow).Handle), SHOW_WINDOW_CMD.SW_HIDE);
                     }
                     else
                     {
@@ -418,7 +420,7 @@ public partial class MainWindow
             }
             else
             {
-                User32.ShowWindow(new WindowInteropHelper(mainWindow).Handle, User32.WindowShowStyle.SW_SHOWDEFAULT);
+                PInvoke.ShowWindow(new HWND(new WindowInteropHelper(mainWindow).Handle), SHOW_WINDOW_CMD.SW_SHOWDEFAULT);
                 mainWindow.Activate();
             }
         }
