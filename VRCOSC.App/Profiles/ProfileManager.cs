@@ -59,9 +59,7 @@ public class ProfileManager : INotifyPropertyChanged
 
     public void Load()
     {
-        Logger.Log("Loading profiles");
-        var deserialisationResult = serialisationManager.Deserialise(false);
-        Logger.Log($"Profiles ended in {deserialisationResult}");
+        serialisationManager.Deserialise(false);
 
         checkForDefault();
 

@@ -40,12 +40,12 @@ public class SettingsManager
         serialisationManager.Deserialise();
     }
 
-    private void setDefault<T>(VRCOSCSetting lookup, T? defaultValue)
+    private void setDefault<T>(VRCOSCSetting lookup, T defaultValue) where T : notnull
     {
         Settings[lookup] = (IObservable)Activator.CreateInstance(typeof(Observable<T>), defaultValue)!;
     }
 
-    private void setDefault<T>(VRCOSCMetadata lookup, T? defaultValue)
+    private void setDefault<T>(VRCOSCMetadata lookup, T defaultValue) where T : notnull
     {
         Metadata[lookup] = (IObservable)Activator.CreateInstance(typeof(Observable<T>), defaultValue)!;
     }
@@ -84,7 +84,7 @@ public class SettingsManager
         setDefault(VRCOSCMetadata.AutoStartQuestionClicked, false);
     }
 
-    public Observable<T> GetObservable<T>(VRCOSCSetting lookup)
+    public Observable<T> GetObservable<T>(VRCOSCSetting lookup) where T : notnull
     {
         if (!Settings.TryGetValue(lookup, out var observable)) throw new InvalidOperationException("Setting doesn't exist");
         if (observable is not Observable<T> castObservable) throw new InvalidOperationException($"Setting is not of type {typeof(T).ToReadableName()}");
@@ -92,7 +92,7 @@ public class SettingsManager
         return castObservable;
     }
 
-    public Observable<T> GetObservable<T>(VRCOSCMetadata lookup)
+    public Observable<T> GetObservable<T>(VRCOSCMetadata lookup) where T : notnull
     {
         if (!Metadata.TryGetValue(lookup, out var observable)) throw new InvalidOperationException("Metadata doesn't exist");
         if (observable is not Observable<T> castObservable) throw new InvalidOperationException($"Metadata is not of type {typeof(T).ToReadableName()}");
