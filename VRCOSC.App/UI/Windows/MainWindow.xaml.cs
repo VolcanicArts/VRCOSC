@@ -47,6 +47,8 @@ namespace VRCOSC.App.UI.Windows;
 
 public partial class MainWindow
 {
+    private const string root_backup_directory_name = "backups";
+
     public static MainWindow GetInstance() => Application.Current.Dispatcher.Invoke(() => (MainWindow)Application.Current.MainWindow!);
 
     public PackagesView PackagesView = null!;
@@ -80,6 +82,8 @@ public partial class MainWindow
     private async void startApp()
     {
         SettingsManager.GetInstance().Load();
+
+        createBackupIfUpdated();
 
         velopackUpdater = new VelopackUpdater();
 
@@ -128,30 +132,74 @@ public partial class MainWindow
     {
         try
         {
-            if (!storage.Exists("framework.ini")) return;
-
-            var sourceDir = storage.GetFullPath(string.Empty);
-            var destinationDir = storage.GetStorageForDirectory("v1-backup").GetFullPath(string.Empty);
-
-            foreach (var file in Directory.GetFiles(sourceDir))
+            if (storage.Exists("framework.ini"))
             {
-                var fileName = Path.GetFileName(file);
-                var destFile = Path.Combine(destinationDir, fileName);
-                File.Move(file, destFile, false);
-            }
+                var sourceDir = storage.GetFullPath(string.Empty);
+                var destinationDir = storage.GetStorageForDirectory(root_backup_directory_name).GetStorageForDirectory("v1").GetFullPath(string.Empty);
 
-            foreach (var dir in Directory.GetDirectories(sourceDir))
-            {
-                var dirName = Path.GetFileName(dir);
-                if (dirName == "v1-backup") continue;
+                foreach (var file in Directory.GetFiles(sourceDir))
+                {
+                    var fileName = Path.GetFileName(file);
+                    var destFile = Path.Combine(destinationDir, fileName);
+                    File.Move(file, destFile, false);
+                }
 
-                var destDir = Path.Combine(destinationDir, dirName);
-                Directory.Move(dir, destDir);
+                foreach (var dir in Directory.GetDirectories(sourceDir))
+                {
+                    var dirName = Path.GetFileName(dir);
+                    if (dirName == root_backup_directory_name) continue;
+
+                    var destDir = Path.Combine(destinationDir, dirName);
+                    Directory.Move(dir, destDir);
+                }
             }
         }
         catch (Exception e)
         {
             Logger.Error(e, "Could not backup V1 files");
+        }
+
+        // move v1-backup into backups/v1
+
+        try
+        {
+            if (storage.ExistsDirectory("v1-backup"))
+            {
+                var sourceDir = storage.GetFullPath("v1-backup");
+                var destinationDir = storage.GetStorageForDirectory(root_backup_directory_name).GetFullPath("v1");
+
+                Directory.Move(sourceDir, destinationDir);
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "An error has occured moving the V1 backup folder");
+        }
+    }
+
+    private void createBackupIfUpdated()
+    {
+        var installedVersionStr = SettingsManager.GetInstance().GetValue<string>(VRCOSCMetadata.InstalledVersion);
+        if (string.IsNullOrEmpty(installedVersionStr)) return;
+
+        var newVersion = SemVersion.Parse(AppManager.Version, SemVersionStyles.Any);
+        var installedVersion = SemVersion.Parse(installedVersionStr, SemVersionStyles.Any);
+
+        var hasUpdated = SemVersion.ComparePrecedence(newVersion, installedVersion) == 1;
+        if (!hasUpdated) return;
+
+        Logger.Log("App has updated. Creating a backup for previous version");
+
+        var sourceDir = storage.GetFullPath(string.Empty);
+        var destDir = storage.GetStorageForDirectory(root_backup_directory_name).GetStorageForDirectory(installedVersionStr).GetFullPath(string.Empty);
+
+        foreach (var dir in Directory.GetDirectories(sourceDir))
+        {
+            var dirName = Path.GetFileName(dir);
+            // don't want `backups`. Don't need `logs` or `runtime` directories
+            if (dirName is root_backup_directory_name or "logs" or "runtime") continue;
+
+            storage.GetStorageForDirectory(dirName).CopyTo(Path.Combine(destDir, dirName));
         }
     }
 
