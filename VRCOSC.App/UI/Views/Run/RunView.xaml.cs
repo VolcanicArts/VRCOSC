@@ -127,7 +127,7 @@ public partial class RunView : INotifyPropertyChanged
 
     private void onLogEntry(LogEntry e) => Dispatcher.Invoke(() =>
     {
-        if (e.Target != LoggingTarget.Terminal) return;
+        if (e.Target != LoggingTarget.Terminal || AppManager.GetInstance().State.Value == AppManagerState.Stopped || AppManager.GetInstance().State.Value == AppManagerState.Waiting) return;
 
         var dateTimeText = $"[{DateTime.Now:HH:mm:ss}] {e.Message}";
 
