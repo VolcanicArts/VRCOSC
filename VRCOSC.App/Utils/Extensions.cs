@@ -200,7 +200,7 @@ public static class KeyExtensions
             {
                 var keyboardLayout = PInvoke.GetKeyboardLayout(0);
 
-                var result = PInvoke.ToUnicodeEx(virtualKey, scanCode, keyboardStatePtr, new PWSTR(outputPtr), 10, 0, keyboardLayout);
+                var result = PInvoke.ToUnicodeEx(virtualKey, scanCode, keyboardStatePtr, new PWSTR(outputPtr), output.Length, 0, keyboardLayout);
                 return result > 0 ? output[0] != 0x0 && output[1] == 0x0 ? output[0].ToString().ToUpperInvariant() : new string(output) : key.ToString();
             }
         }
@@ -216,7 +216,7 @@ public static class TypeExtensions
         return Type.GetTypeCode(type) switch
         {
             TypeCode.Empty => "Null",
-            TypeCode.Object => "Object",
+            TypeCode.Object => type.Name,
             TypeCode.DBNull => "DBNull",
             TypeCode.Boolean => "Bool",
             TypeCode.Char => "Char",
