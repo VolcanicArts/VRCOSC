@@ -410,7 +410,7 @@ public class AppManager
         await ModuleManager.GetInstance().StartAsync();
         VRChatLogReader.Start();
 
-        if (ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().Any())
+        if (ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().Any() && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.SpeechEnabled))
         {
             if (string.IsNullOrWhiteSpace(SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SpeechModelPath)))
             {

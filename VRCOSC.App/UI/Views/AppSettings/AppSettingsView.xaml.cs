@@ -122,16 +122,16 @@ public partial class AppSettingsView : INotifyPropertyChanged
         set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableRouter).Value = value;
     }
 
-    public SpeechEngine SelectedSpeechEngine
-    {
-        get => SettingsManager.GetInstance().GetObservable<SpeechEngine>(VRCOSCSetting.SelectedSpeechEngine).Value;
-        set => SettingsManager.GetInstance().GetObservable<SpeechEngine>(VRCOSCSetting.SelectedSpeechEngine).Value = value;
-    }
-
     public string WhisperModelFilePath
     {
         get => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value;
         set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = value;
+    }
+
+    public bool SpeechEnabled
+    {
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechEnabled).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechEnabled).Value = value;
     }
 
     public bool SpeechTranslate

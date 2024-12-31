@@ -72,6 +72,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.EnableAppDebug, false);
         setDefault(VRCOSCSetting.EnableRouter, false);
         setDefault(VRCOSCSetting.SelectedMicrophoneID, string.Empty);
+        setDefault(VRCOSCSetting.SpeechEnabled, true);
         setDefault(VRCOSCSetting.SpeechModelPath, string.Empty);
         setDefault(VRCOSCSetting.SpeechConfidence, 0.4f);
         setDefault(VRCOSCSetting.SpeechNoiseCutoff, 0.14f);
@@ -140,7 +141,7 @@ public enum VRCOSCSetting
     EnableAppDebug,
     EnableRouter,
     SelectedMicrophoneID,
-    SelectedSpeechEngine,
+    SpeechEnabled,
     SpeechModelPath,
     SpeechConfidence,
     SpeechNoiseCutoff,
