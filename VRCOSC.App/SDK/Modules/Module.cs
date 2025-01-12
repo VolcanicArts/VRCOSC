@@ -191,7 +191,7 @@ public abstract class Module
     {
         var pattern = "^"; // start of string
         pattern += @"(?:VF\d+_)?"; // VRCFury prefix
-        pattern += $"({parameterName.Replace("/", @"\/").Replace("*", @"(?:\S*)")})";
+        pattern += $"({Regex.Escape(parameterName).Replace(@"\*", @"(?:\S*)")})";
         pattern += "$"; // end of string
 
         return new Regex(pattern);
