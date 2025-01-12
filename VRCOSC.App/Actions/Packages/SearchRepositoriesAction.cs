@@ -23,7 +23,8 @@ public class SearchRepositoriesAction : ResultableProgressAction<SearchRepositor
     {
         var repos = await GitHubProxy.Client.Search.SearchRepo(new SearchRepositoriesRequest
         {
-            Topic = tag
+            Topic = tag,
+            Fork = ForkQualifier.IncludeForks
         }).WaitAsync(TimeSpan.FromSeconds(5));
 
         Result = repos;
