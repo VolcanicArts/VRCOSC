@@ -3,12 +3,44 @@
 
 using System;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 namespace VRCOSC.App.UI.Core;
 
 public static class Extensions
 {
+    public static T? FindVisualParent<T>(this DependencyObject element, string name) where T : DependencyObject
+    {
+        while (true)
+        {
+            var parent = VisualTreeHelper.GetParent(element);
+
+            if (parent is null) return null;
+            if (parent is T parentAsType && ((FrameworkElement)parent).Name == name) return parentAsType;
+
+            element = parent;
+        }
+    }
+
+    public static T? FindVisualChild<T>(this DependencyObject element, string name) where T : DependencyObject
+    {
+        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
+        {
+            var child = VisualTreeHelper.GetChild(element, i);
+
+            if (child is T childAsType && ((FrameworkElement)child).Name == name)
+                return childAsType;
+
+            var childOfChild = FindVisualChild<T>(child, name);
+
+            if (childOfChild is not null)
+                return childOfChild;
+        }
+
+        return null;
+    }
+
     public static void FadeInFromZero(this FrameworkElement element, double durationMilliseconds, Action? onCompleted = null)
     {
         element.Opacity = 0;

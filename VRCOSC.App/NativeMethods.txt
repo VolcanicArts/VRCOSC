@@ -8,4 +8,8 @@ MapVirtualKey
 GetKeyboardLayout
 SHOpenFolderAndSelectItems
 SHParseDisplayName
-ILFree
+CoTaskMemFree
+GetDpiForSystem
+MonitorFromWindow
+GetMonitorInfoW
+DwmSetWindowAttribute

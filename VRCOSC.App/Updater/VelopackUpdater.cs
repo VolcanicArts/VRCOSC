@@ -3,7 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Windows;
 using NuGet.Versioning;
 using Velopack;
 using Velopack.Sources;
@@ -68,8 +68,8 @@ public class VelopackUpdater
             var upgradeMessage = $"A new update is available for VRCOSC!\nWould you like to update?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo.TargetFullRelease.Version}";
             var downgradeMessage = $"Updating will downgrade due to switching channels.\nAre you sure you want to downgrade?\n\nCurrent Version: {AppManager.Version}\nNew Version: {updateInfo.TargetFullRelease.Version}";
 
-            var result = MessageBox.Show(updateInfo.IsDowngrade ? downgradeMessage : upgradeMessage, "VRCOSC Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-            if (result == DialogResult.No) return false;
+            var result = MessageBox.Show(updateInfo.IsDowngrade ? downgradeMessage : upgradeMessage, "VRCOSC Update Available", MessageBoxButton.YesNo, MessageBoxImage.Information);
+            if (result == MessageBoxResult.No) return false;
 
             await updateManager.DownloadUpdatesAsync(updateInfo);
             SettingsManager.GetInstance().GetObservable<UpdateChannel>(VRCOSCMetadata.InstalledUpdateChannel).Value = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCSetting.UpdateChannel);

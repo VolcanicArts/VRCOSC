@@ -10,7 +10,7 @@ namespace VRCOSC.App.UI.Views.Router;
 
 public partial class RouterView
 {
-    private static readonly Uri router_docs_uri = new("https://vrcosc.com/docs/V2/router");
+    private static readonly Uri router_docs_uri = new("https://vrcosc.com/docs/v2/router");
 
     public RouterManager RouterManager { get; }
 

@@ -9,10 +9,6 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
-using System.Windows.Interop;
-using Windows.Win32;
-using Windows.Win32.Foundation;
-using Windows.Win32.UI.WindowsAndMessaging;
 using Newtonsoft.Json;
 using Semver;
 using VRCOSC.App.Actions;
@@ -312,8 +308,7 @@ public partial class MainWindow
         if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.TrayOnClose))
         {
             e.Cancel = true;
-            inTray = true;
-            handleTrayTransition();
+            transitionTray(true);
             return;
         }
 
@@ -324,104 +319,79 @@ public partial class MainWindow
             e.Cancel = true;
             await appManager.StopAsync();
             Close();
-        }
-
-        if (appManager.State.Value is AppManagerState.Waiting)
-        {
-            appManager.CancelStartRequest();
+            return;
         }
 
         OVRDeviceManager.GetInstance().Serialise();
         RouterManager.GetInstance().Serialise();
         StartupManager.GetInstance().Serialise();
         SettingsManager.GetInstance().Serialise();
-    }
 
-    private void MainWindow_OnClosed(object? sender, EventArgs e)
-    {
-        trayIcon.Dispose();
-
-        foreach (Window window in Application.Current.Windows)
-        {
-            if (window != Application.Current.MainWindow) window.Close();
-        }
+        trayIcon?.Dispose();
     }
 
     private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
     {
-        this.SetPosition(null, ScreenChoice.Primary, HorizontalPosition.Center, VerticalPosition.Center);
-
         if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.StartInTray))
         {
-            await Task.Delay(100); // just in case
-            inTray = true;
-            handleTrayTransition();
+            // required for some windows scheduling funkiness
+            await Task.Delay(100);
+            transitionTray(true);
         }
+    }
+
+    private void MainWindow_OnSourceInitialized(object? _, EventArgs _2)
+    {
+        this.ApplyDefaultStyling();
+        this.SetPositionFrom(null);
     }
 
     #region Tray
 
-    private bool inTray;
-    private readonly NotifyIcon trayIcon = new();
+    private bool currentlyInTray;
+    private NotifyIcon? trayIcon;
 
     private void setupTrayIcon()
     {
-        trayIcon.DoubleClick += (_, _) =>
-        {
-            inTray = !inTray;
-            handleTrayTransition();
-        };
+        trayIcon = new NotifyIcon();
+        trayIcon.DoubleClick += (_, _) => transitionTray(!currentlyInTray);
 
         trayIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Assembly.GetEntryAssembly()!.Location)!;
         trayIcon.Visible = true;
         trayIcon.Text = AppManager.APP_NAME;
 
-        var contextMenu = new ContextMenuStrip
-        {
-            Items =
-            {
-                {
-                    AppManager.APP_NAME, null, (_, _) =>
-                    {
-                        inTray = false;
-                        handleTrayTransition();
-                    }
-                },
-                new ToolStripSeparator(),
-                {
-                    "Exit", null, (_, _) => Dispatcher.Invoke(() => Application.Current.Shutdown())
-                }
-            }
-        };
+        var contextMenu = new ContextMenuStrip();
+        contextMenu.Items.Add(AppManager.APP_NAME, null, (_, _) => transitionTray(false));
+        contextMenu.Items.Add(new ToolStripSeparator());
+        contextMenu.Items.Add("Exit", null, (_, _) => Dispatcher.Invoke(() => Application.Current.Shutdown()));
 
         trayIcon.ContextMenuStrip = contextMenu;
     }
 
-    private void handleTrayTransition()
+    private void transitionTray(bool inTray)
     {
         try
         {
-            var mainWindow = Application.Current.MainWindow;
-            if (mainWindow is null) throw new InvalidOperationException("Main window is null");
-
-            if (inTray)
+            if (!currentlyInTray && inTray)
             {
                 foreach (Window window in Application.Current.Windows)
                 {
-                    if (window == mainWindow)
-                    {
-                        PInvoke.ShowWindow(new HWND(new WindowInteropHelper(mainWindow).Handle), SHOW_WINDOW_CMD.SW_HIDE);
-                    }
+                    if (window == this)
+                        window.Hide();
                     else
-                    {
                         window.Close();
-                    }
                 }
+
+                currentlyInTray = true;
+                return;
             }
-            else
+
+            if (currentlyInTray && !inTray)
             {
-                PInvoke.ShowWindow(new HWND(new WindowInteropHelper(mainWindow).Handle), SHOW_WINDOW_CMD.SW_SHOWDEFAULT);
-                mainWindow.Activate();
+                Show();
+                Activate();
+                currentlyInTray = false;
+                return;
             }
         }
         catch (Exception e)

@@ -272,7 +272,7 @@ public partial class ChatBoxView
 
             if (mouseXPercentageOffset == -1)
             {
-                mouseXPercentageOffset = mouseXPercentage - ((double)draggingClip.Start.Value / timelineLength);
+                mouseXPercentageOffset = mouseXPercentage - (double)draggingClip.Start.Value / timelineLength;
             }
 
             var clipLayer = draggingClip.Layer.Value;
@@ -291,7 +291,7 @@ public partial class ChatBoxView
                     End = { Value = newEnd }
                 }));
 
-                if ((newStart >= lowerBound && newEnd <= upperBound) || (noneIntersect && newStart >= 0 && newEnd <= timelineLength))
+                if (newStart >= lowerBound && newEnd <= upperBound || noneIntersect && newStart >= 0 && newEnd <= timelineLength)
                 {
                     draggingClip.Start.Value = newStart;
                     draggingClip.End.Value = newEnd;
@@ -349,7 +349,13 @@ public partial class ChatBoxView
         {
             clipEditWindow = new ChatBoxClipEditWindow(SelectedClip);
             clipEditWindow.Closed += (_, _) => clipEditWindowCache.Remove(clipEditWindow);
-            clipEditWindow.SetPosition(this, ScreenChoice.SameAsParent, HorizontalPosition.Center, VerticalPosition.Center);
+
+            clipEditWindow.SourceInitialized += (_, _) =>
+            {
+                clipEditWindow.ApplyDefaultStyling();
+                clipEditWindow.SetPositionFrom(this);
+            };
+
             clipEditWindowCache.Add(clipEditWindow);
             clipEditWindow.ShowDialog();
         }
@@ -407,7 +413,7 @@ public partial class ChatBoxView
 
     private async void ImportButton_OnClick(object sender, RoutedEventArgs e)
     {
-        var filePath = await WinForms.PickFileAsync(".json");
+        var filePath = await Platform.PickFileAsync(".json");
         if (filePath is null) return;
 
         Dispatcher.Invoke(() => ChatBoxManager.GetInstance().Deserialise(filePath));
@@ -416,7 +422,7 @@ public partial class ChatBoxView
     private void ExportButton_OnClick(object sender, RoutedEventArgs e)
     {
         var filePath = AppManager.GetInstance().Storage.GetFullPath($"profiles/{ProfileManager.GetInstance().ActiveProfile.Value.ID}/chatbox.json");
-        WinForms.PresentFile(filePath);
+        Platform.PresentFile(filePath);
     }
 
     private void ClearButton_OnClick(object sender, RoutedEventArgs e)

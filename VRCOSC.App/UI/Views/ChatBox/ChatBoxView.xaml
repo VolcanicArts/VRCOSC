@@ -450,7 +450,7 @@
                                     </ScrollViewer>
                                 </Grid>
                                 <!--> Right Click Menu <-->
-                                <Grid Name="RightClickMenu" Width="150" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                <Grid x:Name="RightClickMenu" Width="150" HorizontalAlignment="Left" VerticalAlignment="Top"
                                       Visibility="Collapsed"
                                       MouseDown="RightClickMenu_OnMouseDown">
                                     <Border Background="{StaticResource CBackground5}" CornerRadius="5" Padding="5">

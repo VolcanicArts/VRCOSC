@@ -14,11 +14,12 @@ using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Modules;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Settings;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Windows.ChatBox;
 
-public partial class ChatBoxClipEditWindow
+public partial class ChatBoxClipEditWindow : IManagedWindow
 {
     public Clip ReferenceClip { get; }
 
@@ -113,7 +114,13 @@ public partial class ChatBoxClipEditWindow
         var variableInstance = (ClipVariable)element.Tag;
 
         var clipVariableWindow = new ClipVariableEditWindow(variableInstance);
-        clipVariableWindow.SetPosition(this, ScreenChoice.SameAsParent, HorizontalPosition.Center, VerticalPosition.Center);
+
+        clipVariableWindow.SourceInitialized += (_, _) =>
+        {
+            clipVariableWindow.ApplyDefaultStyling();
+            clipVariableWindow.SetPositionFrom(this);
+        };
+
         clipVariableWindow.ShowDialog();
     }
 
@@ -243,6 +250,9 @@ public partial class ChatBoxClipEditWindow
             e.Effects = DragDropEffects.None;
         }
     }
+
+    // only allow 1 clip edit window at once
+    public object GetComparer() => ChatBoxManager.GetInstance();
 }
 
 public class TextBoxParsingConverter : IValueConverter

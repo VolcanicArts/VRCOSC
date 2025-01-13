@@ -36,7 +36,7 @@ public partial class ModulesView
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        var filePath = await WinForms.PickFileAsync(".json");
+        var filePath = await Platform.PickFileAsync(".json");
         if (filePath is null) return;
 
         Dispatcher.Invoke(() => module.ImportConfig(filePath));
@@ -48,7 +48,7 @@ public partial class ModulesView
         var module = (Module)element.Tag;
 
         var filePath = AppManager.GetInstance().Storage.GetFullPath($"profiles/{ProfileManager.GetInstance().ActiveProfile.Value.ID}/modules/{module.FullID}.json");
-        WinForms.PresentFile(filePath);
+        Platform.PresentFile(filePath);
     }
 
     private void ParametersButton_OnClick(object sender, RoutedEventArgs e)
