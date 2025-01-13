@@ -1,10 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0-windows10.0.22621.0</TargetFramework>
+        <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <UseWindowsForms>true</UseWindowsForms>
+        <LangVersion>latestmajor</LangVersion>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <WindowsSdkPackageVersion>10.0.26100.1</WindowsSdkPackageVersion>
+        <CsWin32Generate>true</CsWin32Generate>
         <Version>$(GlobalVersion)</Version>
         <AssemblyVersion>$(GlobalVersion)</AssemblyVersion>
         <FileVersion>$(GlobalVersion)</FileVersion>
@@ -17,10 +21,6 @@
         <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/VolcanicArts/VRCOSC</RepositoryUrl>
         <Company>VRCOSC</Company>
-        <LangVersion>latestmajor</LangVersion>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <WindowsSdkPackageVersion>10.0.22621.52</WindowsSdkPackageVersion>
-        <CsWin32Generate>true</CsWin32Generate>
     </PropertyGroup>
 
     <ItemGroup>
@@ -36,7 +36,7 @@
         <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
         <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="Octokit" Version="13.0.1" />
+        <PackageReference Include="Octokit" Version="14.0.0" />
         <PackageReference Include="Semver" Version="3.0.0" />
         <PackageReference Include="Velopack" Version="0.0.1053" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />
