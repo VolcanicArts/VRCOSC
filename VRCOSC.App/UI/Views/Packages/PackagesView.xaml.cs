@@ -46,20 +46,13 @@ public sealed partial class PackagesView
 
         if (string.IsNullOrEmpty(filterText))
         {
-            showDefaultItemsSource();
+            PackageList.ItemsSource = PackageManager.GetInstance().Sources;
             return;
         }
 
         var filteredItems = packageManager.Sources.Where(item => item.DisplayName.Contains(filterText, StringComparison.InvariantCultureIgnoreCase)).ToList();
 
         PackageList.ItemsSource = filteredItems;
-    }
-
-    private void showDefaultItemsSource()
-    {
-        var packageManager = PackageManager.GetInstance();
-
-        PackageList.ItemsSource = packageManager.Sources;
     }
 
     public void Refresh() => Dispatcher.Invoke(() =>

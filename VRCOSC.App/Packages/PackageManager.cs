@@ -34,9 +34,11 @@ public class PackageManager
     // id - version
     public readonly Dictionary<string, string> InstalledPackages = new();
 
-    public DateTime CacheExpireTime = DateTime.UnixEpoch;
+    public DateTimeOffset CacheExpireTime = DateTimeOffset.UnixEpoch;
 
     public PackageSource OfficialModulesSource { get; }
+
+    public bool IsCacheOutdated => CacheExpireTime <= DateTimeOffset.Now;
 
     public PackageManager()
     {
@@ -55,11 +57,14 @@ public class PackageManager
     public PackageSource? GetPackage(string packageID) => Sources.FirstOrDefault(packageSource => packageSource.PackageID == packageID);
     public PackageSource? GetPackageSourceForRelease(PackageRelease packageRelease) => Sources.FirstOrDefault(packageSource => packageSource.FilteredReleases.Contains(packageRelease));
 
-    public CompositeProgressAction Load()
+    public void Load()
     {
         builtinSources.ForEach(source => Sources.Add(source));
         serialisationManager.Deserialise();
-        return RefreshAllSources(CacheExpireTime <= DateTime.Now);
+
+        // TODO: Check that the packages actually exist on disk out of the installed list
+        // if they don't exist on disk, re-download the specified installed version
+        // would mean I don't have to backup the packages folder
     }
 
     public CompositeProgressAction RefreshAllSources(bool forceRemoteGrab)
@@ -104,11 +109,7 @@ public class PackageManager
 
         if (!shouldDoAction) return null;
 
-        compositeAction.OnComplete += () =>
-        {
-            serialisationManager.Serialise();
-            MainWindow.GetInstance().PackagesView.Refresh();
-        };
+        compositeAction.OnComplete += () => serialisationManager.Serialise();
 
         return compositeAction;
     }

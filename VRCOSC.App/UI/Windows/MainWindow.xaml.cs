@@ -36,6 +36,7 @@ using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using Application = System.Windows.Application;
 using ButtonBase = System.Windows.Controls.Primitives.ButtonBase;
+using MessageBox = System.Windows.MessageBox;
 
 #if !DEBUG
 using Velopack.Locators;
@@ -77,30 +78,13 @@ public partial class MainWindow
         startApp();
     }
 
-    private async void startApp()
+    private void startApp()
     {
         SettingsManager.GetInstance().Load();
 
         createBackupIfUpdated();
 
         velopackUpdater = new VelopackUpdater();
-
-        if (!velopackUpdater.IsInstalled())
-        {
-            Logger.Log("Portable app detected. Cancelling update check");
-        }
-        else
-        {
-            await velopackUpdater.CheckForUpdatesAsync();
-
-            if (velopackUpdater.IsUpdateAvailable())
-            {
-                var isUpdating = await velopackUpdater.ExecuteUpdate();
-                if (isUpdating) return;
-            }
-
-            Logger.Log("No updates. Proceeding with loading");
-        }
 
         AppManager.GetInstance().Initialise();
 
@@ -123,7 +107,7 @@ public partial class MainWindow
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableRouter).Subscribe(newValue => ShowRouter.Value = newValue, true);
 
-        await load();
+        load();
     }
 
     private void backupV1Files()
@@ -178,7 +162,7 @@ public partial class MainWindow
     private void createBackupIfUpdated()
     {
         var installedVersionStr = SettingsManager.GetInstance().GetValue<string>(VRCOSCMetadata.InstalledVersion);
-        if (string.IsNullOrEmpty(installedVersionStr)) return;
+        if (string.IsNullOrEmpty(installedVersionStr) || storage.GetStorageForDirectory(root_backup_directory_name).ExistsDirectory(installedVersionStr)) return;
 
         var newVersion = SemVersion.Parse(AppManager.Version, SemVersionStyles.Any);
         var installedVersion = SemVersion.Parse(installedVersionStr, SemVersionStyles.Any);
@@ -201,59 +185,120 @@ public partial class MainWindow
         }
     }
 
-    private async Task load()
+    private async void load()
     {
-        var loadingAction = new CompositeProgressAction();
-        loadingAction.AddAction(PackageManager.GetInstance().Load());
+        Logger.Log("Getting things ready", LoggingTarget.Information);
+        var doFirstTimeSetup = !SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete);
+
+        // show "getting things ready" screen
+
+        Logger.Log("Loading main things", LoggingTarget.Information);
+        PackageManager.GetInstance().Load();
+
+        if (doFirstTimeSetup)
+        {
+            Logger.Log("Doing first time setup", LoggingTarget.Information);
+            await PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource)!.Execute();
+        }
+
+        Logger.Log("Loading other managers", LoggingTarget.Information);
+        ProfileManager.GetInstance().Load();
+        ModuleManager.GetInstance().LoadAllModules();
+        ChatBoxManager.GetInstance().Load();
+        RouterManager.GetInstance().Load();
+        StartupManager.GetInstance().Load();
+
+        MainWindowContent.FadeInFromZero(500);
+        AppManager.GetInstance().InitialLoadComplete();
+        PackagesView.Refresh();
+
+        if (doFirstTimeSetup)
+        {
+            Logger.Log("Post first time setup things", LoggingTarget.Information);
+            new FirstTimeInstallWindow().Show();
+            SettingsManager.GetInstance().GetObservable<bool>(VRCOSCMetadata.FirstTimeSetupComplete).Value = true;
+        }
+
+        Logger.Log("Loading complete", LoggingTarget.Information);
+
+        var appUpdated = false;
 
         var installedVersion = SettingsManager.GetInstance().GetValue<string>(VRCOSCMetadata.InstalledVersion);
 
         if (!string.IsNullOrEmpty(installedVersion))
         {
-            var installedVersionParsed = SemVersion.Parse(installedVersion, SemVersionStyles.Any);
-            var currentVersion = SemVersion.Parse(AppManager.Version, SemVersionStyles.Any);
+            var cachedInstalledVersion = SemVersion.Parse(installedVersion, SemVersionStyles.Any);
+            var newInstalledVersion = SemVersion.Parse(AppManager.Version, SemVersionStyles.Any);
 
-            // refresh packages if we've upgraded or downgraded version
-            if (SemVersion.ComparePrecedence(installedVersionParsed, currentVersion) != 0)
+            if (SemVersion.ComparePrecedence(cachedInstalledVersion, newInstalledVersion) != 0)
             {
-                loadingAction.AddAction(PackageManager.GetInstance().RefreshAllSources(true));
+                Logger.Log("App has been updated", LoggingTarget.Information);
+                appUpdated = true;
             }
         }
 
-        SettingsManager.GetInstance().GetObservable<string>(VRCOSCMetadata.InstalledVersion).Value = AppManager.Version;
-
-        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages))
+        if (appUpdated)
         {
-            loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().UpdateAllInstalledPackages()));
+            SettingsManager.GetInstance().GetObservable<string>(VRCOSCMetadata.InstalledVersion).Value = AppManager.Version;
         }
 
-        loadingAction.AddAction(new DynamicProgressAction("Loading Managers", () =>
+        if (!appUpdated)
         {
-            ProfileManager.GetInstance().Load();
-            ModuleManager.GetInstance().LoadAllModules();
-            ChatBoxManager.GetInstance().Load();
-            RouterManager.GetInstance().Load();
-            StartupManager.GetInstance().Load();
-        }));
-
-        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
-        {
-            loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource)));
+            // hide "getting things ready" screen
         }
 
-        loadingAction.OnComplete += () => Dispatcher.Invoke(() =>
+        if (!velopackUpdater.IsInstalled())
         {
-            if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
+            Logger.Log("Portable app detected. Cancelling update check", LoggingTarget.Information);
+            //await Task.Delay(2000); // simulate update check time
+        }
+
+        // only check for an update if we haven't just updated (to save time checking again)
+        if (velopackUpdater.IsInstalled() && !appUpdated)
+        {
+            await velopackUpdater.CheckForUpdatesAsync();
+
+            if (velopackUpdater.IsUpdateAvailable())
             {
-                new FirstTimeInstallWindow().Show();
-                SettingsManager.GetInstance().GetObservable<bool>(VRCOSCMetadata.FirstTimeSetupComplete).Value = true;
+                var isUpdating = await velopackUpdater.ExecuteUpdate();
+                if (isUpdating) return;
             }
 
-            MainWindowContent.FadeInFromZero(500);
-            AppManager.GetInstance().InitialLoadComplete();
-        });
+            Logger.Log("No updates. Proceeding with loading", LoggingTarget.Information);
+        }
 
-        await ShowLoadingOverlay("Welcome to VRCOSC", loadingAction);
+        var cacheOutdated = PackageManager.GetInstance().IsCacheOutdated;
+
+        if (appUpdated || cacheOutdated)
+        {
+            // block package screen from being seen
+            await PackageManager.GetInstance().RefreshAllSources(true).Execute();
+        }
+
+        var packagesToUpdate = PackageManager.GetInstance().UpdateAllInstalledPackages();
+
+        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && packagesToUpdate is not null)
+        {
+            if (appUpdated)
+            {
+                Logger.Log("App updated. Updating modules", LoggingTarget.Information);
+                await packagesToUpdate.Execute();
+                ModuleManager.GetInstance().ReloadAllModules();
+                // hide "getting things ready" screen
+            }
+
+            if (!appUpdated && cacheOutdated)
+            {
+                Logger.Log("Cache outdated. Updating modules", LoggingTarget.Information);
+                await packagesToUpdate.Execute();
+                var response = MessageBox.Show("Newer versions of your installed modules have been installed.\nWould you like to use them now?", "Modules Updated", MessageBoxButton.YesNo, MessageBoxImage.Information);
+
+                if (response == MessageBoxResult.Yes)
+                {
+                    ModuleManager.GetInstance().ReloadAllModules();
+                }
+            }
+        }
     }
 
     private void copyOpenVrFiles()
