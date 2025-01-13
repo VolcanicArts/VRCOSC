@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Input;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -97,7 +98,7 @@ public static class UriExtensions
 
 public static class StringExtensions
 {
-    public static string Pluralise(this string str) => str + (str.EndsWith("s") ? "'" : "'s");
+    public static string Pluralise(this string str) => str + (str.EndsWith('s') ? "'" : "'s");
 }
 
 public static class IntegerExtensions
@@ -254,9 +255,9 @@ public static class ProcessExtensions
         var foregroundWindowHandle = PInvoke.GetForegroundWindow();
         if (foregroundWindowHandle == IntPtr.Zero) return null;
 
-        uint processId = 0;
+        var processId = 0u;
         var result = PInvoke.GetWindowThreadProcessId(foregroundWindowHandle, &processId);
-        if (result == 0 || processId == 0) return null;
+        if (result == 0u || processId == 0u) return null;
 
         try
         {
@@ -295,29 +296,35 @@ public static class ProcessExtensions
 
     public static void SetWindowVisibility(this Process process, bool visible)
     {
-        ArgumentNullException.ThrowIfNull(process);
-
-        var windowHandle = findWindowByProcessId(process.Id);
+        var windowHandle = findWindowByProcessId((uint)process.Id);
         if (windowHandle == IntPtr.Zero) throw new InvalidOperationException("The process does not have a visible main window");
 
-        PInvoke.ShowWindow(new HWND(windowHandle), visible ? SHOW_WINDOW_CMD.SW_RESTORE : SHOW_WINDOW_CMD.SW_MINIMIZE);
+        var result = PInvoke.ShowWindow(new HWND(windowHandle), visible ? SHOW_WINDOW_CMD.SW_RESTORE : SHOW_WINDOW_CMD.SW_MINIMIZE);
+        logResult(result, $"Could not alter window state with ID {process.Id}");
     }
 
-    private static unsafe IntPtr findWindowByProcessId(int processId)
+    private static unsafe IntPtr findWindowByProcessId(uint processId)
     {
-        IntPtr windowHandle = IntPtr.Zero;
+        var windowHandle = IntPtr.Zero;
 
-        PInvoke.EnumWindows((hWnd, _) =>
+        var result = PInvoke.EnumWindows((hWnd, _) =>
         {
-            uint windowProcessId = 0;
+            var windowProcessId = 0u;
 
             var result = PInvoke.GetWindowThreadProcessId(hWnd, &windowProcessId);
-            if (result == 0 || windowProcessId != processId) return true;
+            if (result == 0u || windowProcessId != processId) return true;
 
             windowHandle = hWnd;
             return false;
         }, IntPtr.Zero);
 
+        logResult(result, $"Could not find window process with ID {processId}");
+
         return windowHandle;
+    }
+
+    private static void logResult(BOOL result, string message)
+    {
+        if (!result) Logger.Log($"{message}. Error code: {Marshal.GetLastWin32Error()}");
     }
 }
