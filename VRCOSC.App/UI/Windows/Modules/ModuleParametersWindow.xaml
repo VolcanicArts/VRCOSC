@@ -93,7 +93,7 @@
                                                            HorizontalAlignment="Center"
                                                            Foreground="{StaticResource CForeground1}"
                                                            FontSize="16"
-                                                           Text="{Binding ExpectedType, Mode=OneTime, Converter={StaticResource TypeToReadableTypeConverter}}" />
+                                                           Text="{Binding ExpectedType, Mode=OneTime}" />
                                                 <TextBlock Grid.Column="6" VerticalAlignment="Center"
                                                            HorizontalAlignment="Center"
                                                            Foreground="{StaticResource CForeground1}"
