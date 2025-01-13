@@ -34,7 +34,6 @@ using VRCOSC.App.Startup;
 using VRCOSC.App.UI.Themes;
 using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
-using VRCOSC.App.VRChatAPI;
 using Module = VRCOSC.App.SDK.Modules.Module;
 
 namespace VRCOSC.App;
@@ -61,7 +60,6 @@ public class AppManager
     public ConnectionManager ConnectionManager = null!;
     public VRChatOscClient VRChatOscClient = null!;
     public VRChatClient VRChatClient = null!;
-    public VRChatAPIClient VRChatAPIClient = null!;
     public OVRClient OVRClient = null!;
 
     public WhisperSpeechEngine SpeechEngine = null!;
@@ -88,7 +86,6 @@ public class AppManager
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
-        VRChatAPIClient = new VRChatAPIClient();
         OVRClient = new OVRClient();
         ChatBoxWorldBlacklist.Init();
 

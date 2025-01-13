@@ -14,7 +14,6 @@ using System.Windows.Controls.Primitives;
 using VRCOSC.App.Audio;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Themes;
-using VRCOSC.App.UI.Views.Settings;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 
@@ -289,3 +288,5 @@ public class IpPortValidationRule : ValidationRule
         return Regex.IsMatch(input, pattern);
     }
 }
+
+public record DeviceDisplay(string ID, string Name);
