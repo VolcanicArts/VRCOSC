@@ -4,91 +4,58 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Win32;
+using Windows.Storage.Pickers;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.Shell.Common;
+using WinRT.Interop;
 
 namespace VRCOSC.App.Utils;
 
 public static class WinForms
 {
-    [DllImport("shell32.dll", SetLastError = true)]
-    private static extern int SHOpenFolderAndSelectItems(IntPtr pidlFolder, uint cidl, [In, MarshalAs(UnmanagedType.LPArray)] IntPtr[] apidl, uint dwFlags);
-
-    [DllImport("shell32.dll", SetLastError = true)]
-    private static extern void SHParseDisplayName([MarshalAs(UnmanagedType.LPWStr)] string name, IntPtr bindingContext, [Out] out IntPtr pidl, uint sfgaoIn, [Out] out uint psfgaoOut);
-
-    [STAThread]
-    public static void OpenFile(string filter, Action<string> filePathCallback)
+    public static async Task<string?> PickFileAsync(string filter)
     {
-        var t = new Thread(() =>
+        var picker = new FileOpenPicker
         {
-            var dlg = new OpenFileDialog
-            {
-                Multiselect = false,
-                Filter = filter
-            };
+            SuggestedStartLocation = PickerLocationId.Downloads,
+            FileTypeFilter = { filter }
+        };
 
-            if (dlg.ShowDialog() == false) return;
+        InitializeWithWindow.Initialize(picker, PInvoke.GetActiveWindow());
 
-            filePathCallback.Invoke(dlg.FileName);
-        });
-
-        t.SetApartmentState(ApartmentState.STA);
-        t.Start();
+        return (await picker.PickSingleFileAsync())?.Path;
     }
 
-    public static void PresentFile(string filePath)
+    public static unsafe void PresentFile(string filePath)
     {
-        Task.Run(() =>
+        ITEMIDLIST* pidlFolder = null;
+        ITEMIDLIST* pidlFile = null;
+
+        filePath = filePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+
+        fixed (char* folderPathArray = Path.GetDirectoryName(filePath))
         {
-            var filePtr = IntPtr.Zero;
-            var folderPtr = IntPtr.Zero;
-
-            try
+            fixed (char* filePathArray = filePath)
             {
-                filePath = filePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-
-                var folderPath = Path.GetDirectoryName(filePath);
-
-                if (folderPath == null)
+                try
                 {
-                    Logger.Log($"Failed to get directory for {filePath}", level: LogLevel.Debug);
-                    return;
+                    var hrFolder = PInvoke.SHParseDisplayName(new PCWSTR(folderPathArray), null, &pidlFolder, 0, null);
+                    if (hrFolder != 0) throw new COMException("Failed to parse folder path", hrFolder);
+
+                    var hrFile = PInvoke.SHParseDisplayName(new PCWSTR(filePathArray), null, &pidlFile, 0, null);
+                    if (hrFile != 0) throw new COMException("Failed to parse file path", hrFile);
+
+                    var hrSelect = PInvoke.SHOpenFolderAndSelectItems(pidlFolder, 1, &pidlFile, 0);
+                    if (hrSelect != 0) throw new COMException("Failed to open folder and select item", hrSelect);
                 }
-
-                SHParseDisplayName(folderPath, IntPtr.Zero, out folderPtr, 0, out _);
-
-                if (folderPtr == IntPtr.Zero)
+                finally
                 {
-                    Logger.Log($"Cannot find folder for '{folderPath}'", level: LogLevel.Error);
-                    return;
+                    if (pidlFolder != null) PInvoke.ILFree(pidlFolder);
+                    if (pidlFile != null) PInvoke.ILFree(pidlFile);
                 }
-
-                SHParseDisplayName(filePath, IntPtr.Zero, out filePtr, 0, out _);
-
-                IntPtr[] fileArray;
-
-                if (filePtr != IntPtr.Zero)
-                {
-                    fileArray = new[] { filePtr };
-                }
-                else
-                {
-                    Logger.Log($"Cannot find file for '{filePath}'", level: LogLevel.Debug);
-                    fileArray = new[] { folderPtr };
-                }
-
-                SHOpenFolderAndSelectItems(folderPtr, (uint)fileArray.Length, fileArray, 0);
             }
-            finally
-            {
-                if (folderPtr != IntPtr.Zero)
-                    Marshal.FreeCoTaskMem(folderPtr);
-
-                if (filePtr != IntPtr.Zero)
-                    Marshal.FreeCoTaskMem(filePtr);
-            }
-        });
+        }
     }
 }

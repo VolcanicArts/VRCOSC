@@ -1,7 +1,11 @@
 ShowWindow
 GetForegroundWindow
+GetActiveWindow
 EnumWindows
 GetWindowThreadProcessId
 ToUnicodeEx
 MapVirtualKey
 GetKeyboardLayout
+SHOpenFolderAndSelectItems
+SHParseDisplayName
+ILFree

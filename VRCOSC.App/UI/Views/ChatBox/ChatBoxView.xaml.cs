@@ -405,9 +405,12 @@ public partial class ChatBoxView
             Keyboard.ClearFocus();
     }
 
-    private void ImportButton_OnClick(object sender, RoutedEventArgs e)
+    private async void ImportButton_OnClick(object sender, RoutedEventArgs e)
     {
-        WinForms.OpenFile("chatbox.json|*.json", filePath => Dispatcher.Invoke(() => ChatBoxManager.GetInstance().Deserialise(filePath)));
+        var filePath = await WinForms.PickFileAsync(".json");
+        if (filePath is null) return;
+
+        Dispatcher.Invoke(() => ChatBoxManager.GetInstance().Deserialise(filePath));
     }
 
     private void ExportButton_OnClick(object sender, RoutedEventArgs e)
