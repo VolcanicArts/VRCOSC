@@ -196,7 +196,7 @@ public partial class MainWindow
         if (doFirstTimeSetup)
         {
             Logger.Log("Doing first time setup", LoggingTarget.Information);
-            await PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource)!.Execute();
+            await PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource);
         }
 
         Logger.Log("Loading other managers", LoggingTarget.Information);
@@ -242,7 +242,7 @@ public partial class MainWindow
 
         if (!appUpdated)
         {
-            WelcomeOverlay.FadeOutFromOne(250);
+            WelcomeOverlay.FadeOutFromOne(1000);
         }
 
         if (velopackUpdater.IsInstalled())
@@ -277,21 +277,19 @@ public partial class MainWindow
             await PackageManager.GetInstance().RefreshAllSources(true);
         }
 
-        var packagesToUpdate = PackageManager.GetInstance().UpdateAllInstalledPackages();
-
-        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && packagesToUpdate is not null)
+        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && PackageManager.GetInstance().AnyInstalledPackageUpdates())
         {
             if (appUpdated)
             {
                 Logger.Log("App updated. Updating modules", LoggingTarget.Information);
-                await packagesToUpdate.Execute();
+                await PackageManager.GetInstance().UpdateAllInstalledPackages();
                 await ModuleManager.GetInstance().ReloadAllModules();
             }
 
             if (!appUpdated && cacheOutdated)
             {
                 Logger.Log("Cache outdated. Updating modules", LoggingTarget.Information);
-                await packagesToUpdate.Execute();
+                await PackageManager.GetInstance().UpdateAllInstalledPackages();
                 var response = MessageBox.Show("Newer versions of your installed modules have been installed.\nWould you like to use them now?", "Modules Updated", MessageBoxButton.YesNo, MessageBoxImage.Information);
 
                 if (response == MessageBoxResult.Yes)
@@ -305,7 +303,7 @@ public partial class MainWindow
 
         if (appUpdated)
         {
-            WelcomeOverlay.FadeOutFromOne(250);
+            WelcomeOverlay.FadeOutFromOne(500);
         }
     }
 

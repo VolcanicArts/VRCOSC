@@ -98,7 +98,7 @@ public sealed partial class PackagesView
         var packageSource = (PackageSource)element.Tag;
 
         var action = PackageManager.GetInstance().InstallPackage(packageSource);
-        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {packageSource.DisplayName}", action);
+        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {packageSource.DisplayName}", new DynamicAsyncProgressAction("Foo", () => action));
     }
 
     private void UninstallButton_OnClick(object sender, RoutedEventArgs e)
@@ -111,7 +111,7 @@ public sealed partial class PackagesView
         if (result != MessageBoxResult.Yes) return;
 
         var action = PackageManager.GetInstance().UninstallPackage(package);
-        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Uninstalling {package.DisplayName}", action);
+        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Uninstalling {package.DisplayName}", new DynamicAsyncProgressAction("Foo", () => action));
     }
 
     private void InstalledVersion_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -121,7 +121,7 @@ public sealed partial class PackagesView
         var packageRelease = packageSource.FilteredReleases[element.SelectedIndex];
 
         var action = PackageManager.GetInstance().InstallPackage(packageSource, packageRelease);
-        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {packageSource.DisplayName} - {packageRelease.Version}", action);
+        _ = MainWindow.GetInstance().ShowLoadingOverlay($"Installing {packageSource.DisplayName} - {packageRelease.Version}", new DynamicAsyncProgressAction("Foo", () => action));
     }
 
     private void InstalledVersion_LostMouseCapture(object sender, MouseEventArgs e)
