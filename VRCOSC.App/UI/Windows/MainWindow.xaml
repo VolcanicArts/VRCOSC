@@ -165,8 +165,7 @@
             <Border Background="Black" />
             <Grid Height="75">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="5*" />
-                    <RowDefinition Height="5*" />
+                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -174,9 +173,6 @@
                 <TextBlock Grid.Row="0" FontSize="30" Text="Welcome To VRCOSC"
                            Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
                            VerticalAlignment="Center" FontWeight="Medium" />
-                <TextBlock Grid.Row="1" FontSize="20" Text="We're getting things ready for you. Hold tight!"
-                           Foreground="{StaticResource CForeground1}" TextWrapping="Wrap" HorizontalAlignment="Center"
-                           VerticalAlignment="Center" />
             </Grid>
         </Grid>
     </Grid>

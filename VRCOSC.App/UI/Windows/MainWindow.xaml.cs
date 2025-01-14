@@ -187,19 +187,15 @@ public partial class MainWindow
 
     private async void load()
     {
-        Logger.Log("Getting things ready", LoggingTarget.Information);
         var doFirstTimeSetup = !SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete);
 
-        Logger.Log("Loading main things", LoggingTarget.Information);
-        PackageManager.GetInstance().Load();
+        await PackageManager.GetInstance().Load();
 
         if (doFirstTimeSetup)
         {
-            Logger.Log("Doing first time setup", LoggingTarget.Information);
-            await PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource);
+            await PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource, reloadAll: false, refreshBeforeInstall: false);
         }
 
-        Logger.Log("Loading other managers", LoggingTarget.Information);
         ProfileManager.GetInstance().Load();
         ModuleManager.GetInstance().LoadAllModules();
         ChatBoxManager.GetInstance().Load();
@@ -208,16 +204,21 @@ public partial class MainWindow
 
         MainWindowContent.FadeInFromZero(500);
         AppManager.GetInstance().InitialLoadComplete();
-        PackagesView.Refresh();
 
         if (doFirstTimeSetup)
         {
-            Logger.Log("Post first time setup things", LoggingTarget.Information);
-            new FirstTimeInstallWindow().Show();
+            var ftsWindow = new FirstTimeInstallWindow();
+
+            ftsWindow.SourceInitialized += (_, _) =>
+            {
+                ftsWindow.ApplyDefaultStyling();
+                ftsWindow.SetPositionFrom(this);
+            };
+
+            ftsWindow.Show();
+
             SettingsManager.GetInstance().GetObservable<bool>(VRCOSCMetadata.FirstTimeSetupComplete).Value = true;
         }
-
-        Logger.Log("Loading complete", LoggingTarget.Information);
 
         var appUpdated = false;
 
@@ -230,12 +231,11 @@ public partial class MainWindow
 
             if (SemVersion.ComparePrecedence(cachedInstalledVersion, newInstalledVersion) != 0)
             {
-                Logger.Log("App has been updated", LoggingTarget.Information);
                 appUpdated = true;
             }
         }
 
-        if (appUpdated)
+        if (appUpdated || string.IsNullOrEmpty(installedVersion))
         {
             SettingsManager.GetInstance().GetObservable<string>(VRCOSCMetadata.InstalledVersion).Value = AppManager.Version;
         }
@@ -258,7 +258,7 @@ public partial class MainWindow
                     if (isUpdating) return;
                 }
 
-                Logger.Log("No updates. Proceeding with loading", LoggingTarget.Information);
+                Logger.Log("No updates. Proceeding with loading");
             }
             else
             {
@@ -267,7 +267,7 @@ public partial class MainWindow
         }
         else
         {
-            Logger.Log("Portable app detected. Cancelling update check", LoggingTarget.Information);
+            Logger.Log("Portable app detected. Cancelling update check");
         }
 
         var cacheOutdated = PackageManager.GetInstance().IsCacheOutdated;
@@ -281,14 +281,12 @@ public partial class MainWindow
         {
             if (appUpdated)
             {
-                Logger.Log("App updated. Updating modules", LoggingTarget.Information);
                 await PackageManager.GetInstance().UpdateAllInstalledPackages();
                 await ModuleManager.GetInstance().ReloadAllModules();
             }
 
             if (!appUpdated && cacheOutdated)
             {
-                Logger.Log("Cache outdated. Updating modules", LoggingTarget.Information);
                 await PackageManager.GetInstance().UpdateAllInstalledPackages();
                 var response = MessageBox.Show("Newer versions of your installed modules have been installed.\nWould you like to use them now?", "Modules Updated", MessageBoxButton.YesNo, MessageBoxImage.Information);
 

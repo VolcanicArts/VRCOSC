@@ -59,10 +59,11 @@ public class PackageManager
     public PackageSource? GetPackage(string packageID) => Sources.FirstOrDefault(packageSource => packageSource.PackageID == packageID);
     public PackageSource? GetPackageSourceForRelease(PackageRelease packageRelease) => Sources.FirstOrDefault(packageSource => packageSource.FilteredReleases.Contains(packageRelease));
 
-    public void Load()
+    public async Task Load()
     {
         builtinSources.ForEach(source => Sources.Add(source));
         serialisationManager.Deserialise();
+        await Task.WhenAll(Sources.Select(source => source.Refresh(false)));
 
         // TODO: Check that the packages actually exist on disk out of the installed list
         // if they don't exist on disk, re-download the specified installed version
