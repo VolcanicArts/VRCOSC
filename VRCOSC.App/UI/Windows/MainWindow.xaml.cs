@@ -195,12 +195,6 @@ public partial class MainWindow
             await PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource, reloadAll: false, refreshBeforeInstall: false);
         }
 
-        ProfileManager.GetInstance().Load();
-        ModuleManager.GetInstance().LoadAllModules();
-        ChatBoxManager.GetInstance().Load();
-        RouterManager.GetInstance().Load();
-        StartupManager.GetInstance().Load();
-
         if (doFirstTimeSetup)
         {
             var ftsWindow = new FirstTimeInstallWindow();
@@ -240,8 +234,8 @@ public partial class MainWindow
 
         if (!appUpdated && !cacheOutdated)
         {
+            loadComplete();
             WelcomeOverlay.FadeOutFromOne(1000);
-            AppManager.GetInstance().InitialLoadComplete();
         }
 
         if (velopackUpdater.IsInstalled())
@@ -276,12 +270,21 @@ public partial class MainWindow
             if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && PackageManager.GetInstance().AnyInstalledPackageUpdates())
             {
                 await PackageManager.GetInstance().UpdateAllInstalledPackages();
-                await ModuleManager.GetInstance().ReloadAllModules();
             }
 
+            loadComplete();
             WelcomeOverlay.FadeOutFromOne(500);
-            AppManager.GetInstance().InitialLoadComplete();
         }
+    }
+
+    private void loadComplete()
+    {
+        ProfileManager.GetInstance().Load();
+        ModuleManager.GetInstance().LoadAllModules();
+        ChatBoxManager.GetInstance().Load();
+        RouterManager.GetInstance().Load();
+        StartupManager.GetInstance().Load();
+        AppManager.GetInstance().InitialLoadComplete();
     }
 
     private void copyOpenVrFiles()
