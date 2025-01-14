@@ -279,23 +279,16 @@ public partial class MainWindow
 
         if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && PackageManager.GetInstance().AnyInstalledPackageUpdates())
         {
+            await PackageManager.GetInstance().UpdateAllInstalledPackages();
+
             if (appUpdated)
             {
-                await PackageManager.GetInstance().UpdateAllInstalledPackages();
                 await ModuleManager.GetInstance().ReloadAllModules();
             }
-
-            if (!appUpdated && cacheOutdated)
+            else
             {
-                await PackageManager.GetInstance().UpdateAllInstalledPackages();
                 var response = MessageBox.Show("Newer versions of your installed modules have been installed.\nWould you like to use them now?", "Modules Updated", MessageBoxButton.YesNo, MessageBoxImage.Information);
-
-                if (response == MessageBoxResult.Yes)
-                {
-                    WelcomeOverlay.FadeInFromZero(250);
-                    await ModuleManager.GetInstance().ReloadAllModules();
-                    WelcomeOverlay.FadeOutFromOne(250);
-                }
+                if (response == MessageBoxResult.Yes) await ModuleManager.GetInstance().ReloadAllModules();
             }
         }
 

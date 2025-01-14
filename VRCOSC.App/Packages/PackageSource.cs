@@ -84,7 +84,7 @@ public class PackageSource
 
     public async Task Refresh(bool forceRemoteGrab)
     {
-        Logger.Log($"Checking {InternalReference}");
+        Logger.Log($"Checking {InternalReference}. Force remote grab: {forceRemoteGrab}");
 
         State = PackageSourceState.Unknown;
 
