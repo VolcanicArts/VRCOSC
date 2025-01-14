@@ -13,7 +13,12 @@ namespace VRCOSC.App.UI.Core;
 public class SpacedStackPanel : StackPanel
 {
     public static readonly DependencyProperty SpacingProperty =
-        DependencyProperty.Register(nameof(Spacing), typeof(double), typeof(SpacedStackPanel), new PropertyMetadata(5.0));
+        DependencyProperty.Register(nameof(Spacing), typeof(double), typeof(SpacedStackPanel), new PropertyMetadata(0d, SpacingChanged));
+
+    private static void SpacingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is SpacedStackPanel control) control.InvalidateMeasure();
+    }
 
     public double Spacing
     {
