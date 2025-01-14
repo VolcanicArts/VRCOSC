@@ -36,7 +36,6 @@ using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using Application = System.Windows.Application;
 using ButtonBase = System.Windows.Controls.Primitives.ButtonBase;
-using MessageBox = System.Windows.MessageBox;
 
 #if !DEBUG
 using Velopack.Locators;
@@ -240,7 +239,9 @@ public partial class MainWindow
             SettingsManager.GetInstance().GetObservable<string>(VRCOSCMetadata.InstalledVersion).Value = AppManager.Version;
         }
 
-        if (!appUpdated)
+        var cacheOutdated = PackageManager.GetInstance().IsCacheOutdated;
+
+        if (!appUpdated && !cacheOutdated)
         {
             WelcomeOverlay.FadeOutFromOne(1000);
         }
@@ -270,30 +271,16 @@ public partial class MainWindow
             Logger.Log("Portable app detected. Cancelling update check");
         }
 
-        var cacheOutdated = PackageManager.GetInstance().IsCacheOutdated;
-
         if (appUpdated || cacheOutdated)
         {
             await PackageManager.GetInstance().RefreshAllSources(true);
-        }
 
-        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && PackageManager.GetInstance().AnyInstalledPackageUpdates())
-        {
-            await PackageManager.GetInstance().UpdateAllInstalledPackages();
-
-            if (appUpdated)
+            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && PackageManager.GetInstance().AnyInstalledPackageUpdates())
             {
+                await PackageManager.GetInstance().UpdateAllInstalledPackages();
                 await ModuleManager.GetInstance().ReloadAllModules();
             }
-            else
-            {
-                var response = MessageBox.Show("Newer versions of your installed modules have been installed.\nWould you like to use them now?", "Modules Updated", MessageBoxButton.YesNo, MessageBoxImage.Information);
-                if (response == MessageBoxResult.Yes) await ModuleManager.GetInstance().ReloadAllModules();
-            }
-        }
 
-        if (appUpdated)
-        {
             WelcomeOverlay.FadeOutFromOne(500);
         }
     }
