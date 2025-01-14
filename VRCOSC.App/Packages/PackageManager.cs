@@ -141,19 +141,17 @@ public class PackageManager
     {
         var tasks = release.Assets.Select(assetName => Task.Run(async () =>
         {
+            var fileDownload = new FileDownload();
+            await fileDownload.DownloadFileAsync(new Uri($"{source.URL}/releases/download/{release.Version}/{assetName}"), targetDirectory.GetFullPath(assetName, true));
+
+            if (assetName.EndsWith(".zip"))
             {
-                var fileDownload = new FileDownload();
-                await fileDownload.DownloadFileAsync(new Uri($"{source.URL}/releases/download/{release.Version}/{assetName}"), targetDirectory.GetFullPath(assetName, true));
+                var zipPath = targetDirectory.GetFullPath(assetName);
+                var extractPath = targetDirectory.GetFullPath(string.Empty);
 
-                if (assetName.EndsWith(".zip"))
-                {
-                    var zipPath = targetDirectory.GetFullPath(assetName);
-                    var extractPath = targetDirectory.GetFullPath(string.Empty);
+                ZipFile.ExtractToDirectory(zipPath, extractPath);
 
-                    ZipFile.ExtractToDirectory(zipPath, extractPath);
-
-                    targetDirectory.Delete(assetName);
-                }
+                targetDirectory.Delete(assetName);
             }
         }));
 

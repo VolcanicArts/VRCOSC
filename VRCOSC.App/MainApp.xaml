@@ -18,6 +18,10 @@
                 <ResourceDictionary Source="UI/Styles/VRCOSCSliderStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Style TargetType="{x:Type core:IPPortTextBox}" BasedOn="{StaticResource {x:Type TextBox}}" />
+            <Style TargetType="Window">
+                <Setter Property="Background" Value="Black" />
+                <Setter Property="AllowsTransparency" Value="False"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

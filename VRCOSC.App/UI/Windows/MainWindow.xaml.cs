@@ -186,17 +186,12 @@ public partial class MainWindow
 
     private async void load()
     {
-        var doFirstTimeSetup = !SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete);
-
         await PackageManager.GetInstance().Load();
 
-        if (doFirstTimeSetup)
+        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
         {
             await PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource, reloadAll: false, refreshBeforeInstall: false);
-        }
 
-        if (doFirstTimeSetup)
-        {
             var ftsWindow = new FirstTimeInstallWindow();
 
             ftsWindow.SourceInitialized += (_, _) =>
@@ -211,18 +206,13 @@ public partial class MainWindow
         }
 
         var appUpdated = false;
-
         var installedVersion = SettingsManager.GetInstance().GetValue<string>(VRCOSCMetadata.InstalledVersion);
 
         if (!string.IsNullOrEmpty(installedVersion))
         {
             var cachedInstalledVersion = SemVersion.Parse(installedVersion, SemVersionStyles.Any);
             var newInstalledVersion = SemVersion.Parse(AppManager.Version, SemVersionStyles.Any);
-
-            if (SemVersion.ComparePrecedence(cachedInstalledVersion, newInstalledVersion) != 0)
-            {
-                appUpdated = true;
-            }
+            appUpdated = SemVersion.ComparePrecedence(cachedInstalledVersion, newInstalledVersion) != 0;
         }
 
         if (appUpdated || string.IsNullOrEmpty(installedVersion))
@@ -235,7 +225,7 @@ public partial class MainWindow
         if (!appUpdated && !cacheOutdated)
         {
             loadComplete();
-            WelcomeOverlay.FadeOutFromOne(1000);
+            fadeOutLoadingOverlay(1000, true);
         }
 
         if (velopackUpdater.IsInstalled())
@@ -273,7 +263,7 @@ public partial class MainWindow
             }
 
             loadComplete();
-            WelcomeOverlay.FadeOutFromOne(500);
+            fadeOutLoadingOverlay(500, false);
         }
     }
 
@@ -285,6 +275,12 @@ public partial class MainWindow
         RouterManager.GetInstance().Load();
         StartupManager.GetInstance().Load();
         AppManager.GetInstance().InitialLoadComplete();
+    }
+
+    private void fadeOutLoadingOverlay(float duration, bool collapseSpinner)
+    {
+        if (collapseSpinner) LoadingSpinner.Visibility = Visibility.Collapsed;
+        LoadingOverlay.FadeOut(duration);
     }
 
     private void copyOpenVrFiles()
@@ -354,9 +350,6 @@ public partial class MainWindow
         }
 
         OVRDeviceManager.GetInstance().Serialise();
-        RouterManager.GetInstance().Serialise();
-        StartupManager.GetInstance().Serialise();
-        SettingsManager.GetInstance().Serialise();
 
         trayIcon?.Dispose();
     }
@@ -433,37 +426,19 @@ public partial class MainWindow
 
     #endregion
 
-    public Task ShowLoadingOverlay(string title, ProgressAction progressAction)
+    public Task ShowLoadingOverlay(ProgressAction progressAction) => Dispatcher.Invoke(() =>
     {
-        LoadingTitle.Text = title;
+        LoadingTitle.Text = progressAction.Title;
+        LoadingProgressBar.Visibility = progressAction.UseProgressBar ? Visibility.Visible : Visibility.Collapsed;
+        LoadingSpinner.Visibility = progressAction.UseProgressBar ? Visibility.Collapsed : Visibility.Visible;
 
-        progressAction.OnComplete += HideLoadingOverlay;
-
-        _ = Task.Run(async () =>
-        {
-            while (!progressAction.IsComplete)
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    LoadingDescription.Text = progressAction.Title;
-                    ProgressBar.Value = progressAction.GetProgress();
-                });
-                await Task.Delay(TimeSpan.FromSeconds(1d / 10d));
-            }
-
-            Dispatcher.Invoke(() =>
-            {
-                LoadingDescription.Text = "Finished!";
-                ProgressBar.Value = 1;
-            });
-        });
+        progressAction.OnProgressChanged += p => Dispatcher.Invoke(() => LoadingProgressBar.Value = p);
+        progressAction.OnComplete += () => LoadingOverlay.FadeOut(150, () => LoadingProgressBar.Value = 0);
 
         LoadingOverlay.FadeIn(150);
 
         return progressAction.Execute();
-    }
-
-    public void HideLoadingOverlay() => LoadingOverlay.FadeOut(150);
+    });
 
     private void setContent(object userControl)
     {
