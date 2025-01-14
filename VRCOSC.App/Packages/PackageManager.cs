@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
+using Octokit;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Actions.Packages;
 using VRCOSC.App.Modules;
@@ -14,6 +16,7 @@ using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
+using Application = System.Windows.Application;
 
 namespace VRCOSC.App.Packages;
 
@@ -67,30 +70,22 @@ public class PackageManager
         // would mean I don't have to backup the packages folder
     }
 
-    public CompositeProgressAction RefreshAllSources(bool forceRemoteGrab)
+    public async Task RefreshAllSources(bool forceRemoteGrab)
     {
-        var packageLoadAction = new CompositeProgressAction();
-
         if (forceRemoteGrab)
         {
-            packageLoadAction.AddAction(new DynamicProgressAction("Loading built-in packages", () =>
-            {
-                Sources.Clear();
-                builtinSources.ForEach(source => Sources.Add(source));
-            }));
-            packageLoadAction.AddAction(loadCommunityPackages());
+            Sources.Clear();
+            builtinSources.ForEach(source => Sources.Add(source));
+            await loadCommunityPackages();
         }
 
-        packageLoadAction.AddAction(new PackagesRefreshAction(Sources, forceRemoteGrab));
+        // TODO: Split into 5s/10s and request in those groups
+        var tasks = Sources.Select(packageSource => packageSource.Refresh(forceRemoteGrab));
+        await Task.WhenAll(tasks);
 
-        packageLoadAction.OnComplete += () =>
-        {
-            if (forceRemoteGrab) CacheExpireTime = DateTime.Now + TimeSpan.FromDays(1);
-            serialisationManager.Serialise();
-            MainWindow.GetInstance().PackagesView.Refresh();
-        };
-
-        return packageLoadAction;
+        if (forceRemoteGrab) CacheExpireTime = DateTime.Now + TimeSpan.FromDays(1);
+        serialisationManager.Serialise();
+        MainWindow.GetInstance().PackagesView.Refresh();
     }
 
     public CompositeProgressAction? UpdateAllInstalledPackages()
@@ -166,26 +161,20 @@ public class PackageManager
     public bool IsInstalled(PackageSource packageSource) => packageSource.PackageID is not null && InstalledPackages.ContainsKey(packageSource.PackageID);
     public string GetInstalledVersion(PackageSource packageSource) => packageSource.PackageID is not null && InstalledPackages.TryGetValue(packageSource.PackageID, out var version) ? version : string.Empty;
 
-    private CompositeProgressAction loadCommunityPackages()
+    private async Task loadCommunityPackages()
     {
-        var findCommunityPackages = new CompositeProgressAction();
-
-        var searchProgressAction = new SearchRepositoriesAction(community_tag);
-        findCommunityPackages.AddAction(searchProgressAction);
-
-        findCommunityPackages.AddAction(new DynamicProgressAction("Auditing community packages", () =>
+        var repos = await GitHubProxy.Client.Search.SearchRepo(new SearchRepositoriesRequest
         {
-            var repos = searchProgressAction.Result!;
+            Topic = community_tag,
+            Fork = ForkQualifier.IncludeForks
+        }).WaitAsync(TimeSpan.FromSeconds(5));
 
-            foreach (var repo in repos.Items.Where(repo => repo.Name != "VRCOSC"))
-            {
-                var packageSource = new PackageSource(this, repo.Owner.HtmlUrl.Split('/').Last(), repo.Name);
-                if (builtinSources.Any(comparedSource => comparedSource.InternalReference == packageSource.InternalReference)) continue;
+        foreach (var repo in repos.Items.Where(repo => repo.Name != "VRCOSC"))
+        {
+            var packageSource = new PackageSource(this, repo.Owner.HtmlUrl.Split('/').Last(), repo.Name);
+            if (builtinSources.Any(comparedSource => comparedSource.InternalReference == packageSource.InternalReference)) continue;
 
-                Sources.Add(packageSource);
-            }
-        }));
-
-        return findCommunityPackages;
+            Sources.Add(packageSource);
+        }
     }
 }

@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using VRCOSC.App.Actions;
 using VRCOSC.App.Packages;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows;
@@ -37,7 +38,7 @@ public sealed partial class PackagesView
             await AppManager.GetInstance().StopAsync();
         }
 
-        _ = MainWindow.GetInstance().ShowLoadingOverlay("Refreshing All Packages", PackageManager.GetInstance().RefreshAllSources(true));
+        _ = MainWindow.GetInstance().ShowLoadingOverlay("Refreshing All Packages", new DynamicAsyncProgressAction("Refreshing Packages", () => PackageManager.GetInstance().RefreshAllSources(true)));
     }
 
     private void filterDataGrid(string filterText)

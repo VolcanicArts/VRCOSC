@@ -190,8 +190,6 @@ public partial class MainWindow
         Logger.Log("Getting things ready", LoggingTarget.Information);
         var doFirstTimeSetup = !SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete);
 
-        // show "getting things ready" screen
-
         Logger.Log("Loading main things", LoggingTarget.Information);
         PackageManager.GetInstance().Load();
 
@@ -244,35 +242,39 @@ public partial class MainWindow
 
         if (!appUpdated)
         {
-            // hide "getting things ready" screen
+            WelcomeOverlay.FadeOutFromOne(250);
         }
 
-        if (!velopackUpdater.IsInstalled())
+        if (velopackUpdater.IsInstalled())
+        {
+            // only check for an update if we haven't just updated (to save time checking again)
+            if (!appUpdated)
+            {
+                await velopackUpdater.CheckForUpdatesAsync();
+
+                if (velopackUpdater.IsUpdateAvailable())
+                {
+                    var isUpdating = await velopackUpdater.ExecuteUpdate();
+                    if (isUpdating) return;
+                }
+
+                Logger.Log("No updates. Proceeding with loading", LoggingTarget.Information);
+            }
+            else
+            {
+                Logger.Log("App has just updated. Skipping update check");
+            }
+        }
+        else
         {
             Logger.Log("Portable app detected. Cancelling update check", LoggingTarget.Information);
-            //await Task.Delay(2000); // simulate update check time
-        }
-
-        // only check for an update if we haven't just updated (to save time checking again)
-        if (velopackUpdater.IsInstalled() && !appUpdated)
-        {
-            await velopackUpdater.CheckForUpdatesAsync();
-
-            if (velopackUpdater.IsUpdateAvailable())
-            {
-                var isUpdating = await velopackUpdater.ExecuteUpdate();
-                if (isUpdating) return;
-            }
-
-            Logger.Log("No updates. Proceeding with loading", LoggingTarget.Information);
         }
 
         var cacheOutdated = PackageManager.GetInstance().IsCacheOutdated;
 
         if (appUpdated || cacheOutdated)
         {
-            // block package screen from being seen
-            await PackageManager.GetInstance().RefreshAllSources(true).Execute();
+            await PackageManager.GetInstance().RefreshAllSources(true);
         }
 
         var packagesToUpdate = PackageManager.GetInstance().UpdateAllInstalledPackages();
@@ -283,8 +285,7 @@ public partial class MainWindow
             {
                 Logger.Log("App updated. Updating modules", LoggingTarget.Information);
                 await packagesToUpdate.Execute();
-                ModuleManager.GetInstance().ReloadAllModules();
-                // hide "getting things ready" screen
+                await ModuleManager.GetInstance().ReloadAllModules();
             }
 
             if (!appUpdated && cacheOutdated)
@@ -295,9 +296,16 @@ public partial class MainWindow
 
                 if (response == MessageBoxResult.Yes)
                 {
-                    ModuleManager.GetInstance().ReloadAllModules();
+                    WelcomeOverlay.FadeInFromZero(250);
+                    await ModuleManager.GetInstance().ReloadAllModules();
+                    WelcomeOverlay.FadeOutFromOne(250);
                 }
             }
+        }
+
+        if (appUpdated)
+        {
+            WelcomeOverlay.FadeOutFromOne(250);
         }
     }
 
