@@ -160,7 +160,8 @@
                                                 <core:SpacedStackPanel Grid.Column="5"
                                                                        Orientation="Horizontal"
                                                                        VerticalAlignment="Center"
-                                                                       HorizontalAlignment="Center">
+                                                                       HorizontalAlignment="Center"
+                                                                       Spacing="5">
                                                     <core:IconButton ButtonColour="Blue"
                                                                      Click="InstallButton_OnClick"
                                                                      Visibility="{Binding UIUpgradeVisible}"
@@ -249,7 +250,7 @@
                                        FontSize="30" HorizontalAlignment="Center" FontWeight="Bold" />
                             <TextBlock Text="{Binding Author}" Foreground="{StaticResource CForeground2}"
                                        TextAlignment="Center" TextWrapping="Wrap"
-                                       FontSize="12" HorizontalAlignment="Center" Margin="0 -5" />
+                                       FontSize="12" HorizontalAlignment="Center" />
                             <TextBlock Text="{Binding Description}" Foreground="{StaticResource CForeground1}"
                                        FontSize="16" HorizontalAlignment="Center" Margin="20" TextWrapping="Wrap"
                                        TextAlignment="Center" />

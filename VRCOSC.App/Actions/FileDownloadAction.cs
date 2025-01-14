@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Actions.Files;
+namespace VRCOSC.App.Actions;
 
 public class FileDownloadAction : ProgressAction
 {
@@ -13,9 +13,8 @@ public class FileDownloadAction : ProgressAction
     private readonly Uri url;
     private readonly string assetName;
 
-    private float localProgress;
-
     public override string Title => $"Downloading {assetName}";
+    public override bool UseProgressBar => true;
 
     public FileDownloadAction(Uri url, Storage targetStorage, string assetName)
     {
@@ -26,14 +25,8 @@ public class FileDownloadAction : ProgressAction
 
     protected override async Task Perform()
     {
-        localProgress = 0f;
-
         var fileDownload = new FileDownload();
-        fileDownload.ProgressChanged += p => localProgress = p;
+        fileDownload.ProgressChanged += p => OnProgressChanged?.Invoke(p);
         await fileDownload.DownloadFileAsync(url, targetStorage.GetFullPath(assetName, true));
-
-        localProgress = 1f;
     }
-
-    public override float GetProgress() => localProgress;
 }

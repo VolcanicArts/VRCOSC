@@ -175,7 +175,6 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
         DataContext = this;
 
-        SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedMicrophoneID).Subscribe(updateDeviceListAndSelection, true);
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Subscribe(value => UsingCustomEndpoints.Value = value ? Visibility.Visible : Visibility.Collapsed, true);
         SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Subscribe(_ => OnPropertyChanged(nameof(WhisperModelFilePath)));
 
@@ -188,8 +187,10 @@ public partial class AppSettingsView : INotifyPropertyChanged
         AutomationTabButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
     }
 
-    private void updateDeviceListAndSelection(string? newDeviceId) => Dispatcher.Invoke(() =>
+    private void updateDeviceListAndSelection()
     {
+        var selectedMicrophone = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedMicrophoneID);
+
         audioInputDevices =
         [
             new DeviceDisplay(string.Empty, "-- Use Default --")
@@ -199,10 +200,14 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
         MicrophoneComboBox.ItemsSource = audioInputDevices;
 
-        if (newDeviceId is null) return;
+        if (string.IsNullOrEmpty(selectedMicrophone))
+        {
+            MicrophoneComboBox.SelectedIndex = 0;
+            return;
+        }
 
-        MicrophoneComboBox.SelectedItem = audioInputDevices.SingleOrDefault(device => device.ID == newDeviceId);
-    });
+        MicrophoneComboBox.SelectedItem = audioInputDevices.SingleOrDefault(device => device.ID == selectedMicrophone);
+    }
 
     private void MicrophoneComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -256,6 +261,7 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
     private void SpeechTabButton_OnClick(object sender, RoutedEventArgs e)
     {
+        updateDeviceListAndSelection();
         setPage(6);
     }
 

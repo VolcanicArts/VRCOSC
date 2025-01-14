@@ -26,7 +26,7 @@ public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
 
         Reference.Enabled.Value = data.Enabled;
 
-        data.Settings.ForEach(settingPair =>
+        foreach (var settingPair in data.Settings)
         {
             var (settingKey, settingValue) = settingPair;
 
@@ -42,9 +42,9 @@ public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
                 // setting doesn't exist
                 shouldReserialise = true;
             }
-        });
+        }
 
-        data.Parameters.ForEach(parameterPair =>
+        foreach (var parameterPair in data.Parameters)
         {
             var (parameterKey, parameterValue) = parameterPair;
 
@@ -58,7 +58,7 @@ public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
             {
                 // parameter doesn't exist
             }
-        });
+        }
 
         return shouldReserialise;
     }

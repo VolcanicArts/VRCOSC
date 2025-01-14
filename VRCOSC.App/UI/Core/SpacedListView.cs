@@ -15,8 +15,7 @@ public class SpacedListView : ListView
         DefaultStyleKeyProperty.OverrideMetadata(typeof(SpacedListView), new FrameworkPropertyMetadata(typeof(SpacedListView)));
     }
 
-    public static readonly DependencyProperty SpacingProperty =
-        DependencyProperty.Register(nameof(Spacing), typeof(double), typeof(SpacedListView), new PropertyMetadata(5.0));
+    public static readonly DependencyProperty SpacingProperty = DependencyProperty.Register(nameof(Spacing), typeof(double), typeof(SpacedListView), new PropertyMetadata(0d));
 
     public double Spacing
     {

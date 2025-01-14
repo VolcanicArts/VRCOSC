@@ -88,6 +88,7 @@ internal class ModuleManager : INotifyPropertyChanged
 
     public IEnumerable<T> GetModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
     public IEnumerable<T> GetRunningModulesOfType<T>() => RunningModules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
+    public IEnumerable<T> GetEnabledModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T)) && module.Enabled.Value).Cast<T>();
 
     public Module GetModuleOfID(string moduleID) => modules.First(module => module.FullID == moduleID);
 
@@ -100,7 +101,7 @@ internal class ModuleManager : INotifyPropertyChanged
     /// Reloads all local and remote modules by unloading their assembly contexts and calling <see cref="LoadAllModules"/>
     /// Ensures the ChatBox is unloaded before unloading the modules, and is loaded after loading the modules
     /// </summary>
-    public async void ReloadAllModules(Dictionary<string, string>? filePathOverrides = null)
+    public async Task ReloadAllModules(Dictionary<string, string>? filePathOverrides = null)
     {
         Logger.Log("Module reload requested");
 

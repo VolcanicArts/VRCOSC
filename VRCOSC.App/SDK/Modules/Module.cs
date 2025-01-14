@@ -55,9 +55,8 @@ public abstract class Module
     /// </summary>
     internal Observable<ModuleState> State { get; } = new(ModuleState.Stopped);
 
-    // Cached pre-computed lookups
-    private readonly Dictionary<string, Enum> parameterNameEnum = new();
-    private readonly Dictionary<string, Regex> parameterNameRegex = new();
+    private readonly Dictionary<Enum, ModuleParameter> readParameters = new();
+    private readonly Dictionary<Enum, Regex> parameterNameRegex = new();
 
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
     internal readonly Dictionary<string, ModuleSetting> Settings = new();
@@ -127,9 +126,9 @@ public abstract class Module
         }
     }
 
-    internal void ImportConfig(string filePathOverride)
+    internal async void ImportConfig(string filePathOverride)
     {
-        ModuleManager.GetInstance().ReloadAllModules(new Dictionary<string, string> { { FullID, filePathOverride } });
+        await ModuleManager.GetInstance().ReloadAllModules(new Dictionary<string, string> { { FullID, filePathOverride } });
     }
 
     internal void Serialise()
@@ -203,16 +202,12 @@ public abstract class Module
         {
             State.Value = ModuleState.Starting;
 
-            parameterNameEnum.Clear();
+            readParameters.Clear();
             parameterNameRegex.Clear();
 
-            var validParameters = Parameters.Where(parameter => !string.IsNullOrWhiteSpace(parameter.Value.Name.Value)).ToList();
-
-            validParameters.ForEach(pair =>
-            {
-                parameterNameEnum.Add(pair.Value.Name.Value, pair.Key);
-                parameterNameRegex.Add(pair.Value.Name.Value, parameterToRegex(pair.Value.Name.Value));
-            });
+            var validReadParameters = Parameters.Where(parameter => !string.IsNullOrWhiteSpace(parameter.Value.Name.Value) && parameter.Value.Mode.HasFlag(ParameterMode.Read) && parameter.Value.Enabled.Value).ToList();
+            readParameters.AddRange(validReadParameters);
+            parameterNameRegex.AddRange(validReadParameters.Select(pair => new KeyValuePair<Enum, Regex>(pair.Key, parameterToRegex(pair.Value.Name.Value))));
 
             loadPersistentProperties();
 
@@ -957,14 +952,19 @@ public abstract class Module
                 ExceptionHandler.Handle(e, $"Module {FullID} experienced an exception calling {nameof(OnAnyParameterReceived)}");
             }
 
-            var parameterName = Parameters.Values.FirstOrDefault(parameter => parameterNameRegex[parameter.Name.Value].Match(receivedParameter.Name).Success)?.Name.Value;
-            if (parameterName is null) return;
+            Enum? lookup = null;
+            ModuleParameter? parameterData = null;
 
-            if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
+            foreach (var (parameterLookup, moduleParameter) in readParameters)
+            {
+                if (!parameterNameRegex[parameterLookup].IsMatch(receivedParameter.Name)) continue;
 
-            var parameterData = Parameters[lookup];
+                lookup = parameterLookup;
+                parameterData = moduleParameter;
+                break;
+            }
 
-            if (!parameterData.Enabled.Value || !parameterData.Mode.HasFlag(ParameterMode.Read)) return;
+            if (lookup is null || parameterData is null) return;
 
             if (receivedParameter.Type != parameterData.ExpectedType)
             {
