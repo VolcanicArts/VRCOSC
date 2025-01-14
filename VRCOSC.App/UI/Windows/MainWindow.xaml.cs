@@ -201,9 +201,6 @@ public partial class MainWindow
         RouterManager.GetInstance().Load();
         StartupManager.GetInstance().Load();
 
-        MainWindowContent.FadeInFromZero(500);
-        AppManager.GetInstance().InitialLoadComplete();
-
         if (doFirstTimeSetup)
         {
             var ftsWindow = new FirstTimeInstallWindow();
@@ -244,6 +241,7 @@ public partial class MainWindow
         if (!appUpdated && !cacheOutdated)
         {
             WelcomeOverlay.FadeOutFromOne(1000);
+            AppManager.GetInstance().InitialLoadComplete();
         }
 
         if (velopackUpdater.IsInstalled())
@@ -282,6 +280,7 @@ public partial class MainWindow
             }
 
             WelcomeOverlay.FadeOutFromOne(500);
+            AppManager.GetInstance().InitialLoadComplete();
         }
     }
 

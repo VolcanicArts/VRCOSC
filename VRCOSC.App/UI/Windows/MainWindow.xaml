@@ -80,7 +80,7 @@
     </Window.Resources>
     <Grid>
         <Border Background="Black" />
-        <Border x:Name="MainWindowContent" Visibility="Collapsed" Opacity="0">
+        <Border>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="70" />
