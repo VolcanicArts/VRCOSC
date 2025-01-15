@@ -126,38 +126,41 @@
                     <utils:BlurBackgroundBehavior BlurContainer="{Binding ElementName=RunContent}" BlurRadius="10" />
                 </b:Interaction.Behaviors>
             </Rectangle>
-            <Border Width="500" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="3"
+            <Border Width="450" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="3"
                     BorderBrush="Black" CornerRadius="5">
                 <Grid>
+                    <Grid.Clip>
+                        <RectangleGeometry
+                            RadiusX="5"
+                            RadiusY="5"
+                            Rect="0 0 444 185">
+                        </RectangleGeometry>
+                    </Grid.Clip>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="50" />
-                        <RowDefinition Height="200" />
+                        <RowDefinition Height="135" />
                         <RowDefinition Height="50" />
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Background="{StaticResource CBackground3}" CornerRadius="5 5 0 0">
-                        <TextBlock Text="Waiting for VRChat/Unity" FontSize="25" HorizontalAlignment="Center"
+                    <Border Grid.Row="0" Background="{StaticResource CBackground2}">
+                        <TextBlock Text="Waiting for a connection to VRChat or Unity"
+                                   TextWrapping="Wrap" FontSize="25" HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   Foreground="{StaticResource CForeground1}" />
+                                   Foreground="{StaticResource CForeground1}" Padding="75 0" TextAlignment="Center" />
                     </Border>
-                    <Border Grid.Row="1" Background="{StaticResource CBackground2}">
-                        <TextBlock Text="Sit tight!&#x0a;We're waiting for a connection to VRChat or Unity...&#x0a;"
-                                   TextWrapping="Wrap" FontSize="20" HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Foreground="{StaticResource CForeground1}" Padding="100 0" TextAlignment="Center" />
-                    </Border>
-                    <Border Grid.Row="2" Background="{StaticResource CBackground3}" CornerRadius="0 0 5 5" Padding="10">
+                    <Border Grid.Row="1" Background="{StaticResource CBackground3}" Padding="10">
                         <Grid>
-                            <core:VRCOSCButton x:Name="CancelButton" HorizontalAlignment="Left" ButtonColour="Red"
-                                               Width="150"
+                            <core:VRCOSCButton x:Name="CancelButton" HorizontalAlignment="Left"
+                                               ButtonColour="Red" Width="150"
                                                Click="CancelButton_OnClick">
                                 <TextBlock Text="Cancel" FontSize="20" Foreground="{StaticResource CForeground1}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                           Margin="0 -3 0 0"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" />
                             </core:VRCOSCButton>
                             <core:VRCOSCButton x:Name="ForceStartButton" HorizontalAlignment="Right"
                                                ButtonColour="Blue" Width="150"
                                                Click="ForceStartButton_OnClick">
                                 <TextBlock Text="Start Anyway" FontSize="20" Foreground="{StaticResource CForeground1}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                           Margin="0 -3 0 0"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" />
                             </core:VRCOSCButton>
                         </Grid>
                     </Border>
