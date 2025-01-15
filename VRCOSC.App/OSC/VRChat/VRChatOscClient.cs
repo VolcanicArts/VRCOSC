@@ -23,7 +23,7 @@ public class VRChatOscClient : OscClient
 
     public VRChatOscClient()
     {
-        client.Timeout = TimeSpan.FromMilliseconds(50);
+        client.Timeout = TimeSpan.FromMilliseconds(100);
 
         OnMessageSent += message => { OnParameterSent?.Invoke(new VRChatOscMessage(message)); };
 
