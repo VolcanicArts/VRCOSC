@@ -73,6 +73,13 @@ public abstract class ValueListModuleSetting<T> : ListModuleSetting<Observable<T
     {
     }
 
+    public override TOut GetValue<TOut>()
+    {
+        if (Attribute.Select(o => o.Value).ToList() is not TOut castList) throw new InvalidCastException($"{typeof(List<T>).Name} cannot be cast to {typeof(TOut).Name}");
+
+        return castList;
+    }
+
     protected override bool IsDefault() => base.IsDefault() && Attribute.All(o => o.IsDefault);
 
     protected override Observable<T> CreateItem() => new();
