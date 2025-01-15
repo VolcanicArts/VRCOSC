@@ -20,22 +20,17 @@ public class RouterManager
     public static RouterManager GetInstance() => instance ??= new RouterManager();
 
     public ObservableCollection<RouterInstance> Routes { get; } = new();
-    private readonly SerialisationManager serialisationManager;
+    private SerialisationManager serialisationManager = null!;
 
     private readonly List<(RouterInstance, OscSender)> senders = new();
 
     private bool started;
 
-    private RouterManager()
+    public void Load()
     {
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new RouterManagerSerialiser(AppManager.GetInstance().Storage, this));
-    }
 
-    public void Serialise() => serialisationManager.Serialise();
-
-    public void Load()
-    {
         started = false;
         Routes.Clear();
 

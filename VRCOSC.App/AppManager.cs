@@ -140,12 +140,12 @@ public class AppManager
         });
 
         OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
-
-        OVRDeviceManager.GetInstance().Deserialise();
     }
 
     public void InitialLoadComplete()
     {
+        OVRDeviceManager.GetInstance().Deserialise();
+
         VRChatOscClient.Init(ConnectionManager);
         ConnectionManager.Init();
 

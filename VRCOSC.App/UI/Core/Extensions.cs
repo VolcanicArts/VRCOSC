@@ -5,7 +5,6 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Threading;
 
 namespace VRCOSC.App.UI.Core;
 
@@ -42,13 +41,13 @@ public static class Extensions
         return null;
     }
 
-    public static void FadeInFromZero(this FrameworkElement element, double durationMilliseconds, Action? onCompleted = null) => Application.Current.Dispatcher.Invoke(() =>
+    public static void FadeInFromZero(this FrameworkElement element, double durationMilliseconds, Action? onCompleted = null)
     {
         element.Opacity = 0;
         FadeIn(element, durationMilliseconds, onCompleted);
-    }, DispatcherPriority.Render);
+    }
 
-    public static void FadeIn(this FrameworkElement element, double durationMilliseconds, Action? onCompleted = null) => Application.Current.Dispatcher.Invoke(() =>
+    public static void FadeIn(this FrameworkElement element, double durationMilliseconds, Action? onCompleted = null)
     {
         element.Visibility = Visibility.Visible;
 
@@ -65,15 +64,15 @@ public static class Extensions
         storyboard.Children.Add(fadeInAnimation);
         storyboard.Completed += (_, _) => onCompleted?.Invoke();
         storyboard.Begin(element);
-    }, DispatcherPriority.Render);
+    }
 
-    public static void FadeOutFromOne(this FrameworkElement element, double durationMilliseconds, Action? onCompleted = null) => Application.Current.Dispatcher.Invoke(() =>
+    public static void FadeOutFromOne(this FrameworkElement element, double durationMilliseconds, Action? onCompleted = null)
     {
         element.Opacity = 1;
         FadeOut(element, durationMilliseconds, onCompleted);
-    }, DispatcherPriority.Render);
+    }
 
-    public static void FadeOut(this FrameworkElement element, double durationMilliseconds, Action? onCompleted = null) => Application.Current.Dispatcher.Invoke(() =>
+    public static void FadeOut(this FrameworkElement element, double durationMilliseconds, Action? onCompleted = null)
     {
         var fadeOutAnimation = new DoubleAnimation
         {
@@ -93,5 +92,5 @@ public static class Extensions
             onCompleted?.Invoke();
         };
         storyboard.Begin(element);
-    }, DispatcherPriority.Render);
+    }
 }

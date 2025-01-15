@@ -5,10 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
         mc:Ignorable="d"
-        Title="VRCOSC" Width="1366" Height="768" MinWidth="960" MinHeight="540"
-        Closing="MainWindow_OnClosing"
-        Loaded="MainWindow_OnLoaded"
-        SourceInitialized="MainWindow_OnSourceInitialized">
+        Width="1366" Height="768" MinWidth="960" MinHeight="540">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <Style TargetType="fa6:ImageAwesome">
@@ -109,9 +106,6 @@
                             <RadioButton GroupName="TabBar" Click="DebugButton_OnClick"
                                          Visibility="{Binding ShowAppDebug.Value, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <fa6:ImageAwesome Icon="Solid_Bug" />
-                            </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="SettingsButton_OnClick" Visibility="Collapsed">
-                                <fa6:ImageAwesome Icon="Solid_UserGear" />
                             </RadioButton>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">

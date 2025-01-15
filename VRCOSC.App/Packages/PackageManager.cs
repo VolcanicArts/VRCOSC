@@ -47,8 +47,8 @@ public class PackageManager
         var baseStorage = AppManager.GetInstance().Storage;
         storage = baseStorage.GetStorageForDirectory("packages/remote");
 
-        builtinSources.Add(OfficialModulesSource = new PackageSource(this, "VolcanicArts", "VRCOSC-Modules", PackageType.Official));
-        builtinSources.Add(new PackageSource(this, "DJDavid98", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
+        builtinSources.Add(OfficialModulesSource = new PackageSource("VolcanicArts", "VRCOSC-Modules", PackageType.Official));
+        builtinSources.Add(new PackageSource("DJDavid98", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
 
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));
@@ -188,7 +188,7 @@ public class PackageManager
 
         foreach (var repo in repos.Items.Where(repo => repo.Name != "VRCOSC"))
         {
-            var packageSource = new PackageSource(this, repo.Owner.HtmlUrl.Split('/').Last(), repo.Name);
+            var packageSource = new PackageSource(repo.Owner.HtmlUrl.Split('/').Last(), repo.Name, PackageType.Community);
             if (builtinSources.Any(comparedSource => comparedSource.InternalReference == packageSource.InternalReference)) continue;
 
             Sources.Add(packageSource);

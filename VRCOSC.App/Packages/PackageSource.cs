@@ -22,14 +22,13 @@ public class PackageSource
 {
     private readonly HttpClient httpClient = new();
 
-    private readonly PackageManager packageManager;
     public string RepoOwner { get; }
     public string RepoName { get; }
     public PackageType PackageType { get; }
 
     public PackageRepository? Repository { get; private set; }
 
-    public string InstalledVersion => packageManager.GetInstalledVersion(this);
+    public string InstalledVersion => PackageManager.GetInstance().GetInstalledVersion(this);
     public string InternalReference => $"{RepoOwner}#{RepoName}";
     public string URL => $"https://github.com/{RepoOwner}/{RepoName}";
 
@@ -45,7 +44,7 @@ public class PackageSource
                                                                                                                                                        || !packageRelease.IsPreRelease
                                                                                                                                                        || (packageRelease.Version == InstalledVersion && includeInstalledRelease)).ToList();
 
-    public bool IsInstalled() => packageManager.IsInstalled(this);
+    public bool IsInstalled() => PackageManager.GetInstance().IsInstalled(this);
 
     public bool IsUpdateAvailable()
     {
@@ -53,7 +52,7 @@ public class PackageSource
 
         var installedVersion = SemVersion.Parse(InstalledVersion, SemVersionStyles.Any);
         var latestVersion = SemVersion.Parse(LatestVersion, SemVersionStyles.Any);
-        return installedVersion.ComparePrecedenceTo(latestVersion) < 0;
+        return SemVersion.ComparePrecedence(latestVersion, installedVersion) == 1;
     }
 
     public PackageRelease? GetLatestNonPreRelease()
@@ -63,15 +62,14 @@ public class PackageSource
         var latestNonPreRelease = filterReleases(true, false).First();
         var installedVersion = SemVersion.Parse(InstalledVersion, SemVersionStyles.Any);
         var latestNonPreReleaseVersion = SemVersion.Parse(latestNonPreRelease.Version, SemVersionStyles.Any);
-        return installedVersion.ComparePrecedenceTo(latestNonPreReleaseVersion) == -1 ? latestNonPreRelease : null;
+        return SemVersion.ComparePrecedence(latestNonPreReleaseVersion, installedVersion) == 1 ? latestNonPreRelease : null;
     }
 
     public bool IsUnavailable() => State is PackageSourceState.MissingRepo or PackageSourceState.NoReleases or PackageSourceState.InvalidPackageFile or PackageSourceState.Unknown;
     public bool IsAvailable() => State is PackageSourceState.Valid;
 
-    public PackageSource(PackageManager packageManager, string repoOwner, string repoName, PackageType packageType = PackageType.Community)
+    public PackageSource(string repoOwner, string repoName, PackageType packageType)
     {
-        this.packageManager = packageManager;
         RepoOwner = repoOwner;
         RepoName = repoName;
         PackageType = packageType;

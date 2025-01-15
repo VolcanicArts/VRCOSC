@@ -36,7 +36,7 @@ public class ConnectionManager
 
     private Repeater? refreshTask;
 
-    public void Init()
+    public void Init() => Task.Run(() =>
     {
         refreshTask = new Repeater($"{nameof(ConnectionManager)}-{nameof(refreshServices)}", refreshServices);
         refreshTask.Start(TimeSpan.FromMilliseconds(refresh_interval));
@@ -64,7 +64,7 @@ public class ConnectionManager
 
         Logger.Log($"Receiving OSC on {VRCOSCReceivePort}");
         Logger.Log($"Hosting OSCQuery on {VRCOSCQueryPort}");
-    }
+    }).ConfigureAwait(false);
 
     public void Reset()
     {
@@ -191,6 +191,8 @@ public class ConnectionManager
         var domainName = srvRecord.Name.Labels;
         var instanceName = domainName[0];
         var serviceName = string.Join(".", domainName.Skip(1));
+
+        // TODO: If there's multiple instances of the VRChat client on the network, prioritise the one with the same LAN IP as the PC that we're running on
 
         if (instanceName.Contains(vrchat_client_name) && serviceName.Contains(osc_service_name))
         {

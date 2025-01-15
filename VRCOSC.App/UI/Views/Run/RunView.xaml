@@ -43,8 +43,8 @@
                         </Grid.RowDefinitions>
                         <Grid>
                             <tabs:RuntimeTabView x:Name="RuntimeView" />
-                            <tabs:AvatarParameterTabView x:Name="ParameterView" />
-                            <tabs:ChatBoxTabView x:Name="ChatBoxView" />
+                            <tabs:AvatarParameterTabView x:Name="ParameterView" Visibility="Collapsed" />
+                            <tabs:ChatBoxTabView x:Name="ChatBoxView" Visibility="Collapsed" />
                         </Grid>
                         <Grid Grid.Row="2" HorizontalAlignment="Center">
                             <Grid.ColumnDefinitions>
@@ -103,7 +103,7 @@
                         <core:SpacedStackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Spacing="10">
                             <core:IconButton x:Name="StartButton" Width="120" VerticalAlignment="Stretch"
                                              CornerRadius="5" ButtonColour="Green" Click="PlayButtonOnClick"
-                                             Icon="Solid_Play" />
+                                             Icon="Solid_Play" IsEnabled="True"/>
                             <core:VRCOSCButton Visibility="{Binding AutoStartQuestionClicked.Value, Converter={StaticResource BoolToVisibilityConverter}}" ButtonColour="Gray" Click="AutoStartQuestion_OnClick" CornerRadius="5">
                                 <TextBlock Text="Auto Start With VRChat?" Foreground="{StaticResource CForeground1}" FontSize="15" Margin="10 5"/>
                             </core:VRCOSCButton>
@@ -111,10 +111,10 @@
                         <core:SpacedStackPanel FlowDirection="RightToLeft" Orientation="Horizontal" Spacing="10">
                             <core:IconButton x:Name="StopButton" Width="120" VerticalAlignment="Stretch"
                                              CornerRadius="5" ButtonColour="Red" Click="StopButtonOnClick"
-                                             Icon="Solid_Stop" />
+                                             Icon="Solid_Stop" IsEnabled="False" />
                             <core:IconButton x:Name="RestartButton" Width="120" VerticalAlignment="Stretch"
                                              CornerRadius="5" ButtonColour="Blue" Click="RestartButtonOnClick"
-                                             Icon="Solid_ArrowRotateRight" />
+                                             Icon="Solid_ArrowRotateRight" IsEnabled="False" />
                         </core:SpacedStackPanel>
                     </Grid>
                 </Border>

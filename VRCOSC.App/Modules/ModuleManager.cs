@@ -337,7 +337,8 @@ internal class ModuleManager : INotifyPropertyChanged
 
         foreach (var assembly in assemblyLoadContext.Assemblies)
         {
-            var moduleTypes = assembly.ExportedTypes.Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract);
+            // change to use metadata methods?
+            var moduleTypes = assembly.GetExportedTypes().Where(type => type.IsSubclassOf(typeof(Module)) && !type.IsAbstract);
 
             foreach (var moduleType in moduleTypes)
             {
