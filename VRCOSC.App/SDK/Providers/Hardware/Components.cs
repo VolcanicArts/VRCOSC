@@ -25,6 +25,7 @@ public abstract class HardwareComponent
 {
     protected virtual SensorInfo? LoadInfo => null;
 
+    public required string Name { get; init; }
     public float Usage { get; private set; }
 
     protected static bool GetIntValue(ISensor sensor, SensorInfo? info, out int value)
