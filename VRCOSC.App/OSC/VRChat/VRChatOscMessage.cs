@@ -2,11 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using VRCOSC.App.OSC.Client;
+using FastOSC;
 
 namespace VRCOSC.App.OSC.VRChat;
 
-public class VRChatOscMessage : OscMessage
+public record VRChatOscMessage : OSCMessage
 {
     public bool IsAvatarChangeEvent => Address == VRChatOscConstants.ADDRESS_AVATAR_CHANGE;
     public bool IsAvatarParameter => Address.StartsWith(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX);
@@ -30,10 +30,10 @@ public class VRChatOscMessage : OscMessage
         }
     }
 
-    public object ParameterValue => Values[0];
+    public object ParameterValue => Arguments[0]!;
 
-    public VRChatOscMessage(OscMessage data)
-        : base(data.Address, data.Values)
+    public VRChatOscMessage(OSCMessage data)
+        : base(data.Address, data.Arguments)
     {
     }
 }

@@ -818,7 +818,7 @@ public abstract class Module
     /// <param name="value">The value to set the parameter to</param>
     protected void SendParameter(string name, object value)
     {
-        AppManager.GetInstance().VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", value);
+        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", value);
     }
 
     /// <summary>

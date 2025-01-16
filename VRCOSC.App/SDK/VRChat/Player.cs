@@ -181,9 +181,9 @@ public sealed class Player
 
     private async void sendAndReset(VRChatButtonInput action)
     {
-        oscClient.SendValue(actionToAddress(action), 1);
+        oscClient.Send(actionToAddress(action), 1);
         await Task.Delay(15);
-        oscClient.SendValue(actionToAddress(action), 0);
+        oscClient.Send(actionToAddress(action), 0);
     }
 
     internal void ResetAll()
@@ -226,68 +226,68 @@ public sealed class Player
 
     public void MoveForward()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.MoveForward), 1);
+        oscClient.Send(actionToAddress(VRChatButtonInput.MoveForward), 1);
         hasChanged = true;
     }
 
     public void StopMoveForward()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.MoveForward), 0);
+        oscClient.Send(actionToAddress(VRChatButtonInput.MoveForward), 0);
     }
 
     public void MoveBackward()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.MoveBackward), 1);
+        oscClient.Send(actionToAddress(VRChatButtonInput.MoveBackward), 1);
         hasChanged = true;
     }
 
     public void StopMoveBackward()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.MoveBackward), 0);
+        oscClient.Send(actionToAddress(VRChatButtonInput.MoveBackward), 0);
     }
 
     public void MoveLeft()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.MoveLeft), 1);
+        oscClient.Send(actionToAddress(VRChatButtonInput.MoveLeft), 1);
         hasChanged = true;
     }
 
     public void StopMoveLeft()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.MoveLeft), 0);
+        oscClient.Send(actionToAddress(VRChatButtonInput.MoveLeft), 0);
     }
 
     public void MoveRight()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.MoveRight), 1);
+        oscClient.Send(actionToAddress(VRChatButtonInput.MoveRight), 1);
         hasChanged = true;
     }
 
     public void StopMoveRight()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.MoveRight), 0);
+        oscClient.Send(actionToAddress(VRChatButtonInput.MoveRight), 0);
     }
 
     public void LookLeft()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.LookLeft), 1);
+        oscClient.Send(actionToAddress(VRChatButtonInput.LookLeft), 1);
         hasChanged = true;
     }
 
     public void StopLookLeft()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.LookLeft), 0);
+        oscClient.Send(actionToAddress(VRChatButtonInput.LookLeft), 0);
     }
 
     public void LookRight()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.LookRight), 1);
+        oscClient.Send(actionToAddress(VRChatButtonInput.LookRight), 1);
         hasChanged = true;
     }
 
     public void StopLookRight()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.LookRight), 0);
+        oscClient.Send(actionToAddress(VRChatButtonInput.LookRight), 0);
     }
 
     public void Jump()
@@ -297,13 +297,13 @@ public sealed class Player
 
     public void Run()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.Run), 1);
+        oscClient.Send(actionToAddress(VRChatButtonInput.Run), 1);
         hasChanged = true;
     }
 
     public void StopRun()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.Run), 0);
+        oscClient.Send(actionToAddress(VRChatButtonInput.Run), 0);
     }
 
     public void ComfortLeft()
@@ -368,27 +368,27 @@ public sealed class Player
 
     public void Mute()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.Voice), 1);
+        oscClient.Send(actionToAddress(VRChatButtonInput.Voice), 1);
     }
 
     public void UnMute()
     {
-        oscClient.SendValue(actionToAddress(VRChatButtonInput.Voice), 0);
+        oscClient.Send(actionToAddress(VRChatButtonInput.Voice), 0);
     }
 
     public void MoveVertical(float value)
     {
-        oscClient.SendValue(actionToAddress(VRChatAxesInput.Vertical), value);
+        oscClient.Send(actionToAddress(VRChatAxesInput.Vertical), value);
     }
 
     public void MoveHorizontal(float value)
     {
-        oscClient.SendValue(actionToAddress(VRChatAxesInput.Horizontal), value);
+        oscClient.Send(actionToAddress(VRChatAxesInput.Horizontal), value);
     }
 
     public void LookHorizontal(float value)
     {
-        oscClient.SendValue(actionToAddress(VRChatAxesInput.LookHorizontal), value);
+        oscClient.Send(actionToAddress(VRChatAxesInput.LookHorizontal), value);
     }
 }
 

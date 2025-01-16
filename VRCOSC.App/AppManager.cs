@@ -7,11 +7,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
+using FastOSC;
 using org.mariuszgromada.math.mxparser;
 using Valve.VR;
 using VRCOSC.App.Actions;
@@ -81,6 +83,9 @@ public class AppManager
 
     public void Initialise()
     {
+        OSCEncoder.SetEncoding(Encoding.UTF8);
+        OSCDecoder.SetEncoding(Encoding.UTF8);
+
         SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Subscribe(theme => ProxyTheme.Value = theme, true);
 
         ConnectionManager = new ConnectionManager();
@@ -283,7 +288,7 @@ public class AppManager
 
     private void sendParameter(string parameterName, object value)
     {
-        VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{parameterName}", value);
+        VRChatOscClient.Send($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{parameterName}", value);
     }
 
     #endregion
@@ -415,8 +420,8 @@ public class AppManager
         State.Value = AppManagerState.Starting;
 
         StartupManager.GetInstance().OpenFileLocations();
-        RouterManager.GetInstance().Start();
-        VRChatOscClient.EnableSend();
+        await RouterManager.GetInstance().Start();
+        await VRChatOscClient.EnableSend();
         ChatBoxManager.GetInstance().Start();
         await VRChatClient.Player.RetrieveAll();
         await ModuleManager.GetInstance().StartAsync();

@@ -2,17 +2,18 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using FastOSC;
 using Newtonsoft.Json;
-using VRCOSC.App.OSC.Client;
 using VRCOSC.App.OSC.Query;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.OSC.VRChat;
 
-public class VRChatOscClient : OscClient
+public class VRChatOscClient
 {
     public Action<VRChatOscMessage>? OnParameterSent;
     public Action<VRChatOscMessage>? OnParameterReceived;
@@ -21,20 +22,43 @@ public class VRChatOscClient : OscClient
 
     private ConnectionManager connectionManager = null!;
 
+    private readonly OSCSender sender = new();
+    private readonly OSCReceiver receiver = new();
+
+    private IPEndPoint sendEndpoint;
+    private IPEndPoint receiveEndpoint;
+
     public VRChatOscClient()
     {
         client.Timeout = TimeSpan.FromMilliseconds(100);
 
-        OnMessageSent += message => { OnParameterSent?.Invoke(new VRChatOscMessage(message)); };
-
-        OnMessageReceived += message =>
+        receiver.OnMessageReceived += message =>
         {
             var data = new VRChatOscMessage(message);
-            if (data.Values.Length == 0) return;
+            if (data.Arguments.Length == 0) return;
 
             OnParameterReceived?.Invoke(data);
         };
     }
+
+    public void Send(string address, params object?[] values)
+    {
+        var message = new OSCMessage(address, values);
+        sender.Send(message);
+        OnParameterSent?.Invoke(new VRChatOscMessage(message));
+    }
+
+    public void Initialise(IPEndPoint send, IPEndPoint receive)
+    {
+        sendEndpoint = send;
+        receiveEndpoint = receive;
+    }
+
+    public Task EnableSend() => sender.ConnectAsync(sendEndpoint);
+    public void EnableReceive() => receiver.Connect(receiveEndpoint);
+
+    public void DisableSend() => sender.Disconnect();
+    public Task DisableReceive() => receiver.DisconnectAsync();
 
     public void Init(ConnectionManager connectionManager)
     {

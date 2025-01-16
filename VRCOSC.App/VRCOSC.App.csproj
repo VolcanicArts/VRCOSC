@@ -39,6 +39,7 @@
         <PackageReference Include="Octokit" Version="14.0.0" />
         <PackageReference Include="Semver" Version="3.0.0" />
         <PackageReference Include="Velopack" Version="0.0.1053" />
+        <PackageReference Include="VolcanicArts.FastOSC" Version="1.1.1" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />
         <PackageReference Include="Whisper.net" Version="1.7.4" />
         <PackageReference Include="Whisper.net.Runtime" Version="1.7.4" />

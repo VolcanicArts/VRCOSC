@@ -5,7 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net;
-using VRCOSC.App.OSC.Client;
+using System.Threading.Tasks;
+using FastOSC;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Router.Serialisation;
 using VRCOSC.App.Serialisation;
@@ -22,7 +23,7 @@ public class RouterManager
     public ObservableCollection<RouterInstance> Routes { get; } = new();
     private SerialisationManager serialisationManager = null!;
 
-    private readonly List<(RouterInstance, OscSender)> senders = new();
+    private readonly List<(RouterInstance, OSCSender)> senders = new();
 
     private bool started;
 
@@ -48,7 +49,7 @@ public class RouterManager
         Routes.OnCollectionChanged((_, _) => serialisationManager.Serialise());
     }
 
-    public void Start()
+    public async Task Start()
     {
         if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.EnableRouter)) return;
 
@@ -63,9 +64,8 @@ public class RouterManager
 
                 Logger.Log($"Starting router instance `{route.Name.Value}` on {endpoint}", LoggingTarget.Terminal);
 
-                var sender = new OscSender();
-                sender.Initialise(endpoint);
-                sender.Enable();
+                var sender = new OSCSender();
+                await sender.ConnectAsync(endpoint);
 
                 senders.Add((route, sender));
             }
@@ -89,7 +89,7 @@ public class RouterManager
         foreach (var (route, sender) in senders)
         {
             Logger.Log($"Stopping router instance '{route.Name.Value}'", LoggingTarget.Terminal);
-            sender.Disable();
+            sender.Disconnect();
         }
 
         senders.Clear();
@@ -99,7 +99,7 @@ public class RouterManager
     {
         foreach (var (_, sender) in senders)
         {
-            sender.Send(OscEncoder.Encode(message));
+            sender.Send(message);
         }
     }
 }
