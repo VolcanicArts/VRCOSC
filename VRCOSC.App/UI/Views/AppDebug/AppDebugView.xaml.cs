@@ -62,8 +62,8 @@ public partial class AppDebugView
         return error.Length > 0 ? null : output.ToString();
     }
 
-    private void ReloadModules_OnClick(object sender, RoutedEventArgs e)
+    private async void ReloadModules_OnClick(object sender, RoutedEventArgs e)
     {
-        ModuleManager.GetInstance().ReloadAllModules();
+        await ModuleManager.GetInstance().ReloadAllModules();
     }
 }

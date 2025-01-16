@@ -372,13 +372,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         if (stateToDelete is null) return;
 
         StateReferences.Remove(stateToDelete);
-
-        Timeline.Clips.ForEach(clip =>
-        {
-            var stateInstances = new List<ClipState>();
-            stateInstances.AddRange(clip.States.Where(clipState => clipState.States.ContainsKey(moduleID) && clipState.States[moduleID] == stateID));
-            stateInstances.ForEach(clipState => clip.States.Remove(clipState));
-        });
+        Timeline.Clips.ForEach(clip => clip.States.RemoveIf(clipState => clipState.States.ContainsKey(moduleID) && clipState.States[moduleID] == stateID));
     }
 
     public ClipStateReference? GetState(string moduleID, string stateID)
@@ -416,13 +410,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         if (eventToDelete is null) return;
 
         EventReferences.Remove(eventToDelete);
-
-        Timeline.Clips.ForEach(clip =>
-        {
-            var eventInstances = new List<ClipEvent>();
-            eventInstances.AddRange(clip.Events.Where(clipEvent => clipEvent.ModuleID == moduleID && clipEvent.EventID == eventID));
-            eventInstances.ForEach(clipEvent => clip.Events.Remove(clipEvent));
-        });
+        Timeline.Clips.ForEach(clip => clip.Events.RemoveIf(clipEvent => clipEvent.ModuleID == moduleID && clipEvent.EventID == eventID));
     }
 
     public ClipEventReference? GetEvent(string moduleID, string eventID)

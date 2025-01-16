@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -40,9 +40,10 @@ public class PackageSource
 
     public List<PackageRelease> FilteredReleases => filterReleases(true, true);
 
-    private List<PackageRelease> filterReleases(bool includeInstalledRelease, bool includePreReleases) => Repository!.Releases.Where(packageRelease => (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPreRelease && includePreReleases)
-                                                                                                                                                       || !packageRelease.IsPreRelease
-                                                                                                                                                       || (packageRelease.Version == InstalledVersion && includeInstalledRelease)).ToList();
+    private List<PackageRelease> filterReleases(bool includeInstalledRelease, bool includePreReleases) =>
+        Repository!.Releases.Where(packageRelease => SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPreRelease && includePreReleases
+                                                     || !packageRelease.IsPreRelease
+                                                     || packageRelease.Version == InstalledVersion && includeInstalledRelease).ToList();
 
     public bool IsInstalled() => PackageManager.GetInstance().IsInstalled(this);
 
