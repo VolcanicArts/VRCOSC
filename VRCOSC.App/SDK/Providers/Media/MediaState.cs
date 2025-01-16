@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -32,11 +32,24 @@ public class MediaState
 public class MediaTimelineProperties
 {
     public TimeSpan Start { get; internal set; } = TimeSpan.Zero;
-    public TimeSpan End { get; internal set; } = TimeSpan.FromSeconds(1);
+
+    private TimeSpan end = TimeSpan.Zero;
+
+    public TimeSpan End
+    {
+        get
+        {
+            if (Math.Abs(end.Ticks) == 0 || Position >= end) return Position;
+
+            return end;
+        }
+        internal set => end = value;
+    }
+
     public TimeSpan Position { get; internal set; } = TimeSpan.Zero;
 
     /// <summary>
     /// The progress of the song as a normalised percentage
     /// </summary>
-    public float Progress => End.Ticks < 0 ? 0f : Position.Ticks / (float)End.Ticks;
+    public float Progress => Math.Abs(End.Ticks) == 0 || Position >= End ? 1f : Position.Ticks / (float)End.Ticks;
 }
