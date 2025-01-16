@@ -3,6 +3,7 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
+        <WindowsSdkPackageVersion>10.0.26100.1</WindowsSdkPackageVersion>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>app.ico</ApplicationIcon>
