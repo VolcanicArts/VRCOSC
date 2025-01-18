@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Windows;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.AppDebug;
@@ -27,6 +28,8 @@ public partial class AppDebugView
 
     private static string? executePowerShellCommand(string command)
     {
+        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.EnableAppDebug)) return string.Empty;
+
         var psi = new ProcessStartInfo
         {
             FileName = "powershell.exe",
