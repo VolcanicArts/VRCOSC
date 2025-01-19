@@ -38,10 +38,21 @@ public partial class ChatBoxClipEditWindow : IManagedWindow
     public ChatBoxClipEditWindow(Clip referenceClip)
     {
         InitializeComponent();
-
         DataContext = referenceClip;
         ReferenceClip = referenceClip;
+        ShowRelevantModulesCheckBox.DataContext = this;
 
+        SourceInitialized += OnSourceInitialized;
+        Loaded += OnLoaded;
+    }
+
+    private void OnSourceInitialized(object? sender, EventArgs e)
+    {
+        ReferenceClip.Name.Subscribe(newName => Title = $"Editing {newName} Clip", true);
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.FilterByEnabledModules).Subscribe(() =>
         {
             var selectableModules = ModuleManager.GetInstance().Modules.Values.SelectMany(moduleList => moduleList)
@@ -52,10 +63,6 @@ public partial class ChatBoxClipEditWindow : IManagedWindow
             ModulesList.ItemsSource = selectableModules;
             SelectListPrompt.Visibility = selectableModules.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         }, true);
-
-        ShowRelevantModulesCheckBox.DataContext = this;
-
-        ReferenceClip.Name.Subscribe(newName => Title = $"Editing {newName} Clip", true);
     }
 
     private void OnClosed(object? sender, EventArgs e)
