@@ -216,59 +216,5 @@
                 </core:HeaderFooterListView>
             </Grid>
         </Border>
-        <Grid Name="InfoOverlay" Visibility="Collapsed" Opacity="0">
-            <Rectangle ClipToBounds="True">
-                <b:Interaction.Behaviors>
-                    <utils:BlurBackgroundBehavior BlurContainer="{Binding ElementName=PageContent}" BlurRadius="10" />
-                </b:Interaction.Behaviors>
-            </Rectangle>
-            <Border Width="550" Height="400" Background="{StaticResource CBackground3}"
-                    HorizontalAlignment="Center" VerticalAlignment="Center" CornerRadius="10" BorderThickness="3"
-                    BorderBrush="Black">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="120" />
-                        <RowDefinition Height="3" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="60" />
-                    </Grid.RowDefinitions>
-                    <Border x:Name="InfoImageContainer" Grid.Row="0" CornerRadius="10 10 0 0">
-                        <Border.Background>
-                            <ImageBrush x:Name="InfoImage" Stretch="UniformToFill" />
-                        </Border.Background>
-                    </Border>
-                    <Border Grid.Row="1" Background="Black" Margin="-1 0" />
-                    <Grid Grid.Row="2">
-                        <core:IconButton ButtonColour="Red" Width="30" Height="30" Margin="5"
-                                         Click="InfoOverlayExit_ButtonClick" HorizontalAlignment="Left"
-                                         Icon="Solid_ChevronLeft"
-                                         VerticalAlignment="Top">
-                        </core:IconButton>
-                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top">
-                            <TextBlock Text="{Binding DisplayName}" Foreground="{StaticResource CForeground1}"
-                                       TextAlignment="Center" TextWrapping="Wrap"
-                                       FontSize="30" HorizontalAlignment="Center" FontWeight="Bold" />
-                            <TextBlock Text="{Binding Author}" Foreground="{StaticResource CForeground2}"
-                                       TextAlignment="Center" TextWrapping="Wrap"
-                                       FontSize="12" HorizontalAlignment="Center" />
-                            <TextBlock Text="{Binding Description}" Foreground="{StaticResource CForeground1}"
-                                       FontSize="16" HorizontalAlignment="Center" Margin="20" TextWrapping="Wrap"
-                                       TextAlignment="Center" />
-                        </StackPanel>
-                    </Grid>
-                    <Border Grid.Row="3" Background="{StaticResource CBackground1}" Padding="5"
-                            CornerRadius="0 0 10 10">
-                        <core:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Stretch"
-                                               VerticalAlignment="Stretch">
-                            <core:IconButton ButtonColour="Gray" Width="50" Height="50" CornerRadius="5"
-                                             Click="PackageGithub_ButtonClick"
-                                             Icon="Brands_Github"
-                                             Tag="{Binding RelativeSource={RelativeSource AncestorType=Grid, AncestorLevel=2}, Path=DataContext}">
-                            </core:IconButton>
-                        </core:SpacedStackPanel>
-                    </Border>
-                </Grid>
-            </Border>
-        </Grid>
     </Grid>
 </UserControl>

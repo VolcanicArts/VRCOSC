@@ -13,7 +13,7 @@ using VRCOSC.App.Actions;
 using VRCOSC.App.Packages;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows;
-using VRCOSC.App.Utils;
+using VRCOSC.App.UI.Windows.Packages;
 using Xceed.Wpf.Toolkit;
 using MessageBox = System.Windows.MessageBox;
 
@@ -21,14 +21,21 @@ namespace VRCOSC.App.UI.Views.Packages;
 
 public sealed partial class PackagesView
 {
+    private WindowManager windowManager = null!;
+
     public PackagesView()
     {
         InitializeComponent();
-
         DataContext = this;
+        Loaded += OnLoaded;
 
         SearchTextBox.TextChanged += (_, _) => filterDataGrid(SearchTextBox.Text);
         filterDataGrid(string.Empty);
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        windowManager = new WindowManager(this);
     }
 
     private async void RefreshButton_OnClick(object sender, RoutedEventArgs e)
@@ -61,36 +68,6 @@ public sealed partial class PackagesView
         PackageList.ItemsSource = null;
         filterDataGrid(SearchTextBox.Text);
     });
-
-    private void InfoButton_ButtonClick(object sender, RoutedEventArgs e)
-    {
-        var button = (Button)sender;
-        var packageSource = (PackageSource)button.Tag;
-
-        InfoImageContainer.Visibility = Visibility.Collapsed;
-
-        ImageLoader.RetrieveFromURL(packageSource.CoverURL, (bitmapImage, cached) =>
-        {
-            InfoImage.ImageSource = bitmapImage;
-            InfoImageContainer.FadeInFromZero(cached ? 0 : 150);
-        });
-
-        InfoOverlay.DataContext = packageSource;
-        InfoOverlay.FadeInFromZero(150);
-    }
-
-    private void PackageGithub_ButtonClick(object sender, RoutedEventArgs e)
-    {
-        var button = (Button)sender;
-        var packageSource = (PackageSource)button.Tag;
-
-        new Uri(packageSource.URL).OpenExternally();
-    }
-
-    private void InfoOverlayExit_ButtonClick(object sender, RoutedEventArgs e)
-    {
-        InfoOverlay.FadeOutFromOne(150);
-    }
 
     private void InstallButton_OnClick(object sender, RoutedEventArgs e)
     {
@@ -126,6 +103,15 @@ public sealed partial class PackagesView
 
         if (!comboBox.IsDropDownOpen)
             FocusTaker.Focus();
+    }
+
+    private void InfoButton_ButtonClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var packageSource = (PackageSource)element.Tag;
+
+        var infoWindow = new PackageInfoWindow(packageSource);
+        windowManager.TrySpawnChild(infoWindow);
     }
 }
 
