@@ -83,40 +83,62 @@ public static class Platform
 
     public static void SetPositionFrom(this Window window, Window? parent, HorizontalPosition horizontal = HorizontalPosition.Center, VerticalPosition vertical = VerticalPosition.Center)
     {
-        RECT workingArea;
-
         if (parent is not null)
         {
-            var parentHandle = new WindowInteropHelper(parent).Handle;
-            var monitor = PInvoke.MonitorFromWindow(new HWND(parentHandle), MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST);
-            workingArea = getWorkingArea(monitor);
+            // when a parent is available, position the child relative to the parent
+            var parentDpiScale = PInvoke.GetDpiForSystem() / 96f;
+            var parentLeft = parent.Left * parentDpiScale;
+            var parentTop = parent.Top * parentDpiScale;
+            var parentWidth = parent.Width * parentDpiScale;
+            var parentHeight = parent.Height * parentDpiScale;
+
+            var dpiScale = PInvoke.GetDpiForSystem() / 96f;
+
+            var x = horizontal switch
+            {
+                HorizontalPosition.Left => parentLeft / dpiScale,
+                HorizontalPosition.Center => (parentLeft + (parentWidth - window.Width * dpiScale) / 2) / dpiScale,
+                HorizontalPosition.Right => (parentLeft + parentWidth - window.Width * dpiScale) / dpiScale,
+                _ => throw new ArgumentOutOfRangeException(nameof(horizontal), "Invalid horizontal position")
+            };
+
+            var y = vertical switch
+            {
+                VerticalPosition.Top => parentTop / dpiScale,
+                VerticalPosition.Center => (parentTop + (parentHeight - window.Height * dpiScale) / 2) / dpiScale,
+                VerticalPosition.Bottom => (parentTop + parentHeight - window.Height * dpiScale) / dpiScale,
+                _ => throw new ArgumentOutOfRangeException(nameof(vertical), "Invalid vertical position")
+            };
+
+            window.Left = x;
+            window.Top = y;
         }
         else
         {
             var monitor = PInvoke.MonitorFromWindow(new HWND(IntPtr.Zero), MONITOR_FROM_FLAGS.MONITOR_DEFAULTTOPRIMARY);
-            workingArea = getWorkingArea(monitor);
+            var workingArea = getWorkingArea(monitor);
+
+            var dpiScale = PInvoke.GetDpiForSystem() / 96f;
+
+            var x = horizontal switch
+            {
+                HorizontalPosition.Left => workingArea.left / dpiScale,
+                HorizontalPosition.Center => (workingArea.left + (workingArea.right - workingArea.left - window.Width * dpiScale) / 2) / dpiScale,
+                HorizontalPosition.Right => (workingArea.right - window.Width * dpiScale) / dpiScale,
+                _ => throw new ArgumentOutOfRangeException(nameof(horizontal), "Invalid horizontal position")
+            };
+
+            var y = vertical switch
+            {
+                VerticalPosition.Top => workingArea.top / dpiScale,
+                VerticalPosition.Center => (workingArea.top + (workingArea.bottom - workingArea.top - window.Height * dpiScale) / 2) / dpiScale,
+                VerticalPosition.Bottom => (workingArea.bottom - window.Height * dpiScale) / dpiScale,
+                _ => throw new ArgumentOutOfRangeException(nameof(vertical), "Invalid vertical position")
+            };
+
+            window.Left = x;
+            window.Top = y;
         }
-
-        var dpiScale = PInvoke.GetDpiForSystem() / 96f;
-
-        var x = horizontal switch
-        {
-            HorizontalPosition.Left => workingArea.left / dpiScale,
-            HorizontalPosition.Center => (workingArea.left + (workingArea.right - workingArea.left - window.Width * dpiScale) / 2) / dpiScale,
-            HorizontalPosition.Right => (workingArea.right - window.Width * dpiScale) / dpiScale,
-            _ => throw new ArgumentOutOfRangeException(nameof(horizontal), "Invalid horizontal position")
-        };
-
-        var y = vertical switch
-        {
-            VerticalPosition.Top => workingArea.top / dpiScale,
-            VerticalPosition.Center => (workingArea.top + (workingArea.bottom - workingArea.top - window.Height * dpiScale) / 2) / dpiScale,
-            VerticalPosition.Bottom => (workingArea.bottom - window.Height * dpiScale) / dpiScale,
-            _ => throw new ArgumentOutOfRangeException(nameof(vertical), "Invalid vertical position")
-        };
-
-        window.Left = x;
-        window.Top = y;
     }
 
     private static RECT getWorkingArea(HMONITOR monitor)
