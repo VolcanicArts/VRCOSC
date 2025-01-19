@@ -13,6 +13,7 @@ using Windows.Win32.Foundation;
 using Windows.Win32.UI.Input.KeyboardAndMouse;
 using Windows.Win32.UI.WindowsAndMessaging;
 using NAudio.CoreAudioApi;
+using NAudio.CoreAudioApi.Interfaces;
 
 namespace VRCOSC.App.Utils;
 
@@ -273,12 +274,19 @@ public static class ProcessExtensions
     {
         if (processName is null) return null;
 
-        var speakers = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+        var audioEndPoints = new MMDeviceEnumerator().EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
 
-        for (var i = 0; i < speakers.AudioSessionManager.Sessions.Count; i++)
+        foreach (var audioEndPoint in audioEndPoints)
         {
-            var session = speakers.AudioSessionManager.Sessions[i];
-            if (session.GetSessionIdentifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase)) return session.SimpleAudioVolume;
+            for (var i = 0; i < audioEndPoint.AudioSessionManager.Sessions.Count; i++)
+            {
+                var session = audioEndPoint.AudioSessionManager.Sessions[i];
+
+                var isValidSession = session.GetSessionIdentifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase)
+                                     && session.State == AudioSessionState.AudioSessionStateActive;
+
+                if (isValidSession) return session.SimpleAudioVolume;
+            }
         }
 
         return null;
