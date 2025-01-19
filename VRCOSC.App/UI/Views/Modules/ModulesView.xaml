@@ -95,7 +95,8 @@
                                                                     Width="30" Height="30"
                                                                     Click="InfoButton_OnClick"
                                                                     Icon="Solid_Info"
-                                                                    IsEnabled="{Binding HasInfo}">
+                                                                    IsEnabled="{Binding HasInfo}"
+                                                                    ToolTip="Info" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
                                                                     <core:IconButton.Tag>
                                                                         <Binding />
                                                                     </core:IconButton.Tag>
@@ -104,7 +105,8 @@
                                                                     ButtonColour="Gray"
                                                                     Width="30" Height="30"
                                                                     Icon="Solid_Upload"
-                                                                    Click="ExportButton_OnClick">
+                                                                    Click="ExportButton_OnClick"
+                                                                    ToolTip="Export Config" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
                                                                     <core:IconButton.Tag>
                                                                         <Binding />
                                                                     </core:IconButton.Tag>
@@ -113,7 +115,8 @@
                                                                     ButtonColour="Gray"
                                                                     Width="30" Height="30"
                                                                     Icon="Solid_Download"
-                                                                    Click="ImportButton_OnClick">
+                                                                    Click="ImportButton_OnClick"
+                                                                    ToolTip="Import Config" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
                                                                     <core:IconButton.Tag>
                                                                         <Binding />
                                                                     </core:IconButton.Tag>
@@ -123,7 +126,8 @@
                                                                     Width="30" Height="30"
                                                                     Click="PrefabButton_OnClick"
                                                                     Icon="Solid_Cube"
-                                                                    IsEnabled="{Binding HasPrefabs}">
+                                                                    IsEnabled="{Binding HasPrefabs}"
+                                                                    ToolTip="Prefabs" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
                                                                     <core:IconButton.Tag>
                                                                         <Binding />
                                                                     </core:IconButton.Tag>
@@ -133,7 +137,8 @@
                                                                     Width="30" Height="30"
                                                                     Click="ParametersButton_OnClick"
                                                                     Icon="Solid_Link"
-                                                                    IsEnabled="{Binding HasParameters}">
+                                                                    IsEnabled="{Binding HasParameters}"
+                                                                    ToolTip="Parameters" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
                                                                     <core:IconButton.Tag>
                                                                         <Binding />
                                                                     </core:IconButton.Tag>
@@ -143,7 +148,8 @@
                                                                     Width="30" Height="30"
                                                                     Click="SettingsButton_OnClick"
                                                                     Icon="Solid_Gear"
-                                                                    IsEnabled="{Binding HasSettings}">
+                                                                    IsEnabled="{Binding HasSettings}"
+                                                                    ToolTip="Settings" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
                                                                     <core:IconButton.Tag>
                                                                         <Binding />
                                                                     </core:IconButton.Tag>
