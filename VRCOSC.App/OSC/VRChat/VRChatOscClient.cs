@@ -25,12 +25,12 @@ public class VRChatOscClient
     private readonly OSCSender sender = new();
     private readonly OSCReceiver receiver = new();
 
-    private IPEndPoint sendEndpoint;
-    private IPEndPoint receiveEndpoint;
+    private IPEndPoint? sendEndpoint;
+    private IPEndPoint? receiveEndpoint;
 
     public VRChatOscClient()
     {
-        client.Timeout = TimeSpan.FromMilliseconds(100);
+        client.Timeout = TimeSpan.FromSeconds(0.1f);
 
         receiver.OnMessageReceived += message =>
         {
@@ -54,8 +54,19 @@ public class VRChatOscClient
         receiveEndpoint = receive;
     }
 
-    public Task EnableSend() => sender.ConnectAsync(sendEndpoint);
-    public void EnableReceive() => receiver.Connect(receiveEndpoint);
+    public Task EnableSend()
+    {
+        if (sendEndpoint is null) throw new InvalidOperationException($"Please call {nameof(Initialise)} first");
+
+        return sender.ConnectAsync(sendEndpoint);
+    }
+
+    public void EnableReceive()
+    {
+        if (receiveEndpoint is null) throw new InvalidOperationException($"Please call {nameof(Initialise)} first");
+
+        receiver.Connect(receiveEndpoint);
+    }
 
     public void DisableSend() => sender.Disconnect();
     public Task DisableReceive() => receiver.DisconnectAsync();
@@ -71,7 +82,7 @@ public class VRChatOscClient
     {
         try
         {
-            if (connectionManager.VRChatQueryPort is null) return null;
+            if (!connectionManager.IsConnected) return null;
 
             address = address.Replace(" ", "%20");
             var url = $"http://127.0.0.1:{connectionManager.VRChatQueryPort}{address}";
