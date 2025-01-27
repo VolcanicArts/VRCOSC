@@ -67,12 +67,14 @@ public abstract class Module
     private readonly List<Repeater> updateTasks = new();
     private readonly List<MethodInfo> chatBoxUpdateMethods = new();
 
+    private readonly object parameterWaitListLock = new();
+    private readonly List<WaitingParameter> parameterWaitList = [];
+
     private SerialisationManager moduleSerialisationManager = null!;
     private SerialisationManager persistenceSerialisationManager = null!;
 
     internal Type? RuntimeViewType { get; private set; }
 
-    private readonly object loadLock = new();
     private bool isLoaded;
 
     public string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER TITLE";
@@ -840,6 +842,42 @@ public abstract class Module
     }
 
     /// <summary>
+    /// Allows you to send a customisable parameter using its lookup and a value.
+    /// </summary>
+    /// <param name="lookup">The lookup of the parameter</param>
+    /// <param name="value">The value to set the parameter to</param>
+    /// <param name="blockEvents">Whether to block <see cref="OnRegisteredParameterReceived"/> from running until we acknowledge a response. This is helpful to prevent unwanted loopbacks</param>
+    /// <param name="timeout">The timeout at which waiting fails. Defaults to 0.5 seconds</param>
+    /// <returns>True if the parameter was acknowledged, false if the parameter doesn't exist or VRChat is closed</returns>
+    protected async Task<bool> SendParameterAndWait(Enum lookup, object value, bool blockEvents = false, TimeSpan timeout = default)
+    {
+        if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(0.5f);
+
+        var taskCompletionSource = new TaskCompletionSource();
+        var waitingParameter = new WaitingParameter(lookup, blockEvents, taskCompletionSource);
+
+        lock (parameterWaitListLock)
+        {
+            parameterWaitList.Add(waitingParameter);
+        }
+
+        SendParameter(lookup, value);
+
+        var result = false;
+
+        try
+        {
+            await taskCompletionSource.Task.WaitAsync(timeout);
+            result = true;
+        }
+        catch (TimeoutException)
+        {
+        }
+
+        return result;
+    }
+
+    /// <summary>
     /// Retrieves the container of the setting using the provided lookup. This allows for creating more complex UI callback behaviour.
     /// This is best used inside of <see cref="OnPostLoad"/>
     /// </summary>
@@ -911,69 +949,50 @@ public abstract class Module
     /// <param name="parameterName">The name of the parameter</param>
     protected Task<ReceivedParameter?> FindParameter(string parameterName) => AppManager.GetInstance().VRChatOscClient.FindParameter(parameterName);
 
-    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
-    protected Task<object?> FindParameterValue(Enum lookup)
-    {
-        var parameterName = Parameters[lookup].Name.Value;
-        return FindParameterValue(parameterName);
-    }
-
-    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
-    protected Task<object?> FindParameterValue(string parameterName)
-    {
-        return AppManager.GetInstance().VRChatOscClient.FindParameterValue(parameterName);
-    }
-
-    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
-    protected Task<TypeCode?> FindParameterType(Enum lookup)
-    {
-        var parameterName = Parameters[lookup].Name.Value;
-        return FindParameterType(parameterName);
-    }
-
-    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
-    protected Task<TypeCode?> FindParameterType(string parameterName)
-    {
-        return AppManager.GetInstance().VRChatOscClient.FindParameterType(parameterName);
-    }
-
     internal void OnParameterReceived(VRChatOscMessage message)
     {
-        lock (loadLock)
+        var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
+
+        try
         {
-            var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
+            OnAnyParameterReceived(receivedParameter);
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"Module {FullID} experienced an exception calling {nameof(OnAnyParameterReceived)}");
+        }
 
-            try
-            {
-                OnAnyParameterReceived(receivedParameter);
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e, $"Module {FullID} experienced an exception calling {nameof(OnAnyParameterReceived)}");
-            }
+        Enum? lookup = null;
+        ModuleParameter? parameterData = null;
 
-            Enum? lookup = null;
-            ModuleParameter? parameterData = null;
+        foreach (var (parameterLookup, moduleParameter) in readParameters)
+        {
+            if (!parameterNameRegex[parameterLookup].IsMatch(receivedParameter.Name)) continue;
 
-            foreach (var (parameterLookup, moduleParameter) in readParameters)
-            {
-                if (!parameterNameRegex[parameterLookup].IsMatch(receivedParameter.Name)) continue;
+            lookup = parameterLookup;
+            parameterData = moduleParameter;
+            break;
+        }
 
-                lookup = parameterLookup;
-                parameterData = moduleParameter;
-                break;
-            }
+        if (lookup is null || parameterData is null) return;
 
-            if (lookup is null || parameterData is null) return;
+        if (receivedParameter.Type != parameterData.ExpectedType)
+        {
+            Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType.ToString()}` but received type `{receivedParameter.Type.ToString()}`");
+            return;
+        }
 
-            if (receivedParameter.Type != parameterData.ExpectedType)
-            {
-                Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType.ToString()}` but received type `{receivedParameter.Type.ToString()}`");
-                return;
-            }
+        var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData);
 
-            var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData);
+        List<WaitingParameter> waitingParameters;
 
+        lock (parameterWaitListLock)
+        {
+            waitingParameters = parameterWaitList.Where(waitingParameter => waitingParameter.Lookup.Equals(lookup)).ToList();
+        }
+
+        if (!waitingParameters.Any(waitingParameter => waitingParameter.BlockEvents))
+        {
             try
             {
                 OnRegisteredParameterReceived(registeredParameter);
@@ -981,6 +1000,15 @@ public abstract class Module
             catch (Exception e)
             {
                 ExceptionHandler.Handle(e, $"Module {FullID} experienced an exception calling {nameof(OnRegisteredParameterReceived)}");
+            }
+        }
+
+        lock (parameterWaitListLock)
+        {
+            foreach (var waitingParameter in waitingParameters)
+            {
+                parameterWaitList.Remove(waitingParameter);
+                waitingParameter.CompletionSource.SetResult();
             }
         }
     }
@@ -1015,4 +1043,6 @@ public abstract class Module
     }
 
     #endregion
+
+    private record WaitingParameter(Enum Lookup, bool BlockEvents, TaskCompletionSource CompletionSource);
 }
