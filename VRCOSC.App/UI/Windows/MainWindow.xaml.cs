@@ -126,6 +126,11 @@ public partial class MainWindow
         trayIcon?.Dispose();
     }
 
+    // because this isn't returning a task and we're not doing Task.Run(), this still runs in the same
+    // synchronisation context as the UI thread, meaning we don't get threading errors when initialising
+    // unfortunately this does mean it also blocks the UI thread when making changes, freezing the loading screen,
+    // but this method being async at least means that the window opens immediately and we can tell
+    // the user what's going on
     private async void load()
     {
         // force the task to be async to open the window ASAP

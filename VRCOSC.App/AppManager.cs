@@ -348,7 +348,7 @@ public class AppManager
             Task.Run(() => waitForVRChat(waitingCancellationSource), requestStartCancellationSource.Token)
         });
 
-        waitingCancellationSource.Cancel();
+        await waitingCancellationSource.CancelAsync();
 
         if (requestStartCancellationSource.IsCancellationRequested) return;
 

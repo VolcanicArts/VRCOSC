@@ -15,9 +15,9 @@ public class ClipVariableReference
 
     public Observable<string> DisplayName { get; } = new("INVALID");
 
-    internal Observable<object?> Value = new();
+    internal Observable<object> Value = new();
 
-    internal void SetValue<T>(T value)
+    internal void SetValue<T>(T value) where T : notnull
     {
         if (typeof(T) != ValueType)
             throw new InvalidOperationException($"The provided value type `{typeof(T).Name}` doesn't match the expected value type `{ValueType.Name}` for variable {ModuleID} - {VariableID}");

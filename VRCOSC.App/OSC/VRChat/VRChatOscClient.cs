@@ -118,16 +118,4 @@ public class VRChatOscClient
 
         return new ReceivedParameter(parameterName, parameterValue);
     }
-
-    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
-    public async Task<object?> FindParameterValue(string parameterName) => (await FindParameter(parameterName))?.Value;
-
-    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
-    public async Task<TypeCode?> FindParameterType(string parameterName) => (await FindParameter(parameterName))?.Type switch
-    {
-        ParameterType.Bool => TypeCode.Boolean,
-        ParameterType.Int => TypeCode.Int32,
-        ParameterType.Float => TypeCode.Single,
-        _ => throw new ArgumentOutOfRangeException()
-    };
 }

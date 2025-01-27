@@ -26,6 +26,12 @@ using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Views.Modules.Settings;
 using VRCOSC.App.Utils;
 
+// ReSharper disable UnusedMember.Global
+// ReSharper disable ArrangeMethodOrOperatorBody
+// ReSharper disable UnusedMethodReturnValue.Global
+// ReSharper disable UnusedParameter.Global
+// ReSharper disable VirtualMemberNeverOverridden.Global
+
 namespace VRCOSC.App.SDK.Modules;
 
 public abstract class Module
@@ -106,26 +112,23 @@ public abstract class Module
 
     internal void Load(string filePathOverride = "")
     {
-        lock (loadLock)
-        {
-            isLoaded = false;
+        isLoaded = false;
 
-            Settings.Clear();
-            Parameters.Clear();
-            Groups.Clear();
+        Settings.Clear();
+        Parameters.Clear();
+        Groups.Clear();
 
-            OnPreLoad();
+        OnPreLoad();
 
-            moduleSerialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
+        moduleSerialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
 
-            cachePersistentProperties();
+        cachePersistentProperties();
 
-            Enabled.Subscribe(_ => moduleSerialisationManager.Serialise());
+        Enabled.Subscribe(_ => moduleSerialisationManager.Serialise());
 
-            isLoaded = true;
+        isLoaded = true;
 
-            OnPostLoad();
-        }
+        OnPostLoad();
     }
 
     internal async void ImportConfig(string filePathOverride)
@@ -545,12 +548,12 @@ public abstract class Module
         ChatBoxManager.GetInstance().TriggerEvent(FullID, lookup);
     }
 
-    protected void SetVariableValue<T>(Enum lookup, T value)
+    protected void SetVariableValue<T>(Enum lookup, T value) where T : notnull
     {
         SetVariableValue(lookup.ToLookup(), value);
     }
 
-    protected void SetVariableValue<T>(string lookup, T value)
+    protected void SetVariableValue<T>(string lookup, T value) where T : notnull
     {
         var variable = GetVariable(lookup);
         if (variable is null) throw new InvalidOperationException($"Variable with lookup {lookup} does not exist");
@@ -832,7 +835,7 @@ public abstract class Module
     {
         if (!Parameters.TryGetValue(lookup, out var moduleParameter))
         {
-            ExceptionHandler.Handle(new InvalidOperationException($"Parameter `{lookup}` has not been registered. Please register it by calling RegisterParameter in OnPreLoad"));
+            ExceptionHandler.Handle(new InvalidOperationException($"Parameter `{lookup}` has not been registered. Please register it by calling {nameof(RegisterParameter)} in {nameof(OnPreLoad)}"));
             return;
         }
 
@@ -896,23 +899,17 @@ public abstract class Module
 
     internal T GetSetting<T>(string lookup) where T : ModuleSetting
     {
-        lock (loadLock)
-        {
-            if (Settings.TryGetValue(lookup, out var setting)) return (T)setting;
+        if (Settings.TryGetValue(lookup, out var setting)) return (T)setting;
 
-            throw new InvalidOperationException($"Setting with lookup '{lookup}' doesn't exist");
-        }
+        throw new InvalidOperationException($"Setting with lookup '{lookup}' doesn't exist");
     }
 
     internal ModuleParameter GetParameter(string lookup)
     {
-        lock (loadLock)
-        {
-            var moduleParameter = Parameters.SingleOrDefault(pair => pair.Key.ToLookup() == lookup);
-            if (Parameters.Any(pair => pair.Key.ToLookup() == lookup)) return moduleParameter.Value;
+        var moduleParameter = Parameters.SingleOrDefault(pair => pair.Key.ToLookup() == lookup);
+        if (Parameters.Any(pair => pair.Key.ToLookup() == lookup)) return moduleParameter.Value;
 
-            throw new InvalidOperationException($"Parameter with lookup '{lookup}' doesn't exist");
-        }
+        throw new InvalidOperationException($"Parameter with lookup '{lookup}' doesn't exist");
     }
 
     /// <summary>
@@ -923,17 +920,14 @@ public abstract class Module
     /// <returns>The value if successful, otherwise pushes an exception and returns default</returns>
     protected T GetSettingValue<T>(Enum lookup)
     {
-        lock (loadLock)
+        try
         {
-            try
-            {
-                return GetSetting(lookup).GetValue<T>();
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e, $"'{FullID}' experienced a problem when getting value of setting '{lookup.ToLookup()}'");
-                return default!;
-            }
+            return GetSetting(lookup).GetValue<T>();
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"'{FullID}' experienced a problem when getting value of setting '{lookup.ToLookup()}'");
+            return default!;
         }
     }
 

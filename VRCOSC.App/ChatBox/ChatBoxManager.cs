@@ -268,7 +268,7 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     private void updateBuiltInVariables()
     {
-        GetVariable(null, BuiltInVariables.FocusedWindow.ToLookup())!.SetValue(ProcessExtensions.GetActiveWindowTitle());
+        GetVariable(null, BuiltInVariables.FocusedWindow.ToLookup())!.SetValue(ProcessExtensions.GetActiveWindowTitle() ?? string.Empty);
         GetVariable(null, BuiltInVariables.Text.ToLookup())!.SetValue(string.Empty);
         GetVariable(null, BuiltInVariables.Timer.ToLookup())!.SetValue(TimeSpan.Zero);
         GetVariable(null, BuiltInVariables.FileReader.ToLookup())!.SetValue(string.Empty);

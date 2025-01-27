@@ -28,8 +28,6 @@ public class SettingsManager
         serialisationManager.RegisterSerialiser(1, new SettingsManagerSerialiser(storage, this));
     }
 
-    public void Serialise() => serialisationManager.Serialise();
-
     public void Load()
     {
         writeDefaults();
@@ -115,8 +113,8 @@ public class SettingsManager
         return observable;
     }
 
-    public T GetValue<T>(VRCOSCSetting lookup) => GetObservable<T>(lookup).Value!;
-    public T GetValue<T>(VRCOSCMetadata lookup) => GetObservable<T>(lookup).Value!;
+    public T GetValue<T>(VRCOSCSetting lookup) where T : notnull => GetObservable<T>(lookup).Value!;
+    public T GetValue<T>(VRCOSCMetadata lookup) where T : notnull => GetObservable<T>(lookup).Value!;
 }
 
 public enum VRCOSCSetting

@@ -42,7 +42,7 @@ public class SerialisableParameter
     public bool Enabled;
 
     [JsonProperty("parameter_name")]
-    public string ParameterName;
+    public string ParameterName = string.Empty;
 
     public SerialisableParameter()
     {

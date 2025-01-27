@@ -44,6 +44,8 @@ public class SettingsManagerSerialiser : Serialiser<SettingsManager, Serialisabl
                 continue;
             }
 
+            if (parsedValue is null) continue;
+
             observable.SetValue(parsedValue);
         }
 
@@ -69,6 +71,8 @@ public class SettingsManagerSerialiser : Serialiser<SettingsManager, Serialisabl
                 shouldReserialise = true;
                 continue;
             }
+
+            if (parsedValue is null) continue;
 
             observable.SetValue(parsedValue);
         }
