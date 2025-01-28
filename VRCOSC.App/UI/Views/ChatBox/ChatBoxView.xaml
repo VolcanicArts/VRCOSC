@@ -56,27 +56,31 @@
                                 Grid.Column="0"
                                 ButtonColour="Blue"
                                 Icon="Solid_Download"
-                                Click="ImportButton_OnClick" />
+                                Click="ImportButton_OnClick"
+                                ToolTip="Import Config" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             <core:IconButton
                                 Grid.Row="0"
                                 Grid.Column="2"
                                 ButtonColour="Blue"
                                 Icon="Solid_Upload"
-                                Click="ExportButton_OnClick" />
+                                Click="ExportButton_OnClick"
+                                ToolTip="Export Config" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             <core:IconButton
                                 Grid.Row="2"
                                 Grid.Column="0"
                                 Grid.ColumnSpan="3"
                                 ButtonColour="Gray"
                                 Icon="Regular_CircleQuestion"
-                                Click="HelpButton_OnClick" />
+                                Click="HelpButton_OnClick"
+                                ToolTip="Help" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             <core:IconButton
                                 Grid.Row="4"
                                 Grid.Column="0"
                                 Grid.ColumnSpan="3"
                                 ButtonColour="Red"
                                 Icon="Solid_TrashCan"
-                                Click="ClearButton_OnClick" />
+                                Click="ClearButton_OnClick"
+                                ToolTip="Clear Timeline" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                         </Grid>
                     </Border>
                 </Border>

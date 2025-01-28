@@ -85,17 +85,20 @@
                                                                  Click="RemoveProfile_ButtonClick"
                                                                  Visibility="{Binding UIRemoveProfileButtonVisibility}"
                                                                  Icon="Solid_Minus"
-                                                                 Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}" />
+                                                                 Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}"
+                                                                 ToolTip="Delete" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                                                 <core:IconButton ButtonColour="Blue"
                                                                  Width="30"
                                                                  Click="EditProfile_ButtonClick"
                                                                  Icon="Solid_PenToSquare"
-                                                                 Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}" />
+                                                                 Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}"
+                                                                 ToolTip="Edit" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                                                 <core:IconButton ButtonColour="Blue"
                                                                  Width="30"
                                                                  Click="CopyProfile_ButtonClick"
                                                                  Icon="Solid_Copy"
-                                                                 Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}" />
+                                                                 Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}"
+                                                                 ToolTip="Clone" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                                             </core:SpacedStackPanel>
                                         </Grid>
                                     </Border>
@@ -108,7 +111,8 @@
                     <Border Height="35" Padding="5" Background="{StaticResource CBackground1}">
                         <core:IconButton ButtonColour="Green" Width="70"
                                          Icon="Solid_Plus"
-                                         Click="AddProfile_ButtonClick" />
+                                         Click="AddProfile_ButtonClick"
+                                         ToolTip="Create" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                     </Border>
                 </core:HeaderFooterListView.Footer>
             </core:HeaderFooterListView>
