@@ -334,6 +334,16 @@ public class AppManager
             return;
         }
 
+        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.UseLAN))
+        {
+            Logger.Log("Using LAN. Waiting for OSCQuery to connect");
+            ConnectionManager.Reset();
+            await waitForOSCQuery();
+            initialiseOSCClient(ConnectionManager.VRChatIP!, ConnectionManager.VRChatReceivePort!.Value, ConnectionManager.VRCOSCIP!, ConnectionManager.VRCOSCReceivePort);
+            await startAsync();
+            return;
+        }
+
         State.Value = AppManagerState.Waiting;
         await Task.Run(waitForStart, requestStartCancellationSource.Token);
     }
@@ -353,8 +363,6 @@ public class AppManager
         await waitingCancellationSource.CancelAsync();
 
         if (requestStartCancellationSource.IsCancellationRequested) return;
-
-        // TODO: Bypass request start when UseLAN is enabled and a remote VRChat instance is found
 
         if (isVRChatOpen())
         {
