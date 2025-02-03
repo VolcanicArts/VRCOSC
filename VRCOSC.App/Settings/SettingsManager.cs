@@ -67,6 +67,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.OutgoingEndpoint, "127.0.0.1:9000");
         setDefault(VRCOSCSetting.IncomingEndpoint, "127.0.0.1:9001");
         setDefault(VRCOSCSetting.UseCustomEndpoints, false);
+        setDefault(VRCOSCSetting.UseLAN, false);
         setDefault(VRCOSCSetting.EnableAppDebug, false);
         setDefault(VRCOSCSetting.EnableRouter, false);
         setDefault(VRCOSCSetting.SelectedMicrophoneID, string.Empty);
@@ -136,6 +137,7 @@ public enum VRCOSCSetting
     OutgoingEndpoint,
     IncomingEndpoint,
     UseCustomEndpoints,
+    UseLAN,
     EnableAppDebug,
     EnableRouter,
     SelectedMicrophoneID,

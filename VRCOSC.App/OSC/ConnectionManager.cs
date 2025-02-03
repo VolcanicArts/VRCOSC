@@ -13,6 +13,8 @@ using Newtonsoft.Json;
 using VRCOSC.App.OSC.Query;
 using VRCOSC.App.Utils;
 
+// ReSharper disable InconsistentNaming
+
 namespace VRCOSC.App.OSC;
 
 public class ConnectionManager
@@ -22,53 +24,76 @@ public class ConnectionManager
     private const string osc_query_service_name = "_oscjson._tcp";
     private const string vrchat_client_name = "VRChat-Client";
 
-    public bool IsConnected => VRChatQueryPort is not null && VRChatReceivePort is not null;
+    public bool IsConnected => VRChatIP is not null && VRChatQueryPort is not null && VRChatReceivePort is not null;
 
+    public IPAddress? VRChatIP { get; private set; }
     public int? VRChatQueryPort { get; private set; }
     public int? VRChatReceivePort { get; private set; }
 
+    public IPAddress? VRCOSCIP { get; private set; }
     public int VRCOSCQueryPort { get; private set; }
     public int VRCOSCReceivePort { get; private set; }
 
-    private MulticastService mdns = null!;
+    private MulticastService? mdns;
     private ServiceDiscovery serviceDiscovery = null!;
     private HttpListener queryServer = null!;
 
     private Repeater? refreshTask;
 
-    public void Init() => Task.Run(() =>
+    public void Init(bool useLAN) => Task.Run(() =>
     {
-        refreshTask = new Repeater($"{nameof(ConnectionManager)}-{nameof(refreshServices)}", refreshServices);
-        refreshTask.Start(TimeSpan.FromMilliseconds(refresh_interval));
-
-        VRCOSCReceivePort = getAvailableUDPPort();
-        VRCOSCQueryPort = getAvailableTCPPort();
-        queryServer = new HttpListener();
-
-        queryServer.Prefixes.Add($"http://{IPAddress.Loopback}:{VRCOSCQueryPort}/");
-        queryServer.Start();
-        queryServer.BeginGetContext(httpListenerLoop, queryServer);
-
-        mdns = new MulticastService
+        try
         {
-            UseIpv6 = false
-        };
+            refreshTask = new Repeater($"{nameof(ConnectionManager)}-{nameof(refreshServices)}", refreshServices);
+            refreshTask.Start(TimeSpan.FromMilliseconds(refresh_interval));
 
-        serviceDiscovery = new ServiceDiscovery(mdns);
+            VRCOSCIP = useLAN ? getLocalIpAddress() : IPAddress.Loopback;
 
-        mdns.AnswerReceived += onRemoteServiceInfo;
-        mdns.Start();
+            VRCOSCReceivePort = getAvailableUDPPort();
+            VRCOSCQueryPort = getAvailableTCPPort();
+            queryServer = new HttpListener();
 
-        var serviceOscQ = new ServiceProfile(AppManager.APP_NAME, osc_query_service_name, (ushort)VRCOSCQueryPort, new[] { IPAddress.Loopback });
-        serviceDiscovery.Advertise(serviceOscQ);
+            queryServer.Prefixes.Add($"http://{VRCOSCIP}:{VRCOSCQueryPort}/");
+            queryServer.Start();
+            queryServer.BeginGetContext(httpListenerLoop, queryServer);
 
-        Logger.Log($"Receiving OSC on {VRCOSCReceivePort}");
-        Logger.Log($"Hosting OSCQuery on {VRCOSCQueryPort}");
+            mdns = new MulticastService
+            {
+                UseIpv6 = false
+            };
+
+            serviceDiscovery = new ServiceDiscovery(mdns);
+
+            mdns.AnswerReceived += onRemoteServiceInfo;
+            mdns.Start();
+
+            var serviceOscQ = new ServiceProfile(AppManager.APP_NAME, osc_query_service_name, (ushort)VRCOSCQueryPort, [VRCOSCIP]);
+            serviceDiscovery.Advertise(serviceOscQ);
+
+            Logger.Log($"Hosting on {VRCOSCIP}");
+            Logger.Log($"Receiving OSC on {VRCOSCReceivePort}");
+            Logger.Log($"Hosting OSCQuery on {VRCOSCQueryPort}");
+        }
+        catch (HttpListenerException e)
+        {
+            if (e.ErrorCode == 5)
+            {
+                ExceptionHandler.Handle("When using OSCQuery over LAN VRCOSC must be ran as administrator.\n\nPlease restart the app as administrator.");
+                return;
+            }
+
+            throw;
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"{nameof(ConnectionManager)} has experienced an exception when starting OSCQuery");
+        }
     }).ConfigureAwait(false);
 
     public void Reset()
     {
         refreshTask = null;
+        VRChatIP = null;
         VRChatQueryPort = null;
         VRChatReceivePort = null;
     }
@@ -90,7 +115,7 @@ public class ConnectionManager
 
         try
         {
-            var serialisedHostInfo = JsonConvert.SerializeObject(new HostInfo(VRCOSCReceivePort));
+            var serialisedHostInfo = JsonConvert.SerializeObject(new HostInfo(VRCOSCIP!.ToString(), VRCOSCReceivePort));
             context.Response.Headers.Add("pragma:no-cache");
             context.Response.ContentType = "application/json";
 
@@ -144,7 +169,7 @@ public class ConnectionManager
 
     private void refreshServices()
     {
-        if (IsConnected) return;
+        if (IsConnected || mdns is null) return;
 
         mdns.SendQuery($"{osc_service_name}.local");
         mdns.SendQuery($"{osc_query_service_name}.local");
@@ -176,7 +201,7 @@ public class ConnectionManager
         {
             foreach (var record in response.AdditionalRecords.OfType<SRVRecord>())
             {
-                handleMatchedService(record);
+                handleMatchedService(eventArgs.RemoteEndPoint.Address, record);
             }
         }
         catch (Exception e)
@@ -185,7 +210,7 @@ public class ConnectionManager
         }
     }
 
-    private void handleMatchedService(SRVRecord srvRecord)
+    private void handleMatchedService(IPAddress ipAddress, SRVRecord srvRecord)
     {
         var port = srvRecord.Port;
         var domainName = srvRecord.Name.Labels;
@@ -198,7 +223,9 @@ public class ConnectionManager
         {
             if (port == VRChatReceivePort) return;
 
+            VRChatIP = ipAddress;
             VRChatReceivePort = port;
+            Logger.Log($"Found VRChat's LAN IP: {VRChatIP}");
             Logger.Log($"Found VRChat's OSC port: {VRChatReceivePort}");
         }
 
@@ -209,5 +236,18 @@ public class ConnectionManager
             VRChatQueryPort = port;
             Logger.Log($"Found VRChat's OSCQuery port: {VRChatQueryPort}");
         }
+    }
+
+    private static IPAddress getLocalIpAddress()
+    {
+        var hostName = Dns.GetHostName();
+        var hostEntry = Dns.GetHostEntry(hostName);
+
+        foreach (var ip in hostEntry.AddressList)
+        {
+            if (ip.AddressFamily == AddressFamily.InterNetwork) return ip;
+        }
+
+        throw new Exception("No network adapters with an IPv4 address in the system");
     }
 }

@@ -67,6 +67,8 @@ public static class ExceptionHandler
 
     public static void Handle(string message)
     {
+        isWindowShowing = true;
         MessageBox.Show(message, "VRCOSC has experienced an error", MessageBoxButton.OK, MessageBoxImage.Error);
+        isWindowShowing = false;
     }
 }

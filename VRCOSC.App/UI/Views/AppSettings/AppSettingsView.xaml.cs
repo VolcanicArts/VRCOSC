@@ -67,6 +67,12 @@ public partial class AppSettingsView : INotifyPropertyChanged
         set => SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Value = (Theme)value;
     }
 
+    public bool UseLAN
+    {
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseLAN).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseLAN).Value = value;
+    }
+
     public bool UseCustomEndpoints
     {
         get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Value;

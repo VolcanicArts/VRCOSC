@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Net;
 using Newtonsoft.Json;
 
 // ReSharper disable InconsistentNaming
@@ -31,10 +30,10 @@ public class HostInfo
     {
     }
 
-    public HostInfo(int oscPort)
+    public HostInfo(string oscIp, int oscPort)
     {
-        Name = "VRCOSC";
-        OSCIP = IPAddress.Loopback.ToString();
+        Name = AppManager.APP_NAME;
+        OSCIP = oscIp;
         OSCPort = oscPort;
         OSCTransport = "UDP";
         Extensions = new HostInfoExtensions();

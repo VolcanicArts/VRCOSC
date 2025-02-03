@@ -152,7 +152,7 @@ public class AppManager
         OVRDeviceManager.GetInstance().Deserialise();
 
         VRChatOscClient.Init(ConnectionManager);
-        ConnectionManager.Init();
+        ConnectionManager.Init(SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.UseLAN));
 
         vrchatCheckTask = new Repeater($"{nameof(AppManager)}-{nameof(checkForVRChatAutoStart)}", checkForVRChatAutoStart);
         vrchatCheckTask.Start(TimeSpan.FromSeconds(2));
@@ -202,6 +202,8 @@ public class AppManager
 
     private void onParameterReceived(VRChatOscMessage message)
     {
+        if (string.IsNullOrEmpty(message.Address)) return;
+
         lock (oscMessageQueueLock)
         {
             oscMessageQueue.Enqueue(message);
@@ -352,6 +354,8 @@ public class AppManager
 
         if (requestStartCancellationSource.IsCancellationRequested) return;
 
+        // TODO: Bypass request start when UseLAN is enabled and a remote VRChat instance is found
+
         if (isVRChatOpen())
         {
             Logger.Log("Found VRChat. Waiting for OSCQuery");
@@ -359,7 +363,11 @@ public class AppManager
             await waitForOSCQuery();
             if (requestStartCancellationSource.IsCancellationRequested) return;
 
-            initialiseOSCClient(IPAddress.Loopback, ConnectionManager.VRChatReceivePort!.Value, IPAddress.Loopback, ConnectionManager.VRCOSCReceivePort);
+            var useLan = SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.UseLAN);
+            var sendIp = useLan ? ConnectionManager.VRChatIP! : IPAddress.Loopback;
+            var receiveIp = useLan ? ConnectionManager.VRCOSCIP! : IPAddress.Loopback;
+
+            initialiseOSCClient(sendIp, ConnectionManager.VRChatReceivePort!.Value, receiveIp, ConnectionManager.VRCOSCReceivePort);
         }
         else
         {
