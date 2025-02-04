@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -152,7 +153,6 @@ public class AppManager
         OVRDeviceManager.GetInstance().Deserialise();
 
         VRChatOscClient.Init(ConnectionManager);
-        ConnectionManager.Init(SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.UseLAN));
 
         vrchatCheckTask = new Repeater($"{nameof(AppManager)}-{nameof(checkForVRChatAutoStart)}", checkForVRChatAutoStart);
         vrchatCheckTask.Start(TimeSpan.FromSeconds(2));
@@ -162,7 +162,21 @@ public class AppManager
 
         openvrUpdateTask = new Repeater($"{nameof(AppManager)}-{nameof(updateOVRClient)}", updateOVRClient);
         openvrUpdateTask.Start(TimeSpan.FromSeconds(1d / 60d));
+
+        SettingsManager.GetInstance().GetObservable<ConnectionMode>(VRCOSCSetting.ConnectionMode).Subscribe(async _ =>
+        {
+            if (State.Value == AppManagerState.Waiting)
+            {
+                CancelStartRequest();
+                return;
+            }
+
+            await ConnectionManager.Stop();
+            await StopAsync();
+        });
     }
+
+    public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
     private void updateOVRClient()
     {
@@ -190,9 +204,11 @@ public class AppManager
         RenderOptions.ProcessRenderMode = OVRClient.HasInitialised ? RenderMode.SoftwareOnly : RenderMode.Default;
     });
 
-    private void checkForVRChatAutoStart()
+    private async void checkForVRChatAutoStart()
     {
         if (!VRChatClient.HasOpenStateChanged(out var clientOpenState)) return;
+
+        await ConnectionManager.Stop();
 
         if (clientOpenState && State.Value == AppManagerState.Stopped && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStart)) RequestStart();
         if (!clientOpenState && State.Value == AppManagerState.Started && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStop)) _ = StopAsync();
@@ -303,6 +319,7 @@ public class AppManager
     {
         Logger.Log("Force starting");
         CancelStartRequest();
+        await ConnectionManager.Stop();
         initialiseOSCClient(IPAddress.Loopback, 9000, IPAddress.Loopback, 9001);
         await startAsync();
     }
@@ -319,8 +336,16 @@ public class AppManager
 
         requestStartCancellationSource = new CancellationTokenSource();
 
-        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.UseCustomEndpoints))
+        if (SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode) == ConnectionMode.Custom)
         {
+            if (!IsAdministrator)
+            {
+                MessageBox.Show($"An OSC connection mode of {ConnectionMode.Custom} requires VRCOSC to be ran as administrator. Please restart the app as administrator", "Permission Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            Logger.Log("Connecting to VRChat using custom");
+
             var outgoingEndpoint = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.OutgoingEndpoint);
             var outgoingAddress = IPAddress.Parse(outgoingEndpoint.Split(':')[0]);
             var outgoingPort = int.Parse(outgoingEndpoint.Split(':')[1]);
@@ -334,23 +359,37 @@ public class AppManager
             return;
         }
 
-        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.UseLAN))
+        if (SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode) == ConnectionMode.LAN)
         {
-            Logger.Log("Using LAN. Waiting for OSCQuery to connect");
-            ConnectionManager.Reset();
-            await waitForOSCQuery();
-            initialiseOSCClient(ConnectionManager.VRChatIP!, ConnectionManager.VRChatReceivePort!.Value, ConnectionManager.VRCOSCIP!, ConnectionManager.VRCOSCReceivePort);
+            if (!IsAdministrator)
+            {
+                MessageBox.Show($"An OSC connection mode of {ConnectionMode.LAN} requires VRCOSC to be ran as administrator. Please restart the app as administrator");
+                return;
+            }
+
+            Logger.Log("Connecting to VRChat using LAN");
+
+            State.Value = AppManagerState.Waiting;
+
+            if (!ConnectionManager.IsConnected)
+                ConnectionManager.Start();
+
+            await waitForConnectionManager();
+            if (requestStartCancellationSource.IsCancellationRequested) return;
+
+            initialiseOSCClient(ConnectionManager.VRChatIP!, ConnectionManager.VRChatReceivePort!.Value, ConnectionManager.VRCOSCIP!, ConnectionManager.VRCOSCReceivePort!.Value);
+
             await startAsync();
             return;
         }
 
-        State.Value = AppManagerState.Waiting;
         await Task.Run(waitForStart, requestStartCancellationSource.Token);
     }
 
     private async Task waitForStart()
     {
         Logger.Log("Waiting for starting conditions");
+        State.Value = AppManagerState.Waiting;
 
         var waitingCancellationSource = new CancellationTokenSource();
 
@@ -367,15 +406,14 @@ public class AppManager
         if (isVRChatOpen())
         {
             Logger.Log("Found VRChat. Waiting for OSCQuery");
-            ConnectionManager.Reset();
-            await waitForOSCQuery();
+
+            if (!ConnectionManager.IsConnected)
+                ConnectionManager.Start();
+
+            await waitForConnectionManager();
             if (requestStartCancellationSource.IsCancellationRequested) return;
 
-            var useLan = SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.UseLAN);
-            var sendIp = useLan ? ConnectionManager.VRChatIP! : IPAddress.Loopback;
-            var receiveIp = useLan ? ConnectionManager.VRCOSCIP! : IPAddress.Loopback;
-
-            initialiseOSCClient(sendIp, ConnectionManager.VRChatReceivePort!.Value, receiveIp, ConnectionManager.VRCOSCReceivePort);
+            initialiseOSCClient(IPAddress.Loopback, ConnectionManager.VRChatReceivePort!.Value, IPAddress.Loopback, ConnectionManager.VRCOSCReceivePort!.Value);
         }
         else
         {
@@ -408,7 +446,7 @@ public class AppManager
         }
     }
 
-    private async Task waitForOSCQuery()
+    private async Task waitForConnectionManager()
     {
         while (!ConnectionManager.IsConnected && !requestStartCancellationSource.IsCancellationRequested)
         {

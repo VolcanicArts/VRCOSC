@@ -51,7 +51,7 @@ public class HostInfoExtensions
     [JsonProperty("RANGE")]
     public bool Range;
 
-    [JsonProperty("Description")]
+    [JsonProperty("DESCRIPTION")]
     public bool Description;
 
     [JsonProperty("TAGS")]

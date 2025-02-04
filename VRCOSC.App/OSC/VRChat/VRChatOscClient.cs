@@ -9,6 +9,7 @@ using FastOSC;
 using Newtonsoft.Json;
 using VRCOSC.App.OSC.Query;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.OSC.VRChat;
@@ -25,12 +26,12 @@ public class VRChatOscClient
     private readonly OSCSender sender = new();
     private readonly OSCReceiver receiver = new();
 
-    private IPEndPoint? sendEndpoint;
-    private IPEndPoint? receiveEndpoint;
+    public IPEndPoint? SendEndpoint { get; private set; }
+    public IPEndPoint? ReceiveEndpoint { get; private set; }
 
     public VRChatOscClient()
     {
-        client.Timeout = TimeSpan.FromSeconds(0.1f);
+        client.Timeout = TimeSpan.FromMilliseconds(50);
 
         receiver.OnMessageReceived += message =>
         {
@@ -50,22 +51,22 @@ public class VRChatOscClient
 
     public void Initialise(IPEndPoint send, IPEndPoint receive)
     {
-        sendEndpoint = send;
-        receiveEndpoint = receive;
+        SendEndpoint = send;
+        ReceiveEndpoint = receive;
     }
 
     public Task EnableSend()
     {
-        if (sendEndpoint is null) throw new InvalidOperationException($"Please call {nameof(Initialise)} first");
+        if (SendEndpoint is null) throw new InvalidOperationException($"Please call {nameof(Initialise)} first");
 
-        return sender.ConnectAsync(sendEndpoint);
+        return sender.ConnectAsync(SendEndpoint);
     }
 
     public void EnableReceive()
     {
-        if (receiveEndpoint is null) throw new InvalidOperationException($"Please call {nameof(Initialise)} first");
+        if (ReceiveEndpoint is null) throw new InvalidOperationException($"Please call {nameof(Initialise)} first");
 
-        receiver.Connect(receiveEndpoint);
+        receiver.Connect(ReceiveEndpoint);
     }
 
     public void DisableSend() => sender.Disconnect();
@@ -80,13 +81,13 @@ public class VRChatOscClient
 
     private async Task<OSCQueryNode?> findAddress(string address)
     {
+        if (!connectionManager.IsConnected) return null;
+
+        address = address.Replace(" ", "%20");
+        var url = $"http://{connectionManager.VRChatIP}:{connectionManager.VRChatQueryPort}{address}";
+
         try
         {
-            if (!connectionManager.IsConnected) return null;
-
-            address = address.Replace(" ", "%20");
-            var url = $"http://127.0.0.1:{connectionManager.VRChatQueryPort}{address}";
-
             var response = await client.GetAsync(new Uri(url));
             if (!response.IsSuccessStatusCode) return null;
 
@@ -97,13 +98,18 @@ public class VRChatOscClient
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"Exception when trying to find parameter: {address}");
+            Logger.Error(e, $"Exception when trying to find parameter: {url}");
             return null;
         }
     }
 
     public async Task<ReceivedParameter?> FindParameter(string parameterName)
     {
+        var oscMode = SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode);
+
+        // OSCQuery from VRChat is only broadcast on loopback so we'll turn it off for non-local modes
+        if (oscMode != ConnectionMode.Local) return null;
+
         var node = await findParameter(parameterName);
         if (node?.Value is null || node.Value.Length == 0) return null;
 

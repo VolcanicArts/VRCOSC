@@ -67,16 +67,12 @@ public partial class AppSettingsView : INotifyPropertyChanged
         set => SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Value = (Theme)value;
     }
 
-    public bool UseLAN
-    {
-        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseLAN).Value;
-        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseLAN).Value = value;
-    }
+    public IEnumerable<ConnectionMode> OSCModeSource => Enum.GetValues<ConnectionMode>();
 
-    public bool UseCustomEndpoints
+    public ConnectionMode ConnectionMode
     {
-        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Value;
-        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<ConnectionMode>(VRCOSCSetting.ConnectionMode).Value;
+        set => SettingsManager.GetInstance().GetObservable<ConnectionMode>(VRCOSCSetting.ConnectionMode).Value = value;
     }
 
     public string OutgoingEndpoint
@@ -163,7 +159,7 @@ public partial class AppSettingsView : INotifyPropertyChanged
         set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value = (float)Interpolation.Map(value, 0, 300, 0, 3);
     }
 
-    public Observable<Visibility> UsingCustomEndpoints { get; } = new(Visibility.Collapsed);
+    public Observable<Visibility> OSCModeCustomVisibility { get; } = new(Visibility.Collapsed);
 
     public IEnumerable<UpdateChannel> UpdateChannelSource => Enum.GetValues<UpdateChannel>();
 
@@ -181,7 +177,7 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
         DataContext = this;
 
-        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Subscribe(value => UsingCustomEndpoints.Value = value ? Visibility.Visible : Visibility.Collapsed, true);
+        SettingsManager.GetInstance().GetObservable<ConnectionMode>(VRCOSCSetting.ConnectionMode).Subscribe(value => OSCModeCustomVisibility.Value = value == ConnectionMode.Custom ? Visibility.Visible : Visibility.Collapsed, true);
         SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Subscribe(_ => OnPropertyChanged(nameof(WhisperModelFilePath)));
 
         setPage(0);

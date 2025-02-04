@@ -64,10 +64,9 @@ public class SettingsManager
         setDefault(VRCOSCSetting.ChatBoxWorldBlacklist, true);
         setDefault(VRCOSCSetting.FilterByEnabledModules, true);
         setDefault(VRCOSCSetting.Theme, Theme.Dark);
+        setDefault(VRCOSCSetting.ConnectionMode, ConnectionMode.Local);
         setDefault(VRCOSCSetting.OutgoingEndpoint, "127.0.0.1:9000");
         setDefault(VRCOSCSetting.IncomingEndpoint, "127.0.0.1:9001");
-        setDefault(VRCOSCSetting.UseCustomEndpoints, false);
-        setDefault(VRCOSCSetting.UseLAN, false);
         setDefault(VRCOSCSetting.EnableAppDebug, false);
         setDefault(VRCOSCSetting.EnableRouter, false);
         setDefault(VRCOSCSetting.SelectedMicrophoneID, string.Empty);
@@ -134,10 +133,9 @@ public enum VRCOSCSetting
     ChatBoxWorldBlacklist,
     FilterByEnabledModules,
     Theme,
+    ConnectionMode,
     OutgoingEndpoint,
     IncomingEndpoint,
-    UseCustomEndpoints,
-    UseLAN,
     EnableAppDebug,
     EnableRouter,
     SelectedMicrophoneID,
@@ -155,4 +153,11 @@ public enum VRCOSCMetadata
     FirstTimeSetupComplete,
     InstalledUpdateChannel,
     AutoStartQuestionClicked
+}
+
+public enum ConnectionMode
+{
+    Local,
+    LAN,
+    Custom
 }

@@ -20,7 +20,7 @@ public class OSCQueryRootNode : OSCQueryNode
         };
     }
 
-    private OSCQueryNode? getNodeWithPath(string path) => pathStore.TryGetValue(path, out var node) ? node : null;
+    private OSCQueryNode? getNodeWithPath(string path) => pathStore.GetValueOrDefault(path);
 
     public OSCQueryNode? AddNode(OSCQueryNode node)
     {
@@ -44,6 +44,7 @@ public class OSCQueryRootNode : OSCQueryNode
     }
 }
 
+[JsonObject(MemberSerialization.OptIn)]
 public class OSCQueryNode
 {
     [JsonProperty("FULL_PATH")]
@@ -71,17 +72,15 @@ public class OSCQueryNode
         FullPath = fullPath;
     }
 
-    [JsonIgnore]
     public string ParentPath
     {
         get
         {
-            var length = Math.Max(1, FullPath.LastIndexOf("/", StringComparison.Ordinal));
+            var length = Math.Max(1, FullPath.LastIndexOf('/'));
             return FullPath[..length];
         }
     }
 
-    [JsonIgnore]
     public string Name => FullPath[(FullPath.LastIndexOf('/') + 1)..];
 }
 

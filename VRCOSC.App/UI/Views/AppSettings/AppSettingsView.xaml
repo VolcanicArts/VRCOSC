@@ -208,35 +208,20 @@
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
                                     CornerRadius="5">
                                 <Grid>
-                                    <TextBlock Text="Use LAN" Style="{StaticResource SettingTitle}" />
+                                    <TextBlock Text="Connection Mode" Style="{StaticResource SettingTitle}" />
                                     <TextBlock
-                                        Text="Should VRCOSC look for VRChat on a different computer? Do not enable if you don't know what you're doing. Changes to this setting requires an app restart"
+                                        Text="How should VRCOSC connect to VRChat? Don't change if you don't know what you're doing"
                                         Style="{StaticResource SettingDescription}" />
-                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                         Height="32"
-                                                         Width="32"
-                                                         IsChecked="{Binding UseLAN}" />
+                                    <ComboBox ItemsSource="{Binding OSCModeSource}" SelectedValue="{Binding ConnectionMode}"
+                                              Style="{StaticResource SettingComboBoxStyle}" />
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
-                                    CornerRadius="5">
-                                <Grid>
-                                    <TextBlock Text="Use Custom Endpoints" Style="{StaticResource SettingTitle}" />
-                                    <TextBlock
-                                        Text="Should VRCOSC use custom endpoints instead of OSCQuery?"
-                                        Style="{StaticResource SettingDescription}" />
-                                    <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center"
-                                                         Height="32"
-                                                         Width="32"
-                                                         IsChecked="{Binding UseCustomEndpoints}" />
-                                </Grid>
-                            </Border>
-                            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
-                                    CornerRadius="5" Visibility="{Binding UsingCustomEndpoints.Value}">
+                                    CornerRadius="5" Visibility="{Binding OSCModeCustomVisibility.Value}">
                                 <Grid>
                                     <TextBlock Text="Outgoing Endpoint" Style="{StaticResource SettingTitle}" />
                                     <TextBlock
-                                        Text="Where should VRCOSC send OSC data to?"
+                                        Text="Where should VRCOSC send data to?"
                                         Style="{StaticResource SettingDescription}" />
                                     <TextBox Style="{StaticResource SettingTextBoxStyle}">
                                         <TextBox.Text>
@@ -250,11 +235,11 @@
                                 </Grid>
                             </Border>
                             <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50"
-                                    CornerRadius="5" Visibility="{Binding UsingCustomEndpoints.Value}">
+                                    CornerRadius="5" Visibility="{Binding OSCModeCustomVisibility.Value}">
                                 <Grid>
                                     <TextBlock Text="Incoming Endpoint" Style="{StaticResource SettingTitle}" />
                                     <TextBlock
-                                        Text="Where should VRCOSC receive OSC data from?"
+                                        Text="Where should VRCOSC listen for receiving data?"
                                         Style="{StaticResource SettingDescription}" />
                                     <TextBox Style="{StaticResource SettingTextBoxStyle}">
                                         <TextBox.Text>

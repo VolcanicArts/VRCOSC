@@ -11,6 +11,7 @@ using MeaMod.DNS.Model;
 using MeaMod.DNS.Multicast;
 using Newtonsoft.Json;
 using VRCOSC.App.OSC.Query;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 // ReSharper disable InconsistentNaming
@@ -31,24 +32,25 @@ public class ConnectionManager
     public int? VRChatReceivePort { get; private set; }
 
     public IPAddress? VRCOSCIP { get; private set; }
-    public int VRCOSCQueryPort { get; private set; }
-    public int VRCOSCReceivePort { get; private set; }
+    public int? VRCOSCQueryPort { get; private set; }
+    public int? VRCOSCReceivePort { get; private set; }
 
     private MulticastService? mdns;
-    private ServiceDiscovery serviceDiscovery = null!;
-    private HttpListener queryServer = null!;
+    private ServiceDiscovery? serviceDiscovery;
+    private HttpListener? queryServer;
 
     private Repeater? refreshTask;
 
-    public void Init(bool useLAN) => Task.Run(() =>
+    public void Start() => Task.Run(() =>
     {
         try
         {
+            var oscMode = SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode);
+
             refreshTask = new Repeater($"{nameof(ConnectionManager)}-{nameof(refreshServices)}", refreshServices);
             refreshTask.Start(TimeSpan.FromMilliseconds(refresh_interval));
 
-            VRCOSCIP = useLAN ? getLocalIpAddress() : IPAddress.Loopback;
-
+            VRCOSCIP = oscMode == ConnectionMode.LAN ? getLocalIpAddress() : IPAddress.Loopback;
             VRCOSCReceivePort = getAvailableUDPPort();
             VRCOSCQueryPort = getAvailableTCPPort();
             queryServer = new HttpListener();
@@ -70,19 +72,9 @@ public class ConnectionManager
             var serviceOscQ = new ServiceProfile(AppManager.APP_NAME, osc_query_service_name, (ushort)VRCOSCQueryPort, [VRCOSCIP]);
             serviceDiscovery.Advertise(serviceOscQ);
 
-            Logger.Log($"Hosting on {VRCOSCIP}");
-            Logger.Log($"Receiving OSC on {VRCOSCReceivePort}");
-            Logger.Log($"Hosting OSCQuery on {VRCOSCQueryPort}");
-        }
-        catch (HttpListenerException e)
-        {
-            if (e.ErrorCode == 5)
-            {
-                ExceptionHandler.Handle("When using OSCQuery over LAN VRCOSC must be ran as administrator.\n\nPlease restart the app as administrator.");
-                return;
-            }
-
-            throw;
+            Logger.Log($"Hosting IP address: {VRCOSCIP}");
+            Logger.Log($"Hosting OSC port: {VRCOSCReceivePort}");
+            Logger.Log($"Hosting OSCQuery port: {VRCOSCQueryPort}");
         }
         catch (Exception e)
         {
@@ -90,23 +82,45 @@ public class ConnectionManager
         }
     }).ConfigureAwait(false);
 
-    public void Reset()
+    public async Task Stop()
     {
+        if (refreshTask is not null)
+            await refreshTask.StopAsync();
+
+        queryServer?.Stop();
+        serviceDiscovery?.Unadvertise();
+        mdns?.Stop();
+
         refreshTask = null;
+        queryServer = null;
+        serviceDiscovery = null;
+        mdns = null;
+
         VRChatIP = null;
         VRChatQueryPort = null;
         VRChatReceivePort = null;
+
+        VRCOSCIP = null;
+        VRCOSCQueryPort = null;
+        VRCOSCReceivePort = null;
     }
 
     #region OSCQuery Server
 
     private async void httpListenerLoop(IAsyncResult result)
     {
-        var context = queryServer.EndGetContext(result);
-        queryServer.BeginGetContext(httpListenerLoop, queryServer);
+        try
+        {
+            var context = queryServer!.EndGetContext(result);
+            queryServer.BeginGetContext(httpListenerLoop, queryServer);
 
-        await hostInfoResponse(context);
-        await rootNodeResponse(context);
+            await hostInfoResponse(context);
+            await rootNodeResponse(context);
+        }
+        catch (Exception)
+        {
+            // ignore anything from ending the context
+        }
     }
 
     private async Task hostInfoResponse(HttpListenerContext context)
@@ -115,7 +129,7 @@ public class ConnectionManager
 
         try
         {
-            var serialisedHostInfo = JsonConvert.SerializeObject(new HostInfo(VRCOSCIP!.ToString(), VRCOSCReceivePort));
+            var serialisedHostInfo = JsonConvert.SerializeObject(new HostInfo(VRCOSCIP!.ToString(), VRCOSCReceivePort!.Value));
             context.Response.Headers.Add("pragma:no-cache");
             context.Response.ContentType = "application/json";
 
@@ -210,27 +224,40 @@ public class ConnectionManager
         }
     }
 
-    private void handleMatchedService(IPAddress ipAddress, SRVRecord srvRecord)
+    private void handleMatchedService(IPAddress sourceIpAddress, SRVRecord srvRecord)
     {
         var port = srvRecord.Port;
         var domainName = srvRecord.Name.Labels;
         var instanceName = domainName[0];
         var serviceName = string.Join(".", domainName.Skip(1));
 
-        // TODO: If there's multiple instances of the VRChat client on the network, prioritise the one with the same LAN IP as the PC that we're running on
+        if (!instanceName.Contains(vrchat_client_name)) return;
 
-        if (instanceName.Contains(vrchat_client_name) && serviceName.Contains(osc_service_name))
+        var oscMode = SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode);
+
+        if (serviceName.Contains(osc_service_name))
         {
+            // TODO: When this changes, send event for modules to restart?
             if (port == VRChatReceivePort) return;
 
-            VRChatIP = ipAddress;
             VRChatReceivePort = port;
-            Logger.Log($"Found VRChat's LAN IP: {VRChatIP}");
             Logger.Log($"Found VRChat's OSC port: {VRChatReceivePort}");
+
+            if (oscMode == ConnectionMode.LAN)
+            {
+                VRChatIP = sourceIpAddress;
+                Logger.Log($"Found VRChat's LAN OSC IP address: {VRChatIP}");
+            }
+            else
+            {
+                VRChatIP = IPAddress.Loopback;
+                Logger.Log($"Using {IPAddress.Loopback} as VRChat's local OSC IP address");
+            }
         }
 
-        if (instanceName.Contains(vrchat_client_name) && serviceName.Contains(osc_query_service_name))
+        if (serviceName.Contains(osc_query_service_name))
         {
+            // TODO: When this changes, send event for modules to restart?
             if (port == VRChatQueryPort) return;
 
             VRChatQueryPort = port;
