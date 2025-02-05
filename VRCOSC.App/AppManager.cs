@@ -363,7 +363,7 @@ public class AppManager
         {
             if (!IsAdministrator)
             {
-                MessageBox.Show($"An OSC connection mode of {ConnectionMode.LAN} requires VRCOSC to be ran as administrator. Please restart the app as administrator");
+                MessageBox.Show($"An OSC connection mode of {ConnectionMode.LAN} requires VRCOSC to be ran as administrator. Please restart the app as administrator", "Permission Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
