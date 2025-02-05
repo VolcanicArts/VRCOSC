@@ -9,118 +9,115 @@ using System.Windows.Data;
 using System.Windows.Media;
 using VRCOSC.App.Utils;
 
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace VRCOSC.App.UI.Core;
 
+/// <inheritdoc />
+/// <summary>
+/// Converts a boolean to the set visibility values
+/// </summary>
+/// <remarks>One Way</remarks>
 public class BoolToVisibilityConverter : IValueConverter
 {
-    public Visibility InvisibleMode { get; init; } = Visibility.Collapsed;
-    public bool Invert { get; init; } = false;
+    public Visibility True { get; init; } = Visibility.Visible;
+    public Visibility False { get; init; } = Visibility.Collapsed;
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not bool boolValue) return InvisibleMode;
+        if (value is not bool boolValue) return False;
 
-        return Invert ? !boolValue ? Visibility.Visible : InvisibleMode : boolValue ? Visibility.Visible : InvisibleMode;
+        return boolValue ? True : False;
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
 
+/// <inheritdoc />
+/// <summary>
+/// Converts a boolean to the set thickness values
+/// </summary>
+/// <remarks>One Way</remarks>
+public class BoolToThicknessConverter : IValueConverter
+{
+    public Thickness True { get; init; } = new(1);
+    public Thickness False { get; init; } = new(0);
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not bool boolValue) throw new Exception($"{nameof(value)} is not a {nameof(Boolean)}");
+
+        return boolValue ? True : False;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+/// <inheritdoc />
+/// <summary>
+/// Takes in an integer and converts it to the set colours based on if it's even
+/// </summary>
+/// <remarks>One Way</remarks>
 public class AlternatingColourConverter : IValueConverter
 {
-    public Brush? Colour1 { get; init; }
-    public Brush? Colour2 { get; init; }
+    public Brush Colour1 { get; init; } = Brushes.Black;
+    public Brush Colour2 { get; init; } = Brushes.White;
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not int intValue) return Brushes.Black;
+        if (value is not int intValue) throw new Exception($"{nameof(value)} is not an {nameof(Int32)}");
 
-        return intValue % 2 == 0 ? Colour1 ?? Brushes.Black : Colour2 ?? Brushes.White;
+        return intValue % 2 == 0 ? Colour1 : Colour2;
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
 
-public class RectSizeConverter : IMultiValueConverter
-{
-    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-    {
-        if (values[0] is double width && values[1] is double height)
-        {
-            return new Rect(0, 0, width, height);
-        }
-
-        return new Rect();
-    }
-
-    public object[]? ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => null;
-}
-
-public class HeaderFooterListViewContentHeightConverter : IMultiValueConverter
-{
-    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-    {
-        if (values[0] is double listDesiredHeight && values[1] is double totalHeight && values[2] is double headerHeight && values[3] is double footerHeight && values[4] is bool shouldTruncateHeight && values[5] is bool overrideCollapse)
-        {
-            if (overrideCollapse) return 0d;
-            if (!shouldTruncateHeight) return double.NaN;
-
-            var targetHeight = totalHeight - headerHeight - footerHeight;
-            var height = listDesiredHeight >= targetHeight ? targetHeight : double.NaN;
-            return height;
-        }
-
-        return 0;
-    }
-
-    public object[]? ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => null;
-}
-
-public class HeaderFooterListViewPanningModeConverter : IMultiValueConverter
-{
-    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-    {
-        if (values[0] is double listDesiredHeight && values[1] is double totalHeight && values[2] is double headerHeight && values[3] is double footerHeight && values[4] is bool shouldTruncateHeight)
-        {
-            if (!shouldTruncateHeight) return PanningMode.None;
-
-            var targetHeight = totalHeight - headerHeight - footerHeight;
-            return listDesiredHeight >= targetHeight ? PanningMode.VerticalOnly : PanningMode.None;
-        }
-
-        return PanningMode.None;
-    }
-
-    public object[]? ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => null;
-}
-
+/// <inheritdoc />
+/// <summary>
+/// Converts a <see cref="T:System.Type" /> in a friendlier type name
+/// </summary>
+/// <remarks>One Way</remarks>
 public class TypeToReadableTypeConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is Type type)
-        {
-            return type.ToReadableName();
-        }
+        if (value is not Type typeValue) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
 
-        return string.Empty;
+        return typeValue.ToReadableName();
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
 
-public class IndexConverter : IValueConverter
+/// <inheritdoc />
+/// <summary>
+/// Finds the index of the list view item from the parent list view
+/// </summary>
+/// <remarks>One Way</remarks>
+public class IndexFromListConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is ListViewItem listViewItem)
-        {
-            var listView = ItemsControl.ItemsControlFromItemContainer(listViewItem) as ListView;
-            return listView?.ItemContainerGenerator.IndexFromContainer(listViewItem) ?? -1;
-        }
+        if (value is not ListViewItem listViewItem) throw new Exception($"{nameof(value)} is not a {nameof(ListViewItem)}");
 
-        return -1;
+        var listView = ItemsControl.ItemsControlFromItemContainer(listViewItem) as ListView;
+        return listView?.ItemContainerGenerator.IndexFromContainer(listViewItem) ?? -1;
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+/// <inheritdoc />
+/// <summary>
+/// Converts between \n for in code and <see cref="P:System.Environment.NewLine" /> for in WPF TextBoxes
+/// </summary>
+/// <remarks>Two Way</remarks>
+public class TextBoxParsingConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is string str ? str.Replace("\\n", Environment.NewLine) : value;
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        value is string str ? str.Replace(Environment.NewLine, "\\n") : value;
 }

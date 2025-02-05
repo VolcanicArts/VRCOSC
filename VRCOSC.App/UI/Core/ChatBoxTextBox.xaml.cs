@@ -17,6 +17,7 @@ public partial class ChatBoxTextBox
     }
 
     private const int max_lines = 9;
+    private static readonly char[] separator = new[] { '\n' };
 
     private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
     {
@@ -48,15 +49,15 @@ public partial class ChatBoxTextBox
 
         pastedText = pastedText.Replace(Environment.NewLine, "\n");
 
-        var newlineCount = pastedText.Split(new[] { '\n' }, StringSplitOptions.None).Length - 1;
+        var newlineCount = pastedText.Split(separator, StringSplitOptions.None).Length - 1;
         var currentLineCount = textBox.LineCount;
 
         var selectedText = textBox.Text.Substring(selectionStart, selectionLength);
-        var selectedLineCount = selectedText.Split(new[] { '\n' }, StringSplitOptions.None).Length;
+        var selectedLineCount = selectedText.Split(separator, StringSplitOptions.None).Length;
 
         var remainingLines = Math.Max(max_lines - (currentLineCount - selectedLineCount), 0);
         var linesToAdd = Math.Min(remainingLines, newlineCount + 1);
-        var lines = pastedText.Split(new[] { '\n' }, StringSplitOptions.None);
+        var lines = pastedText.Split(separator, StringSplitOptions.None);
 
         var newTextToAdd = string.Join("\n", lines.Take(linesToAdd));
         var newText = textBox.Text.Remove(selectionStart, selectionLength).Insert(selectionStart, newTextToAdd);
@@ -86,7 +87,7 @@ public partial class ChatBoxTextBox
 
         var trimmedLines = lines.Take(max_lines);
 
-        if (trimmedLines.Count() == max_lines && trimmedLines.Last().EndsWith("\n"))
+        if (trimmedLines.Count() == max_lines && trimmedLines.Last().EndsWith('\n'))
         {
             trimmedLines = trimmedLines.Take(max_lines - 1).Concat(new[] { trimmedLines.Last().TrimEnd('\n') });
         }

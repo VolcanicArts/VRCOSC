@@ -44,6 +44,7 @@ public partial class ChatBoxClipEditWindow : IManagedWindow
 
         SourceInitialized += OnSourceInitialized;
         Loaded += OnLoaded;
+        Closed += OnClosed;
     }
 
     private void OnSourceInitialized(object? sender, EventArgs e)
@@ -260,29 +261,6 @@ public partial class ChatBoxClipEditWindow : IManagedWindow
 
     // only allow 1 clip edit window at once
     public object GetComparer() => ChatBoxManager.GetInstance();
-}
-
-public class TextBoxParsingConverter : IValueConverter
-{
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value is string str)
-        {
-            return str.Replace("\\n", Environment.NewLine);
-        }
-
-        return value;
-    }
-
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value is string str)
-        {
-            return str.Replace(Environment.NewLine, "\\n");
-        }
-
-        return value;
-    }
 }
 
 public class IsModuleSelectedConverter : IValueConverter

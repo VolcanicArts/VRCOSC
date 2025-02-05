@@ -6,30 +6,80 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
+// ReSharper disable UnusedMember.Global
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace VRCOSC.App.UI.Core;
 
 public static class Extensions
 {
-    public static T? FindVisualParent<T>(this DependencyObject element, string name) where T : DependencyObject
+    public static T? FindVisualParent<T>(this DependencyObject element, string name) where T : FrameworkElement
     {
         while (true)
         {
             var parent = VisualTreeHelper.GetParent(element);
 
-            if (parent is null) return null;
-            if (parent is T parentAsType && ((FrameworkElement)parent).Name == name) return parentAsType;
+            switch (parent)
+            {
+                case null:
+                    return null;
 
-            element = parent;
+                case T parentAsType when parentAsType.Name == name:
+                    return parentAsType;
+
+                default:
+                    element = parent;
+                    break;
+            }
         }
     }
 
-    public static T? FindVisualChild<T>(this DependencyObject element, string name) where T : DependencyObject
+    public static T? FindVisualParentFuzzy<T>(this DependencyObject element, string name) where T : FrameworkElement
+    {
+        while (true)
+        {
+            var parent = VisualTreeHelper.GetParent(element);
+
+            switch (parent)
+            {
+                case null:
+                    return null;
+
+                case T parentAsType when parentAsType.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase):
+                    return parentAsType;
+
+                default:
+                    element = parent;
+                    break;
+            }
+        }
+    }
+
+    public static T? FindVisualChild<T>(this DependencyObject element, string name) where T : FrameworkElement
     {
         for (var i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
         {
             var child = VisualTreeHelper.GetChild(element, i);
 
-            if (child is T childAsType && ((FrameworkElement)child).Name == name)
+            if (child is T childAsType && childAsType.Name == name)
+                return childAsType;
+
+            var childOfChild = FindVisualChild<T>(child, name);
+
+            if (childOfChild is not null)
+                return childOfChild;
+        }
+
+        return null;
+    }
+
+    public static T? FindVisualChildFuzzy<T>(this DependencyObject element, string name) where T : FrameworkElement
+    {
+        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
+        {
+            var child = VisualTreeHelper.GetChild(element, i);
+
+            if (child is T childAsType && childAsType.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase))
                 return childAsType;
 
             var childOfChild = FindVisualChild<T>(child, name);

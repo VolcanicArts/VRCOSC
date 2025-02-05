@@ -11,7 +11,7 @@
              Background="Transparent"
              d:DesignWidth="1377" d:DesignHeight="764">
     <UserControl.Resources>
-        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" Invert="True"/>
+        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" True="Collapsed" False="Visible"/>
     </UserControl.Resources>
     <Grid>
         <Border Name="RunContent" Padding="10">

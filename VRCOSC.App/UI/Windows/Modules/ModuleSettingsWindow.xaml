@@ -8,7 +8,7 @@
         Title="ModuleSettingsWindow" MinWidth="600" MinHeight="600" Width="600" Height="768"
         Closing="ModuleSettingsWindow_OnClosing">
     <Window.Resources>
-        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" Invert="True" />
+        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" True="Collapsed" False="Visible" />
     </Window.Resources>
     <Border Background="{StaticResource CBackground2}">
         <core:SpacedListView ItemsSource="{Binding GroupsFormatted}" Padding="15" Spacing="10">

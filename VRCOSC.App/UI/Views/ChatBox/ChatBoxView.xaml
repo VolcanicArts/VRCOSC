@@ -13,13 +13,13 @@
              MouseLeftButtonDown="ChatBoxPage_OnMouseLeftButtonDown"
              MouseLeftButtonUp="ChatBoxPage_OnMouseLeftButtonUp">
     <UserControl.Resources>
-        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" Invert="True" />
+        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" True="Collapsed" False="Visible" />
+        <core:BoolToThicknessConverter x:Key="BoolToThicknessConverter" />
         <local:IndicatorPositionConverter x:Key="IndicatorPositionConverter" />
         <local:ClipXPositionConverter x:Key="ClipXPositionConverter" />
         <local:ClipYPositionConverter x:Key="ClipYPositionConverter" />
         <local:ClipWidthConverter x:Key="ClipWidthConverter" />
         <local:ClipEnabledToOpacityConverter x:Key="ClipEnabledToOpacityConverter" />
-        <local:BoolToThicknessConverter x:Key="BoolToThicknessConverter" />
     </UserControl.Resources>
     <Grid>
         <Border Padding="10">
