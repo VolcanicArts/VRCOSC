@@ -195,7 +195,7 @@ public abstract class Module
     {
         var pattern = "^"; // start of string
         pattern += @"(?:VF\d+_)?"; // VRCFury prefix
-        pattern += $"({Regex.Escape(parameterName).Replace(@"\*", @"(?:\S*)")})";
+        pattern += $"(?:{Regex.Escape(parameterName).Replace(@"\*", @"(\S*?)")})";
         pattern += "$"; // end of string
 
         return new Regex(pattern);
@@ -958,17 +958,20 @@ public abstract class Module
 
         Enum? lookup = null;
         ModuleParameter? parameterData = null;
+        Match? match = null;
 
         foreach (var (parameterLookup, moduleParameter) in readParameters)
         {
-            if (!parameterNameRegex[parameterLookup].IsMatch(receivedParameter.Name)) continue;
+            var localMatch = parameterNameRegex[parameterLookup].Match(receivedParameter.Name);
+            if (!localMatch.Success) continue;
 
             lookup = parameterLookup;
             parameterData = moduleParameter;
+            match = localMatch;
             break;
         }
 
-        if (lookup is null || parameterData is null) return;
+        if (lookup is null || parameterData is null || match is null) return;
 
         if (receivedParameter.Type != parameterData.ExpectedType)
         {
@@ -976,7 +979,7 @@ public abstract class Module
             return;
         }
 
-        var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData);
+        var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData, match);
 
         List<WaitingParameter> waitingParameters;
 
