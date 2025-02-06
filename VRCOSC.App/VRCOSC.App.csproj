@@ -45,6 +45,7 @@
         <PackageReference Include="Whisper.net.Runtime" Version="1.7.4" />
         <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.7.4" />
         <PackageReference Include="WindowsInput" Version="6.4.1" />
+        <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
     </ItemGroup>
 
     <ItemGroup>

@@ -121,3 +121,20 @@ public class TextBoxParsingConverter : IValueConverter
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
         value is string str ? str.Replace(Environment.NewLine, "\\n") : value;
 }
+
+public class BorderClipConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (values is not [double width, double height, CornerRadius radius]) return DependencyProperty.UnsetValue;
+
+        if (width < double.Epsilon || height < double.Epsilon) return Geometry.Empty;
+
+        var clip = new RectangleGeometry(new Rect(0, 0, width, height), radius.TopLeft, radius.TopLeft);
+        clip.Freeze();
+
+        return clip;
+    }
+
+    public object[]? ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => null;
+}

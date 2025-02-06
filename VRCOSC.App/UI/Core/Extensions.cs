@@ -143,4 +143,33 @@ public static class Extensions
         };
         storyboard.Begin(element);
     }
+
+    public static void AnimateHeight(this FrameworkElement element, double targetHeight, double durationMilliseconds, IEasingFunction easingFunction, Action? onCompleted = null)
+    {
+        var currentHeight = element.Height;
+
+        element.Height = currentHeight;
+        element.UpdateLayout();
+
+        var heightAnimation = new DoubleAnimation
+        {
+            From = currentHeight,
+            To = targetHeight,
+            Duration = TimeSpan.FromMilliseconds(durationMilliseconds),
+            EasingFunction = easingFunction
+        };
+
+        Storyboard.SetTargetProperty(heightAnimation, new PropertyPath(FrameworkElement.HeightProperty));
+
+        var storyboard = new Storyboard();
+        storyboard.Children.Add(heightAnimation);
+
+        storyboard.Completed += (_, _) =>
+        {
+            if (double.IsNaN(targetHeight)) element.Height = double.NaN;
+            onCompleted?.Invoke();
+        };
+
+        storyboard.Begin(element);
+    }
 }
