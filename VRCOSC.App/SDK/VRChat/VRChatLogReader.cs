@@ -22,9 +22,9 @@ internal static class VRChatLogReader
     private const string logfile_pattern = "output_log_*";
 
     private static readonly Regex datetime_regex = new(@"^(\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}).+$");
-    private static readonly Regex instance_exit_regex = new("^.+OnLeftRoom$");
+    private static readonly Regex instance_left_regex = new("^.+OnLeftRoom$");
     private static readonly Regex instance_change_regex = new("^.+Destination set: (.+):.+$");
-    private static readonly Regex instance_enter_regex = new(@"^.+Finished entering world\.$");
+    private static readonly Regex instance_joined_regex = new(@"^.+Finished entering world\.$");
     private static readonly Regex user_joined_regex = new(@"^.+OnPlayerJoined .+ \((.+)\)$");
     private static readonly Regex user_left_regex = new(@"^.+OnPlayerLeft .+ \((.+)\)$");
 
@@ -34,7 +34,7 @@ internal static class VRChatLogReader
     private static Repeater? processTask;
     private static readonly object process_lock = new();
 
-    private static string? currentWorldID { get; set; }
+    private static string? currentWorldId { get; set; }
 
     public static Action<string>? OnWorldEnter;
 
@@ -65,7 +65,7 @@ internal static class VRChatLogReader
         line_buffer.Clear();
         logFile = null;
         byteOffset = 0;
-        currentWorldID = null;
+        currentWorldId = null;
     }
 
     private static void process()
@@ -77,9 +77,9 @@ internal static class VRChatLogReader
 
             foreach (var logLine in line_buffer)
             {
-                checkInstanceExit(logLine);
+                checkInstanceLeft(logLine);
                 checkInstanceChange(logLine);
-                checkInstanceEnter(logLine);
+                checkInstanceJoined(logLine);
                 checkUserLeft(logLine);
                 checkUserJoined(logLine);
             }
@@ -139,12 +139,12 @@ internal static class VRChatLogReader
 
     private static IEnumerable<IVRCClientEventHandler> handlers => ModuleManager.GetInstance().GetRunningModulesOfType<IVRCClientEventHandler>();
 
-    private static void checkInstanceExit(LogLine logLine)
+    private static void checkInstanceLeft(LogLine logLine)
     {
-        var match = instance_exit_regex.Match(logLine.Line);
+        var match = instance_left_regex.Match(logLine.Line);
         if (!match.Success) return;
 
-        handlers.ForEach(handler => handler.OnInstanceExit(new VRChatClientEventInstanceExit(logLine.DateTime)));
+        handlers.ForEach(handler => handler.OnInstanceLeft(new VRChatClientEventInstanceLeft(logLine.DateTime)));
     }
 
     private static void checkInstanceChange(LogLine logLine)
@@ -152,22 +152,22 @@ internal static class VRChatLogReader
         var match = instance_change_regex.Match(logLine.Line);
         if (!match.Success) return;
 
-        currentWorldID = match.Groups[1].Captures[0].Value;
+        currentWorldId = match.Groups[1].Captures[0].Value;
     }
 
-    private static void checkInstanceEnter(LogLine logLine)
+    private static void checkInstanceJoined(LogLine logLine)
     {
-        var match = instance_enter_regex.Match(logLine.Line);
+        var match = instance_joined_regex.Match(logLine.Line);
         if (!match.Success) return;
 
-        if (currentWorldID is null)
+        if (currentWorldId is null)
         {
             Logger.Log("Entered world without knowing the world Id");
             return;
         }
 
-        OnWorldEnter?.Invoke(currentWorldID);
-        handlers.ForEach(handler => handler.OnInstanceEnter(new VRChatClientEventInstanceEnter(logLine.DateTime, currentWorldID)));
+        OnWorldEnter?.Invoke(currentWorldId);
+        handlers.ForEach(handler => handler.OnInstanceJoined(new VRChatClientEventInstanceJoined(logLine.DateTime, currentWorldId)));
     }
 
     private static void checkUserLeft(LogLine logLine)
@@ -192,7 +192,7 @@ internal static class VRChatLogReader
 }
 
 public record VRChatClientEvent(DateTime DateTime);
-public record VRChatClientEventInstanceExit(DateTime DateTime) : VRChatClientEvent(DateTime);
-public record VRChatClientEventInstanceEnter(DateTime DateTime, string WorldId) : VRChatClientEvent(DateTime);
-public record VRChatClientEventUserJoined(DateTime DateTime, string UserId) : VRChatClientEvent(DateTime);
+public record VRChatClientEventInstanceLeft(DateTime DateTime) : VRChatClientEvent(DateTime);
+public record VRChatClientEventInstanceJoined(DateTime DateTime, string WorldId) : VRChatClientEvent(DateTime);
 public record VRChatClientEventUserLeft(DateTime DateTime, string UserId) : VRChatClientEvent(DateTime);
+public record VRChatClientEventUserJoined(DateTime DateTime, string UserId) : VRChatClientEvent(DateTime);
