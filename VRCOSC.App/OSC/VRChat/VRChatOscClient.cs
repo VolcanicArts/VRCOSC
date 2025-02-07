@@ -117,8 +117,8 @@ public class VRChatOscClient
         {
             "f" => Convert.ToSingle(node.Value[0]),
             "i" => Convert.ToInt32(node.Value[0]),
+            // T gets returned for true and false
             "T" => Convert.ToBoolean(node.Value[0]),
-            "F" => Convert.ToBoolean(node.Value[0]),
             _ => throw new InvalidOperationException($"Unknown type '{node.OscType}'")
         };
 
