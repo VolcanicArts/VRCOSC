@@ -5,6 +5,7 @@
     <core:HeaderFooterListViewContentHeightConverter x:Key="HeaderFooterListViewContentHeightConverter" />
     <core:HeaderFooterListViewPanningModeConverter x:Key="HeaderFooterListViewPanningModeConverter" />
     <core:CollapseWhenListEmptyConverter x:Key="CollapseWhenListEmptyConverter" />
+    <core:BorderClipConverter x:Key="BorderClipConverter" />
     <Style TargetType="{x:Type core:HeaderFooterListView}">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Template">
@@ -12,20 +13,16 @@
                 <ControlTemplate TargetType="{x:Type core:HeaderFooterListView}">
                     <Border BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="5"
                             VerticalAlignment="Stretch"
                             HorizontalAlignment="Stretch"
                             x:Name="Border">
                         <Border.Clip>
-                            <RectangleGeometry
-                                RadiusX="5"
-                                RadiusY="5">
-                                <RectangleGeometry.Rect>
-                                    <MultiBinding Converter="{StaticResource RectSizeConverter}">
-                                        <Binding Path="ActualWidth" ElementName="Border" />
-                                        <Binding Path="ActualHeight" ElementName="GridContainer" />
-                                    </MultiBinding>
-                                </RectangleGeometry.Rect>
-                            </RectangleGeometry>
+                            <MultiBinding Converter="{StaticResource BorderClipConverter}">
+                                <Binding Path="ActualWidth" RelativeSource="{RelativeSource Self}"/>
+                                <Binding Path="ActualHeight" ElementName="GridContainer"/>
+                                <Binding Path="CornerRadius" RelativeSource="{RelativeSource Self}"/>
+                            </MultiBinding>
                         </Border.Clip>
                         <Grid x:Name="GridContainer" VerticalAlignment="Top">
                             <Grid.RowDefinitions>
