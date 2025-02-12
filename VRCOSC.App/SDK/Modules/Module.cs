@@ -816,6 +816,14 @@ public abstract class Module
     }
 
     /// <summary>
+    /// Changes the user's avatar into the ID that's provided
+    /// </summary>
+    protected void ChangeAvatar(string avatarId)
+    {
+        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOscConstants.ADDRESS_AVATAR_CHANGE}", avatarId);
+    }
+
+    /// <summary>
     /// Allows you to send any parameter name and value.
     /// If you want the user to be able to customise the parameter, register a parameter and use <see cref="SendParameter(Enum,object)"/>
     /// </summary>
