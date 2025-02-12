@@ -21,6 +21,7 @@ using VRCOSC.App.Actions;
 using VRCOSC.App.Audio;
 using VRCOSC.App.Audio.Whisper;
 using VRCOSC.App.ChatBox;
+using VRCOSC.App.Dolly;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
@@ -248,6 +249,11 @@ public class AppManager
 
                 sendMetadataParameters();
                 sendControlParameters();
+            }
+
+            if (message.IsDollyEvent)
+            {
+                DollyManager.GetInstance().HandleDollyEvent(message);
             }
 
             if (message.IsAvatarParameter)
@@ -589,9 +595,11 @@ public class AppManager
 
         ChatBoxManager.GetInstance().Unload();
         ModuleManager.GetInstance().UnloadAllModules();
+        DollyManager.GetInstance().Unload();
 
         ProfileManager.GetInstance().ActiveProfile.Value = newProfile;
 
+        DollyManager.GetInstance().Load();
         ModuleManager.GetInstance().LoadAllModules();
         ChatBoxManager.GetInstance().Load();
         RouterManager.GetInstance().Load();

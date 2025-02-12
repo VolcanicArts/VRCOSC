@@ -10,6 +10,7 @@
                 <ResourceDictionary Source="UI/Styles/VRCOSCCheckBoxStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/VRCOSCButtonStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/IconButtonStyle.xaml" />
+                <ResourceDictionary Source="UI/Styles/TextButtonStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/TextBoxStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/HeaderFooterListViewStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/SpacedListView.xaml" />

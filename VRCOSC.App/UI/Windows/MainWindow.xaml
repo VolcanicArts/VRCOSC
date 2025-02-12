@@ -96,16 +96,8 @@
                             <RadioButton GroupName="TabBar" Click="RunButton_OnClick" >
                                 <fa6:ImageAwesome Icon="Solid_Play" ToolTip="Run" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="StartupButton_OnClick" >
-                                <fa6:ImageAwesome Icon="Solid_Share" ToolTip="Startup" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
-                            </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="RouterButton_OnClick"
-                                         Visibility="{Binding ShowRouter.Value, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <fa6:ImageAwesome Icon="Solid_ShareNodes"  ToolTip="Router" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
-                            </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="DebugButton_OnClick"
-                                         Visibility="{Binding ShowAppDebug.Value, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <fa6:ImageAwesome Icon="Solid_Bug" ToolTip="Debug" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                            <RadioButton GroupName="TabBar" Click="DollyButton_OnClick" >
+                                <fa6:ImageAwesome Icon="Solid_Camera" ToolTip="Dolly" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             </RadioButton>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">

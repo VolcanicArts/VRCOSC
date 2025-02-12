@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using Semver;
 using VRCOSC.App.Actions;
 using VRCOSC.App.ChatBox;
+using VRCOSC.App.Dolly;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OVR;
 using VRCOSC.App.Packages;
@@ -22,16 +23,14 @@ using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Startup;
 using VRCOSC.App.UI.Core;
-using VRCOSC.App.UI.Views.AppDebug;
 using VRCOSC.App.UI.Views.AppSettings;
 using VRCOSC.App.UI.Views.ChatBox;
+using VRCOSC.App.UI.Views.Dolly;
 using VRCOSC.App.UI.Views.Information;
 using VRCOSC.App.UI.Views.Modules;
 using VRCOSC.App.UI.Views.Packages;
 using VRCOSC.App.UI.Views.Profiles;
-using VRCOSC.App.UI.Views.Router;
 using VRCOSC.App.UI.Views.Run;
-using VRCOSC.App.UI.Views.Startup;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using Application = System.Windows.Application;
@@ -51,11 +50,9 @@ public partial class MainWindow
 
     public PackagesView PackagesView = null!;
     public ModulesView ModulesView = null!;
-    public RouterView RouterView = null!;
     public ChatBoxView ChatBoxView = null!;
-    public StartupView StartupView = null!;
+    public DollyView DollyView = null!;
     public RunView RunView = null!;
-    public AppDebugView AppDebugView = null!;
     public ProfilesView ProfilesView = null!;
     public AppSettingsView AppSettingsView = null!;
     public InformationView InformationView = null!;
@@ -149,17 +146,14 @@ public partial class MainWindow
 
         PackagesView = new PackagesView();
         ModulesView = new ModulesView();
-        RouterView = new RouterView();
         ChatBoxView = new ChatBoxView();
-        StartupView = new StartupView();
+        DollyView = new DollyView();
         RunView = new RunView();
-        AppDebugView = new AppDebugView();
         ProfilesView = new ProfilesView();
         AppSettingsView = new AppSettingsView();
         InformationView = new InformationView();
 
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
-        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableRouter).Subscribe(newValue => ShowRouter.Value = newValue, true);
 
         await PackageManager.GetInstance().Load();
 
@@ -201,6 +195,7 @@ public partial class MainWindow
         ModuleManager.GetInstance().LoadAllModules();
         ChatBoxManager.GetInstance().Load();
         RouterManager.GetInstance().Load();
+        DollyManager.GetInstance().Load();
         StartupManager.GetInstance().Load();
 
         setContent(ModulesView);
@@ -215,28 +210,20 @@ public partial class MainWindow
     {
         if (velopackUpdater.IsInstalled())
         {
-            // only check for an update if we haven't just updated (to save time checking again)
-            if (!hasAppVersionChanged())
-            {
-                await velopackUpdater.CheckForUpdatesAsync();
+            await velopackUpdater.CheckForUpdatesAsync();
 
-                if (velopackUpdater.IsUpdateAvailable())
+            if (velopackUpdater.IsUpdateAvailable())
+            {
+                var shouldUpdate = velopackUpdater.PresentUpdate();
+
+                if (shouldUpdate)
                 {
-                    var shouldUpdate = velopackUpdater.PresentUpdate();
-
-                    if (shouldUpdate)
-                    {
-                        await ShowLoadingOverlay(new CallbackProgressAction("Updating VRCOSC", () => velopackUpdater.ExecuteUpdateAsync()));
-                        return true;
-                    }
+                    await ShowLoadingOverlay(new CallbackProgressAction("Updating VRCOSC", () => velopackUpdater.ExecuteUpdateAsync()));
+                    return true;
                 }
+            }
 
-                Logger.Log("No updates. Proceeding with loading");
-            }
-            else
-            {
-                Logger.Log("App has just updated. Skipping update check");
-            }
+            Logger.Log("No updates. Proceeding with loading");
         }
         else
         {
@@ -252,7 +239,7 @@ public partial class MainWindow
     private int calculateVersionPrecedence()
     {
         var installedVersionStr = SettingsManager.GetInstance().GetValue<string>(VRCOSCMetadata.InstalledVersion);
-        if (string.IsNullOrEmpty(installedVersionStr)) return 0;
+        if (string.IsNullOrEmpty(installedVersionStr)) return 1;
 
         var newVersion = SemVersion.Parse(AppManager.Version, SemVersionStyles.Any);
         var installedVersion = SemVersion.Parse(installedVersionStr, SemVersionStyles.Any);
@@ -462,29 +449,19 @@ public partial class MainWindow
         setContent(ModulesView);
     }
 
-    private void RouterButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        setContent(RouterView);
-    }
-
     private void ChatBoxButton_OnClick(object sender, RoutedEventArgs e)
     {
         setContent(ChatBoxView);
     }
 
-    private void StartupButton_OnClick(object sender, RoutedEventArgs e)
+    private void DollyButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setContent(StartupView);
+        setContent(DollyView);
     }
 
     private void RunButton_OnClick(object sender, RoutedEventArgs e)
     {
         setContent(RunView);
-    }
-
-    private void DebugButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        setContent(AppDebugView);
     }
 
     private void ProfilesButton_OnClick(object sender, RoutedEventArgs e)

@@ -1,0 +1,98 @@
+﻿<UserControl x:Class="VRCOSC.App.UI.Views.Dolly.DollyView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+             mc:Ignorable="d"
+             d:DesignWidth="1368" d:DesignHeight="766"
+             Background="Transparent">
+    <UserControl.Resources>
+        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}" Colour2="{StaticResource CBackground4}"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource CBackground5}" CornerRadius="5">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Column="0" Grid.Row="0" FontSize="20" FontWeight="SemiBold" Text="Controls" Foreground="{StaticResource CForeground1}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <core:SpacedStackPanel Grid.Column="0" Grid.Row="2" Spacing="10">
+                        <core:TextButton Visibility="{Binding ShowPlay.Value}" Text="Play" FontSize="17" Height="30" ButtonColour="Green" Click="Play_OnClick"/>
+                        <Grid Visibility="{Binding ShowPlay.Value}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <core:TextButton Grid.Column="0" Text="Play Delayed" Height="30" FontSize="17" ButtonColour="Green" Click="PlayDelayed_OnClick"/>
+                            <TextBox Grid.Column="2" Height="30" Text="{Binding Delay.Value}" FontSize="19" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                        </Grid>
+                        <core:TextButton Visibility="{Binding ShowStop.Value}" Text="Stop" Height="30" FontSize="17" ButtonColour="Red" Click="Stop_OnClick"/>
+                    </core:SpacedStackPanel>
+                </Grid>
+            </Border>
+            <core:HeaderFooterListView Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" ItemsSource="{Binding DollyManager.Dollies}" AlternationCount="2">
+                <core:HeaderFooterListView.Header>
+                    <Border Height="35" Padding="9" Background="{StaticResource CBackground1}">
+                        <TextBlock Text="Dollies" FontSize="18" FontWeight="SemiBold"
+                                   Foreground="{StaticResource CForeground1}"
+                                   HorizontalAlignment="Left" VerticalAlignment="Center" />
+                    </Border>
+                </core:HeaderFooterListView.Header>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate>
+                                    <Border Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}">
+                                        <Grid Margin="5" Height="30">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="5"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="5"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBox Grid.Column="0" FontSize="17" Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" VerticalContentAlignment="Center" Foreground="{StaticResource CForeground1}"/>
+                                            <core:TextButton Grid.Column="2" Margin="2" FontSize="15" Text="Load" Padding="10 0" ButtonColour="Blue" Tag="{Binding}" Click="LoadDolly_OnClick"/>
+                                            <core:IconButton Grid.Column="4" Margin="2" Icon="Solid_Xmark" ButtonColour="Red" Tag="{Binding}" Click="DeleteDolly_OnClick"/>
+                                        </Grid>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <core:HeaderFooterListView.Footer>
+                    <Border Height="35" Padding="5" Background="{StaticResource CBackground1}">
+                        <Grid HorizontalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="5"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <core:TextButton Grid.Column="0" HorizontalAlignment="Center" Text="Import Current VRChat Dolly" FontSize="13" ButtonColour="Blue" Padding="10 0" Click="ImportVRChat_OnClick"/>
+                            <core:TextButton Grid.Column="2" HorizontalAlignment="Center" Text="Import Dolly File" FontSize="13" ButtonColour="Blue" Padding="10 0" Click="ImportFile_OnClick"/>
+                        </Grid>
+                    </Border>
+                </core:HeaderFooterListView.Footer>
+            </core:HeaderFooterListView>
+        </Grid>
+        <Border x:Name="Overlay" Background="{StaticResource CBackground1}">
+            <TextBlock FontSize="25" Text="Run the modules to access the dolly manager" Width="400" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Foreground="{StaticResource CForeground1}"/>
+        </Border>
+    </Grid>
+</UserControl>
