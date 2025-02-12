@@ -10,6 +10,7 @@
                 <ResourceDictionary Source="UI/Styles/VRCOSCCheckBoxStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/VRCOSCButtonStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/IconButtonStyle.xaml" />
+                <ResourceDictionary Source="UI/Styles/TextButtonStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/TextBoxStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/HeaderFooterListViewStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/SpacedListView.xaml" />
@@ -18,6 +19,10 @@
                 <ResourceDictionary Source="UI/Styles/VRCOSCSliderStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Style TargetType="{x:Type core:IPPortTextBox}" BasedOn="{StaticResource {x:Type TextBox}}" />
+            <Style TargetType="Window">
+                <Setter Property="Background" Value="Black" />
+                <Setter Property="AllowsTransparency" Value="False"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

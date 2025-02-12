@@ -94,7 +94,11 @@ public sealed class HardwareStatsProvider
 
         if (identifier.Contains("ram", StringComparison.InvariantCultureIgnoreCase))
         {
-            RAM ??= new RAM();
+            RAM ??= new RAM
+            {
+                // RAM doesn't provide a name
+                Name = string.Empty
+            };
             return;
         }
 
@@ -107,13 +111,19 @@ public sealed class HardwareStatsProvider
         {
             if (identifier.Contains("intel", StringComparison.InvariantCultureIgnoreCase))
             {
-                CPUs.TryAdd(hardwareID, new IntelCPU());
+                CPUs.TryAdd(hardwareID, new IntelCPU
+                {
+                    Name = hardware.Name
+                });
                 return;
             }
 
             if (identifier.Contains("amd", StringComparison.InvariantCultureIgnoreCase))
             {
-                CPUs.TryAdd(hardwareID, new AMDCPU());
+                CPUs.TryAdd(hardwareID, new AMDCPU
+                {
+                    Name = hardware.Name
+                });
                 return;
             }
         }
@@ -122,13 +132,19 @@ public sealed class HardwareStatsProvider
         {
             if (identifier.Contains("nvidia", StringComparison.InvariantCultureIgnoreCase))
             {
-                GPUs.TryAdd(hardwareID, new NvidiaGPU());
+                GPUs.TryAdd(hardwareID, new NvidiaGPU
+                {
+                    Name = hardware.Name
+                });
                 return;
             }
 
             if (identifier.Contains("amd", StringComparison.InvariantCultureIgnoreCase))
             {
-                GPUs.TryAdd(hardwareID, new AMDGPU());
+                GPUs.TryAdd(hardwareID, new AMDGPU
+                {
+                    Name = hardware.Name
+                });
             }
         }
     }

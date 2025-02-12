@@ -11,37 +11,34 @@ using Newtonsoft.Json;
 
 namespace VRCOSC.App.Utils;
 
+[JsonConverter(typeof(ObservableConverter))]
 public interface IObservable
 {
     public Type GetValueType();
-    public object? GetValue();
-    public void SetValue(object? value);
+    public object GetValue();
+    public void SetValue(object value);
     public void Subscribe(Action noValueAction, bool runOnceImmediately = false);
+
+    internal void SerializeTo(JsonWriter writer, JsonSerializer serializer);
+    internal void DeserializeFrom(JsonReader reader, JsonSerializer serializer);
 }
 
-[JsonConverter(typeof(ObservableConverter))]
-public interface ISerialisableObservable
+public class ObservableConverter : JsonConverter<IObservable>
 {
-    void SerializeTo(JsonWriter writer, JsonSerializer serializer);
-    void DeserializeFrom(JsonReader reader, JsonSerializer serializer);
-}
-
-public class ObservableConverter : JsonConverter<ISerialisableObservable>
-{
-    public override void WriteJson(JsonWriter writer, ISerialisableObservable? value, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, IObservable? value, JsonSerializer serializer)
     {
         value?.SerializeTo(writer, serializer);
     }
 
-    public override ISerialisableObservable ReadJson(JsonReader reader, Type objectType, ISerialisableObservable? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    public override IObservable ReadJson(JsonReader reader, Type objectType, IObservable? existingValue, bool hasExistingValue, JsonSerializer serializer)
     {
-        var observable = existingValue ?? (ISerialisableObservable)Activator.CreateInstance(objectType, true)!;
+        var observable = existingValue ?? (IObservable)Activator.CreateInstance(objectType, true)!;
         observable.DeserializeFrom(reader, serializer);
         return observable;
     }
 }
 
-public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerialisableObservable, ICloneable, IEquatable<Observable<T>>
+public sealed class Observable<T> : IObservable, INotifyPropertyChanged, IEquatable<Observable<T>> where T : notnull
 {
     private T value;
 
@@ -64,14 +61,14 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
     private readonly List<Action<T>> actions = new();
 
     [JsonConstructor]
-    public Observable()
+    private Observable()
     {
     }
 
-    public Observable(T initialValue = default(T))
+    public Observable(T defaultValue = default!)
     {
-        DefaultValue = initialValue;
-        Value = initialValue;
+        DefaultValue = defaultValue;
+        Value = defaultValue;
     }
 
     public Observable(Observable<T> other)
@@ -82,9 +79,9 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
 
     public Type GetValueType() => typeof(T);
 
-    public object? GetValue() => Value;
+    public object GetValue() => Value;
 
-    public void SetValue(object? newValue)
+    public void SetValue(object newValue)
     {
         if (newValue is not T castValue) throw new InvalidOperationException($"Attempted to set anonymous value of type {newValue.GetType().ToReadableName()} for type {typeof(T).ToReadableName()}");
 
@@ -133,13 +130,6 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
         }
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
     public void SerializeTo(JsonWriter writer, JsonSerializer serializer)
     {
         try
@@ -164,13 +154,18 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, ISerial
         }
     }
 
-    public object Clone() => new Observable<T>(this);
-
     public bool Equals(Observable<T>? other)
     {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
 
         return EqualityComparer<T>.Default.Equals(Value, other.Value);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

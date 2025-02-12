@@ -10,15 +10,18 @@
     <Border Background="{StaticResource CBackground2}" Padding="40">
         <Grid>
             <core:SpacedStackPanel Spacing="20" HorizontalAlignment="Center">
-                <TextBlock Text="Welcome to VRCOSC V2" Foreground="{StaticResource CForeground1}" FontSize="40" TextAlignment="Center"/>
+                <TextBlock Text="Welcome to VRCOSC" Foreground="{StaticResource CForeground1}" FontSize="40" TextAlignment="Center"/>
                 <core:SpacedStackPanel Orientation="Horizontal" Spacing="20" HorizontalAlignment="Center">
-                    <core:IconButton Icon="Brands_Discord" Width="100" Height="100" ButtonColour="Gray" CornerRadius="20" Click="Discord_Click"/>
-                    <core:IconButton Icon="Brands_Github" Width="100" Height="100" ButtonColour="Gray" CornerRadius="20" Click="GitHub_Click"/>
-                    <core:IconButton Icon="Solid_MugSaucer" Width="100" Height="100" ButtonColour="Gray" CornerRadius="20" Click="KoFi_Click"/>
+                    <core:IconButton Icon="Brands_Discord" Width="100" Height="100" ButtonColour="Gray" CornerRadius="20" Click="Discord_Click"
+                                     ToolTip="Discord" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                    <core:IconButton Icon="Brands_Github" Width="100" Height="100" ButtonColour="Gray" CornerRadius="20" Click="GitHub_Click"
+                                     ToolTip="GitHub" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                    <core:IconButton Icon="Solid_MugSaucer" Width="100" Height="100" ButtonColour="Gray" CornerRadius="20" Click="KoFi_Click"
+                                     ToolTip="Donate" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                 </core:SpacedStackPanel>
             </core:SpacedStackPanel>
             <core:SpacedStackPanel Spacing="5" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-                <TextBlock Text="Copyright VolcanicArts 2024" Foreground="{StaticResource CForeground2}" FontSize="15" HorizontalAlignment="Center" TextAlignment="Center"/>
+                <TextBlock Text="Copyright VolcanicArts 2025" Foreground="{StaticResource CForeground2}" FontSize="15" HorizontalAlignment="Center" TextAlignment="Center"/>
                 <TextBlock Text="See license file in repository root for more information" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{StaticResource CForeground2}" FontSize="15"/>
             </core:SpacedStackPanel>
         </Grid>

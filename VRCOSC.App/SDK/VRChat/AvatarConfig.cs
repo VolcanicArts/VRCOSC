@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.App.SDK.VRChat;
 
@@ -34,16 +35,16 @@ public class AvatarConfigParameter
 public class AddressTypePair
 {
     [JsonProperty("address")]
-    public string Address = null!;
+    public string? Address;
 
     [JsonProperty("type")]
-    private string type = null!;
+    private string? type;
 
-    public Type Type => type switch
+    public ParameterType Type => type switch
     {
-        "Bool" => typeof(bool),
-        "Float" => typeof(float),
-        "Int" => typeof(int),
+        "Bool" => ParameterType.Bool,
+        "Float" => ParameterType.Float,
+        "Int" => ParameterType.Int,
         _ => throw new InvalidOperationException($"Cannot parse type {type}")
     };
 }

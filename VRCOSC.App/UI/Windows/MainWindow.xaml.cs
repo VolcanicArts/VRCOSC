@@ -9,12 +9,11 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
-using System.Windows.Interop;
 using Newtonsoft.Json;
-using PInvoke;
 using Semver;
 using VRCOSC.App.Actions;
 using VRCOSC.App.ChatBox;
+using VRCOSC.App.Dolly;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OVR;
 using VRCOSC.App.Packages;
@@ -24,16 +23,14 @@ using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Startup;
 using VRCOSC.App.UI.Core;
-using VRCOSC.App.UI.Views.AppDebug;
 using VRCOSC.App.UI.Views.AppSettings;
 using VRCOSC.App.UI.Views.ChatBox;
+using VRCOSC.App.UI.Views.Dolly;
 using VRCOSC.App.UI.Views.Information;
 using VRCOSC.App.UI.Views.Modules;
 using VRCOSC.App.UI.Views.Packages;
 using VRCOSC.App.UI.Views.Profiles;
-using VRCOSC.App.UI.Views.Router;
 using VRCOSC.App.UI.Views.Run;
-using VRCOSC.App.UI.Views.Startup;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 using Application = System.Windows.Application;
@@ -47,15 +44,15 @@ namespace VRCOSC.App.UI.Windows;
 
 public partial class MainWindow
 {
+    private const string root_backup_directory_name = "backups";
+
     public static MainWindow GetInstance() => Application.Current.Dispatcher.Invoke(() => (MainWindow)Application.Current.MainWindow!);
 
     public PackagesView PackagesView = null!;
     public ModulesView ModulesView = null!;
-    public RouterView RouterView = null!;
     public ChatBoxView ChatBoxView = null!;
-    public StartupView StartupView = null!;
+    public DollyView DollyView = null!;
     public RunView RunView = null!;
-    public AppDebugView AppDebugView = null!;
     public ProfilesView ProfilesView = null!;
     public AppSettingsView AppSettingsView = null!;
     public InformationView InformationView = null!;
@@ -70,144 +67,254 @@ public partial class MainWindow
     {
         InitializeComponent();
         DataContext = this;
-
-        backupV1Files();
-        setupTrayIcon();
-        copyOpenVrFiles();
-        startApp();
+        SourceInitialized += OnSourceInitialized;
+        Loaded += OnLoaded;
+        Closing += OnClosing;
     }
 
-    private async void startApp()
+    private void OnSourceInitialized(object? sender, EventArgs e)
     {
+        this.ApplyDefaultStyling();
+        this.SetPositionFrom(null);
+
+        backupV1Files();
+
+        // load settings before anything else
         SettingsManager.GetInstance().Load();
+
+        var installedUpdateChannel = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCMetadata.InstalledUpdateChannel);
+        Title = $"{AppManager.APP_NAME} {AppManager.Version}";
+        if (installedUpdateChannel != UpdateChannel.Live) Title += $" {installedUpdateChannel.ToString().ToUpper()}";
+
+        load();
+    }
+
+    private async void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.StartInTray))
+        {
+            // required for some windows scheduling funkiness
+            await Task.Delay(100);
+            transitionTray(true);
+        }
+    }
+
+    private async void OnClosing(object? sender, CancelEventArgs e)
+    {
+        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.TrayOnClose))
+        {
+            e.Cancel = true;
+            transitionTray(true);
+            return;
+        }
+
+        var appManager = AppManager.GetInstance();
+
+        if (appManager.State.Value is AppManagerState.Started)
+        {
+            e.Cancel = true;
+            await appManager.StopAsync();
+            Close();
+            return;
+        }
+
+        OVRDeviceManager.GetInstance().Serialise();
+
+        trayIcon?.Dispose();
+    }
+
+    // because this isn't returning a task and we're not doing Task.Run(), this still runs in the same
+    // synchronisation context as the UI thread, meaning we don't get threading errors when initialising
+    // unfortunately this does mean it also blocks the UI thread when making changes, freezing the loading screen,
+    // but this method being async at least means that the window opens immediately and we can tell
+    // the user what's going on
+    private async void load()
+    {
+        // force the task to be async to open the window ASAP
+        await Task.Delay(1);
 
         velopackUpdater = new VelopackUpdater();
 
-        if (!velopackUpdater.IsInstalled())
+        var isUpdating = await checkForUpdates();
+        if (isUpdating) return;
+
+        createBackupIfUpdated();
+        setupTrayIcon();
+        copyOpenVrFiles();
+
+        AppManager.GetInstance().Initialise();
+
+        PackagesView = new PackagesView();
+        ModulesView = new ModulesView();
+        ChatBoxView = new ChatBoxView();
+        DollyView = new DollyView();
+        RunView = new RunView();
+        ProfilesView = new ProfilesView();
+        AppSettingsView = new AppSettingsView();
+        InformationView = new InformationView();
+
+        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
+
+        await PackageManager.GetInstance().Load();
+
+        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
         {
-            Logger.Log("Portable app detected. Cancelling update check");
+            await PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource, reloadAll: false, refreshBeforeInstall: false);
+
+            var ftsWindow = new FirstTimeInstallWindow();
+
+            ftsWindow.SourceInitialized += (_, _) =>
+            {
+                ftsWindow.ApplyDefaultStyling();
+                ftsWindow.SetPositionFrom(this);
+            };
+
+            ftsWindow.Show();
+
+            SettingsManager.GetInstance().GetObservable<bool>(VRCOSCMetadata.FirstTimeSetupComplete).Value = true;
         }
-        else
+
+        var appVersionChanged = hasAppVersionChanged();
+
+        if (appVersionChanged)
+        {
+            SettingsManager.GetInstance().GetObservable<string>(VRCOSCMetadata.InstalledVersion).Value = AppManager.Version;
+        }
+
+        if (appVersionChanged || PackageManager.GetInstance().IsCacheOutdated)
+        {
+            await PackageManager.GetInstance().RefreshAllSources(true);
+
+            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && PackageManager.GetInstance().AnyInstalledPackageUpdates())
+            {
+                await PackageManager.GetInstance().UpdateAllInstalledPackages();
+            }
+        }
+
+        ProfileManager.GetInstance().Load();
+        ModuleManager.GetInstance().LoadAllModules();
+        ChatBoxManager.GetInstance().Load();
+        RouterManager.GetInstance().Load();
+        DollyManager.GetInstance().Load();
+        StartupManager.GetInstance().Load();
+
+        setContent(ModulesView);
+
+        AppManager.GetInstance().InitialLoadComplete();
+
+        LoadingSpinner.Visibility = Visibility.Collapsed;
+        LoadingOverlay.FadeOut(500);
+    }
+
+    private async Task<bool> checkForUpdates()
+    {
+        if (velopackUpdater.IsInstalled())
         {
             await velopackUpdater.CheckForUpdatesAsync();
 
             if (velopackUpdater.IsUpdateAvailable())
             {
-                var isUpdating = await velopackUpdater.ExecuteUpdate();
-                if (isUpdating) return;
+                var shouldUpdate = velopackUpdater.PresentUpdate();
+
+                if (shouldUpdate)
+                {
+                    await ShowLoadingOverlay(new CallbackProgressAction("Updating VRCOSC", () => velopackUpdater.ExecuteUpdateAsync()));
+                    return true;
+                }
             }
 
             Logger.Log("No updates. Proceeding with loading");
         }
+        else
+        {
+            Logger.Log("Portable app detected. Cancelling update check");
+        }
 
-        AppManager.GetInstance().Initialise();
+        return false;
+    }
 
-        var installedUpdateChannel = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCMetadata.InstalledUpdateChannel);
-        Title = installedUpdateChannel == UpdateChannel.Beta ? $"{AppManager.APP_NAME} {AppManager.Version} BETA" : $"{AppManager.APP_NAME} {AppManager.Version}";
+    private bool hasAppVersionChanged() => calculateVersionPrecedence() != 0;
+    private bool hasAppUpdated() => calculateVersionPrecedence() == 1;
 
-        PackagesView = new PackagesView();
-        ModulesView = new ModulesView();
-        RouterView = new RouterView();
-        ChatBoxView = new ChatBoxView();
-        StartupView = new StartupView();
-        RunView = new RunView();
-        AppDebugView = new AppDebugView();
-        ProfilesView = new ProfilesView();
-        AppSettingsView = new AppSettingsView();
-        InformationView = new InformationView();
+    private int calculateVersionPrecedence()
+    {
+        var installedVersionStr = SettingsManager.GetInstance().GetValue<string>(VRCOSCMetadata.InstalledVersion);
+        if (string.IsNullOrEmpty(installedVersionStr)) return 1;
 
-        setContent(ModulesView);
+        var newVersion = SemVersion.Parse(AppManager.Version, SemVersionStyles.Any);
+        var installedVersion = SemVersion.Parse(installedVersionStr, SemVersionStyles.Any);
 
-        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
-        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableRouter).Subscribe(newValue => ShowRouter.Value = newValue, true);
-
-        await load();
+        return SemVersion.ComparePrecedence(newVersion, installedVersion);
     }
 
     private void backupV1Files()
     {
         try
         {
-            if (!storage.Exists("framework.ini")) return;
-
-            var sourceDir = storage.GetFullPath(string.Empty);
-            var destinationDir = storage.GetStorageForDirectory("v1-backup").GetFullPath(string.Empty);
-
-            foreach (var file in Directory.GetFiles(sourceDir))
+            if (storage.Exists("framework.ini"))
             {
-                var fileName = Path.GetFileName(file);
-                var destFile = Path.Combine(destinationDir, fileName);
-                File.Move(file, destFile, false);
-            }
+                var sourceDir = storage.GetFullPath(string.Empty);
+                var destinationDir = storage.GetStorageForDirectory(root_backup_directory_name).GetStorageForDirectory("v1").GetFullPath(string.Empty);
 
-            foreach (var dir in Directory.GetDirectories(sourceDir))
-            {
-                var dirName = Path.GetFileName(dir);
-                if (dirName == "v1-backup") continue;
+                foreach (var file in Directory.GetFiles(sourceDir))
+                {
+                    var fileName = Path.GetFileName(file);
+                    var destFile = Path.Combine(destinationDir, fileName);
+                    File.Move(file, destFile, false);
+                }
 
-                var destDir = Path.Combine(destinationDir, dirName);
-                Directory.Move(dir, destDir);
+                foreach (var dir in Directory.GetDirectories(sourceDir))
+                {
+                    var dirName = Path.GetFileName(dir);
+                    if (dirName == root_backup_directory_name) continue;
+
+                    var destDir = Path.Combine(destinationDir, dirName);
+                    Directory.Move(dir, destDir);
+                }
             }
         }
         catch (Exception e)
         {
             Logger.Error(e, "Could not backup V1 files");
         }
+
+        // move v1-backup into backups/v1
+
+        try
+        {
+            if (storage.ExistsDirectory("v1-backup"))
+            {
+                var sourceDir = storage.GetFullPath("v1-backup");
+                var destinationDir = storage.GetStorageForDirectory(root_backup_directory_name).GetFullPath("v1");
+
+                Directory.Move(sourceDir, destinationDir);
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "An error has occured moving the V1 backup folder");
+        }
     }
 
-    private async Task load()
+    private void createBackupIfUpdated()
     {
-        var loadingAction = new CompositeProgressAction();
-        loadingAction.AddAction(PackageManager.GetInstance().Load());
+        var installedVersionStr = SettingsManager.GetInstance().GetValue<string>(VRCOSCMetadata.InstalledVersion);
 
-        var installedVersion = SettingsManager.GetInstance().GetValue<string>(VRCOSCMetadata.InstalledVersion);
+        if (!hasAppUpdated() || storage.GetStorageForDirectory(root_backup_directory_name).ExistsDirectory(installedVersionStr)) return;
 
-        if (!string.IsNullOrEmpty(installedVersion))
+        Logger.Log("App has updated. Creating a backup for previous version");
+
+        var sourceDir = storage.GetFullPath(string.Empty);
+        var destDir = storage.GetStorageForDirectory(root_backup_directory_name).GetStorageForDirectory(installedVersionStr).GetFullPath(string.Empty);
+
+        foreach (var dir in Directory.GetDirectories(sourceDir))
         {
-            var installedVersionParsed = SemVersion.Parse(installedVersion, SemVersionStyles.Any);
-            var currentVersion = SemVersion.Parse(AppManager.Version, SemVersionStyles.Any);
+            var dirName = Path.GetFileName(dir);
+            // don't want `backups`. Don't need `logs` or `runtime` directories
+            if (dirName is root_backup_directory_name or "logs" or "runtime") continue;
 
-            // refresh packages if we've upgraded or downgraded version
-            if (SemVersion.ComparePrecedence(installedVersionParsed, currentVersion) != 0)
-            {
-                loadingAction.AddAction(PackageManager.GetInstance().RefreshAllSources(true));
-            }
+            storage.GetStorageForDirectory(dirName).CopyTo(Path.Combine(destDir, dirName));
         }
-
-        SettingsManager.GetInstance().GetObservable<string>(VRCOSCMetadata.InstalledVersion).Value = AppManager.Version;
-
-        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages))
-        {
-            loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().UpdateAllInstalledPackages()));
-        }
-
-        loadingAction.AddAction(new DynamicProgressAction("Loading Managers", () =>
-        {
-            ProfileManager.GetInstance().Load();
-            ModuleManager.GetInstance().LoadAllModules();
-            ChatBoxManager.GetInstance().Load();
-            RouterManager.GetInstance().Load();
-            StartupManager.GetInstance().Load();
-        }));
-
-        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
-        {
-            loadingAction.AddAction(new DynamicChildProgressAction(() => PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource)));
-        }
-
-        loadingAction.OnComplete += () => Dispatcher.Invoke(() =>
-        {
-            if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
-            {
-                new FirstTimeInstallWindow().Show();
-                SettingsManager.GetInstance().GetObservable<bool>(VRCOSCMetadata.FirstTimeSetupComplete).Value = true;
-            }
-
-            MainWindowContent.FadeInFromZero(500);
-            AppManager.GetInstance().InitialLoadComplete();
-        });
-
-        await ShowLoadingOverlay("Welcome to VRCOSC", loadingAction);
     }
 
     private void copyOpenVrFiles()
@@ -257,121 +364,52 @@ public partial class MainWindow
         return memoryStream.ToArray();
     }
 
-    private async void MainWindow_OnClosing(object? sender, CancelEventArgs e)
-    {
-        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.TrayOnClose))
-        {
-            e.Cancel = true;
-            inTray = true;
-            handleTrayTransition();
-            return;
-        }
-
-        var appManager = AppManager.GetInstance();
-
-        if (appManager.State.Value is AppManagerState.Started)
-        {
-            e.Cancel = true;
-            await appManager.StopAsync();
-            Close();
-        }
-
-        if (appManager.State.Value is AppManagerState.Waiting)
-        {
-            appManager.CancelStartRequest();
-        }
-
-        OVRDeviceManager.GetInstance().Serialise();
-        RouterManager.GetInstance().Serialise();
-        StartupManager.GetInstance().Serialise();
-        SettingsManager.GetInstance().Serialise();
-    }
-
-    private void MainWindow_OnClosed(object? sender, EventArgs e)
-    {
-        trayIcon.Dispose();
-
-        foreach (Window window in Application.Current.Windows)
-        {
-            if (window != Application.Current.MainWindow) window.Close();
-        }
-    }
-
-    private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
-    {
-        this.SetPosition(null, ScreenChoice.Primary, HorizontalPosition.Center, VerticalPosition.Center);
-
-        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.StartInTray))
-        {
-            await Task.Delay(100); // just in case
-            inTray = true;
-            handleTrayTransition();
-        }
-    }
-
     #region Tray
 
-    private bool inTray;
-    private readonly NotifyIcon trayIcon = new();
+    private bool currentlyInTray;
+    private NotifyIcon? trayIcon;
 
     private void setupTrayIcon()
     {
-        trayIcon.DoubleClick += (_, _) =>
-        {
-            inTray = !inTray;
-            handleTrayTransition();
-        };
+        trayIcon = new NotifyIcon();
+        trayIcon.DoubleClick += (_, _) => transitionTray(!currentlyInTray);
 
         trayIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Assembly.GetEntryAssembly()!.Location)!;
         trayIcon.Visible = true;
         trayIcon.Text = AppManager.APP_NAME;
 
-        var contextMenu = new ContextMenuStrip
-        {
-            Items =
-            {
-                {
-                    AppManager.APP_NAME, null, (_, _) =>
-                    {
-                        inTray = false;
-                        handleTrayTransition();
-                    }
-                },
-                new ToolStripSeparator(),
-                {
-                    "Exit", null, (_, _) => Dispatcher.Invoke(() => Application.Current.Shutdown())
-                }
-            }
-        };
+        var contextMenu = new ContextMenuStrip();
+        contextMenu.Items.Add(AppManager.APP_NAME, null, (_, _) => transitionTray(false));
+        contextMenu.Items.Add(new ToolStripSeparator());
+        contextMenu.Items.Add("Exit", null, (_, _) => Dispatcher.Invoke(() => Application.Current.Shutdown()));
 
         trayIcon.ContextMenuStrip = contextMenu;
     }
 
-    private void handleTrayTransition()
+    private void transitionTray(bool inTray)
     {
         try
         {
-            var mainWindow = Application.Current.MainWindow;
-            if (mainWindow is null) throw new InvalidOperationException("Main window is null");
-
-            if (inTray)
+            if (!currentlyInTray && inTray)
             {
                 foreach (Window window in Application.Current.Windows)
                 {
-                    if (window == mainWindow)
-                    {
-                        User32.ShowWindow(new WindowInteropHelper(mainWindow).Handle, User32.WindowShowStyle.SW_HIDE);
-                    }
+                    if (window == this)
+                        window.Hide();
                     else
-                    {
                         window.Close();
-                    }
                 }
+
+                currentlyInTray = true;
+                return;
             }
-            else
+
+            if (currentlyInTray && !inTray)
             {
-                User32.ShowWindow(new WindowInteropHelper(mainWindow).Handle, User32.WindowShowStyle.SW_SHOWDEFAULT);
-                mainWindow.Activate();
+                Show();
+                Activate();
+                currentlyInTray = false;
+                return;
             }
         }
         catch (Exception e)
@@ -382,37 +420,19 @@ public partial class MainWindow
 
     #endregion
 
-    public Task ShowLoadingOverlay(string title, ProgressAction progressAction)
+    public Task ShowLoadingOverlay(ProgressAction progressAction) => Dispatcher.Invoke(() =>
     {
-        LoadingTitle.Text = title;
+        LoadingTitle.Text = progressAction.Title;
+        LoadingProgressBar.Visibility = progressAction.UseProgressBar ? Visibility.Visible : Visibility.Collapsed;
+        LoadingSpinner.Visibility = progressAction.UseProgressBar ? Visibility.Collapsed : Visibility.Visible;
 
-        progressAction.OnComplete += HideLoadingOverlay;
-
-        _ = Task.Run(async () =>
-        {
-            while (!progressAction.IsComplete)
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    LoadingDescription.Text = progressAction.Title;
-                    ProgressBar.Value = progressAction.GetProgress();
-                });
-                await Task.Delay(TimeSpan.FromSeconds(1d / 10d));
-            }
-
-            Dispatcher.Invoke(() =>
-            {
-                LoadingDescription.Text = "Finished!";
-                ProgressBar.Value = 1;
-            });
-        });
+        progressAction.OnProgressChanged += p => Dispatcher.Invoke(() => LoadingProgressBar.Value = p);
+        progressAction.OnComplete += () => LoadingOverlay.FadeOut(150, () => LoadingProgressBar.Value = 0);
 
         LoadingOverlay.FadeIn(150);
 
         return progressAction.Execute();
-    }
-
-    public void HideLoadingOverlay() => LoadingOverlay.FadeOut(150);
+    });
 
     private void setContent(object userControl)
     {
@@ -429,33 +449,19 @@ public partial class MainWindow
         setContent(ModulesView);
     }
 
-    private void RouterButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        setContent(RouterView);
-    }
-
-    private void SettingsButton_OnClick(object sender, RoutedEventArgs e)
-    {
-    }
-
     private void ChatBoxButton_OnClick(object sender, RoutedEventArgs e)
     {
         setContent(ChatBoxView);
     }
 
-    private void StartupButton_OnClick(object sender, RoutedEventArgs e)
+    private void DollyButton_OnClick(object sender, RoutedEventArgs e)
     {
-        setContent(StartupView);
+        setContent(DollyView);
     }
 
     private void RunButton_OnClick(object sender, RoutedEventArgs e)
     {
         setContent(RunView);
-    }
-
-    private void DebugButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        setContent(AppDebugView);
     }
 
     private void ProfilesButton_OnClick(object sender, RoutedEventArgs e)

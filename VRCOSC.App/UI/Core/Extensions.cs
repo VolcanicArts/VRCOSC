@@ -3,12 +3,94 @@
 
 using System;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
+
+// ReSharper disable UnusedMember.Global
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace VRCOSC.App.UI.Core;
 
 public static class Extensions
 {
+    public static T? FindVisualParent<T>(this DependencyObject element, string name) where T : FrameworkElement
+    {
+        while (true)
+        {
+            var parent = VisualTreeHelper.GetParent(element);
+
+            switch (parent)
+            {
+                case null:
+                    return null;
+
+                case T parentAsType when parentAsType.Name == name:
+                    return parentAsType;
+
+                default:
+                    element = parent;
+                    break;
+            }
+        }
+    }
+
+    public static T? FindVisualParentFuzzy<T>(this DependencyObject element, string name) where T : FrameworkElement
+    {
+        while (true)
+        {
+            var parent = VisualTreeHelper.GetParent(element);
+
+            switch (parent)
+            {
+                case null:
+                    return null;
+
+                case T parentAsType when parentAsType.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase):
+                    return parentAsType;
+
+                default:
+                    element = parent;
+                    break;
+            }
+        }
+    }
+
+    public static T? FindVisualChild<T>(this DependencyObject element, string name) where T : FrameworkElement
+    {
+        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
+        {
+            var child = VisualTreeHelper.GetChild(element, i);
+
+            if (child is T childAsType && childAsType.Name == name)
+                return childAsType;
+
+            var childOfChild = FindVisualChild<T>(child, name);
+
+            if (childOfChild is not null)
+                return childOfChild;
+        }
+
+        return null;
+    }
+
+    public static T? FindVisualChildFuzzy<T>(this DependencyObject element, string name) where T : FrameworkElement
+    {
+        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
+        {
+            var child = VisualTreeHelper.GetChild(element, i);
+
+            if (child is T childAsType && childAsType.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase))
+                return childAsType;
+
+            var childOfChild = FindVisualChild<T>(child, name);
+
+            if (childOfChild is not null)
+                return childOfChild;
+        }
+
+        return null;
+    }
+
     public static void FadeInFromZero(this FrameworkElement element, double durationMilliseconds, Action? onCompleted = null)
     {
         element.Opacity = 0;
@@ -59,6 +141,35 @@ public static class Extensions
             element.Visibility = Visibility.Collapsed;
             onCompleted?.Invoke();
         };
+        storyboard.Begin(element);
+    }
+
+    public static void AnimateHeight(this FrameworkElement element, double targetHeight, double durationMilliseconds, IEasingFunction easingFunction, Action? onCompleted = null)
+    {
+        var currentHeight = element.Height;
+
+        element.Height = currentHeight;
+        element.UpdateLayout();
+
+        var heightAnimation = new DoubleAnimation
+        {
+            From = currentHeight,
+            To = targetHeight,
+            Duration = TimeSpan.FromMilliseconds(durationMilliseconds),
+            EasingFunction = easingFunction
+        };
+
+        Storyboard.SetTargetProperty(heightAnimation, new PropertyPath(FrameworkElement.HeightProperty));
+
+        var storyboard = new Storyboard();
+        storyboard.Children.Add(heightAnimation);
+
+        storyboard.Completed += (_, _) =>
+        {
+            if (double.IsNaN(targetHeight)) element.Height = double.NaN;
+            onCompleted?.Invoke();
+        };
+
         storyboard.Begin(element);
     }
 }

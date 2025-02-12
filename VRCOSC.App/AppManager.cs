@@ -7,17 +7,21 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Security.Principal;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
+using FastOSC;
 using org.mariuszgromada.math.mxparser;
 using Valve.VR;
-using VRCOSC.App.Actions.Files;
+using VRCOSC.App.Actions;
 using VRCOSC.App.Audio;
 using VRCOSC.App.Audio.Whisper;
 using VRCOSC.App.ChatBox;
+using VRCOSC.App.Dolly;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
@@ -34,7 +38,6 @@ using VRCOSC.App.Startup;
 using VRCOSC.App.UI.Themes;
 using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
-using VRCOSC.App.VRChatAPI;
 using Module = VRCOSC.App.SDK.Modules.Module;
 
 namespace VRCOSC.App;
@@ -61,7 +64,6 @@ public class AppManager
     public ConnectionManager ConnectionManager = null!;
     public VRChatOscClient VRChatOscClient = null!;
     public VRChatClient VRChatClient = null!;
-    public VRChatAPIClient VRChatAPIClient = null!;
     public OVRClient OVRClient = null!;
 
     public WhisperSpeechEngine SpeechEngine = null!;
@@ -83,12 +85,14 @@ public class AppManager
 
     public void Initialise()
     {
+        OSCEncoder.SetEncoding(Encoding.UTF8);
+        OSCDecoder.SetEncoding(Encoding.UTF8);
+
         SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Subscribe(theme => ProxyTheme.Value = theme, true);
 
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOscClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
-        VRChatAPIClient = new VRChatAPIClient();
         OVRClient = new OVRClient();
         ChatBoxWorldBlacklist.Init();
 
@@ -143,14 +147,13 @@ public class AppManager
         });
 
         OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
-
-        OVRDeviceManager.GetInstance().Deserialise();
     }
 
     public void InitialLoadComplete()
     {
+        OVRDeviceManager.GetInstance().Deserialise();
+
         VRChatOscClient.Init(ConnectionManager);
-        ConnectionManager.Init();
 
         vrchatCheckTask = new Repeater($"{nameof(AppManager)}-{nameof(checkForVRChatAutoStart)}", checkForVRChatAutoStart);
         vrchatCheckTask.Start(TimeSpan.FromSeconds(2));
@@ -160,7 +163,21 @@ public class AppManager
 
         openvrUpdateTask = new Repeater($"{nameof(AppManager)}-{nameof(updateOVRClient)}", updateOVRClient);
         openvrUpdateTask.Start(TimeSpan.FromSeconds(1d / 60d));
+
+        SettingsManager.GetInstance().GetObservable<ConnectionMode>(VRCOSCSetting.ConnectionMode).Subscribe(async _ =>
+        {
+            if (State.Value == AppManagerState.Waiting)
+            {
+                CancelStartRequest();
+                return;
+            }
+
+            await ConnectionManager.Stop();
+            await StopAsync();
+        });
     }
+
+    public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
     private void updateOVRClient()
     {
@@ -188,9 +205,11 @@ public class AppManager
         RenderOptions.ProcessRenderMode = OVRClient.HasInitialised ? RenderMode.SoftwareOnly : RenderMode.Default;
     });
 
-    private void checkForVRChatAutoStart()
+    private async void checkForVRChatAutoStart()
     {
         if (!VRChatClient.HasOpenStateChanged(out var clientOpenState)) return;
+
+        await ConnectionManager.Stop();
 
         if (clientOpenState && State.Value == AppManagerState.Stopped && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStart)) RequestStart();
         if (!clientOpenState && State.Value == AppManagerState.Started && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStop)) _ = StopAsync();
@@ -200,6 +219,8 @@ public class AppManager
 
     private void onParameterReceived(VRChatOscMessage message)
     {
+        if (string.IsNullOrEmpty(message.Address)) return;
+
         lock (oscMessageQueueLock)
         {
             oscMessageQueue.Enqueue(message);
@@ -228,6 +249,11 @@ public class AppManager
 
                 sendMetadataParameters();
                 sendControlParameters();
+            }
+
+            if (message.IsDollyEvent)
+            {
+                DollyManager.GetInstance().HandleDollyEvent(message);
             }
 
             if (message.IsAvatarParameter)
@@ -286,7 +312,7 @@ public class AppManager
 
     private void sendParameter(string parameterName, object value)
     {
-        VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{parameterName}", value);
+        VRChatOscClient.Send($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{parameterName}", value);
     }
 
     #endregion
@@ -299,6 +325,7 @@ public class AppManager
     {
         Logger.Log("Force starting");
         CancelStartRequest();
+        await ConnectionManager.Stop();
         initialiseOSCClient(IPAddress.Loopback, 9000, IPAddress.Loopback, 9001);
         await startAsync();
     }
@@ -315,8 +342,16 @@ public class AppManager
 
         requestStartCancellationSource = new CancellationTokenSource();
 
-        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.UseCustomEndpoints))
+        if (SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode) == ConnectionMode.Custom)
         {
+            if (!IsAdministrator)
+            {
+                MessageBox.Show($"An OSC connection mode of {ConnectionMode.Custom} requires VRCOSC to be ran as administrator. Please restart the app as administrator", "Permission Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            Logger.Log("Connecting to VRChat using custom");
+
             var outgoingEndpoint = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.OutgoingEndpoint);
             var outgoingAddress = IPAddress.Parse(outgoingEndpoint.Split(':')[0]);
             var outgoingPort = int.Parse(outgoingEndpoint.Split(':')[1]);
@@ -330,13 +365,37 @@ public class AppManager
             return;
         }
 
-        State.Value = AppManagerState.Waiting;
+        if (SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode) == ConnectionMode.LAN)
+        {
+            if (!IsAdministrator)
+            {
+                MessageBox.Show($"An OSC connection mode of {ConnectionMode.LAN} requires VRCOSC to be ran as administrator. Please restart the app as administrator", "Permission Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            Logger.Log("Connecting to VRChat using LAN");
+
+            State.Value = AppManagerState.Waiting;
+
+            if (!ConnectionManager.IsConnected)
+                ConnectionManager.Start();
+
+            await waitForConnectionManager();
+            if (requestStartCancellationSource.IsCancellationRequested) return;
+
+            initialiseOSCClient(ConnectionManager.VRChatIP!, ConnectionManager.VRChatReceivePort!.Value, ConnectionManager.VRCOSCIP!, ConnectionManager.VRCOSCReceivePort!.Value);
+
+            await startAsync();
+            return;
+        }
+
         await Task.Run(waitForStart, requestStartCancellationSource.Token);
     }
 
     private async Task waitForStart()
     {
         Logger.Log("Waiting for starting conditions");
+        State.Value = AppManagerState.Waiting;
 
         var waitingCancellationSource = new CancellationTokenSource();
 
@@ -346,18 +405,21 @@ public class AppManager
             Task.Run(() => waitForVRChat(waitingCancellationSource), requestStartCancellationSource.Token)
         });
 
-        waitingCancellationSource.Cancel();
+        await waitingCancellationSource.CancelAsync();
 
         if (requestStartCancellationSource.IsCancellationRequested) return;
 
         if (isVRChatOpen())
         {
             Logger.Log("Found VRChat. Waiting for OSCQuery");
-            ConnectionManager.Reset();
-            await waitForOSCQuery();
+
+            if (!ConnectionManager.IsConnected)
+                ConnectionManager.Start();
+
+            await waitForConnectionManager();
             if (requestStartCancellationSource.IsCancellationRequested) return;
 
-            initialiseOSCClient(IPAddress.Loopback, ConnectionManager.VRChatReceivePort!.Value, IPAddress.Loopback, ConnectionManager.VRCOSCReceivePort);
+            initialiseOSCClient(IPAddress.Loopback, ConnectionManager.VRChatReceivePort!.Value, IPAddress.Loopback, ConnectionManager.VRCOSCReceivePort!.Value);
         }
         else
         {
@@ -390,7 +452,7 @@ public class AppManager
         }
     }
 
-    private async Task waitForOSCQuery()
+    private async Task waitForConnectionManager()
     {
         while (!ConnectionManager.IsConnected && !requestStartCancellationSource.IsCancellationRequested)
         {
@@ -400,17 +462,7 @@ public class AppManager
 
     private async Task startAsync()
     {
-        State.Value = AppManagerState.Starting;
-
-        StartupManager.GetInstance().OpenFileLocations();
-        RouterManager.GetInstance().Start();
-        VRChatOscClient.EnableSend();
-        ChatBoxManager.GetInstance().Start();
-        await VRChatClient.Player.RetrieveAll();
-        await ModuleManager.GetInstance().StartAsync();
-        VRChatLogReader.Start();
-
-        if (ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().Any())
+        if (ModuleManager.GetInstance().GetEnabledModulesOfType<ISpeechHandler>().Any() && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.SpeechEnabled))
         {
             if (string.IsNullOrWhiteSpace(SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SpeechModelPath)))
             {
@@ -424,6 +476,16 @@ public class AppManager
 
             SpeechEngine.Initialise();
         }
+
+        State.Value = AppManagerState.Starting;
+
+        StartupManager.GetInstance().OpenFileLocations();
+        await RouterManager.GetInstance().Start();
+        await VRChatOscClient.EnableSend();
+        ChatBoxManager.GetInstance().Start();
+        await VRChatClient.Player.RetrieveAll();
+        await ModuleManager.GetInstance().StartAsync();
+        VRChatLogReader.Start();
 
         updateTask = new Repeater($"{nameof(AppManager)}-{nameof(update)}", update);
         updateTask.Start(TimeSpan.FromSeconds(1d / 60d));
@@ -441,7 +503,7 @@ public class AppManager
     {
         var action = new FileDownloadAction(new Uri("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin?download=true"), Storage.GetStorageForDirectory("runtime/whisper"), "ggml-small.bin");
         action.OnComplete += () => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = Storage.GetStorageForDirectory("runtime/whisper").GetFullPath("ggml-small.bin");
-        return MainWindow.GetInstance().ShowLoadingOverlay("Installing Model", action);
+        return MainWindow.GetInstance().ShowLoadingOverlay(action);
     });
 
     private void initialiseOSCClient(IPAddress sendAddress, int sendPort, IPAddress receiveAddress, int receivePort)
@@ -533,9 +595,11 @@ public class AppManager
 
         ChatBoxManager.GetInstance().Unload();
         ModuleManager.GetInstance().UnloadAllModules();
+        DollyManager.GetInstance().Unload();
 
         ProfileManager.GetInstance().ActiveProfile.Value = newProfile;
 
+        DollyManager.GetInstance().Load();
         ModuleManager.GetInstance().LoadAllModules();
         ChatBoxManager.GetInstance().Load();
         RouterManager.GetInstance().Load();

@@ -28,8 +28,6 @@ public class SettingsManager
         serialisationManager.RegisterSerialiser(1, new SettingsManagerSerialiser(storage, this));
     }
 
-    public void Serialise() => serialisationManager.Serialise();
-
     public void Load()
     {
         writeDefaults();
@@ -40,12 +38,12 @@ public class SettingsManager
         serialisationManager.Deserialise();
     }
 
-    private void setDefault<T>(VRCOSCSetting lookup, T? defaultValue)
+    private void setDefault<T>(VRCOSCSetting lookup, T defaultValue) where T : notnull
     {
         Settings[lookup] = (IObservable)Activator.CreateInstance(typeof(Observable<T>), defaultValue)!;
     }
 
-    private void setDefault<T>(VRCOSCMetadata lookup, T? defaultValue)
+    private void setDefault<T>(VRCOSCMetadata lookup, T defaultValue) where T : notnull
     {
         Metadata[lookup] = (IObservable)Activator.CreateInstance(typeof(Observable<T>), defaultValue)!;
     }
@@ -66,12 +64,12 @@ public class SettingsManager
         setDefault(VRCOSCSetting.ChatBoxWorldBlacklist, true);
         setDefault(VRCOSCSetting.FilterByEnabledModules, true);
         setDefault(VRCOSCSetting.Theme, Theme.Dark);
+        setDefault(VRCOSCSetting.ConnectionMode, ConnectionMode.Local);
         setDefault(VRCOSCSetting.OutgoingEndpoint, "127.0.0.1:9000");
         setDefault(VRCOSCSetting.IncomingEndpoint, "127.0.0.1:9001");
-        setDefault(VRCOSCSetting.UseCustomEndpoints, false);
         setDefault(VRCOSCSetting.EnableAppDebug, false);
-        setDefault(VRCOSCSetting.EnableRouter, false);
         setDefault(VRCOSCSetting.SelectedMicrophoneID, string.Empty);
+        setDefault(VRCOSCSetting.SpeechEnabled, true);
         setDefault(VRCOSCSetting.SpeechModelPath, string.Empty);
         setDefault(VRCOSCSetting.SpeechConfidence, 0.4f);
         setDefault(VRCOSCSetting.SpeechNoiseCutoff, 0.14f);
@@ -84,7 +82,7 @@ public class SettingsManager
         setDefault(VRCOSCMetadata.AutoStartQuestionClicked, false);
     }
 
-    public Observable<T> GetObservable<T>(VRCOSCSetting lookup)
+    public Observable<T> GetObservable<T>(VRCOSCSetting lookup) where T : notnull
     {
         if (!Settings.TryGetValue(lookup, out var observable)) throw new InvalidOperationException("Setting doesn't exist");
         if (observable is not Observable<T> castObservable) throw new InvalidOperationException($"Setting is not of type {typeof(T).ToReadableName()}");
@@ -92,7 +90,7 @@ public class SettingsManager
         return castObservable;
     }
 
-    public Observable<T> GetObservable<T>(VRCOSCMetadata lookup)
+    public Observable<T> GetObservable<T>(VRCOSCMetadata lookup) where T : notnull
     {
         if (!Metadata.TryGetValue(lookup, out var observable)) throw new InvalidOperationException("Metadata doesn't exist");
         if (observable is not Observable<T> castObservable) throw new InvalidOperationException($"Metadata is not of type {typeof(T).ToReadableName()}");
@@ -114,8 +112,8 @@ public class SettingsManager
         return observable;
     }
 
-    public T GetValue<T>(VRCOSCSetting lookup) => GetObservable<T>(lookup).Value!;
-    public T GetValue<T>(VRCOSCMetadata lookup) => GetObservable<T>(lookup).Value!;
+    public T GetValue<T>(VRCOSCSetting lookup) where T : notnull => GetObservable<T>(lookup).Value!;
+    public T GetValue<T>(VRCOSCMetadata lookup) where T : notnull => GetObservable<T>(lookup).Value!;
 }
 
 public enum VRCOSCSetting
@@ -134,13 +132,12 @@ public enum VRCOSCSetting
     ChatBoxWorldBlacklist,
     FilterByEnabledModules,
     Theme,
+    ConnectionMode,
     OutgoingEndpoint,
     IncomingEndpoint,
-    UseCustomEndpoints,
     EnableAppDebug,
-    EnableRouter,
     SelectedMicrophoneID,
-    SelectedSpeechEngine,
+    SpeechEnabled,
     SpeechModelPath,
     SpeechConfidence,
     SpeechNoiseCutoff,
@@ -154,4 +151,11 @@ public enum VRCOSCMetadata
     FirstTimeSetupComplete,
     InstalledUpdateChannel,
     AutoStartQuestionClicked
+}
+
+public enum ConnectionMode
+{
+    Local,
+    LAN,
+    Custom
 }

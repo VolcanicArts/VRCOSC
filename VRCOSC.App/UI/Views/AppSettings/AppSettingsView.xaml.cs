@@ -14,7 +14,6 @@ using System.Windows.Controls.Primitives;
 using VRCOSC.App.Audio;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Themes;
-using VRCOSC.App.UI.Views.Settings;
 using VRCOSC.App.Updater;
 using VRCOSC.App.Utils;
 
@@ -68,10 +67,12 @@ public partial class AppSettingsView : INotifyPropertyChanged
         set => SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Value = (Theme)value;
     }
 
-    public bool UseCustomEndpoints
+    public IEnumerable<ConnectionMode> OSCModeSource => Enum.GetValues<ConnectionMode>();
+
+    public ConnectionMode ConnectionMode
     {
-        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Value;
-        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Value = value;
+        get => SettingsManager.GetInstance().GetObservable<ConnectionMode>(VRCOSCSetting.ConnectionMode).Value;
+        set => SettingsManager.GetInstance().GetObservable<ConnectionMode>(VRCOSCSetting.ConnectionMode).Value = value;
     }
 
     public string OutgoingEndpoint
@@ -116,22 +117,16 @@ public partial class AppSettingsView : INotifyPropertyChanged
         set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Value = value;
     }
 
-    public bool EnableRouter
-    {
-        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableRouter).Value;
-        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableRouter).Value = value;
-    }
-
-    public SpeechEngine SelectedSpeechEngine
-    {
-        get => SettingsManager.GetInstance().GetObservable<SpeechEngine>(VRCOSCSetting.SelectedSpeechEngine).Value;
-        set => SettingsManager.GetInstance().GetObservable<SpeechEngine>(VRCOSCSetting.SelectedSpeechEngine).Value = value;
-    }
-
     public string WhisperModelFilePath
     {
         get => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value;
         set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = value;
+    }
+
+    public bool SpeechEnabled
+    {
+        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechEnabled).Value;
+        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechEnabled).Value = value;
     }
 
     public bool SpeechTranslate
@@ -158,7 +153,7 @@ public partial class AppSettingsView : INotifyPropertyChanged
         set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value = (float)Interpolation.Map(value, 0, 300, 0, 3);
     }
 
-    public Observable<Visibility> UsingCustomEndpoints { get; } = new(Visibility.Collapsed);
+    public Observable<Visibility> OSCModeCustomVisibility { get; } = new(Visibility.Collapsed);
 
     public IEnumerable<UpdateChannel> UpdateChannelSource => Enum.GetValues<UpdateChannel>();
 
@@ -176,8 +171,7 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
         DataContext = this;
 
-        SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedMicrophoneID).Subscribe(updateDeviceListAndSelection, true);
-        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.UseCustomEndpoints).Subscribe(value => UsingCustomEndpoints.Value = value ? Visibility.Visible : Visibility.Collapsed, true);
+        SettingsManager.GetInstance().GetObservable<ConnectionMode>(VRCOSCSetting.ConnectionMode).Subscribe(value => OSCModeCustomVisibility.Value = value == ConnectionMode.Custom ? Visibility.Visible : Visibility.Collapsed, true);
         SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Subscribe(_ => OnPropertyChanged(nameof(WhisperModelFilePath)));
 
         setPage(0);
@@ -189,8 +183,10 @@ public partial class AppSettingsView : INotifyPropertyChanged
         AutomationTabButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
     }
 
-    private void updateDeviceListAndSelection(string? newDeviceId) => Dispatcher.Invoke(() =>
+    private void updateDeviceListAndSelection()
     {
+        var selectedMicrophone = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedMicrophoneID);
+
         audioInputDevices =
         [
             new DeviceDisplay(string.Empty, "-- Use Default --")
@@ -200,10 +196,14 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
         MicrophoneComboBox.ItemsSource = audioInputDevices;
 
-        if (newDeviceId is null) return;
+        if (string.IsNullOrEmpty(selectedMicrophone))
+        {
+            MicrophoneComboBox.SelectedIndex = 0;
+            return;
+        }
 
-        MicrophoneComboBox.SelectedItem = audioInputDevices.SingleOrDefault(device => device.ID == newDeviceId);
-    });
+        MicrophoneComboBox.SelectedItem = audioInputDevices.SingleOrDefault(device => device.ID == selectedMicrophone);
+    }
 
     private void MicrophoneComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -219,10 +219,12 @@ public partial class AppSettingsView : INotifyPropertyChanged
         OscContainer.Visibility = pageIndex == 1 ? Visibility.Visible : Visibility.Collapsed;
         AutomationContainer.Visibility = pageIndex == 2 ? Visibility.Visible : Visibility.Collapsed;
         UpdatesContainer.Visibility = pageIndex == 3 ? Visibility.Visible : Visibility.Collapsed;
-        AdvancedContainer.Visibility = pageIndex == 4 ? Visibility.Visible : Visibility.Collapsed;
+        DebugContainer.Visibility = pageIndex == 4 ? Visibility.Visible : Visibility.Collapsed;
         PackagesContainer.Visibility = pageIndex == 5 ? Visibility.Visible : Visibility.Collapsed;
         SpeechContainer.Visibility = pageIndex == 6 ? Visibility.Visible : Visibility.Collapsed;
         OVRContainer.Visibility = pageIndex == 7 ? Visibility.Visible : Visibility.Collapsed;
+        RouterContainer.Visibility = pageIndex == 8 ? Visibility.Visible : Visibility.Collapsed;
+        StartupContainer.Visibility = pageIndex == 9 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void GeneralTabButton_OnClick(object sender, RoutedEventArgs e)
@@ -245,9 +247,19 @@ public partial class AppSettingsView : INotifyPropertyChanged
         setPage(3);
     }
 
-    private void AdvancedTabButton_OnClick(object sender, RoutedEventArgs e)
+    private void DebugTabButton_OnClick(object sender, RoutedEventArgs e)
     {
         setPage(4);
+    }
+
+    private void RouterTabButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setPage(8);
+    }
+
+    private void StartupTabButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setPage(9);
     }
 
     private void PackagesTabButton_OnClick(object sender, RoutedEventArgs e)
@@ -257,6 +269,7 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
     private void SpeechTabButton_OnClick(object sender, RoutedEventArgs e)
     {
+        updateDeviceListAndSelection();
         setPage(6);
     }
 
@@ -289,3 +302,5 @@ public class IpPortValidationRule : ValidationRule
         return Regex.IsMatch(input, pattern);
     }
 }
+
+public record DeviceDisplay(string ID, string Name);

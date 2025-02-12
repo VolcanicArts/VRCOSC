@@ -19,7 +19,13 @@ public partial class ChatBoxTabView
     private void PopoutChatBox_OnClick(object sender, RoutedEventArgs e)
     {
         var previewWindow = new ChatBoxPreviewWindow();
-        previewWindow.SetPosition(this, ScreenChoice.SameAsParent, HorizontalPosition.Center, VerticalPosition.Center);
+
+        previewWindow.SourceInitialized += (_, _) =>
+        {
+            previewWindow.ApplyDefaultStyling();
+            previewWindow.SetPositionFrom(this);
+        };
+
         previewWindow.Show();
     }
 

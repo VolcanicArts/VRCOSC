@@ -14,11 +14,12 @@ using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.Modules;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Settings;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Windows.ChatBox;
 
-public partial class ChatBoxClipEditWindow
+public partial class ChatBoxClipEditWindow : IManagedWindow
 {
     public Clip ReferenceClip { get; }
 
@@ -37,10 +38,22 @@ public partial class ChatBoxClipEditWindow
     public ChatBoxClipEditWindow(Clip referenceClip)
     {
         InitializeComponent();
-
         DataContext = referenceClip;
         ReferenceClip = referenceClip;
+        ShowRelevantModulesCheckBox.DataContext = this;
 
+        SourceInitialized += OnSourceInitialized;
+        Loaded += OnLoaded;
+        Closed += OnClosed;
+    }
+
+    private void OnSourceInitialized(object? sender, EventArgs e)
+    {
+        ReferenceClip.Name.Subscribe(newName => Title = $"Editing {newName} Clip", true);
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.FilterByEnabledModules).Subscribe(() =>
         {
             var selectableModules = ModuleManager.GetInstance().Modules.Values.SelectMany(moduleList => moduleList)
@@ -51,10 +64,6 @@ public partial class ChatBoxClipEditWindow
             ModulesList.ItemsSource = selectableModules;
             SelectListPrompt.Visibility = selectableModules.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         }, true);
-
-        ShowRelevantModulesCheckBox.DataContext = this;
-
-        ReferenceClip.Name.Subscribe(newName => Title = $"Editing {newName} Clip", true);
     }
 
     private void OnClosed(object? sender, EventArgs e)
@@ -113,7 +122,13 @@ public partial class ChatBoxClipEditWindow
         var variableInstance = (ClipVariable)element.Tag;
 
         var clipVariableWindow = new ClipVariableEditWindow(variableInstance);
-        clipVariableWindow.SetPosition(this, ScreenChoice.SameAsParent, HorizontalPosition.Center, VerticalPosition.Center);
+
+        clipVariableWindow.SourceInitialized += (_, _) =>
+        {
+            clipVariableWindow.ApplyDefaultStyling();
+            clipVariableWindow.SetPositionFrom(this);
+        };
+
         clipVariableWindow.ShowDialog();
     }
 
@@ -243,29 +258,9 @@ public partial class ChatBoxClipEditWindow
             e.Effects = DragDropEffects.None;
         }
     }
-}
 
-public class TextBoxParsingConverter : IValueConverter
-{
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value is string str)
-        {
-            return str.Replace("\\n", Environment.NewLine);
-        }
-
-        return value;
-    }
-
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value is string str)
-        {
-            return str.Replace(Environment.NewLine, "\\n");
-        }
-
-        return value;
-    }
+    // only allow 1 clip edit window at once
+    public object GetComparer() => ChatBoxManager.GetInstance();
 }
 
 public class IsModuleSelectedConverter : IValueConverter

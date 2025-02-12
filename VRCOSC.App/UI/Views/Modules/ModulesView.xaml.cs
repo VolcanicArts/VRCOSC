@@ -31,12 +31,15 @@ public partial class ModulesView
         prefabsWindowManager = new WindowManager(this);
     }
 
-    private void ImportButton_OnClick(object sender, RoutedEventArgs e)
+    private async void ImportButton_OnClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        WinForms.OpenFile("module.json|*.json", filePath => Dispatcher.Invoke(() => module.ImportConfig(filePath)));
+        var filePath = await Platform.PickFileAsync(".json");
+        if (filePath is null) return;
+
+        Dispatcher.Invoke(() => module.ImportConfig(filePath));
     }
 
     private void ExportButton_OnClick(object sender, RoutedEventArgs e)
@@ -45,7 +48,7 @@ public partial class ModulesView
         var module = (Module)element.Tag;
 
         var filePath = AppManager.GetInstance().Storage.GetFullPath($"profiles/{ProfileManager.GetInstance().ActiveProfile.Value.ID}/modules/{module.FullID}.json");
-        WinForms.PresentFile(filePath);
+        Platform.PresentFile(filePath);
     }
 
     private void ParametersButton_OnClick(object sender, RoutedEventArgs e)

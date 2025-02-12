@@ -19,7 +19,11 @@ internal class AudioCapture
 
     public AudioCapture(MMDevice device)
     {
-        capture = new WasapiCapture(device);
+        capture = new WasapiCapture(device)
+        {
+            ShareMode = AudioClientShareMode.Shared
+        };
+
         buffer = new MemoryStream();
 
         capture.DataAvailable += OnDataAvailable;

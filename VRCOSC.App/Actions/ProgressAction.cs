@@ -11,20 +11,13 @@ namespace VRCOSC.App.Actions;
 /// </summary>
 public abstract class ProgressAction
 {
-    /// <summary>
-    /// The title of this <see cref="ProgressAction"/>
-    /// </summary>
     public virtual string Title => string.Empty;
 
-    /// <summary>
-    /// Marks if this <see cref="ProgressAction"/> is complete. This is true after <see cref="Perform"/> has completed
-    /// </summary>
-    public bool IsComplete { get; private set; }
-
-    /// <summary>
-    /// Called when <see cref="Execute"/> has completed
-    /// </summary>
     public Action? OnComplete;
+
+    public Action<float>? OnProgressChanged;
+
+    public virtual bool UseProgressBar => false;
 
     /// <summary>
     /// Executes this <see cref="ProgressAction"/>
@@ -32,17 +25,8 @@ public abstract class ProgressAction
     public async Task Execute()
     {
         await Perform();
-        IsComplete = true;
         OnComplete?.Invoke();
     }
 
-    /// <summary>
-    /// Performs the action
-    /// </summary>
     protected abstract Task Perform();
-
-    /// <summary>
-    /// Returns the progress
-    /// </summary>
-    public abstract float GetProgress();
 }

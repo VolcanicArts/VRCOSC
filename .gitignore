@@ -3,7 +3,6 @@ obj/
 /build
 /releases
 /publish
-/publish.sh
 /packages/
 riderModule.iml
 /_ReSharper.Caches/

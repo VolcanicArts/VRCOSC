@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,6 +13,7 @@ public class Repeater
     private readonly string name;
     private readonly Action action;
     private CancellationTokenSource? cancellationTokenSource;
+    private Task? updateTask;
 
     public Repeater(string name, Action action)
     {
@@ -21,58 +23,77 @@ public class Repeater
 
     public void Start(TimeSpan interval, bool runOnceImmediately = false)
     {
-        if (cancellationTokenSource is not null) throw new InvalidOperationException($"{nameof(Repeater)}:{name} is already started");
+        if (cancellationTokenSource is not null && updateTask is not null) throw new InvalidOperationException($"{nameof(Repeater)}:{name} is already started");
 
-        cancellationTokenSource = new CancellationTokenSource();
-
-        _ = Task.Run(async () =>
+        try
         {
-            if (runOnceImmediately)
-            {
-                try
-                {
-                    action.Invoke();
-                }
-                catch (Exception e)
-                {
-                    ExceptionHandler.Handle(e, $"{nameof(Repeater)}:{name} has experienced an exception");
-                }
-            }
+            cancellationTokenSource = new CancellationTokenSource();
+            updateTask = Task.Run(() => update(interval, runOnceImmediately), cancellationTokenSource.Token);
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"{nameof(Repeater)}:{name} has experienced an exception");
+        }
+    }
 
-            while (!cancellationTokenSource.Token.IsCancellationRequested)
+    private async Task update(TimeSpan interval, bool runOnceImmediately)
+    {
+        Debug.Assert(cancellationTokenSource is not null);
+
+        if (runOnceImmediately)
+        {
+            try
             {
-                try
-                {
-                    await Task.Delay(interval, cancellationTokenSource.Token);
-                    action.Invoke();
-                }
-                catch (TaskCanceledException)
-                {
-                    // Task was canceled, exit loop gracefully
-                }
-                catch (Exception e)
-                {
-                    ExceptionHandler.Handle(e, $"{nameof(Repeater)}:{name} has experienced an exception");
-                }
+                action.Invoke();
             }
-        }, cancellationTokenSource.Token);
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e, $"{nameof(Repeater)}:{name} has experienced an exception");
+            }
+        }
+
+        while (!cancellationTokenSource.Token.IsCancellationRequested)
+        {
+            try
+            {
+                await Task.Delay(interval, cancellationTokenSource.Token);
+                action.Invoke();
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e, $"{nameof(Repeater)}:{name} has experienced an exception");
+            }
+        }
     }
 
     public async Task StopAsync()
     {
-        if (cancellationTokenSource is null)
+        if (cancellationTokenSource is null || updateTask is null)
             return;
+
+        await cancellationTokenSource.CancelAsync();
 
         try
         {
-            await cancellationTokenSource.CancelAsync();
+            await updateTask;
         }
-        catch (TaskCanceledException)
+        catch (OperationCanceledException)
         {
-            // Task was canceled as expected
         }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"{nameof(Repeater)}:{name} has experienced an exception");
+        }
+        finally
+        {
+            updateTask.Dispose();
+            updateTask = null;
 
-        cancellationTokenSource.Dispose();
-        cancellationTokenSource = null;
+            cancellationTokenSource.Dispose();
+            cancellationTokenSource = null;
+        }
     }
 }

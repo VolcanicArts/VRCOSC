@@ -6,6 +6,5 @@
              mc:Ignorable="d">
         <ComboBox Height="30" ItemsSource="{Binding Items}" SelectedValue="{Binding Attribute.Value}"
                   DisplayMemberPath="{Binding TitlePath}" SelectedValuePath="{Binding ValuePath}"
-                  Background="{StaticResource CBackground3}" FontSize="16" HorizontalAlignment="Stretch"
-                  VerticalContentAlignment="Center" />
+                  Background="{StaticResource CBackground3}" FontSize="16" />
 </UserControl>

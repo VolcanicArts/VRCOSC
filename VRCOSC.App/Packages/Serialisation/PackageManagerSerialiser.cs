@@ -29,7 +29,8 @@ public class PackageManagerSerialiser : Serialiser<PackageManager, SerialisableP
 
             if (packageSource is null)
             {
-                var newPackageSource = new PackageSource(Reference, serialisablePackageSource.Owner, serialisablePackageSource.Name);
+                // if the source hasn't already been added, we know this is a community package
+                var newPackageSource = new PackageSource(serialisablePackageSource.Owner, serialisablePackageSource.Name, PackageType.Community);
                 newPackageSource.InjectCachedData(serialisablePackageSource.Repository!);
                 Reference.Sources.Add(newPackageSource);
             }

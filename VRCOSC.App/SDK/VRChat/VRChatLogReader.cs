@@ -11,32 +11,35 @@ using VRCOSC.App.Modules;
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.Utils;
 
+// ReSharper disable NotAccessedPositionalProperty.Global
+// ReSharper disable MissingBlankLines
+
 namespace VRCOSC.App.SDK.VRChat;
 
-internal class VRChatLogReader
+internal static class VRChatLogReader
 {
     private static readonly string logfile_location = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).Replace("Roaming", "LocalLow"), "VRChat", "VRChat");
     private const string logfile_pattern = "output_log_*";
 
     private static readonly Regex datetime_regex = new(@"^(\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}).+$");
-    private static readonly Regex world_exit_regex = new("^.+Fetching world information for (wrld_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})$");
-    private static readonly Regex world_enter_regex = new(@"^.+Finished entering world\.$");
+    private static readonly Regex instance_left_regex = new("^.+OnLeftRoom$");
+    private static readonly Regex instance_change_regex = new("^.+Destination set: (.+):.+$");
+    private static readonly Regex instance_joined_regex = new(@"^.+Finished entering world\.$");
+    private static readonly Regex user_joined_regex = new(@"^.+OnPlayerJoined .+ \((.+)\)$");
+    private static readonly Regex user_left_regex = new(@"^.+OnPlayerLeft .+ \((.+)\)$");
 
-    private static readonly List<string> line_buffer = new();
+    private static readonly List<LogLine> line_buffer = [];
     private static string? logFile;
     private static long byteOffset;
     private static Repeater? processTask;
     private static readonly object process_lock = new();
-    private static DateTime? startDateTime;
 
-    private static string? currentWorldID { get; set; }
+    private static string? currentWorldId { get; set; }
 
     public static Action<string>? OnWorldEnter;
 
     internal static void Start()
     {
-        startDateTime = DateTime.Now;
-
         reset();
 
         if (!Directory.Exists(logfile_location))
@@ -46,7 +49,7 @@ internal class VRChatLogReader
         }
 
         processTask = new Repeater($"{nameof(VRChatLogReader)}-{nameof(process)}", process);
-        processTask.Start(TimeSpan.FromMilliseconds(200), true);
+        processTask.Start(TimeSpan.FromMilliseconds(50), true);
     }
 
     internal static async void Stop()
@@ -62,7 +65,7 @@ internal class VRChatLogReader
         line_buffer.Clear();
         logFile = null;
         byteOffset = 0;
-        currentWorldID = null;
+        currentWorldId = null;
     }
 
     private static void process()
@@ -72,8 +75,14 @@ internal class VRChatLogReader
             readLinesFromFile();
             if (line_buffer.Count == 0) return;
 
-            checkWorldExit();
-            checkWorldEnter();
+            foreach (var logLine in line_buffer)
+            {
+                checkInstanceLeft(logLine);
+                checkInstanceChange(logLine);
+                checkInstanceJoined(logLine);
+                checkUserLeft(logLine);
+                checkUserJoined(logLine);
+            }
 
             line_buffer.Clear();
         }
@@ -103,9 +112,11 @@ internal class VRChatLogReader
 
             while (linesRead < 100 && streamReader.ReadLine() is { } line)
             {
-                if (!string.IsNullOrWhiteSpace(line) && isValidLogLine(line))
+                var dateTime = parseDate(line);
+
+                if (!string.IsNullOrWhiteSpace(line) && dateTime is not null)
                 {
-                    line_buffer.Add(line);
+                    line_buffer.Add(new LogLine(dateTime.Value, line));
                     linesRead++;
                 }
 
@@ -118,53 +129,70 @@ internal class VRChatLogReader
         }
     }
 
-    // checks that there's a date at the start of the line and that the date is after we've started
-    private static bool isValidLogLine(string line)
+    private static DateTime? parseDate(string line)
     {
         var foundDateTime = datetime_regex.Matches(line).LastOrDefault()?.Groups.Values.LastOrDefault()?.Value;
-        if (foundDateTime is null) return false;
+        if (foundDateTime is null) return null;
 
-        var parsedDate = DateTime.ParseExact(foundDateTime, "yyyy.MM.dd HH:mm:ss", null);
-        return parsedDate > startDateTime;
+        return DateTime.ParseExact(foundDateTime, "yyyy.MM.dd HH:mm:ss", null);
     }
 
-    private static void checkWorldExit()
+    private static IEnumerable<IVRCClientEventHandler> handlers => ModuleManager.GetInstance().GetRunningModulesOfType<IVRCClientEventHandler>();
+
+    private static void checkInstanceLeft(LogLine logLine)
     {
-        string? newWorldID = null;
+        var match = instance_left_regex.Match(logLine.Line);
+        if (!match.Success) return;
 
-        foreach (var line in line_buffer)
-        {
-            var worldIDGroup = world_exit_regex.Matches(line).LastOrDefault()?.Groups.Values.LastOrDefault();
-            if (worldIDGroup is null) continue;
-
-            var worldIDCapture = worldIDGroup.Captures.FirstOrDefault();
-            if (worldIDCapture is null) continue;
-
-            newWorldID = worldIDCapture.Value;
-        }
-
-        if (newWorldID is not null && newWorldID != currentWorldID)
-        {
-            currentWorldID = newWorldID;
-            Logger.Log("Detected world leave");
-
-            ModuleManager.GetInstance().GetRunningModulesOfType<IVRCClientEventHandler>().ForEach(handler => handler.OnWorldExit());
-        }
+        handlers.ForEach(handler => handler.OnInstanceLeft(new VRChatClientEventInstanceLeft(logLine.DateTime)));
     }
 
-    private static void checkWorldEnter()
+    private static void checkInstanceChange(LogLine logLine)
     {
-        foreach (var line in line_buffer.AsEnumerable().Reverse())
-        {
-            if (world_enter_regex.IsMatch(line))
-            {
-                Logger.Log($"Detected world enter to '{currentWorldID}'");
-                OnWorldEnter?.Invoke(currentWorldID!);
-                ModuleManager.GetInstance().GetRunningModulesOfType<IVRCClientEventHandler>().ForEach(handler => handler.OnWorldEnter(currentWorldID!));
+        var match = instance_change_regex.Match(logLine.Line);
+        if (!match.Success) return;
 
-                currentWorldID = null;
-                break;
-            }
-        }
+        currentWorldId = match.Groups[1].Captures[0].Value;
     }
+
+    private static void checkInstanceJoined(LogLine logLine)
+    {
+        var match = instance_joined_regex.Match(logLine.Line);
+        if (!match.Success) return;
+
+        if (currentWorldId is null)
+        {
+            Logger.Log("Entered world without knowing the world Id");
+            return;
+        }
+
+        OnWorldEnter?.Invoke(currentWorldId);
+        handlers.ForEach(handler => handler.OnInstanceJoined(new VRChatClientEventInstanceJoined(logLine.DateTime, currentWorldId)));
+    }
+
+    private static void checkUserLeft(LogLine logLine)
+    {
+        var match = user_left_regex.Match(logLine.Line);
+        if (!match.Success) return;
+
+        var userId = match.Groups[1].Captures[0].Value;
+        handlers.ForEach(handler => handler.OnUserLeft(new VRChatClientEventUserLeft(logLine.DateTime, userId)));
+    }
+
+    private static void checkUserJoined(LogLine logLine)
+    {
+        var match = user_joined_regex.Match(logLine.Line);
+        if (!match.Success) return;
+
+        var userId = match.Groups[1].Captures[0].Value;
+        handlers.ForEach(handler => handler.OnUserJoined(new VRChatClientEventUserJoined(logLine.DateTime, userId)));
+    }
+
+    private readonly record struct LogLine(DateTime DateTime, string Line);
 }
+
+public record VRChatClientEvent(DateTime DateTime);
+public record VRChatClientEventInstanceLeft(DateTime DateTime) : VRChatClientEvent(DateTime);
+public record VRChatClientEventInstanceJoined(DateTime DateTime, string WorldId) : VRChatClientEvent(DateTime);
+public record VRChatClientEventUserLeft(DateTime DateTime, string UserId) : VRChatClientEvent(DateTime);
+public record VRChatClientEventUserJoined(DateTime DateTime, string UserId) : VRChatClientEvent(DateTime);

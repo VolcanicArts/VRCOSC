@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Utils;
 
@@ -80,41 +81,40 @@ public sealed class RegisteredParameter : ReceivedParameter
     public Enum Lookup { get; }
 
     private readonly ModuleParameter moduleParameter;
+    private readonly Match match;
+
     private readonly List<Wildcard> wildcards = [];
 
-    internal RegisteredParameter(ReceivedParameter other, Enum lookup, ModuleParameter moduleParameter)
+    internal RegisteredParameter(ReceivedParameter other, Enum lookup, ModuleParameter moduleParameter, Match match)
         : base(other)
     {
         Lookup = lookup;
         this.moduleParameter = moduleParameter;
+        this.match = match;
 
         decodeWildcards();
     }
 
     private void decodeWildcards()
     {
-        var referenceSections = Name.Split("/");
-        var originalSections = moduleParameter.Name.Value.Split("/");
-
-        for (int i = 0; i < originalSections.Length; i++)
+        for (var index = 1; index < match.Groups.Count; index++)
         {
-            if (originalSections[i] != "*") continue;
+            var group = match.Groups[index];
+            var value = group.Captures[0].Value;
 
-            var referenceValue = referenceSections[i];
-
-            if (int.TryParse(referenceValue, out var referenceValueInt))
+            if (int.TryParse(value, out var valueInt))
             {
-                wildcards.Add(new Wildcard(referenceValueInt));
+                wildcards.Add(new Wildcard(valueInt));
                 continue;
             }
 
-            if (float.TryParse(referenceValue, out var referenceValueFloat))
+            if (float.TryParse(value, out var valueFloat))
             {
-                wildcards.Add(new Wildcard(referenceValueFloat));
+                wildcards.Add(new Wildcard(valueFloat));
                 continue;
             }
 
-            wildcards.Add(new Wildcard(referenceValue));
+            wildcards.Add(new Wildcard(value));
         }
     }
 

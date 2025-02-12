@@ -79,6 +79,12 @@ public partial class RunView : INotifyPropertyChanged
 
     private void onAppManagerStateChange(AppManagerState newState) => Dispatcher.Invoke(() =>
     {
+        EndpointText.Visibility = Visibility.Collapsed;
+
+        var cM = AppManager.GetInstance().ConnectionManager;
+        var oC = AppManager.GetInstance().VRChatOscClient;
+        var oscMode = SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode);
+
         if (newState == AppManagerState.Starting) LogStackPanel.Children.Clear();
 
         switch (newState)
@@ -95,6 +101,16 @@ public partial class RunView : INotifyPropertyChanged
                 StartButton.IsEnabled = false;
                 RestartButton.IsEnabled = true;
                 StopButton.IsEnabled = true;
+                EndpointText.Visibility = Visibility.Visible;
+
+                EndpointText.Text = oscMode switch
+                {
+                    ConnectionMode.Local when cM.VRChatQueryPort is not null => $"Outgoing: {cM.VRChatIP}:{cM.VRChatReceivePort} ({cM.VRChatQueryPort}) | Incoming: {cM.VRCOSCIP}:{cM.VRCOSCReceivePort} ({cM.VRCOSCQueryPort})",
+                    ConnectionMode.LAN when cM.VRCOSCQueryPort is not null => $"Outgoing: {cM.VRChatIP}:{cM.VRChatReceivePort} | Incoming: {cM.VRCOSCIP}:{cM.VRCOSCReceivePort} ({cM.VRCOSCQueryPort})",
+                    ConnectionMode.Custom => $"Outgoing: {oC.SendEndpoint} | Incoming: {oC.ReceiveEndpoint}",
+                    _ => $"Outgoing: {oC.SendEndpoint} | Incoming: {oC.ReceiveEndpoint}"
+                };
+
                 break;
 
             case AppManagerState.Stopped:
@@ -127,7 +143,7 @@ public partial class RunView : INotifyPropertyChanged
 
     private void onLogEntry(LogEntry e) => Dispatcher.Invoke(() =>
     {
-        if (e.Target != LoggingTarget.Terminal) return;
+        if (e.Target != LoggingTarget.Terminal || AppManager.GetInstance().State.Value == AppManagerState.Stopped || AppManager.GetInstance().State.Value == AppManagerState.Waiting) return;
 
         var dateTimeText = $"[{DateTime.Now:HH:mm:ss}] {e.Message}";
 

@@ -38,9 +38,11 @@ public class ProfileManager : INotifyPropertyChanged
         set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AutomaticProfileSwitching).Value = value;
     }
 
-    private readonly SerialisationManager serialisationManager;
+    private SerialisationManager serialisationManager = null!;
 
-    public ProfileManager()
+    public void Serialise() => serialisationManager.Serialise();
+
+    public void Load()
     {
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new ProfileManagerSerialiser(storage, this));
@@ -53,15 +55,8 @@ public class ProfileManager : INotifyPropertyChanged
         });
 
         DefaultProfile.Subscribe(newProfile => Logger.Log($"Default profile changed to {newProfile.ID}"));
-    }
 
-    public void Serialise() => serialisationManager.Serialise();
-
-    public void Load()
-    {
-        Logger.Log("Loading profiles");
-        var deserialisationResult = serialisationManager.Deserialise(false);
-        Logger.Log($"Profiles ended in {deserialisationResult}");
+        serialisationManager.Deserialise(false);
 
         checkForDefault();
 

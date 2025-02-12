@@ -46,7 +46,7 @@ public class PiShockProvider
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e, $"{nameof(PiShockProvider)} has experienced an exception");
+            Logger.Error(e, $"{nameof(PiShockProvider)} has experienced an exception");
             return new PiShockResponse(false, e.Message);
         }
     }
@@ -68,7 +68,7 @@ public class PiShockProvider
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e, $"{nameof(PiShockProvider)} has experienced an exception");
+            Logger.Error(e, $"{nameof(PiShockProvider)} has experienced an exception");
             return null;
         }
     }

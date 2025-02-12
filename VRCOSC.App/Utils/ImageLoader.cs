@@ -21,7 +21,6 @@ public static class ImageLoader
 
         var bitmap = new BitmapImage();
         bitmap.BeginInit();
-        bitmap.CacheOption = BitmapCacheOption.OnLoad;
         bitmap.UriSource = new Uri(url, UriKind.Absolute);
         bitmap.EndInit();
 

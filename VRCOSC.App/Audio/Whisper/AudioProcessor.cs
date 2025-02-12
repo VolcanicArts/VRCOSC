@@ -82,11 +82,15 @@ internal class AudioProcessor
         audioCapture.StartCapture();
     }
 
-    public void Stop()
+    public async Task Stop()
     {
         audioCapture?.StopCapture();
-        whisper?.Dispose();
-        whisper = null;
+
+        if (whisper is not null)
+        {
+            await whisper.DisposeAsync();
+            whisper = null;
+        }
     }
 
     public async Task<SpeechResult?> GetResultAsync()

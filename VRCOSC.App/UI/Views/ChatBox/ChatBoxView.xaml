@@ -13,13 +13,13 @@
              MouseLeftButtonDown="ChatBoxPage_OnMouseLeftButtonDown"
              MouseLeftButtonUp="ChatBoxPage_OnMouseLeftButtonUp">
     <UserControl.Resources>
-        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" Invert="True" />
+        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" True="Collapsed" False="Visible" />
+        <core:BoolToThicknessConverter x:Key="BoolToThicknessConverter" />
         <local:IndicatorPositionConverter x:Key="IndicatorPositionConverter" />
         <local:ClipXPositionConverter x:Key="ClipXPositionConverter" />
         <local:ClipYPositionConverter x:Key="ClipYPositionConverter" />
         <local:ClipWidthConverter x:Key="ClipWidthConverter" />
         <local:ClipEnabledToOpacityConverter x:Key="ClipEnabledToOpacityConverter" />
-        <local:BoolToThicknessConverter x:Key="BoolToThicknessConverter" />
     </UserControl.Resources>
     <Grid>
         <Border Padding="10">
@@ -56,27 +56,31 @@
                                 Grid.Column="0"
                                 ButtonColour="Blue"
                                 Icon="Solid_Download"
-                                Click="ImportButton_OnClick" />
+                                Click="ImportButton_OnClick"
+                                ToolTip="Import Config" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             <core:IconButton
                                 Grid.Row="0"
                                 Grid.Column="2"
                                 ButtonColour="Blue"
                                 Icon="Solid_Upload"
-                                Click="ExportButton_OnClick" />
+                                Click="ExportButton_OnClick"
+                                ToolTip="Export Config" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             <core:IconButton
                                 Grid.Row="2"
                                 Grid.Column="0"
                                 Grid.ColumnSpan="3"
                                 ButtonColour="Gray"
                                 Icon="Regular_CircleQuestion"
-                                Click="HelpButton_OnClick" />
+                                Click="HelpButton_OnClick"
+                                ToolTip="Help" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             <core:IconButton
                                 Grid.Row="4"
                                 Grid.Column="0"
                                 Grid.ColumnSpan="3"
                                 ButtonColour="Red"
                                 Icon="Solid_TrashCan"
-                                Click="ClearButton_OnClick" />
+                                Click="ClearButton_OnClick"
+                                ToolTip="Clear Timeline" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                         </Grid>
                     </Border>
                 </Border>
@@ -450,7 +454,7 @@
                                     </ScrollViewer>
                                 </Grid>
                                 <!--> Right Click Menu <-->
-                                <Grid Name="RightClickMenu" Width="150" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                <Grid x:Name="RightClickMenu" Width="150" HorizontalAlignment="Left" VerticalAlignment="Top"
                                       Visibility="Collapsed"
                                       MouseDown="RightClickMenu_OnMouseDown">
                                     <Border Background="{StaticResource CBackground5}" CornerRadius="5" Padding="5">

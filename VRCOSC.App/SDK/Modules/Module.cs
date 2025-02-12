@@ -26,6 +26,12 @@ using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Views.Modules.Settings;
 using VRCOSC.App.Utils;
 
+// ReSharper disable UnusedMember.Global
+// ReSharper disable ArrangeMethodOrOperatorBody
+// ReSharper disable UnusedMethodReturnValue.Global
+// ReSharper disable UnusedParameter.Global
+// ReSharper disable VirtualMemberNeverOverridden.Global
+
 namespace VRCOSC.App.SDK.Modules;
 
 public abstract class Module
@@ -55,9 +61,8 @@ public abstract class Module
     /// </summary>
     internal Observable<ModuleState> State { get; } = new(ModuleState.Stopped);
 
-    // Cached pre-computed lookups
-    private readonly Dictionary<string, Enum> parameterNameEnum = new();
-    private readonly Dictionary<string, Regex> parameterNameRegex = new();
+    private readonly Dictionary<Enum, ModuleParameter> readParameters = new();
+    private readonly Dictionary<Enum, Regex> parameterNameRegex = new();
 
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
     internal readonly Dictionary<string, ModuleSetting> Settings = new();
@@ -68,12 +73,14 @@ public abstract class Module
     private readonly List<Repeater> updateTasks = new();
     private readonly List<MethodInfo> chatBoxUpdateMethods = new();
 
+    private readonly object parameterWaitListLock = new();
+    private readonly List<WaitingParameter> parameterWaitList = [];
+
     private SerialisationManager moduleSerialisationManager = null!;
     private SerialisationManager persistenceSerialisationManager = null!;
 
     internal Type? RuntimeViewType { get; private set; }
 
-    private readonly object loadLock = new();
     private bool isLoaded;
 
     public string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER TITLE";
@@ -105,31 +112,28 @@ public abstract class Module
 
     internal void Load(string filePathOverride = "")
     {
-        lock (loadLock)
-        {
-            isLoaded = false;
+        isLoaded = false;
 
-            Settings.Clear();
-            Parameters.Clear();
-            Groups.Clear();
+        Settings.Clear();
+        Parameters.Clear();
+        Groups.Clear();
 
-            OnPreLoad();
+        OnPreLoad();
 
-            moduleSerialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
+        moduleSerialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
 
-            cachePersistentProperties();
+        cachePersistentProperties();
 
-            Enabled.Subscribe(_ => moduleSerialisationManager.Serialise());
+        Enabled.Subscribe(_ => moduleSerialisationManager.Serialise());
 
-            isLoaded = true;
+        isLoaded = true;
 
-            OnPostLoad();
-        }
+        OnPostLoad();
     }
 
-    internal void ImportConfig(string filePathOverride)
+    internal async void ImportConfig(string filePathOverride)
     {
-        ModuleManager.GetInstance().ReloadAllModules(new Dictionary<string, string> { { FullID, filePathOverride } });
+        await ModuleManager.GetInstance().ReloadAllModules(new Dictionary<string, string> { { FullID, filePathOverride } });
     }
 
     internal void Serialise()
@@ -191,7 +195,7 @@ public abstract class Module
     {
         var pattern = "^"; // start of string
         pattern += @"(?:VF\d+_)?"; // VRCFury prefix
-        pattern += $"({parameterName.Replace("/", @"\/").Replace("*", @"(?:\S*)")})";
+        pattern += $"(?:{Regex.Escape(parameterName).Replace(@"\*", @"(\S*?)")})";
         pattern += "$"; // end of string
 
         return new Regex(pattern);
@@ -203,16 +207,12 @@ public abstract class Module
         {
             State.Value = ModuleState.Starting;
 
-            parameterNameEnum.Clear();
+            readParameters.Clear();
             parameterNameRegex.Clear();
 
-            var validParameters = Parameters.Where(parameter => !string.IsNullOrWhiteSpace(parameter.Value.Name.Value)).ToList();
-
-            validParameters.ForEach(pair =>
-            {
-                parameterNameEnum.Add(pair.Value.Name.Value, pair.Key);
-                parameterNameRegex.Add(pair.Value.Name.Value, parameterToRegex(pair.Value.Name.Value));
-            });
+            var validReadParameters = Parameters.Where(parameter => !string.IsNullOrWhiteSpace(parameter.Value.Name.Value) && parameter.Value.Mode.HasFlag(ParameterMode.Read) && parameter.Value.Enabled.Value).ToList();
+            readParameters.AddRange(validReadParameters);
+            parameterNameRegex.AddRange(validReadParameters.Select(pair => new KeyValuePair<Enum, Regex>(pair.Key, parameterToRegex(pair.Value.Name.Value))));
 
             loadPersistentProperties();
 
@@ -464,7 +464,7 @@ public abstract class Module
 
         if (titleValue.ToString() is null || valueValue.ToString() is null)
         {
-            throw new InvalidOperationException("Your titlePath and valuePath properties must be convertable to a string");
+            throw new InvalidOperationException("Your titlePath and valuePath properties must be convertible to a string");
         }
 
         addSetting(lookup, new DropdownListModuleSetting(title, description, typeof(ListItemDropdownSettingView), items, valueValue.ToString()!, titlePath, valuePath));
@@ -497,12 +497,12 @@ public abstract class Module
 
     protected void CreateQueryableParameterList(Enum lookup, string title, string description)
     {
-        addSetting(lookup, new QueryableParameterListModuleSetting(title, description));
+        addSetting(lookup, new QueryableParameterListModuleSetting(title, description, null));
     }
 
     protected void CreateQueryableParameterList<TAction>(Enum lookup, string title, string description) where TAction : Enum
     {
-        addSetting(lookup, new ActionableQueryableParameterListModuleSetting(title, description, typeof(TAction)));
+        addSetting(lookup, new QueryableParameterListModuleSetting(title, description, typeof(TAction)));
     }
 
     private void addSetting(Enum lookup, ModuleSetting moduleSetting)
@@ -548,12 +548,12 @@ public abstract class Module
         ChatBoxManager.GetInstance().TriggerEvent(FullID, lookup);
     }
 
-    protected void SetVariableValue<T>(Enum lookup, T value)
+    protected void SetVariableValue<T>(Enum lookup, T value) where T : notnull
     {
         SetVariableValue(lookup.ToLookup(), value);
     }
 
-    protected void SetVariableValue<T>(string lookup, T value)
+    protected void SetVariableValue<T>(string lookup, T value) where T : notnull
     {
         var variable = GetVariable(lookup);
         if (variable is null) throw new InvalidOperationException($"Variable with lookup {lookup} does not exist");
@@ -816,6 +816,14 @@ public abstract class Module
     }
 
     /// <summary>
+    /// Changes the user's avatar into the ID that's provided
+    /// </summary>
+    protected void ChangeAvatar(string avatarId)
+    {
+        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOscConstants.ADDRESS_AVATAR_CHANGE}", avatarId);
+    }
+
+    /// <summary>
     /// Allows you to send any parameter name and value.
     /// If you want the user to be able to customise the parameter, register a parameter and use <see cref="SendParameter(Enum,object)"/>
     /// </summary>
@@ -823,7 +831,7 @@ public abstract class Module
     /// <param name="value">The value to set the parameter to</param>
     protected void SendParameter(string name, object value)
     {
-        AppManager.GetInstance().VRChatOscClient.SendValue($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", value);
+        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", value);
     }
 
     /// <summary>
@@ -835,13 +843,49 @@ public abstract class Module
     {
         if (!Parameters.TryGetValue(lookup, out var moduleParameter))
         {
-            ExceptionHandler.Handle(new InvalidOperationException($"Parameter `{lookup}` has not been registered. Please register it by calling RegisterParameter in OnPreLoad"));
+            ExceptionHandler.Handle(new InvalidOperationException($"Parameter `{lookup}` has not been registered. Please register it by calling {nameof(RegisterParameter)} in {nameof(OnPreLoad)}"));
             return;
         }
 
         if (!moduleParameter.Enabled.Value || string.IsNullOrWhiteSpace(moduleParameter.Name.Value)) return;
 
         SendParameter(moduleParameter.Name.Value, value);
+    }
+
+    /// <summary>
+    /// Allows you to send a customisable parameter using its lookup and a value.
+    /// </summary>
+    /// <param name="lookup">The lookup of the parameter</param>
+    /// <param name="value">The value to set the parameter to</param>
+    /// <param name="blockEvents">Whether to block <see cref="OnRegisteredParameterReceived"/> from running until we acknowledge a response. This is helpful to prevent unwanted loopbacks</param>
+    /// <param name="timeout">The timeout at which waiting fails. Defaults to 0.5 seconds</param>
+    /// <returns>True if the parameter was acknowledged, false if the parameter doesn't exist or VRChat is closed</returns>
+    protected async Task<bool> SendParameterAndWait(Enum lookup, object value, bool blockEvents = false, TimeSpan timeout = default)
+    {
+        if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(0.5f);
+
+        var taskCompletionSource = new TaskCompletionSource();
+        var waitingParameter = new WaitingParameter(lookup, blockEvents, taskCompletionSource);
+
+        lock (parameterWaitListLock)
+        {
+            parameterWaitList.Add(waitingParameter);
+        }
+
+        SendParameter(lookup, value);
+
+        var result = false;
+
+        try
+        {
+            await taskCompletionSource.Task.WaitAsync(timeout);
+            result = true;
+        }
+        catch (TimeoutException)
+        {
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -863,40 +907,35 @@ public abstract class Module
 
     internal T GetSetting<T>(string lookup) where T : ModuleSetting
     {
-        lock (loadLock)
-        {
-            if (Settings.TryGetValue(lookup, out var setting)) return (T)setting;
+        if (Settings.TryGetValue(lookup, out var setting)) return (T)setting;
 
-            throw new InvalidOperationException($"Setting with lookup '{lookup}' doesn't exist");
-        }
+        throw new InvalidOperationException($"Setting with lookup '{lookup}' doesn't exist");
     }
 
     internal ModuleParameter GetParameter(string lookup)
     {
-        lock (loadLock)
-        {
-            var moduleParameter = Parameters.SingleOrDefault(pair => pair.Key.ToLookup() == lookup);
-            if (Parameters.Any(pair => pair.Key.ToLookup() == lookup)) return moduleParameter.Value;
+        var moduleParameter = Parameters.SingleOrDefault(pair => pair.Key.ToLookup() == lookup);
+        if (Parameters.Any(pair => pair.Key.ToLookup() == lookup)) return moduleParameter.Value;
 
-            throw new InvalidOperationException($"Parameter with lookup '{lookup}' doesn't exist");
-        }
+        throw new InvalidOperationException($"Parameter with lookup '{lookup}' doesn't exist");
     }
 
     /// <summary>
-    /// Retrieves a <see cref="ModuleSetting"/>'s value as a shorthand for <see cref="ModuleAttribute.GetValue{TValueType}"/>
+    /// Retrieves a <see cref="ModuleSetting"/>'s value as a shorthand for <see cref="ModuleSetting.GetValue{TValueType}"/>
     /// </summary>
     /// <param name="lookup">The lookup of the setting</param>
     /// <typeparam name="T">The value type of the setting</typeparam>
     /// <returns>The value if successful, otherwise pushes an exception and returns default</returns>
     protected T GetSettingValue<T>(Enum lookup)
     {
-        lock (loadLock)
+        try
         {
-            var moduleSetting = GetSetting(lookup);
-
-            if (moduleSetting.GetValue<T>(out var value)) return value;
-
-            throw new InvalidOperationException($"Could not get the value of setting with lookup '{lookup.ToLookup()}'");
+            return GetSetting(lookup).GetValue<T>();
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"'{FullID}' experienced a problem when getting value of setting '{lookup.ToLookup()}'");
+            return default!;
         }
     }
 
@@ -912,64 +951,53 @@ public abstract class Module
     /// <param name="parameterName">The name of the parameter</param>
     protected Task<ReceivedParameter?> FindParameter(string parameterName) => AppManager.GetInstance().VRChatOscClient.FindParameter(parameterName);
 
-    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
-    protected Task<object?> FindParameterValue(Enum lookup)
-    {
-        var parameterName = Parameters[lookup].Name.Value;
-        return FindParameterValue(parameterName);
-    }
-
-    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
-    protected Task<object?> FindParameterValue(string parameterName)
-    {
-        return AppManager.GetInstance().VRChatOscClient.FindParameterValue(parameterName);
-    }
-
-    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
-    protected Task<TypeCode?> FindParameterType(Enum lookup)
-    {
-        var parameterName = Parameters[lookup].Name.Value;
-        return FindParameterType(parameterName);
-    }
-
-    [Obsolete($"Use {nameof(FindParameter)} instead", true)]
-    protected Task<TypeCode?> FindParameterType(string parameterName)
-    {
-        return AppManager.GetInstance().VRChatOscClient.FindParameterType(parameterName);
-    }
-
     internal void OnParameterReceived(VRChatOscMessage message)
     {
-        lock (loadLock)
+        var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
+
+        try
         {
-            var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
+            OnAnyParameterReceived(receivedParameter);
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"Module {FullID} experienced an exception calling {nameof(OnAnyParameterReceived)}");
+        }
 
-            try
-            {
-                OnAnyParameterReceived(receivedParameter);
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e, $"Module {FullID} experienced an exception calling {nameof(OnAnyParameterReceived)}");
-            }
+        Enum? lookup = null;
+        ModuleParameter? parameterData = null;
+        Match? match = null;
 
-            var parameterName = Parameters.Values.FirstOrDefault(parameter => parameterNameRegex[parameter.Name.Value].Match(receivedParameter.Name).Success)?.Name.Value;
-            if (parameterName is null) return;
+        foreach (var (parameterLookup, moduleParameter) in readParameters)
+        {
+            var localMatch = parameterNameRegex[parameterLookup].Match(receivedParameter.Name);
+            if (!localMatch.Success) continue;
 
-            if (!parameterNameEnum.TryGetValue(parameterName, out var lookup)) return;
+            lookup = parameterLookup;
+            parameterData = moduleParameter;
+            match = localMatch;
+            break;
+        }
 
-            var parameterData = Parameters[lookup];
+        if (lookup is null || parameterData is null || match is null) return;
 
-            if (!parameterData.Enabled.Value || !parameterData.Mode.HasFlag(ParameterMode.Read)) return;
+        if (receivedParameter.Type != parameterData.ExpectedType)
+        {
+            Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType.ToString()}` but received type `{receivedParameter.Type.ToString()}`");
+            return;
+        }
 
-            if (receivedParameter.Type != parameterData.ExpectedType)
-            {
-                Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType.ToString()}` but received type `{receivedParameter.Type.ToString()}`");
-                return;
-            }
+        var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData, match);
 
-            var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData);
+        List<WaitingParameter> waitingParameters;
 
+        lock (parameterWaitListLock)
+        {
+            waitingParameters = parameterWaitList.Where(waitingParameter => waitingParameter.Lookup.Equals(lookup)).ToList();
+        }
+
+        if (!waitingParameters.Any(waitingParameter => waitingParameter.BlockEvents))
+        {
             try
             {
                 OnRegisteredParameterReceived(registeredParameter);
@@ -977,6 +1005,15 @@ public abstract class Module
             catch (Exception e)
             {
                 ExceptionHandler.Handle(e, $"Module {FullID} experienced an exception calling {nameof(OnRegisteredParameterReceived)}");
+            }
+        }
+
+        lock (parameterWaitListLock)
+        {
+            foreach (var waitingParameter in waitingParameters)
+            {
+                parameterWaitList.Remove(waitingParameter);
+                waitingParameter.CompletionSource.SetResult();
             }
         }
     }
@@ -1011,4 +1048,6 @@ public abstract class Module
     }
 
     #endregion
+
+    private record WaitingParameter(Enum Lookup, bool BlockEvents, TaskCompletionSource CompletionSource);
 }

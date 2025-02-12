@@ -18,18 +18,13 @@ public class StartupManager
 
     public ObservableCollection<StartupInstance> Instances { get; } = [];
 
-    private readonly SerialisationManager serialisationManager;
-
-    private StartupManager()
-    {
-        serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(1, new StartupManagerSerialiser(AppManager.GetInstance().Storage, this));
-    }
-
-    public void Serialise() => serialisationManager.Serialise();
+    private SerialisationManager serialisationManager = null!;
 
     public void Load()
     {
+        serialisationManager = new SerialisationManager();
+        serialisationManager.RegisterSerialiser(1, new StartupManagerSerialiser(AppManager.GetInstance().Storage, this));
+
         serialisationManager.Deserialise();
 
         Instances.OnCollectionChanged((newItems, _) =>

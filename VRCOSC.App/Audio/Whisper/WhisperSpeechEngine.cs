@@ -16,6 +16,7 @@ public class WhisperSpeechEngine : SpeechEngine
     private Repeater? repeater;
     private SpeechResult? result;
     private AudioEndpointNotificationClient? audioNotificationClient;
+    private bool initialised;
 
     public override void Initialise()
     {
@@ -44,11 +45,14 @@ public class WhisperSpeechEngine : SpeechEngine
         };
 
         AudioDeviceHelper.RegisterCallbackClient(audioNotificationClient);
+
+        initialised = true;
     }
 
     private async void onCaptureDeviceIdChanged(string newDeviceId)
     {
-        audioProcessor?.Stop();
+        if (audioProcessor is not null)
+            await audioProcessor.Stop();
 
         if (repeater is not null)
             await repeater.StopAsync();
@@ -110,6 +114,8 @@ public class WhisperSpeechEngine : SpeechEngine
 
     public override async Task Teardown()
     {
+        if (!initialised) return;
+
         var captureDeviceId = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedMicrophoneID);
         captureDeviceId.Unsubscribe(onCaptureDeviceIdChanged);
 
@@ -118,7 +124,8 @@ public class WhisperSpeechEngine : SpeechEngine
 
         audioNotificationClient = null;
 
-        audioProcessor?.Stop();
+        if (audioProcessor is not null)
+            await audioProcessor.Stop();
 
         if (repeater is not null)
             await repeater.StopAsync();
@@ -126,5 +133,7 @@ public class WhisperSpeechEngine : SpeechEngine
         audioProcessor = null;
         repeater = null;
         result = null;
+
+        initialised = false;
     }
 }

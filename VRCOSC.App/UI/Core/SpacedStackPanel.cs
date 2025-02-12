@@ -1,8 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -13,7 +11,12 @@ namespace VRCOSC.App.UI.Core;
 public class SpacedStackPanel : StackPanel
 {
     public static readonly DependencyProperty SpacingProperty =
-        DependencyProperty.Register(nameof(Spacing), typeof(double), typeof(SpacedStackPanel), new PropertyMetadata(5.0));
+        DependencyProperty.Register(nameof(Spacing), typeof(double), typeof(SpacedStackPanel), new PropertyMetadata(0d, SpacingChanged));
+
+    private static void SpacingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is SpacedStackPanel control) control.InvalidateMeasure();
+    }
 
     public double Spacing
     {
@@ -25,41 +28,41 @@ public class SpacedStackPanel : StackPanel
     {
         var sizeAvailable = base.MeasureOverride(constraint);
 
+        var visibleChildCount = 0;
+
         if (Orientation == Orientation.Horizontal)
         {
-            double totalChildWidth = 0;
+            var totalChildWidth = 0d;
 
             foreach (UIElement child in InternalChildren)
             {
-                if (child.Visibility == Visibility.Visible)
-                {
-                    child.Measure(constraint);
-                    totalChildWidth += child.DesiredSize.Width;
-                }
+                if (child.Visibility != Visibility.Visible) continue;
+
+                visibleChildCount++;
+                child.Measure(constraint);
+                totalChildWidth += child.DesiredSize.Width;
             }
 
-            totalChildWidth += Spacing * (InternalChildren.Cast<UIElement>().Count(c => c.Visibility == Visibility.Visible) - 1);
+            var totalSpacing = visibleChildCount > 1 ? Spacing * (visibleChildCount - 1) : 0;
 
-            totalChildWidth = Math.Max(totalChildWidth, 0);
-
-            return new Size(totalChildWidth, sizeAvailable.Height);
+            return new Size(totalChildWidth + totalSpacing, sizeAvailable.Height);
         }
-        else // Vertical Orientation
+        else
         {
-            double totalChildHeight = 0;
+            var totalChildHeight = 0d;
 
             foreach (UIElement child in InternalChildren)
             {
-                if (child.Visibility == Visibility.Visible)
-                {
-                    child.Measure(new Size(constraint.Width, double.PositiveInfinity));
-                    totalChildHeight += child.DesiredSize.Height;
-                }
+                if (child.Visibility != Visibility.Visible) continue;
+
+                visibleChildCount++;
+                child.Measure(new Size(constraint.Width, double.PositiveInfinity));
+                totalChildHeight += child.DesiredSize.Height;
             }
 
-            totalChildHeight += Spacing * (InternalChildren.Cast<UIElement>().Count(c => c.Visibility == Visibility.Visible) - 1);
+            var totalSpacing = visibleChildCount > 1 ? Spacing * (visibleChildCount - 1) : 0;
 
-            return new Size(Math.Max(sizeAvailable.Width, 0), Math.Max(totalChildHeight, 0));
+            return new Size(sizeAvailable.Width, totalChildHeight + totalSpacing);
         }
     }
 
@@ -67,35 +70,31 @@ public class SpacedStackPanel : StackPanel
     {
         if (Orientation == Orientation.Horizontal)
         {
-            double x = 0;
+            var x = 0d;
 
             foreach (UIElement child in InternalChildren)
             {
-                if (child.Visibility == Visibility.Visible)
-                {
-                    var childRect = new Rect(x, 0, child.DesiredSize.Width, arrangeSize.Height);
-                    child.Arrange(childRect);
-                    x += child.DesiredSize.Width + Spacing;
-                }
-            }
+                if (child.Visibility != Visibility.Visible) continue;
 
-            return arrangeSize;
+                var childRect = new Rect(x, 0, child.DesiredSize.Width, arrangeSize.Height);
+                child.Arrange(childRect);
+                x += child.DesiredSize.Width + Spacing;
+            }
         }
-        else // Vertical Orientation
+        else
         {
-            double y = 0;
+            var y = 0d;
 
             foreach (UIElement child in InternalChildren)
             {
-                if (child.Visibility == Visibility.Visible)
-                {
-                    var childRect = new Rect(0, y, arrangeSize.Width, child.DesiredSize.Height);
-                    child.Arrange(childRect);
-                    y += child.DesiredSize.Height + Spacing;
-                }
-            }
+                if (child.Visibility != Visibility.Visible) continue;
 
-            return arrangeSize;
+                var childRect = new Rect(0, y, arrangeSize.Width, child.DesiredSize.Height);
+                child.Arrange(childRect);
+                y += child.DesiredSize.Height + Spacing;
+            }
         }
+
+        return arrangeSize;
     }
 }

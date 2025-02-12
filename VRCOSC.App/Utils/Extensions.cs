@@ -7,10 +7,13 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Windows.Input;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.Input.KeyboardAndMouse;
+using Windows.Win32.UI.WindowsAndMessaging;
 using NAudio.CoreAudioApi;
-using PInvoke;
+using NAudio.CoreAudioApi.Interfaces;
 
 namespace VRCOSC.App.Utils;
 
@@ -96,7 +99,7 @@ public static class UriExtensions
 
 public static class StringExtensions
 {
-    public static string Pluralise(this string str) => str + (str.EndsWith("s") ? "'" : "'s");
+    public static string Pluralise(this string str) => str + (str.EndsWith('s') ? "'" : "'s");
 }
 
 public static class IntegerExtensions
@@ -115,23 +118,7 @@ public static class EnumExtensions
 
 public static class KeyExtensions
 {
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-    private static extern int ToUnicodeEx(
-        uint wVirtKey,
-        uint wScanCode,
-        byte[] lpKeyState,
-        [Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pwszBuff,
-        int cchBuff,
-        uint wFlags,
-        IntPtr dwhkl);
-
-    [DllImport("user32.dll")]
-    private static extern uint MapVirtualKey(uint uCode, uint uMapType);
-
-    [DllImport("user32.dll")]
-    private static extern IntPtr GetKeyboardLayout(uint idThread);
-
-    public static string ToReadableString(this Key key)
+    public static unsafe string ToReadableString(this Key key)
     {
         // Handle special cases for non-character keys
         switch (key)
@@ -206,12 +193,19 @@ public static class KeyExtensions
         // Only take the current key into account to stop modifiers from ruining the representation
         keyboardState[virtualKey] = 0x80;
 
-        var scanCode = MapVirtualKey(virtualKey, 0x02);
-        var sb = new StringBuilder(10);
-        var keyboardLayout = GetKeyboardLayout(0);
+        var scanCode = PInvoke.MapVirtualKey(virtualKey, MAP_VIRTUAL_KEY_TYPE.MAPVK_VK_TO_CHAR);
+        var output = new char[10];
 
-        var result = ToUnicodeEx(virtualKey, scanCode, keyboardState, sb, sb.Capacity, 0, keyboardLayout);
-        return result > 0 ? sb.Length == 1 ? sb.ToString().ToUpperInvariant() : sb.ToString() : key.ToString();
+        fixed (byte* keyboardStatePtr = keyboardState)
+        {
+            fixed (char* outputPtr = output)
+            {
+                var keyboardLayout = PInvoke.GetKeyboardLayout(0);
+
+                var result = PInvoke.ToUnicodeEx(virtualKey, scanCode, keyboardStatePtr, new PWSTR(outputPtr), output.Length, 0, keyboardLayout);
+                return result > 0 ? output[0] != 0x0 && output[1] == 0x0 ? output[0].ToString().ToUpperInvariant() : new string(output) : key.ToString();
+            }
+        }
     }
 }
 
@@ -224,7 +218,7 @@ public static class TypeExtensions
         return Type.GetTypeCode(type) switch
         {
             TypeCode.Empty => "Null",
-            TypeCode.Object => "Object",
+            TypeCode.Object => type.Name,
             TypeCode.DBNull => "DBNull",
             TypeCode.Boolean => "Bool",
             TypeCode.Char => "Char",
@@ -257,18 +251,18 @@ public static class TypeExtensions
 
 public static class ProcessExtensions
 {
-    public static string? GetActiveWindowTitle()
+    public static unsafe string? GetActiveWindowTitle()
     {
-        var foregroundWindowHandle = User32.GetForegroundWindow();
+        var foregroundWindowHandle = PInvoke.GetForegroundWindow();
         if (foregroundWindowHandle == IntPtr.Zero) return null;
 
-        _ = User32.GetWindowThreadProcessId(foregroundWindowHandle, out int processId);
-
-        if (processId <= 0) return null;
+        var processId = 0u;
+        var result = PInvoke.GetWindowThreadProcessId(foregroundWindowHandle, &processId);
+        if (result == 0u || processId == 0u) return null;
 
         try
         {
-            return Process.GetProcessById(processId).ProcessName;
+            return Process.GetProcessById((int)processId).ProcessName;
         }
         catch (ArgumentException)
         {
@@ -280,12 +274,19 @@ public static class ProcessExtensions
     {
         if (processName is null) return null;
 
-        var speakers = new MMDeviceEnumerator().GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+        var audioEndPoints = new MMDeviceEnumerator().EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
 
-        for (var i = 0; i < speakers.AudioSessionManager.Sessions.Count; i++)
+        foreach (var audioEndPoint in audioEndPoints)
         {
-            var session = speakers.AudioSessionManager.Sessions[i];
-            if (session.GetSessionIdentifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase)) return session.SimpleAudioVolume;
+            for (var i = 0; i < audioEndPoint.AudioSessionManager.Sessions.Count; i++)
+            {
+                var session = audioEndPoint.AudioSessionManager.Sessions[i];
+
+                var isValidSession = session.GetSessionIdentifier.Contains(processName, StringComparison.InvariantCultureIgnoreCase)
+                                     && session.State == AudioSessionState.AudioSessionStateActive;
+
+                if (isValidSession) return session.SimpleAudioVolume;
+            }
         }
 
         return null;
@@ -301,47 +302,37 @@ public static class ProcessExtensions
         processAudioVolume.Volume = percentage;
     }
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
-
-    private const int sw_minimize = 6;
-    private const int sw_restore = 9;
-
-    private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
-
     public static void SetWindowVisibility(this Process process, bool visible)
     {
-        if (process == null) throw new ArgumentNullException(nameof(process));
-
-        var windowHandle = findWindowByProcessId(process.Id);
+        var windowHandle = findWindowByProcessId((uint)process.Id);
         if (windowHandle == IntPtr.Zero) throw new InvalidOperationException("The process does not have a visible main window");
 
-        ShowWindow(windowHandle, visible ? sw_restore : sw_minimize);
+        var result = PInvoke.ShowWindow(new HWND(windowHandle), visible ? SHOW_WINDOW_CMD.SW_RESTORE : SHOW_WINDOW_CMD.SW_MINIMIZE);
+        logResult(result, $"Could not alter window state with ID {process.Id}");
     }
 
-    private static IntPtr findWindowByProcessId(int processId)
+    private static unsafe IntPtr findWindowByProcessId(uint processId)
     {
-        IntPtr windowHandle = IntPtr.Zero;
+        var windowHandle = IntPtr.Zero;
 
-        EnumWindows((hWnd, _) =>
+        var result = PInvoke.EnumWindows((hWnd, _) =>
         {
-            GetWindowThreadProcessId(hWnd, out uint windowProcessId);
+            var windowProcessId = 0u;
 
-            if (windowProcessId == processId)
-            {
-                windowHandle = hWnd;
-                return false;
-            }
+            var result = PInvoke.GetWindowThreadProcessId(hWnd, &windowProcessId);
+            if (result == 0u || windowProcessId != processId) return true;
 
-            return true;
+            windowHandle = hWnd;
+            return false;
         }, IntPtr.Zero);
 
+        logResult(result, $"Could not find window process with ID {processId}");
+
         return windowHandle;
+    }
+
+    private static void logResult(BOOL result, string message)
+    {
+        if (!result) Logger.Log($"{message}. Error code: {Marshal.GetLastWin32Error()}");
     }
 }

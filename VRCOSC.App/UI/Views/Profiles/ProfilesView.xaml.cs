@@ -25,7 +25,7 @@ public partial class ProfilesView
         windowManager = new WindowManager(this);
     }
 
-    private void RemoveProfile_ButtonClick(object sender, RoutedEventArgs e)
+    private async void RemoveProfile_ButtonClick(object sender, RoutedEventArgs e)
     {
         var button = (Button)sender;
         var profile = (Profile)button.Tag;
@@ -33,6 +33,7 @@ public partial class ProfilesView
         var result = MessageBox.Show("Are you sure you want to delete this profile?\nDeleting will remove all saved module, persistence, and ChatBox data", "Profile Delete Warning", MessageBoxButton.YesNo);
         if (result != MessageBoxResult.Yes) return;
 
+        await AppManager.GetInstance().StopAsync();
         ProfileManager.GetInstance().Profiles.Remove(profile);
     }
 

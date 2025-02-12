@@ -8,7 +8,7 @@ using Microsoft.Xaml.Behaviors;
 
 namespace VRCOSC.App.UI.Core;
 
-public sealed class IgnoreMouseWheelBehavior : Behavior<UIElement>
+public class IgnoreMouseWheelBehavior : Behavior<UIElement>
 {
     protected override void OnAttached()
     {
@@ -35,7 +35,7 @@ public sealed class IgnoreMouseWheelBehavior : Behavior<UIElement>
     }
 }
 
-public sealed class InterceptManipulationEventsBehavior : Behavior<UIElement>
+public class InterceptManipulationEventsBehavior : Behavior<UIElement>
 {
     protected override void OnAttached()
     {

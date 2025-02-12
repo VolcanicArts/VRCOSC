@@ -49,10 +49,14 @@ public abstract class ModuleSetting
 
     public Observable<bool> IsEnabled { get; } = new(true);
 
-    internal abstract bool Deserialise(object? ingestValue);
-    internal abstract object? Serialise();
-    internal abstract bool IsDefault();
-    public abstract bool GetValue<T>(out T returnValue);
+    internal bool InternalDeserialise(object? ingestValue) => Deserialise(ingestValue);
+    internal object? InternalSerialise() => Serialise();
+    internal bool InternalIsDefault() => IsDefault();
+
+    protected abstract bool Deserialise(object? ingestValue);
+    protected abstract object? Serialise();
+    protected abstract bool IsDefault();
+    public abstract T GetValue<T>();
 
     protected ModuleSetting(string title, string description, Type viewType)
     {

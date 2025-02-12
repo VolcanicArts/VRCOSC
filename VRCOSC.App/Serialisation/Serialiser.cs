@@ -165,7 +165,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
                     return true;
 
                 case JToken token:
-                    outValue = token.ToObject(targetType);
+                    outValue = token.ToObject(targetType)!;
                     return true;
 
                 case var subValue when targetType.IsAssignableTo(typeof(Enum)):
@@ -185,9 +185,8 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         }
         catch (Exception e)
         {
-            Logger.Error(e, "Error converting value to target type");
-            outValue = null;
-            return false;
+            ExceptionHandler.Handle(e, $"'{FullPath}' was unable to convert {value!.GetType().ToReadableName()} to {targetType.ToReadableName()}");
+            throw;
         }
     }
 }

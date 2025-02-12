@@ -3,14 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:utils="clr-namespace:VRCOSC.App.Utils"
         xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
         mc:Ignorable="d"
-        Title="VRCOSC" Width="1366" Height="768" MinWidth="960" MinHeight="540"
-        Closing="MainWindow_OnClosing"
-        Closed="MainWindow_OnClosed"
-        Loaded="MainWindow_OnLoaded">
+        Width="1366" Height="768" MinWidth="960" MinHeight="540">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <Style TargetType="fa6:ImageAwesome">
@@ -78,9 +73,9 @@
             </Setter>
         </Style>
     </Window.Resources>
-    <Grid>
+    <Grid Name="MainWindowContent">
         <Border Background="Black" />
-        <Border x:Name="MainWindowContent" Visibility="Collapsed" Opacity="0">
+        <Border>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="70" />
@@ -90,41 +85,30 @@
                     <Grid>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Top">
                             <RadioButton GroupName="TabBar" Click="PackagesButton_OnClick">
-                                <fa6:ImageAwesome Icon="Solid_Download" />
+                                <fa6:ImageAwesome Icon="Solid_Download" ToolTip="Packages" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500" />
                             </RadioButton>
                             <RadioButton GroupName="TabBar" Click="ModulesButton_OnClick" IsChecked="True">
-                                <fa6:ImageAwesome Icon="Solid_List" />
+                                <fa6:ImageAwesome Icon="Solid_List" ToolTip="Modules" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="ChatBoxButton_OnClick">
-                                <fa6:ImageAwesome Icon="Solid_Message" />
+                            <RadioButton GroupName="TabBar" Click="ChatBoxButton_OnClick" >
+                                <fa6:ImageAwesome Icon="Solid_Message" ToolTip="ChatBox" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="RunButton_OnClick">
-                                <fa6:ImageAwesome Icon="Solid_Play" />
+                            <RadioButton GroupName="TabBar" Click="RunButton_OnClick" >
+                                <fa6:ImageAwesome Icon="Solid_Play" ToolTip="Run" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="StartupButton_OnClick">
-                                <fa6:ImageAwesome Icon="Solid_Share"/>
-                            </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="RouterButton_OnClick"
-                                         Visibility="{Binding ShowRouter.Value, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <fa6:ImageAwesome Icon="Solid_ShareNodes" />
-                            </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="DebugButton_OnClick"
-                                         Visibility="{Binding ShowAppDebug.Value, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <fa6:ImageAwesome Icon="Solid_Bug" />
-                            </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="SettingsButton_OnClick" Visibility="Collapsed">
-                                <fa6:ImageAwesome Icon="Solid_UserGear" />
+                            <RadioButton GroupName="TabBar" Click="DollyButton_OnClick" >
+                                <fa6:ImageAwesome Icon="Solid_Camera" ToolTip="Dolly" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             </RadioButton>
                         </StackPanel>
                         <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
                             <RadioButton GroupName="TabBar" Click="ProfilesButton_OnClick">
-                                <fa6:ImageAwesome Icon="Solid_User" />
+                                <fa6:ImageAwesome Icon="Solid_User" ToolTip="Profiles" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             </RadioButton>
                             <RadioButton Name="AppSettingsTabButton" GroupName="TabBar" Click="AppSettingsButton_OnClick">
-                                <fa6:ImageAwesome Icon="Solid_Gear" />
+                                <fa6:ImageAwesome Icon="Solid_Gear" ToolTip="Settings" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             </RadioButton>
                             <RadioButton GroupName="TabBar" Click="InformationButton_OnClick">
-                                <fa6:ImageAwesome Icon="Solid_Info" />
+                                <fa6:ImageAwesome Icon="Solid_Info" ToolTip="Information" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                             </RadioButton>
                         </StackPanel>
                     </Grid>
@@ -134,31 +118,24 @@
                 </Border>
             </Grid>
         </Border>
-        <Grid Name="LoadingOverlay" Visibility="Collapsed" Opacity="0" IsHitTestVisible="False">
-            <Rectangle ClipToBounds="True">
-                <b:Interaction.Behaviors>
-                    <utils:BlurBackgroundBehavior BlurContainer="{Binding ElementName=MainWindowContent}" />
-                </b:Interaction.Behaviors>
-            </Rectangle>
-            <Border Background="Black" Opacity="0.5" />
-            <Grid Height="125">
+        <Grid Name="LoadingOverlay">
+            <Border Background="Black" />
+            <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="3*" />
-                    <RowDefinition Height="3*" />
-                    <RowDefinition Height="3*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Row="0" Name="LoadingTitle" FontSize="30" Text="PLACEHOLDER"
+                <TextBlock Grid.Row="0" Name="LoadingTitle" FontSize="30" Text="Welcome To VRCOSC"
                            Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
                            VerticalAlignment="Center" FontWeight="Medium" />
-                <TextBlock Grid.Row="1" Name="LoadingDescription" FontSize="20" Text="PLACEHOLDER"
-                           Foreground="{StaticResource CForeground1}" TextWrapping="Wrap" HorizontalAlignment="Center"
-                           VerticalAlignment="Center" />
-                <ProgressBar Grid.Row="2" Name="ProgressBar" Width="500" Height="30" VerticalAlignment="Center"
-                             HorizontalAlignment="Center"
-                             Minimum="0" Maximum="1" Value="0" />
+                <Grid Grid.Row="1">
+                    <fa6:ImageAwesome Name="LoadingSpinner" Margin="0 10 0 0" Icon="Solid_Spinner" SpinDuration="1" Spin="True" Width="30" Height="30"/>
+                    <ProgressBar Name="LoadingProgressBar" Margin="0 10 0 0" Visibility="Collapsed" Width="400" Height="20" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                 Minimum="0" Maximum="1" Value="0" />
+                </Grid>
             </Grid>
         </Grid>
     </Grid>

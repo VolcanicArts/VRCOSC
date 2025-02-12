@@ -15,7 +15,7 @@ public class SerialisablePackageManager : SerialisableVersion
     public List<SerialisablePackageInstall> Installed = new();
 
     [JsonProperty("cache_expire_time")]
-    public DateTime CacheExpireTime;
+    public DateTimeOffset CacheExpireTime;
 
     [JsonProperty("cache")]
     public List<SerialisablePackageSource> Cache = new();
