@@ -5,7 +5,7 @@ using System.Windows;
 using VRCOSC.App.Startup;
 using VRCOSC.App.UI.Core;
 
-namespace VRCOSC.App.UI.Views.Startup;
+namespace VRCOSC.App.UI.Views.AppSettings;
 
 public partial class StartupView
 {

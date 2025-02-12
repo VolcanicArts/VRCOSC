@@ -1,11 +1,10 @@
-<UserControl x:Class="VRCOSC.App.UI.Views.Router.RouterView"
+<UserControl x:Class="VRCOSC.App.UI.Views.AppSettings.RouterView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
              Background="Transparent"
              d:DesignWidth="1366" d:DesignHeight="768" >
@@ -14,7 +13,7 @@
                                          Colour2="{StaticResource CBackground4}" />
     </UserControl.Resources>
     <Grid>
-        <Border Padding="10">
+        <Border>
             <core:HeaderFooterListView ItemsSource="{Binding RouterManager.Routes, Mode=OneWay}" AlternationCount="2">
                 <core:HeaderFooterListView.Header>
                     <Border Background="{StaticResource CBackground1}"

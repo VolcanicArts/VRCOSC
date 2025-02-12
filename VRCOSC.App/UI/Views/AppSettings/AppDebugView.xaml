@@ -12,7 +12,7 @@
     </UserControl.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                   PanningMode="VerticalOnly" CanContentScroll="False">
-        <Grid x:Name="Grid" Margin="10" VerticalAlignment="Top">
+        <Grid x:Name="Grid" VerticalAlignment="Top">
             <Grid.Clip>
                 <RectangleGeometry
                     RadiusX="5"

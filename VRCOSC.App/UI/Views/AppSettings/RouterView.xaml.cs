@@ -6,7 +6,7 @@ using System.Windows;
 using VRCOSC.App.Router;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.UI.Views.Router;
+namespace VRCOSC.App.UI.Views.AppSettings;
 
 public partial class RouterView
 {

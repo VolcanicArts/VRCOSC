@@ -10,7 +10,6 @@ using FastOSC;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Router.Serialisation;
 using VRCOSC.App.Serialisation;
-using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Router;
@@ -51,8 +50,6 @@ public class RouterManager
 
     public async Task Start()
     {
-        if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.EnableRouter)) return;
-
         foreach (var route in Routes)
         {
             try
