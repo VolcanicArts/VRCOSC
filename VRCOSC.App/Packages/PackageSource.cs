@@ -60,7 +60,9 @@ public class PackageSource
     {
         if (InstalledRelease?.IsPreRelease ?? false) return null;
 
-        var latestNonPreRelease = filterReleases(true, false).First();
+        var latestNonPreRelease = filterReleases(true, false).FirstOrDefault();
+        if (latestNonPreRelease is null) return null;
+
         var installedVersion = SemVersion.Parse(InstalledVersion, SemVersionStyles.Any);
         var latestNonPreReleaseVersion = SemVersion.Parse(latestNonPreRelease.Version, SemVersionStyles.Any);
         return SemVersion.ComparePrecedence(latestNonPreReleaseVersion, installedVersion) == 1 ? latestNonPreRelease : null;
