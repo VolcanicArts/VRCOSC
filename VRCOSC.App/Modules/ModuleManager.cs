@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Win32;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules.Serialisation;
 using VRCOSC.App.OSC.VRChat;
@@ -140,6 +141,7 @@ internal class ModuleManager : INotifyPropertyChanged
 
         loadLocalModules();
         loadRemoteModules();
+        PInvoke.SetDllDirectory((string?)null);
 
         foreach (var module in modules)
         {
@@ -362,6 +364,8 @@ internal class ModuleManager : INotifyPropertyChanged
     private AssemblyLoadContext loadContextFromPath(string path)
     {
         var assemblyLoadContext = new AssemblyLoadContext(null, true);
+        PInvoke.SetDllDirectory(path);
+
         foreach (var dllPath in Directory.GetFiles(path, "*.dll")) loadAssemblyFromPath(assemblyLoadContext, dllPath);
         return assemblyLoadContext;
     }
