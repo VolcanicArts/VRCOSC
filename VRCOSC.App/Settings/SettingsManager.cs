@@ -77,6 +77,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.SpeechTranslate, false);
 
         setDefault(VRCOSCMetadata.InstalledVersion, string.Empty);
+        setDefault(VRCOSCMetadata.LastUpdateCheck, DateTime.Now);
         setDefault(VRCOSCMetadata.InstalledUpdateChannel, UpdateChannel.Live);
         setDefault(VRCOSCMetadata.FirstTimeSetupComplete, false);
         setDefault(VRCOSCMetadata.AutoStartQuestionClicked, false);
@@ -148,6 +149,7 @@ public enum VRCOSCSetting
 public enum VRCOSCMetadata
 {
     InstalledVersion,
+    LastUpdateCheck,
     FirstTimeSetupComplete,
     InstalledUpdateChannel,
     AutoStartQuestionClicked
