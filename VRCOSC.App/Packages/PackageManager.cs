@@ -182,8 +182,7 @@ public class PackageManager
     {
         var repos = await GitHubProxy.Client.Search.SearchRepo(new SearchRepositoriesRequest
         {
-            Topic = community_tag,
-            Fork = ForkQualifier.IncludeForks
+            Topic = community_tag
         }).WaitAsync(TimeSpan.FromSeconds(5));
 
         foreach (var repo in repos.Items.Where(repo => repo.Name != "VRCOSC"))
