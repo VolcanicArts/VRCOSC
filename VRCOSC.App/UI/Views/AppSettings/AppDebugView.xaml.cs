@@ -4,17 +4,18 @@
 using System;
 using System.Diagnostics;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.UI.Views.AppDebug;
+namespace VRCOSC.App.UI.Views.AppSettings;
 
 public partial class AppDebugView
 {
     public Observable<string> Port9000BoundProcess { get; } = new(string.Empty);
 
-    private Repeater? repeater;
+    private DTWrapper? port9000DispatcherTimer;
 
     public AppDebugView()
     {
@@ -26,17 +27,23 @@ public partial class AppDebugView
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        repeater = new Repeater($"{nameof(AppDebugView)}-{nameof(executePowerShellCommand)}", () => Port9000BoundProcess.Value = $"{(executePowerShellCommand("Get-Process -Id (Get-NetUDPEndpoint -LocalPort 9000).OwningProcess | Select-Object -ExpandProperty ProcessName") ?? "Nothing").ReplaceLineEndings(string.Empty)}");
-        repeater.Start(TimeSpan.FromSeconds(5), true);
+        port9000DispatcherTimer = new DTWrapper("Debug-Port9000", TimeSpan.FromSeconds(5), true, updatePort9000Process);
+        port9000DispatcherTimer.Start();
     }
 
-    private async void OnUnloaded(object sender, RoutedEventArgs e)
+    private void OnUnloaded(object sender, RoutedEventArgs e)
     {
-        await repeater!.StopAsync();
-        repeater = null;
+        port9000DispatcherTimer?.Stop();
+        port9000DispatcherTimer = null;
     }
 
-    private static string? executePowerShellCommand(string command)
+    private void updatePort9000Process() => Task.Run(async () =>
+    {
+        var boundProcess = await executePowerShellCommand("Get-Process -Id (Get-NetUDPEndpoint -LocalPort 9000).OwningProcess | Select-Object -ExpandProperty ProcessName");
+        Dispatcher.Invoke(() => Port9000BoundProcess.Value = $"{(boundProcess ?? "Nothing").ReplaceLineEndings(string.Empty)}");
+    });
+
+    private static async Task<string?> executePowerShellCommand(string command)
     {
         try
         {
@@ -70,7 +77,7 @@ public partial class AppDebugView
             process.Start();
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
-            process.WaitForExit();
+            await process.WaitForExitAsync();
 
             return error.Length > 0 ? null : output.ToString();
         }
