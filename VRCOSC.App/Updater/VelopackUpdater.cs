@@ -26,6 +26,8 @@ public class VelopackUpdater
         {
             constructUpdateManager();
             await CheckForUpdatesAsync();
+            if (updateInfo is null) return;
+
             var shouldUpdate = PresentUpdate();
             if (shouldUpdate) await ExecuteUpdateAsync();
         });
