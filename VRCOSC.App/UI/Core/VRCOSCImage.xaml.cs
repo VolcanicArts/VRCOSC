@@ -3,7 +3,6 @@
 
 using System.Windows;
 using VRCOSC.App.Utils;
-using WpfAnimatedGif;
 
 // ReSharper disable InconsistentNaming
 
@@ -36,14 +35,6 @@ public partial class VRCOSCImage
         {
             Image.Source = bitmapImage;
             Image.FadeInFromZero(cached ? 0 : 150);
-
-            return;
-
-            // TOOD: Figure out performance issues
-            if (url.EndsWith(".gif"))
-            {
-                ImageBehavior.SetAnimatedSource(Image, bitmapImage);
-            }
         });
     }
 }
