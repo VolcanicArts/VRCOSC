@@ -557,7 +557,7 @@ public class AppManager
         await ChatBoxManager.GetInstance().Stop();
         VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
-        RouterManager.GetInstance().Stop();
+        await RouterManager.GetInstance().Stop();
 
         lock (oscMessageQueueLock)
         {

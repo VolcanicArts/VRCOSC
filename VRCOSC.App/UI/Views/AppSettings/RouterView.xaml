@@ -71,7 +71,7 @@
                                             </TextBox>
                                             <core:IPPortTextBox
                                                 Grid.Column="2"
-                                                Text="{Binding Endpoint.Value}"
+                                                Text="{Binding SendEndpoint.Value}"
                                                 Foreground="{StaticResource CForeground1}"
                                                 FontSize="16"
                                                 VerticalAlignment="Center"
