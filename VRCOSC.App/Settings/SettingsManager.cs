@@ -70,6 +70,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.EnableAppDebug, false);
         setDefault(VRCOSCSetting.SelectedMicrophoneID, string.Empty);
         setDefault(VRCOSCSetting.SpeechEnabled, true);
+        setDefault(VRCOSCSetting.SpeechModel, SpeechModel.Custom);
         setDefault(VRCOSCSetting.SpeechModelPath, string.Empty);
         setDefault(VRCOSCSetting.SpeechConfidence, 0.4f);
         setDefault(VRCOSCSetting.SpeechNoiseCutoff, 0.14f);
@@ -139,6 +140,7 @@ public enum VRCOSCSetting
     EnableAppDebug,
     SelectedMicrophoneID,
     SpeechEnabled,
+    SpeechModel,
     SpeechModelPath,
     SpeechConfidence,
     SpeechNoiseCutoff,
@@ -160,4 +162,11 @@ public enum ConnectionMode
     Local,
     LAN,
     Custom
+}
+
+public enum SpeechModel
+{
+    Custom = 0,
+    Tiny = 1,
+    Small = 2
 }

@@ -5,13 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using VRCOSC.App.Audio;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Themes;
 using VRCOSC.App.Updater;
@@ -117,42 +115,6 @@ public partial class AppSettingsView : INotifyPropertyChanged
         set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Value = value;
     }
 
-    public string WhisperModelFilePath
-    {
-        get => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value;
-        set => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = value;
-    }
-
-    public bool SpeechEnabled
-    {
-        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechEnabled).Value;
-        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechEnabled).Value = value;
-    }
-
-    public bool SpeechTranslate
-    {
-        get => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechTranslate).Value;
-        set => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechTranslate).Value = value;
-    }
-
-    public int SpeechConfidenceSliderValue
-    {
-        get => (int)(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechConfidence).Value * 100f);
-        set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechConfidence).Value = value / 100f;
-    }
-
-    public int SpeechNoiseCutoffSliderValue
-    {
-        get => (int)(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechNoiseCutoff).Value * 100f);
-        set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechNoiseCutoff).Value = value / 100f;
-    }
-
-    public double MicrophoneVolumeAdjustmentSliderValue
-    {
-        get => Interpolation.Map(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value, 0, 3, 0, 300);
-        set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value = (float)Interpolation.Map(value, 0, 300, 0, 3);
-    }
-
     public Observable<Visibility> OSCModeCustomVisibility { get; } = new(Visibility.Collapsed);
 
     public IEnumerable<UpdateChannel> UpdateChannelSource => Enum.GetValues<UpdateChannel>();
@@ -163,8 +125,6 @@ public partial class AppSettingsView : INotifyPropertyChanged
         set => SettingsManager.GetInstance().GetObservable<UpdateChannel>(VRCOSCSetting.UpdateChannel).Value = value;
     }
 
-    private List<DeviceDisplay> audioInputDevices = null!;
-
     public AppSettingsView()
     {
         InitializeComponent();
@@ -172,7 +132,6 @@ public partial class AppSettingsView : INotifyPropertyChanged
         DataContext = this;
 
         SettingsManager.GetInstance().GetObservable<ConnectionMode>(VRCOSCSetting.ConnectionMode).Subscribe(value => OSCModeCustomVisibility.Value = value == ConnectionMode.Custom ? Visibility.Visible : Visibility.Collapsed, true);
-        SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Subscribe(_ => OnPropertyChanged(nameof(WhisperModelFilePath)));
 
         setPage(0);
     }
@@ -181,36 +140,6 @@ public partial class AppSettingsView : INotifyPropertyChanged
     {
         AutomationTabButton.IsChecked = true;
         AutomationTabButton.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
-    }
-
-    private void updateDeviceListAndSelection()
-    {
-        var selectedMicrophone = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SelectedMicrophoneID);
-
-        audioInputDevices =
-        [
-            new DeviceDisplay(string.Empty, "-- Use Default --")
-        ];
-
-        audioInputDevices.AddRange(AudioDeviceHelper.GetAllInputDevices().Select(mmDevice => new DeviceDisplay(mmDevice.ID, mmDevice.FriendlyName)));
-
-        MicrophoneComboBox.ItemsSource = audioInputDevices;
-
-        if (string.IsNullOrEmpty(selectedMicrophone))
-        {
-            MicrophoneComboBox.SelectedIndex = 0;
-            return;
-        }
-
-        MicrophoneComboBox.SelectedItem = audioInputDevices.SingleOrDefault(device => device.ID == selectedMicrophone);
-    }
-
-    private void MicrophoneComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        var comboBox = (ComboBox)sender;
-        var deviceId = (string)comboBox.SelectedValue;
-
-        SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedMicrophoneID).Value = deviceId;
     }
 
     private void setPage(int pageIndex)
@@ -269,18 +198,12 @@ public partial class AppSettingsView : INotifyPropertyChanged
 
     private void SpeechTabButton_OnClick(object sender, RoutedEventArgs e)
     {
-        updateDeviceListAndSelection();
         setPage(6);
     }
 
     private void OVRTabButton_OnClick(object sender, RoutedEventArgs e)
     {
         setPage(7);
-    }
-
-    private async void AutoInstallModel_OnClick(object sender, RoutedEventArgs e)
-    {
-        await AppManager.GetInstance().InstallSpeechModel();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -302,5 +225,3 @@ public class IpPortValidationRule : ValidationRule
         return Regex.IsMatch(input, pattern);
     }
 }
-
-public record DeviceDisplay(string ID, string Name);

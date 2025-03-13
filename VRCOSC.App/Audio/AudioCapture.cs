@@ -17,6 +17,8 @@ internal class AudioCapture
 
     public bool IsCapturing => capture.CaptureState == CaptureState.Capturing;
 
+    public Action? OnNewDataAvailable;
+
     public AudioCapture(MMDevice device)
     {
         capture = new WasapiCapture(device)
@@ -38,6 +40,7 @@ internal class AudioCapture
     public void StopCapture()
     {
         capture.StopRecording();
+        ClearBuffer();
     }
 
     private void OnDataAvailable(object? sender, WaveInEventArgs e)
@@ -46,6 +49,8 @@ internal class AudioCapture
         {
             buffer.Write(e.Buffer, 0, e.BytesRecorded);
         }
+
+        OnNewDataAvailable?.Invoke();
     }
 
     private void OnRecordingStopped(object? sender, StoppedEventArgs e)
