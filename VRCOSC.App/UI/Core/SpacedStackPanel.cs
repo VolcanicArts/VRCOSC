@@ -13,10 +13,10 @@ public class SpacedStackPanel : StackPanel
     public static readonly DependencyProperty SpacingProperty =
         DependencyProperty.Register(nameof(Spacing), typeof(double), typeof(SpacedStackPanel), new PropertyMetadata(0d, SpacingChanged));
 
-    private static void SpacingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private static void SpacingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) => Application.Current.Dispatcher.Invoke(() =>
     {
         if (d is SpacedStackPanel control) control.InvalidateMeasure();
-    }
+    });
 
     public double Spacing
     {
