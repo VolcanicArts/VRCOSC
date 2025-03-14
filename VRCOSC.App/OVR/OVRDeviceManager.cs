@@ -47,6 +47,8 @@ public class OVRDeviceManager
         if (TrackedDevices.TryGetValue(serialNumber, out var device))
         {
             index = device.Index;
+            if (device.Role == deviceRole) return;
+
             Logger.Log($"Updating {serialNumber} to role {deviceRole}");
         }
         else
