@@ -10,7 +10,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="core:VRCOSCSlider">
                     <Grid>
-                        <Slider TickPlacement="BottomRight" IsSnapToTickEnabled="True">
+                        <Slider TickPlacement="BottomRight" IsSnapToTickEnabled="True" Foreground="{StaticResource CForeground1}">
                             <Slider.Value>
                                 <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Value"/>
                             </Slider.Value>

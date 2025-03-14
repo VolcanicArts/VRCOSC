@@ -3,20 +3,19 @@
 
 using System;
 using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.AppSettings;
 
 public partial class AppDebugView
 {
-    public Observable<string> Port9000BoundProcess { get; } = new(string.Empty);
-
-    private DTWrapper? port9000DispatcherTimer;
-
     public AppDebugView()
     {
         InitializeComponent();
@@ -25,9 +24,31 @@ public partial class AppDebugView
         Unloaded += OnUnloaded;
     }
 
+    public Observable<string> Port9000BoundProcess { get; } = new(string.Empty);
+
+    public string LanipOfDevice
+    {
+        get
+        {
+            var hostName = Dns.GetHostName();
+            var hostEntry = Dns.GetHostEntry(hostName);
+
+            foreach (var ip in hostEntry.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork) return ip.ToString();
+            }
+
+            return string.Empty;
+        }
+    }
+
+    private DTWrapper? port9000DispatcherTimer;
+
+    public Observable<bool> EnableAppDebug => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug);
+
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        port9000DispatcherTimer = new DTWrapper("Debug-Port9000", TimeSpan.FromSeconds(5), true, updatePort9000Process);
+        port9000DispatcherTimer = new DTWrapper($"{nameof(AppDebugView)}-{nameof(updatePort9000Process)}", TimeSpan.FromSeconds(5), true, updatePort9000Process);
         port9000DispatcherTimer.Start();
     }
 
@@ -81,8 +102,9 @@ public partial class AppDebugView
 
             return error.Length > 0 ? null : output.ToString();
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            Logger.Error(e, $"An error occured in {nameof(AppDebugView)}-{nameof(executePowerShellCommand)}");
             return null;
         }
     }

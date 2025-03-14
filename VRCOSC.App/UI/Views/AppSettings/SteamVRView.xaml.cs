@@ -7,19 +7,19 @@ using System.Windows.Controls;
 using VRCOSC.App.OVR;
 using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.OVR.Device;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.AppSettings;
 
-public partial class OVRDeviceView
+public partial class SteamVRView
 {
     public ObservableDictionary<string, TrackedDevice> TrackedDevices { get; } = [];
-    public IEnumerable<DeviceRole> ComboBoxSource => Enum.GetValues<DeviceRole>();
+    public IEnumerable<DeviceRole> DeviceRoleSource => Enum.GetValues<DeviceRole>();
 
-    public OVRDeviceView()
+    public SteamVRView()
     {
         InitializeComponent();
-
         DataContext = this;
 
         OVRDeviceManager.GetInstance().TrackedDevices.OnCollectionChanged((_, _) => Dispatcher.Invoke(() =>
@@ -32,6 +32,9 @@ public partial class OVRDeviceView
             }
         }), true);
     }
+
+    public Observable<bool> SteamVRAutoOpen => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.OVRAutoOpen);
+    public Observable<bool> SteamVRAutoClose => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.OVRAutoClose);
 
     private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {

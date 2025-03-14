@@ -8,60 +8,102 @@
              d:DesignWidth="1366" d:DesignHeight="748"
              Background="Transparent">
     <UserControl.Resources>
-        <core:RectSizeConverter x:Key="RectSizeConverter" />
+        <Style TargetType="GroupBox" BasedOn="{StaticResource {x:Type GroupBox}}">
+            <Setter Property="Foreground" Value="{StaticResource CForeground1}"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="MaxDropDownHeight" Value="200"/>
+        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="FontWeight" Value="Regular"/>
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="NoteTextStyle">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="Foreground" Value="{StaticResource CForeground2}"/>
+            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="LabelTextStyle">
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="Foreground" Value="{StaticResource CForeground1}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
     </UserControl.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
-                  PanningMode="VerticalOnly" CanContentScroll="False">
-        <Grid x:Name="Grid" VerticalAlignment="Top">
-            <Grid.Clip>
-                <RectangleGeometry
-                    RadiusX="5"
-                    RadiusY="5">
-                    <RectangleGeometry.Rect>
-                        <MultiBinding Converter="{StaticResource RectSizeConverter}">
-                            <Binding Path="ActualWidth" ElementName="Grid" />
-                            <Binding Path="ActualHeight" ElementName="Grid" />
-                        </MultiBinding>
-                    </RectangleGeometry.Rect>
-                </RectangleGeometry>
-            </Grid.Clip>
-            <StackPanel>
-                <Border Background="{StaticResource CBackground1}" Padding="8 4">
-                    <TextBlock Text="Debug Panel"
-                               FontSize="18"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource CForeground2}" />
-                </Border>
-                <Border Background="{StaticResource CBackground3}" Padding="8 4" Height="30">
-                    <Grid>
+    <Grid>
+        <core:SpacedStackPanel Spacing="7">
+            <GroupBox Header="Configure">
+                <core:SpacedStackPanel Spacing="10" Margin="7">
+                    <TextBlock Style="{StaticResource NoteTextStyle}">
+                        These are the options for configuring debugging within the app.
+                        <LineBreak/>
+                        Enabling debugging will allow modules to log to a "module-debug" log file with extra information on what each module is doing.
+                    </TextBlock>
+                    <Grid Width="400" HorizontalAlignment="Left">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="250"/>
+                            <ColumnDefinition Width="150"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="What port 9000 is currently bound to"
-                                   Foreground="{StaticResource CForeground1}"
+                        <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Enable Debugging"/>
+                        <core:VRCOSCCheckBox Grid.Column="1" Height="32" Width="32" IsChecked="{Binding EnableAppDebug.Value}" />
+                    </Grid>
+                </core:SpacedStackPanel>
+            </GroupBox>
+            <GroupBox Header="Information">
+                <core:SpacedStackPanel Spacing="10" Margin="7">
+                    <TextBlock Style="{StaticResource NoteTextStyle}">
+                        Here you have general information that's useful when debugging why things aren't working or connecting as expected.
+                    </TextBlock>
+                    <Grid Width="400" HorizontalAlignment="Left">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250" />
+                            <ColumnDefinition Width="150" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Port 9000 is currently bound to"
+                                   Foreground="{StaticResource CForeground1}" FontWeight="Regular"
                                    VerticalAlignment="Center" FontSize="16" />
-                        <TextBlock Grid.Column="1" Text="{Binding Port9000BoundProcess.Value}" FontSize="16"
+                        <TextBlock Grid.Column="1" Text="{Binding Port9000BoundProcess.Value}" FontSize="16" FontWeight="Regular"
                                    Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
                                    VerticalAlignment="Center" />
                     </Grid>
-                </Border>
-                <Border Background="{StaticResource CBackground4}" Padding="8 4" Height="30">
-                    <Grid>
+                    <Grid Width="400" HorizontalAlignment="Left">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="250" />
+                            <ColumnDefinition Width="150" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="LAN IP of current device"
+                                   Foreground="{StaticResource CForeground1}" FontWeight="Regular"
+                                   VerticalAlignment="Center" FontSize="16" />
+                        <TextBlock Grid.Column="1" Text="{Binding LanipOfDevice, Mode=OneTime}" FontSize="16" FontWeight="Regular"
+                                   Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Grid>
+                </core:SpacedStackPanel>
+            </GroupBox>
+            <GroupBox Header="Actions">
+                <core:SpacedStackPanel Spacing="10" Margin="7">
+                    <TextBlock Style="{StaticResource NoteTextStyle}">
+                        Here you can trigger actions that would normally be left to the app to manage.
+                    </TextBlock>
+                    <Grid Width="400" HorizontalAlignment="Left">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250" />
+                            <ColumnDefinition Width="150" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="Reload the modules from disk"
                                    Foreground="{StaticResource CForeground1}" VerticalAlignment="Center"
-                                   FontSize="16" />
+                                   FontSize="16" FontWeight="Regular" />
                         <core:IconButton
-                            ButtonColour="Blue" Grid.Column="1" Click="ReloadModules_OnClick" Width="100"
+                            ButtonColour="Blue" Grid.Column="1" Click="ReloadModules_OnClick" Width="80" Height="25"
                             Icon="Solid_Rotate" />
                     </Grid>
-                </Border>
-                <Border Background="{StaticResource CBackground1}" Height="5" />
-            </StackPanel>
-        </Grid>
-    </ScrollViewer>
+                </core:SpacedStackPanel>
+            </GroupBox>
+        </core:SpacedStackPanel>
+    </Grid>
 </UserControl>

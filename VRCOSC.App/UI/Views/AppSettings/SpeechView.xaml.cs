@@ -20,7 +20,7 @@ public partial class SpeechView
 {
     private readonly AudioEndpointNotificationClient audioEndpointNotificationClient = new();
 
-    private SpeechView()
+    public SpeechView()
     {
         InitializeComponent();
         DataContext = this;

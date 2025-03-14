@@ -39,10 +39,10 @@
     </UserControl.Resources>
     <Grid>
         <core:SpacedStackPanel Spacing="7">
-            <GroupBox Header="Controls">
+            <GroupBox Header="Configure">
                 <core:SpacedStackPanel Spacing="10" Margin="7">
                     <TextBlock Style="{StaticResource NoteTextStyle}">
-                        Here you can control how the speech engine behaves throughout the app.
+                        Here you can configure how the speech engine behaves throughout the app.
                         <LineBreak/>
                         If the speech engine is affecting your computer's performance try disabling it as some modules require the speech engine for optional functionality.
                         <LineBreak/>
@@ -50,30 +50,27 @@
                     </TextBlock>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200"/>
-                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="250"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Enable Speech Engine"/>
-                        <core:VRCOSCCheckBox Grid.Column="2" Height="32" Width="32" IsChecked="{Binding SpeechEnabled.Value}" />
+                        <core:VRCOSCCheckBox Grid.Column="1" Height="32" Width="32" IsChecked="{Binding SpeechEnabled.Value}" />
                     </Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200"/>
-                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="250"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Recognition Confidence"/>
-                        <core:VRCOSCSlider Grid.Column="2" Width="500" Height="45" Value="{Binding ConfidenceSliderValue}" MinValue="0" MaxValue="100" TickFrequency="2" SliderType="Int" IsPercentage="True"/>
+                        <core:VRCOSCSlider Grid.Column="1" Width="500" Height="45" Value="{Binding ConfidenceSliderValue}" MinValue="0" MaxValue="100" TickFrequency="2" SliderType="Int" IsPercentage="True"/>
                     </Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200"/>
-                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="250"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Translate To English"/>
-                        <core:VRCOSCCheckBox Grid.Column="2" Height="32" Width="32" IsChecked="{Binding SpeechTranslate.Value}" />
+                        <core:VRCOSCCheckBox Grid.Column="1" Height="32" Width="32" IsChecked="{Binding SpeechTranslate.Value}" />
                     </Grid>
                 </core:SpacedStackPanel>
             </GroupBox>
@@ -86,7 +83,7 @@
                     </TextBlock>
                     <Grid>
                         <ProgressBar Name="MicrophoneDebugProgressBar" Height="5" Minimum="0" Maximum="1"/>
-                        <Border Background="LawnGreen" Height="20" Width="3" VerticalAlignment="Top" HorizontalAlignment="Left">
+                        <Border Background="{StaticResource CGreen}" Height="20" Width="3" VerticalAlignment="Top" HorizontalAlignment="Left">
                             <Border.RenderTransform>
                                 <TranslateTransform>
                                     <TranslateTransform.X>
@@ -102,30 +99,27 @@
                     </Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200"/>
-                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="250"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Select Microphone"/>
-                        <ComboBox Grid.Column="2" Name="MicrophoneComboBox" HorizontalAlignment="Left" Width="500" SelectionChanged="MicrophoneComboBox_SelectionChanged" SelectedValuePath="ID" DisplayMemberPath="Name" />
+                        <ComboBox Grid.Column="1" Name="MicrophoneComboBox" HorizontalAlignment="Left" Width="500" SelectionChanged="MicrophoneComboBox_SelectionChanged" SelectedValuePath="ID" DisplayMemberPath="Name" />
                     </Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200"/>
-                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="250"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Volume Adjustment"/>
-                        <core:VRCOSCSlider Grid.Column="2" Width="500" Height="45" Value="{Binding VolumeAdjustmentSliderValue}" MinValue="0" MaxValue="300" TickFrequency="5" SliderType="Int" IsPercentage="True"/>
+                        <core:VRCOSCSlider Grid.Column="1" Width="500" Height="45" Value="{Binding VolumeAdjustmentSliderValue}" MinValue="0" MaxValue="300" TickFrequency="5" SliderType="Int" IsPercentage="True"/>
                     </Grid>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200"/>
-                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="250"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Activation Threshold"/>
-                        <core:VRCOSCSlider Grid.Column="2" Width="500" Height="45" Value="{Binding ActivationThresholdSliderValue}" MinValue="0" MaxValue="100" TickFrequency="2" SliderType="Int" IsPercentage="True"/>
+                        <core:VRCOSCSlider Grid.Column="1" Width="500" Height="45" Value="{Binding ActivationThresholdSliderValue}" MinValue="0" MaxValue="100" TickFrequency="2" SliderType="Int" IsPercentage="True"/>
                     </Grid>
                 </core:SpacedStackPanel>
             </GroupBox>
@@ -143,12 +137,11 @@
                         <core:SpacedStackPanel Spacing="7">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="200"/>
-                                    <ColumnDefinition Width="50"/>
+                                    <ColumnDefinition Width="250"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Select Model"/>
-                                <Grid Grid.Column="2">
+                                <Grid Grid.Column="1">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="5"/>
