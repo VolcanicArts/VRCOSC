@@ -31,6 +31,9 @@ internal class SerialisableRouterInstanceV1
     [JsonProperty("name")]
     public string Name = null!;
 
+    [JsonProperty("mode")]
+    public RouterMode Mode;
+
     [JsonProperty("endpoint")]
     public string Endpoint = null!;
 
@@ -42,6 +45,7 @@ internal class SerialisableRouterInstanceV1
     public SerialisableRouterInstanceV1(RouterInstance instance)
     {
         Name = instance.Name.Value;
-        Endpoint = instance.SendEndpoint.Value;
+        Mode = instance.Mode.Value;
+        Endpoint = instance.Endpoint.Value;
     }
 }

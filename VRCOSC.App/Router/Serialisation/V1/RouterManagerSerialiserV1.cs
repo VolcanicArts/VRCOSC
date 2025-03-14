@@ -22,7 +22,8 @@ internal class RouterManagerSerialiserV1 : Serialiser<RouterManager, Serialisabl
         Reference.Routes.AddRange(data.Routes.Select(serialisableInstance => new RouterInstance
         {
             Name = { Value = serialisableInstance.Name },
-            SendEndpoint = { Value = serialisableInstance.Endpoint }
+            Mode = { Value = serialisableInstance.Mode },
+            Endpoint = { Value = serialisableInstance.Endpoint }
         }));
 
         return false;

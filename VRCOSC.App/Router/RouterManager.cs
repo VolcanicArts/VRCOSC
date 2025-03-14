@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using FastOSC;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Router.Serialisation.V1;
-using VRCOSC.App.Router.Serialisation.V2;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -32,7 +31,6 @@ public class RouterManager
     {
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new RouterManagerSerialiserV1(AppManager.GetInstance().Storage, this));
-        serialisationManager.RegisterSerialiser(2, new RouterManagerSerialiserV2(AppManager.GetInstance().Storage, this));
 
         started = false;
         Routes.Clear();
@@ -44,10 +42,8 @@ public class RouterManager
             foreach (var newInstance in newItems)
             {
                 newInstance.Name.Subscribe(_ => serialisationManager.Serialise());
-                newInstance.SendEnabled.Subscribe(_ => serialisationManager.Serialise());
-                newInstance.SendEndpoint.Subscribe(_ => serialisationManager.Serialise());
-                newInstance.ReceiveEnabled.Subscribe(_ => serialisationManager.Serialise());
-                newInstance.ReceiveEndpoint.Subscribe(_ => serialisationManager.Serialise());
+                newInstance.Mode.Subscribe(_ => serialisationManager.Serialise());
+                newInstance.Endpoint.Subscribe(_ => serialisationManager.Serialise());
             }
         }, true);
 
@@ -60,13 +56,13 @@ public class RouterManager
         {
             try
             {
-                if (route.SendEnabled.Value)
+                var address = route.Endpoint.Value.Split(":")[0];
+                var port = int.Parse(route.Endpoint.Value.Split(":")[1]);
+
+                var endpoint = new IPEndPoint(IPAddress.Parse(address), port);
+
+                if (route.Mode.Value == RouterMode.Send)
                 {
-                    var address = route.SendEndpoint.Value.Split(":")[0];
-                    var port = int.Parse(route.SendEndpoint.Value.Split(":")[1]);
-
-                    var endpoint = new IPEndPoint(IPAddress.Parse(address), port);
-
                     Logger.Log($"Starting sender router instance `{route.Name.Value}` on {endpoint}", LoggingTarget.Terminal);
 
                     var sender = new OSCSender();
@@ -75,13 +71,8 @@ public class RouterManager
                     senders.Add((route, sender));
                 }
 
-                if (route.ReceiveEnabled.Value)
+                if (route.Mode.Value == RouterMode.Receive)
                 {
-                    var address = route.ReceiveEndpoint.Value.Split(":")[0];
-                    var port = int.Parse(route.ReceiveEndpoint.Value.Split(":")[1]);
-
-                    var endpoint = new IPEndPoint(IPAddress.Parse(address), port);
-
                     Logger.Log($"Starting receiver router instance `{route.Name.Value}` on {endpoint}", LoggingTarget.Terminal);
 
                     var receiver = new OSCReceiver();

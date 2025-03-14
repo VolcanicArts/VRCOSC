@@ -9,8 +9,12 @@ namespace VRCOSC.App.Router;
 public class RouterInstance
 {
     public Observable<string> Name { get; } = new("My Router Instance");
-    public Observable<bool> ReceiveEnabled { get; } = new();
-    public Observable<string> ReceiveEndpoint { get; } = new($"{IPAddress.Loopback}:9000");
-    public Observable<bool> SendEnabled { get; } = new(true);
-    public Observable<string> SendEndpoint { get; } = new($"{IPAddress.Loopback}:9000");
+    public Observable<RouterMode> Mode { get; } = new(RouterMode.Send);
+    public Observable<string> Endpoint { get; } = new($"{IPAddress.Loopback}:9000");
+}
+
+public enum RouterMode
+{
+    Send,
+    Receive
 }
