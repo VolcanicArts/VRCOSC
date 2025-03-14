@@ -91,7 +91,7 @@
                 </core:HeaderFooterListView.Footer>
             </core:HeaderFooterListView>
         </Grid>
-        <Border x:Name="Overlay" Background="{StaticResource CBackground1}">
+        <Border x:Name="Overlay" Background="{StaticResource CBackground2}">
             <TextBlock FontSize="25" Text="Run the modules to access the dolly manager" Width="400" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Foreground="{StaticResource CForeground1}"/>
         </Border>
     </Grid>

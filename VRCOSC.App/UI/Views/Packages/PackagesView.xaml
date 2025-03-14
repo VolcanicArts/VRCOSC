@@ -5,8 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:utils="clr-namespace:VRCOSC.App.Utils"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              xmlns:packages="clr-namespace:VRCOSC.App.UI.Views.Packages"
              Background="Transparent"

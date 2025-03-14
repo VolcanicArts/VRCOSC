@@ -10,7 +10,8 @@
                     <Border x:Name="Border"
                             Background="{Binding ButtonBackgroundNormal, RelativeSource={RelativeSource TemplatedParent}}"
                             BorderThickness="0"
-                            CornerRadius="{TemplateBinding CornerRadius}">
+                            CornerRadius="{TemplateBinding CornerRadius}"
+                            Padding="{TemplateBinding Padding}">
                         <Viewbox Stretch="Uniform" Margin="5">
                             <fa6:ImageAwesome
                                 Icon="{TemplateBinding Icon}"
