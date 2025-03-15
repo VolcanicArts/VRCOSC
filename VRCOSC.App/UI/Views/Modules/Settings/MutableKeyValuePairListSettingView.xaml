@@ -52,12 +52,12 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBox Grid.Column="0"
                                              Text="{Binding Key.Value, UpdateSourceTrigger=PropertyChanged}"
-                                             Background="{DynamicResource CBackground5}"
+                                             Background="{DynamicResource CBackground5}" FontWeight="Regular"
                                              Foreground="{DynamicResource CForeground1}" FontSize="16">
                                     </TextBox>
                                     <TextBox Grid.Column="2"
                                              Text="{Binding Value.Value, UpdateSourceTrigger=PropertyChanged}"
-                                             Background="{DynamicResource CBackground5}"
+                                             Background="{DynamicResource CBackground5}" FontWeight="Regular"
                                              Foreground="{DynamicResource CForeground1}" FontSize="16">
                                     </TextBox>
                                     <core:IconButton Grid.Column="4" ButtonColour="Red"

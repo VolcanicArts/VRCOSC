@@ -6,5 +6,5 @@
              mc:Ignorable="d">
     <TextBox Text="{Binding Attribute.Value}"
              Background="{DynamicResource CBackground3}" Foreground="{DynamicResource CForeground1}" FontSize="16"
-             HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
+             HorizontalAlignment="Stretch" VerticalContentAlignment="Center" FontWeight="Regular" />
 </UserControl>

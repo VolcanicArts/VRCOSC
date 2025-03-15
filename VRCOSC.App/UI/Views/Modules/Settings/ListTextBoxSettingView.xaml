@@ -39,6 +39,7 @@
                                              Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
                                              Foreground="{DynamicResource CForeground2}"
                                              FontSize="16" VerticalAlignment="Stretch"
+                                             FontWeight="Regular"
                                              Background="{DynamicResource CBackground5}"
                                              BorderThickness="0">
                                         <TextBox.Template>
@@ -57,10 +58,7 @@
                                     </TextBox>
                                     <core:VRCOSCButton Grid.Column="2" ButtonColour="Red"
                                                        Click="RemoveButton_OnClick"
-                                                       Height="25" Width="25">
-                                        <core:VRCOSCButton.Tag>
-                                            <Binding />
-                                        </core:VRCOSCButton.Tag>
+                                                       Height="25" Width="25" Tag="{Binding}">
                                         <fa6:ImageAwesome Icon="Solid_Minus"
                                                           PrimaryColor="{DynamicResource CForeground1}"
                                                           Margin="4" />

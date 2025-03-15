@@ -6,7 +6,7 @@
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d">
     <xctk:DateTimePicker Value="{Binding ProxyValue}" FormatString="yyyy-MM-dd HH:mm:ss"
-                         FontSize="18" VerticalContentAlignment="Center" HorizontalAlignment="Stretch"
+                         FontSize="18" FontWeight="Regular" VerticalContentAlignment="Center" HorizontalAlignment="Stretch"
                          VerticalAlignment="Stretch"
                          ShowButtonSpinner="False" Height="30" />
 </UserControl>
