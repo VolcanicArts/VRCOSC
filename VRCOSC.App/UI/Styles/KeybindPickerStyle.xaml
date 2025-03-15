@@ -11,12 +11,12 @@
                             CornerRadius="5" BorderThickness="2">
                         <TextBlock
                             Text="{TemplateBinding Keybind, Converter={StaticResource KeybindToStringConverter}}"
-                            Foreground="{StaticResource CForeground1}" FontSize="{TemplateBinding FontSize}"
+                            Foreground="{DynamicResource CForeground1}" FontSize="{TemplateBinding FontSize}"
                             HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource CRed}" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource CRed}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

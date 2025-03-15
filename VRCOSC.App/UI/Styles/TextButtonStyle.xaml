@@ -14,7 +14,7 @@
                         <TextBlock
                             Text="{TemplateBinding Text}"
                             FontSize="{TemplateBinding FontSize}"
-                            Foreground="{StaticResource CForeground1}"
+                            Foreground="{DynamicResource CForeground1}"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"/>
                     </Border>

@@ -9,7 +9,7 @@
              Background="Transparent">
     <UserControl.Resources>
         <Style TargetType="GroupBox" BasedOn="{StaticResource {x:Type GroupBox}}">
-            <Setter Property="Foreground" Value="{StaticResource CForeground1}"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
             <Setter Property="FontSize" Value="17"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
@@ -17,7 +17,6 @@
             <Setter Property="FontSize" Value="18" />
             <Setter Property="FontWeight" Value="Regular"/>
             <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="MaxDropDownHeight" Value="200"/>
         </Style>
         <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="FontWeight" Value="Regular"/>
@@ -25,13 +24,13 @@
         <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="NoteTextStyle">
             <Setter Property="FontSize" Value="15"/>
             <Setter Property="FontWeight" Value="Regular"/>
-            <Setter Property="Foreground" Value="{StaticResource CForeground2}"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground2}"/>
             <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
         </Style>
         <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="LabelTextStyle">
             <Setter Property="FontSize" Value="17"/>
             <Setter Property="FontWeight" Value="Regular"/>
-            <Setter Property="Foreground" Value="{StaticResource CForeground1}"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
     </UserControl.Resources>
@@ -41,8 +40,6 @@
                 <core:SpacedStackPanel Spacing="10" Margin="7">
                     <TextBlock Style="{StaticResource NoteTextStyle}">
                         Here you can change how the app appears.
-                        <LineBreak/>
-                        Changes to these settings requires an app restart.
                     </TextBlock>
                     <Grid>
                         <Grid.ColumnDefinitions>

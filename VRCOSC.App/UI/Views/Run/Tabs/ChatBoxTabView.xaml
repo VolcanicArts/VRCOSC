@@ -17,10 +17,11 @@
             <chatBox:ChatBoxPreviewView HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <core:IconButton Icon="Solid_ArrowUpRightFromSquare" Width="35" Height="35" HorizontalAlignment="Right"
                          ButtonColour="Gray"
+                         Foreground="{StaticResource CForeground1}"
                          VerticalAlignment="Top" Margin="10" Click="PopoutChatBox_OnClick" />
 
         </Grid>
-        <Border Grid.Row="2" Background="{StaticResource CBackground2}" CornerRadius="10" Padding="10" Height="45">
+        <Border Grid.Row="2" Background="{DynamicResource CBackground2}" CornerRadius="10" Padding="10" Height="45">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
@@ -32,9 +33,9 @@
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Margin="0 -2 0 0" FontSize="17" Foreground="{StaticResource CForeground1}" VerticalAlignment="Center" Text="Live Text:"/>
-                <TextBox Name="LiveTextTextBox" Grid.Column="2" FontSize="16" TextChanged="LiveTextTextBox_OnTextChanged"/>
-                <core:IconButton Grid.Column="4" ButtonColour="Blue" Icon="Solid_Eraser" Click="LiveTextEraser_OnClick"/>
+                <TextBlock Grid.Column="0" Margin="0 -2 0 0" FontSize="17" Foreground="{DynamicResource CForeground1}" VerticalAlignment="Center" Text="Live Text:"/>
+                <TextBox Name="LiveTextTextBox" Grid.Column="2" FontSize="16" TextChanged="LiveTextTextBox_OnTextChanged" Foreground="{DynamicResource CForeground1}" Background="{DynamicResource CBackground3}"/>
+                <core:IconButton Grid.Column="4" ButtonColour="Blue" Icon="Solid_Eraser" Click="LiveTextEraser_OnClick" Foreground="{DynamicResource CForeground1}"/>
             </Grid>
         </Border>
     </Grid>

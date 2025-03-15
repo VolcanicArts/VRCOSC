@@ -11,7 +11,7 @@
     <UserControl.Resources>
         <local:ActivationThresholdPositionConverter x:Key="ActivationThresholdPositionConverter"/>
         <Style TargetType="GroupBox" BasedOn="{StaticResource {x:Type GroupBox}}">
-            <Setter Property="Foreground" Value="{StaticResource CForeground1}"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
             <Setter Property="FontSize" Value="17"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
@@ -19,7 +19,6 @@
             <Setter Property="FontSize" Value="18" />
             <Setter Property="FontWeight" Value="Regular"/>
             <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="MaxDropDownHeight" Value="200"/>
         </Style>
         <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="FontWeight" Value="Regular"/>
@@ -27,13 +26,13 @@
         <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="NoteTextStyle">
             <Setter Property="FontSize" Value="15"/>
             <Setter Property="FontWeight" Value="Regular"/>
-            <Setter Property="Foreground" Value="{StaticResource CForeground2}"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground2}"/>
             <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
         </Style>
         <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="LabelTextStyle">
             <Setter Property="FontSize" Value="17"/>
             <Setter Property="FontWeight" Value="Regular"/>
-            <Setter Property="Foreground" Value="{StaticResource CForeground1}"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
     </UserControl.Resources>
@@ -83,7 +82,7 @@
                     </TextBlock>
                     <Grid>
                         <ProgressBar Name="MicrophoneDebugProgressBar" Height="5" Minimum="0" Maximum="1"/>
-                        <Border Background="{StaticResource CGreen}" Height="20" Width="3" VerticalAlignment="Top" HorizontalAlignment="Left">
+                        <Border Background="{DynamicResource CGreen}" Height="20" Width="3" VerticalAlignment="Top" HorizontalAlignment="Left">
                             <Border.RenderTransform>
                                 <TranslateTransform>
                                     <TranslateTransform.X>

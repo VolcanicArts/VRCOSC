@@ -16,7 +16,7 @@
             <Setter Property="FontSize" Value="18" />
             <Setter Property="HorizontalAlignment" Value="Center" />
             <Setter Property="VerticalAlignment" Value="Center" />
-            <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
+            <Setter Property="Foreground" Value="{DynamicResource CForeground1}" />
             <Setter Property="Margin" Value="7" />
         </Style>
         <Style TargetType="RadioButton">
@@ -24,8 +24,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border Background="{StaticResource CBackground3}"
-                                BorderBrush="{StaticResource CBackground5}"
+                        <Border Background="{DynamicResource CBackground3}"
+                                BorderBrush="{DynamicResource CBackground5}"
                                 BorderThickness="2"
                                 CornerRadius="5"
                                 x:Name="Border">
@@ -33,7 +33,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{StaticResource CBackground6}" />
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource CBackground6}" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -46,45 +46,41 @@
             <ColumnDefinition Width="150" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Border Grid.Column="0" Background="{StaticResource CBackground4}">
-            <ScrollViewer Padding="10" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
-                <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
-                    <RadioButton Click="GeneralTabButton_OnClick" IsChecked="True">
-                        <TextBlock Text="General" Style="{StaticResource RadioTextBlockStyle}" />
-                    </RadioButton>
-                    <RadioButton Click="BehaviourTabButton_OnClick" Name="BehaviourTabButton" >
-                        <TextBlock Text="Behaviour" Style="{StaticResource RadioTextBlockStyle}" />
-                    </RadioButton>
-                    <RadioButton Click="SpeechTabButton_OnClick">
-                        <TextBlock Text="Speech" Style="{StaticResource RadioTextBlockStyle}" />
-                    </RadioButton>
-                    <RadioButton Click="SteamVRTabButton_OnClick">
-                        <TextBlock Text="SteamVR" Style="{StaticResource RadioTextBlockStyle}" />
-                    </RadioButton>
-                    <RadioButton Click="RouterTabButton_OnClick">
-                        <TextBlock Text="Router" Style="{StaticResource RadioTextBlockStyle}" />
-                    </RadioButton>
-                    <RadioButton Click="StartupTabButton_OnClick">
-                        <TextBlock Text="Startup" Style="{StaticResource RadioTextBlockStyle}" />
-                    </RadioButton>
-                    <RadioButton Click="DebugTabButton_OnClick">
-                        <TextBlock Text="Debug" Style="{StaticResource RadioTextBlockStyle}" />
-                    </RadioButton>
-                </core:SpacedStackPanel>
-            </ScrollViewer>
-        </Border>
-        <Border Grid.Column="1" Background="{StaticResource CBackground2}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
-                <Grid Margin="10">
-                    <local:GeneralView x:Name="GeneralContainer"/>
-                    <local:BehaviourView x:Name="BehaviourContainer"/>
-                    <local:SpeechView x:Name="SpeechContainer"/>
-                    <local:SteamVRView x:Name="SteamVRContainer"/>
-                    <local:RouterView x:Name="RouterContainer"/>
-                    <local:StartupView x:Name="StartupContainer"/>
-                    <local:AppDebugView x:Name="DebugContainer"/>
-                </Grid>
-            </ScrollViewer>
-        </Border>
+        <ScrollViewer Grid.Column="0" Background="{DynamicResource CBackground4}" Padding="10" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+            <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
+                <RadioButton Click="GeneralTabButton_OnClick" IsChecked="True">
+                    <TextBlock Text="General" Style="{StaticResource RadioTextBlockStyle}" />
+                </RadioButton>
+                <RadioButton Click="BehaviourTabButton_OnClick" Name="BehaviourTabButton" >
+                    <TextBlock Text="Behaviour" Style="{StaticResource RadioTextBlockStyle}" />
+                </RadioButton>
+                <RadioButton Click="SpeechTabButton_OnClick">
+                    <TextBlock Text="Speech" Style="{StaticResource RadioTextBlockStyle}" />
+                </RadioButton>
+                <RadioButton Click="SteamVRTabButton_OnClick">
+                    <TextBlock Text="SteamVR" Style="{StaticResource RadioTextBlockStyle}" />
+                </RadioButton>
+                <RadioButton Click="RouterTabButton_OnClick">
+                    <TextBlock Text="Router" Style="{StaticResource RadioTextBlockStyle}" />
+                </RadioButton>
+                <RadioButton Click="StartupTabButton_OnClick">
+                    <TextBlock Text="Startup" Style="{StaticResource RadioTextBlockStyle}" />
+                </RadioButton>
+                <RadioButton Click="DebugTabButton_OnClick">
+                    <TextBlock Text="Debug" Style="{StaticResource RadioTextBlockStyle}" />
+                </RadioButton>
+            </core:SpacedStackPanel>
+        </ScrollViewer>
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+            <Grid Margin="10">
+                <local:GeneralView x:Name="GeneralContainer"/>
+                <local:BehaviourView x:Name="BehaviourContainer"/>
+                <local:SpeechView x:Name="SpeechContainer"/>
+                <local:SteamVRView x:Name="SteamVRContainer"/>
+                <local:RouterView x:Name="RouterContainer"/>
+                <local:StartupView x:Name="StartupContainer"/>
+                <local:AppDebugView x:Name="DebugContainer"/>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>

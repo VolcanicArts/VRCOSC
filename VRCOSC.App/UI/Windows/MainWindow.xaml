@@ -8,7 +8,7 @@
         Width="1366" Height="768" MinWidth="960" MinHeight="540">
     <Window.Resources>
         <Style TargetType="fa6:ImageAwesome">
-            <Setter Property="PrimaryColor" Value="{StaticResource CForeground1}" />
+            <Setter Property="PrimaryColor" Value="{DynamicResource CForeground1}" />
         </Style>
         <Style TargetType="RadioButton">
             <Setter Property="OverridesDefaultStyle" Value="True" />
@@ -26,7 +26,7 @@
                                 </Viewbox>
                             </Border>
                             <Border x:Name="Indicator"
-                                    Background="{StaticResource CForeground4}"
+                                    Background="{DynamicResource CForeground4}"
                                     CornerRadius="10"
                                     Width="8"
                                     Height="0"
@@ -36,7 +36,7 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{StaticResource CBackground2}" />
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource CBackground2}" />
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
@@ -78,7 +78,7 @@
                 <ColumnDefinition Width="70" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <Border Grid.Column="0" Background="{StaticResource CBackground1}">
+            <Border Grid.Column="0" Background="{DynamicResource CBackground1}">
                 <Grid>
                     <StackPanel Orientation="Vertical" VerticalAlignment="Top">
                         <RadioButton GroupName="TabBar" Click="PackagesButton_OnClick">
@@ -110,12 +110,12 @@
                     </StackPanel>
                 </Grid>
             </Border>
-            <Border Grid.Column="1" Background="{StaticResource CBackground2}">
+            <Border Grid.Column="1" Background="{DynamicResource CBackground2}">
                 <ContentControl Name="ContentControl" />
             </Border>
         </Grid>
         <Grid Name="LoadingOverlay">
-            <Border Background="{StaticResource CBackground1}" />
+            <Border Background="{DynamicResource CBackground1}" />
             <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -125,7 +125,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Name="LoadingTitle" FontSize="30" Text="Welcome To VRCOSC"
-                           Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
+                           Foreground="{DynamicResource CForeground1}" HorizontalAlignment="Center"
                            VerticalAlignment="Center" FontWeight="Medium" />
                 <Grid Grid.Row="1">
                     <fa6:ImageAwesome Name="LoadingSpinner" Margin="0 10 0 0" Icon="Solid_Spinner" SpinDuration="1" Spin="True" Width="30" Height="30"/>

@@ -13,7 +13,9 @@
     <Window.Resources>
         <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <core:TextBoxParsingConverter x:Key="TextBoxParsingConverter" />
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}" Colour2="{StaticResource CBackground2}" />
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
         <core:BoolToThicknessConverter x:Key="BoolToThicknessConverter" />
         <core:IndexFromListConverter x:Key="IndexConverter"/>
         <chatBox:IsModuleSelectedConverter x:Key="IsModuleSelectedConverter"/>
@@ -32,9 +34,9 @@
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
         <!--> Module Selection <-->
-        <Border Grid.Column="0" Grid.Row="0" Background="{StaticResource CBackground5}" CornerRadius="5">
+        <Border Grid.Column="0" Grid.Row="0" Background="{DynamicResource CBackground5}" CornerRadius="5">
             <Grid>
-                <TextBlock x:Name="SelectListPrompt" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" FontSize="22" FontWeight="DemiBold" Foreground="{StaticResource CForeground1}" Margin="50" Text="Enable Some Modules!" TextWrapping="WrapWithOverflow"/>
+                <TextBlock x:Name="SelectListPrompt" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" FontSize="22" FontWeight="DemiBold" Foreground="{DynamicResource CForeground1}" Margin="50" Text="Enable Some Modules!" TextWrapping="WrapWithOverflow"/>
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                               PanningMode="VerticalOnly">
                     <core:SpacedStackPanel Spacing="10" Margin="5">
@@ -49,7 +51,7 @@
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate>
-                                                <Border Height="30" Background="{StaticResource CBackground7}"
+                                                <Border Height="30" Background="{DynamicResource CBackground7}"
                                                         CornerRadius="5">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
@@ -57,7 +59,7 @@
                                                             <ColumnDefinition Width="Auto" />
                                                         </Grid.ColumnDefinitions>
                                                         <TextBlock Grid.Column="0" FontSize="15"
-                                                                   Foreground="{StaticResource CForeground1}"
+                                                                   Foreground="{DynamicResource CForeground1}"
                                                                    Text="{Binding TitleWithPackage, Mode=OneWay}"
                                                                    HorizontalAlignment="Left"
                                                                    Padding="5" />
@@ -85,12 +87,12 @@
             </Grid>
         </Border>
         <!--> Elements <-->
-        <Border Grid.Column="2" Grid.Row="0" Background="{StaticResource CBackground5}" CornerRadius="5">
+        <Border Grid.Column="2" Grid.Row="0" Background="{DynamicResource CBackground5}" CornerRadius="5">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                           PanningMode="VerticalOnly">
                 <core:SpacedStackPanel Orientation="Vertical" Spacing="10" Margin="20 10">
                     <TextBlock Text="States" FontWeight="Bold" FontSize="30"
-                               Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource CForeground1}" HorizontalAlignment="Center"
                                Visibility="{Binding HasStates, Converter={StaticResource BoolToVisibilityConverter}}" />
                     <core:SpacedListView ItemsSource="{Binding UIStates}" Spacing="20">
                         <b:Interaction.Behaviors>
@@ -103,7 +105,7 @@
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate>
-                                            <Border Background="{StaticResource CBackground7}"
+                                            <Border Background="{DynamicResource CBackground7}"
                                                     CornerRadius="5" Padding="5"
                                                     BorderBrush="Yellow"
                                                     BorderThickness="{Binding IsChosenElement.Value, Mode=OneWay, Converter={StaticResource BoolToThicknessConverter}}"
@@ -116,7 +118,7 @@
                                                             IsChecked="{Binding Enabled.Value}"
                                                             Width="25" Height="25" />
                                                         <TextBlock FontSize="16"
-                                                                   Foreground="{StaticResource CForeground1}"
+                                                                   Foreground="{DynamicResource CForeground1}"
                                                                    Text="{Binding DisplayName, Mode=OneWay}"
                                                                    Margin="0 -3 0 0"
                                                                    HorizontalAlignment="Left"
@@ -124,8 +126,8 @@
                                                     </core:SpacedStackPanel>
                                                     <core:ChatBoxTextBox
                                                         FontSize="16"
-                                                        Foreground="{StaticResource CForeground1}"
-                                                        Background="{StaticResource CBackground4}"
+                                                        Foreground="{DynamicResource CForeground1}"
+                                                        Background="{DynamicResource CBackground4}"
                                                         Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}" />
                                                     <!--> Variables List <-->
                                                     <core:HeaderFooterListView
@@ -134,7 +136,7 @@
                                                         ShouldTruncateHeight="False"
                                                         HideHeaderWhenEmpty="True">
                                                         <core:HeaderFooterListView.Header>
-                                                            <Border Background="{StaticResource CBackground1}" Height="5" />
+                                                            <Border Background="{DynamicResource CBackground1}" Height="5" />
                                                         </core:HeaderFooterListView.Header>
                                                         <ListView.ItemContainerStyle>
                                                             <Style TargetType="ListViewItem">
@@ -142,12 +144,11 @@
                                                                     <Setter.Value>
                                                                         <ControlTemplate>
                                                                             <Border Height="30"
-                                                                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
                                                                                 MouseLeftButtonDown="VariableInstance_MouseLeftButtonDown"
                                                                                 MouseLeftButtonUp="VariableInstance_MouseLeftButtonUp"
                                                                                 MouseMove="VariableInstance_MouseMove"
                                                                                 AllowDrop="True"
-                                                                                BorderBrush="{StaticResource CBackground1}"
+                                                                                BorderBrush="{DynamicResource CBackground1}"
                                                                                 BorderThickness="0"
                                                                                 Cursor="Hand"
                                                                                 Drop="VariableInstance_DropTarget"
@@ -155,6 +156,13 @@
                                                                                 Padding="5 0"
                                                                                 DragLeave="VariableInstance_DragLeave"
                                                                                 Tag="{Binding}">
+                                                                                <Border.Background>
+                                                                                    <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                                                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                                                                        <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                                                                        <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                                                                    </MultiBinding>
+                                                                                </Border.Background>
                                                                                 <Grid>
                                                                                     <core:SpacedStackPanel
                                                                                         Spacing="5"
@@ -163,7 +171,7 @@
                                                                                         HorizontalAlignment="Left">
                                                                                         <TextBlock
                                                                                             FontSize="12"
-                                                                                            Foreground="{StaticResource CForeground3}"
+                                                                                            Foreground="{DynamicResource CForeground3}"
                                                                                             TextAlignment="Left"
                                                                                             HorizontalAlignment="Left"
                                                                                             VerticalAlignment="Center"
@@ -171,7 +179,7 @@
                                                                                             />
                                                                                         <TextBlock
                                                                                             FontSize="14"
-                                                                                            Foreground="{StaticResource CForeground1}"
+                                                                                            Foreground="{DynamicResource CForeground1}"
                                                                                             TextAlignment="Left"
                                                                                             HorizontalAlignment="Left"
                                                                                             VerticalAlignment="Center"
@@ -180,7 +188,7 @@
                                                                                     </core:SpacedStackPanel>
                                                                                     <fa6:ImageAwesome
                                                                                         Icon="Solid_GripLines"
-                                                                                        PrimaryColor="{StaticResource CForeground2}"
+                                                                                        PrimaryColor="{DynamicResource CForeground2}"
                                                                                         HorizontalAlignment="Center"
                                                                                         VerticalAlignment="Center"
                                                                                         Margin="11" />
@@ -214,14 +222,14 @@
                                                         <core:HeaderFooterListView.Footer>
                                                             <Border x:Name="dropTarget"
                                                                 HorizontalAlignment="Stretch"
-                                                                Background="{StaticResource CBackground1}"
+                                                                Background="{DynamicResource CBackground1}"
                                                                 Height="30"
                                                                 AllowDrop="True"
                                                                 Drop="VariableReference_DropTarget"
                                                                 DragEnter="VariableReference_DragEnter"
                                                                 Tag="{Binding}">
                                                                 <TextBlock Text="Drop Variables Here"
-                                                                    Foreground="{StaticResource CForeground3}"
+                                                                    Foreground="{DynamicResource CForeground3}"
                                                                     Margin="0 -3 0 0"
                                                                     FontSize="14"
                                                                     HorizontalAlignment="Center"
@@ -231,7 +239,7 @@
                                                     </core:HeaderFooterListView>
                                                     <!--> Options <-->
                                                     <Border
-                                                        Background="{StaticResource CBackground4}"
+                                                        Background="{DynamicResource CBackground4}"
                                                         CornerRadius="5"
                                                         Padding="5">
                                                         <Grid>
@@ -243,7 +251,7 @@
                                                                 <RowDefinition Height="*" />
                                                             </Grid.RowDefinitions>
                                                             <TextBlock Grid.Column="0"
-                                                                Foreground="{StaticResource CForeground1}"
+                                                                Foreground="{DynamicResource CForeground1}"
                                                                 Text="Show Typing Indicator"
                                                                 Margin="4 0 0 0"
                                                                 VerticalAlignment="Center"
@@ -256,7 +264,7 @@
                                                         </Grid>
                                                     </Border>
                                                     <Border
-                                                        Background="{StaticResource CBackground4}"
+                                                        Background="{DynamicResource CBackground4}"
                                                         CornerRadius="5"
                                                         Padding="5">
                                                         <Grid>
@@ -268,7 +276,7 @@
                                                                 <RowDefinition Height="*" />
                                                             </Grid.RowDefinitions>
                                                             <TextBlock Grid.Column="0"
-                                                                Foreground="{StaticResource CForeground1}"
+                                                                Foreground="{DynamicResource CForeground1}"
                                                                 Text="Use Minimal Background"
                                                                 Margin="4 0 0 0"
                                                                 VerticalAlignment="Center"
@@ -294,10 +302,10 @@
                             <ColumnDefinition Width="8*"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="1" Background="{StaticResource CBackground8}" Height="6" HorizontalAlignment="Stretch" CornerRadius="3"/>
+                        <Border Grid.Column="1" Background="{DynamicResource CBackground8}" Height="6" HorizontalAlignment="Stretch" CornerRadius="3"/>
                     </Grid>
                     <TextBlock Text="Events" FontWeight="Bold" FontSize="30"
-                               Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource CForeground1}" HorizontalAlignment="Center"
                                Visibility="{Binding HasEvents, Converter={StaticResource BoolToVisibilityConverter}}" />
                     <core:SpacedListView ItemsSource="{Binding UIEvents}" Spacing="20">
                         <b:Interaction.Behaviors>
@@ -323,15 +331,15 @@
                                                             IsChecked="{Binding Enabled.Value}"
                                                             Width="25" Height="25" />
                                                         <TextBlock FontSize="16"
-                                                                   Foreground="{StaticResource CForeground1}"
+                                                                   Foreground="{DynamicResource CForeground1}"
                                                                    Text="{Binding DisplayName, Mode=OneWay}"
                                                                    VerticalAlignment="Center"
                                                                    HorizontalAlignment="Left" />
                                                     </core:SpacedStackPanel>
                                                     <core:ChatBoxTextBox
                                                         FontSize="16"
-                                                        Foreground="{StaticResource CForeground1}"
-                                                        Background="{StaticResource CBackground4}"
+                                                        Foreground="{DynamicResource CForeground1}"
+                                                        Background="{DynamicResource CBackground4}"
                                                         Text="{Binding Format.Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TextBoxParsingConverter}}" />
                                                     <!--> Variables List <-->
                                                     <core:HeaderFooterListView
@@ -340,7 +348,7 @@
                                                         ShouldTruncateHeight="False"
                                                         HideHeaderWhenEmpty="True">
                                                         <core:HeaderFooterListView.Header>
-                                                            <Border Background="{StaticResource CBackground1}" Height="5" />
+                                                            <Border Background="{DynamicResource CBackground1}" Height="5" />
                                                         </core:HeaderFooterListView.Header>
                                                         <ListView.ItemContainerStyle>
                                                             <Style TargetType="ListViewItem">
@@ -348,12 +356,11 @@
                                                                     <Setter.Value>
                                                                         <ControlTemplate>
                                                                             <Border Height="30"
-                                                                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
                                                                                 MouseLeftButtonDown="VariableInstance_MouseLeftButtonDown"
                                                                                 MouseLeftButtonUp="VariableInstance_MouseLeftButtonUp"
                                                                                 MouseMove="VariableInstance_MouseMove"
                                                                                 AllowDrop="True"
-                                                                                BorderBrush="{StaticResource CBackground1}"
+                                                                                BorderBrush="{DynamicResource CBackground1}"
                                                                                 BorderThickness="0"
                                                                                 Cursor="Hand"
                                                                                 Drop="VariableInstance_DropTarget"
@@ -361,6 +368,13 @@
                                                                                 Padding="5 0"
                                                                                 DragLeave="VariableInstance_DragLeave"
                                                                                 Tag="{Binding}">
+                                                                                <Border.Background>
+                                                                                    <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                                                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                                                                        <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                                                                        <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                                                                    </MultiBinding>
+                                                                                </Border.Background>
                                                                                 <Grid>
                                                                                     <core:SpacedStackPanel
                                                                                         Spacing="5"
@@ -369,7 +383,7 @@
                                                                                         HorizontalAlignment="Left">
                                                                                         <TextBlock
                                                                                             FontSize="12"
-                                                                                            Foreground="{StaticResource CForeground3}"
+                                                                                            Foreground="{DynamicResource CForeground3}"
                                                                                             TextAlignment="Left"
                                                                                             HorizontalAlignment="Left"
                                                                                             VerticalAlignment="Center"
@@ -377,7 +391,7 @@
                                                                                             />
                                                                                         <TextBlock
                                                                                             FontSize="14"
-                                                                                            Foreground="{StaticResource CForeground1}"
+                                                                                            Foreground="{DynamicResource CForeground1}"
                                                                                             TextAlignment="Left"
                                                                                             HorizontalAlignment="Left"
                                                                                             VerticalAlignment="Center"
@@ -386,7 +400,7 @@
                                                                                     </core:SpacedStackPanel>
                                                                                     <fa6:ImageAwesome
                                                                                         Icon="Solid_GripLines"
-                                                                                        PrimaryColor="{StaticResource CForeground2}"
+                                                                                        PrimaryColor="{DynamicResource CForeground2}"
                                                                                         HorizontalAlignment="Center"
                                                                                         VerticalAlignment="Center"
                                                                                         Margin="11" />
@@ -420,14 +434,14 @@
                                                         <core:HeaderFooterListView.Footer>
                                                             <Border x:Name="dropTarget"
                                                                 HorizontalAlignment="Stretch"
-                                                                Background="{StaticResource CBackground1}"
+                                                                Background="{DynamicResource CBackground1}"
                                                                 Height="30"
                                                                 AllowDrop="True"
                                                                 Drop="VariableReference_DropTarget"
                                                                 DragEnter="VariableReference_DragEnter"
                                                                 Tag="{Binding}">
                                                                 <TextBlock Text="Drop Variables Here"
-                                                                    Foreground="{StaticResource CForeground3}"
+                                                                    Foreground="{DynamicResource CForeground3}"
                                                                     Margin="0 -3 0 0"
                                                                     FontSize="14"
                                                                     HorizontalAlignment="Center"
@@ -437,7 +451,7 @@
                                                     </core:HeaderFooterListView>
                                                     <!--> Options <-->
                                                     <Border
-                                                        Background="{StaticResource CBackground4}"
+                                                        Background="{DynamicResource CBackground4}"
                                                         CornerRadius="5"
                                                         Padding="5">
                                                         <Grid>
@@ -449,7 +463,7 @@
                                                                 <RowDefinition Height="*" />
                                                             </Grid.RowDefinitions>
                                                             <TextBlock Grid.Column="0"
-                                                                Foreground="{StaticResource CForeground1}"
+                                                                Foreground="{DynamicResource CForeground1}"
                                                                 Text="Show Typing Indicator"
                                                                 Margin="4 0 0 0"
                                                                 VerticalAlignment="Center"
@@ -462,7 +476,7 @@
                                                         </Grid>
                                                     </Border>
                                                     <Border
-                                                        Background="{StaticResource CBackground4}"
+                                                        Background="{DynamicResource CBackground4}"
                                                         CornerRadius="5"
                                                         Padding="5">
                                                         <Grid>
@@ -474,7 +488,7 @@
                                                                 <RowDefinition Height="*" />
                                                             </Grid.RowDefinitions>
                                                             <TextBlock Grid.Column="0"
-                                                                Foreground="{StaticResource CForeground1}"
+                                                                Foreground="{DynamicResource CForeground1}"
                                                                 Text="Use Minimal Background"
                                                                 Margin="4 0 0 0"
                                                                 VerticalAlignment="Center"
@@ -488,7 +502,7 @@
                                                     </Border>
                                                     <!--> Event-specific Options <-->
                                                     <Border
-                                                        Background="{StaticResource CBackground4}"
+                                                        Background="{DynamicResource CBackground4}"
                                                         CornerRadius="5"
                                                         Padding="5">
                                                         <Grid>
@@ -500,24 +514,24 @@
                                                                 <RowDefinition Height="*" />
                                                             </Grid.RowDefinitions>
                                                             <TextBlock Grid.Column="0"
-                                                                Foreground="{StaticResource CForeground1}"
+                                                                Foreground="{DynamicResource CForeground1}"
                                                                 Text="Length (Seconds)"
                                                                 VerticalAlignment="Center"
                                                                 Margin="4 0 0 0"
                                                                 FontSize="16" />
                                                             <TextBox Grid.Column="1"
                                                                 Text="{Binding Length.Value, Converter={StaticResource TextBoxParsingConverter}}"
-                                                                Foreground="{StaticResource CForeground1}"
+                                                                Foreground="{DynamicResource CForeground1}"
                                                                 FontSize="16"
                                                                 VerticalAlignment="Center"
                                                                 VerticalContentAlignment="Center"
                                                                 Margin="-1"
                                                                 HorizontalAlignment="Stretch"
-                                                                Background="{StaticResource CBackground4}" />
+                                                                Background="{DynamicResource CBackground4}" />
                                                         </Grid>
                                                     </Border>
                                                     <Border
-                                                        Background="{StaticResource CBackground4}"
+                                                        Background="{DynamicResource CBackground4}"
                                                         CornerRadius="5"
                                                         Padding="5">
                                                         <Grid>
@@ -529,7 +543,7 @@
                                                                 <RowDefinition Height="*" />
                                                             </Grid.RowDefinitions>
                                                             <TextBlock Grid.Column="0"
-                                                                Foreground="{StaticResource CForeground1}"
+                                                                Foreground="{DynamicResource CForeground1}"
                                                                 Text="Behaviour"
                                                                 VerticalAlignment="Center"
                                                                 Margin="4 0 0 0"
@@ -537,7 +551,6 @@
                                                             <ComboBox Grid.Column="1"
                                                                 SelectedIndex="{Binding BehaviourIndex}"
                                                                 ItemsSource="{Binding BehaviourSource}"
-                                                                Background="{StaticResource CBackground3}"
                                                                 FontSize="14"
                                                                 HorizontalAlignment="Stretch"
                                                                 VerticalContentAlignment="Center" />
@@ -555,12 +568,12 @@
             </ScrollViewer>
         </Border>
         <!--> Variables <-->
-        <Border Grid.Column="4" Grid.Row="0" Background="{StaticResource CBackground5}" CornerRadius="5">
+        <Border Grid.Column="4" Grid.Row="0" Background="{DynamicResource CBackground5}" CornerRadius="5">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                           PanningMode="VerticalOnly">
                 <core:SpacedStackPanel Spacing="10" Orientation="Vertical" Margin="5">
                     <TextBlock Text="Available Variables" FontWeight="Bold" FontSize="18"
-                               Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center" />
+                               Foreground="{DynamicResource CForeground1}" HorizontalAlignment="Center" />
                     <core:SpacedListView ItemsSource="{Binding UIVariables}" Spacing="5">
                         <b:Interaction.Behaviors>
                             <core:IgnoreMouseWheelBehavior />
@@ -580,7 +593,7 @@
                                                 <TextBlock Grid.Row="0" Text="{Binding Key, Mode=OneTime}"
                                                            FontWeight="Bold"
                                                            FontSize="18"
-                                                           Foreground="{StaticResource CForeground1}"
+                                                           Foreground="{DynamicResource CForeground1}"
                                                            HorizontalAlignment="Center" />
                                                 <ListView Grid.Row="2" ItemsSource="{Binding Value}"
                                                           HorizontalAlignment="Stretch"
@@ -598,7 +611,7 @@
                                                                     <ControlTemplate>
                                                                         <Border Width="180"
                                                                             VerticalAlignment="Top"
-                                                                            Background="{StaticResource CBackground7}"
+                                                                            Background="{DynamicResource CBackground7}"
                                                                             CornerRadius="5" Padding="5"
                                                                             Cursor="Hand"
                                                                             MouseLeftButtonDown="VariableReferenceDragSource_MouseLeftButtonDown"
@@ -606,7 +619,7 @@
                                                                             <Grid>
                                                                                 <TextBlock
                                                                                     FontSize="13"
-                                                                                    Foreground="{StaticResource CForeground1}"
+                                                                                    Foreground="{DynamicResource CForeground1}"
                                                                                     Text="{Binding DisplayName.Value, Mode=OneTime}"
                                                                                     Margin="15 0"
                                                                                     TextWrapping="Wrap"
@@ -618,14 +631,14 @@
                                                                                     HorizontalAlignment="Left"
                                                                                     Margin="3"
                                                                                     Height="13"
-                                                                                    PrimaryColor="{StaticResource CForeground2}" />
+                                                                                    PrimaryColor="{DynamicResource CForeground2}" />
                                                                                 <fa6:ImageAwesome
                                                                                     Icon="Solid_GripLinesVertical"
                                                                                     VerticalAlignment="Center"
                                                                                     HorizontalAlignment="Right"
                                                                                     Margin="3"
                                                                                     Height="13"
-                                                                                    PrimaryColor="{StaticResource CForeground2}" />
+                                                                                    PrimaryColor="{DynamicResource CForeground2}" />
                                                                             </Grid>
                                                                         </Border>
                                                                     </ControlTemplate>
@@ -645,8 +658,8 @@
             </ScrollViewer>
         </Border>
         <!--> Footer <-->
-        <Border Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="5" Background="{StaticResource CBackground5}" CornerRadius="5" Padding="5">
-            <Border Background="{StaticResource CBackground3}" CornerRadius="5" HorizontalAlignment="Left">
+        <Border Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="5" Background="{DynamicResource CBackground5}" CornerRadius="5" Padding="5">
+            <Border Background="{DynamicResource CBackground3}" CornerRadius="5" HorizontalAlignment="Left">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -655,7 +668,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" HorizontalAlignment="Left"
                                Text="Filter By Enabled Modules" FontSize="15" Padding="5"
-                               Foreground="{StaticResource CForeground1}" />
+                               Foreground="{DynamicResource CForeground1}" />
                     <core:VRCOSCCheckBox Grid.Column="2" x:Name="ShowRelevantModulesCheckBox"
                                          IsChecked="{Binding ShowRelevantModules}"
                                          Width="25" Height="25" HorizontalAlignment="Right"

@@ -28,18 +28,18 @@
                     <ColumnDefinition Width="5" />
                     <ColumnDefinition Width="7*" />
                 </Grid.ColumnDefinitions>
-                <Border Grid.Row="0" Grid.Column="2" Background="{StaticResource CBackground5}" Padding="5" CornerRadius="5">
+                <Border Grid.Row="0" Grid.Column="2" Background="{DynamicResource CBackground5}" Padding="5" CornerRadius="5">
                     <TextBlock Name="EndpointText" HorizontalAlignment="Center" VerticalAlignment="Center"
-                               Foreground="{StaticResource CForeground2}" FontSize="20"/>
+                               Foreground="{DynamicResource CForeground2}" FontSize="20"/>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="5" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
+                <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="5" Background="{DynamicResource CBackground5}" HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch" Padding="5" CornerRadius="5">
                     <ScrollViewer Name="LogScrollViewer" VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
                         <StackPanel Name="LogStackPanel" Orientation="Vertical" />
                     </ScrollViewer>
                 </Border>
-                <Border Grid.Row="2" Grid.Column="2" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
+                <Border Grid.Row="2" Grid.Column="2" Background="{DynamicResource CBackground5}" HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch" Padding="5" CornerRadius="5">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -56,7 +56,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <Border Background="{StaticResource CBackground1}" CornerRadius="5">
+                            <Border Background="{DynamicResource CBackground1}" CornerRadius="5">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
@@ -67,7 +67,7 @@
                                         <Border.RenderTransform>
                                             <TranslateTransform />
                                         </Border.RenderTransform>
-                                        <Border Background="{StaticResource CBackground6}"
+                                        <Border Background="{DynamicResource CBackground6}"
                                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                                 CornerRadius="5" />
                                     </Border>
@@ -77,7 +77,7 @@
                                             <Border Height="30" Width="160">
                                                 <TextBlock Text="Runtime" TextAlignment="Center"
                                                            VerticalAlignment="Center"
-                                                           Foreground="{StaticResource CForeground1}" FontSize="16"
+                                                           Foreground="{DynamicResource CForeground1}" FontSize="16"
                                                            FontWeight="Bold" />
                                             </Border>
                                         </core:VRCOSCButton>
@@ -85,7 +85,7 @@
                                             <Border Height="30" Width="160">
                                                 <TextBlock Text="Avatar" TextAlignment="Center"
                                                            VerticalAlignment="Center"
-                                                           Foreground="{StaticResource CForeground1}" FontSize="16"
+                                                           Foreground="{DynamicResource CForeground1}" FontSize="16"
                                                            FontWeight="Bold" />
                                             </Border>
                                         </core:VRCOSCButton>
@@ -93,7 +93,7 @@
                                             <Border Height="30" Width="160">
                                                 <TextBlock Text="ChatBox" TextAlignment="Center"
                                                            VerticalAlignment="Center"
-                                                           Foreground="{StaticResource CForeground1}" FontSize="16"
+                                                           Foreground="{DynamicResource CForeground1}" FontSize="16"
                                                            FontWeight="Bold" />
                                             </Border>
                                         </core:VRCOSCButton>
@@ -103,7 +103,7 @@
                         </Grid>
                     </Grid>
                 </Border>
-                <Border Grid.Row="4" Grid.Column="2" Background="{StaticResource CBackground5}" HorizontalAlignment="Stretch"
+                <Border Grid.Row="4" Grid.Column="2" Background="{DynamicResource CBackground5}" HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch" Padding="10" CornerRadius="5">
                     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <core:SpacedStackPanel FlowDirection="LeftToRight" Orientation="Horizontal" Spacing="10">
@@ -111,15 +111,17 @@
                                              CornerRadius="5" ButtonColour="Green" Click="PlayButtonOnClick"
                                              Icon="Solid_Play" IsEnabled="True"/>
                             <core:VRCOSCButton Visibility="{Binding AutoStartQuestionClicked.Value, Converter={StaticResource BoolToVisibilityConverter}}" ButtonColour="Gray" Click="AutoStartQuestion_OnClick" CornerRadius="5">
-                                <TextBlock Text="Auto Start With VRChat?" Foreground="{StaticResource CForeground1}" FontSize="15" Margin="10 5"/>
+                                <TextBlock Text="Auto Start With VRChat?" Foreground="{DynamicResource CForeground1}" FontSize="15" Margin="10 5"/>
                             </core:VRCOSCButton>
                         </core:SpacedStackPanel>
                         <core:SpacedStackPanel FlowDirection="RightToLeft" Orientation="Horizontal" Spacing="10">
                             <core:IconButton x:Name="StopButton" Width="120" VerticalAlignment="Stretch"
                                              CornerRadius="5" ButtonColour="Red" Click="StopButtonOnClick"
+                                             Foreground="{DynamicResource CForeground1}"
                                              Icon="Solid_Stop" IsEnabled="False" />
                             <core:IconButton x:Name="RestartButton" Width="120" VerticalAlignment="Stretch"
                                              CornerRadius="5" ButtonColour="Blue" Click="RestartButtonOnClick"
+                                             Foreground="{DynamicResource CForeground1}"
                                              Icon="Solid_ArrowRotateRight" IsEnabled="False" />
                         </core:SpacedStackPanel>
                     </Grid>
@@ -146,25 +148,25 @@
                         <RowDefinition Height="135" />
                         <RowDefinition Height="50" />
                     </Grid.RowDefinitions>
-                    <Border Grid.Row="0" Background="{StaticResource CBackground2}">
+                    <Border Grid.Row="0" Background="{DynamicResource CBackground2}">
                         <TextBlock Text="Waiting for a connection to VRChat or Unity"
                                    TextWrapping="Wrap" FontSize="25" HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   Foreground="{StaticResource CForeground1}" Padding="75 0" TextAlignment="Center" />
+                                   Foreground="{DynamicResource CForeground1}" Padding="75 0" TextAlignment="Center" />
                     </Border>
-                    <Border Grid.Row="1" Background="{StaticResource CBackground3}" Padding="10">
+                    <Border Grid.Row="1" Background="{DynamicResource CBackground3}" Padding="10">
                         <Grid>
                             <core:VRCOSCButton x:Name="CancelButton" HorizontalAlignment="Left"
                                                ButtonColour="Red" Width="150"
                                                Click="CancelButton_OnClick">
-                                <TextBlock Text="Cancel" FontSize="20" Foreground="{StaticResource CForeground1}"
+                                <TextBlock Text="Cancel" FontSize="20" Foreground="{DynamicResource CForeground1}"
                                            Margin="0 -3 0 0"
                                            HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" />
                             </core:VRCOSCButton>
                             <core:VRCOSCButton x:Name="ForceStartButton" HorizontalAlignment="Right"
                                                ButtonColour="Blue" Width="150"
                                                Click="ForceStartButton_OnClick">
-                                <TextBlock Text="Start Anyway" FontSize="20" Foreground="{StaticResource CForeground1}"
+                                <TextBlock Text="Start Anyway" FontSize="20" Foreground="{DynamicResource CForeground1}"
                                            Margin="0 -3 0 0"
                                            HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" />
                             </core:VRCOSCButton>

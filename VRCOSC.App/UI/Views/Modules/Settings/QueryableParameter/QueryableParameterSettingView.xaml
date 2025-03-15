@@ -7,7 +7,7 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              Loaded="QueryableParameterSettingView_OnLoaded">
-    <Border Background="{StaticResource CBackground1}" CornerRadius="5">
+    <Border Background="{DynamicResource CBackground1}" CornerRadius="5">
         <core:IconButton Width="100" Height="20" Margin="0 5" Click="EditButton_OnClick" ButtonColour="Blue"
                          Icon="Solid_PenToSquare" />
     </Border>

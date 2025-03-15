@@ -1,9 +1,9 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Style TargetType="TextBox">
-        <Setter Property="Background" Value="{StaticResource CBackground3}" />
-        <Setter Property="Foreground" Value="{StaticResource CForeground1}" />
-        <Setter Property="CaretBrush" Value="{StaticResource CForeground3}" />
-        <Setter Property="SelectionBrush" Value="{StaticResource CForeground2}" />
+        <Setter Property="Background" Value="{DynamicResource CBackground3}" />
+        <Setter Property="Foreground" Value="{DynamicResource CForeground1}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource CForeground3}" />
+        <Setter Property="SelectionBrush" Value="{DynamicResource CForeground2}" />
     </Style>
 </ResourceDictionary>

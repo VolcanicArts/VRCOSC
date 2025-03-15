@@ -60,8 +60,8 @@ public class BoolToThicknessConverter : IValueConverter
 /// <remarks>One Way</remarks>
 public class AlternatingColourConverter : IValueConverter
 {
-    public Brush Colour1 { get; init; } = Brushes.Black;
-    public Brush Colour2 { get; init; } = Brushes.White;
+    public Brush Colour1 { get; init; } = Brushes.Aqua;
+    public Brush Colour2 { get; init; } = Brushes.Aqua;
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
@@ -71,6 +71,18 @@ public class AlternatingColourConverter : IValueConverter
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class AlternatingColourConverterMulti : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (values is not [int intValue, Brush colour1, Brush colour2]) return Brushes.Aqua;
+
+        return intValue % 2 == 0 ? colour1 : colour2;
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => [];
 }
 
 /// <inheritdoc />

@@ -8,11 +8,12 @@
              d:DesignWidth="1366" d:DesignHeight="768"
              Background="Transparent">
     <UserControl.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground4}" />
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
         <core:IpPortValidationRule x:Key="IpPortValidationRule"/>
         <Style TargetType="GroupBox" BasedOn="{StaticResource {x:Type GroupBox}}">
-            <Setter Property="Foreground" Value="{StaticResource CForeground1}"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
             <Setter Property="FontSize" Value="17"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
@@ -20,7 +21,6 @@
             <Setter Property="FontSize" Value="18" />
             <Setter Property="FontWeight" Value="Regular"/>
             <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="MaxDropDownHeight" Value="200"/>
         </Style>
         <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="FontWeight" Value="Regular"/>
@@ -28,7 +28,7 @@
         <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="NoteTextStyle">
             <Setter Property="FontSize" Value="15"/>
             <Setter Property="FontWeight" Value="Regular"/>
-            <Setter Property="Foreground" Value="{StaticResource CForeground2}"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground2}"/>
             <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
         </Style>
     </UserControl.Resources>
@@ -46,16 +46,21 @@
                         </TextBlock>
                         <core:HeaderFooterListView HideHeaderWhenEmpty="True" ShouldTruncateHeight="False" ItemsSource="{Binding RouterManager.Routes, Mode=OneWay}" AlternationCount="2">
                             <core:HeaderFooterListView.Header>
-                                <Border Background="{StaticResource CBackground1}" Height="5"/>
+                                <Border Background="{DynamicResource CBackground1}" Height="5"/>
                             </core:HeaderFooterListView.Header>
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate>
-                                                <Border
-                                                    Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
-                                                    Padding="5" Height="40">
+                                                <Border Padding="5" Height="40">
+                                                    <Border.Background>
+                                                        <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                                            <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                                            <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                                            <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                                        </MultiBinding>
+                                                    </Border.Background>
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto" />
@@ -70,7 +75,7 @@
                                                             Grid.Column="0"
                                                             Width="200"
                                                             Text="{Binding Name.Value}"
-                                                            Foreground="{StaticResource CForeground1}"
+                                                            Foreground="{DynamicResource CForeground1}"
                                                             FontSize="16"
                                                             VerticalAlignment="Center"
                                                             VerticalContentAlignment="Center">
@@ -84,7 +89,7 @@
                                                             SelectedValue="{Binding Mode.Value}">
                                                         </ComboBox>
                                                         <TextBox Grid.Column="4"
-                                                                 Foreground="{StaticResource CForeground1}"
+                                                                 Foreground="{DynamicResource CForeground1}"
                                                                  FontSize="16"
                                                                  VerticalAlignment="Center"
                                                                  VerticalContentAlignment="Center">
@@ -112,7 +117,7 @@
                                 </Style>
                             </ListView.ItemContainerStyle>
                             <core:HeaderFooterListView.Footer>
-                                <Border Height="35" Padding="7" Background="{StaticResource CBackground1}">
+                                <Border Height="35" Padding="7" Background="{DynamicResource CBackground1}">
                                     <core:IconButton ButtonColour="Green" Width="70"
                                                      Icon="Solid_Plus"
                                                      Click="AddInstance_OnClick" />

@@ -6,7 +6,7 @@
              mc:Ignorable="d">
     <TextBox
         Name="ValueTextBox"
-        Background="{StaticResource CBackground2}"
+        Background="{DynamicResource CBackground2}"
         FontSize="16"
         Margin="-1" />
 </UserControl>

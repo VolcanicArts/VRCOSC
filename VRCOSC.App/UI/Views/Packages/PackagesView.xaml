@@ -11,8 +11,9 @@
              mc:Ignorable="d"
              d:DesignWidth="1366" d:DesignHeight="768">
     <UserControl.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground4}" />
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
         <packages:PackageReleaseVersionColourConverter x:Key="PackageReleaseVersionColourConverter" />
     </UserControl.Resources>
     <Grid>
@@ -30,7 +31,7 @@
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <core:SpacedStackPanel Grid.Row="0" Spacing="7" Orientation="Horizontal">
-                    <Border Background="{StaticResource CBackground3}" Width="570" CornerRadius="5">
+                    <Border Background="{DynamicResource CBackground3}" Width="570" CornerRadius="5">
                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -40,9 +41,9 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <fa6:ImageAwesome Grid.Row="0" Grid.Column="0" Icon="Solid_MagnifyingGlass" Margin="6"
-                                              PrimaryColor="{StaticResource CForeground3}" VerticalAlignment="Center" />
+                                              PrimaryColor="{DynamicResource CForeground3}" VerticalAlignment="Center" />
                             <Grid Grid.Column="1">
-                                <TextBlock Foreground="{StaticResource CForeground3}" Text="Search" FontSize="20"
+                                <TextBlock Foreground="{DynamicResource CForeground3}" Text="Search" FontSize="20"
                                            VerticalAlignment="Center" Margin="2 -3 2 0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -64,7 +65,7 @@
                                 </TextBlock>
                                 <TextBox x:Name="SearchTextBox" Grid.Row="0" FontSize="20" BorderThickness="0"
                                          Background="Transparent" VerticalAlignment="Center"
-                                         Foreground="{StaticResource CForeground2}" VerticalContentAlignment="Center" />
+                                         Foreground="{DynamicResource CForeground2}" VerticalContentAlignment="Center" />
                             </Grid>
                         </Grid>
                     </Border>
@@ -72,7 +73,7 @@
                 </core:SpacedStackPanel>
                 <core:HeaderFooterListView Grid.Row="2" x:Name="PackageList" AlternationCount="2" HideFooterWhenEmpty="True">
                     <core:HeaderFooterListView.Header>
-                        <Border Background="{StaticResource CBackground1}" Height="40">
+                        <Border Background="{DynamicResource CBackground1}" Height="40">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="15" />
@@ -85,19 +86,19 @@
                                     <ColumnDefinition Width="7" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left"
-                                           Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
+                                           Foreground="{DynamicResource CForeground2}" FontSize="16" FontWeight="Bold"
                                            Text="Name" />
                                 <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                           Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
+                                           Foreground="{DynamicResource CForeground2}" FontSize="16" FontWeight="Bold"
                                            Text="Latest" />
                                 <TextBlock Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                           Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
+                                           Foreground="{DynamicResource CForeground2}" FontSize="16" FontWeight="Bold"
                                            Text="Installed" />
                                 <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                           Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
+                                           Foreground="{DynamicResource CForeground2}" FontSize="16" FontWeight="Bold"
                                            Text="Type" />
                                 <TextBlock Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                           Foreground="{StaticResource CForeground2}" FontSize="16" FontWeight="Bold"
+                                           Foreground="{DynamicResource CForeground2}" FontSize="16" FontWeight="Bold"
                                            Text="Action" />
                             </Grid>
                         </Border>
@@ -107,8 +108,14 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate>
-                                        <Border Height="40"
-                                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}">
+                                        <Border Height="40">
+                                            <Border.Background>
+                                                <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                                    <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                                    <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                                    <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                                </MultiBinding>
+                                            </Border.Background>
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="15" />
@@ -122,7 +129,7 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="1" VerticalAlignment="Center"
                                                            HorizontalAlignment="Left"
-                                                           Foreground="{StaticResource CForeground1}"
+                                                           Foreground="{DynamicResource CForeground1}"
                                                            FontSize="16"
                                                            Text="{Binding DisplayName, Mode=OneTime}" />
                                                 <TextBlock Grid.Column="2" VerticalAlignment="Center"
@@ -152,7 +159,7 @@
                                                 </xctk:WatermarkComboBox>
                                                 <TextBlock Grid.Column="4" VerticalAlignment="Center"
                                                            HorizontalAlignment="Center"
-                                                           Foreground="{StaticResource CForeground1}"
+                                                           Foreground="{DynamicResource CForeground1}"
                                                            FontSize="16"
                                                            Text="{Binding PackageType, Mode=OneTime}" />
                                                 <core:SpacedStackPanel Grid.Column="5"
@@ -163,31 +170,28 @@
                                                     <core:IconButton ButtonColour="Blue"
                                                                      Click="InstallButton_OnClick"
                                                                      Visibility="{Binding UIUpgradeVisible}"
+                                                                     Foreground="{DynamicResource CForeground1}"
                                                                      Icon="Regular_CircleDown"
                                                                      Width="30"
-                                                                     Height="30">
-                                                        <core:VRCOSCButton.Tag>
-                                                            <Binding />
-                                                        </core:VRCOSCButton.Tag>
+                                                                     Height="30"
+                                                                     Tag="{Binding}">
                                                     </core:IconButton>
                                                     <core:IconButton ButtonColour="Green"
                                                                      Click="InstallButton_OnClick"
                                                                      Visibility="{Binding UIInstallVisible}"
+                                                                     Foreground="{DynamicResource CForeground1}"
                                                                      Icon="Solid_Plus"
                                                                      Width="30"
-                                                                     Height="30">
-                                                        <core:VRCOSCButton.Tag>
-                                                            <Binding />
-                                                        </core:VRCOSCButton.Tag>
+                                                                     Height="30"
+                                                                     Tag="{Binding}">
                                                     </core:IconButton>
                                                     <core:IconButton ButtonColour="Red"
                                                                      Click="UninstallButton_OnClick"
                                                                      Visibility="{Binding UIUnInstallVisible}"
+                                                                     Foreground="{DynamicResource CForeground1}"
                                                                      Icon="Solid_Minus"
-                                                                     Width="30" Height="30">
-                                                        <core:VRCOSCButton.Tag>
-                                                            <Binding />
-                                                        </core:VRCOSCButton.Tag>
+                                                                     Width="30" Height="30"
+                                                                     Tag="{Binding}">
                                                     </core:IconButton>
                                                 </core:SpacedStackPanel>
                                                 <core:SpacedStackPanel Grid.Column="6"
@@ -197,6 +201,7 @@
                                                     <core:IconButton ButtonColour="Blue"
                                                                      Click="InfoButton_ButtonClick"
                                                                      Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}"
+                                                                     Foreground="{DynamicResource CForeground1}"
                                                                      Icon="Solid_Info"
                                                                      Width="30" Height="30">
                                                     </core:IconButton>

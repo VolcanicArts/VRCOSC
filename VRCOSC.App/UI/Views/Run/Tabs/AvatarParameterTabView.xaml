@@ -8,15 +8,21 @@
              Background="Transparent"
              d:DesignWidth="900" d:DesignHeight="764">
     <UserControl.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground2}" />
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
         <Style TargetType="ListViewItem">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate>
-                        <Border
-                            Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
-                            Padding="7 2" Height="25">
+                        <Border Padding="7 2" Height="25">
+                            <Border.Background>
+                                <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                    <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                    <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                    <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                </MultiBinding>
+                            </Border.Background>
                             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -25,12 +31,12 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0"
                                            Text="{Binding Key, Mode=OneTime}"
-                                           Foreground="{StaticResource CForeground2}"
+                                           Foreground="{DynamicResource CForeground2}"
                                            FontSize="14" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
                                            TextWrapping="NoWrap" />
                                 <TextBlock Grid.Column="2"
                                            Text="{Binding Value, Mode=OneWay}"
-                                           Foreground="{StaticResource CForeground2}"
+                                           Foreground="{DynamicResource CForeground2}"
                                            FontSize="14" VerticalAlignment="Center"
                                            HorizontalAlignment="Right" />
                             </Grid>
@@ -54,14 +60,14 @@
                                    AlternationCount="2"
                                    HideFooterWhenEmpty="True">
             <core:HeaderFooterListView.Header>
-                <Border Background="{StaticResource CBackground1}" Height="35">
-                    <TextBlock Text="Outgoing" Foreground="{StaticResource CForeground2}"
+                <Border Background="{DynamicResource CBackground1}" Height="35">
+                    <TextBlock Text="Outgoing" Foreground="{DynamicResource CForeground2}"
                                FontSize="22" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"
                                Margin="0 -5 0 0" />
                 </Border>
             </core:HeaderFooterListView.Header>
             <core:HeaderFooterListView.Footer>
-                <Border Background="{StaticResource CBackground1}" Height="5" />
+                <Border Background="{DynamicResource CBackground1}" Height="5" />
             </core:HeaderFooterListView.Footer>
         </core:HeaderFooterListView>
         <core:HeaderFooterListView Grid.Column="2"
@@ -72,14 +78,14 @@
                                    AlternationCount="2"
                                    HideFooterWhenEmpty="True">
             <core:HeaderFooterListView.Header>
-                <Border Background="{StaticResource CBackground1}" Height="35">
-                    <TextBlock Text="Incoming" Foreground="{StaticResource CForeground2}"
+                <Border Background="{DynamicResource CBackground1}" Height="35">
+                    <TextBlock Text="Incoming" Foreground="{DynamicResource CForeground2}"
                                FontSize="22" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"
                                Margin="0 -5 0 0" />
                 </Border>
             </core:HeaderFooterListView.Header>
             <core:HeaderFooterListView.Footer>
-                <Border Background="{StaticResource CBackground1}" Height="5" />
+                <Border Background="{DynamicResource CBackground1}" Height="5" />
             </core:HeaderFooterListView.Footer>
         </core:HeaderFooterListView>
     </Grid>

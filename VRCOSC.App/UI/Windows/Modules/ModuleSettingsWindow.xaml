@@ -10,19 +10,19 @@
     <Window.Resources>
         <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" True="Collapsed" False="Visible" />
     </Window.Resources>
-    <Border Background="{StaticResource CBackground2}">
+    <Border Background="{DynamicResource CBackground2}">
         <core:SpacedListView ItemsSource="{Binding GroupsFormatted}" Padding="15" Spacing="10">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="ListViewItem">
-                                <Border Background="{StaticResource CBackground1}" Padding="10"
+                                <Border Background="{DynamicResource CBackground1}" Padding="10"
                                         CornerRadius="5">
                                     <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                                         <TextBlock TextAlignment="Center" Text="{Binding Key}"
                                                    FontWeight="DemiBold"
-                                                   FontSize="18" Foreground="{StaticResource CForeground1}" />
+                                                   FontSize="18" Foreground="{DynamicResource CForeground1}" />
                                         <core:SpacedListView ItemsSource="{Binding Value}" Spacing="5">
                                             <ListView.ItemContainerStyle>
                                                 <Style TargetType="ListViewItem">
@@ -35,7 +35,7 @@
                                                                         <ContentControl Content="{Binding ViewInstance}" VerticalAlignment="Top" />
                                                                     </core:TitleDescriptionContent>
                                                                     <Border
-                                                                        Background="{StaticResource CBackground1}"
+                                                                        Background="{DynamicResource CBackground1}"
                                                                         Opacity="0.5"
                                                                         Visibility="{Binding IsEnabled.Value, Converter={StaticResource BoolToVisibilityConverter}}" />
                                                                 </Grid>

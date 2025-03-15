@@ -9,8 +9,9 @@
              d:DesignWidth="1366" d:DesignHeight="748"
              Loaded="ModulesView_OnLoaded">
     <UserControl.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground4}" />
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
     </UserControl.Resources>
     <core:SpacedListView ItemsSource="{Binding UIModules, Mode=OneWay}" Padding="10" Spacing="10">
         <ListView.ItemContainerStyle>
@@ -26,20 +27,20 @@
                                 HideFooterWhenEmpty="True"
                                 ShouldTruncateHeight="False">
                                 <core:HeaderFooterListView.Header>
-                                    <Border Background="{StaticResource CBackground1}"
+                                    <Border Background="{DynamicResource CBackground1}"
                                             Padding="7" Height="40">
                                         <core:SpacedStackPanel FlowDirection="LeftToRight"
                                                                Orientation="Horizontal" Spacing="10">
                                             <TextBlock Text="{Binding Key.DisplayName, Mode=OneWay}"
                                                        FontSize="20"
                                                        FontWeight="Bold"
-                                                       Foreground="{StaticResource CForeground2}"
+                                                       Foreground="{DynamicResource CForeground2}"
                                                        Padding="3 -1" />
-                                            <Border Background="{StaticResource CBlue}" CornerRadius="3"
+                                            <Border Background="{DynamicResource CBlue}" CornerRadius="3"
                                                     Padding="20 0"
                                                     Visibility="{Binding Key.LocalVisibility, Mode=OneWay}">
                                                 <TextBlock Text="LOCAL" FontSize="14" FontWeight="Medium"
-                                                           Foreground="{StaticResource CForeground1}"
+                                                           Foreground="{DynamicResource CForeground1}"
                                                            VerticalAlignment="Center"
                                                            HorizontalAlignment="Center" />
                                             </Border>
@@ -51,9 +52,14 @@
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate>
-                                                    <Border
-                                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
-                                                        Padding="5" Height="40">
+                                                    <Border Padding="5" Height="40">
+                                                        <Border.Background>
+                                                            <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                                                <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                                                <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                                                <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                                            </MultiBinding>
+                                                        </Border.Background>
                                                         <Grid>
                                                             <core:SpacedStackPanel
                                                                 Orientation="Horizontal"
@@ -72,14 +78,14 @@
                                                                 <Grid>
                                                                     <TextBlock
                                                                         Text="{Binding Title}"
-                                                                        Foreground="{StaticResource CForeground1}"
+                                                                        Foreground="{DynamicResource CForeground1}"
                                                                         FontSize="16"
                                                                         VerticalAlignment="Top"
                                                                         FontWeight="DemiBold"
                                                                         Padding="2 -4" />
                                                                     <TextBlock
                                                                         Text="{Binding ShortDescription}"
-                                                                        Foreground="{StaticResource CForeground2}"
+                                                                        Foreground="{DynamicResource CForeground2}"
                                                                         FontSize="12"
                                                                         VerticalAlignment="Bottom"
                                                                         Padding="2 -1" />
@@ -96,30 +102,24 @@
                                                                     Click="InfoButton_OnClick"
                                                                     Icon="Solid_Info"
                                                                     IsEnabled="{Binding HasInfo}"
-                                                                    ToolTip="Info" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
-                                                                    <core:IconButton.Tag>
-                                                                        <Binding />
-                                                                    </core:IconButton.Tag>
+                                                                    ToolTip="Info" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"
+                                                                    Tag="{Binding}">
                                                                 </core:IconButton>
                                                                 <core:IconButton
                                                                     ButtonColour="Gray"
                                                                     Width="30" Height="30"
                                                                     Icon="Solid_Upload"
                                                                     Click="ExportButton_OnClick"
-                                                                    ToolTip="Export Config" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
-                                                                    <core:IconButton.Tag>
-                                                                        <Binding />
-                                                                    </core:IconButton.Tag>
+                                                                    ToolTip="Export Config" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"
+                                                                    Tag="{Binding}">
                                                                 </core:IconButton>
                                                                 <core:IconButton
                                                                     ButtonColour="Gray"
                                                                     Width="30" Height="30"
                                                                     Icon="Solid_Download"
                                                                     Click="ImportButton_OnClick"
-                                                                    ToolTip="Import Config" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
-                                                                    <core:IconButton.Tag>
-                                                                        <Binding />
-                                                                    </core:IconButton.Tag>
+                                                                    ToolTip="Import Config" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"
+                                                                    Tag="{Binding}">
                                                                 </core:IconButton>
                                                                 <core:IconButton
                                                                     ButtonColour="Gray"
@@ -127,10 +127,8 @@
                                                                     Click="PrefabButton_OnClick"
                                                                     Icon="Solid_Cube"
                                                                     IsEnabled="{Binding HasPrefabs}"
-                                                                    ToolTip="Prefabs" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
-                                                                    <core:IconButton.Tag>
-                                                                        <Binding />
-                                                                    </core:IconButton.Tag>
+                                                                    ToolTip="Prefabs" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"
+                                                                    Tag="{Binding}">
                                                                 </core:IconButton>
                                                                 <core:IconButton
                                                                     ButtonColour="Gray"
@@ -138,10 +136,8 @@
                                                                     Click="ParametersButton_OnClick"
                                                                     Icon="Solid_Link"
                                                                     IsEnabled="{Binding HasParameters}"
-                                                                    ToolTip="Parameters" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
-                                                                    <core:IconButton.Tag>
-                                                                        <Binding />
-                                                                    </core:IconButton.Tag>
+                                                                    ToolTip="Parameters" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"
+                                                                    Tag="{Binding}">
                                                                 </core:IconButton>
                                                                 <core:IconButton
                                                                     ButtonColour="Gray"
@@ -149,10 +145,8 @@
                                                                     Click="SettingsButton_OnClick"
                                                                     Icon="Solid_Gear"
                                                                     IsEnabled="{Binding HasSettings}"
-                                                                    ToolTip="Settings" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
-                                                                    <core:IconButton.Tag>
-                                                                        <Binding />
-                                                                    </core:IconButton.Tag>
+                                                                    ToolTip="Settings" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"
+                                                                    Tag="{Binding}">
                                                                 </core:IconButton>
                                                             </core:SpacedStackPanel>
                                                         </Grid>
@@ -163,7 +157,7 @@
                                     </Style>
                                 </ListView.ItemContainerStyle>
                                 <core:HeaderFooterListView.Footer>
-                                    <Border Background="{StaticResource CBackground1}" Height="5" />
+                                    <Border Background="{DynamicResource CBackground1}" Height="5" />
                                 </core:HeaderFooterListView.Footer>
                             </core:HeaderFooterListView>
                         </ControlTemplate>
