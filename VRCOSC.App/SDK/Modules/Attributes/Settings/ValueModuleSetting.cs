@@ -66,7 +66,20 @@ public class IntModuleSetting : ValueModuleSetting<int>
     }
 
     // json stores as long
-    protected override bool Deserialise(object? ingestValue) => ingestValue is long longValue && base.Deserialise((int)longValue);
+    protected override bool Deserialise(object? ingestValue)
+    {
+        if (ingestValue is long longValue)
+        {
+            return base.Deserialise((int)longValue);
+        }
+
+        if (ingestValue is int intValue)
+        {
+            return base.Deserialise(intValue);
+        }
+
+        return false;
+    }
 }
 
 public class FloatModuleSetting : ValueModuleSetting<float>
@@ -77,7 +90,20 @@ public class FloatModuleSetting : ValueModuleSetting<float>
     }
 
     // json stores as double
-    protected override bool Deserialise(object? ingestValue) => ingestValue is double doubleValue && base.Deserialise((float)doubleValue);
+    protected override bool Deserialise(object? ingestValue)
+    {
+        if (ingestValue is double doubleValue)
+        {
+            return base.Deserialise((float)doubleValue);
+        }
+
+        if (ingestValue is float floatValue)
+        {
+            return base.Deserialise(floatValue);
+        }
+
+        return false;
+    }
 }
 
 public class EnumModuleSetting : IntModuleSetting

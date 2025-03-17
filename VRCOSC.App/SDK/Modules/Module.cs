@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Semver;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
@@ -24,6 +25,7 @@ using VRCOSC.App.SDK.Parameters.Queryable;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Views.Modules.Settings;
 using VRCOSC.App.Utils;
 
@@ -98,6 +100,8 @@ public abstract class Module
     public bool HasPrefabs => GetType().GetCustomAttributes<ModulePrefabAttribute>().Any();
     public IEnumerable<ModulePrefabAttribute> Prefabs => GetType().GetCustomAttributes<ModulePrefabAttribute>();
 
+    internal Dictionary<string, Dictionary<SemVersion, MethodInfo>> Migrators = [];
+
     protected Module()
     {
         State.Subscribe(newState => Log(newState.ToString()));
@@ -118,6 +122,8 @@ public abstract class Module
         Settings.Clear();
         Parameters.Clear();
         Groups.Clear();
+
+        generateMigrators();
 
         OnPreLoad();
 
@@ -140,6 +146,29 @@ public abstract class Module
     internal void Serialise()
     {
         moduleSerialisationManager.Serialise();
+    }
+
+    private void generateMigrators()
+    {
+        Migrators.Clear();
+
+        GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).ForEach(info =>
+        {
+            var isDefined = info.IsDefined(typeof(ModuleMigrationAttribute));
+            if (!isDefined) return;
+
+            var attribute = info.GetCustomAttribute<ModuleMigrationAttribute>()!;
+
+            var parameters = info.GetParameters();
+            if (parameters.Length != 1) throw new Exception("Migration methods must have 1 parameter");
+
+            var returnParameter = info.ReturnParameter;
+            if (returnParameter.ParameterType == typeof(void)) throw new Exception("Migration methods must have a return parameter");
+
+            Migrators.TryAdd(attribute.SourceSetting, new Dictionary<SemVersion, MethodInfo>());
+
+            Migrators[attribute.SourceSetting].Add(attribute.SourceVersion, info);
+        });
     }
 
     #endregion

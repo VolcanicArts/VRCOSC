@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using Semver;
 
 // ReSharper disable ClassNeverInstantiated.Global
 
@@ -140,6 +141,23 @@ public class ModuleInfoAttribute : Attribute
     public ModuleInfoAttribute(string url)
     {
         Url = new Uri(url);
+    }
+}
+
+[AttributeUsage(AttributeTargets.Method)]
+public class ModuleMigrationAttribute : Attribute
+{
+    internal SemVersion SourceVersion { get; }
+    internal SemVersion DestinationVersion { get; }
+    internal string SourceSetting { get; }
+    internal string DestinationSetting { get; }
+
+    public ModuleMigrationAttribute(string sourceVersion, string destinationVersion, string sourceSetting, string destinationSetting = "")
+    {
+        SourceVersion = SemVersion.Parse(sourceVersion, SemVersionStyles.Any);
+        DestinationVersion = SemVersion.Parse(destinationVersion, SemVersionStyles.Any);
+        SourceSetting = sourceSetting;
+        DestinationSetting = string.IsNullOrEmpty(destinationSetting) ? sourceSetting : destinationSetting;
     }
 }
 
