@@ -11,37 +11,16 @@ namespace VRCOSC.App.SDK.Parameters.Queryable;
 
 public class QueryResult
 {
-    public bool IsValid { get; internal init; }
-    public bool JustBecameValid { get; internal init; }
-    public bool JustBecameInvalid { get; internal init; }
-}
+    public readonly bool IsValid;
+    public readonly bool JustBecameValid;
+    public readonly bool JustBecameInvalid;
 
-public class ActionableQueryResult<T> : QueryResult
-{
-    public T Action { get; }
-
-    public ActionableQueryResult(QueryResult other, T action)
+    public QueryResult(bool isValid, bool justBecameValid, bool justBecameInvalid)
     {
-        IsValid = other.IsValid;
-        JustBecameValid = other.JustBecameValid;
-        JustBecameInvalid = other.JustBecameInvalid;
-        Action = action;
+        IsValid = isValid;
+        JustBecameValid = justBecameValid;
+        JustBecameInvalid = justBecameInvalid;
     }
-}
-
-[JsonObject(MemberSerialization.OptIn)]
-public class ActionableQueryableParameter<T> : QueryableParameter, IEquatable<ActionableQueryableParameter<T>> where T : Enum
-{
-    [JsonProperty("action")]
-    public Observable<T> Action { get; } = new();
-
-    public new ActionableQueryResult<T> Evaluate(ReceivedParameter parameter)
-    {
-        var queryResult = base.Evaluate(parameter);
-        return new ActionableQueryResult<T>(queryResult, Action.Value);
-    }
-
-    public bool Equals(ActionableQueryableParameter<T>? other) => base.Equals(other) && Action.Equals(other.Action);
 }
 
 [JsonObject(MemberSerialization.OptIn)]
@@ -106,19 +85,13 @@ public class QueryableParameter : IEquatable<QueryableParameter>
         {
             var valid = parameter.Type switch
             {
-                ParameterType.Bool => Evaluate(parameter.GetValue<bool>()),
-                ParameterType.Int => Evaluate(parameter.GetValue<int>()),
-                ParameterType.Float => Evaluate(parameter.GetValue<float>()),
+                ParameterType.Bool => evaluate(parameter.GetValue<bool>()),
+                ParameterType.Int => evaluate(parameter.GetValue<int>()),
+                ParameterType.Float => evaluate(parameter.GetValue<float>()),
                 _ => throw new ArgumentOutOfRangeException(nameof(parameter.Type), parameter.Type, null)
             };
 
-            var queryResult = new QueryResult
-            {
-                IsValid = valid,
-                JustBecameValid = valid && !previousValid,
-                JustBecameInvalid = !valid && previousValid
-            };
-
+            var queryResult = new QueryResult(valid, valid && !previousValid, !valid && previousValid);
             previousValid = valid;
 
             return queryResult;
@@ -126,32 +99,32 @@ public class QueryableParameter : IEquatable<QueryableParameter>
         catch (Exception e)
         {
             ExceptionHandler.Handle(e, $"{nameof(QueryableParameter)} has experienced an exception when evaluating");
-            return new QueryResult();
+            return new QueryResult(false, false, false);
         }
     }
 
-    protected bool Evaluate(bool value)
+    private bool evaluate(bool value)
     {
-        var valid = evaluate(value);
+        var valid = eval(value);
         previousBoolValue = value;
         return valid;
     }
 
-    protected bool Evaluate(int value)
+    private bool evaluate(int value)
     {
-        var valid = evaluate(value);
+        var valid = eval(value);
         previousIntValue = value;
         return valid;
     }
 
-    protected bool Evaluate(float value)
+    private bool evaluate(float value)
     {
-        var valid = evaluate(value);
+        var valid = eval(value);
         previousFloatValue = value;
         return valid;
     }
 
-    private bool evaluate(object value) => Comparison.Value switch
+    private bool eval(object value) => Comparison.Value switch
     {
         ComparisonOperation.Changed => handleChangedOperation(value),
         ComparisonOperation.EqualTo => handleEqualToOperation(value),
@@ -216,6 +189,7 @@ public class QueryableParameter : IEquatable<QueryableParameter>
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
 
-        return Name.Equals(other.Name) && Type.Equals(other.Type) && Comparison.Equals(other.Comparison) && BoolValue.Equals(other.BoolValue) && IntValue.Equals(other.IntValue) && FloatValue.Equals(other.FloatValue);
+        return Name.Equals(other.Name) && Type.Equals(other.Type) && Comparison.Equals(other.Comparison) && BoolValue.Equals(other.BoolValue) && IntValue.Equals(other.IntValue)
+               && FloatValue.Equals(other.FloatValue);
     }
 }

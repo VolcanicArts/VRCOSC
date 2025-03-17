@@ -20,6 +20,7 @@ using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.SDK.Modules.Attributes.Types;
 using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.SDK.Parameters.Queryable;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
@@ -497,12 +498,8 @@ public abstract class Module
 
     protected void CreateQueryableParameterList(Enum lookup, string title, string description)
     {
-        addSetting(lookup, new QueryableParameterListModuleSetting(title, description, null));
-    }
-
-    protected void CreateQueryableParameterList<TAction>(Enum lookup, string title, string description) where TAction : Enum
-    {
-        addSetting(lookup, new QueryableParameterListModuleSetting(title, description, typeof(TAction)));
+        // TODO: Allow for deriving queryable parameters
+        addSetting(lookup, new QueryableParameterListModuleSetting<QueryableParameter>(title, description));
     }
 
     private void addSetting(Enum lookup, ModuleSetting moduleSetting)

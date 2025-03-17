@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -17,6 +18,7 @@ public abstract class ListModuleSetting : ModuleSetting
     {
     }
 
+    public abstract IEnumerable GetEnumerable();
     public abstract void Add();
     public abstract void Remove(object item);
 }
@@ -35,6 +37,8 @@ public abstract class ListModuleSetting<T> : ListModuleSetting where T : IEquata
     }
 
     protected override bool IsDefault() => Attribute.SequenceEqual(DefaultValues);
+
+    public override IEnumerable GetEnumerable() => Attribute;
 
     public override void Add() => Attribute.Add(CreateItem());
 
