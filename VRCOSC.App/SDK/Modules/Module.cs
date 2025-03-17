@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Semver;
@@ -82,6 +83,7 @@ public abstract class Module
     private SerialisationManager moduleSerialisationManager = null!;
     private SerialisationManager persistenceSerialisationManager = null!;
 
+    internal Type? SettingsWindowType { get; private set; }
     internal Type? RuntimeViewType { get; private set; }
 
     private bool isLoaded;
@@ -424,6 +426,19 @@ public abstract class Module
             throw new InvalidOperationException($"{FullID} attempted to add a setting to a group when it's already in a group");
 
         Groups.Add(title, lookups.Select(lookup => lookup.ToLookup()).ToList());
+    }
+
+    /// <summary>
+    /// Allows for overwriting the pre-made settings window with a custom one
+    /// </summary>
+    /// <param name="windowType"></param>
+    protected void SetSettingWindow(Type windowType)
+    {
+        if (!windowType.IsAssignableTo(typeof(Window))) throw new Exception("Cannot set settings window that isn't of type Window");
+        if (!windowType.IsAssignableTo(typeof(IManagedWindow))) throw new Exception("Cannot set settings window that doesn't extend IManagedWindow");
+        if (!windowType.HasConstructorThatAccepts(GetType())) throw new Exception($"Cannot set settings window that doesn't have a constructor that accepts type {GetType().Name}");
+
+        SettingsWindowType = windowType;
     }
 
     /// <summary>
@@ -920,7 +935,7 @@ public abstract class Module
     /// </summary>
     /// <param name="lookup">The lookup of the setting</param>
     /// <returns>The container if successful, otherwise pushes an exception and returns default</returns>
-    protected ModuleSetting GetSetting(Enum lookup) => GetSetting<ModuleSetting>(lookup);
+    public ModuleSetting GetSetting(Enum lookup) => GetSetting<ModuleSetting>(lookup);
 
     /// <summary>
     /// Retrieves the container of the setting using the provided lookup and type param for custom <see cref="ModuleSetting"/>s. This allows for creating more complex UI callback behaviour.
@@ -929,7 +944,7 @@ public abstract class Module
     /// <typeparam name="T">The custom <see cref="ModuleSetting"/> type</typeparam>
     /// <param name="lookup">The lookup of the setting</param>
     /// <returns>The container if successful, otherwise pushes an exception and returns default</returns>
-    protected T GetSetting<T>(Enum lookup) where T : ModuleSetting => GetSetting<T>(lookup.ToLookup());
+    public T GetSetting<T>(Enum lookup) where T : ModuleSetting => GetSetting<T>(lookup.ToLookup());
 
     internal T GetSetting<T>(string lookup) where T : ModuleSetting
     {
