@@ -214,7 +214,7 @@
                         </Style>
                     </ListView.ItemContainerStyle>
                     <core:HeaderFooterListView.Footer>
-                        <Border Background="{StaticResource CBackground1}" Height="5" />
+                        <Border Background="{DynamicResource CBackground1}" Height="5" />
                     </core:HeaderFooterListView.Footer>
                 </core:HeaderFooterListView>
             </Grid>
