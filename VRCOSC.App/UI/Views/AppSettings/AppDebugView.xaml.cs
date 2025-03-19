@@ -8,6 +8,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
@@ -22,6 +24,7 @@ public partial class AppDebugView
         DataContext = this;
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
+        Logger.NewEntry += onLogEntry;
     }
 
     public Observable<string> Port9000BoundProcess { get; } = new(string.Empty);
@@ -62,6 +65,29 @@ public partial class AppDebugView
     {
         var boundProcess = await executePowerShellCommand("Get-Process -Id (Get-NetUDPEndpoint -LocalPort 9000).OwningProcess | Select-Object -ExpandProperty ProcessName");
         Dispatcher.Invoke(() => Port9000BoundProcess.Value = $"{(boundProcess ?? "Nothing").ReplaceLineEndings(string.Empty)}");
+    });
+
+    private void onLogEntry(LogEntry e) => Dispatcher.Invoke(() =>
+    {
+        if (e.LoggerName != "module-debug" || AppManager.GetInstance().State.Value == AppManagerState.Stopped || AppManager.GetInstance().State.Value == AppManagerState.Waiting) return;
+
+        var dateTimeText = $"[{DateTime.Now:HH:mm:ss}] {e.Message}";
+
+        LogStackPanel.Children.Add(new TextBlock
+        {
+            Text = dateTimeText,
+            FontSize = 14,
+            FontWeight = FontWeights.Regular,
+            Foreground = (Brush)FindResource("CForeground3"),
+            TextWrapping = TextWrapping.Wrap
+        });
+
+        while (LogStackPanel.Children.Count > 100)
+        {
+            LogStackPanel.Children.RemoveAt(0);
+        }
+
+        LogScrollViewer.ScrollToBottom();
     });
 
     private static async Task<string?> executePowerShellCommand(string command)
