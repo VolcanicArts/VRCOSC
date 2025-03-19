@@ -102,6 +102,16 @@ public class FloatModuleSetting : ValueModuleSetting<float>
             return base.Deserialise(floatValue);
         }
 
+        if (ingestValue is long longValue)
+        {
+            return base.Deserialise((float)longValue);
+        }
+
+        if (ingestValue is int intValue)
+        {
+            return base.Deserialise((float)intValue);
+        }
+
         return false;
     }
 }
