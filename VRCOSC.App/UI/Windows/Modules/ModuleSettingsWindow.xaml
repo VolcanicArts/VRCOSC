@@ -4,54 +4,88 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+        xmlns:modules="clr-namespace:VRCOSC.App.UI.Windows.Modules"
         mc:Ignorable="d"
-        Title="ModuleSettingsWindow" MinWidth="600" MinHeight="600" Width="600" Height="768"
+        Title="ModuleSettingsWindow" MinWidth="900" MinHeight="600" Width="1100" Height="768"
         Closing="ModuleSettingsWindow_OnClosing">
     <Window.Resources>
-        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" True="Collapsed" False="Visible" />
+        <core:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <modules:StringToVerticalAlignmentConverter x:Key="StringToVerticalAlignmentConverter"/>
+        <Style TargetType="GroupBox" BasedOn="{StaticResource {x:Type GroupBox}}">
+            <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="NoteTextStyle">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground2}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="TitleTextStyle">
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="DescriptionTextStyle">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground2}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style x:Key="GroupStyle" TargetType="ListViewItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListViewItem">
+                        <GroupBox Header="{Binding Title}">
+                            <core:SpacedStackPanel Spacing="15" Margin="7">
+                                <TextBlock Style="{StaticResource NoteTextStyle}" Text="{Binding Description}" Visibility="{Binding Description, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                <core:SpacedListView ItemsSource="{Binding Settings}" Spacing="7">
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ListViewItem">
+                                                        <Grid MinHeight="40" Visibility="{Binding IsEnabled.Value, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition MinWidth="200" MaxWidth="400"/>
+                                                                <ColumnDefinition Width="50"/>
+                                                                <ColumnDefinition MinWidth="500" Width="*"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <Grid Grid.Column="0" VerticalAlignment="Top" MinHeight="40">
+                                                                <Grid.RowDefinitions>
+                                                                    <RowDefinition Height="*"/>
+                                                                    <RowDefinition Height="Auto"/>
+                                                                </Grid.RowDefinitions>
+                                                                <TextBlock Grid.Row="0" Style="{StaticResource TitleTextStyle}" Text="{Binding Title}" VerticalAlignment="{Binding Description, Converter={StaticResource StringToVerticalAlignmentConverter}}"/>
+                                                                <TextBlock Grid.Row="1" Style="{StaticResource DescriptionTextStyle}" Text="{Binding Description}" Visibility="{Binding Description, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                                            </Grid>
+                                                            <ContentControl Grid.Column="2" Content="{Binding ViewInstance}" MaxWidth="800" VerticalAlignment="Center" HorizontalAlignment="Stretch" />
+                                                        </Grid>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                </core:SpacedListView>
+                            </core:SpacedStackPanel>
+                        </GroupBox>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <modules:SettingStyleSelector x:Key="SettingStyleSelector" Style1="{StaticResource GroupStyle}"/>
     </Window.Resources>
     <Border Background="{DynamicResource CBackground2}">
-        <core:SpacedListView ItemsSource="{Binding GroupsFormatted}" Padding="15" Spacing="10">
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="ListViewItem">
-                                <Border Background="{DynamicResource CBackground1}" Padding="10"
-                                        CornerRadius="5">
-                                    <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
-                                        <TextBlock TextAlignment="Center" Text="{Binding Key}"
-                                                   FontWeight="DemiBold"
-                                                   FontSize="18" Foreground="{DynamicResource CForeground1}" />
-                                        <core:SpacedListView ItemsSource="{Binding Value}" Spacing="5">
-                                            <ListView.ItemContainerStyle>
-                                                <Style TargetType="ListViewItem">
-                                                    <Setter Property="Margin" Value="5" />
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate TargetType="ListViewItem">
-                                                                <Grid>
-                                                                    <core:TitleDescriptionContent Title="{Binding Title}" Description="{Binding Description}">
-                                                                        <ContentControl Content="{Binding ViewInstance}" VerticalAlignment="Top" />
-                                                                    </core:TitleDescriptionContent>
-                                                                    <Border
-                                                                        Background="{DynamicResource CBackground1}"
-                                                                        Opacity="0.5"
-                                                                        Visibility="{Binding IsEnabled.Value, Converter={StaticResource BoolToVisibilityConverter}}" />
-                                                                </Grid>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                </Style>
-                                            </ListView.ItemContainerStyle>
-                                        </core:SpacedListView>
-                                    </core:SpacedStackPanel>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ListView.ItemContainerStyle>
-        </core:SpacedListView>
+        <core:SpacedListView ItemsSource="{Binding GroupsFormatted}" Padding="10" Spacing="10" ItemContainerStyleSelector="{StaticResource SettingStyleSelector}"/>
     </Border>
 </Window>

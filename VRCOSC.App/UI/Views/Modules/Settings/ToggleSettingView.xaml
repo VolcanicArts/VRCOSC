@@ -5,5 +5,5 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              mc:Ignorable="d">
-    <core:VRCOSCCheckBox IsChecked="{Binding Attribute.Value}" Width="35" Height="35" />
+    <core:VRCOSCCheckBox IsChecked="{Binding Attribute.Value}" Width="35" Height="35" HorizontalAlignment="Left"/>
 </UserControl>

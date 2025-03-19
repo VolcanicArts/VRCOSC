@@ -53,6 +53,18 @@ public class BoolToThicknessConverter : IValueConverter
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
 
+public class StringToVisibilityConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not string strValue) return Visibility.Collapsed;
+
+        return string.IsNullOrEmpty(strValue) ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
 /// <inheritdoc />
 /// <summary>
 /// Takes in an integer and converts it to the set colours based on if it's even

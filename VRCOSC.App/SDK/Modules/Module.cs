@@ -71,7 +71,7 @@ public abstract class Module
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
     internal readonly Dictionary<string, ModuleSetting> Settings = new();
 
-    internal readonly Dictionary<string, List<string>> Groups = new();
+    internal readonly List<SettingsGroup> Groups = new();
     internal readonly Dictionary<ModulePersistentAttribute, PropertyInfo> PersistentProperties = new();
 
     private readonly List<Repeater> updateTasks = new();
@@ -429,18 +429,27 @@ public abstract class Module
     /// </summary>
     /// <param name="title">The title of the group</param>
     /// <param name="lookups">The settings lookups to put in this group</param>
-    protected void CreateGroup(string title, params Enum[] lookups)
+    [Obsolete("Use CreateGroup(string, string, Enum[]) instead", false)]
+    protected void CreateGroup(string title, params Enum[] lookups) => CreateGroup(title, string.Empty, lookups);
+
+    /// <summary>
+    /// Specifies a list of settings to group together in the UI
+    /// </summary>
+    /// <param name="title">The title of the group</param>
+    /// <param name="description">The description of this group</param>
+    /// <param name="lookups">The settings lookups to put in this group</param>
+    protected void CreateGroup(string title, string description, params Enum[] lookups)
     {
         if (isLoaded)
             throw new InvalidOperationException($"{FullID} attempted to create a group after the module has been loaded");
 
-        if (Groups.ContainsKey(title))
+        if (Groups.Any(group => group.Title == title))
             throw new InvalidOperationException($"{FullID} attempted to create a group '{title}' which already exists");
 
-        if (lookups.Any(newLookup => Groups.Any(pair => pair.Value.Contains(newLookup.ToLookup()))))
+        if (lookups.Any(newLookup => Groups.Any(group => group.Settings.Contains(newLookup.ToLookup()))))
             throw new InvalidOperationException($"{FullID} attempted to add a setting to a group when it's already in a group");
 
-        Groups.Add(title, lookups.Select(lookup => lookup.ToLookup()).ToList());
+        Groups.Add(new SettingsGroup(title, description, lookups.Select(lookup => lookup.ToLookup()).ToList()));
     }
 
     /// <summary>
@@ -1093,4 +1102,6 @@ public abstract class Module
     #endregion
 
     private record WaitingParameter(Enum Lookup, bool BlockEvents, TaskCompletionSource CompletionSource);
+
+    public record SettingsGroup(string Title, string Description, List<string> Settings);
 }

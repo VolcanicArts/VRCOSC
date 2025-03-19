@@ -5,6 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d">
     <ComboBox Name="AttributeComboBox" Height="30" SelectedIndex="{Binding Attribute.Value}"
-              FontSize="16" FontWeight="Regular" HorizontalAlignment="Stretch"
-              VerticalContentAlignment="Center" />
+              FontSize="16" FontWeight="Regular" HorizontalAlignment="Left"
+              VerticalContentAlignment="Center" Width="200" />
 </UserControl>
