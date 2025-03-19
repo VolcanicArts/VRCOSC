@@ -125,6 +125,7 @@ public abstract class Module
         Parameters.Clear();
         Groups.Clear();
 
+        setSettingsWindow();
         generateMigrators();
 
         OnPreLoad();
@@ -148,6 +149,20 @@ public abstract class Module
     internal void Serialise()
     {
         moduleSerialisationManager.Serialise();
+    }
+
+    private void setSettingsWindow()
+    {
+        var settingsWindowAttribute = GetType().GetCustomAttribute<ModuleSettingsWindowAttribute>();
+        if (settingsWindowAttribute is null) return;
+
+        var windowType = settingsWindowAttribute.WindowType;
+
+        if (!windowType.IsAssignableTo(typeof(Window))) throw new Exception("Cannot set settings window that isn't of type Window");
+        if (!windowType.IsAssignableTo(typeof(IManagedWindow))) throw new Exception("Cannot set settings window that doesn't extend IManagedWindow");
+        if (!windowType.HasConstructorThatAccepts(GetType())) throw new Exception($"Cannot set settings window that doesn't have a constructor that accepts type {GetType().Name}");
+
+        SettingsWindowType = windowType;
     }
 
     private void generateMigrators()
@@ -426,19 +441,6 @@ public abstract class Module
             throw new InvalidOperationException($"{FullID} attempted to add a setting to a group when it's already in a group");
 
         Groups.Add(title, lookups.Select(lookup => lookup.ToLookup()).ToList());
-    }
-
-    /// <summary>
-    /// Allows for overwriting the pre-made settings window with a custom one
-    /// </summary>
-    /// <param name="windowType"></param>
-    protected void SetSettingWindow(Type windowType)
-    {
-        if (!windowType.IsAssignableTo(typeof(Window))) throw new Exception("Cannot set settings window that isn't of type Window");
-        if (!windowType.IsAssignableTo(typeof(IManagedWindow))) throw new Exception("Cannot set settings window that doesn't extend IManagedWindow");
-        if (!windowType.HasConstructorThatAccepts(GetType())) throw new Exception($"Cannot set settings window that doesn't have a constructor that accepts type {GetType().Name}");
-
-        SettingsWindowType = windowType;
     }
 
     /// <summary>

@@ -144,6 +144,17 @@ public class ModuleInfoAttribute : Attribute
     }
 }
 
+[AttributeUsage(AttributeTargets.Class)]
+public class ModuleSettingsWindowAttribute : Attribute
+{
+    public Type WindowType { get; }
+
+    public ModuleSettingsWindowAttribute(Type windowType)
+    {
+        WindowType = windowType;
+    }
+}
+
 [AttributeUsage(AttributeTargets.Method)]
 public class ModuleMigrationAttribute : Attribute
 {
