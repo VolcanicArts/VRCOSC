@@ -13,7 +13,7 @@
     <Grid Name="ChatBoxContainer" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
         <Border CornerRadius="15" Background="{DynamicResource CChatBoxBackground}"
                 Width="{Binding UseMinimalBackground.Value, Mode=OneWay, Converter={StaticResource ChatBoxPreviewBackgroundWidthConverter}}" />
-        <TextBlock Name="ChatBoxText" FontSize="30" Foreground="{DynamicResource CForeground2}" VerticalAlignment="Center"
+        <TextBlock Name="ChatBoxText" FontSize="30" Foreground="{DynamicResource CForeground1}" VerticalAlignment="Center"
                    TextAlignment="Center" TextWrapping="Wrap" MaxWidth="435" Margin="30 10" />
     </Grid>
 </UserControl>
