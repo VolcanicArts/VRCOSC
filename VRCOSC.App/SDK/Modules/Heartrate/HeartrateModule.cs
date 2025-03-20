@@ -58,10 +58,10 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         RegisterParameter<float>(HeartrateParameter.LegacyTens, "VRCOSC/Heartrate/Tens", ParameterMode.Write, "Tens", "The tens digit 0-9 mapped to a float", true);
         RegisterParameter<float>(HeartrateParameter.LegacyHundreds, "VRCOSC/Heartrate/Hundreds", ParameterMode.Write, "Hundreds", "The hundreds digit 0-9 mapped to a float", true);
 
-        CreateGroup("Value", HeartrateSetting.SmoothValue, HeartrateSetting.SmoothValueLength);
-        CreateGroup("Average", HeartrateSetting.AveragePeriod, HeartrateSetting.SmoothAverage, HeartrateSetting.SmoothAverageLength);
-        CreateGroup("Beat", HeartrateSetting.BeatMode);
-        CreateGroup("Normalised Parameter", HeartrateSetting.NormalisedLowerbound, HeartrateSetting.NormalisedUpperbound);
+        CreateGroup("Value", string.Empty, HeartrateSetting.SmoothValue, HeartrateSetting.SmoothValueLength);
+        CreateGroup("Average", string.Empty, HeartrateSetting.AveragePeriod, HeartrateSetting.SmoothAverage, HeartrateSetting.SmoothAverageLength);
+        CreateGroup("Beat", string.Empty, HeartrateSetting.BeatMode);
+        CreateGroup("Normalised Parameter", string.Empty, HeartrateSetting.NormalisedLowerbound, HeartrateSetting.NormalisedUpperbound);
     }
 
     protected override void OnPostLoad()
