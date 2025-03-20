@@ -75,7 +75,7 @@ public partial class DollyView
         var filePath = await Platform.PickFileAsync(".json");
         if (filePath is null) return;
 
-        DollyManager.GetInstance().ImportFile(filePath);
+        DollyManager.GetInstance().ObtainFile(filePath);
     }
 
     private void Play_OnClick(object sender, RoutedEventArgs e)

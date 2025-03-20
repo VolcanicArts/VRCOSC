@@ -11,13 +11,19 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using VRCOSC.App.Modules;
+using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.Settings;
+using VRCOSC.App.UI.Core;
+using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.AppSettings;
 
 public partial class AppDebugView
 {
+    private NodeField? nodeField;
+    private WindowManager? nodeFieldWindowManager;
+
     public AppDebugView()
     {
         InitializeComponent();
@@ -51,6 +57,8 @@ public partial class AppDebugView
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        nodeFieldWindowManager ??= new WindowManager(this);
+
         port9000DispatcherTimer = new DTWrapper($"{nameof(AppDebugView)}-{nameof(updatePort9000Process)}", TimeSpan.FromSeconds(5), true, updatePort9000Process);
         port9000DispatcherTimer.Start();
     }
@@ -138,5 +146,12 @@ public partial class AppDebugView
     private async void ReloadModules_OnClick(object sender, RoutedEventArgs e)
     {
         await ModuleManager.GetInstance().ReloadAllModules();
+    }
+
+    private void TestNodeField_OnClick(object sender, RoutedEventArgs e)
+    {
+        nodeField ??= new NodeField();
+
+        nodeFieldWindowManager!.TrySpawnChild(new NodeFieldWindow(nodeField));
     }
 }

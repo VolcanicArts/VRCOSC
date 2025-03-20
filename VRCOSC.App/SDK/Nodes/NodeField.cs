@@ -12,10 +12,12 @@ namespace VRCOSC.App.SDK.Nodes;
 
 public class NodeField
 {
-    public Dictionary<Guid, Node> Nodes = [];
-    public List<NodeConnection> FlowConnections = [];
-    public List<NodeConnection> ValueConnections = [];
+    public ObservableDictionary<Guid, Node> Nodes { get; } = [];
+    public List<NodeConnection> FlowConnections { get; } = [];
+    public List<NodeConnection> ValueConnections { get; } = [];
     public Dictionary<Guid, object?[]> NodeOutputs = [];
+
+    public int ZIndex { get; set; } = 0;
 
     private readonly Dictionary<Guid, NodeMetadata> metadata = [];
 
@@ -50,6 +52,12 @@ public class NodeField
             NodeOutputs.Add(node.Id, new object?[100]);
             NodeOutputs[node.Id][slot] = value;
         }
+    }
+
+    public void AddNode(Node node)
+    {
+        node.ZIndex = ZIndex++;
+        Nodes.Add(node.Id, node);
     }
 
     private MethodInfo? getProcessMethod(Node currentNode)
@@ -267,9 +275,9 @@ public class NodeField
 
     private void update()
     {
-        foreach (var (nodeId, _) in Nodes.Where(pair => pair.Value.GetType().TryGetCustomAttribute<NodeFlowAttribute>(out var nodeFlowAttribute) && nodeFlowAttribute.IsTrigger))
+        foreach (var node in Nodes.Values.Where(node => node.GetType().TryGetCustomAttribute<NodeFlowAttribute>(out var nodeFlowAttribute) && nodeFlowAttribute.IsTrigger))
         {
-            Guid? nextNodeId = nodeId;
+            Guid? nextNodeId = node.Id;
 
             do
             {
