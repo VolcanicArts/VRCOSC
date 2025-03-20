@@ -29,6 +29,7 @@ using VRCOSC.App.OVR;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
 using VRCOSC.App.SDK.Handlers;
+using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.SDK.Parameters;
@@ -85,6 +86,9 @@ public class AppManager
 
     public void Initialise()
     {
+        var workspace = new NodeField();
+        workspace.Test();
+
         OSCEncoder.SetEncoding(Encoding.UTF8);
         OSCDecoder.SetEncoding(Encoding.UTF8);
 

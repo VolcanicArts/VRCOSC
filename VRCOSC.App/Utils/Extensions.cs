@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Input;
 using Windows.Win32;
@@ -207,6 +209,17 @@ public static class KeyExtensions
             }
         }
     }
+}
+
+public static class MemberInfoExtensions
+{
+    public static bool TryGetCustomAttribute<T>(this MemberInfo info, [NotNullWhen(true)] out T? attribute) where T : Attribute
+    {
+        attribute = info.GetCustomAttribute<T>();
+        return attribute is not null;
+    }
+
+    public static bool HasCustomAttribute<T>(this MemberInfo info) where T : Attribute => info.GetCustomAttribute<T>() is not null;
 }
 
 public static class TypeExtensions
