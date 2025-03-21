@@ -1,0 +1,596 @@
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// See the LICENSE file in the repository root for full license text.
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Shapes;
+using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.UI.Core;
+using VRCOSC.App.Utils;
+
+namespace VRCOSC.App.UI.Views.Nodes;
+
+public partial class NodeScapeView : INotifyPropertyChanged
+{
+    public const double SNAP_DISTANCE = 20d;
+    public const double SIGNIFICANT_SNAP_DISTANCE = SNAP_DISTANCE * 20d;
+    public const bool SNAP_ENABLED = true;
+
+    public NodeScapeView(NodeScape nodeScape)
+    {
+        NodeScape = nodeScape;
+        InitializeComponent();
+        Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
+        KeyDown += OnKeyDown;
+        DataContext = this;
+    }
+
+    public NodeScape NodeScape { get; }
+
+    private IDisposable nodeScapeCollectionsBind;
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        ConnectionCanvas.Children.Clear();
+
+        Focus();
+
+        drawRootCanvasLines();
+        setZIndexesOfNodes();
+
+        nodeScapeCollectionsBind = NodeScape.Connections.OnCollectionChanged(onConnectionsChanged, true);
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        nodeScapeCollectionsBind.Dispose();
+    }
+
+    private void OnKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Space)
+        {
+            canvasDrag = null;
+
+            var canvasPosition = getRootPosition();
+            canvasPosition.X = 0;
+            canvasPosition.Y = 0;
+        }
+    }
+
+    private void drawRootCanvasLines()
+    {
+        CanvasContainerCanvas.Children.Clear();
+
+        for (var i = 0; i <= CanvasContainer.ActualWidth / SNAP_DISTANCE; i++)
+        {
+            var significant = i % (SIGNIFICANT_SNAP_DISTANCE / SNAP_DISTANCE) == 0;
+            var xPos = i * SNAP_DISTANCE;
+            var lineHeight = CanvasContainer.ActualHeight;
+
+            if (!SNAP_ENABLED && !significant) continue;
+
+            var line = new Line
+            {
+                X1 = xPos,
+                Y1 = 0,
+                X2 = xPos,
+                Y2 = lineHeight,
+                Stroke = significant ? (Brush)FindResource("CForeground2") : (Brush)FindResource("CBackground1"),
+                StrokeThickness = 1,
+                Opacity = significant ? 0.5f : 1f
+            };
+
+            CanvasContainerCanvas.Children.Add(line);
+        }
+
+        for (var i = 0; i <= CanvasContainer.ActualHeight / SNAP_DISTANCE; i++)
+        {
+            var significant = i % (SIGNIFICANT_SNAP_DISTANCE / SNAP_DISTANCE) == 0;
+            var yPos = i * SNAP_DISTANCE;
+            var lineWidth = CanvasContainer.ActualWidth;
+
+            if (!SNAP_ENABLED && !significant) continue;
+
+            var line = new Line
+            {
+                X1 = 0,
+                Y1 = yPos,
+                X2 = lineWidth,
+                Y2 = yPos,
+                Stroke = significant ? (Brush)FindResource("CForeground2") : (Brush)FindResource("CBackground1"),
+                StrokeThickness = 1,
+                Opacity = significant ? 0.5f : 1f
+            };
+
+            CanvasContainerCanvas.Children.Add(line);
+        }
+    }
+
+    private void setZIndexesOfNodes()
+    {
+        var itemsControl = NodesItemsControl;
+
+        foreach (var item in itemsControl.Items)
+        {
+            if (itemsControl.ItemContainerGenerator.ContainerFromItem(item) is not FrameworkElement container) continue;
+
+            var pair = (ObservableKeyValuePair<Guid, Node>)container.DataContext;
+            Panel.SetZIndex(container, pair.Value.ZIndex);
+        }
+    }
+
+    private CanvasDragInstance? canvasDrag;
+    private NodeDragInstance? nodeDrag;
+    private ConnectionDragInstance? connectionDrag;
+
+    public ConnectionDragInstance? ConnectionDrag
+    {
+        get => connectionDrag;
+        set
+        {
+            connectionDrag = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private void onConnectionsChanged(IEnumerable<NodeConnection> newConnections, IEnumerable<NodeConnection> oldConnections)
+    {
+        foreach (var newConnection in newConnections)
+        {
+            addConnection(newConnection);
+        }
+
+        foreach (var oldConnection in oldConnections)
+        {
+            removeConnection(oldConnection);
+        }
+    }
+
+    private void removeConnection(NodeConnection connection)
+    {
+        var pathTag = connection.ConnectionType == ConnectionType.Flow
+            ? $"flow_{connection.OutputNodeId}_{connection.OutputSlot}_{connection.InputNodeId}"
+            : $"value_{connection.OutputNodeId}_{connection.OutputSlot}_{connection.InputNodeId}_{connection.InputSlot}";
+
+        var pathToRemove = ConnectionCanvas.FindVisualChildWhere<Path>(path => (string)path.Tag == pathTag);
+        ConnectionCanvas.Children.Remove(pathToRemove);
+    }
+
+    private void updateConnectionsForNode(Node node)
+    {
+        var connections = NodeScape.Connections.Where(connection => connection.OutputNodeId == node.Id || connection.InputNodeId == node.Id);
+
+        foreach (var connection in connections)
+        {
+            removeConnection(connection);
+            addConnection(connection);
+        }
+    }
+
+    private void addConnection(NodeConnection connection)
+    {
+        // TODO: Optimise by storing in a cache?
+        var outputNodeElement = NodesItemsControl.FindVisualChildWhere<FrameworkElement>(element => element is { Name: "NodeContainer", Tag: Node node } && node.Id == connection.OutputNodeId);
+        var inputNodeElement = NodesItemsControl.FindVisualChildWhere<FrameworkElement>(element => element is { Name: "NodeContainer", Tag: Node node } && node.Id == connection.InputNodeId);
+
+        Debug.Assert(outputNodeElement is not null);
+        Debug.Assert(inputNodeElement is not null);
+
+        var outputSlotName = connection.ConnectionType == ConnectionType.Flow ? $"flow_output_{connection.OutputSlot}" : $"value_output_{connection.OutputSlot}";
+        var inputSlotName = connection.ConnectionType == ConnectionType.Flow ? $"flow_input_{connection.InputSlot}" : $"value_input_{connection.InputSlot}";
+
+        // TODO: Optimise by storing in cache?
+        var outputSlotElement = outputNodeElement.FindVisualChildWhere<FrameworkElement>(element => element.Tag is string slotTag && slotTag == outputSlotName);
+        var inputSlotElement = inputNodeElement.FindVisualChildWhere<FrameworkElement>(element => element.Tag is string slotTag && slotTag == inputSlotName);
+
+        Debug.Assert(outputSlotElement is not null);
+        Debug.Assert(inputSlotElement is not null);
+
+        var pathTag = connection.ConnectionType == ConnectionType.Flow
+            ? $"flow_{connection.OutputNodeId}_{connection.OutputSlot}_{connection.InputNodeId}"
+            : $"value_{connection.OutputNodeId}_{connection.OutputSlot}_{connection.InputNodeId}_{connection.InputSlot}";
+
+        drawConnectionPath(pathTag, outputSlotElement, inputSlotElement, connection.ConnectionType);
+    }
+
+    private void drawConnectionPath(string tag, FrameworkElement outputSlotElement, FrameworkElement inputSlotElement, ConnectionType connectionType)
+    {
+        var outputElementXOffset = outputSlotElement.Width / 2d;
+        var outputElementYOffset = outputSlotElement.Height / 2d;
+        var inputElementXOffset = inputSlotElement.Width / 2d;
+        var inputElementYOffset = inputSlotElement.Height / 2d;
+
+        var outputElementPosRelativeToCanvas = outputSlotElement.TranslatePoint(new Point(0, 0), CanvasContainer) + new Vector(outputElementXOffset, outputElementYOffset);
+        var inputElementPosRelativeToCanvas = inputSlotElement.TranslatePoint(new Point(0, 0), CanvasContainer) + new Vector(inputElementXOffset, inputElementYOffset);
+
+        var startPoint = outputElementPosRelativeToCanvas;
+        var endPoint = inputElementPosRelativeToCanvas;
+        var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.75d, 75d);
+        var controlPoint1 = Point.Add(startPoint, new Vector(delta, 0));
+        var controlPoint2 = Point.Add(endPoint, new Vector(-delta, 0));
+
+        //Logger.Log(startPoint + " - " + controlPoint1 + " - " + controlPoint2 + " - " + endPoint, LoggingTarget.Information);
+
+        var path = new Path();
+        var pathGeometry = new PathGeometry();
+        var pathFigure = new PathFigure();
+        var bezierSegment = new BezierSegment();
+
+        path.Tag = tag;
+        path.Data = pathGeometry;
+        path.Stroke = connectionType == ConnectionType.Value ? Brushes.Maroon : Brushes.Chartreuse;
+        path.StrokeThickness = 4;
+        path.StrokeStartLineCap = PenLineCap.Round;
+        path.StrokeEndLineCap = PenLineCap.Round;
+        pathGeometry.Figures.Add(pathFigure);
+        pathFigure.Segments.Add(bezierSegment);
+
+        pathFigure.StartPoint = startPoint;
+        bezierSegment.Point1 = controlPoint1;
+        bezierSegment.Point2 = controlPoint2;
+        bezierSegment.Point3 = endPoint;
+
+        ConnectionCanvas.Children.Add(path);
+    }
+
+    private TranslateTransform getRootPosition()
+    {
+        return (TranslateTransform)RootContainer.RenderTransform;
+    }
+
+    private void RootContainer_OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+
+        var mousePosRelativeToNodesItemsControl = Mouse.GetPosition(ParentContainer);
+        var transform = getRootPosition();
+
+        var offsetX = mousePosRelativeToNodesItemsControl.X - transform.X;
+        var offsetY = mousePosRelativeToNodesItemsControl.Y - transform.Y;
+
+        Logger.Log($"{nameof(RootContainer_OnMouseDown)}: Starting node drag. Offset X {offsetX}. Offset Y {offsetY}", LoggingTarget.Information);
+        canvasDrag = new CanvasDragInstance(offsetX, offsetY);
+    }
+
+    private void ParentContainer_OnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        Logger.Log($"{nameof(ParentContainer_OnMouseUp)}", LoggingTarget.Information);
+
+        if (canvasDrag is not null)
+        {
+            e.Handled = true;
+            Logger.Log($"{nameof(ParentContainer_OnMouseUp)}: Ending canvas drag", LoggingTarget.Information);
+            canvasDrag = null;
+            return;
+        }
+
+        if (nodeDrag is not null)
+        {
+            e.Handled = true;
+            Logger.Log($"{nameof(ParentContainer_OnMouseUp)}: Ending node drag", LoggingTarget.Information);
+            nodeDrag = null;
+            return;
+        }
+
+        if (ConnectionDrag is not null)
+        {
+            e.Handled = true;
+            Logger.Log($"{nameof(ParentContainer_OnMouseUp)}: Ending connection drag", LoggingTarget.Information);
+            ConnectionDrag = null;
+        }
+    }
+
+    private void ParentContainer_OnMouseMove(object sender, MouseEventArgs e)
+    {
+        if (canvasDrag is not null)
+        {
+            e.Handled = true;
+
+            var mousePosRelativeToNodesItemsControl = Mouse.GetPosition(ParentContainer);
+
+            var newCanvasX = mousePosRelativeToNodesItemsControl.X - canvasDrag.OffsetX;
+            var newCanvasY = mousePosRelativeToNodesItemsControl.Y - canvasDrag.OffsetY;
+
+            var canvasBoundsX = CanvasContainer.Width - CanvasContainer.Width / 2d;
+            var canvasBoundsY = CanvasContainer.Height - CanvasContainer.Height / 2d;
+
+            newCanvasX = Math.Clamp(newCanvasX, -canvasBoundsX, canvasBoundsX);
+            newCanvasY = Math.Clamp(newCanvasY, -canvasBoundsY, canvasBoundsY);
+
+            //Logger.Log($"{nameof(NodesItemsControl_OnMouseMove)}: Setting canvas drag position to {newCanvasX},{newCanvasY}", LoggingTarget.Information);
+
+            var canvasPosition = getRootPosition();
+            canvasPosition.X = newCanvasX;
+            canvasPosition.Y = newCanvasY;
+        }
+
+        if (ConnectionDrag is not null)
+        {
+            e.Handled = true;
+            updateConnectionDragPath();
+        }
+    }
+
+    private void NodeContainer_OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+
+        var element = (Border)sender;
+        var node = (Node)element.Tag;
+
+        var dataContext = element.DataContext;
+
+        if (NodesItemsControl.ItemContainerGenerator.ContainerFromItem(dataContext) is FrameworkElement container)
+        {
+            node.ZIndex = NodeScape.ZIndex++;
+
+            Panel.SetZIndex(container, node.ZIndex);
+            Logger.Log($"{nameof(NodeContainer_OnMouseDown)}: Set Z index to {node.ZIndex}", LoggingTarget.Information);
+        }
+
+        var mousePosRelativeToNodesItemsControl = Mouse.GetPosition(CanvasContainer);
+        var nodePos = node.Position;
+
+        var offsetX = mousePosRelativeToNodesItemsControl.X - nodePos.X;
+        var offsetY = mousePosRelativeToNodesItemsControl.Y - nodePos.Y;
+
+        Logger.Log($"{nameof(NodeContainer_OnMouseDown)}: Starting node drag. Offset X {offsetX}. Offset Y {offsetY}", LoggingTarget.Information);
+        nodeDrag = new NodeDragInstance(node, offsetX, offsetY);
+    }
+
+    private void NodesItemsControl_OnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        Logger.Log($"{nameof(NodesItemsControl_OnMouseUp)}", LoggingTarget.Information);
+
+        if (nodeDrag is null) return;
+
+        e.Handled = true;
+
+        Logger.Log($"{nameof(NodesItemsControl_OnMouseUp)}: Ending node drag", LoggingTarget.Information);
+        nodeDrag = null;
+    }
+
+    private void NodesItemsControl_OnMouseMove(object sender, MouseEventArgs e)
+    {
+        if (nodeDrag is null) return;
+
+        e.Handled = true;
+
+        var mousePosRelativeToNodesItemsControl = Mouse.GetPosition(CanvasContainer);
+
+        var newNodeX = mousePosRelativeToNodesItemsControl.X - nodeDrag.OffsetX;
+        var newNodeY = mousePosRelativeToNodesItemsControl.Y - nodeDrag.OffsetY;
+
+        if (SNAP_ENABLED)
+        {
+            newNodeX = Math.Round(newNodeX / SNAP_DISTANCE) * SNAP_DISTANCE;
+            newNodeY = Math.Round(newNodeY / SNAP_DISTANCE) * SNAP_DISTANCE;
+        }
+
+        newNodeX = Math.Clamp(newNodeX, 0, CanvasContainer.Width);
+        newNodeY = Math.Clamp(newNodeY, 0, CanvasContainer.Height);
+
+        var positionChanged = Math.Abs(newNodeX - nodeDrag.Node.Position.X) > double.Epsilon || Math.Abs(newNodeY - nodeDrag.Node.Position.Y) > double.Epsilon;
+
+        //Logger.Log($"{nameof(NodesItemsControl_OnMouseMove)}: Setting node drag position to {newNodeX},{newNodeY}", LoggingTarget.Information);
+
+        nodeDrag.Node.Position.X = newNodeX;
+        nodeDrag.Node.Position.Y = newNodeY;
+
+        if (positionChanged)
+            updateConnectionsForNode(nodeDrag.Node);
+    }
+
+    private void FlowInput_OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.FindVisualParent<ContentControl>()!.Content;
+        var slot = getSlotFromConnectionElement(element);
+
+        // TODO: if there's already a connection going into this slot, remove the connection
+
+        Logger.Log($"{nameof(FlowInput_OnMouseDown)}: Starting input flow drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
+        ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.FlowInput, node, slot, element);
+
+        updateConnectionDragPath();
+    }
+
+    private void FlowInput_OnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (ConnectionDrag is null) return;
+
+        e.Handled = true;
+
+        if (ConnectionDrag.Origin != ConnectionDragOrigin.FlowOutput)
+        {
+            ConnectionDrag = null;
+            return;
+        }
+
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.FindVisualParent<ContentControl>()!.Content;
+        var slot = getSlotFromConnectionElement(element);
+
+        Logger.Log($"{nameof(FlowInput_OnMouseUp)}: Ending input flow drag on node {node.Title} in slot {slot}", LoggingTarget.Information);
+        NodeScape.CreateFlowConnection(ConnectionDrag.Node.Id, ConnectionDrag.Slot, node.Id);
+
+        ConnectionDrag = null;
+    }
+
+    private void FlowOutput_OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.FindVisualParent<ContentControl>()!.Content;
+        var slot = getSlotFromConnectionElement(element);
+
+        Logger.Log($"{nameof(FlowOutput_OnMouseDown)}: Starting output flow drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
+        ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.FlowOutput, node, slot, element);
+
+        updateConnectionDragPath();
+    }
+
+    private void FlowOutput_OnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (ConnectionDrag is null) return;
+
+        e.Handled = true;
+
+        if (ConnectionDrag.Origin != ConnectionDragOrigin.FlowInput)
+        {
+            ConnectionDrag = null;
+            return;
+        }
+
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.FindVisualParent<ContentControl>()!.Content;
+        var slot = getSlotFromConnectionElement(element);
+
+        Logger.Log($"{nameof(FlowOutput_OnMouseUp)}: Ending output flow drag on node {node.Title} in slot {slot}", LoggingTarget.Information);
+        NodeScape.CreateFlowConnection(node.Id, slot, ConnectionDrag.Node.Id);
+
+        ConnectionDrag = null;
+    }
+
+    private void ValueInput_OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.FindVisualParent<ContentControl>()!.Content;
+        var slot = getSlotFromConnectionElement(element);
+
+        Logger.Log($"{nameof(ValueInput_OnMouseDown)}: Starting input value drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
+        ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.ValueInput, node, slot, element);
+
+        updateConnectionDragPath();
+    }
+
+    private void ValueInput_OnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (ConnectionDrag is null) return;
+
+        e.Handled = true;
+
+        if (ConnectionDrag.Origin != ConnectionDragOrigin.ValueOutput)
+        {
+            ConnectionDrag = null;
+            return;
+        }
+
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.FindVisualParent<ContentControl>()!.Content;
+        var slot = getSlotFromConnectionElement(element);
+
+        Logger.Log($"{nameof(ValueInput_OnMouseUp)}: Ending input value drag on node {node.Title} in slot {slot}", LoggingTarget.Information);
+        NodeScape.CreateValueConnection(ConnectionDrag.Node.Id, ConnectionDrag.Slot, node.Id, slot);
+        ConnectionDrag = null;
+    }
+
+    private void ValueOutput_OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.FindVisualParent<ContentControl>()!.Content;
+        var slot = getSlotFromConnectionElement(element);
+
+        Logger.Log($"{nameof(ValueOutput_OnMouseDown)}: Starting output value drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
+        ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.ValueOutput, node, slot, element);
+
+        updateConnectionDragPath();
+    }
+
+    private void ValueOutput_OnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (ConnectionDrag is null) return;
+
+        e.Handled = true;
+
+        if (ConnectionDrag.Origin != ConnectionDragOrigin.ValueInput)
+        {
+            ConnectionDrag = null;
+            return;
+        }
+
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.FindVisualParent<ContentControl>()!.Content;
+        var slot = getSlotFromConnectionElement(element);
+
+        Logger.Log($"{nameof(ValueOutput_OnMouseUp)}: Ending output value drag on node {node.GetType().Name} in slot {slot}", LoggingTarget.Information);
+        NodeScape.CreateValueConnection(node.Id, slot, ConnectionDrag.Node.Id, ConnectionDrag.Slot);
+        ConnectionDrag = null;
+    }
+
+    #region Utils
+
+    private int getSlotFromConnectionElement(FrameworkElement element)
+    {
+        return int.Parse(((string)element.Tag).Split('_').Last());
+    }
+
+    #endregion
+
+    private void updateConnectionDragPath()
+    {
+        if (ConnectionDrag is null) throw new Exception("Nope");
+
+        var element = ConnectionDrag.Element;
+        var centerOffsetX = element.Width / 2d;
+        var centerOffsetY = element.Height / 2d;
+        var elementPosRelativeToCanvas = element.TranslatePoint(new Point(0, 0), CanvasContainer) + new Vector(centerOffsetX, centerOffsetY);
+        var mousePosRelativeToCanvas = Mouse.GetPosition(CanvasContainer);
+
+        var startPoint = elementPosRelativeToCanvas;
+        var endPoint = mousePosRelativeToCanvas;
+        var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.75d, 75d);
+        var controlPoint1 = Point.Add(startPoint, new Vector(delta, 0));
+        var controlPoint2 = Point.Add(endPoint, new Vector(-delta, 0));
+
+        //Logger.Log(startPoint + " - " + controlPoint1 + " - " + controlPoint2 + " - " + endPoint, LoggingTarget.Information);
+
+        var path = (Path)DragCanvas.Children[0];
+        var pathGeometry = (PathGeometry)path.Data;
+        var pathFigure = pathGeometry.Figures[0];
+        var curve = (BezierSegment)pathFigure.Segments[0];
+
+        pathFigure.StartPoint = startPoint;
+        curve.Point1 = controlPoint1;
+        curve.Point2 = controlPoint2;
+        curve.Point3 = endPoint;
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+}
+
+public record NodeDragInstance(Node Node, double OffsetX, double OffsetY);
+
+public record CanvasDragInstance(double OffsetX, double OffsetY);
+
+public record ConnectionDragInstance(ConnectionDragOrigin Origin, Node Node, int Slot, FrameworkElement Element);
+
+public enum ConnectionDragOrigin
+{
+    FlowOutput,
+    FlowInput,
+    ValueOutput,
+    ValueInput
+}

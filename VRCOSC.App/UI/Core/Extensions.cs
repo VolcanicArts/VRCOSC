@@ -2,6 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -13,6 +15,27 @@ namespace VRCOSC.App.UI.Core;
 
 public static class Extensions
 {
+    public static T? FindVisualParent<T>(this DependencyObject element) where T : FrameworkElement
+    {
+        while (true)
+        {
+            var parent = VisualTreeHelper.GetParent(element);
+
+            switch (parent)
+            {
+                case null:
+                    return null;
+
+                case T parentAsType:
+                    return parentAsType;
+
+                default:
+                    element = parent;
+                    break;
+            }
+        }
+    }
+
     public static T? FindVisualParent<T>(this DependencyObject element, string name) where T : FrameworkElement
     {
         while (true)
@@ -55,41 +78,28 @@ public static class Extensions
         }
     }
 
-    public static T? FindVisualChild<T>(this DependencyObject element, string name) where T : FrameworkElement
+    public static IEnumerable<T> FindVisualChildrenWhere<T>(this DependencyObject element, Func<T, bool> callback) where T : FrameworkElement
     {
+        // TODO: Depth?
+
+        var childrenOfType = new List<T>();
+
         for (var i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
         {
             var child = VisualTreeHelper.GetChild(element, i);
 
-            if (child is T childAsType && childAsType.Name == name)
-                return childAsType;
+            if (child is T childAsType && callback.Invoke(childAsType))
+                childrenOfType.Add(childAsType);
 
-            var childOfChild = FindVisualChild<T>(child, name);
-
-            if (childOfChild is not null)
-                return childOfChild;
+            childrenOfType.AddRange(FindVisualChildrenWhere(child, callback));
         }
 
-        return null;
+        return childrenOfType;
     }
 
-    public static T? FindVisualChildFuzzy<T>(this DependencyObject element, string name) where T : FrameworkElement
-    {
-        for (var i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
-        {
-            var child = VisualTreeHelper.GetChild(element, i);
-
-            if (child is T childAsType && childAsType.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase))
-                return childAsType;
-
-            var childOfChild = FindVisualChild<T>(child, name);
-
-            if (childOfChild is not null)
-                return childOfChild;
-        }
-
-        return null;
-    }
+    public static T? FindVisualChildWhere<T>(this DependencyObject element, Func<T, bool> callback) where T : FrameworkElement => element.FindVisualChildrenWhere(callback).FirstOrDefault();
+    public static T? FindVisualChild<T>(this DependencyObject element, string name) where T : FrameworkElement => element.FindVisualChildWhere<T>(o => o.Name == name);
+    public static T? FindVisualChildFuzzy<T>(this DependencyObject element, string name) where T : FrameworkElement => element.FindVisualChildWhere<T>(o => o.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase));
 
     public static void FadeInFromZero(this FrameworkElement element, double durationMilliseconds, Action? onCompleted = null)
     {

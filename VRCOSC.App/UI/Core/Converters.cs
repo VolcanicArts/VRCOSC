@@ -13,6 +13,16 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Core;
 
+public class NullToVisibilityConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        return value is null ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
 /// <inheritdoc />
 /// <summary>
 /// Converts a boolean to the set visibility values

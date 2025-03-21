@@ -21,7 +21,7 @@ namespace VRCOSC.App.UI.Views.AppSettings;
 
 public partial class AppDebugView
 {
-    private NodeField? nodeField;
+    private NodeScape? nodeField;
     private WindowManager? nodeFieldWindowManager;
 
     public AppDebugView()
@@ -150,8 +150,8 @@ public partial class AppDebugView
 
     private void TestNodeField_OnClick(object sender, RoutedEventArgs e)
     {
-        nodeField ??= new NodeField();
+        nodeField ??= new NodeScape();
 
-        nodeFieldWindowManager!.TrySpawnChild(new NodeFieldWindow(nodeField));
+        nodeFieldWindowManager!.TrySpawnChild(new NodeScapeWindow(nodeField));
     }
 }

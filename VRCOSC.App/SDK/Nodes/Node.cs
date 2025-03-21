@@ -3,23 +3,21 @@
 
 using System;
 using System.ComponentModel;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace VRCOSC.App.SDK.Nodes;
 
 public abstract class Node
 {
-    public NodeField NodeField { get; }
+    public NodeScape NodeScape { get; internal set; } = null!;
     public Guid Id { get; } = Guid.NewGuid();
     public ObservableVector2 Position { get; } = new(2500, 2500);
     public int ZIndex { get; set; }
 
-    protected Node(NodeField nodeField)
-    {
-        NodeField = nodeField;
-    }
+    public string Title => GetType().GetCustomAttribute<NodeAttribute>()!.Title;
 
-    protected void SetOutputValue(int slot, object value) => NodeField.SetOutputValue(this, slot, value);
+    protected void SetOutput(int slot, object value) => NodeScape.SetOutputValue(this, slot, value);
 }
 
 public sealed class ObservableVector2 : INotifyPropertyChanged

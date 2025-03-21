@@ -5,18 +5,15 @@ using System;
 
 namespace VRCOSC.App.SDK.Nodes.Types;
 
+[Node("Print")]
 [NodeValue]
 [NodeFlow(false, 0)]
+[NodeInputs("String")]
 public class PrintNode : Node
 {
-    public PrintNode(NodeField nodeField)
-        : base(nodeField)
-    {
-    }
-
     [NodeProcess]
-    private void execute(string? inputA)
+    private void execute(string? str)
     {
-        Console.WriteLine(inputA);
+        Console.WriteLine(str);
     }
 }

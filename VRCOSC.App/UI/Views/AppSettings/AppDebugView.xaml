@@ -109,6 +109,18 @@
                             ButtonColour="Blue" Grid.Column="1" Click="ReloadModules_OnClick" Width="80" Height="25"
                             Icon="Solid_Rotate" />
                     </Grid>
+                    <Grid Width="700" HorizontalAlignment="Left">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250" />
+                            <ColumnDefinition Width="150" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Test NodeField"
+                                   Foreground="{DynamicResource CForeground1}" VerticalAlignment="Center"
+                                   FontSize="16" FontWeight="Regular" />
+                        <core:TextButton
+                            ButtonColour="Blue" Grid.Column="1" Click="TestNodeField_OnClick" Width="300" Height="25"
+                            Text="Test NodeField" FontWeight="Regular" />
+                    </Grid>
                 </core:SpacedStackPanel>
             </GroupBox>
         </core:SpacedStackPanel>

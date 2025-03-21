@@ -3,28 +3,24 @@
 
 namespace VRCOSC.App.SDK.Nodes.Types;
 
+[Node("Trigger")]
 [NodeFlow(true)]
 public class TriggerNode : Node
 {
-    public TriggerNode(NodeField nodeField)
-        : base(nodeField)
-    {
-    }
-
     [NodeProcess]
     private int? execute() => 0;
 }
 
+[NodeFlow(true, 3)]
 public class ParameterReceivedTriggerNode : TriggerNode
 {
-    public ParameterReceivedTriggerNode(NodeField nodeField)
-        : base(nodeField)
-    {
-    }
-
     [NodeProcess]
     private int execute()
     {
+        var isValid = false;
+        var justBecameValid = false;
+        var justBecameInvalid = false;
+
         // if parameter has been received, return 0, else return null
         return 0;
     }

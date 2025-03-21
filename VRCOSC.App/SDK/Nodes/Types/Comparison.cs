@@ -3,44 +3,38 @@
 
 namespace VRCOSC.App.SDK.Nodes.Types;
 
+[Node("Branch")]
 [NodeFlow(false, 2)]
 [NodeValue]
+[NodeInputs("Condition")]
 public class BranchNode : Node
 {
     private const int flow_true_slot = 0;
     private const int flow_false_slot = 1;
 
-    public BranchNode(NodeField nodeField)
-        : base(nodeField)
-    {
-    }
-
     [NodeProcess]
     private int? execute(bool input) => input ? flow_true_slot : flow_false_slot;
-
-    [NodeProcess]
-    private int? execute(int input) => input > 0 ? flow_true_slot : flow_false_slot;
-
-    [NodeProcess]
-    private int? execute(float input) => input > 0 ? flow_true_slot : flow_false_slot;
 }
 
+[Node("Is Equal")]
 [NodeValue([typeof(bool)])]
+[NodeInputs("", "")]
 public class IsEqualNode : Node
 {
-    public IsEqualNode(NodeField nodeField)
-        : base(nodeField)
-    {
-    }
-
     [NodeProcess]
     private void process(string? inputA, string? inputB)
     {
         if (inputA is null || inputB is null)
         {
-            SetOutputValue(0, false);
+            SetOutput(0, false);
         }
 
-        SetOutputValue(0, inputA == inputB);
+        SetOutput(0, inputA == inputB);
+    }
+
+    [NodeProcess]
+    private void process(int inputA, int inputB)
+    {
+        SetOutput(0, inputA == inputB);
     }
 }

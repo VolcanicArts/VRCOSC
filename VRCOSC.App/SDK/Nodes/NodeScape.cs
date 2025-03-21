@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using VRCOSC.App.SDK.Nodes.Types;
@@ -10,33 +11,48 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Nodes;
 
-public class NodeField
+public class NodeScape
 {
     public ObservableDictionary<Guid, Node> Nodes { get; } = [];
-    public List<NodeConnection> FlowConnections { get; } = [];
-    public List<NodeConnection> ValueConnections { get; } = [];
+    public ObservableCollection<NodeConnection> Connections { get; } = [];
     public Dictionary<Guid, object?[]> NodeOutputs = [];
 
     public int ZIndex { get; set; } = 0;
 
-    private readonly Dictionary<Guid, NodeMetadata> metadata = [];
+    public readonly Dictionary<Guid, NodeMetadata> Metadata = [];
 
-    public void CreateFlowConnection(Guid outputNode, int outputFlowSlot, Guid inputNode)
+    public void CreateFlowConnection(Guid outputNodeId, int outputFlowSlot, Guid inputNodeId)
     {
-        FlowConnections.Add(new NodeConnection(outputNode, outputFlowSlot, inputNode, 0));
+        Logger.Log($"Creating flow connection from {Nodes[outputNodeId].GetType().Name} slot {outputFlowSlot} to {Nodes[inputNodeId].GetType().Name}");
+
+        Connections.Add(new NodeConnection(ConnectionType.Flow, outputNodeId, outputFlowSlot, inputNodeId, 0));
     }
 
     public void CreateValueConnection(Guid outputNodeId, int outputValueSlot, Guid inputNodeId, int inputValueSlot)
     {
-        var outputMetadata = metadata[outputNodeId];
-        var inputMetadata = metadata[inputNodeId];
+        var outputMetadata = Metadata[outputNodeId];
+        var inputMetadata = Metadata[inputNodeId];
 
         var outputType = outputMetadata.ValueOutputTypes[outputValueSlot];
 
-        var isValid = inputMetadata.ValueInputTypes.Any(pair => outputType == pair.Key[inputValueSlot]);
-        if (!isValid) throw new Exception("Value connection type pairing is invalid");
+        // TODO: Calculate if the value type being connected is allowed based on already existing connections linking to the process inputs
 
-        ValueConnections.Add(new NodeConnection(outputNodeId, outputValueSlot, inputNodeId, inputValueSlot, outputType));
+        var isValid = inputMetadata.Processes.Any(processMetadata => outputType == processMetadata.Types[inputValueSlot]);
+        if (!isValid) return;
+
+        // if the input already has a connection, disconnect it
+        {
+            var inputAlreadyHasConnection =
+                Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Value && connection.InputNodeId == inputNodeId && connection.InputSlot == inputValueSlot);
+
+            if (inputAlreadyHasConnection is not null)
+            {
+                Connections.Remove(inputAlreadyHasConnection);
+            }
+        }
+
+        Logger.Log($"Creating value connection from {Nodes[outputNodeId].GetType().Name} slot {outputValueSlot} to {Nodes[inputNodeId].GetType().Name} slot {inputValueSlot}");
+        Connections.Add(new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, inputNodeId, inputValueSlot, outputType));
     }
 
     public void SetOutputValue(Node node, int slot, object value)
@@ -57,7 +73,9 @@ public class NodeField
     public void AddNode(Node node)
     {
         node.ZIndex = ZIndex++;
+        node.NodeScape = this;
         Nodes.Add(node.Id, node);
+        generateMetadata(node);
     }
 
     private MethodInfo? getProcessMethod(Node currentNode)
@@ -68,18 +86,20 @@ public class NodeField
         var isFlowNode = currentNode.GetType().HasCustomAttribute<NodeFlowAttribute>();
         var isValueNode = currentNode.GetType().HasCustomAttribute<NodeValueAttribute>();
 
-        var nodeMetadata = metadata[currentNode.Id];
+        var nodeMetadata = Metadata[currentNode.Id];
 
-        var connectionTypes = ValueConnections.Where(connection => connection.InputNodeId == currentNode.Id).OrderBy(connection => connection.InputSlot).Select(connection => connection.SharedType)
-                                              .ToList();
+        var connectionTypes = Connections.Where(connection => connection.InputNodeId == currentNode.Id && connection.ConnectionType == ConnectionType.Value)
+                                         .OrderBy(connection => connection.InputSlot)
+                                         .Select(connection => connection.SharedType)
+                                         .ToList();
 
         if (isValueNode)
         {
-            foreach (var (types, methodInfo) in nodeMetadata.ValueInputTypes)
+            foreach (var processMetadata in nodeMetadata.Processes)
             {
-                if (types.SequenceEqual(connectionTypes))
+                if (processMetadata.Types.SequenceEqual(connectionTypes))
                 {
-                    return methodInfo;
+                    return processMetadata.Method;
                 }
             }
         }
@@ -94,7 +114,7 @@ public class NodeField
     /// </summary>
     private object? getValueForInput(Node node, int inputValueSlot)
     {
-        var nodeConnection = ValueConnections.FirstOrDefault(connection => connection.InputNodeId == node.Id && connection.InputSlot == inputValueSlot);
+        var nodeConnection = Connections.FirstOrDefault(connection => connection.InputNodeId == node.Id && connection.InputSlot == inputValueSlot && connection.ConnectionType == ConnectionType.Value);
         if (nodeConnection is null) return null;
 
         var outputNode = Nodes[nodeConnection.OutputNodeId];
@@ -102,7 +122,7 @@ public class NodeField
 
         var isFlowNode = outputNode.GetType().HasCustomAttribute<NodeFlowAttribute>();
         var isValueNode = outputNode.GetType().HasCustomAttribute<NodeValueAttribute>();
-        var valueInputCount = metadata[outputNode.Id].ValueInputCount;
+        var valueInputCount = Metadata[outputNode.Id].ValueInputTypeCount;
 
         var processMethod = getProcessMethod(outputNode);
 
@@ -129,26 +149,24 @@ public class NodeField
 
     public void Test()
     {
-        var triggerNode = new TriggerNode(this);
-        var textNode = new StringTextNode(this);
-        var textNode2 = new StringTextNode(this);
-        var branchNode = new BranchNode(this);
-        var isEqualToNode = new IsEqualNode(this);
-        var printNode = new PrintNode(this);
-        var printNode2 = new PrintNode(this);
+        var triggerNode = new TriggerNode();
+        var textNode = new StringTextNode();
+        var textNode2 = new StringTextNode();
+        var branchNode = new BranchNode();
+        var isEqualToNode = new IsEqualNode();
+        var printNode = new PrintNode();
+        var printNode2 = new PrintNode();
 
         textNode.Text.Value = "Matches!";
         textNode2.Text.Value = "Matches!";
 
-        Nodes.Add(triggerNode.Id, triggerNode);
-        Nodes.Add(textNode.Id, textNode);
-        Nodes.Add(textNode2.Id, textNode2);
-        Nodes.Add(branchNode.Id, branchNode);
-        Nodes.Add(isEqualToNode.Id, isEqualToNode);
-        Nodes.Add(printNode.Id, printNode);
-        Nodes.Add(printNode2.Id, printNode2);
-
-        generateMetadata();
+        AddNode(triggerNode);
+        AddNode(textNode);
+        AddNode(textNode2);
+        AddNode(branchNode);
+        AddNode(isEqualToNode);
+        AddNode(printNode);
+        AddNode(printNode2);
 
         CreateFlowConnection(triggerNode.Id, 0, branchNode.Id);
         CreateFlowConnection(branchNode.Id, 0, printNode.Id);
@@ -185,23 +203,20 @@ public class NodeField
         ***/
     }
 
-    private void generateMetadata()
+    private void generateMetadata(Node node)
     {
-        foreach (var (nodeId, node) in Nodes)
-        {
-            var nodeMetadata = new NodeMetadata();
+        var nodeMetadata = new NodeMetadata();
 
-            // TODO: validate to make sure there can't be more than 1 method with the same parameter types, or parameters
+        // TODO: validate to make sure there can't be more than 1 method with the same parameter types, or parameters
 
-            validateOnlyOneProcessForNonValueNodes(node);
-            validateNoValueInputsForNonValueNodes(node);
+        validateOnlyOneProcessForNonValueNodes(node);
+        validateNoValueInputsForNonValueNodes(node);
+        validateNodeValueInputCount(node);
 
-            calculateNodeValueInputCount(node, nodeMetadata);
-            retrieveNodeValueOutputTypes(node, nodeMetadata);
-            retrieveNodeValueInputTypes(node, nodeMetadata);
+        retrieveNodeValueOutputTypes(node, nodeMetadata);
+        retrieveNodeValueInputTypes(node, nodeMetadata);
 
-            metadata.Add(nodeId, nodeMetadata);
-        }
+        Metadata.Add(node.Id, nodeMetadata);
     }
 
     private void validateOnlyOneProcessForNonValueNodes(Node node)
@@ -231,7 +246,7 @@ public class NodeField
         if (!isValid) throw new Exception("Cannot have value inputs on a non-value node");
     }
 
-    private void calculateNodeValueInputCount(Node node, NodeMetadata nodeMetadata)
+    private void validateNodeValueInputCount(Node node)
     {
         if (!node.GetType().HasCustomAttribute<NodeValueAttribute>()) return;
 
@@ -243,16 +258,10 @@ public class NodeField
             numParametersList.Add(methodInfo.GetParameters().Length);
         }
 
-        if (numParametersList.Count == 0)
-        {
-            nodeMetadata.ValueInputCount = 0;
-            return;
-        }
+        if (numParametersList.Count == 0) return;
 
         var isValid = numParametersList.All(o => o == numParametersList[0]);
         if (!isValid) throw new Exception($"Node of type {node.GetType()} has differing inputs for each {nameof(NodeProcessAttribute)}");
-
-        nodeMetadata.ValueInputCount = numParametersList[0];
     }
 
     private void retrieveNodeValueOutputTypes(Node node, NodeMetadata nodeMetadata)
@@ -266,10 +275,16 @@ public class NodeField
     {
         if (!node.GetType().HasCustomAttribute<NodeValueAttribute>()) return;
 
+        nodeMetadata.ValueInputTitles = node.GetType().GetCustomAttribute<NodeInputsAttribute>()?.Titles ?? [];
+
         foreach (var methodInfo in node.GetType().GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                                        .Where(methodInfo => methodInfo.HasCustomAttribute<NodeProcessAttribute>()))
         {
-            nodeMetadata.ValueInputTypes.Add(methodInfo.GetParameters().Select(parameterInfo => parameterInfo.ParameterType).ToArray(), methodInfo);
+            nodeMetadata.Processes.Add(new NodeProcessMetadata
+            {
+                Method = methodInfo,
+                Types = methodInfo.GetParameters().Select(parameterInfo => parameterInfo.ParameterType).ToList()
+            });
         }
     }
 
@@ -301,7 +316,8 @@ public class NodeField
                 {
                     var outputNodeSlot = (int?)processMethod.Invoke(currentNode, valuesToPass);
 
-                    var flowConnection = FlowConnections.FirstOrDefault(connection => connection.OutputNodeId == currentNode.Id && connection.OutputSlot == outputNodeSlot);
+                    var flowConnection = Connections.FirstOrDefault(connection =>
+                        connection.OutputNodeId == currentNode.Id && connection.OutputSlot == outputNodeSlot && connection.ConnectionType == ConnectionType.Flow);
 
                     if (flowConnection is null)
                     {
@@ -321,11 +337,28 @@ public class NodeField
     }
 }
 
-public record NodeConnection(Guid OutputNodeId, int OutputSlot, Guid InputNodeId, int InputSlot, Type? SharedType = null);
+public record NodeConnection(ConnectionType ConnectionType, Guid OutputNodeId, int OutputSlot, Guid InputNodeId, int InputSlot, Type? SharedType = null);
+
+public enum ConnectionType
+{
+    Flow,
+    Value
+}
 
 public class NodeMetadata
 {
-    public int ValueInputCount { get; set; } = 0;
+    public List<NodeProcessMetadata> Processes { get; set; } = [];
+
+    public int ValueInputTypeCount => Processes.Count > 0 ? Processes[0].Types.Count : 0;
+
+    public int ValueOutputCount => ValueOutputTypes.Length;
     public Type[] ValueOutputTypes { get; set; } = [];
-    public Dictionary<Type[], MethodInfo> ValueInputTypes { get; set; } = [];
+
+    public List<string> ValueInputTitles { get; set; }
+}
+
+public class NodeProcessMetadata
+{
+    public required MethodInfo Method { get; set; }
+    public required List<Type> Types { get; set; }
 }

@@ -5,23 +5,20 @@ using System.Globalization;
 
 namespace VRCOSC.App.SDK.Nodes.Types;
 
+[Node("ToString")]
 [NodeValue([typeof(string)])]
+[NodeInputs("")]
 public class ToStringNode : Node
 {
-    public ToStringNode(NodeField nodeField)
-        : base(nodeField)
-    {
-    }
-
     [NodeProcess]
     private void process(int value)
     {
-        SetOutputValue(0, value.ToString());
+        SetOutput(0, value.ToString());
     }
 
     [NodeProcess]
     private void process(float value)
     {
-        SetOutputValue(0, value.ToString(CultureInfo.InvariantCulture));
+        SetOutput(0, value.ToString(CultureInfo.InvariantCulture));
     }
 }

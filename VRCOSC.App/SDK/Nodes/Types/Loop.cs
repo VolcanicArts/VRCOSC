@@ -7,13 +7,9 @@ using System.Linq;
 
 namespace VRCOSC.App.SDK.Nodes.Types;
 
+[Node("While")]
 public class WhileNode : Node
 {
-    public WhileNode(NodeField nodeField)
-        : base(nodeField)
-    {
-    }
-
     [NodeProcessLoop(0, 1)]
     private Func<int, bool> runLoop()
     {
@@ -21,17 +17,14 @@ public class WhileNode : Node
     }
 }
 
+[Node("Element At")]
 [NodeValue([typeof(object)])]
+[NodeInputs("Enumerable", "Index")]
 public class ElementAtNode : Node
 {
-    public ElementAtNode(NodeField nodeField)
-        : base(nodeField)
-    {
-    }
-
     [NodeProcess]
     private void process(IEnumerable<object> enumerable, int index)
     {
-        SetOutputValue(0, enumerable.ElementAt(index));
+        SetOutput(0, enumerable.ElementAt(index));
     }
 }

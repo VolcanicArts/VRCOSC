@@ -2,6 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace VRCOSC.App.SDK.Nodes;
 
@@ -47,5 +49,27 @@ public class NodeValueAttribute : Attribute
     public NodeValueAttribute(Type[]? valueOutputTypes = null)
     {
         ValueOutputTypes = valueOutputTypes ?? [];
+    }
+}
+
+[AttributeUsage(AttributeTargets.Class)]
+public class NodeAttribute : Attribute
+{
+    public string Title { get; }
+
+    public NodeAttribute(string title)
+    {
+        Title = title;
+    }
+}
+
+[AttributeUsage(AttributeTargets.Class)]
+public class NodeInputsAttribute : Attribute
+{
+    public List<string> Titles { get; }
+
+    public NodeInputsAttribute(params string[] titles)
+    {
+        Titles = titles.ToList();
     }
 }

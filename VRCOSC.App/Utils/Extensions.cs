@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -69,17 +70,46 @@ public static class ObservableCollectionExtensions
     /// Binds a callback to collection changed with the option of running once immediately.
     /// Callback is (NewItems, OldItems)
     /// </summary>
-    /// <remarks>When run once immediately is true, NewItems will contain the collection</remarks>
-    public static void OnCollectionChanged<T>(this ObservableCollection<T> collection, Action<IEnumerable<T>, IEnumerable<T>> callback, bool runOnceImmediately = false)
+    /// <remarks>
+    /// When run once immediately is true, NewItems will contain the entire collection.
+    /// Returns an IDisposable that, when disposed, unregisters the event handler.
+    /// </remarks>
+    public static IDisposable OnCollectionChanged<T>(this ObservableCollection<T> collection, Action<IEnumerable<T>, IEnumerable<T>> callback, bool runOnceImmediately = false)
     {
-        collection.CollectionChanged += (_, e) =>
+        NotifyCollectionChangedEventHandler handler = (_, e) =>
         {
-            callback.Invoke(e.NewItems?.Cast<T>() ?? Array.Empty<T>(), e.OldItems?.Cast<T>() ?? Array.Empty<T>());
+            callback.Invoke(
+                e.NewItems?.Cast<T>() ?? Array.Empty<T>(),
+                e.OldItems?.Cast<T>() ?? Array.Empty<T>());
         };
+
+        collection.CollectionChanged += handler;
 
         if (runOnceImmediately)
         {
             callback.Invoke(collection, Array.Empty<T>());
+        }
+
+        return new DisposableAction(() => collection.CollectionChanged -= handler);
+    }
+
+    private class DisposableAction : IDisposable
+    {
+        private readonly Action _disposeAction;
+        private bool _disposed;
+
+        public DisposableAction(Action disposeAction)
+        {
+            _disposeAction = disposeAction;
+        }
+
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _disposeAction();
+                _disposed = true;
+            }
         }
     }
 }
