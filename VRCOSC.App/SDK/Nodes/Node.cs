@@ -12,7 +12,7 @@ public abstract class Node
 {
     public NodeScape NodeScape { get; internal set; } = null!;
     public Guid Id { get; } = Guid.NewGuid();
-    public ObservableVector2 Position { get; } = new(2500, 2500);
+    public ObservableVector2 Position { get; } = new(25000, 25000);
     public int ZIndex { get; set; }
 
     public string Title => GetType().GetCustomAttribute<NodeAttribute>()!.Title;

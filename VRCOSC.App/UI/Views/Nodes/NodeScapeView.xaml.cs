@@ -177,24 +177,30 @@ public partial class NodeScapeView : INotifyPropertyChanged
         }
     }
 
+    private FrameworkElement getOutputSlotElementForConnection(NodeConnection connection)
+    {
+        var outputNodeElement = NodesItemsControl.FindVisualChildWhere<FrameworkElement>(element => element is { Name: "NodeContainer", Tag: Node node } && node.Id == connection.OutputNodeId);
+        Debug.Assert(outputNodeElement is not null);
+        var outputSlotName = connection.ConnectionType == ConnectionType.Flow ? $"flow_output_{connection.OutputSlot}" : $"value_output_{connection.OutputSlot}";
+        var outputSlotElement = outputNodeElement.FindVisualChildWhere<FrameworkElement>(element => element.Tag is string slotTag && slotTag == outputSlotName);
+        Debug.Assert(outputSlotElement is not null);
+        return outputSlotElement;
+    }
+
+    private FrameworkElement getInputSlotElementForConnection(NodeConnection connection)
+    {
+        var inputNodeElement = NodesItemsControl.FindVisualChildWhere<FrameworkElement>(element => element is { Name: "NodeContainer", Tag: Node node } && node.Id == connection.InputNodeId);
+        Debug.Assert(inputNodeElement is not null);
+        var inputSlotName = connection.ConnectionType == ConnectionType.Flow ? $"flow_input_{connection.InputSlot}" : $"value_input_{connection.InputSlot}";
+        var inputSlotElement = inputNodeElement.FindVisualChildWhere<FrameworkElement>(element => element.Tag is string slotTag && slotTag == inputSlotName);
+        Debug.Assert(inputSlotElement is not null);
+        return inputSlotElement;
+    }
+
     private void addConnection(NodeConnection connection)
     {
-        // TODO: Optimise by storing in a cache?
-        var outputNodeElement = NodesItemsControl.FindVisualChildWhere<FrameworkElement>(element => element is { Name: "NodeContainer", Tag: Node node } && node.Id == connection.OutputNodeId);
-        var inputNodeElement = NodesItemsControl.FindVisualChildWhere<FrameworkElement>(element => element is { Name: "NodeContainer", Tag: Node node } && node.Id == connection.InputNodeId);
-
-        Debug.Assert(outputNodeElement is not null);
-        Debug.Assert(inputNodeElement is not null);
-
-        var outputSlotName = connection.ConnectionType == ConnectionType.Flow ? $"flow_output_{connection.OutputSlot}" : $"value_output_{connection.OutputSlot}";
-        var inputSlotName = connection.ConnectionType == ConnectionType.Flow ? $"flow_input_{connection.InputSlot}" : $"value_input_{connection.InputSlot}";
-
-        // TODO: Optimise by storing in cache?
-        var outputSlotElement = outputNodeElement.FindVisualChildWhere<FrameworkElement>(element => element.Tag is string slotTag && slotTag == outputSlotName);
-        var inputSlotElement = inputNodeElement.FindVisualChildWhere<FrameworkElement>(element => element.Tag is string slotTag && slotTag == inputSlotName);
-
-        Debug.Assert(outputSlotElement is not null);
-        Debug.Assert(inputSlotElement is not null);
+        var outputSlotElement = getOutputSlotElementForConnection(connection);
+        var inputSlotElement = getInputSlotElementForConnection(connection);
 
         var pathTag = connection.ConnectionType == ConnectionType.Flow
             ? $"flow_{connection.OutputNodeId}_{connection.OutputSlot}_{connection.InputNodeId}"
@@ -243,6 +249,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
         ConnectionCanvas.Children.Add(path);
     }
 
+    #region Canvas Dragging
+
     private TranslateTransform getRootPosition()
     {
         return (TranslateTransform)RootContainer.RenderTransform;
@@ -250,6 +258,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private void RootContainer_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
+        if (e.RightButton != MouseButtonState.Pressed) return;
+
         e.Handled = true;
 
         var mousePosRelativeToNodesItemsControl = Mouse.GetPosition(ParentContainer);
@@ -321,9 +331,16 @@ public partial class NodeScapeView : INotifyPropertyChanged
         }
     }
 
+    #endregion
+
+    #region Node Dragging
+
     private void NodeContainer_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
+        if (e.LeftButton != MouseButtonState.Pressed) return;
+
         e.Handled = true;
+        canvasDrag = null;
 
         var element = (Border)sender;
         var node = (Node)element.Tag;
@@ -391,8 +408,14 @@ public partial class NodeScapeView : INotifyPropertyChanged
             updateConnectionsForNode(nodeDrag.Node);
     }
 
+    #endregion
+
+    #region Connection Points
+
     private void FlowInput_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
+        if (e.LeftButton != MouseButtonState.Pressed) return;
+
         e.Handled = true;
 
         var element = (FrameworkElement)sender;
@@ -431,6 +454,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private void FlowOutput_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
+        if (e.LeftButton != MouseButtonState.Pressed) return;
+
         e.Handled = true;
 
         var element = (FrameworkElement)sender;
@@ -467,14 +492,31 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private void ValueInput_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
+        if (e.LeftButton != MouseButtonState.Pressed) return;
+
         e.Handled = true;
 
         var element = (FrameworkElement)sender;
         var node = (Node)element.FindVisualParent<ContentControl>()!.Content;
         var slot = getSlotFromConnectionElement(element);
 
-        Logger.Log($"{nameof(ValueInput_OnMouseDown)}: Starting input value drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
-        ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.ValueInput, node, slot, element);
+        // Check if a connection already comes into this input
+        var existingConnection = NodeScape.Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Value && connection.InputNodeId == node.Id && connection.InputSlot == slot);
+
+        if (existingConnection is not null)
+        {
+            NodeScape.Connections.Remove(existingConnection);
+            node = NodeScape.Nodes[existingConnection.OutputNodeId];
+            slot = existingConnection.OutputSlot;
+            element = getOutputSlotElementForConnection(existingConnection);
+            Logger.Log($"{nameof(ValueInput_OnMouseDown)}: Starting output value drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
+            ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.ValueOutput, node, slot, element);
+        }
+        else
+        {
+            Logger.Log($"{nameof(ValueInput_OnMouseDown)}: Starting input value drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
+            ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.ValueInput, node, slot, element);
+        }
 
         updateConnectionDragPath();
     }
@@ -502,6 +544,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private void ValueOutput_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
+        if (e.LeftButton != MouseButtonState.Pressed) return;
+
         e.Handled = true;
 
         var element = (FrameworkElement)sender;
@@ -535,14 +579,12 @@ public partial class NodeScapeView : INotifyPropertyChanged
         ConnectionDrag = null;
     }
 
-    #region Utils
+    #endregion
 
     private int getSlotFromConnectionElement(FrameworkElement element)
     {
         return int.Parse(((string)element.Tag).Split('_').Last());
     }
-
-    #endregion
 
     private void updateConnectionDragPath()
     {

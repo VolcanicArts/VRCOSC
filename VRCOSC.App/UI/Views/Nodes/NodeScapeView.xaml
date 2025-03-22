@@ -31,10 +31,10 @@
           MouseMove="ParentContainer_OnMouseMove"
           HorizontalAlignment="Center" VerticalAlignment="Center"
           Background="{DynamicResource CBackground2}"
-          Width="7500" Height="7500">
+          Width="52000" Height="52000">
         <Grid x:Name="RootContainer"
               Background="Transparent"
-              Width="7500" Height="7500"
+              Width="52000" Height="52000"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               MouseDown="RootContainer_OnMouseDown">
             <Grid.RenderTransform>
@@ -42,7 +42,7 @@
             </Grid.RenderTransform>
             <Grid x:Name="CanvasContainer"
                   Background="Transparent"
-                  Width="5000" Height="5000"
+                  Width="50000" Height="50000"
                   HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Canvas x:Name="CanvasContainerCanvas" />
                 <Grid x:Name="ConnectionContainer" IsHitTestVisible="False">
