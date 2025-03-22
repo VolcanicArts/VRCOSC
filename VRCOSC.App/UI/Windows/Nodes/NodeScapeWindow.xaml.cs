@@ -14,15 +14,22 @@ public sealed partial class NodeScapeWindow : IManagedWindow
 
     public NodeScapeWindow(NodeScape nodeScape)
     {
+        var stringTextNode1 = new StringTextNode();
+        var stringTextNode2 = new StringTextNode();
+
         nodeScape.AddNode(new ParameterReceivedTriggerNode());
         nodeScape.AddNode(new BranchNode());
         nodeScape.AddNode(new PrintNode());
         nodeScape.AddNode(new PrintNode());
-        nodeScape.AddNode(new StringTextNode());
-        nodeScape.AddNode(new StringTextNode());
+        nodeScape.AddNode(stringTextNode1);
+        nodeScape.AddNode(stringTextNode2);
         nodeScape.AddNode(new IntTextNode());
         nodeScape.AddNode(new IntTextNode());
         nodeScape.AddNode(new IsEqualNode());
+
+        var group = nodeScape.AddGroup();
+        group.Nodes.Add(stringTextNode1.Id);
+        group.Nodes.Add(stringTextNode2.Id);
 
         NodeScape = nodeScape;
         InitializeComponent();

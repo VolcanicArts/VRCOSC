@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              xmlns:nodes="clr-namespace:VRCOSC.App.UI.Views.Nodes"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
              d:DesignHeight="720" d:DesignWidth="1280"
              Focusable="True">
@@ -43,41 +44,62 @@
             <Grid x:Name="CanvasContainer"
                   Background="Transparent"
                   Width="50000" Height="50000"
-                  HorizontalAlignment="Center" VerticalAlignment="Center">
+                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                  MouseMove="CanvasContainer_OnMouseMove"
+                  MouseUp="CanvasContainer_OnMouseUp">
                 <Canvas x:Name="CanvasContainerCanvas" />
-                <Grid x:Name="ConnectionContainer" IsHitTestVisible="False">
-                    <Canvas x:Name="ConnectionCanvas"/>
-                </Grid>
-                <Grid x:Name="DragContainer" IsHitTestVisible="False">
-                    <Canvas x:Name="DragCanvas">
-                        <Path Stroke="Red" StrokeThickness="4" x:Name="DragPath"
-                              StrokeStartLineCap="Round"
-                              StrokeEndLineCap="Round"
-                              Visibility="{Binding ConnectionDrag, Converter={StaticResource NullToVisibilityConverter}}">
-                            <Path.Data>
-                                <PathGeometry>
-                                    <PathFigure>
-                                        <BezierSegment/>
-                                    </PathFigure>
-                                </PathGeometry>
-                            </Path.Data>
-                        </Path>
-                    </Canvas>
-                </Grid>
+                <!--> Groups <-->
                 <ItemsControl
-                    x:Name="NodesItemsControl"
-                    ItemsSource="{Binding NodeScape.Nodes, Mode=OneWay}"
-                    Background="Transparent"
-                    MouseMove="NodesItemsControl_OnMouseMove"
-                    MouseUp="NodesItemsControl_OnMouseUp">
+                    x:Name="GroupsItemsControl"
+                    ItemsSource="{Binding NodeScape.Groups, Mode=OneWay}"
+                    Background="Transparent">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Canvas  />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
-                        <!--> Node <-->
                         <DataTemplate>
+                            <Border Name="GroupContainer"
+                                    CornerRadius="10"
+                                    BorderThickness="2"
+                                    Padding="2"
+                                    Background="Transparent"
+                                    BorderBrush="{DynamicResource CForeground3}"
+                                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                                    Tag="{Binding}">
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Canvas x:Name="ConnectionCanvas" IsHitTestVisible="False"/>
+                <Canvas x:Name="DragCanvas" IsHitTestVisible="False">
+                    <Path Stroke="Red" StrokeThickness="4" x:Name="DragPath"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"
+                          Visibility="{Binding ConnectionDrag, Converter={StaticResource NullToVisibilityConverter}}">
+                        <Path.Data>
+                            <PathGeometry>
+                                <PathFigure>
+                                    <BezierSegment/>
+                                </PathFigure>
+                            </PathGeometry>
+                        </Path.Data>
+                    </Path>
+                </Canvas>
+                <!--> Nodes <-->
+                <ItemsControl
+                    x:Name="NodesItemsControl"
+                    ItemsSource="{Binding NodeScape.Nodes, Mode=OneWay}"
+                    Background="Transparent">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas  />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <!--> Node <-->
                             <Border Name="NodeContainer"
                                     CornerRadius="10"
                                     BorderThickness="2"

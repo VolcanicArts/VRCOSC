@@ -15,7 +15,9 @@ public class NodeScape
 {
     public ObservableDictionary<Guid, Node> Nodes { get; } = [];
     public ObservableCollection<NodeConnection> Connections { get; } = [];
-    public Dictionary<Guid, object?[]> NodeOutputs = [];
+    public ObservableCollection<NodeGroup> Groups { get; } = [];
+
+    private readonly Dictionary<Guid, object?[]> nodeOutputs = [];
 
     public int ZIndex { get; set; } = 0;
 
@@ -59,14 +61,14 @@ public class NodeScape
     {
         // TODO: Validate that the value type for the slot is correct
 
-        if (NodeOutputs.TryGetValue(node.Id, out var valueList))
+        if (nodeOutputs.TryGetValue(node.Id, out var valueList))
         {
             valueList[slot] = value;
         }
         else
         {
-            NodeOutputs.Add(node.Id, new object?[100]);
-            NodeOutputs[node.Id][slot] = value;
+            nodeOutputs.Add(node.Id, new object?[100]);
+            nodeOutputs[node.Id][slot] = value;
         }
     }
 
@@ -136,12 +138,12 @@ public class NodeScape
             }
 
             processMethod!.Invoke(outputNode, inputValues);
-            return NodeOutputs[outputNode.Id][outputSlot];
+            return nodeOutputs[outputNode.Id][outputSlot];
         }
 
         if (isFlowNode)
         {
-            return NodeOutputs[outputNode.Id][outputSlot];
+            return nodeOutputs[outputNode.Id][outputSlot];
         }
 
         throw new Exception("How are you here");
@@ -335,6 +337,20 @@ public class NodeScape
             } while (nextNodeId is not null);
         }
     }
+
+    public NodeGroup AddGroup()
+    {
+        var nodeGroup = new NodeGroup();
+        Groups.Add(nodeGroup);
+        return nodeGroup;
+    }
+}
+
+public class NodeGroup
+{
+    public Guid Id { get; } = Guid.NewGuid();
+    public string Title { get; set; } = "New Group";
+    public List<Guid> Nodes { get; set; } = [];
 }
 
 public record NodeConnection(ConnectionType ConnectionType, Guid OutputNodeId, int OutputSlot, Guid InputNodeId, int InputSlot, Type? SharedType = null);

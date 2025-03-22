@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
+using Vector = System.Windows.Vector;
 
 namespace VRCOSC.App.UI.Views.Nodes;
 
@@ -23,6 +24,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
     public const double SNAP_DISTANCE = 20d;
     public const double SIGNIFICANT_SNAP_DISTANCE = SNAP_DISTANCE * 20d;
     public const bool SNAP_ENABLED = true;
+    public const double GROUP_PADDING = SNAP_DISTANCE * 2d;
 
     public NodeScapeView(NodeScape nodeScape)
     {
@@ -36,7 +38,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     public NodeScape NodeScape { get; }
 
-    private IDisposable nodeScapeCollectionsBind;
+    private IDisposable nodeScapeConnectionsBind;
+    private IDisposable nodeGroupsCollectionBind;
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
@@ -47,12 +50,13 @@ public partial class NodeScapeView : INotifyPropertyChanged
         drawRootCanvasLines();
         setZIndexesOfNodes();
 
-        nodeScapeCollectionsBind = NodeScape.Connections.OnCollectionChanged(onConnectionsChanged, true);
+        nodeScapeConnectionsBind = NodeScape.Connections.OnCollectionChanged(onConnectionsChanged, true);
+        nodeGroupsCollectionBind = NodeScape.Groups.OnCollectionChanged(onGroupsChanged, true);
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
-        nodeScapeCollectionsBind.Dispose();
+        nodeScapeConnectionsBind.Dispose();
     }
 
     private void OnKeyDown(object sender, KeyEventArgs e)
@@ -66,6 +70,50 @@ public partial class NodeScapeView : INotifyPropertyChanged
             canvasPosition.Y = 0;
         }
     }
+
+    #region Groups
+
+    private void onGroupsChanged(IEnumerable<NodeGroup> newGroups, IEnumerable<NodeGroup> oldGroups)
+    {
+        updateGroups(newGroups);
+    }
+
+    private FrameworkElement getGroupContainerFromId(Guid groupId)
+    {
+        var groupContainer = GroupsItemsControl.FindVisualChildWhere<FrameworkElement>(element => element is { Name: "GroupContainer", Tag: NodeGroup group } && group.Id == groupId);
+        Debug.Assert(groupContainer is not null);
+        return groupContainer;
+    }
+
+    private void updateGroups(IEnumerable<NodeGroup> groups)
+    {
+        foreach (var group in groups)
+        {
+            var topLeft = new Point(CanvasContainer.Width, CanvasContainer.Height);
+            var bottomRight = new Point(0, 0);
+
+            foreach (var nodeId in group.Nodes)
+            {
+                var node = NodeScape.Nodes[nodeId];
+                var nodeContainer = getNodeContainerFromId(nodeId);
+
+                topLeft.X = Math.Min(topLeft.X, node.Position.X - GROUP_PADDING);
+                topLeft.Y = Math.Min(topLeft.Y, node.Position.Y - GROUP_PADDING);
+                bottomRight.X = Math.Max(bottomRight.X, node.Position.X + nodeContainer.ActualWidth + GROUP_PADDING);
+                bottomRight.Y = Math.Max(bottomRight.Y, node.Position.Y + nodeContainer.ActualHeight + GROUP_PADDING);
+            }
+
+            var groupContainer = getGroupContainerFromId(group.Id);
+
+            var width = bottomRight.X - topLeft.X;
+            var height = bottomRight.Y - topLeft.Y;
+            groupContainer.Width = width;
+            groupContainer.Height = height;
+            groupContainer.RenderTransform = new TranslateTransform(topLeft.X, topLeft.Y);
+        }
+    }
+
+    #endregion
 
     private void drawRootCanvasLines()
     {
@@ -131,6 +179,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private CanvasDragInstance? canvasDrag;
     private NodeDragInstance? nodeDrag;
+    private List<NodeDragInstance>? groupDrag;
     private ConnectionDragInstance? connectionDrag;
 
     public ConnectionDragInstance? ConnectionDrag
@@ -175,6 +224,13 @@ public partial class NodeScapeView : INotifyPropertyChanged
             removeConnection(connection);
             addConnection(connection);
         }
+    }
+
+    private FrameworkElement getNodeContainerFromId(Guid nodeId)
+    {
+        var nodeContainer = NodesItemsControl.FindVisualChildWhere<FrameworkElement>(element => element is { Name: "NodeContainer", Tag: Node node } && node.Id == nodeId);
+        Debug.Assert(nodeContainer is not null);
+        return nodeContainer;
     }
 
     private FrameworkElement getOutputSlotElementForConnection(NodeConnection connection)
@@ -333,6 +389,83 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     #endregion
 
+    private void CanvasContainer_OnMouseMove(object sender, MouseEventArgs e)
+    {
+        if (nodeDrag is not null)
+        {
+            e.Handled = true;
+            updateNodePosition(nodeDrag);
+        }
+    }
+
+    private void CanvasContainer_OnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (nodeDrag is not null)
+        {
+            e.Handled = true;
+            nodeDrag = null;
+            Logger.Log($"{nameof(CanvasContainer_OnMouseUp)}: Ending node drag", LoggingTarget.Information);
+        }
+    }
+
+    #region Group Dragging
+
+    private void GroupContainer_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        Logger.Log($"{nameof(GroupContainer_OnPreviewMouseDown)}", LoggingTarget.Information);
+
+        if (e.LeftButton != MouseButtonState.Pressed) return;
+
+        e.Handled = true;
+        canvasDrag = null;
+
+        var element = (Border)sender;
+        var group = (NodeGroup)element.Tag;
+
+        Logger.Log($"{nameof(GroupContainer_OnPreviewMouseDown)}: Starting group drag", LoggingTarget.Information);
+
+        groupDrag = new List<NodeDragInstance>();
+
+        foreach (var nodeId in group.Nodes)
+        {
+            var node = NodeScape.Nodes[nodeId];
+            var mousePosRelativeToNodesItemsControl = Mouse.GetPosition(CanvasContainer);
+            var nodePos = node.Position;
+
+            var offsetX = mousePosRelativeToNodesItemsControl.X - nodePos.X;
+            var offsetY = mousePosRelativeToNodesItemsControl.Y - nodePos.Y;
+
+            Logger.Log($"{nameof(NodeContainer_OnMouseDown)}: Starting node drag. Offset X {offsetX}. Offset Y {offsetY}", LoggingTarget.Information);
+            groupDrag.Add(new NodeDragInstance(node, offsetX, offsetY));
+        }
+    }
+
+    private void GroupsItemsControl_OnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        Logger.Log($"{nameof(GroupsItemsControl_OnMouseUp)}", LoggingTarget.Information);
+
+        if (groupDrag is null) return;
+
+        e.Handled = true;
+
+        Logger.Log($"{nameof(GroupsItemsControl_OnMouseUp)}: Ending group drag", LoggingTarget.Information);
+        groupDrag = null;
+    }
+
+    private void GroupsItemsControl_OnMouseMove(object sender, MouseEventArgs e)
+    {
+        if (groupDrag is null) return;
+
+        e.Handled = true;
+
+        foreach (var groupNodeDrag in groupDrag)
+        {
+            updateNodePosition(groupNodeDrag);
+        }
+    }
+
+    #endregion
+
     #region Node Dragging
 
     private void NodeContainer_OnMouseDown(object sender, MouseButtonEventArgs e)
@@ -343,9 +476,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
         canvasDrag = null;
 
         var element = (Border)sender;
-        var node = (Node)element.Tag;
-
-        var dataContext = element.DataContext;
+        var dataContext = (ObservableKeyValuePair<Guid, Node>)element.DataContext;
+        var node = dataContext.Value;
 
         if (NodesItemsControl.ItemContainerGenerator.ContainerFromItem(dataContext) is FrameworkElement container)
         {
@@ -365,24 +497,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
         nodeDrag = new NodeDragInstance(node, offsetX, offsetY);
     }
 
-    private void NodesItemsControl_OnMouseUp(object sender, MouseButtonEventArgs e)
+    private void updateNodePosition(NodeDragInstance nodeDrag)
     {
-        Logger.Log($"{nameof(NodesItemsControl_OnMouseUp)}", LoggingTarget.Information);
-
-        if (nodeDrag is null) return;
-
-        e.Handled = true;
-
-        Logger.Log($"{nameof(NodesItemsControl_OnMouseUp)}: Ending node drag", LoggingTarget.Information);
-        nodeDrag = null;
-    }
-
-    private void NodesItemsControl_OnMouseMove(object sender, MouseEventArgs e)
-    {
-        if (nodeDrag is null) return;
-
-        e.Handled = true;
-
         var mousePosRelativeToNodesItemsControl = Mouse.GetPosition(CanvasContainer);
 
         var newNodeX = mousePosRelativeToNodesItemsControl.X - nodeDrag.OffsetX;
@@ -405,7 +521,10 @@ public partial class NodeScapeView : INotifyPropertyChanged
         nodeDrag.Node.Position.Y = newNodeY;
 
         if (positionChanged)
+        {
             updateConnectionsForNode(nodeDrag.Node);
+            updateGroups(NodeScape.Groups.Where(group => group.Nodes.Contains(nodeDrag.Node.Id)));
+        }
     }
 
     #endregion
@@ -501,7 +620,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
         var slot = getSlotFromConnectionElement(element);
 
         // Check if a connection already comes into this input
-        var existingConnection = NodeScape.Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Value && connection.InputNodeId == node.Id && connection.InputSlot == slot);
+        var existingConnection =
+            NodeScape.Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Value && connection.InputNodeId == node.Id && connection.InputSlot == slot);
 
         if (existingConnection is not null)
         {
