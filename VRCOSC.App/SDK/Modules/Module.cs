@@ -136,6 +136,11 @@ public abstract class Module
 
         Enabled.Subscribe(_ => moduleSerialisationManager.Serialise());
 
+        foreach (var (_, moduleSetting) in Settings)
+        {
+            moduleSetting.OnSettingChange += Serialise;
+        }
+
         isLoaded = true;
 
         OnPostLoad();
@@ -980,7 +985,7 @@ public abstract class Module
     /// <param name="lookup">The lookup of the setting</param>
     /// <typeparam name="T">The value type of the setting</typeparam>
     /// <returns>The value if successful, otherwise pushes an exception and returns default</returns>
-    protected T GetSettingValue<T>(Enum lookup)
+    public T GetSettingValue<T>(Enum lookup)
     {
         try
         {
@@ -990,6 +995,21 @@ public abstract class Module
         {
             ExceptionHandler.Handle(e, $"'{FullID}' experienced a problem when getting value of setting '{lookup.ToLookup()}'");
             return default!;
+        }
+    }
+
+    public void SetSettingValue<T>(Enum lookup, T value) where T : notnull
+    {
+        try
+        {
+            var setting = GetSetting(lookup);
+            if (setting is not ValueModuleSetting<T> valueModuleSetting) throw new Exception("Cannot set a setting value for a non-value module setting");
+
+            valueModuleSetting.Attribute.Value = value;
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"'{FullID}' experienced a problem when setting value of setting '{lookup.ToLookup()}'");
         }
     }
 
