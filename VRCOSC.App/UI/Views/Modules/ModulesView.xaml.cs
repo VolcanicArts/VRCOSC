@@ -1,7 +1,6 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Windows;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Profiles;
@@ -65,15 +64,7 @@ public partial class ModulesView
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        if (module.SettingsWindowType is not null)
-        {
-            var settingsWindow = (IManagedWindow)Activator.CreateInstance(module.SettingsWindowType, args: [module])!;
-            settingsWindowManager.TrySpawnChild(settingsWindow);
-        }
-        else
-        {
-            settingsWindowManager.TrySpawnChild(new ModuleSettingsWindow(module));
-        }
+        settingsWindowManager.TrySpawnChild(module.SettingsWindow ?? new ModuleSettingsWindow(module));
     }
 
     private void InfoButton_OnClick(object sender, RoutedEventArgs e)
