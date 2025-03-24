@@ -6,13 +6,12 @@ using System;
 namespace VRCOSC.App.SDK.Nodes.Types;
 
 [Node("Print")]
-[NodeValue]
-[NodeFlow(false, 0)]
-[NodeInputs("String")]
+[NodeFlowInput]
+[NodeValueInput("String")]
 public class PrintNode : Node
 {
     [NodeProcess]
-    private void execute(string? str)
+    private void process(string str)
     {
         Console.WriteLine(str);
     }

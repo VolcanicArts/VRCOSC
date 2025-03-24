@@ -1,30 +1,41 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace VRCOSC.App.SDK.Nodes.Types;
 
 [Node("While")]
+[NodeFlowInput]
+[NodeFlowOutput("Finished", "Loop")]
+[NodeFlowLoop(1)]
+[NodeValueInput("Condition")]
 public class WhileNode : Node
 {
-    [NodeProcessLoop(0, 1)]
-    private Func<int, bool> runLoop()
-    {
-        return i => i == 2;
-    }
+    [NodeProcess]
+    private int process(bool condition) => condition ? 1 : 0;
 }
 
-[Node("Element At")]
-[NodeValue([typeof(object)])]
-[NodeInputs("Enumerable", "Index")]
-public class ElementAtNode : Node
+[Node("For")]
+[NodeFlowInput]
+[NodeFlowOutput("Finished", "Loop")]
+[NodeFlowLoop(1)]
+[NodeValueInput("Count")]
+public class ForNode : Node
 {
+    private const int finished_slot = 0;
+    private const int loop_slot = 1;
+
+    private int index;
+
     [NodeProcess]
-    private void process(IEnumerable<object> enumerable, int index)
+    private int process(int count)
     {
-        SetOutput(0, enumerable.ElementAt(index));
+        if (index < count)
+        {
+            index++;
+            return loop_slot;
+        }
+
+        index = 0;
+        return finished_slot;
     }
 }

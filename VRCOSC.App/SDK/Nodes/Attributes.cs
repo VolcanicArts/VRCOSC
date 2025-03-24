@@ -7,51 +7,6 @@ using System.Linq;
 
 namespace VRCOSC.App.SDK.Nodes;
 
-[AttributeUsage(AttributeTargets.Method)]
-public class NodeProcessAttribute : Attribute
-{
-    public NodeProcessAttribute()
-    {
-    }
-}
-
-[AttributeUsage(AttributeTargets.Method)]
-public class NodeProcessLoopAttribute : Attribute
-{
-    public int FinishFlowSlot { get; }
-    public int LoopFlowSlot { get; }
-
-    public NodeProcessLoopAttribute(int finishFlowSlot, int loopFlowSlot)
-    {
-        FinishFlowSlot = finishFlowSlot;
-        LoopFlowSlot = loopFlowSlot;
-    }
-}
-
-[AttributeUsage(AttributeTargets.Class)]
-public class NodeFlowAttribute : Attribute
-{
-    public bool IsTrigger { get; }
-    public int NumFlowOutputs { get; }
-
-    public NodeFlowAttribute(bool isTrigger = false, int numFlowOutputs = 1)
-    {
-        IsTrigger = isTrigger;
-        NumFlowOutputs = numFlowOutputs;
-    }
-}
-
-[AttributeUsage(AttributeTargets.Class)]
-public class NodeValueAttribute : Attribute
-{
-    public Type[] ValueOutputTypes { get; }
-
-    public NodeValueAttribute(Type[]? valueOutputTypes = null)
-    {
-        ValueOutputTypes = valueOutputTypes ?? [];
-    }
-}
-
 [AttributeUsage(AttributeTargets.Class)]
 public class NodeAttribute : Attribute
 {
@@ -64,12 +19,70 @@ public class NodeAttribute : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Class)]
-public class NodeInputsAttribute : Attribute
+public class NodeFlowInputAttribute : Attribute
+{
+    public bool IsTrigger { get; }
+
+    public NodeFlowInputAttribute(bool isTrigger = false)
+    {
+        IsTrigger = isTrigger;
+    }
+}
+
+[AttributeUsage(AttributeTargets.Class)]
+public class NodeFlowOutputAttribute : Attribute
 {
     public List<string> Titles { get; }
 
-    public NodeInputsAttribute(params string[] titles)
+    public NodeFlowOutputAttribute(params string[] titles)
     {
         Titles = titles.ToList();
+    }
+
+    public int Count => Titles.Count;
+}
+
+[AttributeUsage(AttributeTargets.Class)]
+public class NodeFlowLoop : Attribute
+{
+    public int[] FlowSlots { get; }
+
+    public NodeFlowLoop(params int[] flowSlots)
+    {
+        FlowSlots = flowSlots;
+    }
+}
+
+[AttributeUsage(AttributeTargets.Class)]
+public class NodeValueInputAttribute : Attribute
+{
+    public List<string> Titles { get; }
+
+    public NodeValueInputAttribute(params string[] titles)
+    {
+        Titles = titles.ToList();
+    }
+
+    public int Count => Titles.Count;
+}
+
+[AttributeUsage(AttributeTargets.Class)]
+public class NodeValueOutputAttribute : Attribute
+{
+    public List<Type> OutputTypes { get; }
+
+    public NodeValueOutputAttribute(params Type[] outputTypes)
+    {
+        OutputTypes = outputTypes.ToList();
+    }
+
+    public int Count => OutputTypes.Count;
+}
+
+[AttributeUsage(AttributeTargets.Method)]
+public class NodeProcessAttribute : Attribute
+{
+    public NodeProcessAttribute()
+    {
     }
 }

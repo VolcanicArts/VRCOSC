@@ -5,27 +5,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              xmlns:nodes="clr-namespace:VRCOSC.App.UI.Views.Nodes"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
              d:DesignHeight="720" d:DesignWidth="1280"
              Focusable="True">
     <UserControl.Resources>
         <core:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <core:BorderClipConverter x:Key="BorderClipConverter"/>
-        <nodes:FlowVisibilityConverter x:Key="FlowVisibilityConverterCenter" NodeIoLocation="Both"/>
-        <nodes:FlowVisibilityConverter x:Key="FlowVisibilityConverterLeft" NodeIoLocation="Input"/>
-        <nodes:FlowVisibilityConverter x:Key="FlowVisibilityConverterRight" NodeIoLocation="Output"/>
-        <nodes:FlowAmountConverter x:Key="FlowAmountConverterLeft" NodeIoLocation="Input"/>
-        <nodes:FlowAmountConverter x:Key="FlowAmountConverterRight" NodeIoLocation="Output"/>
-        <nodes:ValueVisibilityConverter x:Key="ValueVisibilityConverterCenter" NodeIoLocation="Both"/>
-        <nodes:ValueVisibilityConverter x:Key="ValueVisibilityConverterLeft" NodeIoLocation="Input"/>
-        <nodes:ValueVisibilityConverter x:Key="ValueVisibilityConverterRight" NodeIoLocation="Output"/>
-        <nodes:ValueAmountConverter x:Key="ValueAmountConverterLeft" NodeIoLocation="Input"/>
-        <nodes:ValueAmountConverter x:Key="ValueAmountConverterRight" NodeIoLocation="Output"/>
-        <nodes:SlotNameConverter x:Key="FlowOutputSlotNameConverter" NodeIoLocation="Output" NodeIoType="Flow"/>
-        <nodes:SlotNameConverter x:Key="ValueOutputSlotNameConverter" NodeIoLocation="Output" NodeIoType="Value"/>
-        <nodes:SlotNameConverter x:Key="FlowInputSlotNameConverter" NodeIoLocation="Input" NodeIoType="Flow"/>
-        <nodes:SlotNameConverter x:Key="ValueInputSlotNameConverter" NodeIoLocation="Input" NodeIoType="Value"/>
+        <nodes:ConnectionAmountConverter x:Key="FlowAmountConverterLeft" ConnectionType="Flow" ConnectionSide="Input"/>
+        <nodes:ConnectionAmountConverter x:Key="FlowAmountConverterRight" ConnectionType="Flow" ConnectionSide="Output"/>
+        <nodes:ConnectionAmountConverter x:Key="ValueAmountConverterLeft" ConnectionType="Value" ConnectionSide="Input"/>
+        <nodes:ConnectionAmountConverter x:Key="ValueAmountConverterRight" ConnectionType="Value" ConnectionSide="Output"/>
+        <nodes:SlotNameConverter x:Key="FlowOutputSlotNameConverter" ConnectionSide="Output" ConnectionType="Flow"/>
+        <nodes:SlotNameConverter x:Key="ValueOutputSlotNameConverter" ConnectionSide="Output" ConnectionType="Value"/>
+        <nodes:SlotNameConverter x:Key="FlowInputSlotNameConverter" ConnectionSide="Input" ConnectionType="Flow"/>
+        <nodes:SlotNameConverter x:Key="ValueInputSlotNameConverter" ConnectionSide="Input" ConnectionType="Value"/>
     </UserControl.Resources>
     <Grid x:Name="ParentContainer"
           MouseUp="ParentContainer_OnMouseUp"
@@ -140,11 +133,13 @@
                                                         </Border>
                                                     </Grid>
                                                     <!--> Flow Points <-->
-                                                    <Grid Visibility="{Binding Converter={StaticResource FlowVisibilityConverterCenter}}">
+                                                    <Grid VerticalAlignment="Top">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
                                                         <!--> Input <-->
                                                         <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterLeft}}"
                                                                       VerticalAlignment="Top" HorizontalAlignment="Left"
-                                                                      Visibility="{Binding Converter={StaticResource FlowVisibilityConverterLeft}}"
                                                                       Name="FlowInputItemsControl">
                                                             <ItemsControl.RenderTransform>
                                                                 <TranslateTransform X="-12.5"/>
@@ -169,7 +164,6 @@
                                                         <!--> Output <-->
                                                         <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
                                                                       VerticalAlignment="Top" HorizontalAlignment="Right"
-                                                                      Visibility="{Binding Converter={StaticResource FlowVisibilityConverterRight}}"
                                                                       Name="FlowOutputItemsControl">
                                                             <ItemsControl.RenderTransform>
                                                                 <TranslateTransform X="12.5"/>
@@ -193,11 +187,13 @@
                                                         </ItemsControl>
                                                     </Grid>
                                                     <!--> Value Points <-->
-                                                    <Grid Visibility="{Binding Converter={StaticResource ValueVisibilityConverterCenter}}">
+                                                    <Grid VerticalAlignment="Top">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
                                                         <!--> Input <-->
                                                         <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterLeft}}"
                                                                       VerticalAlignment="Top" HorizontalAlignment="Left"
-                                                                      Visibility="{Binding Converter={StaticResource ValueVisibilityConverterLeft}}"
                                                                       Name="ValueInputItemsControl">
                                                             <ItemsControl.RenderTransform>
                                                                 <TranslateTransform X="-12.5"/>
@@ -222,7 +218,6 @@
                                                         <!--> Output <-->
                                                         <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                                                       VerticalAlignment="Top" HorizontalAlignment="Right"
-                                                                      Visibility="{Binding Converter={StaticResource ValueVisibilityConverterRight}}"
                                                                       Name="ValueOutputItemsControl">
                                                             <ItemsControl.RenderTransform>
                                                                 <TranslateTransform X="12.5"/>

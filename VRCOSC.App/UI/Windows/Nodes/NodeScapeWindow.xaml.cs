@@ -26,6 +26,9 @@ public sealed partial class NodeScapeWindow : IManagedWindow
         nodeScape.AddNode(new IntTextNode());
         nodeScape.AddNode(new IntTextNode());
         nodeScape.AddNode(new IsEqualNode());
+        nodeScape.AddNode(new WhileNode());
+        nodeScape.AddNode(new ForNode());
+        nodeScape.AddNode(new FlowSpitNode());
 
         var group = nodeScape.AddGroup();
         group.Nodes.Add(stringTextNode1.Id);

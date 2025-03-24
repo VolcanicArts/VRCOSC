@@ -6,39 +6,39 @@ using VRCOSC.App.Utils;
 namespace VRCOSC.App.SDK.Nodes.Types;
 
 [Node("String Value")]
-[NodeValue([typeof(string)])]
+[NodeValueOutput(typeof(string))]
 public class StringTextNode : Node
 {
     public Observable<string> Text { get; } = new(string.Empty);
 
     [NodeProcess]
-    private void setOutputs()
+    private void process()
     {
         SetOutput(0, Text.Value);
     }
 }
 
 [Node("Int Value")]
-[NodeValue([typeof(int)])]
+[NodeValueOutput(typeof(int))]
 public class IntTextNode : Node
 {
     public Observable<int> Int { get; } = new();
 
     [NodeProcess]
-    private void setOutputs()
+    private void process()
     {
         SetOutput(0, Int.Value);
     }
 }
 
 [Node("Float Value")]
-[NodeValue([typeof(float)])]
+[NodeValueOutput(typeof(float))]
 public class FloatTextNode : Node
 {
     public Observable<float> Float { get; } = new();
 
     [NodeProcess]
-    private void setOutputs()
+    private void process()
     {
         SetOutput(0, Float.Value);
     }

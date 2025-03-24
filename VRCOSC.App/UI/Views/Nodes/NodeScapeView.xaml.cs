@@ -531,6 +531,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     #region Connection Points
 
+    // TODO: Combine all these into methods that use the tag
+
     private void FlowInput_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
         if (e.LeftButton != MouseButtonState.Pressed) return;
@@ -543,8 +545,24 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
         // TODO: if there's already a connection going into this slot, remove the connection
 
-        Logger.Log($"{nameof(FlowInput_OnMouseDown)}: Starting input flow drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
-        ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.FlowInput, node, slot, element);
+        // Check if a connection already comes into this input
+        var existingConnection =
+            NodeScape.Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.InputNodeId == node.Id && connection.InputSlot == slot);
+
+        if (existingConnection is not null)
+        {
+            NodeScape.Connections.Remove(existingConnection);
+            node = NodeScape.Nodes[existingConnection.OutputNodeId];
+            slot = existingConnection.OutputSlot;
+            element = getOutputSlotElementForConnection(existingConnection);
+            Logger.Log($"{nameof(FlowInput_OnMouseDown)}: Starting output flow drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
+            ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.FlowOutput, node, slot, element);
+        }
+        else
+        {
+            Logger.Log($"{nameof(FlowInput_OnMouseDown)}: Starting input flow drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
+            ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.FlowInput, node, slot, element);
+        }
 
         updateConnectionDragPath();
     }
