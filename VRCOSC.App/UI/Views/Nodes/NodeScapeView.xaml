@@ -19,16 +19,206 @@
         <nodes:SlotNameConverter x:Key="ValueOutputSlotNameConverter" ConnectionSide="Output" ConnectionType="Value"/>
         <nodes:SlotNameConverter x:Key="FlowInputSlotNameConverter" ConnectionSide="Input" ConnectionType="Flow"/>
         <nodes:SlotNameConverter x:Key="ValueInputSlotNameConverter" ConnectionSide="Input" ConnectionType="Value"/>
+        <!--> Node <-->
+        <DataTemplate x:Key="NodeTemplate">
+            <Border Name="NodeContainer"
+                    CornerRadius="10"
+                    BorderThickness="2"
+                    BorderBrush="{DynamicResource CForeground3}"
+                    Width="200"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Tag="{Binding}"
+                    MouseDown="NodeContainer_OnMouseDown">
+            <Border.RenderTransform>
+                <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}"/>
+            </Border.RenderTransform>
+            <!--> Node Content <-->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Border Background="{DynamicResource CBackground4}" Opacity="0.85" CornerRadius="10"/>
+                <core:SpacedStackPanel VerticalAlignment="Top" Spacing="15" Margin="0 0 0 15">
+                    <!--> Header <-->
+                    <Grid VerticalAlignment="Top" Height="30" Margin="2 2 2 0">
+                        <Border Background="{DynamicResource CBackground1}">
+                            <Border.Clip>
+                                <MultiBinding Converter="{StaticResource BorderClipConverter}">
+                                    <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=2}" />
+                                    <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=2}" />
+                                    <Binding Path="CornerRadius" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=2}" />
+                                </MultiBinding>
+                            </Border.Clip>
+                            <TextBlock Foreground="{DynamicResource CForeground2}"
+                                       Text="{Binding Title}" FontSize="15"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+                    <!--> Flow Points <-->
+                    <Grid VerticalAlignment="Top">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!--> Input <-->
+                        <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterLeft}}"
+                                      VerticalAlignment="Top" HorizontalAlignment="Left"
+                                      Name="FlowInputItemsControl">
+                            <ItemsControl.RenderTransform>
+                                <TranslateTransform X="-13.5"/>
+                            </ItemsControl.RenderTransform>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Top"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Left">
+                                        <Border Height="25" Width="25"
+                                            VerticalAlignment="Top"
+                                            Background="Aqua" CornerRadius="12.5"
+                                            MouseDown="FlowInput_OnMouseDown"
+                                            MouseUp="FlowInput_OnMouseUp"
+                                            Tag="{Binding Converter={StaticResource FlowInputSlotNameConverter}}">
+                                        </Border>
+                                        <TextBlock Text="->" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}"/>
+                                    </core:SpacedStackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <!--> Output <-->
+                        <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
+                                      VerticalAlignment="Top" HorizontalAlignment="Right"
+                                      Name="FlowOutputItemsControl">
+                            <ItemsControl.RenderTransform>
+                                <TranslateTransform X="13.5"/>
+                            </ItemsControl.RenderTransform>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Top"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding Title}" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}"/>
+                                        <Border Height="25" Width="25"
+                                            VerticalAlignment="Top"
+                                            Background="Aqua" CornerRadius="12.5"
+                                            MouseDown="FlowOutput_OnMouseDown"
+                                            MouseUp="FlowOutput_OnMouseUp"
+                                            Tag="{Binding Converter={StaticResource FlowOutputSlotNameConverter}}">
+                                        </Border>
+                                    </core:SpacedStackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                    <!--> Value Points <-->
+                    <Grid VerticalAlignment="Top">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!--> Input <-->
+                        <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterLeft}}"
+                                      VerticalAlignment="Top" HorizontalAlignment="Left"
+                                      Name="ValueInputItemsControl">
+                            <ItemsControl.RenderTransform>
+                                <TranslateTransform X="-13.5"/>
+                            </ItemsControl.RenderTransform>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Top"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Left">
+                                        <Border Height="25" Width="25"
+                                            VerticalAlignment="Top"
+                                            Background="Red" CornerRadius="12.5"
+                                            MouseDown="ValueInput_OnMouseDown"
+                                            MouseUp="ValueInput_OnMouseUp"
+                                            Tag="{Binding Converter={StaticResource ValueInputSlotNameConverter}}">
+                                        </Border>
+                                        <TextBlock Text="{Binding Title}" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}"/>
+                                    </core:SpacedStackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <!--> Output <-->
+                        <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
+                                      VerticalAlignment="Top" HorizontalAlignment="Right"
+                                      Name="ValueOutputItemsControl">
+                            <ItemsControl.RenderTransform>
+                                <TranslateTransform X="13.5"/>
+                            </ItemsControl.RenderTransform>
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Top"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
+                                        <TextBlock Text="{Binding Title}" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}"/>
+                                        <Border Height="25" Width="25"
+                                            VerticalAlignment="Top"
+                                            Background="Red" CornerRadius="12.5"
+                                            MouseDown="ValueOutput_OnMouseDown"
+                                            MouseUp="ValueOutput_OnMouseUp"
+                                            Tag="{Binding Converter={StaticResource ValueOutputSlotNameConverter}}">
+                                        </Border>
+                                    </core:SpacedStackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </core:SpacedStackPanel>
+            </Grid>
+        </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="NodeGroupTemplate">
+            <Grid>
+                <Border Name="GroupContainer"
+                        Tag="{Binding NodeGroup}"
+                        CornerRadius="20"
+                        BorderThickness="2"
+                        Padding="1"
+                        BorderBrush="{DynamicResource CForeground3}"
+                        HorizontalAlignment="Left" VerticalAlignment="Top"
+                        MouseDown="GroupContainer_OnMouseDown">
+                    <Border
+                        Background="{DynamicResource CBackground1}"
+                        Opacity="0.75" CornerRadius="20"/>
+                </Border>
+                <Canvas Name="GroupConnectionCanvas" IsHitTestVisible="False"/>
+                <ItemsControl
+                    x:Name="ItemsControl"
+                    ItemsSource="{Binding Nodes, Mode=OneWay}"
+                    Background="Transparent"
+                    ItemTemplate="{StaticResource NodeTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas  />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </Grid>
+        </DataTemplate>
+        <nodes:NodeItemsControlDataTemplateSelector x:Key="NodeItemsControlDataTemplateSelector" NodeTemplate="{StaticResource NodeTemplate}" NodeGroupTemplate="{StaticResource NodeGroupTemplate}"/>
     </UserControl.Resources>
     <Grid x:Name="ParentContainer"
           MouseUp="ParentContainer_OnMouseUp"
           MouseMove="ParentContainer_OnMouseMove"
           HorizontalAlignment="Center" VerticalAlignment="Center"
           Background="{DynamicResource CBackground2}"
-          Width="52000" Height="52000">
+          Width="12000" Height="12000">
         <Grid x:Name="RootContainer"
               Background="Transparent"
-              Width="52000" Height="52000"
+              Width="12000" Height="12000"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               MouseDown="RootContainer_OnMouseDown">
             <Grid.RenderTransform>
@@ -36,35 +226,11 @@
             </Grid.RenderTransform>
             <Grid x:Name="CanvasContainer"
                   Background="Transparent"
-                  Width="50000" Height="50000"
+                  Width="10000" Height="10000"
                   HorizontalAlignment="Center" VerticalAlignment="Center"
                   MouseMove="CanvasContainer_OnMouseMove"
                   MouseUp="CanvasContainer_OnMouseUp">
                 <Canvas x:Name="CanvasContainerCanvas" />
-                <!--> Groups <-->
-                <ItemsControl
-                    x:Name="GroupsItemsControl"
-                    ItemsSource="{Binding NodeScape.Groups, Mode=OneWay}"
-                    Background="Transparent">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Canvas  />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Name="GroupContainer"
-                                    CornerRadius="10"
-                                    BorderThickness="2"
-                                    Padding="2"
-                                    Background="Transparent"
-                                    BorderBrush="{DynamicResource CForeground3}"
-                                    HorizontalAlignment="Left" VerticalAlignment="Top"
-                                    Tag="{Binding}">
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
                 <Canvas x:Name="ConnectionCanvas" IsHitTestVisible="False"/>
                 <Canvas x:Name="DragCanvas" IsHitTestVisible="False">
                     <Path Stroke="Red" StrokeThickness="4" x:Name="DragPath"
@@ -80,174 +246,17 @@
                         </Path.Data>
                     </Path>
                 </Canvas>
-                <!--> Nodes <-->
+                <!--> Nodes & Groups <-->
                 <ItemsControl
                     x:Name="NodesItemsControl"
-                    ItemsSource="{Binding NodeScape.Nodes, Mode=OneWay}"
-                    Background="Transparent">
+                    ItemsSource="{Binding NodesItemsControlItemsSource, Mode=OneWay}"
+                    Background="Transparent"
+                    ItemTemplateSelector="{StaticResource NodeItemsControlDataTemplateSelector}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Canvas  />
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <!--> Node <-->
-                            <Border Name="NodeContainer"
-                                    CornerRadius="10"
-                                    BorderThickness="2"
-                                    BorderBrush="{DynamicResource CForeground3}"
-                                    Width="200"
-                                    HorizontalAlignment="Left" VerticalAlignment="Top"
-                                    Tag="{Binding Value}"
-                                    MouseDown="NodeContainer_OnMouseDown">
-                                <Border.RenderTransform>
-                                    <TranslateTransform X="{Binding Value.Position.X}" Y="{Binding Value.Position.Y}"/>
-                                </Border.RenderTransform>
-                                <!--> Node Content <-->
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <Border Background="{DynamicResource CBackground4}" Opacity="0.85" CornerRadius="10"/>
-                                    <!--> Add an extra content control to get the Node directly for binding <-->
-                                    <ContentControl Content="{Binding Value}">
-                                        <ContentControl.ContentTemplate>
-                                            <DataTemplate>
-                                                <core:SpacedStackPanel VerticalAlignment="Top" Spacing="15" Margin="0 0 0 15">
-                                                    <!--> Header <-->
-                                                    <Grid VerticalAlignment="Top" Height="30" Margin="2 2 2 0">
-                                                        <Border Background="{DynamicResource CBackground1}">
-                                                            <Border.Clip>
-                                                                <MultiBinding Converter="{StaticResource BorderClipConverter}">
-                                                                    <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=2}" />
-                                                                    <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=2}" />
-                                                                    <Binding Path="CornerRadius" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=2}" />
-                                                                </MultiBinding>
-                                                            </Border.Clip>
-                                                            <TextBlock Foreground="{DynamicResource CForeground2}"
-                                                                       Text="{Binding Title}" FontSize="15"
-                                                                       FontWeight="SemiBold"
-                                                                       HorizontalAlignment="Center"
-                                                                       VerticalAlignment="Center"/>
-                                                        </Border>
-                                                    </Grid>
-                                                    <!--> Flow Points <-->
-                                                    <Grid VerticalAlignment="Top">
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="Auto"/>
-                                                        </Grid.RowDefinitions>
-                                                        <!--> Input <-->
-                                                        <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterLeft}}"
-                                                                      VerticalAlignment="Top" HorizontalAlignment="Left"
-                                                                      Name="FlowInputItemsControl">
-                                                            <ItemsControl.RenderTransform>
-                                                                <TranslateTransform X="-12.5"/>
-                                                            </ItemsControl.RenderTransform>
-                                                            <ItemsControl.ItemsPanel>
-                                                                <ItemsPanelTemplate>
-                                                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Top"/>
-                                                                </ItemsPanelTemplate>
-                                                            </ItemsControl.ItemsPanel>
-                                                            <ItemsControl.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <Border Height="25" Width="25"
-                                                                            VerticalAlignment="Top"
-                                                                            Background="Aqua" CornerRadius="12.5"
-                                                                            MouseDown="FlowInput_OnMouseDown"
-                                                                            MouseUp="FlowInput_OnMouseUp"
-                                                                            Tag="{Binding Converter={StaticResource FlowInputSlotNameConverter}}">
-                                                                    </Border>
-                                                                </DataTemplate>
-                                                            </ItemsControl.ItemTemplate>
-                                                        </ItemsControl>
-                                                        <!--> Output <-->
-                                                        <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
-                                                                      VerticalAlignment="Top" HorizontalAlignment="Right"
-                                                                      Name="FlowOutputItemsControl">
-                                                            <ItemsControl.RenderTransform>
-                                                                <TranslateTransform X="12.5"/>
-                                                            </ItemsControl.RenderTransform>
-                                                            <ItemsControl.ItemsPanel>
-                                                                <ItemsPanelTemplate>
-                                                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Top"/>
-                                                                </ItemsPanelTemplate>
-                                                            </ItemsControl.ItemsPanel>
-                                                            <ItemsControl.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <Border Height="25" Width="25"
-                                                                            VerticalAlignment="Top"
-                                                                            Background="Aqua" CornerRadius="12.5"
-                                                                            MouseDown="FlowOutput_OnMouseDown"
-                                                                            MouseUp="FlowOutput_OnMouseUp"
-                                                                            Tag="{Binding Converter={StaticResource FlowOutputSlotNameConverter}}">
-                                                                    </Border>
-                                                                </DataTemplate>
-                                                            </ItemsControl.ItemTemplate>
-                                                        </ItemsControl>
-                                                    </Grid>
-                                                    <!--> Value Points <-->
-                                                    <Grid VerticalAlignment="Top">
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="Auto"/>
-                                                        </Grid.RowDefinitions>
-                                                        <!--> Input <-->
-                                                        <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterLeft}}"
-                                                                      VerticalAlignment="Top" HorizontalAlignment="Left"
-                                                                      Name="ValueInputItemsControl">
-                                                            <ItemsControl.RenderTransform>
-                                                                <TranslateTransform X="-12.5"/>
-                                                            </ItemsControl.RenderTransform>
-                                                            <ItemsControl.ItemsPanel>
-                                                                <ItemsPanelTemplate>
-                                                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Top"/>
-                                                                </ItemsPanelTemplate>
-                                                            </ItemsControl.ItemsPanel>
-                                                            <ItemsControl.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <Border Height="25" Width="25"
-                                                                            VerticalAlignment="Top"
-                                                                            Background="Red" CornerRadius="12.5"
-                                                                            MouseDown="ValueInput_OnMouseDown"
-                                                                            MouseUp="ValueInput_OnMouseUp"
-                                                                            Tag="{Binding Converter={StaticResource ValueInputSlotNameConverter}}">
-                                                                    </Border>
-                                                                </DataTemplate>
-                                                            </ItemsControl.ItemTemplate>
-                                                        </ItemsControl>
-                                                        <!--> Output <-->
-                                                        <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
-                                                                      VerticalAlignment="Top" HorizontalAlignment="Right"
-                                                                      Name="ValueOutputItemsControl">
-                                                            <ItemsControl.RenderTransform>
-                                                                <TranslateTransform X="12.5"/>
-                                                            </ItemsControl.RenderTransform>
-                                                            <ItemsControl.ItemsPanel>
-                                                                <ItemsPanelTemplate>
-                                                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Top"/>
-                                                                </ItemsPanelTemplate>
-                                                            </ItemsControl.ItemsPanel>
-                                                            <ItemsControl.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <Border Height="25" Width="25"
-                                                                            VerticalAlignment="Top"
-                                                                            Background="Red" CornerRadius="12.5"
-                                                                            MouseDown="ValueOutput_OnMouseDown"
-                                                                            MouseUp="ValueOutput_OnMouseUp"
-                                                                            Tag="{Binding Converter={StaticResource ValueOutputSlotNameConverter}}">
-                                                                    </Border>
-                                                                </DataTemplate>
-                                                            </ItemsControl.ItemTemplate>
-                                                        </ItemsControl>
-                                                    </Grid>
-                                                </core:SpacedStackPanel>
-                                            </DataTemplate>
-                                        </ContentControl.ContentTemplate>
-                                    </ContentControl>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </Grid>
         </Grid>

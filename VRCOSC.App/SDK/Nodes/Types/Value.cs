@@ -6,7 +6,7 @@ using VRCOSC.App.Utils;
 namespace VRCOSC.App.SDK.Nodes.Types;
 
 [Node("String Value")]
-[NodeValueOutput(typeof(string))]
+[NodeValueOutput([typeof(string)], ["Value"])]
 public class StringTextNode : Node
 {
     public Observable<string> Text { get; } = new(string.Empty);
@@ -19,7 +19,7 @@ public class StringTextNode : Node
 }
 
 [Node("Int Value")]
-[NodeValueOutput(typeof(int))]
+[NodeValueOutput([typeof(int)], ["Value"])]
 public class IntTextNode : Node
 {
     public Observable<int> Int { get; } = new();
@@ -32,7 +32,7 @@ public class IntTextNode : Node
 }
 
 [Node("Float Value")]
-[NodeValueOutput(typeof(float))]
+[NodeValueOutput([typeof(float)], ["Value"])]
 public class FloatTextNode : Node
 {
     public Observable<float> Float { get; } = new();

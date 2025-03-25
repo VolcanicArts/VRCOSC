@@ -9,7 +9,6 @@ namespace VRCOSC.App.SDK.Nodes.Types;
 [NodeFlowInput]
 [NodeFlowOutput("True", "False")]
 [NodeValueInput("Condition")]
-[NodeValueOutput]
 public class BranchNode : Node
 {
     [NodeProcess]
@@ -17,8 +16,8 @@ public class BranchNode : Node
 }
 
 [Node("Is Equal")]
-[NodeValueInput("", "")]
-[NodeValueOutput(typeof(bool))]
+[NodeValueInput("A", "B")]
+[NodeValueOutput([typeof(bool)], ["Result"])]
 public class IsEqualNode : Node
 {
     [NodeProcess]

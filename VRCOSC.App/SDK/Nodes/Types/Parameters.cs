@@ -8,7 +8,7 @@ namespace VRCOSC.App.SDK.Nodes.Types;
 [Node("On Registered Parameter Received")]
 [NodeFlowInput(true)]
 [NodeFlowOutput("")]
-[NodeValueOutput(typeof(RegisteredParameter))]
+[NodeValueOutput([typeof(RegisteredParameter)], ["Parameter"])]
 public class ParameterReceivedTriggerNode : TriggerNode
 {
     [NodeProcess]
@@ -23,7 +23,7 @@ public class ParameterReceivedTriggerNode : TriggerNode
 [NodeFlowInput]
 [NodeFlowOutput("")]
 [NodeValueInput("Parameter Name")]
-[NodeValueOutput(typeof(ReceivedParameter))]
+[NodeValueOutput([typeof(ReceivedParameter)], ["Parameter"])]
 public class GetParameterNode : Node
 {
     [NodeProcess]

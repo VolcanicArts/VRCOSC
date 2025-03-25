@@ -9,7 +9,7 @@ namespace VRCOSC.App.SDK.Nodes.Types;
 
 [Node("ToString")]
 [NodeValueInput("")]
-[NodeValueOutput(typeof(string))]
+[NodeValueOutput([typeof(string)], ["String"])]
 public class ToStringNode : Node
 {
     [NodeProcess]
@@ -27,7 +27,7 @@ public class ToStringNode : Node
 
 [Node("Element At")]
 [NodeValueInput("Enumerable", "Index")]
-[NodeValueOutput(typeof(object))]
+[NodeValueOutput([typeof(object)], ["Element"])]
 public class ElementAtNode : Node
 {
     [NodeProcess]

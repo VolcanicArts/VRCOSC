@@ -70,10 +70,12 @@ public class NodeValueInputAttribute : Attribute
 public class NodeValueOutputAttribute : Attribute
 {
     public List<Type> OutputTypes { get; }
+    public List<string> Titles { get; }
 
-    public NodeValueOutputAttribute(params Type[] outputTypes)
+    public NodeValueOutputAttribute(Type[]? outputTypes = null, string[]? titles = null)
     {
-        OutputTypes = outputTypes.ToList();
+        OutputTypes = outputTypes?.ToList() ?? [];
+        Titles = titles?.ToList() ?? [];
     }
 
     public int Count => OutputTypes.Count;

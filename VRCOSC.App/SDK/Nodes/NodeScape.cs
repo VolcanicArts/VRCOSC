@@ -389,7 +389,7 @@ public class NodeGroup
 {
     public Guid Id { get; } = Guid.NewGuid();
     public string Title { get; set; } = "New Group";
-    public List<Guid> Nodes { get; set; } = [];
+    public ObservableCollection<Guid> Nodes { get; } = [];
 }
 
 public record NodeConnection(ConnectionType ConnectionType, Guid OutputNodeId, int OutputSlot, Guid InputNodeId, int InputSlot, Type? SharedType = null);
