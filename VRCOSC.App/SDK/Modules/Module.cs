@@ -82,7 +82,7 @@ public abstract class Module
     private SerialisationManager moduleSerialisationManager = null!;
     private SerialisationManager persistenceSerialisationManager = null!;
 
-    internal IManagedWindow? SettingsWindow { get; private set; }
+    internal Type? SettingsWindowType { get; private set; }
     internal Type? RuntimeViewType { get; private set; }
 
     private bool isLoaded;
@@ -163,9 +163,7 @@ public abstract class Module
         if (!windowType.IsAssignableTo(typeof(IManagedWindow))) throw new Exception("Cannot set settings window that doesn't extend IManagedWindow");
         if (!windowType.HasConstructorThatAccepts(GetType())) throw new Exception($"Cannot set settings window that doesn't have a constructor that accepts type {GetType().Name}");
 
-        var window = (Window)Activator.CreateInstance(windowType, this)!;
-        window.Closing += (_, _) => Serialise();
-        SettingsWindow = (IManagedWindow)window;
+        SettingsWindowType = windowType;
     }
 
     #endregion
