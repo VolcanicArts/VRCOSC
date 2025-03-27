@@ -348,12 +348,12 @@ public abstract class Module
     /// <summary>
     /// Retrieves the player instance that gives you information about the local player, their built-in avatar parameters, and input controls
     /// </summary>
-    protected Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
+    public Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
 
     /// <summary>
     /// Allows you to access the current state of SteamVR (or any OpenVR runtime)
     /// </summary>
-    protected OVRClient GetOVRClient() => AppManager.GetInstance().OVRClient;
+    public OVRClient GetOVRClient() => AppManager.GetInstance().OVRClient;
 
     #region Callbacks
 
@@ -391,7 +391,7 @@ public abstract class Module
     /// Logs to the terminal when the module is running
     /// </summary>
     /// <param name="message">The message to log to the terminal</param>
-    protected void Log(string message)
+    public void Log(string message)
     {
         Logger.Log($"[{Title}]: {message}", LoggingTarget.Terminal);
     }
@@ -400,7 +400,7 @@ public abstract class Module
     /// Logs to a module debug file when enabled in the settings
     /// </summary>
     /// <param name="message">The message to log to the file</param>
-    protected void LogDebug(string message)
+    public void LogDebug(string message)
     {
         if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.EnableAppDebug)) return;
 
