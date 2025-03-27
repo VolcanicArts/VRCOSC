@@ -83,7 +83,7 @@ public abstract class Module
     private SerialisationManager moduleSerialisationManager = null!;
     private SerialisationManager persistenceSerialisationManager = null!;
 
-    internal Type? SettingsWindowType { get; private set; }
+    internal IManagedWindow? SettingsWindow { get; private set; }
     internal Type? RuntimeViewType { get; private set; }
 
     private bool isLoaded;
@@ -136,6 +136,11 @@ public abstract class Module
 
         Enabled.Subscribe(_ => moduleSerialisationManager.Serialise());
 
+        foreach (var (_, moduleSetting) in Settings)
+        {
+            moduleSetting.OnSettingChange += Serialise;
+        }
+
         isLoaded = true;
 
         OnPostLoad();
@@ -162,7 +167,9 @@ public abstract class Module
         if (!windowType.IsAssignableTo(typeof(IManagedWindow))) throw new Exception("Cannot set settings window that doesn't extend IManagedWindow");
         if (!windowType.HasConstructorThatAccepts(GetType())) throw new Exception($"Cannot set settings window that doesn't have a constructor that accepts type {GetType().Name}");
 
-        SettingsWindowType = windowType;
+        var window = (Window)Activator.CreateInstance(windowType, this)!;
+        window.Closing += (_, _) => Serialise();
+        SettingsWindow = (IManagedWindow)window;
     }
 
     private void generateMigrators()
@@ -341,12 +348,12 @@ public abstract class Module
     /// <summary>
     /// Retrieves the player instance that gives you information about the local player, their built-in avatar parameters, and input controls
     /// </summary>
-    protected Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
+    public Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
 
     /// <summary>
     /// Allows you to access the current state of SteamVR (or any OpenVR runtime)
     /// </summary>
-    protected OVRClient GetOVRClient() => AppManager.GetInstance().OVRClient;
+    public OVRClient GetOVRClient() => AppManager.GetInstance().OVRClient;
 
     #region Callbacks
 
@@ -384,7 +391,7 @@ public abstract class Module
     /// Logs to the terminal when the module is running
     /// </summary>
     /// <param name="message">The message to log to the terminal</param>
-    protected void Log(string message)
+    public void Log(string message)
     {
         Logger.Log($"[{Title}]: {message}", LoggingTarget.Terminal);
     }
@@ -393,7 +400,7 @@ public abstract class Module
     /// Logs to a module debug file when enabled in the settings
     /// </summary>
     /// <param name="message">The message to log to the file</param>
-    protected void LogDebug(string message)
+    public void LogDebug(string message)
     {
         if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.EnableAppDebug)) return;
 
@@ -978,7 +985,7 @@ public abstract class Module
     /// <param name="lookup">The lookup of the setting</param>
     /// <typeparam name="T">The value type of the setting</typeparam>
     /// <returns>The value if successful, otherwise pushes an exception and returns default</returns>
-    protected T GetSettingValue<T>(Enum lookup)
+    public T GetSettingValue<T>(Enum lookup)
     {
         try
         {
@@ -988,6 +995,21 @@ public abstract class Module
         {
             ExceptionHandler.Handle(e, $"'{FullID}' experienced a problem when getting value of setting '{lookup.ToLookup()}'");
             return default!;
+        }
+    }
+
+    public void SetSettingValue<T>(Enum lookup, T value) where T : notnull
+    {
+        try
+        {
+            var setting = GetSetting(lookup);
+            if (setting is not ValueModuleSetting<T> valueModuleSetting) throw new Exception("Cannot set a setting value for a non-value module setting");
+
+            valueModuleSetting.Attribute.Value = value;
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"'{FullID}' experienced a problem when setting value of setting '{lookup.ToLookup()}'");
         }
     }
 
