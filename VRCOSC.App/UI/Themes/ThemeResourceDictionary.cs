@@ -13,9 +13,6 @@ public class ThemeResourceDictionary : ResourceDictionary
 
     public ThemeResourceDictionary()
     {
-        AppManager.GetInstance().ProxyTheme.Subscribe(theme =>
-        {
-            Source = theme == Theme.Dark ? darkSource : lightSource;
-        }, true);
+        AppManager.GetInstance().ProxyTheme.Subscribe(theme => Source = theme == Theme.Dark ? darkSource : lightSource, true);
     }
 }

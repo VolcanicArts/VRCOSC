@@ -8,7 +8,9 @@
              d:DesignWidth="1368" d:DesignHeight="766"
              Background="Transparent">
     <UserControl.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}" Colour2="{StaticResource CBackground4}"/>
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
     </UserControl.Resources>
     <Grid>
         <Grid Margin="10">
@@ -21,14 +23,14 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource CBackground5}" CornerRadius="5">
+            <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource CBackground5}" CornerRadius="5">
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="10"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Column="0" Grid.Row="0" FontSize="20" FontWeight="SemiBold" Text="Controls" Foreground="{StaticResource CForeground1}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="0" Grid.Row="0" FontSize="20" FontWeight="SemiBold" Text="Controls" Foreground="{DynamicResource CForeground1}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     <core:SpacedStackPanel Grid.Column="0" Grid.Row="2" Spacing="10">
                         <core:TextButton Visibility="{Binding ShowPlay.Value}" Text="Play" FontSize="17" Height="30" ButtonColour="Green" Click="Play_OnClick"/>
                         <Grid Visibility="{Binding ShowPlay.Value}">
@@ -46,9 +48,9 @@
             </Border>
             <core:HeaderFooterListView Grid.Row="0" Grid.Column="2" Grid.RowSpan="2" ItemsSource="{Binding DollyManager.Dollies}" AlternationCount="2">
                 <core:HeaderFooterListView.Header>
-                    <Border Height="35" Padding="9" Background="{StaticResource CBackground1}">
+                    <Border Height="35" Padding="9" Background="{DynamicResource CBackground1}">
                         <TextBlock Text="Dollies" FontSize="18" FontWeight="SemiBold"
-                                   Foreground="{StaticResource CForeground1}"
+                                   Foreground="{DynamicResource CForeground1}"
                                    HorizontalAlignment="Left" VerticalAlignment="Center" />
                     </Border>
                 </core:HeaderFooterListView.Header>
@@ -57,7 +59,14 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate>
-                                    <Border Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}">
+                                    <Border>
+                                        <Border.Background>
+                                            <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                                <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                                <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                                <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                            </MultiBinding>
+                                        </Border.Background>
                                         <Grid Margin="5" Height="30">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
@@ -66,7 +75,7 @@
                                                 <ColumnDefinition Width="5"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBox Grid.Column="0" FontSize="17" Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" VerticalContentAlignment="Center" Foreground="{StaticResource CForeground1}"/>
+                                            <TextBox Grid.Column="0" FontSize="17" Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" VerticalContentAlignment="Center" Foreground="{DynamicResource CForeground1}"/>
                                             <core:TextButton Grid.Column="2" Margin="2" FontSize="15" Text="Load" Padding="10 0" ButtonColour="Blue" Tag="{Binding}" Click="LoadDolly_OnClick"/>
                                             <core:IconButton Grid.Column="4" Margin="2" Icon="Solid_Xmark" ButtonColour="Red" Tag="{Binding}" Click="DeleteDolly_OnClick"/>
                                         </Grid>
@@ -77,7 +86,7 @@
                     </Style>
                 </ListView.ItemContainerStyle>
                 <core:HeaderFooterListView.Footer>
-                    <Border Height="35" Padding="5" Background="{StaticResource CBackground1}">
+                    <Border Height="35" Padding="5" Background="{DynamicResource CBackground1}">
                         <Grid HorizontalAlignment="Center">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -91,8 +100,8 @@
                 </core:HeaderFooterListView.Footer>
             </core:HeaderFooterListView>
         </Grid>
-        <Border x:Name="Overlay" Background="{StaticResource CBackground1}">
-            <TextBlock FontSize="25" Text="Run the modules to access the dolly manager" Width="400" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Foreground="{StaticResource CForeground1}"/>
+        <Border x:Name="Overlay" Background="{DynamicResource CBackground2}">
+            <TextBlock FontSize="25" Text="Run the modules to access the dolly manager" Width="400" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource CForeground1}"/>
         </Border>
     </Grid>
 </UserControl>

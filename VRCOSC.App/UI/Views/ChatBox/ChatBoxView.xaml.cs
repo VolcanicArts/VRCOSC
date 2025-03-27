@@ -41,6 +41,8 @@ public partial class ChatBoxView
         SizeChanged += (_, _) => drawLines();
 
         AppManager.GetInstance().State.Subscribe(newState => Dispatcher.Invoke(() => Indicator.Visibility = newState == AppManagerState.Started ? Visibility.Visible : Visibility.Collapsed), true);
+        ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ => drawLines());
+        AppManager.GetInstance().ProxyTheme.Subscribe(_ => drawLines());
     }
 
     private Border? clipBorder;
@@ -67,7 +69,7 @@ public partial class ChatBoxView
 
     private void ChatBoxPage_OnLoaded(object sender, RoutedEventArgs e)
     {
-        ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ => drawLines(), true);
+        drawLines();
     }
 
     private void ChatBoxPage_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

@@ -6,12 +6,13 @@
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              mc:Ignorable="d">
     <UserControl.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground4}" />
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
     </UserControl.Resources>
     <core:HeaderFooterListView AlternationCount="2" ItemsSource="{Binding ModuleSetting.Attribute}" ShouldTruncateHeight="False">
         <core:HeaderFooterListView.Header>
-            <Border Grid.Row="0" Background="{StaticResource CBackground1}" Height="30">
+            <Border Grid.Row="0" Background="{DynamicResource CBackground1}" Height="30">
                 <Grid Margin="5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -20,11 +21,11 @@
                         <ColumnDefinition Width="20" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="{Binding ModuleSetting.KeyTitle}"
-                               Foreground="{StaticResource CForeground2}" FontSize="16" TextAlignment="Center"
-                               VerticalAlignment="Center" />
+                               Foreground="{DynamicResource CForeground2}" FontSize="16" TextAlignment="Center"
+                               VerticalAlignment="Center" FontWeight="Regular"/>
                     <TextBlock Grid.Column="2" Text="{Binding ModuleSetting.ValueTitle}"
-                               Foreground="{StaticResource CForeground2}" FontSize="16" TextAlignment="Center"
-                               VerticalAlignment="Center" />
+                               Foreground="{DynamicResource CForeground2}" FontSize="16" TextAlignment="Center"
+                               VerticalAlignment="Center" FontWeight="Regular"/>
                 </Grid>
             </Border>
         </core:HeaderFooterListView.Header>
@@ -33,8 +34,14 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate>
-                            <Border
-                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}">
+                            <Border>
+                                <Border.Background>
+                                    <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                        <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                        <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                    </MultiBinding>
+                                </Border.Background>
                                 <Grid Margin="5">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
@@ -44,21 +51,22 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBox Grid.Column="0"
+                                             Width="200"
                                              Text="{Binding Key.Value, UpdateSourceTrigger=PropertyChanged}"
-                                             Background="{StaticResource CBackground5}"
-                                             Foreground="{StaticResource CForeground1}" FontSize="16">
+                                             Background="{DynamicResource CBackground5}" FontWeight="Regular"
+                                             Foreground="{DynamicResource CForeground1}" FontSize="16">
                                     </TextBox>
                                     <TextBox Grid.Column="2"
+                                             Width="200"
                                              Text="{Binding Value.Value, UpdateSourceTrigger=PropertyChanged}"
-                                             Background="{StaticResource CBackground5}"
-                                             Foreground="{StaticResource CForeground1}" FontSize="16">
+                                             Background="{DynamicResource CBackground5}" FontWeight="Regular"
+                                             Foreground="{DynamicResource CForeground1}" FontSize="16">
                                     </TextBox>
                                     <core:IconButton Grid.Column="4" ButtonColour="Red"
                                                        Click="RemoveButton_OnClick"
-                                                       Height="25" Width="25" Icon="Solid_Minus">
-                                        <core:IconButton.Tag>
-                                            <Binding />
-                                        </core:IconButton.Tag>
+                                                       Height="25" Width="25" Icon="Solid_Minus"
+                                                       Foreground="{DynamicResource CForeground1}"
+                                                       Tag="{Binding}">
                                     </core:IconButton>
                                 </Grid>
                             </Border>
@@ -68,9 +76,9 @@
             </Style>
         </ListView.ItemContainerStyle>
         <core:HeaderFooterListView.Footer>
-            <Border Background="{StaticResource CBackground1}">
+            <Border Background="{DynamicResource CBackground1}">
                 <core:IconButton Width="100" Height="20" Margin="0 5" Click="AddButton_OnClick" ButtonColour="Green"
-                                 Icon="Solid_Plus" />
+                                 Icon="Solid_Plus" Foreground="{DynamicResource CForeground1}" />
             </Border>
         </core:HeaderFooterListView.Footer>
     </core:HeaderFooterListView>

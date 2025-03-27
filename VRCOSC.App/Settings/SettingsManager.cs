@@ -70,6 +70,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.EnableAppDebug, false);
         setDefault(VRCOSCSetting.SelectedMicrophoneID, string.Empty);
         setDefault(VRCOSCSetting.SpeechEnabled, true);
+        setDefault(VRCOSCSetting.SpeechModel, SpeechModel.Custom);
         setDefault(VRCOSCSetting.SpeechModelPath, string.Empty);
         setDefault(VRCOSCSetting.SpeechConfidence, 0.4f);
         setDefault(VRCOSCSetting.SpeechNoiseCutoff, 0.14f);
@@ -77,6 +78,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.SpeechTranslate, false);
 
         setDefault(VRCOSCMetadata.InstalledVersion, string.Empty);
+        setDefault(VRCOSCMetadata.LastUpdateCheck, DateTime.Now);
         setDefault(VRCOSCMetadata.InstalledUpdateChannel, UpdateChannel.Live);
         setDefault(VRCOSCMetadata.FirstTimeSetupComplete, false);
         setDefault(VRCOSCMetadata.AutoStartQuestionClicked, false);
@@ -138,6 +140,7 @@ public enum VRCOSCSetting
     EnableAppDebug,
     SelectedMicrophoneID,
     SpeechEnabled,
+    SpeechModel,
     SpeechModelPath,
     SpeechConfidence,
     SpeechNoiseCutoff,
@@ -148,6 +151,7 @@ public enum VRCOSCSetting
 public enum VRCOSCMetadata
 {
     InstalledVersion,
+    LastUpdateCheck,
     FirstTimeSetupComplete,
     InstalledUpdateChannel,
     AutoStartQuestionClicked
@@ -158,4 +162,11 @@ public enum ConnectionMode
     Local,
     LAN,
     Custom
+}
+
+public enum SpeechModel
+{
+    Custom = 0,
+    Tiny = 1,
+    Small = 2
 }

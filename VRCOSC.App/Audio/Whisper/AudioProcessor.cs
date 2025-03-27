@@ -37,7 +37,15 @@ internal class AudioProcessor
 
     private void buildWhisperProcessor()
     {
-        var modelFilePath = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SpeechModelPath);
+        var speechModel = SettingsManager.GetInstance().GetValue<SpeechModel>(VRCOSCSetting.SpeechModel);
+
+        var modelFilePath = speechModel switch
+        {
+            SpeechModel.Custom => SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SpeechModelPath),
+            SpeechModel.Tiny => AppManager.GetInstance().Storage.GetFullPath("runtime/whisper/ggml-tiny.bin"),
+            SpeechModel.Small => AppManager.GetInstance().Storage.GetFullPath("runtime/whisper/ggml-small.bin"),
+            _ => throw new ArgumentOutOfRangeException()
+        };
 
         try
         {
@@ -65,7 +73,7 @@ internal class AudioProcessor
         catch (Exception e)
         {
             whisper = null;
-            ExceptionHandler.Handle(e, "The Whisper model path is empty or incorrect. Please go into the app's speech settings and restore the model by clicking 'Auto Install Model'");
+            ExceptionHandler.Handle(e, "The Whisper model path is empty or incorrect. Please go into the app's speech settings and select a model");
         }
     }
 

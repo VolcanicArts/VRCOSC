@@ -29,7 +29,7 @@
         <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4" />
         <PackageReference Include="MathParser.org-mXparser" Version="6.1.0" />
         <PackageReference Include="MeaMod.DNS" Version="1.0.71" />
-        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.162">
+        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -45,7 +45,6 @@
         <PackageReference Include="Whisper.net.Runtime" Version="1.7.4" />
         <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.7.4" />
         <PackageReference Include="WindowsInput" Version="6.4.1" />
-        <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
     </ItemGroup>
 
     <ItemGroup>

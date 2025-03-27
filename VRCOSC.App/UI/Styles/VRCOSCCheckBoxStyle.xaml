@@ -10,14 +10,14 @@
                     <Border
                         x:Name="Border"
                         Background="Transparent"
-                        BorderBrush="{StaticResource CForeground3}"
+                        BorderBrush="{DynamicResource CForeground3}"
                         BorderThickness="3"
                         CornerRadius="{TemplateBinding CornerRadius}">
                         <Viewbox Stretch="Uniform" Margin="5">
                             <fa6:ImageAwesome
                                 x:Name="CheckIcon"
                                 Icon="Solid_Check"
-                                PrimaryColor="{StaticResource CForeground1}"
+                                PrimaryColor="{DynamicResource CForeground1}"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Visibility="Hidden" />
@@ -26,7 +26,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="CheckIcon" Property="Visibility" Value="Visible" />
-                            <Setter TargetName="Border" Property="Background" Value="{StaticResource CBackground6}" />
+                            <Setter TargetName="Border" Property="Background" Value="{DynamicResource CBackground6}" />
                             <Setter TargetName="Border" Property="BorderBrush" Value="Transparent" />
                             <Setter TargetName="Border" Property="BorderThickness" Value="0" />
                         </Trigger>

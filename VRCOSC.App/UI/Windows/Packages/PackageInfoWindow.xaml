@@ -6,7 +6,7 @@
         xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
         mc:Ignorable="d"
         Height="400" Width="550" ResizeMode="NoResize">
-    <Border Background="{StaticResource CBackground3}">
+    <Border Background="{DynamicResource CBackground3}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="120" />
@@ -22,18 +22,18 @@
             <Border Grid.Row="1" Background="Black" Margin="-1 0" />
             <Grid Grid.Row="2">
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top">
-                    <TextBlock Text="{Binding DisplayName}" Foreground="{StaticResource CForeground1}"
+                    <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource CForeground1}"
                                TextAlignment="Center" TextWrapping="Wrap"
                                FontSize="30" HorizontalAlignment="Center" FontWeight="Bold" />
-                    <TextBlock Text="{Binding Author}" Foreground="{StaticResource CForeground2}"
+                    <TextBlock Text="{Binding Author}" Foreground="{DynamicResource CForeground2}"
                                TextAlignment="Center" TextWrapping="Wrap"
                                FontSize="12" HorizontalAlignment="Center" />
-                    <TextBlock Text="{Binding Description}" Foreground="{StaticResource CForeground1}"
+                    <TextBlock Text="{Binding Description}" Foreground="{DynamicResource CForeground1}"
                                FontSize="16" HorizontalAlignment="Center" Margin="20 5" TextWrapping="Wrap"
                                TextAlignment="Center" />
                 </StackPanel>
             </Grid>
-            <Border Grid.Row="3" Background="{StaticResource CBackground1}" Padding="5">
+            <Border Grid.Row="3" Background="{DynamicResource CBackground1}" Padding="5">
                 <core:SpacedStackPanel Orientation="Horizontal" HorizontalAlignment="Stretch"
                                        VerticalAlignment="Stretch">
                     <core:IconButton ButtonColour="Gray" Width="50" Height="50" CornerRadius="5"

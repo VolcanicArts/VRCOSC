@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using VRCOSC.App.Packages;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -12,6 +13,9 @@ namespace VRCOSC.App.Modules.Serialisation;
 
 public class SerialisableModule : SerialisableVersion
 {
+    [JsonProperty("package_version")]
+    public string? PackageVersion;
+
     [JsonProperty("enabled")]
     public bool Enabled;
 
@@ -29,6 +33,7 @@ public class SerialisableModule : SerialisableVersion
     public SerialisableModule(Module module)
     {
         Version = 1;
+        PackageVersion = PackageManager.GetInstance().GetInstalledVersion(module.PackageID).ToString();
 
         Enabled = module.Enabled.Value;
         module.Settings.Where(pair => !pair.Value.InternalIsDefault()).ForEach(pair => Settings.Add(pair.Key, pair.Value.InternalSerialise()));

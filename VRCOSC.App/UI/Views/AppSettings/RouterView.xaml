@@ -4,102 +4,130 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
-             xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
              mc:Ignorable="d"
-             Background="Transparent"
-             d:DesignWidth="1366" d:DesignHeight="768" >
+             d:DesignWidth="1366" d:DesignHeight="768"
+             Background="Transparent">
     <UserControl.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground4}" />
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
+        <core:IpPortValidationRule x:Key="IpPortValidationRule"/>
+        <Style TargetType="GroupBox" BasedOn="{StaticResource {x:Type GroupBox}}">
+            <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="FontWeight" Value="Regular"/>
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="NoteTextStyle">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground2}"/>
+            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+        </Style>
     </UserControl.Resources>
     <Grid>
-        <Border>
-            <core:HeaderFooterListView ItemsSource="{Binding RouterManager.Routes, Mode=OneWay}" AlternationCount="2">
-                <core:HeaderFooterListView.Header>
-                    <Border Background="{StaticResource CBackground1}"
-                            VerticalAlignment="Center"
-                            Height="40" Padding="7">
-                        <Grid>
-                            <TextBlock
-                                Text="Router"
-                                Foreground="{StaticResource CForeground2}"
-                                FontSize="18"
-                                VerticalAlignment="Center"
-                                HorizontalAlignment="Left"
-                                FontWeight="SemiBold" />
-                            <core:VRCOSCButton
-                                ButtonColour="Blue"
-                                Foreground="{StaticResource CForeground1}"
-                                VerticalAlignment="Center"
-                                HorizontalAlignment="Right"
-                                Width="25"
-                                Height="25"
-                                Click="InfoButton_OnClick">
-                                <fa6:ImageAwesome
-                                    Icon="Solid_Info"
-                                    PrimaryColor="{StaticResource CForeground1}"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    Margin="5" />
-                            </core:VRCOSCButton>
-                        </Grid>
-                    </Border>
-                </core:HeaderFooterListView.Header>
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate>
-                                    <Border
-                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
-                                        Padding="5" Height="40">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="5" />
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="5" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <TextBox
-                                                Grid.Column="0"
-                                                Text="{Binding Name.Value}"
-                                                Foreground="{StaticResource CForeground1}"
-                                                FontSize="16"
-                                                VerticalAlignment="Center"
-                                                VerticalContentAlignment="Center">
-                                            </TextBox>
-                                            <core:IPPortTextBox
-                                                Grid.Column="2"
-                                                Text="{Binding Endpoint.Value}"
-                                                Foreground="{StaticResource CForeground1}"
-                                                FontSize="16"
-                                                VerticalAlignment="Center"
-                                                VerticalContentAlignment="Center">
-                                            </core:IPPortTextBox>
-                                            <core:IconButton
-                                                Grid.Column="4"
-                                                ButtonColour="Red"
-                                                Width="28" Height="28"
-                                                Tag="{Binding}"
-                                                Click="RemoveInstance_OnClick"
-                                                Icon="Solid_Minus">
-                                            </core:IconButton>
-                                        </Grid>
-                                    </Border>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListView.ItemContainerStyle>
-                <core:HeaderFooterListView.Footer>
-                    <Border Height="35" Padding="7" Background="{StaticResource CBackground1}">
-                        <core:IconButton ButtonColour="Green" Width="70"
-                                         Icon="Solid_Plus"
-                                         Click="AddInstance_OnClick" />
-                    </Border>
-                </core:HeaderFooterListView.Footer>
-            </core:HeaderFooterListView>
-        </Border>
+        <core:SpacedStackPanel Spacing="7">
+            <GroupBox Header="Router">
+                <Grid>
+                    <core:SpacedStackPanel Spacing="10" Margin="7">
+                        <TextBlock Style="{StaticResource NoteTextStyle}">
+                            Here you can configure router instances.
+                            <LineBreak/>
+                            Send mode means that VRCOSC will take all data from VRChat and forward it to the configured endpoint.
+                            <LineBreak/>
+                            Receive mode means that VRCOSC will take all data from the configured endpoint and forward it to VRChat.
+                        </TextBlock>
+                        <core:HeaderFooterListView HideHeaderWhenEmpty="True" ShouldTruncateHeight="False" ItemsSource="{Binding RouterManager.Routes, Mode=OneWay}" AlternationCount="2">
+                            <core:HeaderFooterListView.Header>
+                                <Border Background="{DynamicResource CBackground1}" Height="5"/>
+                            </core:HeaderFooterListView.Header>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate>
+                                                <Border Padding="5" Height="40">
+                                                    <Border.Background>
+                                                        <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                                            <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                                            <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                                            <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                                        </MultiBinding>
+                                                    </Border.Background>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="5" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="5" />
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="5" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBox
+                                                            Grid.Column="0"
+                                                            Width="200"
+                                                            Text="{Binding Name.Value}"
+                                                            Foreground="{DynamicResource CForeground1}"
+                                                            FontSize="16"
+                                                            VerticalAlignment="Center"
+                                                            VerticalContentAlignment="Center">
+                                                        </TextBox>
+                                                        <ComboBox
+                                                            Grid.Column="2"
+                                                            Width="200"
+                                                            Height="25"
+                                                            FontSize="15"
+                                                            ItemsSource="{Binding RouterModeSource, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}"
+                                                            SelectedValue="{Binding Mode.Value}">
+                                                        </ComboBox>
+                                                        <TextBox Grid.Column="4"
+                                                                 Foreground="{DynamicResource CForeground1}"
+                                                                 FontSize="16"
+                                                                 VerticalAlignment="Center"
+                                                                 VerticalContentAlignment="Center">
+                                                            <TextBox.Text>
+                                                                <Binding Path="Endpoint.Value" UpdateSourceTrigger="PropertyChanged">
+                                                                    <Binding.ValidationRules>
+                                                                        <StaticResource ResourceKey="IpPortValidationRule" />
+                                                                    </Binding.ValidationRules>
+                                                                </Binding>
+                                                            </TextBox.Text>
+                                                        </TextBox>
+                                                        <core:IconButton
+                                                            Grid.Column="6"
+                                                            ButtonColour="Red"
+                                                            Width="28" Height="28"
+                                                            Tag="{Binding}"
+                                                            Click="RemoveInstance_OnClick"
+                                                            Icon="Solid_Minus">
+                                                        </core:IconButton>
+                                                    </Grid>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <core:HeaderFooterListView.Footer>
+                                <Border Height="35" Padding="7" Background="{DynamicResource CBackground1}">
+                                    <core:IconButton ButtonColour="Green" Width="70"
+                                                     Icon="Solid_Plus"
+                                                     Click="AddInstance_OnClick" />
+                                </Border>
+                            </core:HeaderFooterListView.Footer>
+                        </core:HeaderFooterListView>
+                    </core:SpacedStackPanel>
+                    <core:IconButton Icon="Regular_CircleQuestion" CornerRadius="20" Width="35" Height="35" ButtonColour="Blue" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5 0" Click="RouterHelpButton_OnClick"/>
+                </Grid>
+            </GroupBox>
+        </core:SpacedStackPanel>
     </Grid>
 </UserControl>

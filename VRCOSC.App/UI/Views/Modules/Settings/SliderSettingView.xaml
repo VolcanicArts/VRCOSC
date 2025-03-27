@@ -10,10 +10,10 @@
                 TickFrequency="{Binding SliderModuleSetting.TickFrequency, Mode=OneTime}" TickPlacement="BottomRight"
                 IsSnapToTickEnabled="True" LostMouseCapture="Slider_LostMouseCapture" />
         <TextBlock Text="{Binding SliderModuleSetting.MinValue, Mode=OneTime}" HorizontalAlignment="Left"
-                   VerticalAlignment="Bottom" Foreground="{StaticResource CForeground1}" FontSize="16" />
+                   VerticalAlignment="Bottom" Foreground="{DynamicResource CForeground1}" FontSize="16" FontWeight="Regular" />
         <TextBlock Name="SliderValueText" HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                   Foreground="{StaticResource CForeground1}" FontSize="16" />
+                   Foreground="{DynamicResource CForeground1}" FontSize="16" FontWeight="Regular"/>
         <TextBlock Text="{Binding SliderModuleSetting.MaxValue, Mode=OneTime}" HorizontalAlignment="Right"
-                   VerticalAlignment="Bottom" Foreground="{StaticResource CForeground1}" FontSize="16" />
+                   VerticalAlignment="Bottom" Foreground="{DynamicResource CForeground1}" FontSize="16" FontWeight="Regular"/>
     </Grid>
 </UserControl>

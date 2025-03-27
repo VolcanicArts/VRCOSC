@@ -1,0 +1,79 @@
+﻿<UserControl x:Class="VRCOSC.App.UI.Views.AppSettings.GeneralView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+             mc:Ignorable="d"
+             d:DesignWidth="1366" d:DesignHeight="748"
+             Background="Transparent">
+    <UserControl.Resources>
+        <Style TargetType="GroupBox" BasedOn="{StaticResource {x:Type GroupBox}}">
+            <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="FontWeight" Value="Regular"/>
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="NoteTextStyle">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground2}"/>
+            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="LabelTextStyle">
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <core:SpacedStackPanel Spacing="7">
+            <GroupBox Header="Appearance">
+                <core:SpacedStackPanel Spacing="10" Margin="7">
+                    <TextBlock Style="{StaticResource NoteTextStyle}">
+                        Here you can change how the app appears.
+                    </TextBlock>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Select Theme"/>
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding ThemeSource}" SelectedValue="{Binding Theme.Value}" HorizontalAlignment="Left" Width="200" />
+                    </Grid>
+                </core:SpacedStackPanel>
+            </GroupBox>
+            <GroupBox Header="Tray">
+                <core:SpacedStackPanel Spacing="10" Margin="7">
+                    <TextBlock Style="{StaticResource NoteTextStyle}">
+                        Here you can configure how the app behaves regarding the Windows tray.
+                    </TextBlock>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Send To Tray On Close"/>
+                        <core:VRCOSCCheckBox Grid.Column="1" Height="32" Width="32" IsChecked="{Binding TrayOnClose.Value}" />
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Start In Tray"/>
+                        <core:VRCOSCCheckBox Grid.Column="1" Height="32" Width="32" IsChecked="{Binding StartInTray.Value}" />
+                    </Grid>
+                </core:SpacedStackPanel>
+            </GroupBox>
+        </core:SpacedStackPanel>
+    </Grid>
+</UserControl>

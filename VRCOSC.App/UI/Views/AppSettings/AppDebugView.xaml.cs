@@ -3,40 +3,94 @@
 
 using System;
 using System.Diagnostics;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.UI.Views.AppDebug;
+namespace VRCOSC.App.UI.Views.AppSettings;
 
 public partial class AppDebugView
 {
-    public Observable<string> Port9000BoundProcess { get; } = new(string.Empty);
-
-    private Repeater? repeater;
-
     public AppDebugView()
     {
         InitializeComponent();
         DataContext = this;
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
+        Logger.NewEntry += onLogEntry;
     }
+
+    public Observable<string> Port9000BoundProcess { get; } = new(string.Empty);
+
+    public string LanipOfDevice
+    {
+        get
+        {
+            var hostName = Dns.GetHostName();
+            var hostEntry = Dns.GetHostEntry(hostName);
+
+            foreach (var ip in hostEntry.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork) return ip.ToString();
+            }
+
+            return string.Empty;
+        }
+    }
+
+    private DTWrapper? port9000DispatcherTimer;
+
+    public Observable<bool> EnableAppDebug => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug);
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        repeater = new Repeater($"{nameof(AppDebugView)}-{nameof(executePowerShellCommand)}", () => Port9000BoundProcess.Value = $"{(executePowerShellCommand("Get-Process -Id (Get-NetUDPEndpoint -LocalPort 9000).OwningProcess | Select-Object -ExpandProperty ProcessName") ?? "Nothing").ReplaceLineEndings(string.Empty)}");
-        repeater.Start(TimeSpan.FromSeconds(5), true);
+        port9000DispatcherTimer = new DTWrapper($"{nameof(AppDebugView)}-{nameof(updatePort9000Process)}", TimeSpan.FromSeconds(5), true, updatePort9000Process);
+        port9000DispatcherTimer.Start();
     }
 
-    private async void OnUnloaded(object sender, RoutedEventArgs e)
+    private void OnUnloaded(object sender, RoutedEventArgs e)
     {
-        await repeater!.StopAsync();
-        repeater = null;
+        port9000DispatcherTimer?.Stop();
+        port9000DispatcherTimer = null;
     }
 
-    private static string? executePowerShellCommand(string command)
+    private void updatePort9000Process() => Task.Run(async () =>
+    {
+        var boundProcess = await executePowerShellCommand("Get-Process -Id (Get-NetUDPEndpoint -LocalPort 9000).OwningProcess | Select-Object -ExpandProperty ProcessName");
+        Dispatcher.Invoke(() => Port9000BoundProcess.Value = $"{(boundProcess ?? "Nothing").ReplaceLineEndings(string.Empty)}");
+    });
+
+    private void onLogEntry(LogEntry e) => Dispatcher.Invoke(() =>
+    {
+        if (e.LoggerName != "module-debug" || AppManager.GetInstance().State.Value == AppManagerState.Stopped || AppManager.GetInstance().State.Value == AppManagerState.Waiting) return;
+
+        var dateTimeText = $"[{DateTime.Now:HH:mm:ss}] {e.Message}";
+
+        LogStackPanel.Children.Add(new TextBlock
+        {
+            Text = dateTimeText,
+            FontSize = 14,
+            FontWeight = FontWeights.Regular,
+            Foreground = (Brush)FindResource("CForeground3"),
+            TextWrapping = TextWrapping.Wrap
+        });
+
+        while (LogStackPanel.Children.Count > 100)
+        {
+            LogStackPanel.Children.RemoveAt(0);
+        }
+
+        LogScrollViewer.ScrollToBottom();
+    });
+
+    private static async Task<string?> executePowerShellCommand(string command)
     {
         try
         {
@@ -70,12 +124,13 @@ public partial class AppDebugView
             process.Start();
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
-            process.WaitForExit();
+            await process.WaitForExitAsync();
 
             return error.Length > 0 ? null : output.ToString();
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            Logger.Error(e, $"An error occured in {nameof(AppDebugView)}-{nameof(executePowerShellCommand)}");
             return null;
         }
     }

@@ -7,9 +7,8 @@
         mc:Ignorable="d"
         Width="1366" Height="768" MinWidth="960" MinHeight="540">
     <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <Style TargetType="fa6:ImageAwesome">
-            <Setter Property="PrimaryColor" Value="{StaticResource CForeground1}" />
+            <Setter Property="PrimaryColor" Value="{DynamicResource CForeground1}" />
         </Style>
         <Style TargetType="RadioButton">
             <Setter Property="OverridesDefaultStyle" Value="True" />
@@ -27,7 +26,7 @@
                                 </Viewbox>
                             </Border>
                             <Border x:Name="Indicator"
-                                    Background="{StaticResource CForeground4}"
+                                    Background="{DynamicResource CForeground4}"
                                     CornerRadius="10"
                                     Width="8"
                                     Height="0"
@@ -37,7 +36,7 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="{StaticResource CBackground2}" />
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource CBackground2}" />
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
@@ -73,53 +72,50 @@
             </Setter>
         </Style>
     </Window.Resources>
-    <Grid Name="MainWindowContent">
-        <Border Background="Black" />
-        <Border>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="70" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" Background="{StaticResource CBackground1}">
-                    <Grid>
-                        <StackPanel Orientation="Vertical" VerticalAlignment="Top">
-                            <RadioButton GroupName="TabBar" Click="PackagesButton_OnClick">
-                                <fa6:ImageAwesome Icon="Solid_Download" ToolTip="Packages" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500" />
-                            </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="ModulesButton_OnClick" IsChecked="True">
-                                <fa6:ImageAwesome Icon="Solid_List" ToolTip="Modules" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
-                            </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="ChatBoxButton_OnClick" >
-                                <fa6:ImageAwesome Icon="Solid_Message" ToolTip="ChatBox" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
-                            </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="RunButton_OnClick" >
-                                <fa6:ImageAwesome Icon="Solid_Play" ToolTip="Run" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
-                            </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="DollyButton_OnClick" >
-                                <fa6:ImageAwesome Icon="Solid_Camera" ToolTip="Dolly" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
-                            </RadioButton>
-                        </StackPanel>
-                        <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
-                            <RadioButton GroupName="TabBar" Click="ProfilesButton_OnClick">
-                                <fa6:ImageAwesome Icon="Solid_User" ToolTip="Profiles" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
-                            </RadioButton>
-                            <RadioButton Name="AppSettingsTabButton" GroupName="TabBar" Click="AppSettingsButton_OnClick">
-                                <fa6:ImageAwesome Icon="Solid_Gear" ToolTip="Settings" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
-                            </RadioButton>
-                            <RadioButton GroupName="TabBar" Click="InformationButton_OnClick">
-                                <fa6:ImageAwesome Icon="Solid_Info" ToolTip="Information" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
-                            </RadioButton>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-                <Border Grid.Column="1" Background="{StaticResource CBackground2}">
-                    <ContentControl Name="ContentControl" />
-                </Border>
-            </Grid>
-        </Border>
+    <Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="70" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Grid.Column="0" Background="{DynamicResource CBackground1}">
+                <Grid>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+                        <RadioButton GroupName="TabBar" Click="PackagesButton_OnClick">
+                            <fa6:ImageAwesome Icon="Solid_Download" ToolTip="Packages" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500" />
+                        </RadioButton>
+                        <RadioButton GroupName="TabBar" Click="ModulesButton_OnClick" IsChecked="True">
+                            <fa6:ImageAwesome Icon="Solid_List" ToolTip="Modules" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                        </RadioButton>
+                        <RadioButton GroupName="TabBar" Click="ChatBoxButton_OnClick" >
+                            <fa6:ImageAwesome Icon="Solid_Message" ToolTip="ChatBox" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                        </RadioButton>
+                        <RadioButton GroupName="TabBar" Click="RunButton_OnClick" >
+                            <fa6:ImageAwesome Icon="Solid_Play" ToolTip="Run" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                        </RadioButton>
+                        <RadioButton GroupName="TabBar" Click="DollyButton_OnClick" >
+                            <fa6:ImageAwesome Icon="Solid_Camera" ToolTip="Dolly" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                        </RadioButton>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Bottom">
+                        <RadioButton GroupName="TabBar" Click="ProfilesButton_OnClick">
+                            <fa6:ImageAwesome Icon="Solid_User" ToolTip="Profiles" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                        </RadioButton>
+                        <RadioButton Name="AppSettingsTabButton" GroupName="TabBar" Click="AppSettingsButton_OnClick">
+                            <fa6:ImageAwesome Icon="Solid_Gear" ToolTip="Settings" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                        </RadioButton>
+                        <RadioButton GroupName="TabBar" Click="InformationButton_OnClick">
+                            <fa6:ImageAwesome Icon="Solid_Info" ToolTip="Information" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                        </RadioButton>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Border Grid.Column="1" Background="{DynamicResource CBackground2}">
+                <ContentControl Name="ContentControl" />
+            </Border>
+        </Grid>
         <Grid Name="LoadingOverlay">
-            <Border Background="Black" />
+            <Border Background="{DynamicResource CBackground1}" />
             <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -129,7 +125,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Name="LoadingTitle" FontSize="30" Text="Welcome To VRCOSC"
-                           Foreground="{StaticResource CForeground1}" HorizontalAlignment="Center"
+                           Foreground="{DynamicResource CForeground1}" HorizontalAlignment="Center"
                            VerticalAlignment="Center" FontWeight="Medium" />
                 <Grid Grid.Row="1">
                     <fa6:ImageAwesome Name="LoadingSpinner" Margin="0 10 0 0" Icon="Solid_Spinner" SpinDuration="1" Spin="True" Width="30" Height="30"/>

@@ -9,16 +9,17 @@
              Loaded="ProfilesView_OnLoaded"
              Background="Transparent">
     <UserControl.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground4}" />
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
     </UserControl.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                   PanningMode="VerticalOnly" Padding="10">
         <core:SpacedStackPanel Spacing="5">
-            <Border Background="{StaticResource CBackground1}" Padding="9" Height="45" CornerRadius="5">
+            <Border Background="{DynamicResource CBackground1}" Padding="9" Height="45" CornerRadius="5">
                 <Grid>
                     <TextBlock Text="Active Profile" FontSize="18" FontWeight="SemiBold"
-                               Foreground="{StaticResource CForeground1}"
+                               Foreground="{DynamicResource CForeground1}"
                                HorizontalAlignment="Left" VerticalAlignment="Center" />
                     <ComboBox ItemsSource="{Binding Profiles}" SelectedValuePath="Name.Value"
                               DisplayMemberPath="Name.Value" SelectedItem="{Binding UIActiveProfile.Value}"
@@ -26,10 +27,10 @@
                               FontSize="18" />
                 </Grid>
             </Border>
-            <Border Background="{StaticResource CBackground1}" Padding="9" Height="45" CornerRadius="5">
+            <Border Background="{DynamicResource CBackground1}" Padding="9" Height="45" CornerRadius="5">
                 <Grid>
                     <TextBlock Text="Default Profile" FontSize="18" FontWeight="SemiBold"
-                               Foreground="{StaticResource CForeground1}"
+                               Foreground="{DynamicResource CForeground1}"
                                HorizontalAlignment="Left" VerticalAlignment="Center" />
                     <ComboBox ItemsSource="{Binding Profiles}" SelectedValuePath="Name.Value"
                               DisplayMemberPath="Name.Value" SelectedItem="{Binding DefaultProfile.Value}"
@@ -37,14 +38,14 @@
                               FontSize="18" />
                 </Grid>
             </Border>
-            <Border Background="{StaticResource CBackground1}" Padding="9 7" Height="50" CornerRadius="5">
+            <Border Background="{DynamicResource CBackground1}" Padding="9 7" Height="50" CornerRadius="5">
                 <Grid>
                     <TextBlock Text="Automatic Switching" FontSize="18" FontWeight="SemiBold"
-                               Foreground="{StaticResource CForeground1}"
+                               Foreground="{DynamicResource CForeground1}"
                                HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0 -3" />
                     <TextBlock
                         Text="Automatic switching changes your selected profile to one that is linked to the avatar you’re wearing when you change avatar. If none is found, the default profile is used"
-                        FontSize="13" Foreground="{StaticResource CForeground2}"
+                        FontSize="13" Foreground="{DynamicResource CForeground2}"
                         HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="0 -1" />
                     <core:VRCOSCCheckBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="32"
                                          Width="32"
@@ -54,9 +55,9 @@
             <core:HeaderFooterListView ItemsSource="{Binding Profiles, Mode=OneWay}"
                                        AlternationCount="2" ShouldTruncateHeight="False">
                 <core:HeaderFooterListView.Header>
-                    <Border Height="35" Padding="9" Background="{StaticResource CBackground1}">
+                    <Border Height="35" Padding="9" Background="{DynamicResource CBackground1}">
                         <TextBlock Text="Profiles" FontSize="18" FontWeight="SemiBold"
-                                   Foreground="{StaticResource CForeground1}"
+                                   Foreground="{DynamicResource CForeground1}"
                                    HorizontalAlignment="Left" VerticalAlignment="Center" />
                     </Border>
                 </core:HeaderFooterListView.Header>
@@ -65,8 +66,14 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate>
-                                    <Border
-                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}">
+                                    <Border>
+                                        <Border.Background>
+                                            <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                                <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                                <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                                <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                            </MultiBinding>
+                                        </Border.Background>
                                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                               Height="30" Margin="4">
                                             <Grid.ColumnDefinitions>
@@ -74,7 +81,7 @@
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" Text="{Binding Name.Value}"
-                                                       Foreground="{StaticResource CForeground1}"
+                                                       Foreground="{DynamicResource CForeground1}"
                                                        FontSize="18" HorizontalAlignment="Left"
                                                        VerticalAlignment="Center" Margin="4 0" />
                                             <core:SpacedStackPanel Grid.Column="1"
@@ -85,18 +92,21 @@
                                                                  Click="RemoveProfile_ButtonClick"
                                                                  Visibility="{Binding UIRemoveProfileButtonVisibility}"
                                                                  Icon="Solid_Minus"
+                                                                 Foreground="{DynamicResource CForeground1}"
                                                                  Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}"
                                                                  ToolTip="Delete" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                                                 <core:IconButton ButtonColour="Blue"
                                                                  Width="30"
                                                                  Click="EditProfile_ButtonClick"
                                                                  Icon="Solid_PenToSquare"
+                                                                 Foreground="{DynamicResource CForeground1}"
                                                                  Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}"
                                                                  ToolTip="Edit" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                                                 <core:IconButton ButtonColour="Blue"
                                                                  Width="30"
                                                                  Click="CopyProfile_ButtonClick"
                                                                  Icon="Solid_Copy"
+                                                                 Foreground="{DynamicResource CForeground1}"
                                                                  Tag="{Binding RelativeSource={RelativeSource AncestorType=ListViewItem}, Path=DataContext}"
                                                                  ToolTip="Clone" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                                             </core:SpacedStackPanel>
@@ -108,10 +118,11 @@
                     </Style>
                 </ListView.ItemContainerStyle>
                 <core:HeaderFooterListView.Footer>
-                    <Border Height="35" Padding="5" Background="{StaticResource CBackground1}">
+                    <Border Height="35" Padding="5" Background="{DynamicResource CBackground1}">
                         <core:IconButton ButtonColour="Green" Width="70"
                                          Icon="Solid_Plus"
                                          Click="AddProfile_ButtonClick"
+                                         Foreground="{DynamicResource CForeground1}"
                                          ToolTip="Create" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                     </Border>
                 </core:HeaderFooterListView.Footer>

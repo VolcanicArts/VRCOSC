@@ -87,7 +87,7 @@ public class VRCOSCSliderToTextConverter : IMultiValueConverter
 
     public object Convert(object[] values, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (values is not [VRCOSCSlider slider, double _]) return string.Empty;
+        if (values is not [VRCOSCSlider slider, double]) return string.Empty;
 
         if (Mode == SliderToTextMode.Value)
         {

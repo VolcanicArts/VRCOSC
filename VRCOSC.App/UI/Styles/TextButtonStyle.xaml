@@ -1,29 +1,28 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:core="clr-namespace:VRCOSC.App.UI.Core">
+    <core:ButtonBackgroundColourConverter x:Key="ButtonBackgroundColourUpdater"/>
+    <core:BindingProxy x:Key="CBackground1Proxy" Data="{DynamicResource CBackground1}"/>
     <Style TargetType="core:TextButton">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="core:TextButton">
-                    <Border x:Name="Border"
-                            Background="{Binding ButtonBackgroundNormal, RelativeSource={RelativeSource TemplatedParent}}"
-                            BorderThickness="0"
-                            CornerRadius="{TemplateBinding CornerRadius}"
-                            Padding="{TemplateBinding Padding}">
+                    <Border CornerRadius="{TemplateBinding CornerRadius}" Padding="{TemplateBinding Padding}">
+                        <Border.Background>
+                            <MultiBinding Converter="{StaticResource ButtonBackgroundColourUpdater}">
+                                <Binding RelativeSource="{RelativeSource TemplatedParent}"/>
+                                <Binding Path="IsMouseOver" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                <Binding Source="{StaticResource CBackground1Proxy}" Path="Data"/>
+                            </MultiBinding>
+                        </Border.Background>
                         <TextBlock
                             Text="{TemplateBinding Text}"
                             FontSize="{TemplateBinding FontSize}"
-                            Foreground="{StaticResource CForeground1}"
+                            Foreground="{DynamicResource CForeground1}"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"/>
                     </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Border" Property="Background"
-                                    Value="{Binding ButtonBackgroundLight, RelativeSource={RelativeSource TemplatedParent}}" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

@@ -6,8 +6,8 @@
         xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
         mc:Ignorable="d"
         MinWidth="600" MinHeight="600" Width="600" Height="768">
-    <Border Background="{StaticResource CBackground2}">
-        <core:SpacedListView ItemsSource="{Binding UIOptions}" Padding="10" Spacing="10" Background="{StaticResource CBackground1}">
+    <Border Background="{DynamicResource CBackground2}">
+        <core:SpacedListView ItemsSource="{Binding UIOptions}" Padding="10" Spacing="10" Background="{DynamicResource CBackground1}">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Template">

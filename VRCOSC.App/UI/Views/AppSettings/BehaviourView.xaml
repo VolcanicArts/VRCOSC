@@ -1,0 +1,193 @@
+﻿<UserControl x:Class="VRCOSC.App.UI.Views.AppSettings.BehaviourView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:VRCOSC.App.UI.Views.AppSettings"
+             xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+             mc:Ignorable="d"
+             d:DesignWidth="1366" d:DesignHeight="748"
+             Background="Transparent">
+    <UserControl.Resources>
+        <local:ConnectionModeVisibilityConverter x:Key="ConnectionModeVisibilityConverter" VisibleMode="Custom"/>
+        <core:IpPortValidationRule x:Key="IpPortValidationRule"/>
+        <Style TargetType="GroupBox" BasedOn="{StaticResource {x:Type GroupBox}}">
+            <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="FontWeight" Value="Regular"/>
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="NoteTextStyle">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground2}"/>
+            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="LabelTextStyle">
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+    <Grid>
+        <core:SpacedStackPanel Spacing="7">
+            <GroupBox Header="Modules">
+                <core:SpacedStackPanel Spacing="10" Margin="7">
+                    <TextBlock Style="{StaticResource NoteTextStyle}">
+                        Here you can change what happens to the modules when VRChat opens and closes.
+                    </TextBlock>
+                    <Grid Width="400" HorizontalAlignment="Left">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Run With VRChat"/>
+                        <core:VRCOSCCheckBox Grid.Column="1" Height="32" Width="32" IsChecked="{Binding VRChatAutoStart.Value}" />
+                    </Grid>
+                    <Grid Width="400" HorizontalAlignment="Left">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Stop With VRChat"/>
+                        <core:VRCOSCCheckBox Grid.Column="1" Height="32" Width="32" IsChecked="{Binding VRChatAutoStop.Value}" />
+                    </Grid>
+                </core:SpacedStackPanel>
+            </GroupBox>
+            <GroupBox Header="Connection">
+                <Grid>
+                    <core:SpacedStackPanel Spacing="10" Margin="7">
+                        <TextBlock Style="{StaticResource NoteTextStyle}">
+                            Here you can configure how the app connects to VRChat.
+                            <LineBreak/>
+                            If VRCOSC and VRChat are on the same computer, leave this setting as Local!
+                            <LineBreak/>
+                            If you're using VRCOSC on a different computer, or wanting to connect to standalone Quest, use LAN.
+                            <LineBreak/>
+                            Custom is for very specific circumstances. Please ask in the Discord server if you're unsure how to connect using your setup.
+                        </TextBlock>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="250"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Select Connection Mode"/>
+                            <ComboBox Grid.Column="1" Width="200" ItemsSource="{Binding ConnectionModeSource}" SelectedValue="{Binding ConnectionMode.Value}" />
+                        </Grid>
+                        <Grid Visibility="{Binding ConnectionMode.Value, Converter={StaticResource ConnectionModeVisibilityConverter}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="250"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Send Data To"/>
+                            <TextBox Grid.Column="1" Width="300">
+                                <TextBox.Text>
+                                    <Binding Path="OutgoingEndpoint.Value" UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <StaticResource ResourceKey="IpPortValidationRule" />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
+                        </Grid>
+                        <Grid Visibility="{Binding ConnectionMode.Value, Converter={StaticResource ConnectionModeVisibilityConverter}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="250"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Receive Data On"/>
+                            <TextBox Grid.Column="1" Width="300">
+                                <TextBox.Text>
+                                    <Binding Path="IncomingEndpoint.Value" UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <StaticResource ResourceKey="IpPortValidationRule" />
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+                            </TextBox>
+                        </Grid>
+                    </core:SpacedStackPanel>
+                    <core:IconButton Icon="Regular_CircleQuestion" CornerRadius="20" Width="35" Height="35" ButtonColour="Blue" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5 0" Click="ConnectingHelpButton_OnClick"/>
+                </Grid>
+            </GroupBox>
+            <GroupBox Header="Packages">
+                <core:SpacedStackPanel Spacing="10" Margin="7">
+                    <TextBlock Style="{StaticResource NoteTextStyle}">
+                        Here you can configure the packages settings.
+                        <LineBreak/>
+                        When Auto Update Packages is enabled, VRCOSC will attempt to update any packages to their latest, non-pre-release, release. This is enabled by default to keep the official modules up-to-date automatically.
+                    </TextBlock>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Show Pre-Release Packages"/>
+                        <core:VRCOSCCheckBox Grid.Column="1" Height="32" Width="32" IsChecked="{Binding ShowPreReleasePackages.Value}" />
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Auto Update Packages"/>
+                        <core:VRCOSCCheckBox Grid.Column="1" Height="32" Width="32" IsChecked="{Binding AutoUpdatePackages.Value}" />
+                    </Grid>
+                </core:SpacedStackPanel>
+            </GroupBox>
+            <GroupBox Header="Updates">
+                <core:SpacedStackPanel Spacing="10" Margin="7">
+                    <TextBlock Style="{StaticResource NoteTextStyle}">
+                        Here you can configure how the app updates.
+                        <LineBreak/>
+                        Whenever risky features are tested the beta channel is used and is announced on the Discord server.
+                    </TextBlock>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Select Update Channel"/>
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding UpdateChannelSource}" SelectedValue="{Binding UpdateChannel.Value}" HorizontalAlignment="Left" Width="200" />
+                    </Grid>
+                </core:SpacedStackPanel>
+            </GroupBox>
+            <GroupBox Header="ChatBox">
+                <core:SpacedStackPanel Spacing="10" Margin="7">
+                    <TextBlock Style="{StaticResource NoteTextStyle}">
+                        Here you can configure the global ChatBox settings.
+                        <LineBreak/>
+                        The world blocklist is a community-created list that blocks VRCOSC from writing to the ChatBox in popular club worlds out of respect to the performers.
+                        This is on by default, but not forced on users. We recommend you keep it enabled.
+                        <LineBreak/>
+                        The send interval is the time between each ChatBox update. VRChat's minimum is 1500. If you're having timeout issues raise this number.
+                    </TextBlock>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Use World Blocklist"/>
+                        <core:VRCOSCCheckBox Grid.Column="1" Height="32" Width="32" IsChecked="{Binding UseChatBoxWorldBlocklist.Value}" />
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="250"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="Send Interval"/>
+                        <TextBox Grid.Column="1" Width="200" Text="{Binding ChatBoxSendInterval.Value}"/>
+                    </Grid>
+                </core:SpacedStackPanel>
+            </GroupBox>
+        </core:SpacedStackPanel>
+    </Grid>
+</UserControl>

@@ -7,26 +7,32 @@
         mc:Ignorable="d"
         Width="800" Height="450" MinWidth="500" MinHeight="300">
     <Window.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground4}" />
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
     </Window.Resources>
     <Grid>
-        <Border Background="{StaticResource CBackground2}" Padding="5">
+        <Border Background="{DynamicResource CBackground2}" Padding="5">
             <core:HeaderFooterListView ItemsSource="{Binding Prefabs}" AlternationCount="2">
                 <core:HeaderFooterListView.Header>
-                    <Border Background="{StaticResource CBackground1}" Height="5"/>
+                    <Border Background="{DynamicResource CBackground1}" Height="5"/>
                 </core:HeaderFooterListView.Header>
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate>
-                                    <Border
-                                        Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
-                                        Padding="5" Height="40">
+                                    <Border Padding="5" Height="40">
+                                        <Border.Background>
+                                            <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                                <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                                <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                                <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                            </MultiBinding>
+                                        </Border.Background>
                                         <Grid>
                                             <TextBlock Text="{Binding Name}" FontSize="15"
-                                                       Foreground="{StaticResource CForeground1}"
+                                                       Foreground="{DynamicResource CForeground1}"
                                                        HorizontalAlignment="Left" VerticalAlignment="Center" />
                                             <core:IconButton HorizontalAlignment="Right" ButtonColour="Blue"
                                                              Icon="Solid_ArrowUpRightFromSquare"
@@ -39,7 +45,7 @@
                     </Style>
                 </ListView.ItemContainerStyle>
                 <core:HeaderFooterListView.Footer>
-                    <Border Background="{StaticResource CBackground1}" Height="5" />
+                    <Border Background="{DynamicResource CBackground1}" Height="5" />
                 </core:HeaderFooterListView.Footer>
             </core:HeaderFooterListView>
         </Border>

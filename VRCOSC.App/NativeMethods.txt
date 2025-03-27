@@ -13,3 +13,4 @@ GetDpiForSystem
 MonitorFromWindow
 GetMonitorInfoW
 DwmSetWindowAttribute
+SetDllDirectory

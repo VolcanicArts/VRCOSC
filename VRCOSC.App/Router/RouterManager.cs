@@ -8,7 +8,7 @@ using System.Net;
 using System.Threading.Tasks;
 using FastOSC;
 using VRCOSC.App.OSC.VRChat;
-using VRCOSC.App.Router.Serialisation;
+using VRCOSC.App.Router.Serialisation.V1;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -17,19 +17,20 @@ namespace VRCOSC.App.Router;
 public class RouterManager
 {
     private static RouterManager? instance;
-    public static RouterManager GetInstance() => instance ??= new RouterManager();
+    internal static RouterManager GetInstance() => instance ??= new RouterManager();
 
     public ObservableCollection<RouterInstance> Routes { get; } = new();
     private SerialisationManager serialisationManager = null!;
 
     private readonly List<(RouterInstance, OSCSender)> senders = new();
+    private readonly List<(RouterInstance, OSCReceiver)> receivers = new();
 
     private bool started;
 
     public void Load()
     {
         serialisationManager = new SerialisationManager();
-        serialisationManager.RegisterSerialiser(1, new RouterManagerSerialiser(AppManager.GetInstance().Storage, this));
+        serialisationManager.RegisterSerialiser(1, new RouterManagerSerialiserV1(AppManager.GetInstance().Storage, this));
 
         started = false;
         Routes.Clear();
@@ -41,6 +42,7 @@ public class RouterManager
             foreach (var newInstance in newItems)
             {
                 newInstance.Name.Subscribe(_ => serialisationManager.Serialise());
+                newInstance.Mode.Subscribe(_ => serialisationManager.Serialise());
                 newInstance.Endpoint.Subscribe(_ => serialisationManager.Serialise());
             }
         }, true);
@@ -59,12 +61,26 @@ public class RouterManager
 
                 var endpoint = new IPEndPoint(IPAddress.Parse(address), port);
 
-                Logger.Log($"Starting router instance `{route.Name.Value}` on {endpoint}", LoggingTarget.Terminal);
+                if (route.Mode.Value == RouterMode.Send)
+                {
+                    Logger.Log($"Starting sender router instance `{route.Name.Value}` on {endpoint}", LoggingTarget.Terminal);
 
-                var sender = new OSCSender();
-                await sender.ConnectAsync(endpoint);
+                    var sender = new OSCSender();
+                    await sender.ConnectAsync(endpoint);
 
-                senders.Add((route, sender));
+                    senders.Add((route, sender));
+                }
+
+                if (route.Mode.Value == RouterMode.Receive)
+                {
+                    Logger.Log($"Starting receiver router instance `{route.Name.Value}` on {endpoint}", LoggingTarget.Terminal);
+
+                    var receiver = new OSCReceiver();
+                    receiver.OnMessageReceived += message => AppManager.GetInstance().VRChatOscClient.Send(message.Address, message.Arguments);
+                    receiver.Connect(endpoint);
+
+                    receivers.Add((route, receiver));
+                }
             }
             catch (Exception e)
             {
@@ -77,7 +93,7 @@ public class RouterManager
         started = true;
     }
 
-    public void Stop()
+    public async Task Stop()
     {
         if (!started) return;
 
@@ -85,11 +101,18 @@ public class RouterManager
 
         foreach (var (route, sender) in senders)
         {
-            Logger.Log($"Stopping router instance '{route.Name.Value}'", LoggingTarget.Terminal);
+            Logger.Log($"Stopping sender router instance '{route.Name.Value}'", LoggingTarget.Terminal);
             sender.Disconnect();
         }
 
+        foreach (var (route, receiver) in receivers)
+        {
+            Logger.Log($"Stopping receive router instance '{route.Name.Value}'", LoggingTarget.Terminal);
+            await receiver.DisconnectAsync();
+        }
+
         senders.Clear();
+        receivers.Clear();
     }
 
     private void onParameterReceived(VRChatOscMessage message)

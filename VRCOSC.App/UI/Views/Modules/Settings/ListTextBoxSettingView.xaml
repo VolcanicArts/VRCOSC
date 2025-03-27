@@ -3,27 +3,32 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              mc:Ignorable="d">
     <UserControl.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}"
-                                         Colour2="{StaticResource CBackground4}" />
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
     </UserControl.Resources>
     <core:HeaderFooterListView AlternationCount="2" ItemsSource="{Binding ModuleSetting.Attribute}"
                                ShouldTruncateHeight="False" VerticalAlignment="Top" HideHeaderWhenEmpty="True">
         <core:HeaderFooterListView.Header>
-            <Border Background="{StaticResource CBackground1}" Height="5" />
+            <Border Background="{DynamicResource CBackground1}" Height="5" />
         </core:HeaderFooterListView.Header>
         <ListView.ItemContainerStyle>
             <Style TargetType="ListViewItem">
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate>
-                            <Border
-                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
-                                Padding="2">
-                                <Grid Margin="5" VerticalAlignment="Top">
+                            <Border>
+                                <Border.Background>
+                                    <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                        <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                        <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                    </MultiBinding>
+                                </Border.Background>
+                                <Grid VerticalAlignment="Center" Margin="4">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="5" />
@@ -31,34 +36,14 @@
                                     </Grid.ColumnDefinitions>
                                     <TextBox Grid.Column="0"
                                              Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
-                                             Foreground="{StaticResource CForeground2}"
-                                             FontSize="16" VerticalAlignment="Stretch"
-                                             Background="{StaticResource CBackground5}"
-                                             BorderThickness="0">
-                                        <TextBox.Template>
-                                            <ControlTemplate TargetType="TextBox">
-                                                <Border
-                                                    Background="{TemplateBinding Background}"
-                                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                    CornerRadius="5" Padding="5 2">
-                                                    <ScrollViewer x:Name="PART_ContentHost"
-                                                                  FontSize="{TemplateBinding FontSize}"
-                                                                  VerticalAlignment="Center" />
-                                                </Border>
-                                            </ControlTemplate>
-                                        </TextBox.Template>
+                                             Foreground="{DynamicResource CForeground2}"
+                                             VerticalContentAlignment="Center"
+                                             FontSize="16"
+                                             FontWeight="Regular"
+                                             Background="{DynamicResource CBackground5}">
                                     </TextBox>
-                                    <core:VRCOSCButton Grid.Column="2" ButtonColour="Red"
-                                                       Click="RemoveButton_OnClick"
-                                                       Height="25" Width="25">
-                                        <core:VRCOSCButton.Tag>
-                                            <Binding />
-                                        </core:VRCOSCButton.Tag>
-                                        <fa6:ImageAwesome Icon="Solid_Minus"
-                                                          PrimaryColor="{StaticResource CForeground1}"
-                                                          Margin="4" />
-                                    </core:VRCOSCButton>
+                                    <core:IconButton Grid.Column="2" ButtonColour="Red" Click="RemoveButton_OnClick" Height="25" Width="25"
+                                                     Icon="Solid_Minus" Foreground="{DynamicResource CForeground1}" Tag="{Binding}"/>
                                 </Grid>
                             </Border>
                         </ControlTemplate>
@@ -67,9 +52,9 @@
             </Style>
         </ListView.ItemContainerStyle>
         <core:HeaderFooterListView.Footer>
-            <Border Background="{StaticResource CBackground1}">
+            <Border Background="{DynamicResource CBackground1}">
                 <core:IconButton Width="100" Height="20" Margin="0 5" Click="AddButton_OnClick" ButtonColour="Green"
-                                 Icon="Solid_Plus" />
+                                 Icon="Solid_Plus" Foreground="{DynamicResource CForeground1}" />
             </Border>
         </core:HeaderFooterListView.Footer>
     </core:HeaderFooterListView>

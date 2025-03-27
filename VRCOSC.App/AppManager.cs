@@ -464,16 +464,23 @@ public class AppManager
     {
         if (ModuleManager.GetInstance().GetEnabledModulesOfType<ISpeechHandler>().Any() && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.SpeechEnabled))
         {
-            if (string.IsNullOrWhiteSpace(SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SpeechModelPath)))
+            if (SettingsManager.GetInstance().GetValue<SpeechModel>(VRCOSCSetting.SpeechModel) == SpeechModel.Custom && string.IsNullOrWhiteSpace(SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SpeechModelPath)))
             {
                 var result = MessageBox.Show("You have enabled modules that require the speech engine.\nWould you like to automatically set it up?", "Set Up Speech Engine?", MessageBoxButton.YesNo);
 
                 if (result == MessageBoxResult.Yes)
                 {
-                    await InstallSpeechModel();
+                    await InstallSpeechModel(SpeechModel.Small);
+                }
+                else
+                {
+                    SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechEnabled).Value = false;
                 }
             }
+        }
 
+        if (ModuleManager.GetInstance().GetEnabledModulesOfType<ISpeechHandler>().Any() && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.SpeechEnabled))
+        {
             SpeechEngine.Initialise();
         }
 
@@ -499,10 +506,19 @@ public class AppManager
         sendControlParameters();
     }
 
-    public Task InstallSpeechModel() => Application.Current.Dispatcher.Invoke(() =>
+    public Task InstallSpeechModel(SpeechModel model) => Application.Current.Dispatcher.Invoke(() =>
     {
-        var action = new FileDownloadAction(new Uri("https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin?download=true"), Storage.GetStorageForDirectory("runtime/whisper"), "ggml-small.bin");
-        action.OnComplete += () => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SpeechModelPath).Value = Storage.GetStorageForDirectory("runtime/whisper").GetFullPath("ggml-small.bin");
+        var modelName = model switch
+        {
+            SpeechModel.Tiny => "ggml-tiny.bin",
+            SpeechModel.Small => "ggml-small.bin",
+            _ => throw new ArgumentOutOfRangeException(nameof(model), model, null)
+        };
+
+        var action = new FileDownloadAction(new Uri($"https://huggingface.co/ggerganov/whisper.cpp/resolve/main/{modelName}?download=true"), Storage.GetStorageForDirectory("runtime/whisper"), modelName);
+
+        action.OnComplete += () => SettingsManager.GetInstance().GetObservable<SpeechModel>(VRCOSCSetting.SpeechModel).Value = model;
+
         return MainWindow.GetInstance().ShowLoadingOverlay(action);
     });
 
@@ -557,7 +573,7 @@ public class AppManager
         await ChatBoxManager.GetInstance().Stop();
         VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
-        RouterManager.GetInstance().Stop();
+        await RouterManager.GetInstance().Stop();
 
         lock (oscMessageQueueLock)
         {

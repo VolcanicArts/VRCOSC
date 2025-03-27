@@ -35,9 +35,9 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <!--> Actions <-->
-                <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource CBackground3}" CornerRadius="5"
+                <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource CBackground3}" CornerRadius="5"
                         Padding="5">
-                    <Border Background="{StaticResource CBackground5}" CornerRadius="5" Padding="5">
+                    <Border Background="{DynamicResource CBackground5}" CornerRadius="5" Padding="5">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="30" />
@@ -85,25 +85,25 @@
                     </Border>
                 </Border>
                 <!--> Settings <-->
-                <Border Grid.Row="2" Grid.Column="0" Background="{StaticResource CBackground3}" CornerRadius="5"
+                <Border Grid.Row="2" Grid.Column="0" Background="{DynamicResource CBackground3}" CornerRadius="5"
                         Padding="5">
-                    <Border Background="{StaticResource CBackground5}" CornerRadius="5" Padding="5">
+                    <Border Background="{DynamicResource CBackground5}" CornerRadius="5" Padding="5">
                         <core:SpacedStackPanel Orientation="Vertical" Spacing="5">
                             <TextBlock Text="Timeline Settings" FontWeight="Bold" FontSize="20" TextAlignment="Center"
-                                       Foreground="{StaticResource CForeground1}" Margin="0 0 0 5" />
+                                       Foreground="{DynamicResource CForeground1}" Margin="0 0 0 5" />
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="Length" FontSize="15" FontWeight="Bold"
-                                           Foreground="{StaticResource CForeground2}" VerticalAlignment="Center" />
+                                           Foreground="{DynamicResource CForeground2}" VerticalAlignment="Center" />
                                 <TextBox Grid.Column="1"
                                          Text="{Binding ChatBoxManager.Timeline.UILength}"
-                                         Foreground="{StaticResource CForeground2}"
+                                         Foreground="{DynamicResource CForeground2}"
                                          FontSize="15" VerticalAlignment="Center"
                                          VerticalContentAlignment="Center"
-                                         Background="{StaticResource CBackground3}"
+                                         Background="{DynamicResource CBackground3}"
                                          Height="30"
                                          LostKeyboardFocus="TextBox_OnLostKeyboardFocus"
                                          PreviewKeyDown="TextBox_OnPreviewKeyDown" />
@@ -112,12 +112,12 @@
                     </Border>
                 </Border>
                 <!--> Selected Clip <-->
-                <Border Grid.Row="0" Grid.Column="2" Background="{StaticResource CBackground3}" CornerRadius="5"
+                <Border Grid.Row="0" Grid.Column="2" Background="{DynamicResource CBackground3}" CornerRadius="5"
                         Padding="5">
                     <Grid>
                         <core:SpacedStackPanel Orientation="Vertical" Spacing="5" VerticalAlignment="Center">
-                            <TextBlock Text="Left click to select a clip" FontSize="25" TextAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource CForeground1}" />
-                            <TextBlock Text="Right click to create a clip" FontSize="25" TextAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource CForeground1}" />
+                            <TextBlock Text="Left click to select a clip" FontSize="25" TextAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource CForeground1}" />
+                            <TextBlock Text="Right click to create a clip" FontSize="25" TextAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource CForeground1}" />
                         </core:SpacedStackPanel>
                         <Grid x:Name="SelectedClipGrid" Visibility="Collapsed">
                             <Grid.ColumnDefinitions>
@@ -125,7 +125,7 @@
                                 <ColumnDefinition Width="5" />
                                 <ColumnDefinition Width="7*" />
                             </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Background="{StaticResource CBackground1}" Padding="6"
+                            <Border Grid.Column="0" Background="{DynamicResource CBackground1}" Padding="6"
                                     CornerRadius="5">
                                 <core:SpacedStackPanel Spacing="5" Orientation="Vertical">
                                     <Grid>
@@ -134,7 +134,7 @@
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="Enabled" FontSize="15" FontWeight="Bold"
-                                                   Foreground="{StaticResource CForeground2}"
+                                                   Foreground="{DynamicResource CForeground2}"
                                                    VerticalAlignment="Center" />
                                         <core:VRCOSCCheckBox Grid.Column="1" IsChecked="{Binding Enabled.Value}"
                                                              Width="25"
@@ -147,19 +147,19 @@
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="Name" FontSize="15" FontWeight="Bold"
-                                                   Foreground="{StaticResource CForeground2}"
+                                                   Foreground="{DynamicResource CForeground2}"
                                                    VerticalAlignment="Center" />
                                         <TextBox Grid.Column="1"
                                                  Text="{Binding Name.Value, UpdateSourceTrigger=PropertyChanged}"
-                                                 Foreground="{StaticResource CForeground2}"
+                                                 Foreground="{DynamicResource CForeground2}"
                                                  FontSize="15" VerticalAlignment="Center"
                                                  VerticalContentAlignment="Center"
-                                                 Background="{StaticResource CBackground3}"
+                                                 Background="{DynamicResource CBackground3}"
                                                  Height="25" />
                                     </Grid>
                                 </core:SpacedStackPanel>
                             </Border>
-                            <Border Grid.Column="2" Background="{StaticResource CBackground1}"
+                            <Border Grid.Column="2" Background="{DynamicResource CBackground1}"
                                     CornerRadius="5">
                                 <core:IconButton Click="EditClip_ButtonClick" Width="100" Height="30"
                                                  ButtonColour="Blue" Icon="Solid_PenToSquare" />
@@ -168,7 +168,7 @@
                     </Grid>
                 </Border>
                 <!--> Timeline <-->
-                <Border Grid.Row="2" Grid.Column="2" Background="{StaticResource CBackground3}"
+                <Border Grid.Row="2" Grid.Column="2" Background="{DynamicResource CBackground3}"
                         CornerRadius="5"
                         Padding="5">
                     <Grid>
@@ -178,7 +178,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Row="0" Background="{StaticResource CBackground2}" CornerRadius="5"
+                        <Border Grid.Row="0" Background="{DynamicResource CBackground2}" CornerRadius="5"
                                 MouseMove="Timeline_MouseMove"
                                 MouseLeftButtonUp="Timeline_MouseLeftButtonUp" HorizontalAlignment="Stretch">
                             <Grid x:Name="TimelineContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -199,7 +199,7 @@
                                         <Canvas x:Name="HeaderLineCanvas" />
                                         <Grid Name="HeaderGrid" />
                                     </Grid>
-                                    <Border Grid.Row="1" Background="{StaticResource CBackground1}" />
+                                    <Border Grid.Row="1" Background="{DynamicResource CBackground1}" />
                                     <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto"
                                                   HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
                                         <Grid x:Name="Timeline" Height="1600"
@@ -269,12 +269,12 @@
                                                             </Border.Width>
                                                             <Border
                                                                 Name="ClipBorder"
-                                                                Background="{StaticResource CBackground4}"
+                                                                Background="{DynamicResource CBackground4}"
                                                                 CornerRadius="5"
                                                                 HorizontalAlignment="Stretch"
                                                                 VerticalAlignment="Stretch"
                                                                 BorderThickness="1"
-                                                                BorderBrush="{StaticResource CBackground1}"
+                                                                BorderBrush="{DynamicResource CBackground1}"
                                                                 Opacity="{Binding Enabled.Value, Mode=OneWay, Converter={StaticResource ClipEnabledToOpacityConverter}}">
                                                                 <!--> Clip Contents <-->
                                                                 <Border
@@ -301,17 +301,17 @@
                                                                         <Border Grid.Column="0"
                                                                                 MouseLeftButtonDown="ClipLeft_OnLeftMouseButtonDown"
                                                                                 MouseLeftButtonUp="ClipLeft_OnLeftMouseButtonUp"
-                                                                                Background="{StaticResource CBackground1}"
+                                                                                Background="{DynamicResource CBackground1}"
                                                                                 Cursor="Hand"
                                                                                 CornerRadius="3 0 0 3">
                                                                             <Border.Tag>
                                                                                 <Binding />
                                                                             </Border.Tag>
-                                                                            <fa6:ImageAwesome
+                                                                            <fa6:FontAwesome
                                                                                 Icon="Solid_GripLinesVertical"
                                                                                 HorizontalAlignment="Center"
                                                                                 VerticalAlignment="Center"
-                                                                                PrimaryColor="{StaticResource CForeground3}"
+                                                                                Foreground="{DynamicResource CForeground3}"
                                                                                 Margin="5 0" />
                                                                         </Border>
                                                                         <Border Grid.Column="1"
@@ -332,11 +332,11 @@
                                                                                     TextAlignment="Center"
                                                                                     TextTrimming="CharacterEllipsis"
                                                                                     FontSize="20"
-                                                                                    Foreground="{StaticResource CForeground1}" />
+                                                                                    Foreground="{DynamicResource CForeground1}" />
                                                                             </Border>
                                                                         </Border>
                                                                         <Border Grid.Column="2"
-                                                                                Background="{StaticResource CBackground1}"
+                                                                                Background="{DynamicResource CBackground1}"
                                                                                 CornerRadius="0 3 3 0"
                                                                                 Cursor="Hand"
                                                                                 MouseLeftButtonDown="ClipRight_OnLeftMouseButtonDown"
@@ -344,11 +344,11 @@
                                                                             <Border.Tag>
                                                                                 <Binding />
                                                                             </Border.Tag>
-                                                                            <fa6:ImageAwesome
+                                                                            <fa6:FontAwesome
                                                                                 Icon="Solid_GripLinesVertical"
                                                                                 HorizontalAlignment="Center"
                                                                                 VerticalAlignment="Center"
-                                                                                PrimaryColor="{StaticResource CForeground3}"
+                                                                                Foreground="{DynamicResource CForeground3}"
                                                                                 Margin="5 0" />
                                                                         </Border>
                                                                     </Grid>
@@ -428,7 +428,7 @@
                                             <!--> Indicator <-->
                                             <Border
                                                 Name="Indicator"
-                                                Background="{StaticResource CForeground1}"
+                                                Background="{DynamicResource CForeground1}"
                                                 VerticalAlignment="Stretch"
                                                 HorizontalAlignment="Left"
                                                 Width="5"
@@ -457,7 +457,7 @@
                                 <Grid x:Name="RightClickMenu" Width="150" HorizontalAlignment="Left" VerticalAlignment="Top"
                                       Visibility="Collapsed"
                                       MouseDown="RightClickMenu_OnMouseDown">
-                                    <Border Background="{StaticResource CBackground5}" CornerRadius="5" Padding="5">
+                                    <Border Background="{DynamicResource CBackground5}" CornerRadius="5" Padding="5">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
@@ -469,13 +469,13 @@
                                                 <core:VRCOSCButton ButtonColour="Green" Click="CopyClip_OnClick">
                                                     <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
                                                                Text="Copy Clip"
-                                                               Foreground="{StaticResource CForeground1}"
+                                                               Foreground="{DynamicResource CForeground1}"
                                                                FontSize="15" />
                                                 </core:VRCOSCButton>
                                                 <core:VRCOSCButton ButtonColour="Red" Click="DeleteClip_OnClick">
                                                     <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
                                                                Text="Delete Clip"
-                                                               Foreground="{StaticResource CForeground1}"
+                                                               Foreground="{DynamicResource CForeground1}"
                                                                FontSize="15" />
                                                 </core:VRCOSCButton>
                                             </core:SpacedStackPanel>
@@ -484,13 +484,13 @@
                                                                    Visibility="{Binding PasteClipButtonVisibility.Value, Mode=OneWay}">
                                                     <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
                                                                Text="Paste Clip"
-                                                               Foreground="{StaticResource CForeground1}"
+                                                               Foreground="{DynamicResource CForeground1}"
                                                                FontSize="15" />
                                                 </core:VRCOSCButton>
                                                 <core:VRCOSCButton ButtonColour="Green" Click="CreateClipOnLayer_OnClick">
                                                     <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
                                                                Text="Create Clip"
-                                                               Foreground="{StaticResource CForeground1}"
+                                                               Foreground="{DynamicResource CForeground1}"
                                                                FontSize="15" />
                                                 </core:VRCOSCButton>
                                             </core:SpacedStackPanel>
@@ -503,14 +503,14 @@
                 </Border>
             </Grid>
         </Border>
-        <Border Background="{StaticResource CBackground2}"
+        <Border Background="{DynamicResource CBackground2}"
                 Visibility="{Binding ChatBoxManager.IsLoaded.Value, Converter={StaticResource BoolToVisibilityConverter}}">
             <core:SpacedStackPanel Orientation="Vertical" Spacing="20" VerticalAlignment="Center">
                 <TextBlock MaxWidth="400" FontSize="25" TextAlignment="Center"
-                           HorizontalAlignment="Center" TextWrapping="Wrap" Foreground="{StaticResource CForeground1}"
+                           HorizontalAlignment="Center" TextWrapping="Wrap" Foreground="{DynamicResource CForeground1}"
                            Text="ChatBox editing is disabled due to errors. Ignoring the errors will skip loading any invalid data." />
                 <core:VRCOSCButton Width="150" Height="35" ButtonColour="Red" Click="IgnoreErrors_ButtonClick">
-                    <TextBlock VerticalAlignment="Center" Foreground="{StaticResource CForeground1}" FontSize="20"
+                    <TextBlock VerticalAlignment="Center" Foreground="{DynamicResource CForeground1}" FontSize="20"
                                Text="Ignore Errors" HorizontalAlignment="Center" />
                 </core:VRCOSCButton>
             </core:SpacedStackPanel>

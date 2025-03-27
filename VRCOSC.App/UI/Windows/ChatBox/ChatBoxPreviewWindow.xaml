@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:chatBox="clr-namespace:VRCOSC.App.UI.Views.ChatBox"
         mc:Ignorable="d"
-        Background="{StaticResource CBackground1}"
+        Background="{DynamicResource CBackground1}"
         Title="ChatBox Preview" Height="450" Width="800" MinHeight="450" MinWidth="800">
     <chatBox:ChatBoxPreviewView HorizontalAlignment="Center" VerticalAlignment="Center" />
 </Window>

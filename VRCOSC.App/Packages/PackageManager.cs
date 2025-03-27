@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Octokit;
+using Semver;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages.Serialisation;
 using VRCOSC.App.Serialisation;
@@ -177,13 +178,13 @@ public class PackageManager
 
     public bool IsInstalled(PackageSource packageSource) => packageSource.PackageID is not null && InstalledPackages.ContainsKey(packageSource.PackageID);
     public string GetInstalledVersion(PackageSource packageSource) => packageSource.PackageID is not null && InstalledPackages.TryGetValue(packageSource.PackageID, out var version) ? version : string.Empty;
+    public SemVersion GetInstalledVersion(string packageId) => packageId == "local" ? new SemVersion(0) : SemVersion.Parse(InstalledPackages[packageId], SemVersionStyles.Any);
 
     private async Task loadCommunityPackages()
     {
         var repos = await GitHubProxy.Client.Search.SearchRepo(new SearchRepositoriesRequest
         {
-            Topic = community_tag,
-            Fork = ForkQualifier.IncludeForks
+            Topic = community_tag
         }).WaitAsync(TimeSpan.FromSeconds(5));
 
         foreach (var repo in repos.Items.Where(repo => repo.Name != "VRCOSC"))

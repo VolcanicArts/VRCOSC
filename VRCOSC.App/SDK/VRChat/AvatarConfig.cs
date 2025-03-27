@@ -17,7 +17,7 @@ public class AvatarConfig
     public string Name = null!;
 
     [JsonProperty("parameters")]
-    public List<AvatarConfigParameter> Parameters = null!;
+    public List<AvatarConfigParameter> Parameters = [];
 }
 
 public class AvatarConfigParameter
@@ -35,10 +35,10 @@ public class AvatarConfigParameter
 public class AddressTypePair
 {
     [JsonProperty("address")]
-    public string? Address;
+    public string Address = null!;
 
     [JsonProperty("type")]
-    private string? type;
+    private string type = null!;
 
     public ParameterType Type => type switch
     {

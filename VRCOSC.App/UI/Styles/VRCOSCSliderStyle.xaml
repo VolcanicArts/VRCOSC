@@ -10,7 +10,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="core:VRCOSCSlider">
                     <Grid>
-                        <Slider TickPlacement="BottomRight" IsSnapToTickEnabled="True">
+                        <Slider TickPlacement="BottomRight" IsSnapToTickEnabled="True" Foreground="{DynamicResource CForeground1}">
                             <Slider.Value>
                                 <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Value"/>
                             </Slider.Value>
@@ -26,7 +26,7 @@
                         </Slider>
                         <TextBlock
                             HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                            Foreground="{StaticResource CForeground1}" FontSize="14">
+                            Foreground="{DynamicResource CForeground1}" FontSize="14">
                             <TextBlock.Text>
                                 <MultiBinding Converter="{StaticResource ValueConverter}">
                                     <Binding RelativeSource="{RelativeSource TemplatedParent}"/>
@@ -36,7 +36,7 @@
                         </TextBlock>
                         <TextBlock
                             HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                            Foreground="{StaticResource CForeground1}" FontSize="14">
+                            Foreground="{DynamicResource CForeground1}" FontSize="14">
                             <TextBlock.Text>
                                 <MultiBinding Converter="{StaticResource MinConverter}">
                                     <Binding RelativeSource="{RelativeSource TemplatedParent}"/>
@@ -46,7 +46,7 @@
                         </TextBlock>
                         <TextBlock
                             HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                            Foreground="{StaticResource CForeground1}" FontSize="14">
+                            Foreground="{DynamicResource CForeground1}" FontSize="14">
                             <TextBlock.Text>
                                 <MultiBinding Converter="{StaticResource MaxConverter}">
                                     <Binding RelativeSource="{RelativeSource TemplatedParent}"/>

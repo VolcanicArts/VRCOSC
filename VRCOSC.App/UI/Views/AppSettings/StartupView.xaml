@@ -5,101 +5,123 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              mc:Ignorable="d"
-             Background="Transparent"
-             d:DesignWidth="1366" d:DesignHeight="748">
+             d:DesignWidth="1366" d:DesignHeight="748"
+             Background="Transparent">
     <UserControl.Resources>
-        <core:AlternatingColourConverter x:Key="AlternatingColourConverter" Colour1="{StaticResource CBackground3}" Colour2="{StaticResource CBackground4}"/>
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
+        <Style TargetType="GroupBox" BasedOn="{StaticResource {x:Type GroupBox}}">
+            <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
+            <Setter Property="FontSize" Value="17"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="FontWeight" Value="Regular"/>
+        </Style>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="NoteTextStyle">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Regular"/>
+            <Setter Property="Foreground" Value="{DynamicResource CForeground2}"/>
+            <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+        </Style>
     </UserControl.Resources>
-    <core:HeaderFooterListView AlternationCount="2" ItemsSource="{Binding Instances}">
-        <core:HeaderFooterListView.Header>
-            <Border Background="{StaticResource CBackground1}"
-                    Padding="7" Height="40">
-                <TextBlock Text="Startup Apps"
-                           FontSize="18"
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource CForeground2}"
-                           Margin="0 -2 0 0"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Left"
-                           TextAlignment="Left"/>
-            </Border>
-        </core:HeaderFooterListView.Header>
-        <ListView.ItemContainerStyle>
-            <Style TargetType="ListViewItem">
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate>
-                            <Border
-                                Background="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=(ItemsControl.AlternationIndex), Converter={StaticResource AlternatingColourConverter}}"
-                                Padding="5" Height="40">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="5"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="5"/>
-                                        <ColumnDefinition Width="30"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid Grid.Column="0">
-                                        <TextBox x:Name="FileLocationTextBox" Text="{Binding FileLocation.Value}" FontSize="16" VerticalAlignment="Center" Foreground="{StaticResource CForeground1}" VerticalContentAlignment="Center" />
-                                        <TextBlock Foreground="{StaticResource CForeground3}" Text="C:\Some\File\Location.exe" FontSize="16"
-                                                   VerticalAlignment="Center" Margin="2 -2 2 0" IsHitTestVisible="False">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                    <Style.Triggers>
-                                                        <MultiDataTrigger>
-                                                            <MultiDataTrigger.Conditions>
-                                                                <Condition Binding="{Binding Text, ElementName=FileLocationTextBox}"
-                                                                           Value="" />
-                                                                <Condition
-                                                                    Binding="{Binding IsKeyboardFocused, ElementName=FileLocationTextBox}"
-                                                                    Value="False" />
-                                                            </MultiDataTrigger.Conditions>
-                                                            <Setter Property="Visibility" Value="Visible" />
-                                                        </MultiDataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </Grid>
-                                    <Grid Grid.Column="2">
-                                        <TextBox x:Name="ArgumentsTextBox" Text="{Binding Arguments.Value}" FontSize="16" VerticalAlignment="Center" Foreground="{StaticResource CForeground1}" VerticalContentAlignment="Center" />
-                                        <TextBlock Foreground="{StaticResource CForeground3}" Text="--some-argument" FontSize="16"
-                                                   VerticalAlignment="Center" Margin="2 -2 2 0" IsHitTestVisible="False">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                    <Style.Triggers>
-                                                        <MultiDataTrigger>
-                                                            <MultiDataTrigger.Conditions>
-                                                                <Condition Binding="{Binding Text, ElementName=ArgumentsTextBox}"
-                                                                           Value="" />
-                                                                <Condition
-                                                                    Binding="{Binding IsKeyboardFocused, ElementName=ArgumentsTextBox}"
-                                                                    Value="False" />
-                                                            </MultiDataTrigger.Conditions>
-                                                            <Setter Property="Visibility" Value="Visible" />
-                                                        </MultiDataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </Grid>
-                                    <core:IconButton Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center" ButtonColour="Red" Icon="Solid_Minus" Width="28" Height="28" Click="RemoveInstance_OnClick" Tag="{Binding}"/>
-                                </Grid>
+    <Grid>
+        <core:SpacedStackPanel Spacing="7">
+            <GroupBox Header="Apps">
+                <core:SpacedStackPanel Spacing="10" Margin="7">
+                    <TextBlock Style="{StaticResource NoteTextStyle}">
+                        Here you can configure which apps get opened when the modules are ran.
+                    </TextBlock>
+                    <core:HeaderFooterListView HideHeaderWhenEmpty="True" ShouldTruncateHeight="False" AlternationCount="2" ItemsSource="{Binding Instances}">
+                        <core:HeaderFooterListView.Header>
+                            <Border Background="{DynamicResource CBackground1}" Height="5"/>
+                        </core:HeaderFooterListView.Header>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate>
+                                            <Border Padding="5" Height="40">
+                                                <Border.Background>
+                                                    <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                                        <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                                        <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                                    </MultiBinding>
+                                                </Border.Background>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="5"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="5"/>
+                                                        <ColumnDefinition Width="30"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid Grid.Column="0">
+                                                        <TextBox x:Name="FileLocationTextBox" Text="{Binding FileLocation.Value}" FontSize="16" VerticalAlignment="Center" Foreground="{DynamicResource CForeground1}" VerticalContentAlignment="Center" />
+                                                        <TextBlock Foreground="{DynamicResource CForeground3}" Text="C:\Some\File\Location.exe" FontSize="16" FontWeight="Regular"
+                                                                   VerticalAlignment="Center" Margin="2 -2 2 0" IsHitTestVisible="False">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                    <Style.Triggers>
+                                                                        <MultiDataTrigger>
+                                                                            <MultiDataTrigger.Conditions>
+                                                                                <Condition Binding="{Binding Text, ElementName=FileLocationTextBox}"
+                                                                                           Value="" />
+                                                                                <Condition
+                                                                                    Binding="{Binding IsKeyboardFocused, ElementName=FileLocationTextBox}"
+                                                                                    Value="False" />
+                                                                            </MultiDataTrigger.Conditions>
+                                                                            <Setter Property="Visibility" Value="Visible" />
+                                                                        </MultiDataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                    <Grid Grid.Column="2">
+                                                        <TextBox x:Name="ArgumentsTextBox" Text="{Binding Arguments.Value}" FontSize="16" VerticalAlignment="Center" Foreground="{DynamicResource CForeground1}" VerticalContentAlignment="Center" />
+                                                        <TextBlock Foreground="{DynamicResource CForeground3}" Text="--some-argument" FontSize="16" FontWeight="Regular"
+                                                                   VerticalAlignment="Center" Margin="2 -2 2 0" IsHitTestVisible="False">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                    <Style.Triggers>
+                                                                        <MultiDataTrigger>
+                                                                            <MultiDataTrigger.Conditions>
+                                                                                <Condition Binding="{Binding Text, ElementName=ArgumentsTextBox}"
+                                                                                           Value="" />
+                                                                                <Condition
+                                                                                    Binding="{Binding IsKeyboardFocused, ElementName=ArgumentsTextBox}"
+                                                                                    Value="False" />
+                                                                            </MultiDataTrigger.Conditions>
+                                                                            <Setter Property="Visibility" Value="Visible" />
+                                                                        </MultiDataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Grid>
+                                                    <core:IconButton Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center" ButtonColour="Red" Icon="Solid_Minus" Width="28" Height="28" Click="RemoveInstance_OnClick" Tag="{Binding}"/>
+                                                </Grid>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <core:HeaderFooterListView.Footer>
+                            <Border Height="35" Padding="7" Background="{DynamicResource CBackground1}">
+                                <core:IconButton ButtonColour="Green" Width="70"
+                                                 Icon="Solid_Plus"
+                                                 Click="AddInstance_OnClick" />
                             </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-        </ListView.ItemContainerStyle>
-        <core:HeaderFooterListView.Footer>
-            <Border Height="35" Padding="7" Background="{StaticResource CBackground1}">
-                <core:IconButton ButtonColour="Green" Width="70"
-                                 Icon="Solid_Plus"
-                                 Click="AddInstance_OnClick" />
-            </Border>
-        </core:HeaderFooterListView.Footer>
-    </core:HeaderFooterListView>
+                        </core:HeaderFooterListView.Footer>
+                    </core:HeaderFooterListView>
+                </core:SpacedStackPanel>
+            </GroupBox>
+        </core:SpacedStackPanel>
+    </Grid>
 </UserControl>

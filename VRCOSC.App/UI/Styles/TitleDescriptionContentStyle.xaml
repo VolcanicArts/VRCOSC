@@ -7,7 +7,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="core:TitleDescriptionContent">
                         <Border
-                            Background="{StaticResource CBackground7}"
+                            Background="{DynamicResource CBackground7}"
                             Padding="10 5 10 10"
                             CornerRadius="5">
                             <core:SpacedStackPanel
@@ -15,7 +15,7 @@
                                 <StackPanel>
                                     <TextBlock
                                         Text="{TemplateBinding Title}"
-                                        Foreground="{StaticResource CForeground1}"
+                                        Foreground="{DynamicResource CForeground1}"
                                         FontSize="18"
                                         VerticalAlignment="Top"
                                         TextWrapping="Wrap"
@@ -23,7 +23,7 @@
                                         Padding="2 0" />
                                     <TextBlock
                                         Text="{TemplateBinding Description}"
-                                        Foreground="{StaticResource CForeground2}"
+                                        Foreground="{DynamicResource CForeground2}"
                                         FontSize="14"
                                         VerticalAlignment="Bottom"
                                         TextWrapping="Wrap"

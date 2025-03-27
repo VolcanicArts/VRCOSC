@@ -1,12 +1,28 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Xaml.Behaviors;
 
 namespace VRCOSC.App.UI.Core;
+
+public partial class IpPortValidationRule : ValidationRule
+{
+    public override ValidationResult Validate(object? value, CultureInfo cultureInfo)
+    {
+        var input = value?.ToString() ?? string.Empty;
+        return isValidIpPort(input) ? ValidationResult.ValidResult : new ValidationResult(false, "Invalid IP:Port format");
+    }
+
+    private bool isValidIpPort(string input) => ipPortRegex().IsMatch(input);
+
+    [GeneratedRegex(@"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?):([0-9]{1,5})$")]
+    private static partial Regex ipPortRegex();
+}
 
 public class IgnoreMouseWheelBehavior : Behavior<UIElement>
 {

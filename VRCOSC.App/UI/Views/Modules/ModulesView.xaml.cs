@@ -64,7 +64,7 @@ public partial class ModulesView
         var element = (FrameworkElement)sender;
         var module = (Module)element.Tag;
 
-        settingsWindowManager.TrySpawnChild(new ModuleSettingsWindow(module));
+        settingsWindowManager.TrySpawnChild(module.SettingsWindow ?? new ModuleSettingsWindow(module));
     }
 
     private void InfoButton_OnClick(object sender, RoutedEventArgs e)

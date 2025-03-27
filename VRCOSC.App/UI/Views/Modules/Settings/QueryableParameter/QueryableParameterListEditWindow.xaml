@@ -1,0 +1,58 @@
+﻿<Window x:Class="VRCOSC.App.UI.Views.Modules.Settings.QueryableParameter.QueryableParameterListEditWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+        xmlns:queryableParameter="clr-namespace:VRCOSC.App.UI.Views.Modules.Settings.QueryableParameter"
+        xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
+        mc:Ignorable="d"
+        Title="Edit Parameters" Height="450" Width="1200">
+    <Window.Resources>
+        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
+        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
+        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
+    </Window.Resources>
+    <Border Padding="10" Background="{DynamicResource CBackground2}">
+        <core:HeaderFooterListView x:Name="ParameterList" AlternationCount="2" HideHeaderWhenEmpty="True">
+            <core:HeaderFooterListView.Header>
+                <Border Background="{DynamicResource CBackground1}" Height="5" />
+            </core:HeaderFooterListView.Header>
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate>
+                                <Border Padding="5">
+                                    <Border.Background>
+                                        <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
+                                            <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
+                                            <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
+                                            <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
+                                        </MultiBinding>
+                                    </Border.Background>
+                                    <Grid>
+                                        <queryableParameter:QueryableParameterView QueryableParameter="{Binding}"/>
+                                        <core:VRCOSCButton HorizontalAlignment="Right" ButtonColour="Red"
+                                                           Click="RemoveButton_OnClick"
+                                                           Height="30" Width="30" Tag="{Binding}">
+                                            <fa6:ImageAwesome Icon="Solid_Minus"
+                                                              PrimaryColor="{DynamicResource CForeground1}"
+                                                              Margin="4" />
+                                        </core:VRCOSCButton>
+                                    </Grid>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <core:HeaderFooterListView.Footer>
+                <Border Background="{DynamicResource CBackground1}">
+                    <core:IconButton Width="100" Height="20" Margin="0 5" Click="AddButton_OnClick" ButtonColour="Green"
+                                     Icon="Solid_Plus" Foreground="{DynamicResource CForeground1}" />
+                </Border>
+            </core:HeaderFooterListView.Footer>
+        </core:HeaderFooterListView>
+    </Border>
+</Window>

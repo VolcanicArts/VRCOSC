@@ -16,7 +16,7 @@ namespace VRCOSC.App.Utils;
 /// <summary>
 /// This class allows statically (globally) configuring and using logging functionality.
 /// </summary>
-public class Logger
+internal class Logger
 {
     private static readonly object static_sync_lock = new();
 

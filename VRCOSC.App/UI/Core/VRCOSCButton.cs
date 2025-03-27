@@ -2,8 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 
 // ReSharper disable InconsistentNaming
@@ -39,8 +41,8 @@ public class VRCOSCButton : Button
         set => SetValue(ButtonColourProperty, value);
     }
 
-    public object ButtonBackgroundNormal => buttonColourToBrush(false);
-    public object ButtonBackgroundLight => buttonColourToBrush(true);
+    public Brush ButtonBackgroundNormal => buttonColourToBrush(false);
+    public Brush ButtonBackgroundLight => buttonColourToBrush(true);
 
     public VRCOSCButton()
     {
@@ -61,4 +63,16 @@ public class VRCOSCButton : Button
         ButtonColour.None => Brushes.Transparent,
         _ => throw new ArgumentOutOfRangeException(nameof(ButtonColour), ButtonColour, null)
     };
+}
+
+internal class ButtonBackgroundColourConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (values is not [VRCOSCButton button, bool isMouseOver, Brush]) return Brushes.Aqua;
+
+        return isMouseOver ? button.ButtonBackgroundLight : button.ButtonBackgroundNormal;
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => [];
 }

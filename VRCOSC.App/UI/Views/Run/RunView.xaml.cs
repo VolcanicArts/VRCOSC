@@ -225,6 +225,6 @@ public partial class RunView : INotifyPropertyChanged
     {
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCMetadata.AutoStartQuestionClicked).Value = true;
         MainWindow.GetInstance().FocusAppSettings();
-        MainWindow.GetInstance().AppSettingsView.FocusAutomationTab();
+        MainWindow.GetInstance().AppSettingsView.FocusBehaviourTab();
     }
 }

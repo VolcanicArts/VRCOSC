@@ -5,7 +5,6 @@ using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Utils;
 
@@ -63,21 +62,6 @@ public class QueryableParameterFloatValueEntryVisibilityConverter : IValueConver
         if (value is ParameterType type)
         {
             return type == ParameterType.Float ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        return null;
-    }
-
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
-}
-
-public class QueryableParameterHasActionVisibilityConverter : IValueConverter
-{
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value is QueryableParameterListModuleSetting moduleSetting)
-        {
-            return moduleSetting.ActionType is null ? Visibility.Collapsed : Visibility.Visible;
         }
 
         return null;

@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d">
     <TextBox Text="{Binding Attribute.Value}"
-             Background="{StaticResource CBackground3}" Foreground="{StaticResource CForeground1}" FontSize="16"
-             HorizontalAlignment="Stretch" VerticalContentAlignment="Center" />
+             Background="{DynamicResource CBackground3}" Foreground="{DynamicResource CForeground1}" FontSize="16"
+             VerticalAlignment="Center"
+             HorizontalAlignment="Left" VerticalContentAlignment="Center" FontWeight="Regular" Width="200" />
 </UserControl>

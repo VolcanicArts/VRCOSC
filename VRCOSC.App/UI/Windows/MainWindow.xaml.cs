@@ -5,6 +5,8 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
@@ -135,8 +137,21 @@ public partial class MainWindow
 
         velopackUpdater = new VelopackUpdater();
 
-        var isUpdating = await checkForUpdates();
-        if (isUpdating) return;
+        var lastUpdateCheck = SettingsManager.GetInstance().GetValue<DateTime>(VRCOSCMetadata.LastUpdateCheck);
+        var updateCheckExpired = lastUpdateCheck <= DateTime.Now - TimeSpan.FromMinutes(10);
+
+        Logger.Log($"Update check expired? {updateCheckExpired}");
+
+        if (updateCheckExpired)
+        {
+            SettingsManager.GetInstance().GetObservable<DateTime>(VRCOSCMetadata.LastUpdateCheck).Value = DateTime.Now;
+        }
+
+        if (updateCheckExpired)
+        {
+            var isUpdating = await checkForUpdates();
+            if (isUpdating) return;
+        }
 
         createBackupIfUpdated();
         setupTrayIcon();
@@ -157,6 +172,23 @@ public partial class MainWindow
 
         await PackageManager.GetInstance().Load();
 
+        var appVersionChanged = hasAppVersionChanged();
+
+        if (appVersionChanged)
+        {
+            SettingsManager.GetInstance().GetObservable<string>(VRCOSCMetadata.InstalledVersion).Value = AppManager.Version;
+        }
+
+        if (appVersionChanged || (PackageManager.GetInstance().IsCacheOutdated && updateCheckExpired))
+        {
+            await PackageManager.GetInstance().RefreshAllSources(true);
+
+            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && PackageManager.GetInstance().AnyInstalledPackageUpdates())
+            {
+                await PackageManager.GetInstance().UpdateAllInstalledPackages();
+            }
+        }
+
         if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
         {
             await PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource, reloadAll: false, refreshBeforeInstall: false);
@@ -172,23 +204,6 @@ public partial class MainWindow
             ftsWindow.Show();
 
             SettingsManager.GetInstance().GetObservable<bool>(VRCOSCMetadata.FirstTimeSetupComplete).Value = true;
-        }
-
-        var appVersionChanged = hasAppVersionChanged();
-
-        if (appVersionChanged)
-        {
-            SettingsManager.GetInstance().GetObservable<string>(VRCOSCMetadata.InstalledVersion).Value = AppManager.Version;
-        }
-
-        if (appVersionChanged || PackageManager.GetInstance().IsCacheOutdated)
-        {
-            await PackageManager.GetInstance().RefreshAllSources(true);
-
-            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && PackageManager.GetInstance().AnyInstalledPackageUpdates())
-            {
-                await PackageManager.GetInstance().UpdateAllInstalledPackages();
-            }
         }
 
         ProfileManager.GetInstance().Load();
@@ -208,29 +223,46 @@ public partial class MainWindow
 
     private async Task<bool> checkForUpdates()
     {
-        if (velopackUpdater.IsInstalled())
+        try
         {
-            await velopackUpdater.CheckForUpdatesAsync();
-
-            if (velopackUpdater.IsUpdateAvailable())
+            if (velopackUpdater.IsInstalled())
             {
-                var shouldUpdate = velopackUpdater.PresentUpdate();
+                await velopackUpdater.CheckForUpdatesAsync();
 
-                if (shouldUpdate)
+                if (velopackUpdater.IsUpdateAvailable())
                 {
-                    await ShowLoadingOverlay(new CallbackProgressAction("Updating VRCOSC", () => velopackUpdater.ExecuteUpdateAsync()));
-                    return true;
+                    var shouldUpdate = velopackUpdater.PresentUpdate();
+
+                    if (shouldUpdate)
+                    {
+                        await ShowLoadingOverlay(new CallbackProgressAction("Updating VRCOSC", () => velopackUpdater.ExecuteUpdateAsync()));
+                        return true;
+                    }
                 }
+
+                Logger.Log("No updates. Proceeding with loading");
+            }
+            else
+            {
+                Logger.Log("Portable app detected. Cancelling update check");
             }
 
-            Logger.Log("No updates. Proceeding with loading");
+            return false;
         }
-        else
+        catch (HttpRequestException e)
         {
-            Logger.Log("Portable app detected. Cancelling update check");
-        }
+            // rate limit exceeded
+            if (e.StatusCode == HttpStatusCode.Forbidden)
+            {
+                Logger.Error(e, "Cannot check for updates. Rate limit has occurred");
+            }
+            else
+            {
+                ExceptionHandler.Handle(e, "Cannot check for updates");
+            }
 
-        return false;
+            return false;
+        }
     }
 
     private bool hasAppVersionChanged() => calculateVersionPrecedence() != 0;
@@ -239,7 +271,7 @@ public partial class MainWindow
     private int calculateVersionPrecedence()
     {
         var installedVersionStr = SettingsManager.GetInstance().GetValue<string>(VRCOSCMetadata.InstalledVersion);
-        if (string.IsNullOrEmpty(installedVersionStr)) return 1;
+        if (string.IsNullOrEmpty(installedVersionStr)) return -1;
 
         var newVersion = SemVersion.Parse(AppManager.Version, SemVersionStyles.Any);
         var installedVersion = SemVersion.Parse(installedVersionStr, SemVersionStyles.Any);

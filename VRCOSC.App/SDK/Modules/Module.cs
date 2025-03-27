@@ -8,8 +8,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Semver;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
@@ -20,9 +22,11 @@ using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.SDK.Modules.Attributes.Types;
 using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.SDK.Parameters.Queryable;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
+using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Views.Modules.Settings;
 using VRCOSC.App.Utils;
 
@@ -67,7 +71,7 @@ public abstract class Module
     internal readonly Dictionary<Enum, ModuleParameter> Parameters = new();
     internal readonly Dictionary<string, ModuleSetting> Settings = new();
 
-    internal readonly Dictionary<string, List<string>> Groups = new();
+    internal readonly List<SettingsGroup> Groups = new();
     internal readonly Dictionary<ModulePersistentAttribute, PropertyInfo> PersistentProperties = new();
 
     private readonly List<Repeater> updateTasks = new();
@@ -79,6 +83,7 @@ public abstract class Module
     private SerialisationManager moduleSerialisationManager = null!;
     private SerialisationManager persistenceSerialisationManager = null!;
 
+    internal IManagedWindow? SettingsWindow { get; private set; }
     internal Type? RuntimeViewType { get; private set; }
 
     private bool isLoaded;
@@ -96,6 +101,8 @@ public abstract class Module
     public bool HasInfo => GetType().GetCustomAttribute<ModuleInfoAttribute>() is not null;
     public bool HasPrefabs => GetType().GetCustomAttributes<ModulePrefabAttribute>().Any();
     public IEnumerable<ModulePrefabAttribute> Prefabs => GetType().GetCustomAttributes<ModulePrefabAttribute>();
+
+    internal Dictionary<string, Dictionary<SemVersion, MethodInfo>> Migrators = [];
 
     protected Module()
     {
@@ -118,6 +125,9 @@ public abstract class Module
         Parameters.Clear();
         Groups.Clear();
 
+        setSettingsWindow();
+        generateMigrators();
+
         OnPreLoad();
 
         moduleSerialisationManager.Deserialise(string.IsNullOrEmpty(filePathOverride), filePathOverride);
@@ -125,6 +135,11 @@ public abstract class Module
         cachePersistentProperties();
 
         Enabled.Subscribe(_ => moduleSerialisationManager.Serialise());
+
+        foreach (var (_, moduleSetting) in Settings)
+        {
+            moduleSetting.OnSettingChange += Serialise;
+        }
 
         isLoaded = true;
 
@@ -139,6 +154,45 @@ public abstract class Module
     internal void Serialise()
     {
         moduleSerialisationManager.Serialise();
+    }
+
+    private void setSettingsWindow()
+    {
+        var settingsWindowAttribute = GetType().GetCustomAttribute<ModuleSettingsWindowAttribute>();
+        if (settingsWindowAttribute is null) return;
+
+        var windowType = settingsWindowAttribute.WindowType;
+
+        if (!windowType.IsAssignableTo(typeof(Window))) throw new Exception("Cannot set settings window that isn't of type Window");
+        if (!windowType.IsAssignableTo(typeof(IManagedWindow))) throw new Exception("Cannot set settings window that doesn't extend IManagedWindow");
+        if (!windowType.HasConstructorThatAccepts(GetType())) throw new Exception($"Cannot set settings window that doesn't have a constructor that accepts type {GetType().Name}");
+
+        var window = (Window)Activator.CreateInstance(windowType, this)!;
+        window.Closing += (_, _) => Serialise();
+        SettingsWindow = (IManagedWindow)window;
+    }
+
+    private void generateMigrators()
+    {
+        Migrators.Clear();
+
+        GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).ForEach(info =>
+        {
+            var isDefined = info.IsDefined(typeof(ModuleMigrationAttribute));
+            if (!isDefined) return;
+
+            var attribute = info.GetCustomAttribute<ModuleMigrationAttribute>()!;
+
+            var parameters = info.GetParameters();
+            if (parameters.Length != 1) throw new Exception("Migration methods must have 1 parameter");
+
+            var returnParameter = info.ReturnParameter;
+            if (returnParameter.ParameterType == typeof(void)) throw new Exception("Migration methods must have a return parameter");
+
+            Migrators.TryAdd(attribute.SourceSetting, new Dictionary<SemVersion, MethodInfo>());
+
+            Migrators[attribute.SourceSetting].Add(attribute.SourceVersion, info);
+        });
     }
 
     #endregion
@@ -294,12 +348,12 @@ public abstract class Module
     /// <summary>
     /// Retrieves the player instance that gives you information about the local player, their built-in avatar parameters, and input controls
     /// </summary>
-    protected Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
+    public Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
 
     /// <summary>
     /// Allows you to access the current state of SteamVR (or any OpenVR runtime)
     /// </summary>
-    protected OVRClient GetOVRClient() => AppManager.GetInstance().OVRClient;
+    public OVRClient GetOVRClient() => AppManager.GetInstance().OVRClient;
 
     #region Callbacks
 
@@ -337,7 +391,7 @@ public abstract class Module
     /// Logs to the terminal when the module is running
     /// </summary>
     /// <param name="message">The message to log to the terminal</param>
-    protected void Log(string message)
+    public void Log(string message)
     {
         Logger.Log($"[{Title}]: {message}", LoggingTarget.Terminal);
     }
@@ -346,7 +400,7 @@ public abstract class Module
     /// Logs to a module debug file when enabled in the settings
     /// </summary>
     /// <param name="message">The message to log to the file</param>
-    protected void LogDebug(string message)
+    public void LogDebug(string message)
     {
         if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.EnableAppDebug)) return;
 
@@ -382,18 +436,27 @@ public abstract class Module
     /// </summary>
     /// <param name="title">The title of the group</param>
     /// <param name="lookups">The settings lookups to put in this group</param>
-    protected void CreateGroup(string title, params Enum[] lookups)
+    [Obsolete("Use CreateGroup(string, string, Enum[]) instead", false)]
+    protected void CreateGroup(string title, params Enum[] lookups) => CreateGroup(title, string.Empty, lookups);
+
+    /// <summary>
+    /// Specifies a list of settings to group together in the UI
+    /// </summary>
+    /// <param name="title">The title of the group</param>
+    /// <param name="description">The description of this group</param>
+    /// <param name="lookups">The settings lookups to put in this group</param>
+    protected void CreateGroup(string title, string description, params Enum[] lookups)
     {
         if (isLoaded)
             throw new InvalidOperationException($"{FullID} attempted to create a group after the module has been loaded");
 
-        if (Groups.ContainsKey(title))
+        if (Groups.Any(group => group.Title == title))
             throw new InvalidOperationException($"{FullID} attempted to create a group '{title}' which already exists");
 
-        if (lookups.Any(newLookup => Groups.Any(pair => pair.Value.Contains(newLookup.ToLookup()))))
+        if (lookups.Any(newLookup => Groups.Any(group => group.Settings.Contains(newLookup.ToLookup()))))
             throw new InvalidOperationException($"{FullID} attempted to add a setting to a group when it's already in a group");
 
-        Groups.Add(title, lookups.Select(lookup => lookup.ToLookup()).ToList());
+        Groups.Add(new SettingsGroup(title, description, lookups.Select(lookup => lookup.ToLookup()).ToList()));
     }
 
     /// <summary>
@@ -497,12 +560,8 @@ public abstract class Module
 
     protected void CreateQueryableParameterList(Enum lookup, string title, string description)
     {
-        addSetting(lookup, new QueryableParameterListModuleSetting(title, description, null));
-    }
-
-    protected void CreateQueryableParameterList<TAction>(Enum lookup, string title, string description) where TAction : Enum
-    {
-        addSetting(lookup, new QueryableParameterListModuleSetting(title, description, typeof(TAction)));
+        // TODO: Allow for deriving queryable parameters
+        addSetting(lookup, new QueryableParameterListModuleSetting<QueryableParameter>(title, description));
     }
 
     private void addSetting(Enum lookup, ModuleSetting moduleSetting)
@@ -894,7 +953,7 @@ public abstract class Module
     /// </summary>
     /// <param name="lookup">The lookup of the setting</param>
     /// <returns>The container if successful, otherwise pushes an exception and returns default</returns>
-    protected ModuleSetting GetSetting(Enum lookup) => GetSetting<ModuleSetting>(lookup);
+    public ModuleSetting GetSetting(Enum lookup) => GetSetting<ModuleSetting>(lookup);
 
     /// <summary>
     /// Retrieves the container of the setting using the provided lookup and type param for custom <see cref="ModuleSetting"/>s. This allows for creating more complex UI callback behaviour.
@@ -903,7 +962,7 @@ public abstract class Module
     /// <typeparam name="T">The custom <see cref="ModuleSetting"/> type</typeparam>
     /// <param name="lookup">The lookup of the setting</param>
     /// <returns>The container if successful, otherwise pushes an exception and returns default</returns>
-    protected T GetSetting<T>(Enum lookup) where T : ModuleSetting => GetSetting<T>(lookup.ToLookup());
+    public T GetSetting<T>(Enum lookup) where T : ModuleSetting => GetSetting<T>(lookup.ToLookup());
 
     internal T GetSetting<T>(string lookup) where T : ModuleSetting
     {
@@ -926,7 +985,7 @@ public abstract class Module
     /// <param name="lookup">The lookup of the setting</param>
     /// <typeparam name="T">The value type of the setting</typeparam>
     /// <returns>The value if successful, otherwise pushes an exception and returns default</returns>
-    protected T GetSettingValue<T>(Enum lookup)
+    public T GetSettingValue<T>(Enum lookup)
     {
         try
         {
@@ -936,6 +995,21 @@ public abstract class Module
         {
             ExceptionHandler.Handle(e, $"'{FullID}' experienced a problem when getting value of setting '{lookup.ToLookup()}'");
             return default!;
+        }
+    }
+
+    public void SetSettingValue<T>(Enum lookup, T value) where T : notnull
+    {
+        try
+        {
+            var setting = GetSetting(lookup);
+            if (setting is not ValueModuleSetting<T> valueModuleSetting) throw new Exception("Cannot set a setting value for a non-value module setting");
+
+            valueModuleSetting.Attribute.Value = value;
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"'{FullID}' experienced a problem when setting value of setting '{lookup.ToLookup()}'");
         }
     }
 
@@ -1050,4 +1124,6 @@ public abstract class Module
     #endregion
 
     private record WaitingParameter(Enum Lookup, bool BlockEvents, TaskCompletionSource CompletionSource);
+
+    public record SettingsGroup(string Title, string Description, List<string> Settings);
 }
