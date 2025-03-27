@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Semver;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
@@ -102,8 +101,6 @@ public abstract class Module
     public bool HasPrefabs => GetType().GetCustomAttributes<ModulePrefabAttribute>().Any();
     public IEnumerable<ModulePrefabAttribute> Prefabs => GetType().GetCustomAttributes<ModulePrefabAttribute>();
 
-    internal Dictionary<string, Dictionary<SemVersion, MethodInfo>> Migrators = [];
-
     protected Module()
     {
         State.Subscribe(newState => Log(newState.ToString()));
@@ -126,7 +123,6 @@ public abstract class Module
         Groups.Clear();
 
         setSettingsWindow();
-        generateMigrators();
 
         OnPreLoad();
 
@@ -170,29 +166,6 @@ public abstract class Module
         var window = (Window)Activator.CreateInstance(windowType, this)!;
         window.Closing += (_, _) => Serialise();
         SettingsWindow = (IManagedWindow)window;
-    }
-
-    private void generateMigrators()
-    {
-        Migrators.Clear();
-
-        GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy).ForEach(info =>
-        {
-            var isDefined = info.IsDefined(typeof(ModuleMigrationAttribute));
-            if (!isDefined) return;
-
-            var attribute = info.GetCustomAttribute<ModuleMigrationAttribute>()!;
-
-            var parameters = info.GetParameters();
-            if (parameters.Length != 1) throw new Exception("Migration methods must have 1 parameter");
-
-            var returnParameter = info.ReturnParameter;
-            if (returnParameter.ParameterType == typeof(void)) throw new Exception("Migration methods must have a return parameter");
-
-            Migrators.TryAdd(attribute.SourceSetting, new Dictionary<SemVersion, MethodInfo>());
-
-            Migrators[attribute.SourceSetting].Add(attribute.SourceVersion, info);
-        });
     }
 
     #endregion
