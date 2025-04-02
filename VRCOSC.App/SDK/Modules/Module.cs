@@ -984,6 +984,8 @@ public abstract class Module
         }
     }
 
+    protected Task<string?> FindCurrentAvatar() => AppManager.GetInstance().VRChatOscClient.FindCurrentAvatar();
+
     /// <summary>
     /// Retrieves a parameter's value using OSCQuery
     /// </summary>

@@ -259,9 +259,18 @@ public class AppManager
             if (message.IsAvatarParameter)
             {
                 var wasPlayerUpdated = VRChatClient.Player.Update(message.ParameterName, message.ParameterValue);
-                if (wasPlayerUpdated) ModuleManager.GetInstance().PlayerUpdate();
 
-                if (message.ParameterName.StartsWith("VRCOSC/Controls")) handleControlParameter(new ReceivedParameter(message.ParameterName, message.ParameterValue));
+                if (wasPlayerUpdated)
+                {
+                    ModuleManager.GetInstance().PlayerUpdate();
+                    return;
+                }
+
+                if (message.ParameterName.StartsWith("VRCOSC/Controls"))
+                {
+                    handleControlParameter(new ReceivedParameter(message.ParameterName, message.ParameterValue));
+                    return;
+                }
 
                 ModuleManager.GetInstance().ParameterReceived(message);
             }
@@ -568,7 +577,7 @@ public class AppManager
         if (updateTask is not null)
             await updateTask.StopAsync();
 
-        VRChatLogReader.Stop();
+        await VRChatLogReader.Stop();
         await ModuleManager.GetInstance().StopAsync();
         await ChatBoxManager.GetInstance().Stop();
         VRChatClient.Teardown();

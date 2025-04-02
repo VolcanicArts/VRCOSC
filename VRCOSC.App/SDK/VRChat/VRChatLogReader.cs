@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using VRCOSC.App.Modules;
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.Utils;
@@ -27,6 +28,7 @@ internal static class VRChatLogReader
     private static readonly Regex instance_joined_regex = new(@"^.+Finished entering world\.$");
     private static readonly Regex user_joined_regex = new(@"^.+OnPlayerJoined .+ \((.+)\)$");
     private static readonly Regex user_left_regex = new(@"^.+OnPlayerLeft .+ \((.+)\)$");
+    private static readonly Regex avatar_prechange_regex = new(@"^.+Initialize Limb Avatar VRCPlayer\[Local\] 1 True 1$");
 
     private static readonly List<LogLine> line_buffer = [];
     private static string? logFile;
@@ -52,7 +54,7 @@ internal static class VRChatLogReader
         processTask.Start(TimeSpan.FromMilliseconds(50), true);
     }
 
-    internal static async void Stop()
+    internal static async Task Stop()
     {
         if (processTask is null) return;
 
@@ -82,6 +84,7 @@ internal static class VRChatLogReader
                 checkInstanceJoined(logLine);
                 checkUserLeft(logLine);
                 checkUserJoined(logLine);
+                checkAvatarPreChange(logLine);
             }
 
             line_buffer.Clear();
@@ -188,11 +191,25 @@ internal static class VRChatLogReader
         handlers.ForEach(handler => handler.OnUserJoined(new VRChatClientEventUserJoined(logLine.DateTime, userId)));
     }
 
+    private static void checkAvatarPreChange(LogLine logLine)
+    {
+        var match = avatar_prechange_regex.Match(logLine.Line);
+        if (!match.Success) return;
+
+        handlers.ForEach(handler => handler.OnAvatarPreChange(new VRChatClientEventAvatarPreChange(logLine.DateTime)));
+    }
+
     private readonly record struct LogLine(DateTime DateTime, string Line);
 }
 
 public record VRChatClientEvent(DateTime DateTime);
+
 public record VRChatClientEventInstanceLeft(DateTime DateTime) : VRChatClientEvent(DateTime);
+
 public record VRChatClientEventInstanceJoined(DateTime DateTime, string WorldId) : VRChatClientEvent(DateTime);
+
 public record VRChatClientEventUserLeft(DateTime DateTime, string UserId) : VRChatClientEvent(DateTime);
+
 public record VRChatClientEventUserJoined(DateTime DateTime, string UserId) : VRChatClientEvent(DateTime);
+
+public record VRChatClientEventAvatarPreChange(DateTime DateTime) : VRChatClientEvent(DateTime);

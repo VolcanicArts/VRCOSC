@@ -77,11 +77,12 @@ public class VRChatOscClient
         this.connectionManager = connectionManager;
     }
 
-    private Task<OSCQueryNode?> findParameter(string parameterName) => findAddress(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX + parameterName);
-
-    private async Task<OSCQueryNode?> findAddress(string address)
+    public async Task<OSCQueryNode?> FindAddress(string address)
     {
-        if (!connectionManager.IsConnected) return null;
+        var oscMode = SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode);
+
+        // OSCQuery from VRChat is only broadcast on loopback so we'll turn it off for non-local modes
+        if (oscMode != ConnectionMode.Local || !connectionManager.IsConnected) return null;
 
         address = address.Replace(" ", "%20");
         var url = $"http://{connectionManager.VRChatIP}:{connectionManager.VRChatQueryPort}{address}";
@@ -105,12 +106,7 @@ public class VRChatOscClient
 
     public async Task<ReceivedParameter?> FindParameter(string parameterName)
     {
-        var oscMode = SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode);
-
-        // OSCQuery from VRChat is only broadcast on loopback so we'll turn it off for non-local modes
-        if (oscMode != ConnectionMode.Local) return null;
-
-        var node = await findParameter(parameterName);
+        var node = await FindAddress(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX + parameterName);
         if (node?.Value is null || node.Value.Length == 0) return null;
 
         object parameterValue = node.OscType switch
@@ -123,5 +119,13 @@ public class VRChatOscClient
         };
 
         return new ReceivedParameter(parameterName, parameterValue);
+    }
+
+    public async Task<string?> FindCurrentAvatar()
+    {
+        var node = await FindAddress(VRChatOscConstants.ADDRESS_AVATAR_CHANGE);
+        if (node?.Value is null || node.Value.Length == 0) return null;
+
+        return Convert.ToString(node.Value[0]);
     }
 }

@@ -11,4 +11,5 @@ public interface IVRCClientEventHandler
     public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs);
     public void OnUserJoined(VRChatClientEventUserJoined eventArgs);
     public void OnUserLeft(VRChatClientEventUserLeft eventArgs);
+    public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs);
 }
