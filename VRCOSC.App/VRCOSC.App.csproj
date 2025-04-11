@@ -24,7 +24,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Extended.Wpf.Toolkit" Version="4.6.1" />
+        <PackageReference Include="Extended.Wpf.Toolkit" Version="4.7.25104.5739" />
         <PackageReference Include="FontAwesome6.Fonts" Version="2.5.1" />
         <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4" />
         <PackageReference Include="MathParser.org-mXparser" Version="6.1.0" />
@@ -41,9 +41,9 @@
         <PackageReference Include="Velopack" Version="0.0.1053" />
         <PackageReference Include="VolcanicArts.FastOSC" Version="1.1.1" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />
-        <PackageReference Include="Whisper.net" Version="1.7.4" />
-        <PackageReference Include="Whisper.net.Runtime" Version="1.7.4" />
-        <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.7.4" />
+        <PackageReference Include="Whisper.net" Version="1.8.1" />
+        <PackageReference Include="Whisper.net.Runtime" Version="1.8.1" />
+        <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.8.1" />
         <PackageReference Include="WindowsInput" Version="6.4.1" />
     </ItemGroup>
 
