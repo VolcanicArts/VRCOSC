@@ -466,6 +466,48 @@ public partial class NodeScapeView : INotifyPropertyChanged
     {
     }
 
+    private void ParentContainer_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+    {
+        if (ConnectionDrag is not null && ConnectionDrag.Origin == ConnectionDragOrigin.ValueInput)
+        {
+            var node = ConnectionDrag.Node;
+            var slot = ConnectionDrag.Slot;
+
+            var metadata = NodeScape.GetMetadata(node);
+            var slotInputType = metadata.Process.InputTypes[slot];
+
+            if (NodeConstants.TEXT_INPUT_TYPES.Contains(slotInputType))
+            {
+                e.Handled = true;
+
+                var mousePosRelativeToCanvas = Mouse.GetPosition(CanvasContainer);
+                var outputNode = NodeScape.AddNode(typeof(ValueNode<>).MakeGenericType(slotInputType));
+
+                NodeScape.CreateValueConnection(outputNode.Id, 0, node.Id, slot);
+                outputNode.Position.X = mousePosRelativeToCanvas.X;
+                outputNode.Position.Y = mousePosRelativeToCanvas.Y;
+
+                ConnectionDrag = null;
+            }
+        }
+
+        if (ConnectionDrag is not null && ConnectionDrag.Origin == ConnectionDragOrigin.FlowInput)
+        {
+            e.Handled = true;
+
+            var node = ConnectionDrag.Node;
+            var mousePosRelativeToCanvas = Mouse.GetPosition(CanvasContainer);
+
+            var outputNode = NodeScape.AddNode(typeof(ButtonInputNode));
+
+            NodeScape.CreateFlowConnection(outputNode.Id, 0, node.Id);
+            outputNode.Position.X = mousePosRelativeToCanvas.X;
+            outputNode.Position.Y = mousePosRelativeToCanvas.Y;
+
+            ConnectionDrag = null;
+        }
+    }
+
     private void CanvasContainer_OnMouseMove(object sender, MouseEventArgs e)
     {
         if (nodeDrag is not null)
@@ -808,7 +850,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
         }
 
         var element = (FrameworkElement)sender;
-        var node = (Node)element.DataContext;
+        var node = (Node)element.FindVisualParent<ItemsControl>()!.DataContext;
         var slot = getSlotFromConnectionElement(element);
 
         Logger.Log($"{nameof(ValueOutput_OnMouseUp)}: Ending output value drag on node {node.GetType().Name} in slot {slot}", LoggingTarget.Information);
@@ -833,11 +875,13 @@ public partial class NodeScapeView : INotifyPropertyChanged
         var elementPosRelativeToCanvas = element.TranslatePoint(new Point(0, 0), CanvasContainer) + new Vector(centerOffsetX, centerOffsetY);
         var mousePosRelativeToCanvas = Mouse.GetPosition(CanvasContainer);
 
+        var isReversed = ConnectionDrag.Origin is ConnectionDragOrigin.FlowInput or ConnectionDragOrigin.ValueInput;
+
         var startPoint = elementPosRelativeToCanvas;
         var endPoint = mousePosRelativeToCanvas;
         var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.75d, 75d);
-        var controlPoint1 = Point.Add(startPoint, new Vector(delta, 0));
-        var controlPoint2 = Point.Add(endPoint, new Vector(-delta, 0));
+        var controlPoint1 = Point.Add(startPoint, new Vector(isReversed ? -delta : delta, 0));
+        var controlPoint2 = Point.Add(endPoint, new Vector(isReversed ? delta : -delta, 0));
 
         //Logger.Log(startPoint + " - " + controlPoint1 + " - " + controlPoint2 + " - " + endPoint, LoggingTarget.Information);
 
@@ -876,6 +920,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
         node.Position.X = mousePosRelativeToCanvas.X;
         node.Position.Y = mousePosRelativeToCanvas.Y;
+
+        ConnectionDrag = null;
     }
 }
 

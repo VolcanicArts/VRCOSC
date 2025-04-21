@@ -51,13 +51,13 @@ public static class ContextMenuBuilder
         foreach (var type in nodeTypes)
         {
             var attr = type.GetCustomAttribute<NodeAttribute>();
-            if (attr == null) continue;
+            if (attr == null || string.IsNullOrEmpty(attr.Path)) continue;
 
             var currentList = root.Items;
 
             if (!string.IsNullOrWhiteSpace(attr.Path))
             {
-                string[] pathParts = attr.Path.Split('/');
+                var pathParts = attr.Path.Split('/');
 
                 foreach (var part in pathParts)
                 {

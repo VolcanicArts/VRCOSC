@@ -76,7 +76,7 @@ public abstract class InputNode : Node
 {
 }
 
-[Node("Call", "Inputs")]
+[Node("Call", "")]
 public sealed class ButtonInputNode : InputNode
 {
     private readonly NodeFlowRef outFlow;

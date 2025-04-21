@@ -415,7 +415,8 @@
               MouseMove="ParentContainer_OnMouseMove"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               Background="{DynamicResource CBackground2}"
-              Width="12000" Height="12000">
+              Width="12000" Height="12000"
+              ContextMenuOpening="ParentContainer_OnContextMenuOpening">
             <Grid x:Name="RootContainer"
                   Background="Transparent"
                   Width="12000" Height="12000"
@@ -463,12 +464,11 @@
             </Grid>
         </Grid>
         <Grid.ContextMenu>
-            <ContextMenu ItemsSource="{Binding ContextMenuRoot.Items}">
+            <ContextMenu Name="WindowContextMenu" ItemsSource="{Binding ContextMenuRoot.Items}">
                 <ContextMenu.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type nodes:ContextMenuSubMenu}" ItemsSource="{Binding Items}">
                         <TextBlock Text="{Binding Name}" />
                     </HierarchicalDataTemplate>
-
                     <DataTemplate DataType="{x:Type nodes:ContextMenuItem}">
                         <MenuItem Header="{Binding Name}" Click="WindowContextMenu_ItemClick" Tag="{Binding Type}"/>
                     </DataTemplate>
