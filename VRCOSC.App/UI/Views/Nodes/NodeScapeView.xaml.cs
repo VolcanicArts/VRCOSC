@@ -893,6 +893,13 @@ public partial class NodeScapeView : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+
+    private void ButtonInputNode_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var node = (ButtonInputNode)element.DataContext;
+        node.Clicked = true;
+    }
 }
 
 public record NodeDragInstance(Node Node, double OffsetX, double OffsetY);

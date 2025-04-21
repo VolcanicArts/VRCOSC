@@ -86,13 +86,24 @@ public sealed class ButtonInputNode : InputNode
 {
     private readonly NodeFlowRef outFlow;
 
+    public bool Clicked { get; set; }
+
     public ButtonInputNode()
     {
-        outFlow = AddFlow("On Click", ConnectionSide.Output);
+        outFlow = AddFlow("On Call", ConnectionSide.Output);
     }
 
     [NodeTrigger]
-    private bool wasButtonClicked() => true;
+    private bool wasButtonClicked()
+    {
+        if (Clicked)
+        {
+            Clicked = false;
+            return true;
+        }
+
+        return false;
+    }
 
     [NodeProcess([], [])]
     private void process() => SetFlow(outFlow);

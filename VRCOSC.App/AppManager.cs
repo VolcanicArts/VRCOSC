@@ -74,6 +74,8 @@ public class AppManager
     private Repeater openvrCheckTask = null!;
     private Repeater openvrUpdateTask = null!;
 
+    public NodeScape NodeScape { get; internal set; }
+
     private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
     private readonly object oscMessageQueueLock = new();
 
@@ -86,8 +88,9 @@ public class AppManager
 
     public void Initialise()
     {
-        var nodeScape = new NodeScape();
-        nodeScape.Test();
+        NodeScape = new NodeScape();
+        var repeater = new Repeater("NodeScape", () => NodeScape.Update());
+        repeater.Start(TimeSpan.FromSeconds(1d / 60d), true);
 
         OSCEncoder.SetEncoding(Encoding.UTF8);
         OSCDecoder.SetEncoding(Encoding.UTF8);

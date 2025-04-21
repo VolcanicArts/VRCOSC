@@ -232,7 +232,7 @@ public class NodeScape
         CreateValueConnection(stringTextNode.Id, 0, toStringNode.Id, 2);
         CreateValueConnection(toStringNode.Id, 0, logNode.Id, 0);
 
-        update();
+        Update();
     }
 
     private void validate(Type type)
@@ -332,7 +332,7 @@ public class NodeScape
 
     private readonly Stack<Guid> returnNodes = [];
 
-    private void update()
+    public void Update()
     {
         foreach (var node in Nodes.Values.Where(node => GetMetadata(node).Trigger is not null))
         {
@@ -369,7 +369,6 @@ public class NodeScape
                 inputValues[i] = getValueForInput(currentNode, i);
             }
 
-            // TODO: Make generic method if needed
             var output = processMethod.Method.Invoke(currentNode, inputValues);
 
             if (processMethod.IsAsync)
@@ -381,7 +380,6 @@ public class NodeScape
 
             if (processMethod.OutputTypes.Length == 1)
             {
-                Debug.Assert(output is not null);
                 nodeOutputMemory[nextNodeId.Value] = [output];
             }
 

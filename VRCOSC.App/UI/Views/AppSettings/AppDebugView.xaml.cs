@@ -150,8 +150,8 @@ public partial class AppDebugView
 
     private void TestNodeField_OnClick(object sender, RoutedEventArgs e)
     {
-        nodeField ??= new NodeScape();
+        var nodeScape = AppManager.GetInstance().NodeScape;
 
-        nodeFieldWindowManager!.TrySpawnChild(new NodeScapeWindow(nodeField));
+        nodeFieldWindowManager!.TrySpawnChild(new NodeScapeWindow(nodeScape));
     }
 }
