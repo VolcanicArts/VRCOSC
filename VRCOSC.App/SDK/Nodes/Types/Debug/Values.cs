@@ -6,18 +6,15 @@ using System.Collections.Generic;
 namespace VRCOSC.App.SDK.Nodes.Types.Debug;
 
 [Node("List Output Test", "Debug")]
-[NodeValueOutput("String List")]
 public class ListOutputTestNode : Node
 {
-    [NodeProcess]
+    [NodeProcess([""], ["String List"])]
     private List<string> process() => ["Test1", "Test2", "Test3"];
 }
 
 [Node("Passthrough List Test", "Debug")]
-[NodeValueInput("String List")]
-[NodeValueOutput("String List")]
-public class PassthroughListTestNode : Node
+public class PassthroughListTestNode<T> : Node
 {
-    [NodeProcess]
-    private IEnumerable<T> process<T>(IEnumerable<T> enumerable) => enumerable;
+    [NodeProcess([""], [""])]
+    private IEnumerable<T> process(IEnumerable<T> enumerable) => enumerable;
 }

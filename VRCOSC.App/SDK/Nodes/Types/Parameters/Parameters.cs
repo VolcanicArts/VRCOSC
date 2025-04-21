@@ -1,87 +1,58 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
-using OneOf;
-using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.App.SDK.Nodes.Types.Parameters;
 
-[Node("On Parameter Received", "Parameters")]
-[NodeFlowInput(true)]
-[NodeFlowOutput("")]
-[NodeValueInput("Name")]
-[NodeValueOutput("Type", "Value")]
-public class OnParameterReceived : Node
+[Node("On Registered Parameter Received", "Parameters")]
+public sealed class RegisteredParameterReceivedNode<T> : Node
 {
-    [NodeProcess]
-    private (ParameterType, OneOf<bool, int, float>) process(string parameterName)
+    private readonly RegisteredParameter registeredParameter;
+    private readonly NodeFlowRef onReceivedFlow;
+
+    public RegisteredParameterReceivedNode(RegisteredParameter registeredParameter)
     {
-        var receivedParameter = new ReceivedParameter(parameterName, true);
+        this.registeredParameter = registeredParameter;
 
-        switch (receivedParameter.Type)
-        {
-            case ParameterType.Bool:
-                return (receivedParameter.Type, OneOf<bool, int, float>.FromT0((bool)receivedParameter.Value));
+        onReceivedFlow = AddFlow($"On {registeredParameter.Name} Received", ConnectionSide.Output);
+    }
 
-            case ParameterType.Int:
-                return (receivedParameter.Type, OneOf<bool, int, float>.FromT1((int)receivedParameter.Value));
+    [NodeTrigger]
+    private bool wasParameterReceived() => true;
 
-            case ParameterType.Float:
-                return (receivedParameter.Type, OneOf<bool, int, float>.FromT2((float)receivedParameter.Value));
+    [NodeProcess([], ["Value"])]
+    private T process()
+    {
+        SetFlow(onReceivedFlow);
 
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+        // TODO More checks here
+        return (T)registeredParameter.Value;
     }
 }
 
-[Node("On Registered Parameter Received", "Parameters")]
-[NodeFlowInput(true)]
-[NodeFlowOutput("")]
-[NodeValueOutput("Value")]
-public class OnRegisteredParameterReceived : Node
+[Node("On Parameter Received", "Parameters")]
+public class ParameterReceivedNode<T> : Node where T : struct
 {
-    private ModuleParameter? selectedParameter;
+    private readonly NodeFlowRef onReceivedFlow;
 
-    public ModuleParameter? SelectedParameter
+    public ParameterReceivedNode()
     {
-        get => selectedParameter;
-        set
-        {
-            selectedParameter = value;
-            OnOptionChanged?.Invoke();
-        }
+        onReceivedFlow = AddFlow("On Received", ConnectionSide.Output);
     }
 
-    [NodeProcess]
-    private OneOf<bool, int, float>? process()
+    [NodeTrigger]
+    private bool wasParameterReceived(string parameterName)
     {
-        var parameterArrived = true;
-        var parameterBool = true;
-        var parameterInt = 1;
-        var parameterFloat = 0.5f;
-        var parameterType = ParameterType.Bool;
+        return true;
+    }
 
-        if (parameterArrived)
-        {
-            switch (parameterType)
-            {
-                case ParameterType.Bool:
-                    return OneOf<bool, int, float>.FromT0(parameterBool);
+    [NodeProcess(["Name"], ["Value"])]
+    private T process(string parameterName)
+    {
+        SetFlow(onReceivedFlow);
 
-                case ParameterType.Int:
-                    return OneOf<bool, int, float>.FromT1(parameterInt);
-
-                case ParameterType.Float:
-                    return OneOf<bool, int, float>.FromT2(parameterFloat);
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        return null;
+        var receivedParameter = new ReceivedParameter(parameterName, default(T));
+        return (T)receivedParameter.Value;
     }
 }

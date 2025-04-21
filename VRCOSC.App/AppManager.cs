@@ -86,8 +86,8 @@ public class AppManager
 
     public void Initialise()
     {
-        var workspace = new NodeScape();
-        workspace.Test();
+        var nodeScape = new NodeScape();
+        nodeScape.Test();
 
         OSCEncoder.SetEncoding(Encoding.UTF8);
         OSCDecoder.SetEncoding(Encoding.UTF8);

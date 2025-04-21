@@ -2,8 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace VRCOSC.App.SDK.Nodes;
 
@@ -23,68 +21,20 @@ public class NodeAttribute : Attribute
     }
 }
 
-[AttributeUsage(AttributeTargets.Class)]
-public class NodeFlowInputAttribute : Attribute
+[AttributeUsage(AttributeTargets.Method)]
+public class NodeProcessAttribute : Attribute
 {
-    public bool IsTrigger { get; }
+    public string[] Inputs { get; }
+    public string[] Outputs { get; }
 
-    public NodeFlowInputAttribute(bool isTrigger = false)
+    public NodeProcessAttribute(string[] inputs, string[] outputs)
     {
-        IsTrigger = isTrigger;
+        Inputs = inputs;
+        Outputs = outputs;
     }
-}
-
-[AttributeUsage(AttributeTargets.Class)]
-public class NodeFlowOutputAttribute : Attribute
-{
-    public List<string> Titles { get; }
-
-    public NodeFlowOutputAttribute(params string[] titles)
-    {
-        Titles = titles.ToList();
-    }
-
-    public int Count => Titles.Count;
-}
-
-[AttributeUsage(AttributeTargets.Class)]
-public class NodeFlowLoop : Attribute
-{
-    public int[] FlowSlots { get; }
-
-    public NodeFlowLoop(params int[] flowSlots)
-    {
-        FlowSlots = flowSlots;
-    }
-}
-
-[AttributeUsage(AttributeTargets.Class)]
-public class NodeValueInputAttribute : Attribute
-{
-    public List<string> Titles { get; }
-
-    public NodeValueInputAttribute(params string[] titles)
-    {
-        Titles = titles.ToList();
-    }
-
-    public int Count => Titles.Count;
-}
-
-[AttributeUsage(AttributeTargets.Class)]
-public class NodeValueOutputAttribute : Attribute
-{
-    public List<string> Titles { get; }
-
-    public NodeValueOutputAttribute(params string[] titles)
-    {
-        Titles = titles.ToList();
-    }
-
-    public int Count => Titles.Count;
 }
 
 [AttributeUsage(AttributeTargets.Method)]
-public class NodeProcessAttribute : Attribute
+public class NodeTriggerAttribute : Attribute
 {
 }

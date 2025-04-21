@@ -3,18 +3,23 @@
 
 namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
-[Node("Flow Spit", "Flow")]
-[NodeFlowInput]
-[NodeFlowOutput("1", "2", "3", "4")]
-[NodeFlowLoop(0, 1, 2)]
-public class FlowSpitNode : Node
+[Node("Sequence", "Flow")]
+public sealed class FlowSequenceNode : Node
 {
-    private int currentFlow;
+    public FlowSequenceNode()
+    {
+        AddFlow("*", ConnectionSide.Input);
+        AddFlow("*", ConnectionSide.Output);
+        AddFlow("*", ConnectionSide.Output);
+    }
 
-    [NodeProcess]
+    internal void AddOutFlow() => AddFlow("*", ConnectionSide.Output);
+
+    private int currentFlowPosition;
+
+    [NodeProcess([], [])]
     private void process()
     {
-        SetFlow(currentFlow);
-        currentFlow++;
+        SetFlow(GetFlowAt(currentFlowPosition, ConnectionSide.Output));
     }
 }

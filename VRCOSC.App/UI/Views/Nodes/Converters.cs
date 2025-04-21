@@ -22,36 +22,45 @@ public class ConnectionAmountConverter : IValueConverter
     {
         if (value is not Node node) return null;
 
+        var nodeScape = node.NodeScape;
+        var metadata = nodeScape.GetMetadata(node);
+
         if (ConnectionType == ConnectionType.Flow && node.IsFlowNode(ConnectionSide.Input | ConnectionSide.Output))
         {
-            if (ConnectionSide == ConnectionSide.Input && node.IsFlowNode(ConnectionSide.Input))
+            if (ConnectionSide == ConnectionSide.Input)
             {
-                return !node.GetFlowInputAttribute().IsTrigger ? Enumerable.Range(0, 1).Select(i => new ConnectionViewModel(i, string.Empty)) : Array.Empty<ConnectionViewModel>();
+                if (metadata.Trigger is not null) return Array.Empty<ConnectionViewModel>();
+                if (!node.IsFlowNode(ConnectionSide.Input)) return Array.Empty<ConnectionViewModel>();
+
+                return Enumerable.Range(0, node.InputFlows.Count).Select(i => new ConnectionViewModel(i, node.InputFlows[i].Name));
             }
 
-            if (ConnectionSide == ConnectionSide.Output && node.IsFlowNode(ConnectionSide.Output))
+            if (ConnectionSide == ConnectionSide.Output)
             {
-                var attribute = node.GetFlowOutputAttribute();
-                return attribute.Count > 0 ? Enumerable.Range(0, attribute.Count).Select(i => new ConnectionViewModel(i, attribute.Titles[i])) : Array.Empty<ConnectionViewModel>();
+                if (!node.IsFlowNode(ConnectionSide.Output)) return Array.Empty<ConnectionViewModel>();
+
+                return Enumerable.Range(0, node.OutputFlows.Count).Select(i => new ConnectionViewModel(i, node.OutputFlows[i].Name));
             }
         }
 
         if (ConnectionType == ConnectionType.Value && node.IsValueNode(ConnectionSide.Input | ConnectionSide.Output))
         {
-            if (ConnectionSide == ConnectionSide.Input && node.IsValueNode(ConnectionSide.Input))
+            if (ConnectionSide == ConnectionSide.Input)
             {
-                var attribute = node.GetValueInputAttribute();
-                return attribute.Count > 0 ? Enumerable.Range(0, attribute.Count).Select(i => new ConnectionViewModel(i, attribute.Titles[i])) : Array.Empty<ConnectionViewModel>();
+                if (!node.IsValueNode(ConnectionSide.Input)) return Array.Empty<ConnectionViewModel>();
+
+                return Enumerable.Range(0, metadata.ValueInputNames.Length).Select(i => new ConnectionViewModel(i, metadata.ValueInputNames[i]));
             }
 
-            if (ConnectionSide == ConnectionSide.Output && node.IsValueNode(ConnectionSide.Output))
+            if (ConnectionSide == ConnectionSide.Output)
             {
-                var attribute = node.GetValueOutputAttribute();
-                return attribute.Count > 0 ? Enumerable.Range(0, attribute.Count).Select(i => new ConnectionViewModel(i, attribute.Titles[i])) : Array.Empty<ConnectionViewModel>();
+                if (!node.IsValueNode(ConnectionSide.Output)) return Array.Empty<ConnectionViewModel>();
+
+                return Enumerable.Range(0, metadata.ValueOutputNames.Length).Select(i => new ConnectionViewModel(i, metadata.ValueOutputNames[i]));
             }
         }
 
-        return Array.Empty<int>();
+        return Array.Empty<ConnectionViewModel>();
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;

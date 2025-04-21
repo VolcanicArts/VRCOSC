@@ -4,56 +4,69 @@
 namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
 [Node("If", "Flow")]
-[NodeFlowInput]
-[NodeFlowOutput("True", "False")]
-[NodeValueInput("Condition")]
-public class IfNode : Node
+public sealed class IfNode : Node
 {
-    [NodeProcess]
-    private void process(bool condition) => SetFlow(condition ? 0 : 1);
+    private readonly NodeFlowRef trueFlow;
+    private readonly NodeFlowRef falseFlow;
+
+    public IfNode()
+    {
+        AddFlow("*", ConnectionSide.Input);
+        trueFlow = AddFlow("On True", ConnectionSide.Output);
+        falseFlow = AddFlow("On False", ConnectionSide.Output);
+    }
+
+    [NodeProcess(["Condition"], [])]
+    private void process(bool condition) => SetFlow(condition ? trueFlow : falseFlow);
 }
 
 [Node("If With State", "Flow")]
-[NodeFlowInput]
-[NodeFlowOutput("Became True", "Became False", "Stayed True", "Stayed False")]
-[NodeValueInput("Condition")]
 public class IfWithStateNode : Node
 {
-    private const int became_true_slot = 0;
-    private const int became_false_slot = 1;
-    private const int true_slot = 2;
-    private const int false_slot = 3;
+    private readonly NodeFlowRef becameTrueFlow;
+    private readonly NodeFlowRef becameFalseFlow;
+    private readonly NodeFlowRef stillTrueFlow;
+    private readonly NodeFlowRef stillFalseFlow;
 
     private bool prevCondition;
 
-    [NodeProcess]
+    public IfWithStateNode()
+    {
+        AddFlow("*", ConnectionSide.Input);
+        becameTrueFlow = AddFlow("On Became True", ConnectionSide.Output);
+        becameFalseFlow = AddFlow("On Became False", ConnectionSide.Output);
+        stillTrueFlow = AddFlow("On Still True", ConnectionSide.Output);
+        stillFalseFlow = AddFlow("On Still False", ConnectionSide.Output);
+    }
+
+    [NodeProcess(["Condition"], [])]
     private void process(bool condition)
     {
         if (!prevCondition && condition)
         {
             prevCondition = condition;
-            SetFlow(became_true_slot);
+            SetFlow(becameTrueFlow);
             return;
         }
 
         if (prevCondition && !condition)
         {
             prevCondition = condition;
-            SetFlow(became_false_slot);
+            SetFlow(becameFalseFlow);
             return;
         }
 
         if (prevCondition && condition)
         {
             prevCondition = condition;
-            SetFlow(true_slot);
+            SetFlow(stillTrueFlow);
             return;
         }
 
         if (!prevCondition && !condition)
         {
             prevCondition = condition;
-            SetFlow(false_slot);
+            SetFlow(stillFalseFlow);
             return;
         }
     }

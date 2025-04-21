@@ -78,18 +78,16 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Left">
-                                        <Border  Height="20" Width="20"
-                                                 VerticalAlignment="Top"
-                                                 BorderBrush="Aqua"
-                                                 BorderThickness="3"
-                                                 Background="Transparent" CornerRadius="10"
-                                                 MouseDown="FlowInput_OnMouseDown"
-                                                 MouseUp="FlowInput_OnMouseUp"
-                                                 Tag="{Binding Converter={StaticResource FlowInputSlotNameConverter}}">
+                                        <Border Height="20" Width="20"
+                                                VerticalAlignment="Top"
+                                                BorderBrush="Aqua"
+                                                BorderThickness="3"
+                                                Background="Transparent" CornerRadius="10"
+                                                MouseDown="FlowInput_OnMouseDown"
+                                                MouseUp="FlowInput_OnMouseUp"
+                                                Tag="{Binding Converter={StaticResource FlowInputSlotNameConverter}}">
                                         </Border>
-                                        <fa6:FontAwesome Icon="Solid_ChevronRight" FontWeight="Regular"
-                                                         Foreground="{DynamicResource CForeground2}"
-                                                         VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Title}" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}"/>
                                     </core:SpacedStackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

@@ -1,18 +1,38 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.App.Utils;
+using System;
 
 namespace VRCOSC.App.SDK.Nodes.Types.Debug;
 
-[Node("Print", "Debug")]
-[NodeFlowInput]
-[NodeValueInput("String")]
-public class PrintNode : Node
+[Node("Log", "Debug")]
+public sealed class LogNode : Node
 {
-    [NodeProcess]
+    public LogNode()
+    {
+        AddFlow("*", ConnectionSide.Input);
+    }
+
+    [NodeProcess(["Input"], [])]
     private void process(string str)
     {
-        Logger.Log(str, LoggingTarget.Information);
+        Console.WriteLine(str);
     }
+}
+
+[Node("Always Trigger", "Debug")]
+public sealed class AlwaysTriggerNode : Node
+{
+    private readonly NodeFlowRef outNode;
+
+    public AlwaysTriggerNode()
+    {
+        outNode = AddFlow("*", ConnectionSide.Output);
+    }
+
+    [NodeTrigger]
+    private bool shouldTrigger() => true;
+
+    [NodeProcess([], [])]
+    private void process() => SetFlow(outNode);
 }

@@ -7,19 +7,15 @@ using System.Linq;
 namespace VRCOSC.App.SDK.Nodes.Types.Converters;
 
 [Node("Element At", "Enumerable")]
-[NodeValueInput("Enumerable", "Index")]
-[NodeValueOutput("Element")]
-public class ElementAtNode : Node
+public sealed class ElementAtNode<T> : Node
 {
-    [NodeProcess]
-    private T process<T>(IEnumerable<T> enumerable, int index) => enumerable.ElementAt(index);
+    [NodeProcess(["Enumerable", "Index"], ["Element"])]
+    private T process(IEnumerable<T> enumerable, int index) => enumerable.ElementAt(index);
 }
 
-[Node("Length", "Enumerable")]
-[NodeValueInput("Enumerable")]
-[NodeValueOutput("Length")]
-public class EnumerableLengthNode : Node
+[Node("Count", "Enumerable")]
+public class EnumerableCountNode<T> : Node
 {
-    [NodeProcess]
-    private int process<T>(IEnumerable<T> enumerable) => enumerable.Count();
+    [NodeProcess(["Enumerable"], ["Count"])]
+    private int process(IEnumerable<T> enumerable) => enumerable.Count();
 }

@@ -7,68 +7,78 @@ using System.Linq;
 namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
 [Node("While", "Loop")]
-[NodeFlowInput]
-[NodeFlowOutput("Finished", "Loop")]
-[NodeFlowLoop(1)]
-[NodeValueInput("Condition")]
 public class WhileNode : Node
 {
-    [NodeProcess]
-    private void process(bool condition) => SetFlow(condition ? 1 : 0);
+    private readonly NodeFlowRef loopFlowRef;
+    private readonly NodeFlowRef finishedFlowRef;
+
+    public WhileNode()
+    {
+        AddFlow("*", ConnectionSide.Input);
+        loopFlowRef = AddFlow("On Loop", ConnectionSide.Output, NodeFlowFlag.Loop);
+        finishedFlowRef = AddFlow("On Finished", ConnectionSide.Output);
+    }
+
+    [NodeProcess(["Condition"], [])]
+    private void process(bool condition) => SetFlow(condition ? loopFlowRef : finishedFlowRef);
 }
 
 [Node("For", "Loop")]
-[NodeFlowInput]
-[NodeFlowOutput("Finished", "Loop")]
-[NodeFlowLoop(1)]
-[NodeValueInput("Count")]
-[NodeValueOutput("Index")]
 public class ForNode : Node
 {
-    private const int finished_slot = 0;
-    private const int loop_slot = 1;
+    private readonly NodeFlowRef finishedFlowRef;
+    private readonly NodeFlowRef loopFlowRef;
 
     private int index;
 
-    [NodeProcess]
+    public ForNode()
+    {
+        AddFlow("*", ConnectionSide.Input);
+        finishedFlowRef = AddFlow("On Finished", ConnectionSide.Output);
+        loopFlowRef = AddFlow("On Loop", ConnectionSide.Output, NodeFlowFlag.Loop);
+    }
+
+    [NodeProcess(["Count"], ["Index"])]
     private int process(int count)
     {
         if (index < count)
         {
-            SetFlow(loop_slot);
+            SetFlow(loopFlowRef);
             return index++;
         }
 
         index = 0;
-        SetFlow(finished_slot);
-        return 0;
+        SetFlow(finishedFlowRef);
+        return -1;
     }
 }
 
 [Node("For Each", "Loop")]
-[NodeFlowInput]
-[NodeFlowOutput("Finished", "Loop")]
-[NodeFlowLoop(1)]
-[NodeValueInput("List")]
-[NodeValueOutput("Element")]
-public class ForEachNode : Node
+public sealed class ForEachNode<T> : Node
 {
-    private const int finished_slot = 0;
-    private const int loop_slot = 1;
+    private readonly NodeFlowRef loopFlowRef;
+    private readonly NodeFlowRef finishedFlowRef;
 
     private int index;
 
-    [NodeProcess]
-    private T process<T>(IEnumerable<T> enumerable)
+    public ForEachNode()
+    {
+        AddFlow("*", ConnectionSide.Input);
+        loopFlowRef = AddFlow("On Loop", ConnectionSide.Output, NodeFlowFlag.Loop);
+        finishedFlowRef = AddFlow("On Finished", ConnectionSide.Output);
+    }
+
+    [NodeProcess(["Enumerable"], ["Element"])]
+    private T? process(IEnumerable<T> enumerable)
     {
         if (index < enumerable.Count())
         {
-            SetFlow(loop_slot);
+            SetFlow(loopFlowRef);
             return enumerable.ElementAt(index++);
         }
 
         index = 0;
-        SetFlow(finished_slot);
-        return enumerable.Last();
+        SetFlow(finishedFlowRef);
+        return default;
     }
 }
