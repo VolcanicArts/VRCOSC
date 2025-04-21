@@ -9,7 +9,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Nodes;
 
-public static class Extensions
+public static class NodeExtensions
 {
     public static bool IsFlowNode(this Node node, ConnectionSide side)
     {
@@ -21,6 +21,18 @@ public static class Extensions
     {
         return (side.HasFlag(ConnectionSide.Input) && node.GetType().HasCustomAttribute<NodeValueInputAttribute>())
                || (side.HasFlag(ConnectionSide.Output) && node.GetType().HasCustomAttribute<NodeValueOutputAttribute>());
+    }
+
+    public static bool IsFlowNode<T>(ConnectionSide side) where T : Node
+    {
+        return (side.HasFlag(ConnectionSide.Input) && typeof(T).HasCustomAttribute<NodeFlowInputAttribute>())
+               || (side.HasFlag(ConnectionSide.Output) && typeof(T).HasCustomAttribute<NodeFlowOutputAttribute>());
+    }
+
+    public static bool IsValueNode<T>(ConnectionSide side) where T : Node
+    {
+        return (side.HasFlag(ConnectionSide.Input) && typeof(T).HasCustomAttribute<NodeValueInputAttribute>())
+               || (side.HasFlag(ConnectionSide.Output) && typeof(T).HasCustomAttribute<NodeValueOutputAttribute>());
     }
 
     public static NodeFlowInputAttribute GetFlowInputAttribute(this Node node)

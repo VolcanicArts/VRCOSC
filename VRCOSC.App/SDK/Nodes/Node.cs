@@ -17,7 +17,15 @@ public abstract class Node
 
     public string Title => GetType().GetCustomAttribute<NodeAttribute>()!.Title;
 
-    protected void SetOutput(int slot, object value) => NodeScape.SetOutputValue(this, slot, value);
+    public int NextFlowSlot;
+
+    public void SetFlow(int slot)
+    {
+        NextFlowSlot = slot;
+    }
+
+    public virtual int[] FilterProcesses() => Array.Empty<int>();
+    protected Action? OnOptionChanged;
 }
 
 public sealed class ObservableVector2 : INotifyPropertyChanged

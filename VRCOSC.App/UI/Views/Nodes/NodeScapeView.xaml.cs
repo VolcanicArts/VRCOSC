@@ -23,6 +23,9 @@ namespace VRCOSC.App.UI.Views.Nodes;
 
 public partial class NodeScapeView : INotifyPropertyChanged
 {
+    public const MouseButton CANVAS_DRAG_BUTTON = MouseButton.Middle;
+    public const MouseButton ELEMENT_DRAG_BUTTON = MouseButton.Left;
+    public const MouseButton CONTEXT_MENU_BUTTON = MouseButton.Right;
     public const double SNAP_DISTANCE = 20d;
     public const double SIGNIFICANT_SNAP_DISTANCE = SNAP_DISTANCE * 20d;
     public const bool SNAP_ENABLED = true;
@@ -59,6 +62,37 @@ public partial class NodeScapeView : INotifyPropertyChanged
         nodeGroupsCollectionBind = NodeScape.Groups.OnCollectionChanged(onGroupsChanged, true);
     }
 
+    /***
+    private void generateAddMode()
+    {
+        var nodeAttributes = NodeScape.Metadata.Select(pair => (pair.Key.GetCustomAttribute<NodeAttribute>()!.GroupPath, pair.Value));
+
+        foreach (var (path, metadata) in nodeAttributes)
+        {
+            var paths = path.Split('/');
+
+            foreach (var pathPart in paths)
+            {
+                var part = ContextMenu.AddModeItemsSource.FirstOrDefault(item => item.Title == pathPart);
+                if (part is not null) continue;
+
+                ContextMenu.AddModeItemsSource.Add(new ContextMenuAddGroup(pathPart, new List<object>()));
+            }
+
+            var title = metadata.Title;
+
+            ContextMenuAddGroup? group = ContextMenu.AddModeItemsSource.FirstOrDefault(item => item.Title == paths[0]);
+
+            foreach (var pathPart in paths.Skip(1))
+            {
+                group = (ContextMenuAddGroup)group.Children.FirstOrDefault(child => child is ContextMenuAddGroup groupInner && groupInner.Title == pathPart);
+            }
+
+            group.Children.Add(new ContextMenuAddNode(title, metadata));
+        }
+    }
+    ***/
+
     private async void onGroupsChanged(IEnumerable<NodeGroup> newGroups, IEnumerable<NodeGroup> oldGroups)
     {
         foreach (var newGroup in newGroups)
@@ -86,6 +120,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
     {
         NodesItemsControlItemsSource.AddRange(newNodes.Select(pair => pair.Value));
         NodesItemsControlItemsSource.RemoveIf(o => o is Node node && oldNodes.Select(pair => pair.Value).Contains(node));
+
+        // TODO: Remove from group as well
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
@@ -299,6 +335,12 @@ public partial class NodeScapeView : INotifyPropertyChanged
             ? $"flow_{connection.OutputNodeId}_{connection.OutputSlot}_{connection.InputNodeId}"
             : $"value_{connection.OutputNodeId}_{connection.OutputSlot}_{connection.InputNodeId}_{connection.InputSlot}";
 
+        // TODO: Update paths when a node gets added to or removed from a group
+
+        // check if output node is in group
+        // check if input node is in group
+        // TODO: decide where to render
+
         drawConnectionPath(pathTag, outputSlotElement, inputSlotElement, connection.ConnectionType);
     }
 
@@ -336,7 +378,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
         {
             Tag = tag,
             Data = pathGeometry,
-            Stroke = connectionType == ConnectionType.Value ? Brushes.Maroon : Brushes.Aqua,
+            Stroke = connectionType == ConnectionType.Value ? Brushes.Red : Brushes.Aqua,
             StrokeThickness = 4,
             StrokeStartLineCap = PenLineCap.Round,
             StrokeEndLineCap = PenLineCap.Round
@@ -350,7 +392,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
             {
                 Tag = tag,
                 Data = pathGeometry,
-                Stroke = connectionType == ConnectionType.Value ? Brushes.Maroon : Brushes.Aqua,
+                Stroke = connectionType == ConnectionType.Value ? Brushes.Red : Brushes.Aqua,
                 StrokeThickness = 4,
                 StrokeStartLineCap = PenLineCap.Round,
                 StrokeEndLineCap = PenLineCap.Round
@@ -369,7 +411,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private void RootContainer_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.ChangedButton != MouseButton.Right) return;
+        if (e.ChangedButton != CANVAS_DRAG_BUTTON) return;
 
         e.Handled = true;
 
@@ -387,7 +429,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
     {
         Logger.Log($"{nameof(ParentContainer_OnMouseUp)}", LoggingTarget.Information);
 
-        if (canvasDrag is not null && e.ChangedButton == MouseButton.Right)
+        if (canvasDrag is not null && e.ChangedButton == CANVAS_DRAG_BUTTON)
         {
             e.Handled = true;
             Logger.Log($"{nameof(ParentContainer_OnMouseUp)}: Ending canvas drag", LoggingTarget.Information);
@@ -395,7 +437,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
             return;
         }
 
-        if (nodeDrag is not null && e.ChangedButton == MouseButton.Left)
+        if (nodeDrag is not null && e.ChangedButton == ELEMENT_DRAG_BUTTON)
         {
             e.Handled = true;
             Logger.Log($"{nameof(ParentContainer_OnMouseUp)}: Ending node drag", LoggingTarget.Information);
@@ -403,7 +445,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
             return;
         }
 
-        if (ConnectionDrag is not null && e.ChangedButton == MouseButton.Left)
+        if (ConnectionDrag is not null && e.ChangedButton == ELEMENT_DRAG_BUTTON)
         {
             e.Handled = true;
             Logger.Log($"{nameof(ParentContainer_OnMouseUp)}: Ending connection drag", LoggingTarget.Information);
@@ -442,6 +484,21 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     #endregion
 
+    private void CanvasContainer_OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        return;
+
+        if (e.ChangedButton != CONTEXT_MENU_BUTTON) return;
+
+        var mousePosRelativeToScreen = Mouse.GetPosition(this);
+        Logger.Log(mousePosRelativeToScreen.X + "," + mousePosRelativeToScreen.Y, LoggingTarget.Information);
+
+        //ContextMenuMode = Nodes.ContextMenuMode.Add;
+        var translation = (TranslateTransform)ContextMenu.RenderTransform;
+        translation.X = mousePosRelativeToScreen.X;
+        translation.Y = mousePosRelativeToScreen.Y;
+    }
+
     private void CanvasContainer_OnMouseMove(object sender, MouseEventArgs e)
     {
         if (nodeDrag is not null)
@@ -460,7 +517,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private void CanvasContainer_OnMouseUp(object sender, MouseButtonEventArgs e)
     {
-        if (nodeDrag is not null && e.ChangedButton == MouseButton.Left)
+        if (nodeDrag is not null && e.ChangedButton == ELEMENT_DRAG_BUTTON)
         {
             e.Handled = true;
 
@@ -470,7 +527,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
             Logger.Log($"{nameof(CanvasContainer_OnMouseUp)}: Ending node drag", LoggingTarget.Information);
         }
 
-        if (groupDrag is not null && e.ChangedButton == MouseButton.Left)
+        if (groupDrag is not null && e.ChangedButton == ELEMENT_DRAG_BUTTON)
         {
             e.Handled = true;
             Logger.Log($"{nameof(CanvasContainer_OnMouseUp)}: Ending group drag", LoggingTarget.Information);
@@ -508,7 +565,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
     {
         Logger.Log($"{nameof(GroupContainer_OnMouseDown)}", LoggingTarget.Information);
 
-        if (e.ChangedButton != MouseButton.Left) return;
+        if (e.ChangedButton != ELEMENT_DRAG_BUTTON) return;
 
         e.Handled = true;
         canvasDrag = null;
@@ -546,7 +603,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private void NodeContainer_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.ChangedButton != MouseButton.Left) return;
+        if (e.ChangedButton != ELEMENT_DRAG_BUTTON) return;
 
         e.Handled = true;
         canvasDrag = null;
@@ -610,7 +667,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private void FlowInput_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.ChangedButton != MouseButton.Left) return;
+        if (e.ChangedButton != ELEMENT_DRAG_BUTTON) return;
 
         e.Handled = true;
 
@@ -666,7 +723,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private void FlowOutput_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.ChangedButton != MouseButton.Left) return;
+        if (e.ChangedButton != ELEMENT_DRAG_BUTTON) return;
 
         e.Handled = true;
 
@@ -704,7 +761,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private void ValueInput_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.ChangedButton != MouseButton.Left) return;
+        if (e.ChangedButton != ELEMENT_DRAG_BUTTON) return;
 
         e.Handled = true;
 
@@ -757,7 +814,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private void ValueOutput_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.ChangedButton != MouseButton.Left) return;
+        if (e.ChangedButton != ELEMENT_DRAG_BUTTON) return;
 
         e.Handled = true;
 

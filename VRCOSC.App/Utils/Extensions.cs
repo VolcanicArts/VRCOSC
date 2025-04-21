@@ -254,6 +254,70 @@ public static class MemberInfoExtensions
 
 public static class TypeExtensions
 {
+    public static string GetFriendlyName(this Type type)
+    {
+        if (type.IsGenericParameter)
+        {
+            // It's a type parameter, e.g. T
+            return type.Name;
+        }
+
+        if (type.IsGenericType)
+        {
+            // Get the name without the generic parameter count (e.g., "Dictionary`2" -> "Dictionary")
+            var typeName = type.Name;
+            var backtickIndex = typeName.IndexOf('`');
+
+            if (backtickIndex > 0)
+            {
+                typeName = typeName[..backtickIndex];
+            }
+
+            // Get generic arguments and format them recursively
+            var genericArgs = type.GetGenericArguments();
+            var genericArgNames = new string[genericArgs.Length];
+
+            for (var i = 0; i < genericArgs.Length; i++)
+            {
+                genericArgNames[i] = GetFriendlyName(genericArgs[i]);
+            }
+
+            return $"{typeName}<{string.Join(", ", genericArgNames)}>";
+        }
+
+        // Non-generic type
+        return type.Name;
+    }
+
+    public static bool IsAssignableToGenericType(this Type givenType, Type genericType)
+    {
+        // If the types are identical, that's a match.
+        if (givenType == genericType)
+            return true;
+
+        // Check if any of the interfaces implemented by givenType match the generic type definition.
+        if (genericType.IsInterface)
+        {
+            var interfaceMatch = givenType.GetInterfaces()
+                                          .Any(it => it.IsGenericType && it.GetGenericTypeDefinition() == genericType);
+
+            if (interfaceMatch)
+                return true;
+        }
+
+        // Check if the given type is a generic type and if its generic type definition matches.
+        if (givenType.IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
+            return true;
+
+        // Recursively check the base type.
+        if (givenType.BaseType is not null)
+        {
+            return IsAssignableToGenericType(givenType.BaseType, genericType);
+        }
+
+        return false;
+    }
+
     public static string ToReadableName(this Type type)
     {
         if (type.IsSubclassOf(typeof(Enum))) return "Enum";
@@ -289,6 +353,31 @@ public static class TypeExtensions
             var parameters = constructorInfo.GetParameters();
             return parameters.Length == parameterTypes.Length && !parameters.Where((parameterInfo, i) => !parameterInfo.ParameterType.IsAssignableTo(parameterTypes[i])).Any();
         });
+    }
+
+    public static bool IsTuple(this Type type)
+    {
+        if (!type.IsGenericType)
+            return false;
+
+        var genericType = type.GetGenericTypeDefinition();
+
+        return genericType == typeof(Tuple<>) ||
+               genericType == typeof(Tuple<,>) ||
+               genericType == typeof(Tuple<,,>) ||
+               genericType == typeof(Tuple<,,,>) ||
+               genericType == typeof(Tuple<,,,,>) ||
+               genericType == typeof(Tuple<,,,,,>) ||
+               genericType == typeof(Tuple<,,,,,,>) ||
+               genericType == typeof(Tuple<,,,,,,,>) ||
+               genericType == typeof(ValueTuple<>) ||
+               genericType == typeof(ValueTuple<,>) ||
+               genericType == typeof(ValueTuple<,,>) ||
+               genericType == typeof(ValueTuple<,,,>) ||
+               genericType == typeof(ValueTuple<,,,,>) ||
+               genericType == typeof(ValueTuple<,,,,,>) ||
+               genericType == typeof(ValueTuple<,,,,,,>) ||
+               genericType == typeof(ValueTuple<,,,,,,,>);
     }
 }
 

@@ -1,8 +1,13 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
+using System.Reflection;
 using VRCOSC.App.SDK.Nodes;
-using VRCOSC.App.SDK.Nodes.Types;
+using VRCOSC.App.SDK.Nodes.Types.Converters;
+using VRCOSC.App.SDK.Nodes.Types.Debug;
+using VRCOSC.App.SDK.Nodes.Types.Flow;
+using VRCOSC.App.SDK.Nodes.Types.Parameters;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Views.Nodes;
 
@@ -14,25 +19,23 @@ public sealed partial class NodeScapeWindow : IManagedWindow
 
     public NodeScapeWindow(NodeScape nodeScape)
     {
-        var stringTextNode1 = new StringTextNode();
-        var stringTextNode2 = new StringTextNode();
+        foreach (var type in Assembly.GetCallingAssembly().GetExportedTypes().Where(type => type.IsAssignableTo(typeof(Node)) && !type.IsAbstract))
+        {
+            // lol
+            var method = nodeScape.GetType().GetMethod("RegisterNode")!;
+            var genericMethod = method.MakeGenericMethod(type);
+            genericMethod.Invoke(nodeScape, null);
+        }
 
-        nodeScape.AddNode(new ParameterReceivedTriggerNode());
-        nodeScape.AddNode(new BranchNode());
-        nodeScape.AddNode(new PrintNode());
-        nodeScape.AddNode(new PrintNode());
-        nodeScape.AddNode(stringTextNode1);
-        nodeScape.AddNode(stringTextNode2);
-        nodeScape.AddNode(new IntTextNode());
-        nodeScape.AddNode(new IntTextNode());
-        nodeScape.AddNode(new IsEqualNode());
-        nodeScape.AddNode(new WhileNode());
-        nodeScape.AddNode(new ForNode());
-        nodeScape.AddNode(new FlowSpitNode());
-
-        var group = nodeScape.AddGroup();
-        group.Nodes.Add(stringTextNode1.Id);
-        group.Nodes.Add(stringTextNode2.Id);
+        nodeScape.AddNode<ForNode>();
+        nodeScape.AddNode<ForEachNode>();
+        nodeScape.AddNode<EnumerableLengthNode>();
+        nodeScape.AddNode<ElementAtNode>();
+        nodeScape.AddNode<ListOutputTestNode>();
+        nodeScape.AddNode<PrintNode>();
+        nodeScape.AddNode<PassthroughListTestNode>();
+        nodeScape.AddNode<OnRegisteredParameterReceived>();
+        nodeScape.AddNode<IfWithStateNode>();
 
         NodeScape = nodeScape;
         InitializeComponent();

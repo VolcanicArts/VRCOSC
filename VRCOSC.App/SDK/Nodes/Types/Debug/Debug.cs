@@ -1,11 +1,11 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
+using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.SDK.Nodes.Types;
+namespace VRCOSC.App.SDK.Nodes.Types.Debug;
 
-[Node("Print")]
+[Node("Print", "Debug")]
 [NodeFlowInput]
 [NodeValueInput("String")]
 public class PrintNode : Node
@@ -13,6 +13,6 @@ public class PrintNode : Node
     [NodeProcess]
     private void process(string str)
     {
-        Console.WriteLine(str);
+        Logger.Log(str, LoggingTarget.Information);
     }
 }

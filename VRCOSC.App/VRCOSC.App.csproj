@@ -37,6 +37,7 @@
         <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Octokit" Version="14.0.0" />
+        <PackageReference Include="OneOf" Version="3.0.271" />
         <PackageReference Include="Semver" Version="3.0.0" />
         <PackageReference Include="Velopack" Version="0.0.1053" />
         <PackageReference Include="VolcanicArts.FastOSC" Version="1.1.1" />

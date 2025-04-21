@@ -1063,6 +1063,8 @@ public abstract class Module
                 waitingParameter.CompletionSource.SetResult();
             }
         }
+
+        // TODO: Tell nodescape that the parameter has arrived
     }
 
     internal void InvokeAvatarChange(AvatarConfig? avatarConfig)

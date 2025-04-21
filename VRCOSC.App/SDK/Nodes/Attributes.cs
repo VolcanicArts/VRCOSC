@@ -11,10 +11,15 @@ namespace VRCOSC.App.SDK.Nodes;
 public class NodeAttribute : Attribute
 {
     public string Title { get; }
+    public string Path { get; }
 
-    public NodeAttribute(string title)
+    public NodeAttribute(string title, string path)
     {
+        if (string.IsNullOrWhiteSpace(title)) throw new Exception("A title must be provided for a node");
+        if (string.IsNullOrWhiteSpace(path)) throw new Exception("A path must be provided for a node");
+
         Title = title;
+        Path = path;
     }
 }
 
@@ -69,22 +74,17 @@ public class NodeValueInputAttribute : Attribute
 [AttributeUsage(AttributeTargets.Class)]
 public class NodeValueOutputAttribute : Attribute
 {
-    public List<Type> OutputTypes { get; }
     public List<string> Titles { get; }
 
-    public NodeValueOutputAttribute(Type[]? outputTypes = null, string[]? titles = null)
+    public NodeValueOutputAttribute(params string[] titles)
     {
-        OutputTypes = outputTypes?.ToList() ?? [];
-        Titles = titles?.ToList() ?? [];
+        Titles = titles.ToList();
     }
 
-    public int Count => OutputTypes.Count;
+    public int Count => Titles.Count;
 }
 
 [AttributeUsage(AttributeTargets.Method)]
 public class NodeProcessAttribute : Attribute
 {
-    public NodeProcessAttribute()
-    {
-    }
 }
