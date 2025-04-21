@@ -2,12 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using Semver;
-using VRCOSC.App.Packages;
-using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -31,47 +26,7 @@ public class ModuleSerialiser : ProfiledSerialiser<Module, SerialisableModule>
 
         Reference.Enabled.Value = data.Enabled;
 
-        var clonedSettings = new Dictionary<string, object?>(data.Settings);
-
         foreach (var settingPair in data.Settings)
-        {
-            var (settingKey, settingValue) = settingPair;
-
-            var savedVersion = data.PackageVersion is not null ? SemVersion.Parse(data.PackageVersion) : new SemVersion(0);
-            var latestVersion = PackageManager.GetInstance().GetInstalledVersion(Reference.PackageID);
-
-            while (savedVersion != latestVersion)
-            {
-                if (Reference.Migrators.TryGetValue(settingKey, out var migrator))
-                {
-                    if (migrator.TryGetValue(savedVersion, out MethodInfo? info))
-                    {
-                        var attribute = info.GetCustomAttribute<ModuleMigrationAttribute>()!;
-                        var sourceType = info.GetParameters()[0].ParameterType;
-
-                        if (TryConvertToTargetType(settingValue, sourceType, out var convertedValue))
-                        {
-                            settingValue = info.Invoke(Reference, [convertedValue]);
-                            settingKey = attribute.DestinationSetting;
-                            savedVersion = attribute.DestinationVersion;
-                            shouldReserialise = true;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            clonedSettings[settingKey] = settingValue;
-        }
-
-        foreach (var settingPair in clonedSettings)
         {
             var (settingKey, settingValue) = settingPair;
 

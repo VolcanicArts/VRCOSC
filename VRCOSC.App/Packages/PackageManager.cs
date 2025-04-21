@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using Octokit;
-using Semver;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Packages.Serialisation;
 using VRCOSC.App.Serialisation;
@@ -178,7 +177,6 @@ public class PackageManager
 
     public bool IsInstalled(PackageSource packageSource) => packageSource.PackageID is not null && InstalledPackages.ContainsKey(packageSource.PackageID);
     public string GetInstalledVersion(PackageSource packageSource) => packageSource.PackageID is not null && InstalledPackages.TryGetValue(packageSource.PackageID, out var version) ? version : string.Empty;
-    public SemVersion GetInstalledVersion(string packageId) => packageId == "local" ? new SemVersion(0) : SemVersion.Parse(InstalledPackages[packageId], SemVersionStyles.Any);
 
     private async Task loadCommunityPackages()
     {
