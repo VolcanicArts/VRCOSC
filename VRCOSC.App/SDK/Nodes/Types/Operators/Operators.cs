@@ -14,11 +14,32 @@ public sealed class AddNode<T> : Node where T : INumber<T>
     private T process(T a, T b) => a + b;
 }
 
+[Node("-", "Operators")]
+public sealed class SubtractNode<T> : Node where T : INumber<T>
+{
+    [NodeProcess(["A", "B"], ["R"])]
+    private T process(T a, T b) => a - b;
+}
+
 [Node("*", "Operators")]
 public sealed class MultiplyNode<T> : Node where T : INumber<T>
 {
     [NodeProcess(["A", "B"], ["R"])]
     private T process(T a, T b) => a * b;
+}
+
+[Node("/", "Operators")]
+public sealed class DivideNode<T> : Node where T : INumber<T>
+{
+    [NodeProcess(["A", "B"], ["R"])]
+    private T process(T a, T b) => a / b;
+}
+
+[Node("%", "Operators")]
+public sealed class ModoloNode<T> : Node where T : INumber<T>
+{
+    [NodeProcess(["A", "B"], ["R"])]
+    private T process(T a, T b) => a % b;
 }
 
 [Node("==", "Operators")]

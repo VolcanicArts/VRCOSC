@@ -20,6 +20,195 @@
         <nodes:SlotNameConverter x:Key="ValueOutputSlotNameConverter" ConnectionSide="Output" ConnectionType="Value"/>
         <nodes:SlotNameConverter x:Key="FlowInputSlotNameConverter" ConnectionSide="Input" ConnectionType="Flow"/>
         <nodes:SlotNameConverter x:Key="ValueInputSlotNameConverter" ConnectionSide="Input" ConnectionType="Value"/>
+        <DataTemplate x:Key="ButtonInputNodeTemplate">
+            <Border Name="NodeContainer"
+                    CornerRadius="10"
+                    BorderThickness="2"
+                    Padding="1"
+                    BorderBrush="{DynamicResource CForeground3}"
+                    Width="200"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Tag="{Binding}"
+                    MouseDown="NodeContainer_OnMouseDown">
+                <Border.RenderTransform>
+                    <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}"/>
+                </Border.RenderTransform>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Border Background="{DynamicResource CBackground4}" Opacity="0.75" CornerRadius="10"/>
+                    <!--> Value Points <-->
+                    <Grid VerticalAlignment="Center" Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <core:TextButton Grid.Column="0" Text="Call" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ButtonColour="Gray" FontSize="18"/>
+                        <!--> Output <-->
+                        <ItemsControl Grid.Column="2" ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
+                                      VerticalAlignment="Center" HorizontalAlignment="Right"
+                                      Name="FlowOutputItemsControl">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Center"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
+                                        <Border  Height="20" Width="20"
+                                                 VerticalAlignment="Center"
+                                                 BorderBrush="Aqua"
+                                                 BorderThickness="3"
+                                                 Background="Transparent" CornerRadius="10"
+                                                 MouseDown="FlowOutput_OnMouseDown"
+                                                 MouseUp="FlowOutput_OnMouseUp"
+                                                 Tag="{Binding Converter={StaticResource FlowOutputSlotNameConverter}}">
+                                        </Border>
+                                    </core:SpacedStackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="ValueNodeTemplate">
+            <Border Name="NodeContainer"
+                    CornerRadius="10"
+                    BorderThickness="2"
+                    Padding="1"
+                    BorderBrush="{DynamicResource CForeground3}"
+                    Width="200"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Tag="{Binding}"
+                    MouseDown="NodeContainer_OnMouseDown">
+                <Border.RenderTransform>
+                    <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}"/>
+                </Border.RenderTransform>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Border Background="{DynamicResource CBackground4}" Opacity="0.75" CornerRadius="10"/>
+                    <!--> Value Points <-->
+                    <Grid VerticalAlignment="Center" Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                 VerticalContentAlignment="Center" FontSize="18"/>
+                        <!--> Output <-->
+                        <ItemsControl Grid.Column="2" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
+                                      VerticalAlignment="Center" HorizontalAlignment="Right"
+                                      Name="ValueOutputItemsControl">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Top"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border  Height="20" Width="20"
+                                             VerticalAlignment="Center"
+                                             BorderBrush="Red"
+                                             BorderThickness="3"
+                                             Background="Transparent" CornerRadius="10"
+                                             MouseDown="ValueOutput_OnMouseDown"
+                                             MouseUp="ValueOutput_OnMouseUp"
+                                             Tag="{Binding Converter={StaticResource ValueOutputSlotNameConverter}}">
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+        <!--> Cast Node <-->
+        <DataTemplate x:Key="CastNodeTemplate">
+            <Border Name="NodeContainer"
+                    CornerRadius="2"
+                    BorderThickness="2"
+                    Padding="1"
+                    BorderBrush="{DynamicResource CForeground3}"
+                    Width="65"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Tag="{Binding}"
+                    MouseDown="NodeContainer_OnMouseDown">
+                <Border.RenderTransform>
+                    <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}"/>
+                </Border.RenderTransform>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Border Background="{DynamicResource CBackground4}" Opacity="0.75" CornerRadius="10"/>
+                    <!--> Value Points <-->
+                    <Grid VerticalAlignment="Top" Margin="5">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <!--> Input <-->
+                        <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterLeft}}"
+                                      VerticalAlignment="Center" HorizontalAlignment="Left"
+                                      Name="ValueInputItemsControl">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Top"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Height="20" Width="20"
+                                        VerticalAlignment="Top"
+                                        BorderBrush="Red"
+                                        BorderThickness="3"
+                                        Background="Transparent" CornerRadius="10"
+                                        MouseDown="ValueInput_OnMouseDown"
+                                        MouseUp="ValueInput_OnMouseUp"
+                                        Tag="{Binding Converter={StaticResource ValueInputSlotNameConverter}}">
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <!--> Output <-->
+                        <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
+                                      VerticalAlignment="Center" HorizontalAlignment="Right"
+                                      Name="ValueOutputItemsControl">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Top"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border  Height="20" Width="20"
+                                             VerticalAlignment="Top"
+                                             BorderBrush="Red"
+                                             BorderThickness="3"
+                                             Background="Transparent" CornerRadius="10"
+                                             MouseDown="ValueOutput_OnMouseDown"
+                                             MouseUp="ValueOutput_OnMouseUp"
+                                             Tag="{Binding Converter={StaticResource ValueOutputSlotNameConverter}}">
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
         <!--> Node <-->
         <DataTemplate x:Key="NodeTemplate">
             <Border Name="NodeContainer"
@@ -211,7 +400,12 @@
             </Grid>
         </DataTemplate>
 
-        <nodes:NodeItemsControlDataTemplateSelector x:Key="NodeItemsControlDataTemplateSelector" NodeTemplate="{StaticResource NodeTemplate}" NodeGroupTemplate="{StaticResource NodeGroupTemplate}"/>
+        <nodes:NodeItemsControlDataTemplateSelector x:Key="NodeItemsControlDataTemplateSelector"
+                                                    NodeTemplate="{StaticResource NodeTemplate}"
+                                                    CastNodeTemplate="{StaticResource CastNodeTemplate}"
+                                                    ValueNodeTemplate="{StaticResource ValueNodeTemplate}"
+                                                    ButtonInputNodeTemplate="{StaticResource ButtonInputNodeTemplate}"
+                                                    NodeGroupTemplate="{StaticResource NodeGroupTemplate}"/>
     </UserControl.Resources>
     <Grid>
         <Grid x:Name="ParentContainer"

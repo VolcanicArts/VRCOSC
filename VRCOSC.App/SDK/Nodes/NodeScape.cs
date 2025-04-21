@@ -71,6 +71,8 @@ public class NodeScape
                 Logger.Log($"Inserting cast node from {outputType.GetFriendlyName()} to {inputType.GetFriendlyName()}");
                 var castNode = (Node)Activator.CreateInstance(typeof(CastNode<,>).MakeGenericType(outputType, inputType))!;
                 addNode(castNode);
+                castNode.Position.X = (Nodes[outputNodeId].Position.X + Nodes[inputNodeId].Position.X) / 2f;
+                castNode.Position.Y = (Nodes[outputNodeId].Position.Y + Nodes[inputNodeId].Position.Y) / 2f;
                 CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
                 CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
                 newConnectionMade = true;

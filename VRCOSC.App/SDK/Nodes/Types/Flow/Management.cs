@@ -23,3 +23,10 @@ public sealed class FlowSequenceNode : Node
         SetFlow(GetFlowAt(currentFlowPosition, ConnectionSide.Output));
     }
 }
+
+[Node("Passthrough", "")]
+public sealed class PassthroughNode<T> : Node
+{
+    [NodeProcess([""], [""])]
+    private T process(T value) => value;
+}

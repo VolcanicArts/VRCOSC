@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.SDK.Nodes.Types.Converters;
 
 namespace VRCOSC.App.UI.Views.Nodes;
 
@@ -100,10 +101,18 @@ public class SlotNameConverter : IValueConverter
 public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
 {
     public required DataTemplate? NodeTemplate { get; set; }
+    public required DataTemplate? CastNodeTemplate { get; set; }
+    public required DataTemplate? ValueNodeTemplate { get; set; }
+    public required DataTemplate? ButtonInputNodeTemplate { get; set; }
     public required DataTemplate? NodeGroupTemplate { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
+        if (item is null) return null;
+
+        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(CastNode<,>)) return CastNodeTemplate;
+        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(ValueNode<>)) return ValueNodeTemplate;
+        if (item is ButtonInputNode) return ButtonInputNodeTemplate;
         if (item is Node) return NodeTemplate;
         if (item is NodeGroupViewModel) return NodeGroupTemplate;
 
