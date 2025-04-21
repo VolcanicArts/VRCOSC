@@ -12,6 +12,7 @@
     <UserControl.Resources>
         <core:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <core:BorderClipConverter x:Key="BorderClipConverter"/>
+        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <nodes:ConnectionAmountConverter x:Key="FlowAmountConverterLeft" ConnectionType="Flow" ConnectionSide="Input"/>
         <nodes:ConnectionAmountConverter x:Key="FlowAmountConverterRight" ConnectionType="Flow" ConnectionSide="Output"/>
         <nodes:ConnectionAmountConverter x:Key="ValueAmountConverterLeft" ConnectionType="Value" ConnectionSide="Input"/>
@@ -461,5 +462,18 @@
                 </Grid>
             </Grid>
         </Grid>
+        <Grid.ContextMenu>
+            <ContextMenu ItemsSource="{Binding ContextMenuRoot.Items}">
+                <ContextMenu.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type nodes:ContextMenuSubMenu}" ItemsSource="{Binding Items}">
+                        <TextBlock Text="{Binding Name}" />
+                    </HierarchicalDataTemplate>
+
+                    <DataTemplate DataType="{x:Type nodes:ContextMenuItem}">
+                        <MenuItem Header="{Binding Name}" Click="WindowContextMenu_ItemClick" Tag="{Binding Type}"/>
+                    </DataTemplate>
+                </ContextMenu.Resources>
+            </ContextMenu>
+        </Grid.ContextMenu>
     </Grid>
 </UserControl>

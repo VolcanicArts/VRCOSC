@@ -65,12 +65,7 @@ public abstract class Node
 [Node("Value", "Values")]
 public sealed class ValueNode<T> : Node where T : notnull
 {
-    public Observable<T> Value { get; }
-
-    public ValueNode(T defaultValue)
-    {
-        Value = new Observable<T>(defaultValue);
-    }
+    public Observable<T> Value { get; } = new();
 
     [NodeProcess([], [""])]
     private T process() => Value.Value;

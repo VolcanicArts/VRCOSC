@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -39,6 +40,10 @@ public partial class NodeScapeView : INotifyPropertyChanged
         Unloaded += OnUnloaded;
         KeyDown += OnKeyDown;
         DataContext = this;
+
+        var nodes = Assembly.GetExecutingAssembly().ExportedTypes.Where(type => type.IsAssignableTo(typeof(Node)) && !type.IsAbstract && type.HasCustomAttribute<NodeAttribute>());
+        ContextMenuRoot = ContextMenuBuilder.BuildFromNodes(nodes);
+        ContextMenuDebugger.PrintMenu(ContextMenuRoot);
     }
 
     public NodeScape NodeScape { get; }
@@ -47,6 +52,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
     private IDisposable nodesCollectionBind = null!;
     private IDisposable nodeScapeConnectionsBind = null!;
     private IDisposable nodeGroupsCollectionBind = null!;
+
+    public ContextMenuRoot ContextMenuRoot { get; set; }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
@@ -61,37 +68,6 @@ public partial class NodeScapeView : INotifyPropertyChanged
         nodeScapeConnectionsBind = NodeScape.Connections.OnCollectionChanged(onConnectionsChanged, true);
         nodeGroupsCollectionBind = NodeScape.Groups.OnCollectionChanged(onGroupsChanged, true);
     }
-
-    /***
-    private void generateAddMode()
-    {
-        var nodeAttributes = NodeScape.Metadata.Select(pair => (pair.Key.GetCustomAttribute<NodeAttribute>()!.GroupPath, pair.Value));
-
-        foreach (var (path, metadata) in nodeAttributes)
-        {
-            var paths = path.Split('/');
-
-            foreach (var pathPart in paths)
-            {
-                var part = ContextMenu.AddModeItemsSource.FirstOrDefault(item => item.Title == pathPart);
-                if (part is not null) continue;
-
-                ContextMenu.AddModeItemsSource.Add(new ContextMenuAddGroup(pathPart, new List<object>()));
-            }
-
-            var title = metadata.Title;
-
-            ContextMenuAddGroup? group = ContextMenu.AddModeItemsSource.FirstOrDefault(item => item.Title == paths[0]);
-
-            foreach (var pathPart in paths.Skip(1))
-            {
-                group = (ContextMenuAddGroup)group.Children.FirstOrDefault(child => child is ContextMenuAddGroup groupInner && groupInner.Title == pathPart);
-            }
-
-            group.Children.Add(new ContextMenuAddNode(title, metadata));
-        }
-    }
-    ***/
 
     private async void onGroupsChanged(IEnumerable<NodeGroup> newGroups, IEnumerable<NodeGroup> oldGroups)
     {
@@ -488,17 +464,6 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private void CanvasContainer_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
-        return;
-
-        if (e.ChangedButton != CONTEXT_MENU_BUTTON) return;
-
-        var mousePosRelativeToScreen = Mouse.GetPosition(this);
-        Logger.Log(mousePosRelativeToScreen.X + "," + mousePosRelativeToScreen.Y, LoggingTarget.Information);
-
-        //ContextMenuMode = Nodes.ContextMenuMode.Add;
-        var translation = (TranslateTransform)ContextMenu.RenderTransform;
-        translation.X = mousePosRelativeToScreen.X;
-        translation.Y = mousePosRelativeToScreen.Y;
     }
 
     private void CanvasContainer_OnMouseMove(object sender, MouseEventArgs e)
@@ -899,6 +864,18 @@ public partial class NodeScapeView : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var node = (ButtonInputNode)element.DataContext;
         node.Clicked = true;
+    }
+
+    private void WindowContextMenu_ItemClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var nodeType = (Type)element.Tag;
+
+        var node = NodeScape.AddNode(nodeType);
+        var mousePosRelativeToCanvas = Mouse.GetPosition(CanvasContainer);
+
+        node.Position.X = mousePosRelativeToCanvas.X;
+        node.Position.Y = mousePosRelativeToCanvas.Y;
     }
 }
 

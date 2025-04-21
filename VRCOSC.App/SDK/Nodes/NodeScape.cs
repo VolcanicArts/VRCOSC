@@ -110,17 +110,19 @@ public class NodeScape
         Nodes.Add(node.Id, node);
     }
 
-    public T AddNode<T>(params object?[] parameters) where T : Node
+    public Node AddNode(Type nodeType)
     {
-        if (!Metadata.ContainsKey(typeof(T))) RegisterNode(typeof(T));
+        if (!Metadata.ContainsKey(nodeType)) RegisterNode(nodeType);
 
-        var node = (T)Activator.CreateInstance(typeof(T), parameters)!;
+        var node = (Node)Activator.CreateInstance(nodeType)!;
         node.ZIndex = ZIndex++;
         node.NodeScape = this;
         Nodes.Add(node.Id, node);
 
         return node;
     }
+
+    public T AddNode<T>() where T : Node => (T)AddNode(typeof(T));
 
     private NodeProcessMetadata getProcessMethod(Node currentNode)
     {
@@ -220,8 +222,8 @@ public class NodeScape
 
         var triggerNode = AddNode<AlwaysTriggerNode>();
         var logNode = AddNode<LogNode>();
-        var intTextNode = AddNode<ValueNode<int>>(20);
-        var stringTextNode = AddNode<ValueNode<string>>("0.0");
+        var intTextNode = AddNode<ValueNode<int>>();
+        var stringTextNode = AddNode<ValueNode<string>>();
         var castNode = AddNode<CastNode<int, float>>();
         var toStringNode = AddNode<ToStringNode<float>>();
 
