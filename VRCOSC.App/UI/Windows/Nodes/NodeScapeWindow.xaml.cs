@@ -25,6 +25,8 @@ public sealed partial class NodeScapeWindow : IManagedWindow
         nodeScape.AddNode<PassthroughListTestNode<string>>();
         nodeScape.AddNode<IfWithStateNode>();
         nodeScape.AddNode<ButtonInputNode>();
+        nodeScape.AddNode<ValueNode<int>>(0);
+        nodeScape.AddNode<ToStringNode<float>>();
 
         NodeScape = nodeScape;
         InitializeComponent();

@@ -6,13 +6,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes.Types.Converters;
 using VRCOSC.App.SDK.Nodes.Types.Debug;
-using VRCOSC.App.SDK.Nodes.Types.Flow;
-using VRCOSC.App.SDK.Nodes.Types.Operators;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Nodes;
@@ -54,21 +53,59 @@ public class NodeScape
         Type outputType = outputMetadata.Process.OutputTypes[outputValueSlot];
         Type inputType = inputMetadata.Process.InputTypes[inputValueSlot];
 
-        if (!outputType.IsAssignableTo(inputType)) return;
+        var inputAlreadyHasConnection =
+            Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Value && connection.InputNodeId == inputNodeId && connection.InputSlot == inputValueSlot);
 
-        // if the input already has a connection, disconnect it
+        var newConnectionMade = false;
+
+        if (outputType.IsAssignableTo(inputType))
         {
-            var inputAlreadyHasConnection =
-                Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Value && connection.InputNodeId == inputNodeId && connection.InputSlot == inputValueSlot);
-
-            if (inputAlreadyHasConnection is not null)
+            Logger.Log($"Creating value connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputValueSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()} slot {inputValueSlot}");
+            Connections.Add(new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, inputNodeId, inputValueSlot));
+            newConnectionMade = true;
+        }
+        else
+        {
+            if (hasImplicitConversion(outputType, inputType))
             {
-                Connections.Remove(inputAlreadyHasConnection);
+                Logger.Log($"Inserting cast node from {outputType.GetFriendlyName()} to {inputType.GetFriendlyName()}");
+                var castNode = (Node)Activator.CreateInstance(typeof(CastNode<,>).MakeGenericType(outputType, inputType))!;
+                addNode(castNode);
+                CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
+                CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
+                newConnectionMade = true;
             }
         }
 
-        Logger.Log($"Creating value connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputValueSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()} slot {inputValueSlot}");
-        Connections.Add(new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, inputNodeId, inputValueSlot));
+        // if the input already had a connection, disconnect it
+        if (newConnectionMade && inputAlreadyHasConnection is not null)
+        {
+            Connections.Remove(inputAlreadyHasConnection);
+        }
+    }
+
+    private static bool hasImplicitConversion(Type from, Type to)
+    {
+        try
+        {
+            var param = Expression.Parameter(from, "x");
+            var convert = Expression.Convert(param, to);
+            var lambda = Expression.Lambda(convert, param).Compile();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private void addNode(Node node)
+    {
+        if (!Metadata.ContainsKey(node.GetType())) RegisterNode(node.GetType());
+
+        node.ZIndex = ZIndex++;
+        node.NodeScape = this;
+        Nodes.Add(node.Id, node);
     }
 
     public T AddNode<T>(params object?[] parameters) where T : Node
@@ -181,13 +218,15 @@ public class NodeScape
 
         var triggerNode = AddNode<AlwaysTriggerNode>();
         var logNode = AddNode<LogNode>();
-        var floatTextNode = AddNode<ValueNode<float>>(0.938984538f);
+        var intTextNode = AddNode<ValueNode<int>>(20);
         var stringTextNode = AddNode<ValueNode<string>>("0.0");
+        var castNode = AddNode<CastNode<int, float>>();
         var toStringNode = AddNode<ToStringNode<float>>();
 
         CreateFlowConnection(triggerNode.Id, 0, logNode.Id);
 
-        CreateValueConnection(floatTextNode.Id, 0, toStringNode.Id, 0);
+        CreateValueConnection(intTextNode.Id, 0, castNode.Id, 0);
+        CreateValueConnection(castNode.Id, 0, toStringNode.Id, 0);
         CreateValueConnection(stringTextNode.Id, 0, toStringNode.Id, 2);
         CreateValueConnection(toStringNode.Id, 0, logNode.Id, 0);
 

@@ -14,7 +14,7 @@ public class NodeAttribute : Attribute
     public NodeAttribute(string title, string path)
     {
         if (string.IsNullOrWhiteSpace(title)) throw new Exception("A title must be provided for a node");
-        if (string.IsNullOrWhiteSpace(path)) throw new Exception("A path must be provided for a node");
+        //if (string.IsNullOrWhiteSpace(path)) throw new Exception("A path must be provided for a node");
 
         Title = title;
         Path = path;

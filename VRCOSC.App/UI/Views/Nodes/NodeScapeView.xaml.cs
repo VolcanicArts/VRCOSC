@@ -259,8 +259,10 @@ public partial class NodeScapeView : INotifyPropertyChanged
         }
     }
 
-    private void onConnectionsChanged(IEnumerable<NodeConnection> newConnections, IEnumerable<NodeConnection> oldConnections)
+    private async void onConnectionsChanged(IEnumerable<NodeConnection> newConnections, IEnumerable<NodeConnection> oldConnections)
     {
+        await Dispatcher.Yield(DispatcherPriority.Render);
+
         foreach (var newConnection in newConnections)
         {
             addConnection(newConnection);

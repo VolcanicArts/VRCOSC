@@ -286,7 +286,7 @@ public static class TypeExtensions
         }
 
         // Non-generic type
-        return type.Name;
+        return type.ToReadableName();
     }
 
     public static bool IsAssignableToGenericType(this Type givenType, Type genericType)
