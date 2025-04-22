@@ -104,6 +104,7 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
     public required DataTemplate? CastNodeTemplate { get; set; }
     public required DataTemplate? ValueInputNodeTemplate { get; set; }
     public required DataTemplate? BoolValueInputNodeTemplate { get; set; }
+    public required DataTemplate? EnumValueInputNodeTemplate { get; set; }
     public required DataTemplate? ButtonInputNodeTemplate { get; set; }
     public required DataTemplate? ValueOnlyNodeTemplate { get; set; }
     public required DataTemplate? NodeGroupTemplate { get; set; }
@@ -117,6 +118,7 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
         if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(ValueNode<>))
         {
             if (item.GetType().GenericTypeArguments[0] == typeof(bool)) return BoolValueInputNodeTemplate;
+            if (item.GetType().GenericTypeArguments[0].IsAssignableTo(typeof(Enum))) return EnumValueInputNodeTemplate;
 
             return ValueInputNodeTemplate;
         }

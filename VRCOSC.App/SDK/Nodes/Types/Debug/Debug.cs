@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.App.SDK.Nodes.Types.Debug;
 
@@ -17,5 +18,14 @@ public sealed class LogNode : Node
     private void process(string str)
     {
         Console.WriteLine(str);
+    }
+}
+
+[Node("Enum Test", "Debug")]
+public sealed class EnumTestNode : Node
+{
+    [NodeProcess(["Parameter Type"], [])]
+    private void process(ParameterType parameterType)
+    {
     }
 }

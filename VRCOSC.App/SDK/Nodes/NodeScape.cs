@@ -84,6 +84,18 @@ public class NodeScape
                 CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
                 newConnectionMade = true;
             }
+
+            if (inputType == typeof(string))
+            {
+                Logger.Log($"Inserting {typeof(ToStringNode<>).MakeGenericType(outputType).GetFriendlyName()}");
+                var toStringNode = (Node)Activator.CreateInstance(typeof(ToStringNode<>).MakeGenericType(outputType))!;
+                addNode(toStringNode);
+                toStringNode.Position.X = (Nodes[outputNodeId].Position.X + Nodes[inputNodeId].Position.X) / 2f;
+                toStringNode.Position.Y = (Nodes[outputNodeId].Position.Y + Nodes[inputNodeId].Position.Y) / 2f;
+                CreateValueConnection(outputNodeId, outputValueSlot, toStringNode.Id, 0);
+                CreateValueConnection(toStringNode.Id, 0, inputNodeId, inputValueSlot);
+                newConnectionMade = true;
+            }
         }
 
         // if the input already had a connection, disconnect it
@@ -91,6 +103,12 @@ public class NodeScape
         {
             Connections.Remove(inputAlreadyHasConnection);
         }
+    }
+
+    public void DeleteNode(Node node)
+    {
+        Nodes.Remove(node.Id);
+        Connections.RemoveIf(connection => connection.OutputNodeId == node.Id || connection.InputNodeId == node.Id);
     }
 
     private Node addNode(Node node)

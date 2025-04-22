@@ -96,10 +96,13 @@ public partial class NodeScapeView : INotifyPropertyChanged
         updateGroups(newGroups);
     }
 
-    private void onNodeCollectionChanged(IEnumerable<ObservableKeyValuePair<Guid, Node>> newNodes, IEnumerable<ObservableKeyValuePair<Guid, Node>> oldNodes)
+    private async void onNodeCollectionChanged(IEnumerable<ObservableKeyValuePair<Guid, Node>> newNodes, IEnumerable<ObservableKeyValuePair<Guid, Node>> oldNodes)
     {
         NodesItemsControlItemsSource.AddRange(newNodes.Select(pair => pair.Value));
         NodesItemsControlItemsSource.RemoveIf(o => o is Node node && oldNodes.Select(pair => pair.Value).Contains(node));
+
+        await Dispatcher.Yield(DispatcherPriority.Loaded);
+        newNodes.ForEach(pair => updateNodePosition(pair.Value));
 
         // TODO: Remove from group as well
     }
@@ -470,7 +473,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
     {
     }
 
-    private Point? ContextMenuMousePosition;
+    private Point? contextMenuMousePosition;
 
     private void ParentContainer_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
     {
@@ -482,7 +485,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
             var metadata = NodeScape.GetMetadata(node);
             var slotInputType = metadata.Process.InputTypes[slot];
 
-            if (NodeConstants.INPUT_TYPES.Contains(slotInputType))
+            if (NodeConstants.INPUT_TYPES.Contains(slotInputType) || slotInputType.IsAssignableTo(typeof(Enum)))
             {
                 e.Handled = true;
 
@@ -515,7 +518,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
         if (e.Handled) return;
 
-        ContextMenuMousePosition = Mouse.GetPosition(CanvasContainer);
+        contextMenuMousePosition = Mouse.GetPosition(CanvasContainer);
     }
 
     private void CanvasContainer_OnMouseMove(object sender, MouseEventArgs e)
@@ -944,7 +947,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var nodeType = (Type)element.Tag;
 
-        Debug.Assert(ContextMenuMousePosition is not null);
+        Debug.Assert(contextMenuMousePosition is not null);
 
         if (nodeType.IsGenericTypeDefinition)
         {
@@ -956,7 +959,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
                 if (nodeCreatorWindow.ConstructedType is null) return;
 
                 var node = NodeScape.AddNode(nodeCreatorWindow.ConstructedType);
-                var mousePosRelativeToCanvas = ContextMenuMousePosition.Value;
+                var mousePosRelativeToCanvas = contextMenuMousePosition.Value;
 
                 node.Position.X = mousePosRelativeToCanvas.X;
                 node.Position.Y = mousePosRelativeToCanvas.Y;
@@ -967,7 +970,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
         else
         {
             var node = NodeScape.AddNode(nodeType);
-            var mousePosRelativeToCanvas = ContextMenuMousePosition.Value;
+            var mousePosRelativeToCanvas = contextMenuMousePosition.Value;
 
             node.Position.X = mousePosRelativeToCanvas.X;
             node.Position.Y = mousePosRelativeToCanvas.Y;
@@ -983,7 +986,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var node = (Node)element.Tag;
 
-        NodeScape.Nodes.Remove(node.Id);
+        NodeScape.DeleteNode(node);
     }
 }
 

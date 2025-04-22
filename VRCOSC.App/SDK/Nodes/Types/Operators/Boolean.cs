@@ -3,44 +3,51 @@
 
 namespace VRCOSC.App.SDK.Nodes.Types.Logic;
 
-[Node("AND", "Comparison")]
+[Node("AND", "Operators/Boolean")]
 public class BooleanAndNode : Node
 {
     [NodeProcess(["", ""], [""])]
     private bool process(bool a, bool b) => a && b;
 }
 
-[Node("OR", "Comparison")]
+[Node("OR", "Operators/Boolean")]
 public class BooleanOrNode : Node
 {
     [NodeProcess(["", ""], [""])]
     private bool process(bool a, bool b) => a || b;
 }
 
-[Node("NOT", "Comparison")]
+[Node("NOT", "Operators/Boolean")]
 public class BooleanNotNode : Node
 {
     [NodeProcess([""], [""])]
     private bool process(bool a) => !a;
 }
 
-[Node("NAND", "Comparison")]
+[Node("NAND", "Operators/Boolean")]
 public class BooleanNandNode : Node
 {
     [NodeProcess(["", ""], [""])]
     private bool process(bool a, bool b) => !(a && b);
 }
 
-[Node("NOR", "Comparison")]
+[Node("NOR", "Operators/Boolean")]
 public class BooleanNorNode : Node
 {
     [NodeProcess(["", ""], [""])]
     private bool process(bool a, bool b) => !(a || b);
 }
 
-[Node("XOR", "Comparison")]
+[Node("XOR", "Operators/Boolean")]
 public class BooleanXorNode : Node
 {
     [NodeProcess(["", ""], [""])]
     private bool process(bool a, bool b) => a ^ b;
+}
+
+[Node("XNOR", "Operators/Boolean")]
+public class BooleanXNorNode : Node
+{
+    [NodeProcess(["", ""], [""])]
+    private bool process(bool a, bool b) => a == b;
 }

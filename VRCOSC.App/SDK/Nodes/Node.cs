@@ -69,6 +69,14 @@ public sealed class ValueNode<T> : Node where T : notnull
     private T process() => Value.Value;
 }
 
+public abstract class ConstantNode<T> : Node where T : notnull
+{
+    public T Value { get; protected set; } = default!;
+
+    [NodeProcess([], [""])]
+    private T process() => Value;
+}
+
 // for nodes that are user inputs like buttons
 public abstract class InputNode : Node
 {

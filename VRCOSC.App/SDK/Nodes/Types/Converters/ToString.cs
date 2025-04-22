@@ -9,13 +9,13 @@ namespace VRCOSC.App.SDK.Nodes.Types.Converters;
 [Node("To String", "Converters")]
 public sealed class ToStringNode<T> : Node
 {
-    [NodeProcess(["*", "Culture Info", "Format"], ["String"])]
-    private string process(T? o, CultureInfo? cultureInfo, string? format)
+    [NodeProcess(["*", "Format Provider", "Format"], ["String"])]
+    private string process(T? o, IFormatProvider? formatProvider, string? format)
     {
-        cultureInfo ??= CultureInfo.CurrentCulture;
+        formatProvider ??= CultureInfo.CurrentCulture;
 
         if (o is null) return "null";
-        if (o is IFormattable formattable) return formattable.ToString(format, cultureInfo);
+        if (o is IFormattable formattable) return formattable.ToString(format, formatProvider);
 
         return o.ToString() ?? "UNKNOWN";
     }

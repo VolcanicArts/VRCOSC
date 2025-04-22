@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              xmlns:nodes="clr-namespace:VRCOSC.App.UI.Views.Nodes"
-             xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
              xmlns:data="http://schemas.singulink.com/xaml"
              mc:Ignorable="d"
              d:DesignHeight="720" d:DesignWidth="1280"
@@ -14,6 +13,7 @@
         <core:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <core:BorderClipConverter x:Key="BorderClipConverter"/>
         <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <core:EnumItemSourceConverter x:Key="EnumItemSourceConverter"/>
         <core:TypeToFriendlyNameConverter x:Key="TypeToFriendlyNameConverter"/>
         <core:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         <nodes:ConnectionAmountConverter x:Key="FlowAmountConverterLeft" ConnectionType="Flow" ConnectionSide="Input"/>
@@ -133,6 +133,70 @@
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                  VerticalContentAlignment="Center" FontSize="18" Text="{Binding Value.Value, UpdateSourceTrigger=PropertyChanged}"/>
+                        <!--> Output <-->
+                        <ItemsControl Grid.Column="2" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
+                                      VerticalAlignment="Center" HorizontalAlignment="Right"
+                                      Name="ValueOutputItemsControl">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Top"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border  Height="20" Width="20"
+                                             VerticalAlignment="Center"
+                                             BorderBrush="Red"
+                                             BorderThickness="3"
+                                             Background="Transparent" CornerRadius="10"
+                                             MouseDown="ValueOutput_OnMouseDown"
+                                             MouseUp="ValueOutput_OnMouseUp"
+                                             ToolTip="{Binding Type, Converter={StaticResource TypeToFriendlyNameConverter}}"
+                                             ToolTipService.InitialShowDelay="250"
+                                             Tag="{Binding Converter={StaticResource ValueOutputSlotNameConverter}}">
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="EnumValueNodeTemplate">
+            <Border Name="NodeContainer"
+                    CornerRadius="10"
+                    BorderThickness="2"
+                    Padding="1"
+                    BorderBrush="{DynamicResource CForeground3}"
+                    Width="200"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Tag="{Binding}"
+                    MouseDown="NodeContainer_OnMouseDown">
+                <Border.RenderTransform>
+                    <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}"/>
+                </Border.RenderTransform>
+                <Border.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Delete Node" Click="NodeContextMenu_DeleteClick" Tag="{Binding}"/>
+                    </ContextMenu>
+                </Border.ContextMenu>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Border Background="{DynamicResource CBackground4}" Opacity="0.75" CornerRadius="10"/>
+                    <!--> Value Points <-->
+                    <Grid VerticalAlignment="Center" Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="15" SelectedValue="{Binding Value.Value}"
+                                  ItemsSource="{Binding Value.Value, Converter={StaticResource EnumItemSourceConverter}}"/>
                         <!--> Output <-->
                         <ItemsControl Grid.Column="2" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
@@ -370,10 +434,10 @@
                             <TextBlock Foreground="{DynamicResource CForeground2}"
                                        Text="{Binding Title}" FontSize="16"
                                        FontWeight="SemiBold"
-                                       VerticalAlignment="Top"
+                                       VerticalAlignment="Center"
                                        HorizontalAlignment="Center"
                                        TextWrapping="Wrap"
-                                       TextAlignment="Justify"/>
+                                       TextAlignment="Center"/>
                         </Viewbox>
                         <!--> Output <-->
                         <ItemsControl Grid.Column="2" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
@@ -614,6 +678,7 @@
                                                     CastNodeTemplate="{StaticResource CastNodeTemplate}"
                                                     ValueInputNodeTemplate="{StaticResource ValueNodeTemplate}"
                                                     BoolValueInputNodeTemplate="{StaticResource BoolValueNodeTemplate}"
+                                                    EnumValueInputNodeTemplate="{StaticResource EnumValueNodeTemplate}"
                                                     ButtonInputNodeTemplate="{StaticResource ButtonInputNodeTemplate}"
                                                     ValueOnlyNodeTemplate="{StaticResource ValueOnlyTemplate}"
                                                     NodeGroupTemplate="{StaticResource NodeGroupTemplate}"/>

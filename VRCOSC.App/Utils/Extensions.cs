@@ -289,26 +289,30 @@ public static class TypeExtensions
         return type.ToReadableName();
     }
 
-    public static string ToReadableName(this Type type) => Type.GetTypeCode(type) switch
+    public static string ToReadableName(this Type type)
     {
-        TypeCode.Empty => "null",
-        TypeCode.Boolean => "bool",
-        TypeCode.Char => "char",
-        TypeCode.SByte => "byte",
-        TypeCode.Byte => "ubyte",
-        TypeCode.Int16 => "short",
-        TypeCode.UInt16 => "ushort",
-        TypeCode.Int32 => "int",
-        TypeCode.UInt32 => "uint",
-        TypeCode.Int64 => "long",
-        TypeCode.UInt64 => "ulong",
-        TypeCode.Single => "float",
-        TypeCode.Double => "double",
-        TypeCode.Decimal => "decimal",
-        TypeCode.String => "string",
-        TypeCode.Object => "object",
-        _ => type.Name
-    };
+        if (type.IsEnum) return type.Name;
+
+        return Type.GetTypeCode(type) switch
+        {
+            TypeCode.Empty => "null",
+            TypeCode.Boolean => "bool",
+            TypeCode.Char => "char",
+            TypeCode.SByte => "byte",
+            TypeCode.Byte => "ubyte",
+            TypeCode.Int16 => "short",
+            TypeCode.UInt16 => "ushort",
+            TypeCode.Int32 => "int",
+            TypeCode.UInt32 => "uint",
+            TypeCode.Int64 => "long",
+            TypeCode.UInt64 => "ulong",
+            TypeCode.Single => "float",
+            TypeCode.Double => "double",
+            TypeCode.Decimal => "decimal",
+            TypeCode.String => "string",
+            _ => type.Name
+        };
+    }
 
     public static bool HasConstructorThatAccepts(this Type targetType, params Type[] parameterTypes)
     {

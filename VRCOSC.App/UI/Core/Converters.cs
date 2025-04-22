@@ -75,6 +75,19 @@ public class StringToVisibilityConverter : IValueConverter
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
 
+public class EnumItemSourceConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is null) return null;
+        if (!value.GetType().IsAssignableTo(typeof(Enum))) return null;
+
+        return Enum.GetValues(value.GetType());
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
 /// <inheritdoc />
 /// <summary>
 /// Takes in an integer and converts it to the set colours based on if it's even

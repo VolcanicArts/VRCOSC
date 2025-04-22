@@ -82,7 +82,7 @@ public static class TypeResolver
                        .Select(ResolveType)
                        .ToArray();
 
-        if (typeArgs.Any(t => t == null))
+        if (typeArgs.Any(t => t == null || t.IsAbstract))
             return false;
 
         try
