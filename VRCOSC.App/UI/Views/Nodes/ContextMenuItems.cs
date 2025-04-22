@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.Nodes;
 
@@ -44,38 +45,56 @@ public interface IContextMenuEntry
 
 public static class ContextMenuBuilder
 {
-    public static ContextMenuRoot BuildFromNodes(IEnumerable<Type> nodeTypes)
+    public static ContextMenuSubMenu BuildCreateNodesMenu(IEnumerable<Type> nodeTypes)
     {
-        var root = new ContextMenuRoot();
+        var root = new ContextMenuSubMenu("Create Node");
 
         foreach (var type in nodeTypes)
         {
             var attr = type.GetCustomAttribute<NodeAttribute>();
-            if (attr == null || string.IsNullOrEmpty(attr.Path)) continue;
+
+            if (attr == null || string.IsNullOrWhiteSpace(attr.Path))
+                continue;
 
             var currentList = root.Items;
 
-            if (!string.IsNullOrWhiteSpace(attr.Path))
+            var pathParts = attr.Path.Split('/');
+
+            foreach (var part in pathParts)
             {
-                var pathParts = attr.Path.Split('/');
+                var existing = currentList
+                               .OfType<ContextMenuSubMenu>()
+                               .FirstOrDefault(sub => sub.Name == part);
 
-                foreach (var part in pathParts)
+                if (existing == null)
                 {
-                    var existing = currentList
-                                   .OfType<ContextMenuSubMenu>()
-                                   .FirstOrDefault(sub => sub.Name == part);
-
-                    if (existing == null)
-                    {
-                        existing = new ContextMenuSubMenu(part);
-                        currentList.Add(existing);
-                    }
-
-                    currentList = existing.Items;
+                    existing = new ContextMenuSubMenu(part);
+                    currentList.Add(existing);
                 }
+
+                currentList = existing.Items;
             }
 
-            currentList.Add(new ContextMenuItem(attr.Title, type));
+            var genericAttr = type.GetCustomAttribute<NodeGenericTypeFilterAttribute>();
+
+            if (genericAttr is { Types.Length: > 0 })
+            {
+                var submenu = new ContextMenuSubMenu(attr.Title);
+
+                foreach (var genType in genericAttr.Types)
+                {
+                    var constructed = type.MakeGenericType(genType);
+                    var typeName = genType.GetFriendlyName();
+                    submenu.Items.Add(new ContextMenuItem($"{attr.Title} ({typeName})", constructed));
+                }
+
+                currentList.Add(submenu);
+            }
+            else
+            {
+                // Normal item
+                currentList.Add(new ContextMenuItem(attr.Title, type));
+            }
         }
 
         sortMenu(root.Items);
@@ -98,7 +117,6 @@ public static class ContextMenuBuilder
         }
     }
 }
-
 
 public static class ContextMenuDebugger
 {

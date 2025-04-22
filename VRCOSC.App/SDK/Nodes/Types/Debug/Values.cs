@@ -11,10 +11,3 @@ public class ListOutputTestNode : Node
     [NodeProcess([""], ["String List"])]
     private List<string> process() => ["Test1", "Test2", "Test3"];
 }
-
-[Node("Passthrough List Test", "Debug")]
-public class PassthroughListTestNode<T> : Node
-{
-    [NodeProcess([""], [""])]
-    private IEnumerable<T> process(IEnumerable<T> enumerable) => enumerable;
-}

@@ -112,13 +112,13 @@ public class AlternatingColourConverterMulti : IMultiValueConverter
 /// Converts a <see cref="T:System.Type" /> in a friendlier type name
 /// </summary>
 /// <remarks>One Way</remarks>
-public class TypeToReadableTypeConverter : IValueConverter
+public class TypeToFriendlyNameConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not Type typeValue) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
 
-        return typeValue.ToReadableName();
+        return typeValue.GetFriendlyName();
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;

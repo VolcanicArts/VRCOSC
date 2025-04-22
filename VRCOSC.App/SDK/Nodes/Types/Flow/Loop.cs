@@ -26,8 +26,8 @@ public class WhileNode : Node
 [Node("For", "Loop")]
 public class ForNode : Node
 {
-    private readonly NodeFlowRef finishedFlowRef;
     private readonly NodeFlowRef loopFlowRef;
+    private readonly NodeFlowRef finishedFlowRef;
 
     private int index;
 
@@ -64,8 +64,8 @@ public sealed class ForEachNode<T> : Node
     public ForEachNode()
     {
         AddFlow("*", ConnectionSide.Input);
-        loopFlowRef = AddFlow("On Loop", ConnectionSide.Output, NodeFlowFlag.Loop);
         finishedFlowRef = AddFlow("On Finished", ConnectionSide.Output);
+        loopFlowRef = AddFlow("On Loop", ConnectionSide.Output, NodeFlowFlag.Loop);
     }
 
     [NodeProcess(["Enumerable"], ["Element"])]

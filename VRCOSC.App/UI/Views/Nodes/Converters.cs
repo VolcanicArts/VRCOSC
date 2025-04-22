@@ -12,7 +12,7 @@ using VRCOSC.App.SDK.Nodes.Types.Converters;
 
 namespace VRCOSC.App.UI.Views.Nodes;
 
-public record ConnectionViewModel(int Slot, string Title);
+public record ConnectionViewModel(int Slot, string Title, Type? Type);
 
 public class ConnectionAmountConverter : IValueConverter
 {
@@ -33,14 +33,14 @@ public class ConnectionAmountConverter : IValueConverter
                 if (metadata.Trigger is not null) return Array.Empty<ConnectionViewModel>();
                 if (!node.IsFlowNode(ConnectionSide.Input)) return Array.Empty<ConnectionViewModel>();
 
-                return Enumerable.Range(0, node.InputFlows.Count).Select(i => new ConnectionViewModel(i, node.InputFlows[i].Name));
+                return Enumerable.Range(0, node.InputFlows.Count).Select(i => new ConnectionViewModel(i, node.InputFlows[i].Name, null));
             }
 
             if (ConnectionSide == ConnectionSide.Output)
             {
                 if (!node.IsFlowNode(ConnectionSide.Output)) return Array.Empty<ConnectionViewModel>();
 
-                return Enumerable.Range(0, node.OutputFlows.Count).Select(i => new ConnectionViewModel(i, node.OutputFlows[i].Name));
+                return Enumerable.Range(0, node.OutputFlows.Count).Select(i => new ConnectionViewModel(i, node.OutputFlows[i].Name, null));
             }
         }
 
@@ -50,14 +50,14 @@ public class ConnectionAmountConverter : IValueConverter
             {
                 if (!node.IsValueNode(ConnectionSide.Input)) return Array.Empty<ConnectionViewModel>();
 
-                return Enumerable.Range(0, metadata.ValueInputNames.Length).Select(i => new ConnectionViewModel(i, metadata.ValueInputNames[i]));
+                return Enumerable.Range(0, metadata.ValueInputNames.Length).Select(i => new ConnectionViewModel(i, metadata.ValueInputNames[i], metadata.Process.InputTypes[i]));
             }
 
             if (ConnectionSide == ConnectionSide.Output)
             {
                 if (!node.IsValueNode(ConnectionSide.Output)) return Array.Empty<ConnectionViewModel>();
 
-                return Enumerable.Range(0, metadata.ValueOutputNames.Length).Select(i => new ConnectionViewModel(i, metadata.ValueOutputNames[i]));
+                return Enumerable.Range(0, metadata.ValueOutputNames.Length).Select(i => new ConnectionViewModel(i, metadata.ValueOutputNames[i], metadata.Process.OutputTypes[i]));
             }
         }
 
@@ -102,8 +102,10 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
 {
     public required DataTemplate? NodeTemplate { get; set; }
     public required DataTemplate? CastNodeTemplate { get; set; }
-    public required DataTemplate? ValueNodeTemplate { get; set; }
+    public required DataTemplate? ValueInputNodeTemplate { get; set; }
+    public required DataTemplate? BoolValueInputNodeTemplate { get; set; }
     public required DataTemplate? ButtonInputNodeTemplate { get; set; }
+    public required DataTemplate? ValueOnlyNodeTemplate { get; set; }
     public required DataTemplate? NodeGroupTemplate { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
@@ -111,8 +113,22 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
         if (item is null) return null;
 
         if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(CastNode<,>)) return CastNodeTemplate;
-        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(ValueNode<>)) return ValueNodeTemplate;
+
+        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(ValueNode<>))
+        {
+            if (item.GetType().GenericTypeArguments[0] == typeof(bool)) return BoolValueInputNodeTemplate;
+
+            return ValueInputNodeTemplate;
+        }
+
         if (item is ButtonInputNode) return ButtonInputNodeTemplate;
+
+        if (item is Node node &&
+            node.IsValueNode(ConnectionSide.Input | ConnectionSide.Output) &&
+            !node.IsFlowNode(ConnectionSide.Input | ConnectionSide.Output) &&
+            node.NodeScape.GetMetadata(node).ValueInputNames.All(string.IsNullOrEmpty) &&
+            node.NodeScape.GetMetadata(node).ValueOutputNames.All(string.IsNullOrEmpty)) return ValueOnlyNodeTemplate;
+
         if (item is Node) return NodeTemplate;
         if (item is NodeGroupViewModel) return NodeGroupTemplate;
 

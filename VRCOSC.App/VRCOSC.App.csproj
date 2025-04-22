@@ -38,6 +38,7 @@
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Octokit" Version="14.0.0" />
         <PackageReference Include="Semver" Version="3.0.0" />
+        <PackageReference Include="Singulink.WPF.Data.MethodBinding" Version="1.1.0" />
         <PackageReference Include="Velopack" Version="0.0.1053" />
         <PackageReference Include="VolcanicArts.FastOSC" Version="1.1.1" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />

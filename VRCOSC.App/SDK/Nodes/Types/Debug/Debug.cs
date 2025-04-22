@@ -19,20 +19,3 @@ public sealed class LogNode : Node
         Console.WriteLine(str);
     }
 }
-
-[Node("Always Trigger", "Debug")]
-public sealed class AlwaysTriggerNode : Node
-{
-    private readonly NodeFlowRef outNode;
-
-    public AlwaysTriggerNode()
-    {
-        outNode = AddFlow("*", ConnectionSide.Output);
-    }
-
-    [NodeTrigger]
-    private bool shouldTrigger() => true;
-
-    [NodeProcess([], [])]
-    private void process() => SetFlow(outNode);
-}

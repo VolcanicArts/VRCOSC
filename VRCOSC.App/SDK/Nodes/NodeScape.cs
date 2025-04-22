@@ -6,23 +6,23 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes.Types.Converters;
 using VRCOSC.App.SDK.Nodes.Types.Debug;
+using VRCOSC.App.SDK.Nodes.Types.Flow;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Nodes;
 
 public class NodeScape
 {
+    private readonly object nodesLock = new();
+
     public ObservableDictionary<Guid, Node> Nodes { get; } = [];
     public ObservableCollection<NodeConnection> Connections { get; } = [];
     public ObservableCollection<NodeGroup> Groups { get; } = [];
-
-    private readonly Dictionary<Guid, object?[]> nodeOutputMemory = [];
 
     public int ZIndex { get; set; } = 0;
 
@@ -41,8 +41,16 @@ public class NodeScape
 
     public void CreateFlowConnection(Guid outputNodeId, int outputFlowSlot, Guid inputNodeId)
     {
+        var outputAlreadyHasConnection =
+            Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.OutputNodeId == outputNodeId && connection.OutputSlot == outputFlowSlot);
+
         Logger.Log($"Creating flow connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputFlowSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()}");
         Connections.Add(new NodeConnection(ConnectionType.Flow, outputNodeId, outputFlowSlot, inputNodeId, 0));
+
+        if (outputAlreadyHasConnection is not null)
+        {
+            Connections.Remove(outputAlreadyHasConnection);
+        }
     }
 
     public void CreateValueConnection(Guid outputNodeId, int outputValueSlot, Guid inputNodeId, int inputValueSlot)
@@ -60,13 +68,14 @@ public class NodeScape
 
         if (outputType.IsAssignableTo(inputType))
         {
-            Logger.Log($"Creating value connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputValueSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()} slot {inputValueSlot}");
+            Logger.Log(
+                $"Creating value connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputValueSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()} slot {inputValueSlot}");
             Connections.Add(new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, inputNodeId, inputValueSlot));
             newConnectionMade = true;
         }
         else
         {
-            if (hasImplicitConversion(outputType, inputType))
+            if (ConversionHelper.HasImplicitConversion(outputType, inputType))
             {
                 Logger.Log($"Inserting cast node from {outputType.GetFriendlyName()} to {inputType.GetFriendlyName()}");
                 var castNode = (Node)Activator.CreateInstance(typeof(CastNode<,>).MakeGenericType(outputType, inputType))!;
@@ -86,40 +95,25 @@ public class NodeScape
         }
     }
 
-    private static bool hasImplicitConversion(Type from, Type to)
-    {
-        try
-        {
-            var param = Expression.Parameter(from, "x");
-            var convert = Expression.Convert(param, to);
-            var lambda = Expression.Lambda(convert, param).Compile();
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    private void addNode(Node node)
+    private Node addNode(Node node)
     {
         if (!Metadata.ContainsKey(node.GetType())) RegisterNode(node.GetType());
 
         node.ZIndex = ZIndex++;
         node.NodeScape = this;
-        Nodes.Add(node.Id, node);
+
+        lock (nodesLock)
+        {
+            Nodes.Add(node.Id, node);
+        }
+
+        return node;
     }
 
     public Node AddNode(Type nodeType)
     {
-        if (!Metadata.ContainsKey(nodeType)) RegisterNode(nodeType);
-
         var node = (Node)Activator.CreateInstance(nodeType)!;
-        node.ZIndex = ZIndex++;
-        node.NodeScape = this;
-        Nodes.Add(node.Id, node);
-
-        return node;
+        return addNode(node);
     }
 
     public T AddNode<T>() where T : Node => (T)AddNode(typeof(T));
@@ -133,7 +127,7 @@ public class NodeScape
     /// <summary>
     /// Takes the value input slot and returns the value from the output slot of the connected node, doing so recursively when the backwards-connected nodes are value-only
     /// </summary>
-    private object? getValueForInput(Node node, int inputValueSlot)
+    private object? getValueForInput(NodeScapeMemory memory, Node node, int inputValueSlot)
     {
         var nodeConnection = Connections.FirstOrDefault(connection => connection.InputNodeId == node.Id && connection.InputSlot == inputValueSlot && connection.ConnectionType == ConnectionType.Value);
         if (nodeConnection is null) return null;
@@ -142,7 +136,13 @@ public class NodeScape
         var outputSlot = nodeConnection.OutputSlot;
         var outputNodeMetadata = GetMetadata(outputNode);
 
-        var isFlowNode = outputNode.OutputFlows.Count != 0;
+        // if there's already a memory entry in this scope, don't run the output node again, just return its output
+        if (memory.HasEntry(outputNode.Id))
+        {
+            return memory.Read(outputNode.Id, outputSlot);
+        }
+
+        var isFlowNode = outputNode.OutputFlows.Count != 0 || outputNode.InputFlows.Count != 0;
         var isValueNode = outputNodeMetadata.Process.InputCount + outputNodeMetadata.Process.OutputCount > 0;
 
         var processMethod = getProcessMethod(outputNode);
@@ -153,7 +153,7 @@ public class NodeScape
 
             for (var i = 0; i < inputValues.Length; i++)
             {
-                inputValues[i] = getValueForInput(outputNode, i);
+                inputValues[i] = getValueForInput(memory, outputNode, i);
             }
 
             var output = processMethod.Method.Invoke(outputNode, inputValues);
@@ -162,21 +162,21 @@ public class NodeScape
             {
                 if (processMethod.OutputTypes.Length == 1)
                 {
-                    nodeOutputMemory[outputNode.Id] = [output];
+                    memory.Write(outputNode.Id, [output]);
                 }
 
                 if (processMethod.OutputTypes.Length > 1)
                 {
-                    nodeOutputMemory[outputNode.Id] = expandTuple(output);
+                    memory.Write(outputNode.Id, expandTuple(output));
                 }
             }
 
-            return nodeOutputMemory[outputNode.Id][outputSlot];
+            return memory.Read(outputNode.Id, outputSlot);
         }
 
         if (isFlowNode)
         {
-            return nodeOutputMemory[outputNode.Id][outputSlot];
+            return memory.Read(outputNode.Id, outputSlot);
         }
 
         throw new Exception("How are you here");
@@ -220,7 +220,7 @@ public class NodeScape
         CreateValueConnection(textNode2.Id, 0, logNode2.Id, 0);
         ***/
 
-        var triggerNode = AddNode<AlwaysTriggerNode>();
+        var triggerNode = AddNode<UpdateTriggerNode>();
         var logNode = AddNode<LogNode>();
         var intTextNode = AddNode<ValueNode<int>>();
         var stringTextNode = AddNode<ValueNode<string>>();
@@ -247,7 +247,10 @@ public class NodeScape
     private void generateMetadata(Type type)
     {
         var context = new NodeContext(type);
-        var metadata = new NodeMetadata(type.GetCustomAttribute<NodeAttribute>()!.Title);
+        var types = GetGenericArgumentsDisplay(type);
+        Logger.Log(types);
+        var metadata = new NodeMetadata(type.GetCustomAttribute<NodeAttribute>()!.Title, types);
+        //var metadata = new NodeMetadata(StringFormatter.SplitCamelAndFormatGeneric(type.GetFriendlyName().Replace("Node", "")));
 
         retrieveNodeTrigger(context, metadata);
         retrieveNodeProcess(context, metadata);
@@ -259,6 +262,15 @@ public class NodeScape
         metadata.ValueOutputNames = processAttribute.Outputs;
 
         Metadata.Add(type, metadata);
+    }
+
+    public static string GetGenericArgumentsDisplay(Type type)
+    {
+        if (!type.IsGenericType) return string.Empty;
+
+        var args = type.GetGenericArguments();
+        var formatted = string.Join(", ", args.Select(arg => arg.GetFriendlyName()));
+        return $"({formatted})";
     }
 
     private void retrieveNodeTrigger(NodeContext context, NodeMetadata metadata)
@@ -333,30 +345,37 @@ public class NodeScape
     #endregion
 
     private readonly Stack<Guid> returnNodes = [];
+    private readonly NodeScapeMemory memory = new();
 
     public void Update()
     {
-        foreach (var node in Nodes.Values.Where(node => GetMetadata(node).Trigger is not null))
+        memory.Reset();
+
+        lock (nodesLock)
         {
-            var metadata = GetMetadata(node);
-
-            var inputValues = new object?[metadata.Process.InputCount];
-
-            for (var i = 0; i < inputValues.Length; i++)
+            foreach (var (_, node) in Nodes)
             {
-                inputValues[i] = getValueForInput(node, i);
+                var metadata = GetMetadata(node);
+                if (metadata.Trigger is null) continue;
+
+                var inputValues = new object?[metadata.Process.InputCount];
+
+                for (var i = 0; i < inputValues.Length; i++)
+                {
+                    inputValues[i] = getValueForInput(memory, node, i);
+                }
+
+                var shouldTrigger = (bool)metadata.Trigger!.Method.Invoke(node, inputValues)!;
+                if (!shouldTrigger) continue;
+
+                // we've checked to see if the node should trigger, so now process that node
+                // TODO: Manage this task
+                _ = startFlow(memory, node.Id);
             }
-
-            var shouldTrigger = (bool)metadata.Trigger!.Method.Invoke(node, inputValues)!;
-            if (!shouldTrigger) return;
-
-            // we've checked to see if the node should trigger, so now process that node
-            // TODO: Manage this task
-            _ = startFlow(node.Id);
         }
     }
 
-    private async Task startFlow(Guid? nextNodeId)
+    private async Task startFlow(NodeScapeMemory memory, Guid? nextNodeId)
     {
         while (nextNodeId is not null)
         {
@@ -368,7 +387,7 @@ public class NodeScape
 
             for (var i = 0; i < inputValues.Length; i++)
             {
-                inputValues[i] = getValueForInput(currentNode, i);
+                inputValues[i] = getValueForInput(memory, currentNode, i);
             }
 
             var output = processMethod.Method.Invoke(currentNode, inputValues);
@@ -382,14 +401,13 @@ public class NodeScape
 
             if (processMethod.OutputTypes.Length == 1)
             {
-                nodeOutputMemory[nextNodeId.Value] = [output];
+                memory.Write(nextNodeId.Value, [output]);
             }
 
             if (processMethod.OutputTypes.Length > 1)
             {
                 Debug.Assert(output is not null);
-                var outputValues = expandTuple(output);
-                nodeOutputMemory[nextNodeId.Value] = outputValues;
+                memory.Write(nextNodeId.Value, expandTuple(output));
             }
 
             var outputFlowSlot = currentNode.NextFlowSlot;
@@ -402,7 +420,13 @@ public class NodeScape
             if (flowConnection is null)
             {
                 nextNodeId = null;
-                if (returnNodes.Count > 0) nextNodeId = returnNodes.Pop();
+
+                if (returnNodes.Count > 0)
+                {
+                    nextNodeId = returnNodes.Pop();
+                    memory.Pop();
+                }
+
                 continue;
             }
 
@@ -411,6 +435,7 @@ public class NodeScape
             if (currentNode.OutputFlows[outputFlowSlot].Flags.HasFlag(NodeFlowFlag.Loop))
             {
                 returnNodes.Push(currentNode.Id);
+                memory.Push();
             }
         }
     }
@@ -516,14 +541,16 @@ public class NodeContext
 public class NodeMetadata
 {
     public string Title { get; }
+    public string Types { get; }
     public NodeTriggerMetadata? Trigger { get; set; }
     public NodeProcessMetadata Process { get; set; }
     public string[] ValueInputNames { get; set; }
     public string[] ValueOutputNames { get; set; }
 
-    public NodeMetadata(string title)
+    public NodeMetadata(string title, string types)
     {
         Title = title;
+        Types = types;
     }
 }
 

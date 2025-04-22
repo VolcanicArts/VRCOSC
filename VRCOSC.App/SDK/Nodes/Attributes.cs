@@ -21,6 +21,17 @@ public class NodeAttribute : Attribute
     }
 }
 
+[AttributeUsage(AttributeTargets.Class)]
+public class NodeGenericTypeFilterAttribute : Attribute
+{
+    public Type[] Types { get; }
+
+    public NodeGenericTypeFilterAttribute(Type[] types)
+    {
+        Types = types;
+    }
+}
+
 [AttributeUsage(AttributeTargets.Method)]
 public class NodeProcessAttribute : Attribute
 {

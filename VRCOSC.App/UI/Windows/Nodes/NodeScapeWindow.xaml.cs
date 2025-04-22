@@ -2,9 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.SDK.Nodes;
-using VRCOSC.App.SDK.Nodes.Types.Converters;
-using VRCOSC.App.SDK.Nodes.Types.Debug;
-using VRCOSC.App.SDK.Nodes.Types.Flow;
+using VRCOSC.App.SDK.Nodes.Types.Operators;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Views.Nodes;
 
@@ -16,21 +14,11 @@ public sealed partial class NodeScapeWindow : IManagedWindow
 
     public NodeScapeWindow(NodeScape nodeScape)
     {
-        nodeScape.AddNode<ForNode>();
-        nodeScape.AddNode<ForEachNode<string>>();
-        nodeScape.AddNode<EnumerableCountNode<string>>();
-        nodeScape.AddNode<ElementAtNode<string>>();
-        nodeScape.AddNode<ListOutputTestNode>();
-        nodeScape.AddNode<LogNode>();
-        nodeScape.AddNode<PassthroughListTestNode<string>>();
-        nodeScape.AddNode<IfWithStateNode>();
-        nodeScape.AddNode<ButtonInputNode>();
-        nodeScape.AddNode<ValueNode<int>>();
-        nodeScape.AddNode<ToStringNode<float>>();
-
         NodeScape = nodeScape;
         InitializeComponent();
         DataContext = this;
+
+        NodeScape.AddNode<EqualsNode<string>>();
 
         AddChild(new NodeScapeView(NodeScape));
     }

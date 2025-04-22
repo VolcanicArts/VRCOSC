@@ -26,7 +26,6 @@ public partial class NodeScapeView : INotifyPropertyChanged
 {
     public const MouseButton CANVAS_DRAG_BUTTON = MouseButton.Middle;
     public const MouseButton ELEMENT_DRAG_BUTTON = MouseButton.Left;
-    public const MouseButton CONTEXT_MENU_BUTTON = MouseButton.Right;
     public const double SNAP_DISTANCE = 20d;
     public const double SIGNIFICANT_SNAP_DISTANCE = SNAP_DISTANCE * 20d;
     public const bool SNAP_ENABLED = true;
@@ -42,8 +41,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
         DataContext = this;
 
         var nodes = Assembly.GetExecutingAssembly().ExportedTypes.Where(type => type.IsAssignableTo(typeof(Node)) && !type.IsAbstract && type.HasCustomAttribute<NodeAttribute>());
-        ContextMenuRoot = ContextMenuBuilder.BuildFromNodes(nodes);
-        ContextMenuDebugger.PrintMenu(ContextMenuRoot);
+        ContextMenuRoot = new ContextMenuRoot();
+        ContextMenuRoot.Items.Add(ContextMenuBuilder.BuildCreateNodesMenu(nodes));
     }
 
     public NodeScape NodeScape { get; }
@@ -466,6 +465,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
     {
     }
 
+    private Point? ContextMenuMousePosition;
+
     private void ParentContainer_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
     {
         if (ConnectionDrag is not null && ConnectionDrag.Origin == ConnectionDragOrigin.ValueInput)
@@ -476,7 +477,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
             var metadata = NodeScape.GetMetadata(node);
             var slotInputType = metadata.Process.InputTypes[slot];
 
-            if (NodeConstants.TEXT_INPUT_TYPES.Contains(slotInputType))
+            if (NodeConstants.INPUT_TYPES.Contains(slotInputType))
             {
                 e.Handled = true;
 
@@ -506,6 +507,10 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
             ConnectionDrag = null;
         }
+
+        if (e.Handled) return;
+
+        ContextMenuMousePosition = Mouse.GetPosition(CanvasContainer);
     }
 
     private void CanvasContainer_OnMouseMove(object sender, MouseEventArgs e)
@@ -665,6 +670,32 @@ public partial class NodeScapeView : INotifyPropertyChanged
         {
             updateConnectionsForNode(nodeDrag.Node);
             updateGroups(NodeScape.Groups.Where(group => group.Nodes.Contains(nodeDrag.Node.Id)));
+        }
+    }
+
+    private void updateNodePosition(Node node)
+    {
+        var newNodeX = node.Position.X;
+        var newNodeY = node.Position.Y;
+
+        if (SNAP_ENABLED)
+        {
+            newNodeX = Math.Round(newNodeX / SNAP_DISTANCE) * SNAP_DISTANCE;
+            newNodeY = Math.Round(newNodeY / SNAP_DISTANCE) * SNAP_DISTANCE;
+        }
+
+        newNodeX = Math.Clamp(newNodeX, 0, CanvasContainer.Width);
+        newNodeY = Math.Clamp(newNodeY, 0, CanvasContainer.Height);
+
+        var positionChanged = Math.Abs(newNodeX - node.Position.X) > double.Epsilon || Math.Abs(newNodeY - node.Position.Y) > double.Epsilon;
+
+        node.Position.X = newNodeX;
+        node.Position.Y = newNodeY;
+
+        if (positionChanged)
+        {
+            updateConnectionsForNode(node);
+            updateGroups(NodeScape.Groups.Where(group => group.Nodes.Contains(node.Id)));
         }
     }
 
@@ -903,25 +934,30 @@ public partial class NodeScapeView : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private void ButtonInputNode_OnClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var node = (ButtonInputNode)element.DataContext;
-        node.Clicked = true;
-    }
-
     private void WindowContextMenu_ItemClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
         var nodeType = (Type)element.Tag;
 
+        Debug.Assert(ContextMenuMousePosition is not null);
+
         var node = NodeScape.AddNode(nodeType);
-        var mousePosRelativeToCanvas = Mouse.GetPosition(CanvasContainer);
+        var mousePosRelativeToCanvas = ContextMenuMousePosition.Value;
 
         node.Position.X = mousePosRelativeToCanvas.X;
         node.Position.Y = mousePosRelativeToCanvas.Y;
 
+        updateNodePosition(node);
+
         ConnectionDrag = null;
+    }
+
+    private void NodeContextMenu_DeleteClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.Tag;
+
+        NodeScape.Nodes.Remove(node.Id);
     }
 }
 

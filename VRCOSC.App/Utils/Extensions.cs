@@ -289,35 +289,6 @@ public static class TypeExtensions
         return type.ToReadableName();
     }
 
-    public static bool IsAssignableToGenericType(this Type givenType, Type genericType)
-    {
-        // If the types are identical, that's a match.
-        if (givenType == genericType)
-            return true;
-
-        // Check if any of the interfaces implemented by givenType match the generic type definition.
-        if (genericType.IsInterface)
-        {
-            var interfaceMatch = givenType.GetInterfaces()
-                                          .Any(it => it.IsGenericType && it.GetGenericTypeDefinition() == genericType);
-
-            if (interfaceMatch)
-                return true;
-        }
-
-        // Check if the given type is a generic type and if its generic type definition matches.
-        if (givenType.IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
-            return true;
-
-        // Recursively check the base type.
-        if (givenType.BaseType is not null)
-        {
-            return IsAssignableToGenericType(givenType.BaseType, genericType);
-        }
-
-        return false;
-    }
-
     public static string ToReadableName(this Type type) => Type.GetTypeCode(type) switch
     {
         TypeCode.Empty => "null",

@@ -4,8 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Reflection;
 using System.Runtime.CompilerServices;
+using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Nodes;
@@ -30,12 +30,10 @@ public abstract class Node
     internal List<NodeFlowRef> OutputFlows { get; } = [];
     internal int NextFlowSlot = -1;
 
-    public string Title { get; }
+    protected Player Player => AppManager.GetInstance().VRChatClient.Player;
 
-    protected Node()
-    {
-        Title = GetType().GetCustomAttribute<NodeAttribute>()!.Title;
-    }
+    public string Title => NodeScape.GetMetadata(this).Title;
+    public string Types => NodeScape.GetMetadata(this).Types;
 
     protected NodeFlowRef AddFlow(string name, ConnectionSide side, NodeFlowFlag flags = 0)
     {
@@ -86,6 +84,11 @@ public sealed class ButtonInputNode : InputNode
     public ButtonInputNode()
     {
         outFlow = AddFlow("On Call", ConnectionSide.Output);
+    }
+
+    public void OnClick()
+    {
+        Clicked = true;
     }
 
     [NodeTrigger]

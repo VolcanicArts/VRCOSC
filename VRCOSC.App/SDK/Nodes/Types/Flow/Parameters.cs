@@ -3,9 +3,9 @@
 
 using VRCOSC.App.SDK.Parameters;
 
-namespace VRCOSC.App.SDK.Nodes.Types.Parameters;
+namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
-[Node("On Registered Parameter Received", "Parameters")]
+[Node("On Registered Parameter Received", "Flow/Parameters")]
 public sealed class RegisteredParameterReceivedNode<T> : Node
 {
     private readonly RegisteredParameter registeredParameter;
@@ -31,8 +31,9 @@ public sealed class RegisteredParameterReceivedNode<T> : Node
     }
 }
 
-[Node("On Parameter Received", "Parameters")]
-public class ParameterReceivedNode<T> : Node where T : struct
+[Node("On Parameter Received", "Flow/Parameters")]
+[NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
+public sealed class ParameterReceivedNode<T> : Node where T : struct
 {
     private readonly NodeFlowRef onReceivedFlow;
 

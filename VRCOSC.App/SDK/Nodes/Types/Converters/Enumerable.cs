@@ -7,7 +7,7 @@ using System.Linq;
 namespace VRCOSC.App.SDK.Nodes.Types.Converters;
 
 [Node("Element At", "Enumerable")]
-public sealed class ElementAtNode<T> : Node
+public sealed class EnumerableElementAtNode<T> : Node
 {
     [NodeProcess(["Enumerable", "Index"], ["Element"])]
     private T process(IEnumerable<T> enumerable, int index) => enumerable.ElementAt(index);

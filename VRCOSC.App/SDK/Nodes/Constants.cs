@@ -25,13 +25,16 @@ public static class NodeConstants
         typeof(decimal),
     };
 
-    public static readonly Type[] TEXT_INPUT_TYPES = new[]
+    public static readonly Type[] INPUT_TYPES = new[]
     {
         typeof(string),
+        typeof(bool)
     }.Concat(NUMERIC_TYPES).ToArray();
 
-    public static readonly Type[] TOGGLE_INPUT_TYPES = new[]
+    public static readonly Type[] PARAMETER_TYPES = new[]
     {
-        typeof(bool)
+        typeof(bool),
+        typeof(int),
+        typeof(float)
     };
 }
