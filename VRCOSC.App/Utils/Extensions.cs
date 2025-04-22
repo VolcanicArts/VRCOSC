@@ -306,6 +306,7 @@ public static class TypeExtensions
         TypeCode.Double => "double",
         TypeCode.Decimal => "decimal",
         TypeCode.String => "string",
+        TypeCode.Object => "object",
         _ => type.Name
     };
 

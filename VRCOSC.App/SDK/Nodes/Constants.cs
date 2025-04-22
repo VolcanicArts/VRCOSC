@@ -18,8 +18,6 @@ public static class NodeConstants
         typeof(uint),
         typeof(long),
         typeof(ulong),
-        typeof(nint),
-        typeof(nuint),
         typeof(float),
         typeof(double),
         typeof(decimal),
@@ -31,10 +29,11 @@ public static class NodeConstants
         typeof(bool)
     }.Concat(NUMERIC_TYPES).ToArray();
 
-    public static readonly Type[] PARAMETER_TYPES = new[]
+    public static readonly Type[] COMMON_TYPES = new[]
     {
         typeof(bool),
         typeof(int),
-        typeof(float)
+        typeof(float),
+        typeof(string)
     };
 }

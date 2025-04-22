@@ -5,7 +5,7 @@ using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
-[Node("On Registered Parameter Received", "Flow/Parameters")]
+[Node("On Registered Parameter Received", "")]
 public sealed class RegisteredParameterReceivedNode<T> : Node
 {
     private readonly RegisteredParameter registeredParameter;

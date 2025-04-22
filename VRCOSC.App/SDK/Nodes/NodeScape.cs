@@ -10,8 +10,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes.Types.Converters;
-using VRCOSC.App.SDK.Nodes.Types.Debug;
-using VRCOSC.App.SDK.Nodes.Types.Flow;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Nodes;
@@ -36,8 +34,8 @@ public class NodeScape
         generateMetadata(type);
     }
 
-    public NodeMetadata GetMetadata(Node node) => getMetadata(node.GetType());
-    private NodeMetadata getMetadata(Type type) => Metadata[type];
+    public NodeMetadata GetMetadata(Node node) => GetMetadata(node.GetType());
+    public NodeMetadata GetMetadata(Type type) => Metadata[type];
 
     public void CreateFlowConnection(Guid outputNodeId, int outputFlowSlot, Guid inputNodeId)
     {
@@ -182,61 +180,6 @@ public class NodeScape
         throw new Exception("How are you here");
     }
 
-    public void Test()
-    {
-        /***
-        var triggerNode = AddNode<AlwaysTriggerNode>();
-        var textNode = AddNode<ValueNode<string>>(string.Empty);
-        var textNode2 = AddNode<ValueNode<string>>(string.Empty);
-        var branchNode = AddNode<IfNode>();
-        var isEqualNode = AddNode<EqualsNode<string>>();
-        var logNode = AddNode<LogNode>();
-        var logNode2 = AddNode<LogNode>();
-        var forNode = AddNode<ForNode>();
-        var intNode = AddNode<ValueNode<int>>(0);
-        var delayNode = AddNode<DelayNode>();
-        var intNode2 = AddNode<ValueNode<int>>(0);
-
-        textNode.Value.Value = "Looping!";
-        textNode2.Value.Value = "Finished!";
-        intNode.Value.Value = 5;
-        intNode2.Value.Value = 0;
-
-        CreateFlowConnection(triggerNode.Id, 0, forNode.Id);
-        CreateFlowConnection(forNode.Id, 1, branchNode.Id);
-        CreateFlowConnection(branchNode.Id, 1, logNode.Id);
-        CreateFlowConnection(forNode.Id, 0, delayNode.Id);
-        CreateFlowConnection(delayNode.Id, 0, logNode2.Id);
-
-        CreateValueConnection(intNode2.Id, 0, delayNode.Id, 0);
-
-        CreateValueConnection(intNode.Id, 0, forNode.Id, 0);
-
-        CreateValueConnection(textNode.Id, 0, isEqualNode.Id, 0);
-        CreateValueConnection(textNode2.Id, 0, isEqualNode.Id, 1);
-        CreateValueConnection(isEqualNode.Id, 0, branchNode.Id, 0);
-
-        CreateValueConnection(textNode.Id, 0, logNode.Id, 0);
-        CreateValueConnection(textNode2.Id, 0, logNode2.Id, 0);
-        ***/
-
-        var triggerNode = AddNode<UpdateTriggerNode>();
-        var logNode = AddNode<LogNode>();
-        var intTextNode = AddNode<ValueNode<int>>();
-        var stringTextNode = AddNode<ValueNode<string>>();
-        var castNode = AddNode<CastNode<int, float>>();
-        var toStringNode = AddNode<ToStringNode<float>>();
-
-        CreateFlowConnection(triggerNode.Id, 0, logNode.Id);
-
-        CreateValueConnection(intTextNode.Id, 0, castNode.Id, 0);
-        CreateValueConnection(castNode.Id, 0, toStringNode.Id, 0);
-        CreateValueConnection(stringTextNode.Id, 0, toStringNode.Id, 2);
-        CreateValueConnection(toStringNode.Id, 0, logNode.Id, 0);
-
-        Update();
-    }
-
     private void validate(Type type)
     {
         if (!type.HasCustomAttribute<NodeAttribute>()) throw new Exception();
@@ -248,7 +191,6 @@ public class NodeScape
     {
         var context = new NodeContext(type);
         var types = GetGenericArgumentsDisplay(type);
-        Logger.Log(types);
         var metadata = new NodeMetadata(type.GetCustomAttribute<NodeAttribute>()!.Title, types);
         //var metadata = new NodeMetadata(StringFormatter.SplitCamelAndFormatGeneric(type.GetFriendlyName().Replace("Node", "")));
 
@@ -412,30 +354,32 @@ public class NodeScape
 
             var outputFlowSlot = currentNode.NextFlowSlot;
 
-            var flowConnection = Connections.FirstOrDefault(connection =>
-                connection.OutputNodeId == currentNode.Id && connection.OutputSlot == outputFlowSlot && connection.ConnectionType == ConnectionType.Flow);
+            if (outputFlowSlot >= 0 && currentNode.OutputFlows[outputFlowSlot].Flags.HasFlag(NodeFlowFlag.Loop))
+            {
+                returnNodes.Push(currentNode.Id);
+                memory.Push();
+            }
 
             currentNode.NextFlowSlot = -1;
 
+            var flowConnection = Connections.FirstOrDefault(connection =>
+                connection.OutputNodeId == currentNode.Id && connection.OutputSlot == outputFlowSlot && connection.ConnectionType == ConnectionType.Flow);
+
             if (flowConnection is null)
             {
-                nextNodeId = null;
-
                 if (returnNodes.Count > 0)
                 {
                     nextNodeId = returnNodes.Pop();
                     memory.Pop();
                 }
-
-                continue;
+                else
+                {
+                    nextNodeId = null;
+                }
             }
-
-            nextNodeId = flowConnection.InputNodeId;
-
-            if (currentNode.OutputFlows[outputFlowSlot].Flags.HasFlag(NodeFlowFlag.Loop))
+            else
             {
-                returnNodes.Push(currentNode.Id);
-                memory.Push();
+                nextNodeId = flowConnection.InputNodeId;
             }
         }
     }

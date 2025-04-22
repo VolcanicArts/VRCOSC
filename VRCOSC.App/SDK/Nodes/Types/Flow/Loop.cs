@@ -26,8 +26,8 @@ public class WhileNode : Node
 [Node("For", "Loop")]
 public class ForNode : Node
 {
-    private readonly NodeFlowRef loopFlowRef;
     private readonly NodeFlowRef finishedFlowRef;
+    private readonly NodeFlowRef loopFlowRef;
 
     private int index;
 

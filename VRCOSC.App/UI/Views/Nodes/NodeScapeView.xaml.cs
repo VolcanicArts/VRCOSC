@@ -17,6 +17,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.UI.Core;
+using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
 using Vector = System.Windows.Vector;
 
@@ -30,6 +31,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
     public const double SIGNIFICANT_SNAP_DISTANCE = SNAP_DISTANCE * 20d;
     public const bool SNAP_ENABLED = true;
     public const double GROUP_PADDING = SNAP_DISTANCE * 2d;
+
+    private WindowManager nodeCreatorWindowManager = null!;
 
     public NodeScapeView(NodeScape nodeScape)
     {
@@ -56,6 +59,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        nodeCreatorWindowManager = new WindowManager(this);
+
         ConnectionCanvas.Children.Clear();
 
         Focus();
@@ -941,13 +946,34 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
         Debug.Assert(ContextMenuMousePosition is not null);
 
-        var node = NodeScape.AddNode(nodeType);
-        var mousePosRelativeToCanvas = ContextMenuMousePosition.Value;
+        if (nodeType.IsGenericTypeDefinition)
+        {
+            var nodeCreatorWindow = new NodeCreatorWindow(NodeScape, nodeType);
+            nodeCreatorWindowManager.TrySpawnChild(nodeCreatorWindow);
 
-        node.Position.X = mousePosRelativeToCanvas.X;
-        node.Position.Y = mousePosRelativeToCanvas.Y;
+            nodeCreatorWindow.Closed += (_, _) =>
+            {
+                if (nodeCreatorWindow.ConstructedType is null) return;
 
-        updateNodePosition(node);
+                var node = NodeScape.AddNode(nodeCreatorWindow.ConstructedType);
+                var mousePosRelativeToCanvas = ContextMenuMousePosition.Value;
+
+                node.Position.X = mousePosRelativeToCanvas.X;
+                node.Position.Y = mousePosRelativeToCanvas.Y;
+
+                updateNodePosition(node);
+            };
+        }
+        else
+        {
+            var node = NodeScape.AddNode(nodeType);
+            var mousePosRelativeToCanvas = ContextMenuMousePosition.Value;
+
+            node.Position.X = mousePosRelativeToCanvas.X;
+            node.Position.Y = mousePosRelativeToCanvas.Y;
+
+            updateNodePosition(node);
+        }
 
         ConnectionDrag = null;
     }

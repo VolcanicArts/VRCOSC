@@ -21,6 +21,7 @@ public class NodeScapeMemory
 
     public void Write(Guid nodeId, object?[] value)
     {
+        entries.RemoveIf(entry => entry.NodeId == nodeId);
         entries.Add(new NodeScapeMemoryEntry(nodeId, value, scope));
     }
 
