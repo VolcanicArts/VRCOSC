@@ -9,13 +9,32 @@ namespace VRCOSC.App.SDK.Nodes.Types.Converters;
 [Node("Element At", "Enumerable")]
 public sealed class EnumerableElementAtNode<T> : Node
 {
-    [NodeProcess(["Enumerable", "Index"], ["Element"])]
-    private T process(IEnumerable<T> enumerable, int index) => enumerable.ElementAt(index);
+    [NodeProcess]
+    private void process
+    (
+        [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
+        [NodeValue("Index")] int index,
+        [NodeValue("Element")] ref T outElement
+    )
+    {
+        if (enumerable is null) return;
+
+        outElement = enumerable.ElementAt(index);
+    }
 }
 
 [Node("Count", "Enumerable")]
 public class EnumerableCountNode<T> : Node
 {
-    [NodeProcess(["Enumerable"], ["Count"])]
-    private int process(IEnumerable<T> enumerable) => enumerable.Count();
+    [NodeProcess]
+    private void process
+    (
+        [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
+        [NodeValue("Count")] ref int outCount
+    )
+    {
+        if (enumerable is null) return;
+
+        outCount = enumerable.Count();
+    }
 }

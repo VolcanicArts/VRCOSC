@@ -27,7 +27,6 @@ public partial class NodeCreatorWindow : IManagedWindow
         InitializeComponent();
         DataContext = this;
 
-        nodeScape.RegisterNode(nodeType);
         Title = $"Creating {nodeType.GetFriendlyName()}";
         updateText(string.Empty);
     }

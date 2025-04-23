@@ -14,7 +14,6 @@ public class NodeAttribute : Attribute
     public NodeAttribute(string title, string path)
     {
         if (string.IsNullOrWhiteSpace(title)) throw new Exception("A title must be provided for a node");
-        //if (string.IsNullOrWhiteSpace(path)) throw new Exception("A path must be provided for a node");
 
         Title = title;
         Path = path;
@@ -35,17 +34,37 @@ public class NodeGenericTypeFilterAttribute : Attribute
 [AttributeUsage(AttributeTargets.Method)]
 public class NodeProcessAttribute : Attribute
 {
-    public string[] Inputs { get; }
-    public string[] Outputs { get; }
+}
 
-    public NodeProcessAttribute(string[] inputs, string[] outputs)
+[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
+public class NodeVariableSizeAttribute : Attribute
+{
+    public int DefaultSize { get; }
+
+    public NodeVariableSizeAttribute(int defaultSize = 1)
     {
-        Inputs = inputs;
-        Outputs = outputs;
+        DefaultSize = defaultSize;
     }
 }
 
-[AttributeUsage(AttributeTargets.Method)]
-public class NodeTriggerAttribute : Attribute
+[AttributeUsage(AttributeTargets.Parameter)]
+public class NodeValueAttribute : Attribute
 {
+    public string Name { get; }
+
+    public NodeValueAttribute(string name = "")
+    {
+        Name = name;
+    }
 }
+
+public record NodeFlowRef(string Name = "", bool Scope = false);
+
+public interface IFlowInput;
+
+public interface IFlowOutput
+{
+    public NodeFlowRef[] FlowOutputs { get; set; }
+}
+
+public interface IFlowTrigger;

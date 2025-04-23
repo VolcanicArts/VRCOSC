@@ -252,6 +252,17 @@ public static class MemberInfoExtensions
     public static bool HasCustomAttribute<T>(this MemberInfo info) where T : Attribute => info.GetCustomAttribute<T>() is not null;
 }
 
+public static class ParameterInfoExtensions
+{
+    public static bool TryGetCustomAttribute<T>(this ParameterInfo info, [NotNullWhen(true)] out T? attribute) where T : Attribute
+    {
+        attribute = info.GetCustomAttribute<T>();
+        return attribute is not null;
+    }
+
+    public static bool HasCustomAttribute<T>(this ParameterInfo info) where T : Attribute => info.GetCustomAttribute<T>() is not null;
+}
+
 public static class TypeExtensions
 {
     public static string GetFriendlyName(this Type type)

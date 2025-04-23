@@ -4,15 +4,13 @@
 namespace VRCOSC.App.SDK.Nodes.Types.Actions;
 
 [Node("Mute Set", "Actions/Player")]
-public sealed class VRChatPlayerMuteSetActionNode : Node
+public sealed class VRChatPlayerMuteSetActionNode : Node, IFlowInput
 {
-    public VRChatPlayerMuteSetActionNode()
-    {
-        AddFlow("*", ConnectionSide.Input);
-    }
-
-    [NodeProcess(["Muted"], [])]
-    private void process(bool muted)
+    [NodeProcess]
+    private void process
+    (
+        [NodeValue("Muted")] bool muted
+    )
     {
         if (muted)
             Player.Mute();
@@ -22,14 +20,9 @@ public sealed class VRChatPlayerMuteSetActionNode : Node
 }
 
 [Node("Mute Toggle", "Actions/Player")]
-public sealed class VRChatPlayerMuteToggleActionNode : Node
+public sealed class VRChatPlayerMuteToggleActionNode : Node, IFlowInput
 {
-    public VRChatPlayerMuteToggleActionNode()
-    {
-        AddFlow("*", ConnectionSide.Input);
-    }
-
-    [NodeProcess([], [])]
+    [NodeProcess]
     private void process()
     {
         Player.ToggleVoice();

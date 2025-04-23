@@ -5,8 +5,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
         mc:Ignorable="d"
-        Height="800" Width="450"
-        Background="{DynamicResource CBackground2}">
+        Height="200" Width="450"
+        Background="{DynamicResource CBackground2}"
+        ResizeMode="NoResize">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="100"/>

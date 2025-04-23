@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Globalization;
+using VRCOSC.App.SDK.Nodes.Types.Base;
 
 namespace VRCOSC.App.SDK.Nodes.Types.Strings;
 

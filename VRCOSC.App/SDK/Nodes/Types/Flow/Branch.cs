@@ -1,73 +1,72 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+
 namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
 [Node("If", "Flow")]
-public sealed class IfNode : Node
+public sealed class IfNode : Node, IFlowInput, IFlowOutput
 {
-    private readonly NodeFlowRef trueFlow;
-    private readonly NodeFlowRef falseFlow;
+    public NodeFlowRef[] FlowOutputs { get; set; } =
+    [
+        new("On True"),
+        new("On False")
+    ];
 
-    public IfNode()
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue("Condition")] bool condition
+    )
     {
-        AddFlow("*", ConnectionSide.Input);
-        trueFlow = AddFlow("On True", ConnectionSide.Output);
-        falseFlow = AddFlow("On False", ConnectionSide.Output);
+        return condition ? 0 : 1;
     }
-
-    [NodeProcess(["Condition"], [])]
-    private void process(bool condition) => SetFlow(condition ? trueFlow : falseFlow);
 }
 
 [Node("If With State", "Flow")]
-public class IfWithStateNode : Node
+public sealed class IfWithStateNode : Node, IFlowInput, IFlowOutput
 {
-    private readonly NodeFlowRef becameTrueFlow;
-    private readonly NodeFlowRef becameFalseFlow;
-    private readonly NodeFlowRef stillTrueFlow;
-    private readonly NodeFlowRef stillFalseFlow;
+    public NodeFlowRef[] FlowOutputs { get; set; } =
+    [
+        new("On Became True"),
+        new("On Became False"),
+        new("On Still True"),
+        new("On Still False")
+    ];
 
     private bool prevCondition;
 
-    public IfWithStateNode()
-    {
-        AddFlow("*", ConnectionSide.Input);
-        becameTrueFlow = AddFlow("On Became True", ConnectionSide.Output);
-        becameFalseFlow = AddFlow("On Became False", ConnectionSide.Output);
-        stillTrueFlow = AddFlow("On Still True", ConnectionSide.Output);
-        stillFalseFlow = AddFlow("On Still False", ConnectionSide.Output);
-    }
-
-    [NodeProcess(["Condition"], [])]
-    private void process(bool condition)
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue("Condition")] bool condition
+    )
     {
         if (!prevCondition && condition)
         {
             prevCondition = condition;
-            SetFlow(becameTrueFlow);
-            return;
+            return 0;
         }
 
         if (prevCondition && !condition)
         {
             prevCondition = condition;
-            SetFlow(becameFalseFlow);
-            return;
+            return 1;
         }
 
         if (prevCondition && condition)
         {
             prevCondition = condition;
-            SetFlow(stillTrueFlow);
-            return;
+            return 2;
         }
 
         if (!prevCondition && !condition)
         {
             prevCondition = condition;
-            SetFlow(stillFalseFlow);
-            return;
+            return 3;
         }
+
+        throw new Exception();
     }
 }

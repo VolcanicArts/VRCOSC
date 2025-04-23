@@ -7,78 +7,80 @@ using System.Linq;
 namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
 [Node("While", "Loop")]
-public class WhileNode : Node
+public class WhileNode : Node, IFlowInput, IFlowOutput
 {
-    private readonly NodeFlowRef loopFlowRef;
-    private readonly NodeFlowRef finishedFlowRef;
+    public NodeFlowRef[] FlowOutputs { get; set; } =
+    [
+        new("On Finished"),
+        new("On Loop", true)
+    ];
 
-    public WhileNode()
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue("Condition")] bool condition
+    )
     {
-        AddFlow("*", ConnectionSide.Input);
-        loopFlowRef = AddFlow("On Loop", ConnectionSide.Output, NodeFlowFlag.Loop);
-        finishedFlowRef = AddFlow("On Finished", ConnectionSide.Output);
+        return condition ? 1 : 0;
     }
-
-    [NodeProcess(["Condition"], [])]
-    private void process(bool condition) => SetFlow(condition ? loopFlowRef : finishedFlowRef);
 }
 
 [Node("For", "Loop")]
-public class ForNode : Node
+public class ForNode : Node, IFlowInput, IFlowOutput
 {
-    private readonly NodeFlowRef finishedFlowRef;
-    private readonly NodeFlowRef loopFlowRef;
+    public NodeFlowRef[] FlowOutputs { get; set; } =
+    [
+        new("On Finished"),
+        new("On Loop", true)
+    ];
 
-    private int index;
+    private int currentIndex;
 
-    public ForNode()
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue("Count")] int count,
+        [NodeValue("Index")] ref int outIndex
+    )
     {
-        AddFlow("*", ConnectionSide.Input);
-        finishedFlowRef = AddFlow("On Finished", ConnectionSide.Output);
-        loopFlowRef = AddFlow("On Loop", ConnectionSide.Output, NodeFlowFlag.Loop);
-    }
-
-    [NodeProcess(["Count"], ["Index"])]
-    private int process(int count)
-    {
-        if (index < count)
+        if (currentIndex < count)
         {
-            SetFlow(loopFlowRef);
-            return index++;
+            outIndex = currentIndex++;
+            return 1;
         }
 
-        index = 0;
-        SetFlow(finishedFlowRef);
-        return -1;
+        currentIndex = 0;
+        return 0;
     }
 }
 
 [Node("For Each", "Loop")]
-public sealed class ForEachNode<T> : Node
+public sealed class ForEachNode<T> : Node, IFlowInput, IFlowOutput
 {
-    private readonly NodeFlowRef loopFlowRef;
-    private readonly NodeFlowRef finishedFlowRef;
+    public NodeFlowRef[] FlowOutputs { get; set; } =
+    [
+        new("On Finished"),
+        new("On Loop", true)
+    ];
 
-    private int index;
+    private int currentIndex;
 
-    public ForEachNode()
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
+        [NodeValue("Element")] ref T outElement
+    )
     {
-        AddFlow("*", ConnectionSide.Input);
-        finishedFlowRef = AddFlow("On Finished", ConnectionSide.Output);
-        loopFlowRef = AddFlow("On Loop", ConnectionSide.Output, NodeFlowFlag.Loop);
-    }
+        if (enumerable is null) return -1;
 
-    [NodeProcess(["Enumerable"], ["Element"])]
-    private T? process(IEnumerable<T> enumerable)
-    {
-        if (index < enumerable.Count())
+        if (currentIndex < enumerable.Count())
         {
-            SetFlow(loopFlowRef);
-            return enumerable.ElementAt(index++);
+            outElement = enumerable.ElementAt(currentIndex++);
+            return 1;
         }
 
-        index = 0;
-        SetFlow(finishedFlowRef);
-        return default;
+        currentIndex = 0;
+        return 0;
     }
 }

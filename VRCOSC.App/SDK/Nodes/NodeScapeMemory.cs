@@ -27,7 +27,7 @@ public class NodeScapeMemory
 
     public object? Read(Guid nodeId, int slot)
     {
-        return entries.Single(entry => entry.NodeId == nodeId).Value[slot];
+        return entries.SingleOrDefault(entry => entry.NodeId == nodeId)?.Value[slot];
     }
 
     public bool HasEntry(Guid nodeId)

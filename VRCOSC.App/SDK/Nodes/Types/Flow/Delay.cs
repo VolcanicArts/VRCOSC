@@ -6,20 +6,17 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
 [Node("Delay", "Flow")]
-public class DelayNode : Node
+public class DelayNode : Node, IFlowInput, IFlowOutput
 {
-    private readonly NodeFlowRef outFlow;
+    public NodeFlowRef[] FlowOutputs { get; set; } = new NodeFlowRef[1];
 
-    public DelayNode()
-    {
-        AddFlow("*", ConnectionSide.Input);
-        outFlow = AddFlow("*", ConnectionSide.Output);
-    }
-
-    [NodeProcess(["Delay Milliseconds"], [])]
-    private async Task process(int delay)
+    [NodeProcess]
+    private async Task<int> process
+    (
+        [NodeValue("Delay Milliseconds")] int delay
+    )
     {
         await Task.Delay(delay);
-        SetFlow(outFlow);
+        return 0;
     }
 }

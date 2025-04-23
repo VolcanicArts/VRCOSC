@@ -8,6 +8,9 @@ namespace VRCOSC.App.SDK.Nodes.Types.Converters;
 [Node("Cast", "")]
 public sealed class CastNode<TFrom, TTo> : Node
 {
-    [NodeProcess(["From"], ["To"])]
-    private TTo process(TFrom value) => (TTo)Convert.ChangeType(value, typeof(TTo))!;
+    [NodeProcess]
+    private void process(TFrom value, ref TTo outValue)
+    {
+        outValue = (TTo)Convert.ChangeType(value, typeof(TTo))!;
+    }
 }

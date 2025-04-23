@@ -6,54 +6,50 @@ using VRCOSC.App.SDK.Parameters;
 namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
 [Node("On Registered Parameter Received", "")]
-public sealed class RegisteredParameterReceivedNode<T> : Node
+public sealed class RegisteredParameterReceivedNode<T> : Node, IFlowOutput, IFlowTrigger
 {
+    public NodeFlowRef[] FlowOutputs { get; set; }
+
     private readonly RegisteredParameter registeredParameter;
-    private readonly NodeFlowRef onReceivedFlow;
 
     public RegisteredParameterReceivedNode(RegisteredParameter registeredParameter)
     {
         this.registeredParameter = registeredParameter;
 
-        onReceivedFlow = AddFlow($"On {registeredParameter.Name} Received", ConnectionSide.Output);
+        FlowOutputs = [new($"On {registeredParameter.Name} Received")];
     }
 
-    [NodeTrigger]
-    private bool wasParameterReceived() => true;
-
-    [NodeProcess([], ["Value"])]
-    private T process()
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue("Value")] ref T outValue
+    )
     {
-        SetFlow(onReceivedFlow);
-
-        // TODO More checks here
-        return (T)registeredParameter.Value;
+        outValue = (T)registeredParameter.Value;
+        return 0;
     }
 }
 
 [Node("On Parameter Received", "Flow/Parameters")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public sealed class ParameterReceivedNode<T> : Node where T : struct
+public sealed class ParameterReceivedNode<T> : Node, IFlowOutput, IFlowTrigger where T : struct
 {
-    private readonly NodeFlowRef onReceivedFlow;
+    public NodeFlowRef[] FlowOutputs { get; set; } =
+    [
+        new("On Received")
+    ];
 
-    public ParameterReceivedNode()
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue] string? parameterName,
+        [NodeValue] ref T outValue
+    )
     {
-        onReceivedFlow = AddFlow("On Received", ConnectionSide.Output);
-    }
-
-    [NodeTrigger]
-    private bool wasParameterReceived(string parameterName)
-    {
-        return true;
-    }
-
-    [NodeProcess(["Name"], ["Value"])]
-    private T process(string parameterName)
-    {
-        SetFlow(onReceivedFlow);
+        if (string.IsNullOrEmpty(parameterName)) return -1;
 
         var receivedParameter = new ReceivedParameter(parameterName, default(T));
-        return (T)receivedParameter.Value;
+        outValue = (T)receivedParameter.Value;
+        return 0;
     }
 }

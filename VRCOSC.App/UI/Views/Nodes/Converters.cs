@@ -8,7 +8,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.SDK.Nodes.Types.Base;
 using VRCOSC.App.SDK.Nodes.Types.Converters;
+using VRCOSC.App.SDK.Nodes.Types.Inputs;
 
 namespace VRCOSC.App.UI.Views.Nodes;
 
@@ -23,41 +25,38 @@ public class ConnectionAmountConverter : IValueConverter
     {
         if (value is not Node node) return null;
 
-        var nodeScape = node.NodeScape;
-        var metadata = nodeScape.GetMetadata(node);
-
-        if (ConnectionType == ConnectionType.Flow && node.IsFlowNode(ConnectionSide.Input | ConnectionSide.Output))
+        if (ConnectionType == ConnectionType.Flow && node.Metadata.IsFlow)
         {
             if (ConnectionSide == ConnectionSide.Input)
             {
-                if (metadata.Trigger is not null) return Array.Empty<ConnectionViewModel>();
-                if (!node.IsFlowNode(ConnectionSide.Input)) return Array.Empty<ConnectionViewModel>();
+                if (node.Metadata.IsTrigger) return Array.Empty<ConnectionViewModel>();
+                if (!node.Metadata.IsFlowInput) return Array.Empty<ConnectionViewModel>();
 
-                return Enumerable.Range(0, node.InputFlows.Count).Select(i => new ConnectionViewModel(i, node.InputFlows[i].Name, null));
+                return new ConnectionViewModel[] { new(0, "*", null) };
             }
 
             if (ConnectionSide == ConnectionSide.Output)
             {
-                if (!node.IsFlowNode(ConnectionSide.Output)) return Array.Empty<ConnectionViewModel>();
+                if (!node.Metadata.IsFlowOutput) return Array.Empty<ConnectionViewModel>();
 
-                return Enumerable.Range(0, node.OutputFlows.Count).Select(i => new ConnectionViewModel(i, node.OutputFlows[i].Name, null));
+                return Enumerable.Range(0, node.Metadata.FlowOutputs.Length).Select(i => new ConnectionViewModel(i, node.Metadata.FlowOutputs[i].Name, null));
             }
         }
 
-        if (ConnectionType == ConnectionType.Value && node.IsValueNode(ConnectionSide.Input | ConnectionSide.Output))
+        if (ConnectionType == ConnectionType.Value && node.Metadata.IsValue)
         {
             if (ConnectionSide == ConnectionSide.Input)
             {
-                if (!node.IsValueNode(ConnectionSide.Input)) return Array.Empty<ConnectionViewModel>();
+                if (!node.Metadata.IsValueInput) return Array.Empty<ConnectionViewModel>();
 
-                return Enumerable.Range(0, metadata.ValueInputNames.Length).Select(i => new ConnectionViewModel(i, metadata.ValueInputNames[i], metadata.Process.InputTypes[i]));
+                return Enumerable.Range(0, node.Metadata.Process.Inputs.Length).Select(i => new ConnectionViewModel(i, node.Metadata.Process.Inputs[i].Name, node.Metadata.Process.Inputs[i].Type));
             }
 
             if (ConnectionSide == ConnectionSide.Output)
             {
-                if (!node.IsValueNode(ConnectionSide.Output)) return Array.Empty<ConnectionViewModel>();
+                if (!node.Metadata.IsValueOutput) return Array.Empty<ConnectionViewModel>();
 
-                return Enumerable.Range(0, metadata.ValueOutputNames.Length).Select(i => new ConnectionViewModel(i, metadata.ValueOutputNames[i], metadata.Process.OutputTypes[i]));
+                return Enumerable.Range(0, node.Metadata.Process.Outputs.Length).Select(i => new ConnectionViewModel(i, node.Metadata.Process.Outputs[i].Name, node.Metadata.Process.Outputs[i].Type));
             }
         }
 
@@ -106,6 +105,8 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
     public required DataTemplate? BoolValueInputNodeTemplate { get; set; }
     public required DataTemplate? EnumValueInputNodeTemplate { get; set; }
     public required DataTemplate? ButtonInputNodeTemplate { get; set; }
+    public required DataTemplate? ImpulseTriggerNodeTemplate { get; set; }
+    public required DataTemplate? ImpulseReceiverNodeTemplate { get; set; }
     public required DataTemplate? ValueOnlyNodeTemplate { get; set; }
     public required DataTemplate? NodeGroupTemplate { get; set; }
 
@@ -125,11 +126,9 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
 
         if (item is ButtonInputNode) return ButtonInputNodeTemplate;
 
-        if (item is Node node &&
-            node.IsValueNode(ConnectionSide.Input | ConnectionSide.Output) &&
-            !node.IsFlowNode(ConnectionSide.Input | ConnectionSide.Output) &&
-            node.NodeScape.GetMetadata(node).ValueInputNames.All(string.IsNullOrEmpty) &&
-            node.NodeScape.GetMetadata(node).ValueOutputNames.All(string.IsNullOrEmpty)) return ValueOnlyNodeTemplate;
+        if (item is Node { Metadata: { IsValue: true, IsFlow: false } } node &&
+            node.Metadata.Process.Inputs.All(input => string.IsNullOrEmpty(input.Name)) &&
+            node.Metadata.Process.Outputs.All(output => string.IsNullOrEmpty(output.Name))) return ValueOnlyNodeTemplate;
 
         if (item is Node) return NodeTemplate;
         if (item is NodeGroupViewModel) return NodeGroupTemplate;

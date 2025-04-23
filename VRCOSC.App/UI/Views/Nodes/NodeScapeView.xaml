@@ -98,6 +98,132 @@
                 </Grid>
             </Border>
         </DataTemplate>
+        <DataTemplate x:Key="ImpulseTriggerNodeTemplate">
+            <Border Name="NodeContainer"
+                    CornerRadius="10"
+                    BorderThickness="2"
+                    Padding="1"
+                    BorderBrush="{DynamicResource CForeground3}"
+                    Width="200"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Tag="{Binding}"
+                    MouseDown="NodeContainer_OnMouseDown">
+                <Border.RenderTransform>
+                    <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}"/>
+                </Border.RenderTransform>
+                <Border.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Delete Node" Click="NodeContextMenu_DeleteClick" Tag="{Binding}"/>
+                    </ContextMenu>
+                </Border.ContextMenu>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Border Background="{DynamicResource CBackground4}" Opacity="0.75" CornerRadius="10"/>
+                    <Grid VerticalAlignment="Center" Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                 VerticalContentAlignment="Center" FontSize="18" Text="{Binding ImpulseNameValue.Value, UpdateSourceTrigger=PropertyChanged}"/>
+                        <!--> Input <-->
+                        <ItemsControl Grid.Column="0" ItemsSource="{Binding Converter={StaticResource FlowAmountConverterLeft}}"
+                                      VerticalAlignment="Center" HorizontalAlignment="Left"
+                                      Name="FlowInputItemsControl">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Center"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Left">
+                                        <Border Height="20" Width="20"
+                                                VerticalAlignment="Center"
+                                                BorderBrush="Aqua"
+                                                BorderThickness="3"
+                                                Background="Transparent" CornerRadius="10"
+                                                MouseDown="FlowInput_OnMouseDown"
+                                                MouseUp="FlowInput_OnMouseUp"
+                                                Tag="{Binding Converter={StaticResource FlowInputSlotNameConverter}}">
+                                        </Border>
+                                    </core:SpacedStackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+        <DataTemplate x:Key="ImpulseReceiverNodeTemplate">
+            <Border Name="NodeContainer"
+                    CornerRadius="10"
+                    BorderThickness="2"
+                    Padding="1"
+                    BorderBrush="{DynamicResource CForeground3}"
+                    Width="200"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Tag="{Binding}"
+                    MouseDown="NodeContainer_OnMouseDown">
+                <Border.RenderTransform>
+                    <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}"/>
+                </Border.RenderTransform>
+                <Border.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Delete Node" Click="NodeContextMenu_DeleteClick" Tag="{Binding}"/>
+                    </ContextMenu>
+                </Border.ContextMenu>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Border Background="{DynamicResource CBackground4}" Opacity="0.75" CornerRadius="10"/>
+                    <Grid VerticalAlignment="Center" Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                 VerticalContentAlignment="Center" FontSize="18" Text="{Binding ImpulseNameValue.Value, UpdateSourceTrigger=PropertyChanged}"/>
+                        <!--> Output <-->
+                        <ItemsControl Grid.Column="2" ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
+                                      VerticalAlignment="Center" HorizontalAlignment="Right"
+                                      Name="FlowOutputItemsControl">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <core:SpacedStackPanel Spacing="10" VerticalAlignment="Center"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
+                                        <Border  Height="20" Width="20"
+                                                 VerticalAlignment="Center"
+                                                 BorderBrush="Aqua"
+                                                 BorderThickness="3"
+                                                 Background="Transparent" CornerRadius="10"
+                                                 MouseDown="FlowOutput_OnMouseDown"
+                                                 MouseUp="FlowOutput_OnMouseUp"
+                                                 Tag="{Binding Converter={StaticResource FlowOutputSlotNameConverter}}">
+                                        </Border>
+                                    </core:SpacedStackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
         <DataTemplate x:Key="ValueNodeTemplate">
             <Border Name="NodeContainer"
                     CornerRadius="10"
@@ -132,7 +258,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                 VerticalContentAlignment="Center" FontSize="18" Text="{Binding Value.Value, UpdateSourceTrigger=PropertyChanged}"/>
+                                 VerticalContentAlignment="Center" FontSize="18" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"/>
                         <!--> Output <-->
                         <ItemsControl Grid.Column="2" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
@@ -195,8 +321,8 @@
                             <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="15" SelectedValue="{Binding Value.Value}"
-                                  ItemsSource="{Binding Value.Value, Converter={StaticResource EnumItemSourceConverter}}"/>
+                        <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="15" SelectedValue="{Binding Value}"
+                                  ItemsSource="{Binding Value, Converter={StaticResource EnumItemSourceConverter}, Mode=OneTime}"/>
                         <!--> Output <-->
                         <ItemsControl Grid.Column="2" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
@@ -259,7 +385,7 @@
                             <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <core:VRCOSCCheckBox Grid.Column="0" Width="30" Height="30" IsChecked="{Binding Value.Value}"/>
+                        <core:VRCOSCCheckBox Grid.Column="0" Width="30" Height="30" IsChecked="{Binding Value}"/>
                         <!--> Output <-->
                         <ItemsControl Grid.Column="2" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
@@ -430,15 +556,14 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <!--> Title <-->
-                        <Viewbox Grid.Column="1" VerticalAlignment="Stretch" MaxWidth="70" Margin="15 0" Stretch="Uniform">
-                            <TextBlock Foreground="{DynamicResource CForeground2}"
-                                       Text="{Binding Title}" FontSize="16"
-                                       FontWeight="SemiBold"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Center"
-                                       TextWrapping="Wrap"
-                                       TextAlignment="Center"/>
-                        </Viewbox>
+                        <TextBlock Grid.Column="1"
+                                   Foreground="{DynamicResource CForeground2}"
+                                   Text="{Binding Title}" FontSize="16"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center"/>
                         <!--> Output <-->
                         <ItemsControl Grid.Column="2" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
@@ -505,14 +630,14 @@
                         </Border.Clip>
                         <core:SpacedStackPanel Orientation="Vertical" Margin="5" Spacing="2">
                             <TextBlock Foreground="{DynamicResource CForeground2}"
-                                       Text="{Binding Title}" FontSize="14"
+                                       Text="{Binding Metadata.Title}" FontSize="14"
                                        FontWeight="SemiBold"
                                        VerticalAlignment="Top"
                                        TextWrapping="WrapWithOverflow"
                                        TextAlignment="Center"/>
                             <TextBlock Foreground="{DynamicResource CForeground3}"
-                                       Visibility="{Binding Types, Converter={StaticResource StringToVisibilityConverter}}"
-                                       Text="{Binding Types}" FontSize="12"
+                                       Visibility="{Binding Metadata.GenericArgumentsAsString, Converter={StaticResource StringToVisibilityConverter}}"
+                                       Text="{Binding Metadata.GenericArgumentsAsString}" FontSize="12"
                                        FontWeight="Regular"
                                        VerticalAlignment="Top"
                                        TextWrapping="WrapWithOverflow"
@@ -681,6 +806,8 @@
                                                     EnumValueInputNodeTemplate="{StaticResource EnumValueNodeTemplate}"
                                                     ButtonInputNodeTemplate="{StaticResource ButtonInputNodeTemplate}"
                                                     ValueOnlyNodeTemplate="{StaticResource ValueOnlyTemplate}"
+                                                    ImpulseTriggerNodeTemplate="{StaticResource ImpulseTriggerNodeTemplate}"
+                                                    ImpulseReceiverNodeTemplate="{StaticResource ImpulseReceiverNodeTemplate}"
                                                     NodeGroupTemplate="{StaticResource NodeGroupTemplate}"/>
     </UserControl.Resources>
     <Grid>

@@ -7,87 +7,70 @@ using System.Collections.Generic;
 namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
 [Node("On Update", "Flow/Trigger")]
-public sealed class UpdateTriggerNode : Node
+public sealed class UpdateTriggerNode : Node, IFlowOutput, IFlowTrigger
 {
-    private readonly NodeFlowRef outFlow;
+    public NodeFlowRef[] FlowOutputs { get; set; } = new NodeFlowRef[1];
 
-    public UpdateTriggerNode()
+    [NodeProcess]
+    private int process()
     {
-        outFlow = AddFlow("", ConnectionSide.Output);
+        return 0;
     }
-
-    [NodeTrigger]
-    private bool shouldTrigger() => true;
-
-    [NodeProcess([], [])]
-    private void process() => SetFlow(outFlow);
 }
 
 [Node("Fire On True", "Flow/Trigger")]
-public sealed class FireOnTrueNode : Node
+public sealed class FireOnTrueNode : Node, IFlowOutput, IFlowTrigger
 {
-    private readonly NodeFlowRef outFlow;
-    private bool previousValue;
+    public NodeFlowRef[] FlowOutputs { get; set; } = new NodeFlowRef[1];
 
-    public FireOnTrueNode()
+    private bool previousCondition;
+
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue("Condition")] bool condition
+    )
     {
-        outFlow = AddFlow("", ConnectionSide.Output);
+        var shouldTrigger = !previousCondition && condition;
+        previousCondition = condition;
+        return shouldTrigger ? 0 : -1;
     }
-
-    [NodeTrigger]
-    private bool shouldTrigger(bool value)
-    {
-        var shouldTrigger = !previousValue && value;
-        previousValue = value;
-        return shouldTrigger;
-    }
-
-    [NodeProcess(["Condition"], [""])]
-    private void process(bool value) => SetFlow(outFlow);
 }
 
 [Node("Fire On False", "Flow/Trigger")]
-public sealed class FireOnFalseNode : Node
+public sealed class FireOnFalseNode : Node, IFlowOutput, IFlowTrigger
 {
-    private readonly NodeFlowRef outFlow;
-    private bool previousValue;
+    public NodeFlowRef[] FlowOutputs { get; set; } = new NodeFlowRef[1];
 
-    public FireOnFalseNode()
+    private bool previousCondition;
+
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue("Condition")] bool condition
+    )
     {
-        outFlow = AddFlow("", ConnectionSide.Output);
+        var shouldTrigger = previousCondition && !condition;
+        previousCondition = condition;
+        return shouldTrigger ? 0 : -1;
     }
-
-    [NodeTrigger]
-    private bool shouldTrigger(bool value)
-    {
-        var shouldTrigger = previousValue && !value;
-        previousValue = value;
-        return shouldTrigger;
-    }
-
-    [NodeProcess(["Condition"], [""])]
-    private void process(bool value) => SetFlow(outFlow);
 }
 
 [Node("Fire On Change", "Flow/Trigger")]
-public sealed class FireOnChangeNode<T> : Node
+public sealed class FireOnChangeNode<T> : Node, IFlowOutput, IFlowTrigger
 {
-    private readonly NodeFlowRef outFlow;
+    public NodeFlowRef[] FlowOutputs { get; set; } = new NodeFlowRef[1];
+
     private T? previousValue;
 
-    public FireOnChangeNode()
-    {
-        outFlow = AddFlow("", ConnectionSide.Output);
-    }
-
-    [NodeTrigger]
-    private bool shouldTrigger(T value)
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue("Value")] T value
+    )
     {
         var result = value is IEquatable<T> valueE ? valueE.Equals(previousValue) : EqualityComparer<T>.Default.Equals(value, previousValue);
         previousValue = value;
-        return !result;
+        return !result ? 0 : -1;
     }
-
-    [NodeProcess(["*"], [""])]
-    private void process(T value) => SetFlow(outFlow);
 }

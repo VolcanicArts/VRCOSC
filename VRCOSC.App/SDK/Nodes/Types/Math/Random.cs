@@ -8,8 +8,8 @@ namespace VRCOSC.App.SDK.Nodes.Types.Math;
 
 public abstract class RandomNode<T> : Node where T : notnull
 {
-    [NodeProcess(["Min", "Max"], ["*"])]
-    private T process(T min, T max) => GetRandom(min, max);
+    [NodeProcess]
+    private void process(T min, T max, ref T outResult) => outResult = GetRandom(min, max);
 
     protected abstract T GetRandom(T min, T max);
 }

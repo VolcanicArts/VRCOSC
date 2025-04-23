@@ -16,6 +16,8 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.SDK.Nodes.Types.Base;
+using VRCOSC.App.SDK.Nodes.Types.Inputs;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
@@ -483,7 +485,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
             var slot = ConnectionDrag.Slot;
 
             var metadata = NodeScape.GetMetadata(node);
-            var slotInputType = metadata.Process.InputTypes[slot];
+            var slotInputType = metadata.Process.Inputs[slot].Type;
 
             if (NodeConstants.INPUT_TYPES.Contains(slotInputType) || slotInputType.IsAssignableTo(typeof(Enum)))
             {
@@ -735,12 +737,12 @@ public partial class NodeScapeView : INotifyPropertyChanged
             node = NodeScape.Nodes[existingConnection.OutputNodeId];
             slot = existingConnection.OutputSlot;
             element = getOutputSlotElementForConnection(existingConnection);
-            Logger.Log($"{nameof(FlowInput_OnMouseDown)}: Starting output flow drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
+            Logger.Log($"{nameof(FlowInput_OnMouseDown)}: Starting output flow drag from node {node.Metadata.Title} in slot {slot}", LoggingTarget.Information);
             ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.FlowOutput, node, slot, element);
         }
         else
         {
-            Logger.Log($"{nameof(FlowInput_OnMouseDown)}: Starting input flow drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
+            Logger.Log($"{nameof(FlowInput_OnMouseDown)}: Starting input flow drag from node {node.Metadata.Title} in slot {slot}", LoggingTarget.Information);
             ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.FlowInput, node, slot, element);
         }
 
@@ -763,7 +765,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
         var node = (Node)element.FindVisualParent<ItemsControl>()!.DataContext;
         var slot = getSlotFromConnectionElement(element);
 
-        Logger.Log($"{nameof(FlowInput_OnMouseUp)}: Ending input flow drag on node {node.Title} in slot {slot}", LoggingTarget.Information);
+        Logger.Log($"{nameof(FlowInput_OnMouseUp)}: Ending input flow drag on node {node.Metadata.Title} in slot {slot}", LoggingTarget.Information);
         NodeScape.CreateFlowConnection(ConnectionDrag.Node.Id, ConnectionDrag.Slot, node.Id);
 
         ConnectionDrag = null;
@@ -779,7 +781,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
         var node = (Node)element.FindVisualParent<ItemsControl>()!.DataContext;
         var slot = getSlotFromConnectionElement(element);
 
-        Logger.Log($"{nameof(FlowOutput_OnMouseDown)}: Starting output flow drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
+        Logger.Log($"{nameof(FlowOutput_OnMouseDown)}: Starting output flow drag from node {node.Metadata.Title} in slot {slot}", LoggingTarget.Information);
         ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.FlowOutput, node, slot, element);
 
         updateConnectionDragPath();
@@ -801,7 +803,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
         var node = (Node)element.FindVisualParent<ItemsControl>()!.DataContext;
         var slot = getSlotFromConnectionElement(element);
 
-        Logger.Log($"{nameof(FlowOutput_OnMouseUp)}: Ending output flow drag on node {node.Title} in slot {slot}", LoggingTarget.Information);
+        Logger.Log($"{nameof(FlowOutput_OnMouseUp)}: Ending output flow drag on node {node.Metadata.Title} in slot {slot}", LoggingTarget.Information);
         NodeScape.CreateFlowConnection(node.Id, slot, ConnectionDrag.Node.Id);
 
         ConnectionDrag = null;
@@ -827,12 +829,12 @@ public partial class NodeScapeView : INotifyPropertyChanged
             node = NodeScape.Nodes[existingConnection.OutputNodeId];
             slot = existingConnection.OutputSlot;
             element = getOutputSlotElementForConnection(existingConnection);
-            Logger.Log($"{nameof(ValueInput_OnMouseDown)}: Starting output value drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
+            Logger.Log($"{nameof(ValueInput_OnMouseDown)}: Starting output value drag from node {node.Metadata.Title} in slot {slot}", LoggingTarget.Information);
             ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.ValueOutput, node, slot, element);
         }
         else
         {
-            Logger.Log($"{nameof(ValueInput_OnMouseDown)}: Starting input value drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
+            Logger.Log($"{nameof(ValueInput_OnMouseDown)}: Starting input value drag from node {node.Metadata.Title} in slot {slot}", LoggingTarget.Information);
             ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.ValueInput, node, slot, element);
         }
 
@@ -855,7 +857,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
         var node = (Node)element.FindVisualParent<ItemsControl>()!.DataContext;
         var slot = getSlotFromConnectionElement(element);
 
-        Logger.Log($"{nameof(ValueInput_OnMouseUp)}: Ending input value drag on node {node.Title} in slot {slot}", LoggingTarget.Information);
+        Logger.Log($"{nameof(ValueInput_OnMouseUp)}: Ending input value drag on node {node.Metadata.Title} in slot {slot}", LoggingTarget.Information);
         NodeScape.CreateValueConnection(ConnectionDrag.Node.Id, ConnectionDrag.Slot, node.Id, slot);
         ConnectionDrag = null;
     }
@@ -870,7 +872,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
         var node = (Node)element.FindVisualParent<ItemsControl>()!.DataContext;
         var slot = getSlotFromConnectionElement(element);
 
-        Logger.Log($"{nameof(ValueOutput_OnMouseDown)}: Starting output value drag from node {node.Title} in slot {slot}", LoggingTarget.Information);
+        Logger.Log($"{nameof(ValueOutput_OnMouseDown)}: Starting output value drag from node {node.Metadata.Title} in slot {slot}", LoggingTarget.Information);
         ConnectionDrag = new ConnectionDragInstance(ConnectionDragOrigin.ValueOutput, node, slot, element);
 
         updateConnectionDragPath();

@@ -4,29 +4,36 @@
 namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
 [Node("Sequence", "Flow")]
-public sealed class FlowSequenceNode : Node
+public sealed class FlowSequenceNode : Node, IFlowInput, IFlowOutput
 {
-    public FlowSequenceNode()
-    {
-        AddFlow("*", ConnectionSide.Input);
-        AddFlow("*", ConnectionSide.Output);
-        AddFlow("*", ConnectionSide.Output);
-    }
-
-    internal void AddOutFlow() => AddFlow("*", ConnectionSide.Output);
+    [NodeVariableSize(2)]
+    public NodeFlowRef[] FlowOutputs { get; set; } = [];
 
     private int currentFlowPosition;
 
-    [NodeProcess([], [])]
-    private void process()
+    [NodeProcess]
+    private int process()
     {
-        SetFlow(GetFlowAt(currentFlowPosition, ConnectionSide.Output));
+        if (currentFlowPosition == FlowOutputs.Length)
+        {
+            currentFlowPosition = 0;
+            return -1;
+        }
+
+        return currentFlowPosition++;
     }
 }
 
-[Node("Passthrough", "")]
-public sealed class PassthroughNode<T> : Node
+[Node("Value Relay", "")]
+public sealed class ValueRelayNode<T> : Node
 {
-    [NodeProcess([""], [""])]
-    private T process(T value) => value;
+    [NodeProcess]
+    private void process
+    (
+        [NodeValue] T value,
+        [NodeValue] ref T outValue
+    )
+    {
+        outValue = value;
+    }
 }
