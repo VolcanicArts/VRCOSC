@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
 
 namespace VRCOSC.App.Utils;
 
@@ -31,20 +30,10 @@ public static class TypeResolver
             { "string", typeof(string) }
         };
 
-    private static Type[]? typesToCheck;
-
-    public static Type? ResolveType(string name)
-    {
-        name = name.Trim();
-
-        if (PRIMITIVE_TYPE_ALIASES.TryGetValue(name, out var primitiveType)) return primitiveType;
-
-        var direct = Type.GetType(name, false, true);
-        if (direct != null) return direct;
-
-        typesToCheck ??= Assembly.GetExecutingAssembly().GetExportedTypes();
-        return typesToCheck.FirstOrDefault(type => string.Equals(type.FullName, name, StringComparison.OrdinalIgnoreCase) || string.Equals(type.Name, name, StringComparison.OrdinalIgnoreCase));
-    }
+    // Build this dictionary once, on first access:
+    // Key: either FullName or Name (both case-insensitive), Value: the Type
+    // TODO: Reinitialise this when modules are reloaded
+    private static readonly Lazy<Dictionary<string, Type>> type_index = new(buildTypeIndex, true);
 
     public static bool TryConstructGenericType(string userInput, Type openGenericType, [NotNullWhen(true)] out Type? constructedType)
     {
@@ -55,7 +44,7 @@ public static class TypeResolver
                                  .ToArray();
 
         var typeArgs = typeNames
-                       .Select(ResolveType)
+                       .Select(resolveType)
                        .ToArray();
 
         if (typeArgs.Any(t => t == null || t.IsAbstract))
@@ -70,5 +59,58 @@ public static class TypeResolver
         {
             return false;
         }
+    }
+
+    private static Type? resolveType(string name)
+    {
+        name = name.Trim();
+
+        // 1) primitives
+        if (PRIMITIVE_TYPE_ALIASES.TryGetValue(name, out var p))
+            return p;
+
+        // 2) fully-qualified via the runtime
+        var direct = Type.GetType(name, throwOnError: false, ignoreCase: true);
+
+        if (direct != null)
+            return direct;
+
+        // 3) O(1) lookup in our cached index
+        type_index.Value.TryGetValue(name, out var found);
+        return found;
+    }
+
+    private static Dictionary<string, Type> buildTypeIndex()
+    {
+        var dict = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            if (asm.IsDynamic) continue;
+
+            Type[] types;
+
+            try
+            {
+                types = asm.GetExportedTypes();
+            }
+            catch
+            {
+                continue;
+            }
+
+            foreach (var t in types)
+            {
+                if (t.IsAbstract || t.IsGenericTypeDefinition) continue;
+
+                // 1) full name
+                if (t.FullName != null) dict.TryAdd(t.FullName, t);
+
+                // 2) simple name (e.g. "DateTime")
+                dict.TryAdd(t.Name, t);
+            }
+        }
+
+        return dict;
     }
 }
