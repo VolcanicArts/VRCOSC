@@ -3,7 +3,7 @@
 
 namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
-[Node("Value Relay", "")]
+[Node("Value Relay", "Utility")]
 public sealed class ValueRelayNode<T> : Node
 {
     [NodeProcess]

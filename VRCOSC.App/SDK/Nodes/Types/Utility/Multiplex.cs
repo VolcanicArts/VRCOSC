@@ -3,6 +3,22 @@
 
 namespace VRCOSC.App.SDK.Nodes.Types.Utility;
 
+[Node("Boolean Multiplex", "Utility")]
+public sealed class BooleanMultiplexNode<T> : Node
+{
+    [NodeProcess]
+    private void process
+    (
+        [NodeValue("When True")] T valueTrue,
+        [NodeValue("When False")] T valueFalse,
+        [NodeValue("Condition")] bool condition,
+        [NodeValue("Output")] ref T outOutput
+    )
+    {
+        outOutput = condition ? valueTrue : valueFalse;
+    }
+}
+
 [Node("Multiplex", "Utility")]
 public sealed class MultiplexNode<T> : Node
 {
@@ -10,12 +26,12 @@ public sealed class MultiplexNode<T> : Node
     private void process
     (
         [NodeValue("Index")] int index,
-        [NodeValue("Inputs")] [NodeVariableSize(2)] T[] inputs,
+        [NodeValue("Inputs")] [NodeVariableSize] T[] inputs,
         [NodeValue("Element")] ref T element,
-        [NodeValue("Input Count")] ref int inputCount
+        [NodeValue("Input Count")] ref int outInputCount
     )
     {
-        inputCount = inputs.Length;
+        outInputCount = inputs.Length;
 
         if (index >= inputs.Length) return;
 
@@ -32,12 +48,12 @@ public sealed class DemultiplexNode<T> : Node
         [NodeValue("Value")] T value,
         [NodeValue("Default Value")] T defaultValue,
         [NodeValue("Index")] int index,
-        [NodeValue("Outputs")] [NodeVariableSize(2)] ref T[] outputs
+        [NodeValue("Outputs")] [NodeVariableSize(2)] ref T[] outOutputs
     )
     {
-        for (var i = 0; i < outputs.Length; i++)
+        for (var i = 0; i < outOutputs.Length; i++)
         {
-            outputs[i] = i == index ? value : defaultValue;
+            outOutputs[i] = i == index ? value : defaultValue;
         }
     }
 }

@@ -38,3 +38,26 @@ public class EnumerableCountNode<T> : Node
         outCount = enumerable.Count();
     }
 }
+
+[Node("Insert", "Collections")]
+public class EnumerableInsertNode<T> : Node, IFlowInput, IFlowOutput
+{
+    public NodeFlowRef[] FlowOutputs => [new("On Insertion")];
+
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
+        [NodeValue("Index")] int index,
+        [NodeValue("Value")] T value,
+        [NodeValue("Enumerable")] ref IEnumerable<T> outEnumerable)
+    {
+        if (enumerable is null) return -1;
+
+        var list = enumerable.ToList();
+        list.Insert(index, value);
+        outEnumerable = list;
+
+        return 0;
+    }
+}

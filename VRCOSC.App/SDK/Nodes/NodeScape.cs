@@ -6,7 +6,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using VRCOSC.App.SDK.Nodes.Types.Converters;
+using VRCOSC.App.SDK.Nodes.Types.Base;
+using VRCOSC.App.SDK.Nodes.Types.Strings;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Nodes;
@@ -22,6 +23,7 @@ public class NodeScape
     public int ZIndex { get; set; } = 0;
 
     public readonly Dictionary<Type, NodeMetadata> Metadata = [];
+    public readonly Dictionary<string, object?> Variables = [];
 
     public void RegisterNode(Node node)
     {
@@ -31,6 +33,13 @@ public class NodeScape
     }
 
     public NodeMetadata GetMetadata(Node node) => Metadata[node.GetType()];
+
+    public void WriteVariable(string name, object? value, bool persistent)
+    {
+        Variables[name] = value;
+
+        // TODO: Implement persistence saving to file
+    }
 
     public void CreateFlowConnection(Guid outputNodeId, int outputFlowSlot, Guid inputNodeId)
     {
@@ -102,6 +111,8 @@ public class NodeScape
     {
         Nodes.Remove(node.Id);
         Connections.RemoveIf(connection => connection.OutputNodeId == node.Id || connection.InputNodeId == node.Id);
+
+        // TODO: When a ValueRelayNode is removed, bridge connections
     }
 
     private Node addNode(Node node)
@@ -255,6 +266,7 @@ public class NodeScape
 
                 if (metadata.IsAsync)
                 {
+                    // TODO: If this returns a task, we shouldn't wait here. It should spin up another node execute as it's basically triggering another flow when complete
                     var outputTask = (Task<int>)result!;
                     await outputTask.ConfigureAwait(false);
                     outputFlowSlot = outputTask.Result;

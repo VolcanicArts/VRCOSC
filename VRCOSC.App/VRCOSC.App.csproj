@@ -50,6 +50,7 @@
 
     <ItemGroup>
       <Folder Include="Resources\" />
+      <Folder Include="SDK\Nodes\Types\Converters\" />
     </ItemGroup>
 
     <ItemGroup>

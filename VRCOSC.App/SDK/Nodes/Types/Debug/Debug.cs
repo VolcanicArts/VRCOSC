@@ -15,9 +15,11 @@ public sealed class LogNode : Node, IFlowInput, IFlowOutput
     [NodeProcess]
     private int process
     (
-        [NodeValue("String")] string str
+        [NodeValue("String")] string? str
     )
     {
+        if (string.IsNullOrEmpty(str)) return 0;
+
         Console.WriteLine(str);
         return 0;
     }

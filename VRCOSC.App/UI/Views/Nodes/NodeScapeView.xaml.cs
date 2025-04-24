@@ -34,13 +34,13 @@ public partial class NodeScapeView : INotifyPropertyChanged
     public const double GROUP_PADDING = SNAP_DISTANCE * 2d;
 
     private WindowManager nodeCreatorWindowManager = null!;
+    private bool loaded;
 
     public NodeScapeView(NodeScape nodeScape)
     {
         NodeScape = nodeScape;
         InitializeComponent();
         Loaded += OnLoaded;
-        Unloaded += OnUnloaded;
         KeyDown += OnKeyDown;
         DataContext = this;
     }
@@ -62,6 +62,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        if (loaded) return;
+
         nodeCreatorWindowManager = new WindowManager(this);
 
         ConnectionCanvas.Children.Clear();
@@ -74,6 +76,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
         nodesCollectionBind = NodeScape.Nodes.OnCollectionChanged(onNodeCollectionChanged, true);
         nodeScapeConnectionsBind = NodeScape.Connections.OnCollectionChanged(onConnectionsChanged, true);
         nodeGroupsCollectionBind = NodeScape.Groups.OnCollectionChanged(onGroupsChanged, true);
+
+        loaded = true;
     }
 
     private async void onGroupsChanged(IEnumerable<NodeGroup> newGroups, IEnumerable<NodeGroup> oldGroups)
@@ -108,13 +112,6 @@ public partial class NodeScapeView : INotifyPropertyChanged
         newNodes.ForEach(pair => updateNodePosition(pair.Value));
 
         // TODO: Remove from group as well
-    }
-
-    private void OnUnloaded(object sender, RoutedEventArgs e)
-    {
-        nodesCollectionBind.Dispose();
-        nodeScapeConnectionsBind.Dispose();
-        nodeGroupsCollectionBind.Dispose();
     }
 
     private void OnKeyDown(object sender, KeyEventArgs e)

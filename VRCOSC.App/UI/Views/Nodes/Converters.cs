@@ -9,7 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Nodes.Types.Base;
-using VRCOSC.App.SDK.Nodes.Types.Converters;
+using VRCOSC.App.SDK.Nodes.Types.Flow;
 using VRCOSC.App.SDK.Nodes.Types.Inputs;
 
 namespace VRCOSC.App.UI.Views.Nodes;
@@ -55,7 +55,9 @@ public class ConnectionAmountConverter : IValueConverter
                 if (node.Metadata.InputHasVariableSize)
                 {
                     points.Remove(points.Last());
-                    points.AddRange(Enumerable.Range(0, node.Metadata.InputVariableSizeActual).Select(i => new ConnectionViewModel(node, node.Metadata.InputsCount - 1 + i, string.Empty, node.Metadata.Inputs.Last().Type.GetElementType())));
+
+                    points.AddRange(Enumerable.Range(0, node.Metadata.InputVariableSizeActual).Select(i =>
+                        new ConnectionViewModel(node, node.Metadata.InputsCount - 1 + i, string.Empty, node.Metadata.Inputs.Last().Type.GetElementType())));
                 }
 
                 return points;
@@ -71,7 +73,9 @@ public class ConnectionAmountConverter : IValueConverter
                 if (node.Metadata.OutputHasVariableSize)
                 {
                     points.Remove(points.Last());
-                    points.AddRange(Enumerable.Range(0, node.Metadata.OutputVariableSizeActual).Select(i => new ConnectionViewModel(node, node.Metadata.OutputsCount - 1 + i, string.Empty, node.Metadata.Outputs.Last().Type.GetElementType())));
+
+                    points.AddRange(Enumerable.Range(0, node.Metadata.OutputVariableSizeActual).Select(i =>
+                        new ConnectionViewModel(node, node.Metadata.OutputsCount - 1 + i, string.Empty, node.Metadata.Outputs.Last().Type.GetElementType())));
                 }
 
                 return points;
@@ -161,7 +165,7 @@ public class ValueVariableSizeControlVisibilityConverter : IValueConverter
 public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
 {
     public required DataTemplate? NodeTemplate { get; set; }
-    public required DataTemplate? CastNodeTemplate { get; set; }
+    public required DataTemplate? RelayNodeTemplate { get; set; }
     public required DataTemplate? ValueInputNodeTemplate { get; set; }
     public required DataTemplate? BoolValueInputNodeTemplate { get; set; }
     public required DataTemplate? EnumValueInputNodeTemplate { get; set; }
@@ -175,7 +179,9 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
     {
         if (item is null) return null;
 
-        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(CastNode<,>)) return CastNodeTemplate;
+        if (item.GetType().IsGenericType &&
+            (item.GetType().GetGenericTypeDefinition() == typeof(CastNode<,>) ||
+             item.GetType().GetGenericTypeDefinition() == typeof(ValueRelayNode<>))) return RelayNodeTemplate;
 
         if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(ValueNode<>))
         {

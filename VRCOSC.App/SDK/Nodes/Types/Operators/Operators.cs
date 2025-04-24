@@ -42,6 +42,34 @@ public sealed class ModoloNode<T> : Node where T : INumber<T>
     private void process(T a, T b, ref T result) => result = a % b;
 }
 
+[Node(">", "Operators")]
+public sealed class GreaterThanNode<T> : Node where T : INumber<T>
+{
+    [NodeProcess]
+    private void process(T a, T b, ref bool result) => result = a > b;
+}
+
+[Node(">=", "Operators")]
+public sealed class GreaterThanOrEqualToNode<T> : Node where T : INumber<T>
+{
+    [NodeProcess]
+    private void process(T a, T b, ref bool result) => result = a >= b;
+}
+
+[Node("<", "Operators")]
+public sealed class LessThanNode<T> : Node where T : INumber<T>
+{
+    [NodeProcess]
+    private void process(T a, T b, ref bool result) => result = a < b;
+}
+
+[Node("<=", "Operators")]
+public sealed class LessThanOrEqualToNode<T> : Node where T : INumber<T>
+{
+    [NodeProcess]
+    private void process(T a, T b, ref bool result) => result = a <= b;
+}
+
 [Node("==", "Operators")]
 public sealed class EqualsNode<T> : Node
 {

@@ -48,7 +48,7 @@ public class NodeVariableSizeAttribute : Attribute
 {
     public int DefaultSize { get; }
 
-    public NodeVariableSizeAttribute(int defaultSize = 1)
+    public NodeVariableSizeAttribute(int defaultSize = 2)
     {
         DefaultSize = defaultSize;
     }

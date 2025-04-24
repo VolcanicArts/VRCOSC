@@ -820,7 +820,7 @@
 
         <nodes:NodeItemsControlDataTemplateSelector x:Key="NodeItemsControlDataTemplateSelector"
                                                     NodeTemplate="{StaticResource NodeTemplate}"
-                                                    CastNodeTemplate="{StaticResource CastNodeTemplate}"
+                                                    RelayNodeTemplate="{StaticResource CastNodeTemplate}"
                                                     ValueInputNodeTemplate="{StaticResource ValueNodeTemplate}"
                                                     BoolValueInputNodeTemplate="{StaticResource BoolValueNodeTemplate}"
                                                     EnumValueInputNodeTemplate="{StaticResource EnumValueNodeTemplate}"

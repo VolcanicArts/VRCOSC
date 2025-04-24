@@ -72,9 +72,14 @@ public static class NodeMetadataBuilder
         if (!isFlowOutput && method.ReturnParameter.ParameterType != typeof(void))
             throw new Exception($"Cannot build {nameof(NodeMetadata)} as the node isn't a flow output node but the return type of the process method isn't void");
 
-        // ensure that if a node is marked as trigger, it is also marked as a flow output
+        if (isFlowOutput && !isFlowInput && !isTrigger)
+            throw new Exception($"Cannot build {nameof(NodeMetadata)} as a node with only a flow output must be a trigger");
 
-        // ensure that if the return parameter is only int or Task<int> if marked as flow
+        if (!isFlowOutput && !isFlowInput && isTrigger)
+            throw new Exception($"Cannot build {nameof(NodeMetadata)} as a nod with a trigger must be a flow output");
+
+        if (isFlowOutput && method.ReturnParameter.ParameterType != typeof(int) && method.ReturnParameter.ParameterType != typeof(Task<int>))
+            throw new Exception($"Cannot build {nameof(NodeMetadata)} as the node is defined is a flow output but doesn't return int");
 
         var inputVariableSize = inputParameters.LastOrDefault()?.GetCustomAttribute<NodeVariableSizeAttribute>();
         var outputVariableSize = outputParameters.LastOrDefault()?.GetCustomAttribute<NodeVariableSizeAttribute>();
@@ -149,7 +154,7 @@ public static class NodeMetadataBuilder
 public sealed class NodeMetadata
 {
     public string Title { get; set; } = null!;
-    public string Path { get; set; } = null!;
+    public string? Path { get; set; }
     public Type[] GenericArguments { get; set; } = null!;
     public MethodInfo ProcessMethod { get; set; } = null!;
     public NodeFlowRef[] FlowOutputs { get; set; } = [];
