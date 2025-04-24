@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using VRCOSC.App.Modules;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.Utils;
+using Module = VRCOSC.App.SDK.Modules.Module;
 
 namespace VRCOSC.App.UI.Views.Nodes;
 
@@ -45,11 +47,13 @@ public interface IContextMenuEntry
 
 public static class ContextMenuBuilder
 {
-    public static ContextMenuSubMenu BuildCreateNodesMenu(IEnumerable<Type> nodeTypes)
+    public static ContextMenuSubMenu BuildCreateNodesMenu()
     {
         var root = new ContextMenuSubMenu("Create Node");
+        var nodeTypes = getAllNodeTypes().ToList();
+        var executingAsm = Assembly.GetExecutingAssembly();
 
-        foreach (var type in nodeTypes)
+        foreach (var type in nodeTypes.Where(t => t.Assembly == executingAsm))
         {
             var attr = type.GetCustomAttribute<NodeAttribute>();
 
@@ -57,48 +61,118 @@ public static class ContextMenuBuilder
                 continue;
 
             var currentList = root.Items;
-
             var pathParts = attr.Path.Split('/');
 
             foreach (var part in pathParts)
             {
-                var existing = currentList
-                               .OfType<ContextMenuSubMenu>()
-                               .FirstOrDefault(sub => sub.Name == part);
+                var list = currentList;
 
-                if (existing == null)
-                {
-                    existing = new ContextMenuSubMenu(part);
-                    currentList.Add(existing);
-                }
+                var submenu = currentList
+                              .OfType<ContextMenuSubMenu>()
+                              .FirstOrDefault(sm => sm.Name == part)
+                              ?? new ContextMenuSubMenu(part).Also(sm => list.Add(sm));
 
-                currentList = existing.Items;
+                currentList = submenu.Items;
             }
 
-            var genericAttr = type.GetCustomAttribute<NodeGenericTypeFilterAttribute>();
-
-            if (genericAttr is { Types.Length: > 0 })
-            {
-                var submenu = new ContextMenuSubMenu(attr.Title);
-
-                foreach (var genType in genericAttr.Types)
-                {
-                    var constructed = type.MakeGenericType(genType);
-                    var typeName = genType.GetFriendlyName();
-                    submenu.Items.Add(new ContextMenuItem($"{attr.Title} ({typeName})", constructed));
-                }
-
-                currentList.Add(submenu);
-            }
-            else
-            {
-                // Normal item
-                currentList.Add(new ContextMenuItem(attr.Title, type));
-            }
+            addNodeEntry(currentList, type, attr);
         }
 
         sortMenu(root.Items);
+
+        var modulesMenu = new ContextMenuSubMenu("Modules");
+        var external = nodeTypes.Where(t => t.Assembly != executingAsm);
+
+        var byModule = external
+                       .Select(nodeType => new
+                       {
+                           NodeType = nodeType,
+                           ModuleType = nodeType.GetConstructedGenericBase(typeof(ModuleNode<>))?.GenericTypeArguments[0]
+                       })
+                       .Where(x =>
+                           x.ModuleType != null
+                           && typeof(Module).IsAssignableFrom(x.ModuleType)
+                           && !x.ModuleType!.IsAbstract
+                       )
+                       .GroupBy(
+                           x => ModuleManager
+                                .GetInstance()
+                                .GetModuleInstanceFromType(x.ModuleType!)
+                                .Title,
+                           x => x.NodeType
+                       );
+
+        foreach (var moduleGroup in byModule)
+        {
+            var moduleTitle = moduleGroup.Key;
+            var moduleMenu = new ContextMenuSubMenu(moduleTitle);
+            modulesMenu.Items.Add(moduleMenu);
+
+            foreach (var nodeType in moduleGroup)
+            {
+                var attr = nodeType.GetCustomAttribute<NodeAttribute>()!;
+                addNodeEntry(moduleMenu.Items, nodeType, attr);
+            }
+
+            sortMenu(moduleMenu.Items);
+        }
+
+        if (modulesMenu.Items.Count > 0)
+            root.Items.Insert(0, modulesMenu);
+
         return root;
+    }
+
+    private static void addNodeEntry(
+        List<IContextMenuEntry> list,
+        Type nodeType,
+        NodeAttribute attr)
+    {
+        var genAttr = nodeType.GetCustomAttribute<NodeGenericTypeFilterAttribute>();
+
+        if (genAttr is { Types.Length: > 0 })
+        {
+            var genMenu = new ContextMenuSubMenu(attr.Title);
+
+            foreach (var gt in genAttr.Types)
+            {
+                var constructed = nodeType.MakeGenericType(gt);
+                var friendly = $"{attr.Title} ({gt.GetFriendlyName()})";
+                genMenu.Items.Add(new ContextMenuItem(friendly, constructed));
+            }
+
+            list.Add(genMenu);
+        }
+        else
+        {
+            list.Add(new ContextMenuItem(attr.Title, nodeType));
+        }
+    }
+
+    private static IEnumerable<Type> getAllNodeTypes()
+    {
+        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            Type[] types;
+
+            try
+            {
+                types = asm.GetExportedTypes();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                types = ex.Types.Where(t => t != null).ToArray()!;
+            }
+
+            foreach (var t in types)
+            {
+                if (t.IsAbstract) continue;
+                if (!typeof(Node).IsAssignableFrom(t)) continue;
+                if (t.GetCustomAttribute<NodeAttribute>() is null) continue;
+
+                yield return t;
+            }
+        }
     }
 
     private static void sortMenu(List<IContextMenuEntry> entries)
@@ -111,10 +185,18 @@ public static class ContextMenuBuilder
         entries.Clear();
         entries.AddRange(sorted);
 
-        foreach (var submenu in entries.OfType<ContextMenuSubMenu>())
-        {
-            sortMenu(submenu.Items);
-        }
+        foreach (var sm in entries.OfType<ContextMenuSubMenu>())
+            sortMenu(sm.Items);
+    }
+}
+
+// Extension to let you fluently add to a list when you create an object
+public static class FluentExtensions
+{
+    public static T Also<T>(this T obj, Action<T> action)
+    {
+        action(obj);
+        return obj;
     }
 }
 

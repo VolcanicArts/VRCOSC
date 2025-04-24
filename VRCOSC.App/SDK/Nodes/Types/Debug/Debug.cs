@@ -13,12 +13,13 @@ public sealed class LogNode : Node, IFlowInput, IFlowOutput
     public NodeFlowRef[] FlowOutputs => [new()];
 
     [NodeProcess]
-    private void process
+    private int process
     (
         [NodeValue("String")] string str
     )
     {
         Console.WriteLine(str);
+        return 0;
     }
 }
 

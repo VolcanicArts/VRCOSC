@@ -87,6 +87,7 @@ internal class ModuleManager : INotifyPropertyChanged
 
     #region Management
 
+    public Module GetModuleInstanceFromType(Type moduleType) => modules.Single(module => module.GetType() == moduleType);
     public IEnumerable<T> GetModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
     public IEnumerable<T> GetRunningModulesOfType<T>() => RunningModules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
     public IEnumerable<T> GetEnabledModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T)) && module.Enabled.Value).Cast<T>();

@@ -9,14 +9,21 @@ namespace VRCOSC.App.SDK.Nodes;
 public class NodeAttribute : Attribute
 {
     public string Title { get; }
-    public string Path { get; }
+    public string? Path { get; }
 
-    public NodeAttribute(string title, string path)
+    internal NodeAttribute(string title, string path)
     {
         if (string.IsNullOrWhiteSpace(title)) throw new Exception("A title must be provided for a node");
 
         Title = title;
         Path = path;
+    }
+
+    public NodeAttribute(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title)) throw new Exception("A title must be provided for a node");
+
+        Title = title;
     }
 }
 

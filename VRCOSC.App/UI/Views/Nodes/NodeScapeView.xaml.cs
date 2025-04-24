@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -44,10 +43,12 @@ public partial class NodeScapeView : INotifyPropertyChanged
         Unloaded += OnUnloaded;
         KeyDown += OnKeyDown;
         DataContext = this;
+    }
 
-        var nodes = Assembly.GetExecutingAssembly().ExportedTypes.Where(type => type.IsAssignableTo(typeof(Node)) && !type.IsAbstract && type.HasCustomAttribute<NodeAttribute>());
+    public void Load()
+    {
         ContextMenuRoot = new ContextMenuRoot();
-        ContextMenuRoot.Items.Add(ContextMenuBuilder.BuildCreateNodesMenu(nodes));
+        ContextMenuRoot.Items.Add(ContextMenuBuilder.BuildCreateNodesMenu());
     }
 
     public NodeScape NodeScape { get; }
@@ -57,7 +58,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
     private IDisposable nodeScapeConnectionsBind = null!;
     private IDisposable nodeGroupsCollectionBind = null!;
 
-    public ContextMenuRoot ContextMenuRoot { get; set; }
+    public ContextMenuRoot ContextMenuRoot { get; set; } = null!;
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {

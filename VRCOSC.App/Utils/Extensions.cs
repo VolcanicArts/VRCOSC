@@ -265,6 +265,41 @@ public static class ParameterInfoExtensions
 
 public static class TypeExtensions
 {
+    public static Type? GetConstructedGenericBase(this Type typeToCheck, Type genericDef)
+    {
+        if (!genericDef.IsGenericTypeDefinition)
+            throw new ArgumentException("Must be an open generic, e.g. typeof(MyBase<>)", nameof(genericDef));
+
+        var cur = typeToCheck;
+
+        while (cur != null && cur != typeof(object))
+        {
+            var bt = cur.BaseType;
+
+            if (bt is { IsGenericType: true } &&
+                bt.GetGenericTypeDefinition() == genericDef)
+            {
+                return bt;
+            }
+
+            cur = bt;
+        }
+
+        return null;
+    }
+
+    public static bool IsSubclassOfRawGeneric(this Type typeToCheck, Type genericTypeDefinition)
+    {
+        if (!genericTypeDefinition.IsGenericTypeDefinition)
+            throw new ArgumentException("Must be a generic type definition, e.g. typeof(B<>)", nameof(genericTypeDefinition));
+
+        if (typeToCheck.IsGenericType && typeToCheck.GetGenericTypeDefinition() == genericTypeDefinition) return true;
+        if (typeToCheck.GetInterfaces().Any(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == genericTypeDefinition)) return true;
+
+        var baseType = typeToCheck.BaseType;
+        return baseType != null && IsSubclassOfRawGeneric(baseType, genericTypeDefinition);
+    }
+
     public static string GetFriendlyName(this Type type)
     {
         if (type.IsGenericParameter)

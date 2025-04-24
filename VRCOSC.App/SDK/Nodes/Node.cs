@@ -2,6 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using VRCOSC.App.Modules;
+using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Utils;
 
@@ -9,7 +11,7 @@ namespace VRCOSC.App.SDK.Nodes;
 
 public abstract class Node
 {
-    public NodeScape NodeScape { get; set; } = null!;
+    internal NodeScape NodeScape { get; set; } = null!;
 
     public Guid Id { get; } = Guid.NewGuid();
     public ObservableVector2 Position { get; } = new(5000, 5000);
@@ -17,4 +19,9 @@ public abstract class Node
 
     public NodeMetadata Metadata => NodeScape.GetMetadata(this);
     protected Player Player => AppManager.GetInstance().VRChatClient.Player;
+}
+
+public abstract class ModuleNode<T> : Node where T : Module
+{
+    public T Module => (T)ModuleManager.GetInstance().GetModuleInstanceFromType(typeof(T));
 }

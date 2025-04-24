@@ -209,19 +209,16 @@ public class NodeScape
     private readonly Stack<Guid> returnNodes = [];
     private readonly NodeScapeMemory memory = new();
 
-    public void Update()
+    public async void Update()
     {
         memory.Reset();
 
-        lock (nodesLock)
+        foreach (var (_, node) in Nodes)
         {
-            foreach (var (_, node) in Nodes)
-            {
-                var metadata = GetMetadata(node);
-                if (!metadata.IsTrigger) continue;
+            var metadata = GetMetadata(node);
+            if (!metadata.IsTrigger) continue;
 
-                _ = startFlow(memory, node.Id);
-            }
+            await startFlow(memory, node.Id);
         }
     }
 
@@ -267,7 +264,7 @@ public class NodeScape
                     outputFlowSlot = (int)result!;
                 }
 
-                memory.Write(nextNodeId.Value, outputValues);
+                memory.Write(currentNode.Id, outputValues);
 
                 if (outputFlowSlot >= 0 && metadata.FlowOutputs[outputFlowSlot].Scope)
                 {
