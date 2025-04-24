@@ -90,6 +90,9 @@
                         <RadioButton GroupName="TabBar" Click="ChatBoxButton_OnClick" >
                             <fa6:ImageAwesome Icon="Solid_Message" ToolTip="ChatBox" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                         </RadioButton>
+                        <RadioButton GroupName="TabBar" Click="NodesButton_OnClick" >
+                            <fa6:ImageAwesome Icon="Solid_CircleNodes" ToolTip="Nodes" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                        </RadioButton>
                         <RadioButton GroupName="TabBar" Click="RunButton_OnClick" >
                             <fa6:ImageAwesome Icon="Solid_Play" ToolTip="Run" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                         </RadioButton>

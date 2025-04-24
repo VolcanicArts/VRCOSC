@@ -8,7 +8,7 @@ namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 [Node("If", "Flow")]
 public sealed class IfNode : Node, IFlowInput, IFlowOutput
 {
-    public NodeFlowRef[] FlowOutputs { get; set; } =
+    public NodeFlowRef[] FlowOutputs =>
     [
         new("On True"),
         new("On False")
@@ -27,7 +27,7 @@ public sealed class IfNode : Node, IFlowInput, IFlowOutput
 [Node("If With State", "Flow")]
 public sealed class IfWithStateNode : Node, IFlowInput, IFlowOutput
 {
-    public NodeFlowRef[] FlowOutputs { get; set; } =
+    public NodeFlowRef[] FlowOutputs =>
     [
         new("On Became True"),
         new("On Became False"),

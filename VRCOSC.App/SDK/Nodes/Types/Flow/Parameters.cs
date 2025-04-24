@@ -8,7 +8,7 @@ namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 [Node("On Registered Parameter Received", "")]
 public sealed class RegisteredParameterReceivedNode<T> : Node, IFlowOutput, IFlowTrigger
 {
-    public NodeFlowRef[] FlowOutputs { get; set; }
+    public NodeFlowRef[] FlowOutputs { get; }
 
     private readonly RegisteredParameter registeredParameter;
 
@@ -30,20 +30,17 @@ public sealed class RegisteredParameterReceivedNode<T> : Node, IFlowOutput, IFlo
     }
 }
 
-[Node("On Parameter Received", "Flow/Parameters")]
+[Node("On Parameter Received", "Flow")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
 public sealed class ParameterReceivedNode<T> : Node, IFlowOutput, IFlowTrigger where T : struct
 {
-    public NodeFlowRef[] FlowOutputs { get; set; } =
-    [
-        new("On Received")
-    ];
+    public NodeFlowRef[] FlowOutputs => [new("On Received")];
 
     [NodeProcess]
     private int process
     (
-        [NodeValue] string? parameterName,
-        [NodeValue] ref T outValue
+        [NodeValue("Parameter Name")] string? parameterName,
+        [NodeValue("Value")] ref T outValue
     )
     {
         if (string.IsNullOrEmpty(parameterName)) return -1;

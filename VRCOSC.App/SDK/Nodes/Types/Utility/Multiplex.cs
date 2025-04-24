@@ -15,8 +15,11 @@ public sealed class MultiplexNode<T> : Node
         [NodeValue("Input Count")] ref int inputCount
     )
     {
-        element = inputs[index];
         inputCount = inputs.Length;
+
+        if (index >= inputs.Length) return;
+
+        element = inputs[index];
     }
 }
 

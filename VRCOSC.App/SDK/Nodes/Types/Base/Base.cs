@@ -20,16 +20,16 @@ public sealed class ValueNode<T> : Node
 
 public abstract class ConstantNode<T> : Node
 {
-    public required T Value { get; init; }
-
     [NodeProcess]
     private void process
     (
         [NodeValue] ref T outValue
     )
     {
-        outValue = Value;
+        outValue = GetValue();
     }
+
+    protected abstract T GetValue();
 }
 
 public abstract class InputNode : Node

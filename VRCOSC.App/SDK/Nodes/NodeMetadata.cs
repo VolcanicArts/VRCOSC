@@ -54,7 +54,7 @@ public static class NodeMetadataBuilder
                 throw new Exception($"Cannot build {nameof(NodeMetadata)} as {nameof(NodeVariableSizeAttribute)} is only allowed to be defined on the last input");
         }
 
-        var outputsHaveVariableSize = inputParameters.Any(p => p.HasCustomAttribute<NodeVariableSizeAttribute>());
+        var outputsHaveVariableSize = outputParameters.Any(p => p.HasCustomAttribute<NodeVariableSizeAttribute>());
 
         if (outputsHaveVariableSize)
         {
@@ -76,24 +76,28 @@ public static class NodeMetadataBuilder
 
         // ensure that if the return parameter is only int or Task<int> if marked as flow
 
+        var inputVariableSize = inputParameters.LastOrDefault()?.GetCustomAttribute<NodeVariableSizeAttribute>();
+        var outputVariableSize = outputParameters.LastOrDefault()?.GetCustomAttribute<NodeVariableSizeAttribute>();
+
         return new NodeMetadata
         {
             Title = nodeAttribute.Title,
             Path = nodeAttribute.Path,
             GenericArguments = type.GetGenericArguments(),
-            FlowOutputs = type.IsAssignableTo(typeof(IFlowOutput)) ? getFlowOutputsMetadata(node).ToArray() : [],
+            FlowOutputs = type.IsAssignableTo(typeof(IFlowOutput)) ? ((IFlowOutput)node).FlowOutputs : [],
             IsFlowInput = isFlowInput,
             IsFlowOutput = isFlowOutput,
             IsValueInput = isValueInput,
             IsValueOutput = isValueOutput,
             IsAsync = isAsync,
             IsTrigger = isTrigger,
-            Process = new NodeProcessMetadata
-            {
-                Method = method,
-                Inputs = getIoMetadata(inputParameters).ToArray(),
-                Outputs = getIoMetadata(outputParameters).ToArray()
-            }
+            ProcessMethod = method,
+            Inputs = getIoMetadata(inputParameters).ToArray(),
+            Outputs = getIoMetadata(outputParameters).ToArray(),
+            InputVariableSize = inputVariableSize,
+            InputVariableSizeActual = inputVariableSize?.DefaultSize ?? 0,
+            OutputVariableSize = outputVariableSize,
+            OutputVariableSizeActual = outputVariableSize?.DefaultSize ?? 0
         };
     }
 
@@ -122,50 +126,21 @@ public static class NodeMetadataBuilder
         };
     }
 
-    private static IEnumerable<NodeFlowMetadata> getFlowOutputsMetadata(Node node)
-    {
-        var iFlowOutput = (IFlowOutput)node;
-        var flowOutputRefs = iFlowOutput.FlowOutputs;
-
-        foreach (var flowOutputRef in flowOutputRefs)
-        {
-            if (flowOutputRef is null)
-            {
-                yield return new NodeFlowMetadata
-                {
-                    Name = string.Empty,
-                    Scope = false
-                };
-
-                continue;
-            }
-
-            yield return new NodeFlowMetadata
-            {
-                Name = flowOutputRef.Name,
-                Scope = flowOutputRef.Scope
-            };
-        }
-    }
-
     private static IEnumerable<NodeValueMetadata> getIoMetadata(List<ParameterInfo> parameters)
     {
-        foreach (var inputParameter in parameters)
+        foreach (var parameter in parameters)
         {
             var name = string.Empty;
 
-            if (inputParameter.TryGetCustomAttribute<NodeValueAttribute>(out var nodeValueAttribute))
+            if (parameter.TryGetCustomAttribute<NodeValueAttribute>(out var nodeValueAttribute))
             {
                 name = nodeValueAttribute.Name;
             }
 
-            var variableSize = inputParameter.GetCustomAttribute<NodeVariableSizeAttribute>();
-
             yield return new NodeValueMetadata
             {
                 Name = name,
-                Type = inputParameter.ParameterType.IsByRef ? inputParameter.ParameterType.GetElementType()! : inputParameter.ParameterType,
-                VariableSize = variableSize
+                Type = parameter.ParameterType.IsByRef ? parameter.ParameterType.GetElementType()! : parameter.ParameterType,
             };
         }
     }
@@ -176,8 +151,14 @@ public sealed class NodeMetadata
     public string Title { get; set; } = null!;
     public string Path { get; set; } = null!;
     public Type[] GenericArguments { get; set; } = null!;
-    public NodeProcessMetadata Process { get; set; } = null!;
-    public NodeFlowMetadata[] FlowOutputs { get; set; } = [];
+    public MethodInfo ProcessMethod { get; set; } = null!;
+    public NodeFlowRef[] FlowOutputs { get; set; } = [];
+    public NodeValueMetadata[] Inputs { get; set; } = [];
+    public NodeValueMetadata[] Outputs { get; set; } = [];
+    public NodeVariableSizeAttribute? InputVariableSize { get; set; }
+    public int InputVariableSizeActual { get; set; }
+    public NodeVariableSizeAttribute? OutputVariableSize { get; set; }
+    public int OutputVariableSizeActual { get; set; }
     public bool IsFlowInput { get; set; }
     public bool IsFlowOutput { get; set; }
     public bool IsValueInput { get; set; }
@@ -188,24 +169,69 @@ public sealed class NodeMetadata
     public bool IsFlow => IsFlowInput || IsFlowOutput;
     public bool IsValue => IsValueInput || IsValueOutput;
     public string GenericArgumentsAsString => string.Join(", ", GenericArguments.Select(arg => arg.GetFriendlyName()));
-}
 
-public sealed class NodeProcessMetadata
-{
-    public MethodInfo Method { get; set; } = null!;
-    public NodeValueMetadata[] Inputs { get; set; } = [];
-    public NodeValueMetadata[] Outputs { get; set; } = [];
-}
+    public bool InputHasVariableSize => InputVariableSize is not null;
+    public bool OutputHasVariableSize => OutputVariableSize is not null;
 
-public sealed class NodeFlowMetadata
-{
-    public string Name { get; set; } = null!;
-    public bool Scope { get; set; }
+    public int FlowCount => FlowOutputs.Length;
+
+    public int InputsCount => Inputs.Length;
+
+    public int InputsVirtualCount
+    {
+        get
+        {
+            if (Inputs.Length == 0) return 0;
+            if (InputVariableSize is null) return Inputs.Length;
+
+            return Inputs.Length - 1 + InputVariableSizeActual;
+        }
+    }
+
+    public int OutputsCount => Outputs.Length;
+
+    public int OutputsVirtualCount
+    {
+        get
+        {
+            if (Outputs.Length == 0) return 0;
+            if (OutputVariableSize is null) return Outputs.Length;
+
+            return Outputs.Length - 1 + OutputVariableSizeActual;
+        }
+    }
+
+    public Type GetTypeOfInputSlot(int index)
+    {
+        if (InputsCount == 0) throw new Exception("Cannot get type of input slot when there are no inputs");
+        if (!InputHasVariableSize && index >= InputsCount) throw new IndexOutOfRangeException();
+        if (InputHasVariableSize && index >= InputsVirtualCount) throw new IndexOutOfRangeException();
+
+        if (InputHasVariableSize)
+        {
+            if (index >= InputsCount - 1) return Inputs.Last().Type.GetElementType()!;
+        }
+
+        return Inputs[index].Type;
+    }
+
+    public Type GetTypeOfOutputSlot(int index)
+    {
+        if (OutputsCount == 0) throw new Exception("Cannot get type of output slot when there are no outputs");
+        if (!OutputHasVariableSize && index >= OutputsCount) throw new IndexOutOfRangeException();
+        if (OutputHasVariableSize && index >= OutputsVirtualCount) throw new IndexOutOfRangeException();
+
+        if (OutputHasVariableSize)
+        {
+            if (index >= OutputsCount - 1) return Outputs.Last().Type.GetElementType()!;
+        }
+
+        return Outputs[index].Type;
+    }
 }
 
 public sealed class NodeValueMetadata
 {
     public string Name { get; set; } = null!;
     public Type Type { get; set; } = null!;
-    public NodeVariableSizeAttribute? VariableSize { get; set; }
 }

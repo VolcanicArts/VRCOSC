@@ -8,7 +8,7 @@ namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 [Node("Delay", "Flow")]
 public class DelayNode : Node, IFlowInput, IFlowOutput
 {
-    public NodeFlowRef[] FlowOutputs { get; set; } = new NodeFlowRef[1];
+    public NodeFlowRef[] FlowOutputs => [new()];
 
     [NodeProcess]
     private async Task<int> process

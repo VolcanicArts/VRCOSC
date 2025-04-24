@@ -64,7 +64,7 @@ public interface IFlowInput;
 
 public interface IFlowOutput
 {
-    public NodeFlowRef[] FlowOutputs { get; set; }
+    public NodeFlowRef[] FlowOutputs { get; }
 }
 
 public interface IFlowTrigger;

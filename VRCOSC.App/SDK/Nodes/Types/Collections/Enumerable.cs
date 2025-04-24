@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace VRCOSC.App.SDK.Nodes.Types.Converters;
+namespace VRCOSC.App.SDK.Nodes.Types.Collections;
 
-[Node("Element At", "Enumerable")]
+[Node("Element At", "Collections")]
 public sealed class EnumerableElementAtNode<T> : Node
 {
     [NodeProcess]
@@ -23,7 +23,7 @@ public sealed class EnumerableElementAtNode<T> : Node
     }
 }
 
-[Node("Count", "Enumerable")]
+[Node("Count", "Collections")]
 public class EnumerableCountNode<T> : Node
 {
     [NodeProcess]

@@ -14,7 +14,7 @@ using VRCOSC.App.SDK.Nodes.Types.Inputs;
 
 namespace VRCOSC.App.UI.Views.Nodes;
 
-public record ConnectionViewModel(int Slot, string Title, Type? Type);
+public record ConnectionViewModel(Node Node, int Slot, string Title, Type? Type);
 
 public class ConnectionAmountConverter : IValueConverter
 {
@@ -32,14 +32,14 @@ public class ConnectionAmountConverter : IValueConverter
                 if (node.Metadata.IsTrigger) return Array.Empty<ConnectionViewModel>();
                 if (!node.Metadata.IsFlowInput) return Array.Empty<ConnectionViewModel>();
 
-                return new ConnectionViewModel[] { new(0, "*", null) };
+                return new ConnectionViewModel[] { new(node, 0, string.Empty, null) };
             }
 
             if (ConnectionSide == ConnectionSide.Output)
             {
                 if (!node.Metadata.IsFlowOutput) return Array.Empty<ConnectionViewModel>();
 
-                return Enumerable.Range(0, node.Metadata.FlowOutputs.Length).Select(i => new ConnectionViewModel(i, node.Metadata.FlowOutputs[i].Name, null));
+                return Enumerable.Range(0, node.Metadata.FlowCount).Select(i => new ConnectionViewModel(node, i, node.Metadata.FlowOutputs[i].Name, null)).ToList();
             }
         }
 
@@ -49,14 +49,32 @@ public class ConnectionAmountConverter : IValueConverter
             {
                 if (!node.Metadata.IsValueInput) return Array.Empty<ConnectionViewModel>();
 
-                return Enumerable.Range(0, node.Metadata.Process.Inputs.Length).Select(i => new ConnectionViewModel(i, node.Metadata.Process.Inputs[i].Name, node.Metadata.Process.Inputs[i].Type));
+                var length = node.Metadata.InputsCount;
+                var points = Enumerable.Range(0, length).Select(i => new ConnectionViewModel(node, i, node.Metadata.Inputs[i].Name, node.Metadata.Inputs[i].Type)).ToList();
+
+                if (node.Metadata.InputHasVariableSize)
+                {
+                    points.Remove(points.Last());
+                    points.AddRange(Enumerable.Range(0, node.Metadata.InputVariableSizeActual).Select(i => new ConnectionViewModel(node, node.Metadata.InputsCount - 1 + i, string.Empty, node.Metadata.Inputs.Last().Type.GetElementType())));
+                }
+
+                return points;
             }
 
             if (ConnectionSide == ConnectionSide.Output)
             {
                 if (!node.Metadata.IsValueOutput) return Array.Empty<ConnectionViewModel>();
 
-                return Enumerable.Range(0, node.Metadata.Process.Outputs.Length).Select(i => new ConnectionViewModel(i, node.Metadata.Process.Outputs[i].Name, node.Metadata.Process.Outputs[i].Type));
+                var length = node.Metadata.OutputsCount;
+                var points = Enumerable.Range(0, length).Select(i => new ConnectionViewModel(node, i, node.Metadata.Outputs[i].Name, node.Metadata.Outputs[i].Type)).ToList();
+
+                if (node.Metadata.OutputHasVariableSize)
+                {
+                    points.Remove(points.Last());
+                    points.AddRange(Enumerable.Range(0, node.Metadata.OutputVariableSizeActual).Select(i => new ConnectionViewModel(node, node.Metadata.OutputsCount - 1 + i, string.Empty, node.Metadata.Outputs.Last().Type.GetElementType())));
+                }
+
+                return points;
             }
         }
 
@@ -97,6 +115,49 @@ public class SlotNameConverter : IValueConverter
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
 
+public class ConnectionAreaVisibilityConverter : IValueConverter
+{
+    public bool CheckFlow { get; set; }
+
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not Node node) return Visibility.Collapsed;
+
+        if (CheckFlow)
+        {
+            return node.Metadata.IsFlow ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        return node.Metadata.IsValue ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class ValueVariableSizeControlVisibilityConverter : IValueConverter
+{
+    public bool CheckOutput { get; set; }
+
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not Node node) return Visibility.Collapsed;
+
+        if (CheckOutput && node.Metadata.IsValueOutput)
+        {
+            return node.Metadata.OutputHasVariableSize ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        if (!CheckOutput && node.Metadata.IsValueInput)
+        {
+            return node.Metadata.InputHasVariableSize ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        return Visibility.Collapsed;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
 public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
 {
     public required DataTemplate? NodeTemplate { get; set; }
@@ -127,8 +188,8 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
         if (item is ButtonInputNode) return ButtonInputNodeTemplate;
 
         if (item is Node { Metadata: { IsValue: true, IsFlow: false } } node &&
-            node.Metadata.Process.Inputs.All(input => string.IsNullOrEmpty(input.Name)) &&
-            node.Metadata.Process.Outputs.All(output => string.IsNullOrEmpty(output.Name))) return ValueOnlyNodeTemplate;
+            node.Metadata.Inputs.All(input => string.IsNullOrEmpty(input.Name)) &&
+            node.Metadata.Outputs.All(output => string.IsNullOrEmpty(output.Name))) return ValueOnlyNodeTemplate;
 
         if (item is Node) return NodeTemplate;
         if (item is NodeGroupViewModel) return NodeGroupTemplate;

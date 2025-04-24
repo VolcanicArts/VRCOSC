@@ -18,7 +18,7 @@
         </Grid.RowDefinitions>
         <core:SpacedStackPanel Grid.Row="0" Spacing="10">
             <TextBlock Text="Generic Arguments:" Foreground="{DynamicResource CForeground1}" FontSize="20" FontWeight="SemiBold"/>
-            <TextBox x:Name="GenericArgumentText" Height="30" FontSize="20" TextChanged="GenericArgumentText_OnTextChanged"/>
+            <TextBox x:Name="GenericArgumentText" Height="30" FontSize="20" TextChanged="GenericArgumentText_OnTextChanged" KeyDown="GenericArgumentText_OnKeyDown"/>
             <TextBlock x:Name="FormedTypeText" Foreground="{DynamicResource CForeground2}" FontSize="18" FontWeight="SemiBold"/>
         </core:SpacedStackPanel>
         <core:TextButton Grid.Row="2" x:Name="CreateNodeButton" Text="Create Node" ButtonColour="Blue" Height="25" FontSize="18" VerticalAlignment="Top" Foreground="{DynamicResource CForeground1}"

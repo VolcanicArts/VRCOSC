@@ -70,6 +70,7 @@ public class AppManager
     public WhisperSpeechEngine SpeechEngine = null!;
 
     private Repeater? updateTask;
+    private Repeater? nodeScapeUpdateTask;
     private Repeater vrchatCheckTask = null!;
     private Repeater openvrCheckTask = null!;
     private Repeater openvrUpdateTask = null!;
@@ -89,8 +90,6 @@ public class AppManager
     public void Initialise()
     {
         NodeScape = new NodeScape();
-        var repeater = new Repeater("NodeScape", () => NodeScape.Update());
-        repeater.Start(TimeSpan.FromSeconds(1d / 60d), true);
 
         OSCEncoder.SetEncoding(Encoding.UTF8);
         OSCDecoder.SetEncoding(Encoding.UTF8);
@@ -513,6 +512,9 @@ public class AppManager
         updateTask = new Repeater($"{nameof(AppManager)}-{nameof(update)}", update);
         updateTask.Start(TimeSpan.FromSeconds(1d / 60d));
 
+        nodeScapeUpdateTask = new Repeater("NodeScape", () => NodeScape.Update());
+        nodeScapeUpdateTask.Start(TimeSpan.FromSeconds(1d / 100d), true);
+
         VRChatOscClient.OnParameterReceived += onParameterReceived;
         VRChatOscClient.EnableReceive();
 
@@ -583,6 +585,9 @@ public class AppManager
 
         if (updateTask is not null)
             await updateTask.StopAsync();
+
+        if (nodeScapeUpdateTask is not null)
+            await nodeScapeUpdateTask.StopAsync();
 
         await VRChatLogReader.Stop();
         await ModuleManager.GetInstance().StopAsync();

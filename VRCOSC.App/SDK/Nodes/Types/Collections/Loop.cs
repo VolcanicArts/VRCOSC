@@ -4,31 +4,12 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace VRCOSC.App.SDK.Nodes.Types.Flow;
+namespace VRCOSC.App.SDK.Nodes.Types.Collections;
 
-[Node("While", "Loop")]
-public class WhileNode : Node, IFlowInput, IFlowOutput
-{
-    public NodeFlowRef[] FlowOutputs { get; set; } =
-    [
-        new("On Finished"),
-        new("On Loop", true)
-    ];
-
-    [NodeProcess]
-    private int process
-    (
-        [NodeValue("Condition")] bool condition
-    )
-    {
-        return condition ? 1 : 0;
-    }
-}
-
-[Node("For", "Loop")]
+[Node("For", "Collections")]
 public class ForNode : Node, IFlowInput, IFlowOutput
 {
-    public NodeFlowRef[] FlowOutputs { get; set; } =
+    public NodeFlowRef[] FlowOutputs =>
     [
         new("On Finished"),
         new("On Loop", true)
@@ -54,10 +35,10 @@ public class ForNode : Node, IFlowInput, IFlowOutput
     }
 }
 
-[Node("For Each", "Loop")]
+[Node("For Each", "Collections")]
 public sealed class ForEachNode<T> : Node, IFlowInput, IFlowOutput
 {
-    public NodeFlowRef[] FlowOutputs { get; set; } =
+    public NodeFlowRef[] FlowOutputs =>
     [
         new("On Finished"),
         new("On Loop", true)

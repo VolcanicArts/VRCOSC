@@ -51,11 +51,9 @@ public class NodeScape
         var outputMetadata = GetMetadata(Nodes[outputNodeId]);
         var inputMetadata = GetMetadata(Nodes[inputNodeId]);
 
-        Type outputType = outputMetadata.Process.Outputs[outputValueSlot].Type;
-        Type inputType = inputMetadata.Process.Inputs[inputValueSlot].Type;
-
-        var inputAlreadyHasConnection =
-            Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Value && connection.InputNodeId == inputNodeId && connection.InputSlot == inputValueSlot);
+        var outputType = outputMetadata.GetTypeOfOutputSlot(outputValueSlot);
+        var inputType = inputMetadata.GetTypeOfInputSlot(inputValueSlot);
+        var existingConnection = Connections.FirstOrDefault(con => con.ConnectionType == ConnectionType.Value && con.InputNodeId == inputNodeId && con.InputSlot == inputValueSlot);
 
         var newConnectionMade = false;
 
@@ -94,9 +92,9 @@ public class NodeScape
         }
 
         // if the input already had a connection, disconnect it
-        if (newConnectionMade && inputAlreadyHasConnection is not null)
+        if (newConnectionMade && existingConnection is not null)
         {
-            Connections.Remove(inputAlreadyHasConnection);
+            Connections.Remove(existingConnection);
         }
     }
 
@@ -112,26 +110,6 @@ public class NodeScape
 
         node.ZIndex = ZIndex++;
         node.NodeScape = this;
-
-        if (node.Metadata.IsFlowOutput)
-        {
-            var flowOutputs = ((IFlowOutput)node).FlowOutputs;
-
-            // set the size of the array to the default size
-            if (node.GetType().GetProperty(nameof(IFlowOutput.FlowOutputs))!.TryGetCustomAttribute<NodeVariableSizeAttribute>(out var variableSize))
-            {
-                flowOutputs = new NodeFlowRef[variableSize.DefaultSize];
-            }
-
-            // fill in defaults if only a size has been specified
-            if (flowOutputs.Any(flowOutputRef => flowOutputRef is null))
-            {
-                for (var i = 0; i < flowOutputs.Length; i++)
-                {
-                    flowOutputs[i] = new NodeFlowRef();
-                }
-            }
-        }
 
         lock (nodesLock)
         {
@@ -157,39 +135,63 @@ public class NodeScape
         var nodeConnection = Connections.FirstOrDefault(connection => connection.InputNodeId == node.Id && connection.InputSlot == inputValueSlot && connection.ConnectionType == ConnectionType.Value);
         if (nodeConnection is null) return null;
 
+        // if there's already a memory entry in this scope, don't run the output node again, just return its output
+        if (memory.HasEntry(nodeConnection.OutputNodeId))
+        {
+            return memory.Read(nodeConnection.OutputNodeId, nodeConnection.OutputSlot);
+        }
+
         var outputNode = Nodes[nodeConnection.OutputNodeId];
         var outputSlot = nodeConnection.OutputSlot;
         var outputNodeMetadata = GetMetadata(outputNode);
 
-        // if there's already a memory entry in this scope, don't run the output node again, just return its output
-        if (memory.HasEntry(outputNode.Id))
-        {
-            return memory.Read(outputNode.Id, outputSlot);
-        }
-
         var isFlowNode = outputNodeMetadata.IsFlow;
         var isValueNode = outputNodeMetadata.IsValue;
 
-        var processMethod = outputNodeMetadata.Process;
+        var processMethod = outputNodeMetadata.ProcessMethod;
 
         if (isValueNode && !isFlowNode)
         {
-            var inputValues = new object?[outputNodeMetadata.Process.Inputs.Length];
+            var inputValuesCount = outputNodeMetadata.InputHasVariableSize ? outputNodeMetadata.InputsCount - 1 : outputNodeMetadata.InputsCount;
+            var inputValues = new object?[outputNodeMetadata.InputsCount];
 
-            for (var i = 0; i < outputNodeMetadata.Process.Inputs.Length; i++)
+            for (var i = 0; i < inputValuesCount; i++)
             {
                 inputValues[i] = getValueForInput(memory, outputNode, i);
             }
 
-            var outputValues = processMethod.Outputs.Select(outputMetadata => getDefault(outputMetadata.Type)).ToArray();
+            if (outputNodeMetadata.InputHasVariableSize)
+            {
+                var variableSizeInputValues = (object?[])Array.CreateInstance(outputNodeMetadata.Inputs.Last().Type.GetElementType()!, outputNodeMetadata.InputVariableSizeActual);
 
-            var valuesArray = new object?[outputNodeMetadata.Process.Inputs.Length + outputNodeMetadata.Process.Outputs.Length];
+                for (var i = 0; i < variableSizeInputValues.Length; i++)
+                {
+                    variableSizeInputValues[i] = getValueForInput(memory, outputNode, outputNodeMetadata.InputsCount - 1 + i);
+                }
+
+                inputValues[^1] = variableSizeInputValues;
+            }
+
+            var outputValues = outputNodeMetadata.Outputs.Select(outputMetadata => getDefault(outputMetadata.Type)).ToArray();
+
+            if (outputNodeMetadata.OutputHasVariableSize)
+            {
+                outputValues[^1] = (object?[])Array.CreateInstance(outputNodeMetadata.Outputs.Last().Type.GetElementType()!, outputNodeMetadata.OutputVariableSizeActual);
+            }
+
+            var valuesArray = new object?[outputNodeMetadata.InputsCount + outputNodeMetadata.OutputsCount];
             inputValues.CopyTo(valuesArray, 0);
             outputValues.CopyTo(valuesArray, inputValues.Length);
 
-            processMethod.Method.Invoke(outputNode, valuesArray);
+            processMethod.Invoke(outputNode, valuesArray);
 
             outputValues = valuesArray[inputValues.Length..];
+
+            if (outputNodeMetadata.OutputHasVariableSize)
+            {
+                var variableSizeOutput = (object?[])outputValues[^1]!;
+                outputValues = outputValues[..^1].Concat(variableSizeOutput).ToArray();
+            }
 
             memory.Write(outputNode.Id, outputValues);
 
@@ -229,22 +231,22 @@ public class NodeScape
         {
             var currentNode = Nodes[nextNodeId.Value];
             var metadata = GetMetadata(currentNode);
-            var processMethod = metadata.Process;
+            var processMethod = metadata.ProcessMethod;
 
-            var inputValues = new object?[metadata.Process.Inputs.Length];
+            var inputValues = new object?[metadata.Inputs.Length];
 
-            for (var i = 0; i < metadata.Process.Inputs.Length; i++)
+            for (var i = 0; i < metadata.Inputs.Length; i++)
             {
                 inputValues[i] = getValueForInput(memory, currentNode, i);
             }
 
-            var outputValues = processMethod.Outputs.Select(outputMetadata => getDefault(outputMetadata.Type)).ToArray();
+            var outputValues = currentNode.Metadata.Outputs.Select(outputMetadata => getDefault(outputMetadata.Type)).ToArray();
 
-            var valuesArray = new object?[metadata.Process.Inputs.Length + metadata.Process.Outputs.Length];
+            var valuesArray = new object?[metadata.Inputs.Length + metadata.Outputs.Length];
             inputValues.CopyTo(valuesArray, 0);
             outputValues.CopyTo(valuesArray, inputValues.Length);
 
-            var result = processMethod.Method.Invoke(currentNode, valuesArray);
+            var result = processMethod.Invoke(currentNode, valuesArray);
 
             NodeConnection? connection = null;
 
@@ -312,7 +314,7 @@ public class NodeGroup
     public ObservableCollection<Guid> Nodes { get; } = [];
 }
 
-public record NodeConnection(ConnectionType ConnectionType, Guid OutputNodeId, int OutputSlot, Guid InputNodeId, int InputSlot, Type? SharedType = null);
+public record NodeConnection(ConnectionType ConnectionType, Guid OutputNodeId, int OutputSlot, Guid InputNodeId, int InputSlot);
 
 public enum ConnectionType
 {

@@ -6,10 +6,10 @@ using System.Collections.Generic;
 
 namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
-[Node("On Update", "Flow/Trigger")]
-public sealed class UpdateTriggerNode : Node, IFlowOutput, IFlowTrigger
+[Node("On Update", "Flow")]
+public sealed class OnUpdateNode : Node, IFlowOutput, IFlowTrigger
 {
-    public NodeFlowRef[] FlowOutputs { get; set; } = new NodeFlowRef[1];
+    public NodeFlowRef[] FlowOutputs => [new()];
 
     [NodeProcess]
     private int process()
@@ -18,10 +18,67 @@ public sealed class UpdateTriggerNode : Node, IFlowOutput, IFlowTrigger
     }
 }
 
-[Node("Fire On True", "Flow/Trigger")]
+[Node("Update Delay", "Flow")]
+public sealed class UpdateDelayNode : Node, IFlowOutput, IFlowTrigger
+{
+    public NodeFlowRef[] FlowOutputs => [new()];
+
+    private DateTime? lastExecuted;
+
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue("Interval Milliseconds")] int milliseconds
+    )
+    {
+        if (milliseconds == 0) return -1;
+
+        lastExecuted ??= DateTime.Now;
+
+        if (lastExecuted + TimeSpan.FromMilliseconds(milliseconds) <= DateTime.Now)
+        {
+            lastExecuted = DateTime.Now;
+            return 0;
+        }
+
+        return -1;
+    }
+}
+
+[Node("Fire While True", "Flow")]
+public sealed class FireWhileTrueNode : Node, IFlowOutput, IFlowTrigger
+{
+    public NodeFlowRef[] FlowOutputs => [new()];
+
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue("Condition")] bool condition
+    )
+    {
+        return condition ? 0 : -1;
+    }
+}
+
+[Node("Fire While False", "Flow")]
+public sealed class FireWhileFalseNode : Node, IFlowOutput, IFlowTrigger
+{
+    public NodeFlowRef[] FlowOutputs => [new()];
+
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue("Condition")] bool condition
+    )
+    {
+        return !condition ? 0 : -1;
+    }
+}
+
+[Node("Fire On True", "Flow")]
 public sealed class FireOnTrueNode : Node, IFlowOutput, IFlowTrigger
 {
-    public NodeFlowRef[] FlowOutputs { get; set; } = new NodeFlowRef[1];
+    public NodeFlowRef[] FlowOutputs => [new()];
 
     private bool previousCondition;
 
@@ -37,10 +94,10 @@ public sealed class FireOnTrueNode : Node, IFlowOutput, IFlowTrigger
     }
 }
 
-[Node("Fire On False", "Flow/Trigger")]
+[Node("Fire On False", "Flow")]
 public sealed class FireOnFalseNode : Node, IFlowOutput, IFlowTrigger
 {
-    public NodeFlowRef[] FlowOutputs { get; set; } = new NodeFlowRef[1];
+    public NodeFlowRef[] FlowOutputs => [new()];
 
     private bool previousCondition;
 
@@ -56,10 +113,10 @@ public sealed class FireOnFalseNode : Node, IFlowOutput, IFlowTrigger
     }
 }
 
-[Node("Fire On Change", "Flow/Trigger")]
+[Node("Fire On Change", "Flow")]
 public sealed class FireOnChangeNode<T> : Node, IFlowOutput, IFlowTrigger
 {
-    public NodeFlowRef[] FlowOutputs { get; set; } = new NodeFlowRef[1];
+    public NodeFlowRef[] FlowOutputs => [new()];
 
     private T? previousValue;
 

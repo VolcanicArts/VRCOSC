@@ -6,20 +6,14 @@ using VRCOSC.App.SDK.Nodes.Types.Base;
 
 namespace VRCOSC.App.SDK.Nodes.Types.Strings;
 
-[Node("Current Culture", "Strings/Culture")]
+[Node("Current Culture", "Strings")]
 public sealed class CurrentCultureConstantNode : ConstantNode<CultureInfo>
 {
-    public CurrentCultureConstantNode()
-    {
-        Value = CultureInfo.CurrentCulture;
-    }
+    protected override CultureInfo GetValue() => CultureInfo.CurrentCulture;
 }
 
-[Node("Invariant Culture", "Strings/Culture")]
+[Node("Invariant Culture", "Strings")]
 public sealed class InvariantCultureConstantNode : ConstantNode<CultureInfo>
 {
-    public InvariantCultureConstantNode()
-    {
-        Value = CultureInfo.InvariantCulture;
-    }
+    protected override CultureInfo GetValue() => CultureInfo.InvariantCulture;
 }

@@ -11,17 +11,14 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using VRCOSC.App.Modules;
-using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.Settings;
 using VRCOSC.App.UI.Core;
-using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.AppSettings;
 
 public partial class AppDebugView
 {
-    private NodeScape? nodeField;
     private WindowManager? nodeFieldWindowManager;
 
     public AppDebugView()
@@ -146,12 +143,5 @@ public partial class AppDebugView
     private async void ReloadModules_OnClick(object sender, RoutedEventArgs e)
     {
         await ModuleManager.GetInstance().ReloadAllModules();
-    }
-
-    private void TestNodeField_OnClick(object sender, RoutedEventArgs e)
-    {
-        var nodeScape = AppManager.GetInstance().NodeScape;
-
-        nodeFieldWindowManager!.TrySpawnChild(new NodeScapeWindow(nodeScape));
     }
 }

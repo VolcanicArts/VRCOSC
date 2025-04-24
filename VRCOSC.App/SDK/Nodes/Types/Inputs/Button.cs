@@ -8,10 +8,7 @@ namespace VRCOSC.App.SDK.Nodes.Types.Inputs;
 [Node("Button Input", "")]
 public sealed class ButtonInputNode : InputNode, IFlowOutput, IFlowTrigger
 {
-    public NodeFlowRef[] FlowOutputs { get; set; } =
-    [
-        new("On Trigger")
-    ];
+    public NodeFlowRef[] FlowOutputs => [new("On Trigger")];
 
     public string Label => "Trigger";
     public bool Clicked { get; set; }

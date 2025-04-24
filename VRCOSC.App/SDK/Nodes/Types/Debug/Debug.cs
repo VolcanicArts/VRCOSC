@@ -8,8 +8,10 @@ using VRCOSC.App.SDK.Parameters;
 namespace VRCOSC.App.SDK.Nodes.Types.Debug;
 
 [Node("Log", "Debug")]
-public sealed class LogNode : Node, IFlowInput
+public sealed class LogNode : Node, IFlowInput, IFlowOutput
 {
+    public NodeFlowRef[] FlowOutputs => [new()];
+
     [NodeProcess]
     private void process
     (

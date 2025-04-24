@@ -30,6 +30,7 @@ using VRCOSC.App.UI.Views.ChatBox;
 using VRCOSC.App.UI.Views.Dolly;
 using VRCOSC.App.UI.Views.Information;
 using VRCOSC.App.UI.Views.Modules;
+using VRCOSC.App.UI.Views.Nodes;
 using VRCOSC.App.UI.Views.Packages;
 using VRCOSC.App.UI.Views.Profiles;
 using VRCOSC.App.UI.Views.Run;
@@ -53,6 +54,7 @@ public partial class MainWindow
     public PackagesView PackagesView = null!;
     public ModulesView ModulesView = null!;
     public ChatBoxView ChatBoxView = null!;
+    public NodeScapeView NodesView = null!;
     public DollyView DollyView = null!;
     public RunView RunView = null!;
     public ProfilesView ProfilesView = null!;
@@ -162,6 +164,7 @@ public partial class MainWindow
         PackagesView = new PackagesView();
         ModulesView = new ModulesView();
         ChatBoxView = new ChatBoxView();
+        NodesView = new NodeScapeView(AppManager.GetInstance().NodeScape);
         DollyView = new DollyView();
         RunView = new RunView();
         ProfilesView = new ProfilesView();
@@ -484,6 +487,11 @@ public partial class MainWindow
     private void ChatBoxButton_OnClick(object sender, RoutedEventArgs e)
     {
         setContent(ChatBoxView);
+    }
+
+    private void NodesButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setContent(NodesView);
     }
 
     private void DollyButton_OnClick(object sender, RoutedEventArgs e)

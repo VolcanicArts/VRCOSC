@@ -31,43 +31,19 @@ public static class TypeResolver
             { "string", typeof(string) }
         };
 
+    private static Type[]? typesToCheck;
+
     public static Type? ResolveType(string name)
     {
         name = name.Trim();
 
-        if (PRIMITIVE_TYPE_ALIASES.TryGetValue(name, out var primitiveType))
-            return primitiveType;
+        if (PRIMITIVE_TYPE_ALIASES.TryGetValue(name, out var primitiveType)) return primitiveType;
 
-        var direct = Type.GetType(name, throwOnError: false, ignoreCase: true);
+        var direct = Type.GetType(name, false, true);
+        if (direct != null) return direct;
 
-        if (direct != null)
-            return direct;
-
-        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-        {
-            foreach (var type in safeGetTypes(asm))
-            {
-                if (string.Equals(type.FullName, name, StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(type.Name, name, StringComparison.OrdinalIgnoreCase))
-                {
-                    return type;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private static IEnumerable<Type> safeGetTypes(Assembly asm)
-    {
-        try
-        {
-            return asm.GetTypes();
-        }
-        catch
-        {
-            return Enumerable.Empty<Type>();
-        }
+        typesToCheck ??= Assembly.GetExecutingAssembly().GetExportedTypes();
+        return typesToCheck.FirstOrDefault(type => string.Equals(type.FullName, name, StringComparison.OrdinalIgnoreCase) || string.Equals(type.Name, name, StringComparison.OrdinalIgnoreCase));
     }
 
     public static bool TryConstructGenericType(string userInput, Type openGenericType, [NotNullWhen(true)] out Type? constructedType)

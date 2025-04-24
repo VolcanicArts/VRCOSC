@@ -224,8 +224,8 @@ public partial class NodeScapeView : INotifyPropertyChanged
         {
             if (itemsControl.ItemContainerGenerator.ContainerFromItem(item) is not FrameworkElement container) continue;
 
-            var pair = (ObservableKeyValuePair<Guid, Node>)container.DataContext;
-            Panel.SetZIndex(container, pair.Value.ZIndex);
+            var pair = (Node)container.DataContext;
+            Panel.SetZIndex(container, pair.ZIndex);
         }
     }
 
@@ -485,7 +485,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
             var slot = ConnectionDrag.Slot;
 
             var metadata = NodeScape.GetMetadata(node);
-            var slotInputType = metadata.Process.Inputs[slot].Type;
+            var slotInputType = metadata.GetTypeOfInputSlot(slot);
 
             if (NodeConstants.INPUT_TYPES.Contains(slotInputType) || slotInputType.IsAssignableTo(typeof(Enum)))
             {
@@ -989,6 +989,54 @@ public partial class NodeScapeView : INotifyPropertyChanged
         var node = (Node)element.Tag;
 
         NodeScape.DeleteNode(node);
+    }
+
+    private void ValueOutputAddButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.Tag;
+
+        node.Metadata.OutputVariableSizeActual++;
+
+        var valueOutputItemsControl = element.FindVisualParent<FrameworkElement>("ValueOutputContainer")!.FindVisualChild<ItemsControl>("ValueOutputItemsControl")!;
+        valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
+    }
+
+    private void ValueOutputRemoveButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.Tag;
+
+        if (node.Metadata.OutputVariableSizeActual == 1) return;
+
+        node.Metadata.OutputVariableSizeActual--;
+
+        var valueOutputItemsControl = element.FindVisualParent<FrameworkElement>("ValueOutputContainer")!.FindVisualChild<ItemsControl>("ValueOutputItemsControl")!;
+        valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
+    }
+
+    private void ValueInputAddButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.Tag;
+
+        node.Metadata.InputVariableSizeActual++;
+
+        var valueInputItemsControl = element.FindVisualParent<FrameworkElement>("ValueInputContainer")!.FindVisualChild<ItemsControl>("ValueInputItemsControl")!;
+        valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
+    }
+
+    private void ValueInputRemoveButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.Tag;
+
+        if (node.Metadata.InputVariableSizeActual == 1) return;
+
+        node.Metadata.InputVariableSizeActual--;
+
+        var valueInputItemsControl = element.FindVisualParent<FrameworkElement>("ValueInputContainer")!.FindVisualChild<ItemsControl>("ValueInputItemsControl")!;
+        valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
     }
 }
 

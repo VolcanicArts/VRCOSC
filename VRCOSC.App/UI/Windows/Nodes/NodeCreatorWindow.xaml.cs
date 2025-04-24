@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
@@ -14,7 +15,9 @@ namespace VRCOSC.App.UI.Windows.Nodes;
 public partial class NodeCreatorWindow : IManagedWindow
 {
     public NodeScape NodeScape { get; }
+
     public Type NodeType { get; }
+
     //public Dictionary<string, Type> CommonTypesSource => NodeConstants.COMMON_TYPES.ToDictionary(type => type.GetFriendlyName(), type => type);
     public Dictionary<string, Type> CommonTypesSource => new();
 
@@ -29,6 +32,7 @@ public partial class NodeCreatorWindow : IManagedWindow
 
         Title = $"Creating {nodeType.GetFriendlyName()}";
         updateText(string.Empty);
+        GenericArgumentText.Focus();
     }
 
     public object GetComparer() => NodeType;
@@ -60,5 +64,10 @@ public partial class NodeCreatorWindow : IManagedWindow
     private void CreateNodeButton_OnClick(object sender, RoutedEventArgs e)
     {
         Close();
+    }
+
+    private void GenericArgumentText_OnKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter && ConstructedType is not null) Close();
     }
 }
