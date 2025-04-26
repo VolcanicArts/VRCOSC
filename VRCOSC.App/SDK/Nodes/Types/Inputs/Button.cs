@@ -16,11 +16,12 @@ public sealed class ButtonInputNode : InputNode, IFlowOutput, IFlowTrigger
     public void OnClick() => Clicked = true;
 
     [NodeProcess]
-    private int process()
+    private void process()
     {
-        if (!Clicked) return -1;
-
-        Clicked = false;
-        return 0;
+        if (Clicked)
+        {
+            TriggerFlow(0);
+            Clicked = false;
+        }
     }
 }

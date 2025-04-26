@@ -2,41 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
-using System.Linq;
 
 namespace VRCOSC.App.SDK.Nodes.Types.Collections;
 
 [Node("For", "Collections")]
-public class ForNode : Node, IFlowInput, IFlowOutput
-{
-    public NodeFlowRef[] FlowOutputs =>
-    [
-        new("On Finished"),
-        new("On Loop", true)
-    ];
-
-    private int currentIndex;
-
-    [NodeProcess]
-    private int process
-    (
-        [NodeValue("Count")] int count,
-        [NodeValue("Index")] ref int outIndex
-    )
-    {
-        if (currentIndex < count)
-        {
-            outIndex = currentIndex++;
-            return 1;
-        }
-
-        currentIndex = 0;
-        return 0;
-    }
-}
-
-[Node("For", "Collections")]
-public sealed class ForNodeV2 : Node, IFlowInput, IFlowOutput
+public sealed class ForNode : Node, IFlowInput, IFlowOutput
 {
     public NodeFlowRef[] FlowOutputs =>
     [
@@ -70,24 +40,21 @@ public sealed class ForEachNode<T> : Node, IFlowInput, IFlowOutput
         new("On Loop", true)
     ];
 
-    private int currentIndex;
-
     [NodeProcess]
-    private int process
+    private void process
     (
         [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
         [NodeValue("Element")] ref T outElement
     )
     {
-        if (enumerable is null) return -1;
+        if (enumerable is null) return;
 
-        if (currentIndex < enumerable.Count())
+        foreach (var element in enumerable)
         {
-            outElement = enumerable.ElementAt(currentIndex++);
-            return 1;
+            outElement = element;
+            TriggerFlow(1, true);
         }
 
-        currentIndex = 0;
-        return 0;
+        TriggerFlow(0);
     }
 }

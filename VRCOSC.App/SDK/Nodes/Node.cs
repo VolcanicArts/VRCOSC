@@ -20,8 +20,12 @@ public abstract class Node
     public NodeMetadata Metadata => NodeScape.GetMetadata(this);
     protected Player Player => AppManager.GetInstance().VRChatClient.Player;
 
-    protected void TriggerFlow(int index, bool scope = false)
+    /// <summary>
+    /// Triggers the flow at the specified <paramref name="slot"/>. Optionally scopes any node memory, useful for loops
+    /// </summary>
+    protected void TriggerFlow(int slot, bool scope = false)
     {
+        NodeScape.TriggerOutputFlow(this, slot, scope);
     }
 }
 

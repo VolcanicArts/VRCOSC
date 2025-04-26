@@ -19,15 +19,20 @@ public class NodeScapeMemory
         entries.Clear();
     }
 
-    public void Write(Guid nodeId, object?[] value)
+    public void CreateEntries(Node node)
     {
-        entries.RemoveIf(entry => entry.NodeId == nodeId);
-        entries.Add(new NodeScapeMemoryEntry(nodeId, value, scope));
+        var metadata = node.Metadata;
+
+        entries.Add(new NodeScapeMemoryEntry(node.Id, metadata.Outputs.Select(outputMetadata =>
+        {
+            var defaultValue = getDefault(outputMetadata.Type);
+            return (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(outputMetadata.Type), args: [defaultValue])!;
+        }).ToArray(), scope));
     }
 
-    public object? Read(Guid nodeId, int slot)
+    public NodeScapeMemoryEntry Read(Guid nodeId)
     {
-        return entries.SingleOrDefault(entry => entry.NodeId == nodeId)?.Value[slot];
+        return entries.Single(entry => entry.NodeId == nodeId);
     }
 
     public bool HasEntry(Guid nodeId)
@@ -44,6 +49,32 @@ public class NodeScapeMemory
 
         entries.RemoveIf(entry => entry.Scope > scope);
     }
+
+    private object? getDefault(Type type) => type.IsValueType ? Activator.CreateInstance(type) : null;
 }
 
-public record NodeScapeMemoryEntry(Guid NodeId, object?[] Value, int Scope);
+public class NodeScapeMemoryEntry
+{
+    public readonly Guid NodeId;
+    public IRef[] Values;
+    public readonly int Scope;
+
+    public NodeScapeMemoryEntry(Guid nodeId, IRef[] values, int scope)
+    {
+        NodeId = nodeId;
+        Values = values;
+        Scope = scope;
+    }
+}
+
+public interface IRef;
+
+public class Ref<T> : IRef
+{
+    public T Value;
+
+    public Ref(T value)
+    {
+        Value = value;
+    }
+}

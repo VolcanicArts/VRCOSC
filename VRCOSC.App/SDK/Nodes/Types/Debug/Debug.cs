@@ -13,15 +13,15 @@ public sealed class LogNode : Node, IFlowInput, IFlowOutput
     public NodeFlowRef[] FlowOutputs => [new()];
 
     [NodeProcess]
-    private int process
+    private void process
     (
         [NodeValue("String")] string? str
     )
     {
-        if (string.IsNullOrEmpty(str)) return 0;
+        if (string.IsNullOrEmpty(str)) return;
 
         Console.WriteLine(str);
-        return 0;
+        TriggerFlow(0);
     }
 }
 

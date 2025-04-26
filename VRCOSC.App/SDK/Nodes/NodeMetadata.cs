@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Nodes;
@@ -32,7 +31,12 @@ public static class NodeMetadataBuilder
         var isTrigger = type.IsAssignableTo(typeof(IFlowTrigger));
 
         var allRefsAfterNonRefs = parameters.Select(p => p.ParameterType.IsByRef).SkipWhile(isRef => !isRef).All(isRef => isRef);
-        if (!allRefsAfterNonRefs) throw new Exception($"Cannot build {nameof(NodeMetadata)} as the defined {nameof(NodeProcessAttribute)} method has non-refs after refs");
+
+        if (!allRefsAfterNonRefs)
+            throw new Exception($"Cannot build {nameof(NodeMetadata)} as the defined {nameof(NodeProcessAttribute)} method has non-refs after refs");
+
+        if (method.ReturnParameter.ParameterType != typeof(void))
+            throw new Exception($"Cannot build {nameof(NodeMetadata)} as the method marked as {nameof(NodeProcessAttribute)} must return void");
 
         var inputParameters = parameters.TakeWhile(p => !p.ParameterType.IsByRef).ToList();
         // TODO: Temporary
@@ -81,9 +85,6 @@ public static class NodeMetadataBuilder
 
         if (!isFlowOutput && !isFlowInput && isTrigger)
             throw new Exception($"Cannot build {nameof(NodeMetadata)} as a nod with a trigger must be a flow output");
-
-        if (isFlowOutput && method.ReturnParameter.ParameterType != typeof(int) && method.ReturnParameter.ParameterType != typeof(Task<int>))
-            throw new Exception($"Cannot build {nameof(NodeMetadata)} as the node is defined is a flow output but doesn't return int");
 
         var inputVariableSize = inputParameters.LastOrDefault()?.GetCustomAttribute<NodeVariableSizeAttribute>();
         var outputVariableSize = outputParameters.LastOrDefault()?.GetCustomAttribute<NodeVariableSizeAttribute>();

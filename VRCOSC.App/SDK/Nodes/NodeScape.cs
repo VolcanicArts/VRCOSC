@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Reflection;
+using System.Reflection.Emit;
 using VRCOSC.App.SDK.Nodes.Types.Base;
 using VRCOSC.App.SDK.Nodes.Types.Strings;
 using VRCOSC.App.Utils;
@@ -139,92 +139,9 @@ public class NodeScape
         return addNode(node);
     }
 
-    public T AddNode<T>() where T : Node => (T)AddNode(typeof(T));
-
-    /// <summary>
-    /// Takes the value input slot and returns the value from the output slot of the connected node, doing so recursively when the backwards-connected nodes are value-only
-    /// </summary>
-    private object? getValueForInput(NodeScapeMemory memory, Node node, int inputValueSlot)
-    {
-        var nodeConnection = Connections.FirstOrDefault(connection => connection.InputNodeId == node.Id && connection.InputSlot == inputValueSlot && connection.ConnectionType == ConnectionType.Value);
-        if (nodeConnection is null) return null;
-
-        // if there's already a memory entry in this scope, don't run the output node again, just return its output
-        if (memory.HasEntry(nodeConnection.OutputNodeId))
-        {
-            return memory.Read(nodeConnection.OutputNodeId, nodeConnection.OutputSlot);
-        }
-
-        var outputNode = Nodes[nodeConnection.OutputNodeId];
-        var outputSlot = nodeConnection.OutputSlot;
-        var outputNodeMetadata = GetMetadata(outputNode);
-
-        var isFlowNode = outputNodeMetadata.IsFlow;
-        var isValueNode = outputNodeMetadata.IsValue;
-
-        var processMethod = outputNodeMetadata.ProcessMethod;
-
-        if (isValueNode && !isFlowNode)
-        {
-            var inputValuesCount = outputNodeMetadata.InputHasVariableSize ? outputNodeMetadata.InputsCount - 1 : outputNodeMetadata.InputsCount;
-            var inputValues = new object?[outputNodeMetadata.InputsCount];
-
-            for (var i = 0; i < inputValuesCount; i++)
-            {
-                inputValues[i] = getValueForInput(memory, outputNode, i);
-            }
-
-            if (outputNodeMetadata.InputHasVariableSize)
-            {
-                var variableSizeInputValues = (object?[])Array.CreateInstance(outputNodeMetadata.Inputs.Last().Type.GetElementType()!, outputNodeMetadata.InputVariableSizeActual);
-
-                for (var i = 0; i < variableSizeInputValues.Length; i++)
-                {
-                    variableSizeInputValues[i] = getValueForInput(memory, outputNode, outputNodeMetadata.InputsCount - 1 + i);
-                }
-
-                inputValues[^1] = variableSizeInputValues;
-            }
-
-            var outputValues = outputNodeMetadata.Outputs.Select(outputMetadata => getDefault(outputMetadata.Type)).ToArray();
-
-            if (outputNodeMetadata.OutputHasVariableSize)
-            {
-                outputValues[^1] = (object?[])Array.CreateInstance(outputNodeMetadata.Outputs.Last().Type.GetElementType()!, outputNodeMetadata.OutputVariableSizeActual);
-            }
-
-            var valuesArray = new object?[outputNodeMetadata.InputsCount + outputNodeMetadata.OutputsCount];
-            inputValues.CopyTo(valuesArray, 0);
-            outputValues.CopyTo(valuesArray, inputValues.Length);
-
-            processMethod.Invoke(outputNode, valuesArray);
-
-            outputValues = valuesArray[inputValues.Length..];
-
-            if (outputNodeMetadata.OutputHasVariableSize)
-            {
-                var variableSizeOutput = (object?[])outputValues[^1]!;
-                outputValues = outputValues[..^1].Concat(variableSizeOutput).ToArray();
-            }
-
-            memory.Write(outputNode.Id, outputValues);
-
-            return memory.Read(outputNode.Id, outputSlot);
-        }
-
-        if (isFlowNode)
-        {
-            return memory.Read(outputNode.Id, outputSlot);
-        }
-
-        throw new Exception("How are you here");
-    }
-
-    private readonly Stack<Guid> returnNodes = [];
     private readonly NodeScapeMemory memory = new();
-    private readonly Dictionary<Guid, CancellationTokenSource> tasks = [];
 
-    public async void Update()
+    public void Update()
     {
         memory.Reset();
 
@@ -233,99 +150,176 @@ public class NodeScape
             var metadata = GetMetadata(node);
             if (!metadata.IsTrigger) continue;
 
-            await startFlow(memory, node.Id);
+            executeNode(node);
         }
 
         UpdateCount++;
     }
 
-    private async Task startFlow(NodeScapeMemory memory, Guid? nextNodeId)
+    public void TriggerOutputFlow(Node sourceNode, int flowSlot, bool shouldScope)
     {
-        try
+        var connection = Connections.FirstOrDefault(con => con.OutputNodeId == sourceNode.Id && con.OutputSlot == flowSlot && con.ConnectionType == ConnectionType.Flow);
+        if (connection is null) return;
+
+        if (shouldScope)
         {
-            while (nextNodeId is not null)
-            {
-                var currentNode = Nodes[nextNodeId.Value];
-                var metadata = GetMetadata(currentNode);
-                var processMethod = metadata.ProcessMethod;
-
-                if (tasks.TryGetValue(currentNode.Id, out var tokenSource))
-                {
-                    await tokenSource.CancelAsync();
-                    tasks.Remove(currentNode.Id);
-                }
-
-                var inputValues = new object?[metadata.InputsCount];
-
-                for (var i = 0; i < metadata.Inputs.Length; i++)
-                {
-                    inputValues[i] = getValueForInput(memory, currentNode, i);
-                }
-
-                var outputValues = currentNode.Metadata.Outputs.Select(outputMetadata => getDefault(outputMetadata.Type)).ToArray();
-
-                var valuesLength = metadata.InputsCount + metadata.OutputsCount;
-                if (metadata.IsAsync) valuesLength += 1;
-
-                var valuesArray = new object?[valuesLength];
-                inputValues.CopyTo(valuesArray, 0);
-                outputValues.CopyTo(valuesArray, inputValues.Length);
-
-                int result = -1;
-
-                if (metadata.IsAsync)
-                {
-                    var cancellationTokenSource = new CancellationTokenSource();
-                    valuesArray[^1] = cancellationTokenSource.Token;
-                    tasks.Add(currentNode.Id, cancellationTokenSource);
-
-                    result = await Task.Run(() => (int)processMethod.Invoke(currentNode, valuesArray)!, cancellationTokenSource.Token);
-                    if (cancellationTokenSource.IsCancellationRequested) return;
-
-                    tasks.Remove(currentNode.Id);
-                }
-                else
-                {
-                    result = (int)processMethod.Invoke(currentNode, valuesArray)!;
-                }
-
-                outputValues = valuesArray[inputValues.Length..];
-                var outputFlowSlot = result;
-
-                memory.Write(currentNode.Id, outputValues);
-
-                if (outputFlowSlot >= 0 && metadata.FlowOutputs[outputFlowSlot].Scope)
-                {
-                    returnNodes.Push(currentNode.Id);
-                    memory.Push();
-                }
-
-                var connection = Connections.FirstOrDefault(con => con.OutputNodeId == currentNode.Id && con.OutputSlot == outputFlowSlot && con.ConnectionType == ConnectionType.Flow);
-
-                if (connection is null)
-                {
-                    if (returnNodes.Count > 0)
-                    {
-                        nextNodeId = returnNodes.Pop();
-                        memory.Pop();
-                    }
-                    else
-                    {
-                        nextNodeId = null;
-                    }
-                }
-                else
-                {
-                    nextNodeId = connection.InputNodeId;
-                }
-            }
+            memory.Push();
         }
-        catch (TaskCanceledException) // we don't care
+
+        var destNode = Nodes[connection.InputNodeId];
+        executeNode(destNode);
+
+        if (shouldScope)
         {
+            memory.Pop();
         }
     }
 
-    private object? getDefault(Type type) => type.IsValueType ? Activator.CreateInstance(type) : null;
+    private IRef getConnectedValue(Node inputNode, int inputSlot, Type inputType)
+    {
+        var connection = Connections.FirstOrDefault(con => con.InputNodeId == inputNode.Id && con.InputSlot == inputSlot && con.ConnectionType == ConnectionType.Value);
+        if (connection is null) return (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(inputType), args: [inputType.IsValueType ? Activator.CreateInstance(inputType) : null])!;
+
+        var outputNode = Nodes[connection.OutputNodeId];
+
+        if (memory.HasEntry(outputNode.Id))
+        {
+            return memory.Read(outputNode.Id).Values[connection.OutputSlot];
+        }
+
+        if (outputNode.Metadata is { IsValue: true, IsFlow: false })
+        {
+            executeNode(outputNode);
+            return memory.Read(outputNode.Id).Values[connection.OutputSlot];
+        }
+
+        return (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(inputType), args: [inputType.IsValueType ? Activator.CreateInstance(inputType) : null])!;
+    }
+
+    private void executeNode(Node node)
+    {
+        var metadata = GetMetadata(node);
+
+        var inputValues = new IRef[metadata.InputsCount];
+
+        for (var i = 0; i < metadata.InputsCount; i++)
+        {
+            inputValues[i] = getConnectedValue(node, i, metadata.Inputs[i].Type);
+        }
+
+        if (!memory.HasEntry(node.Id))
+            memory.CreateEntries(node);
+
+        var entry = memory.Read(node.Id);
+
+        var processInvoker = generateProcessInvoke(node);
+
+        if (metadata is { IsValueInput: true, IsValueOutput: false })
+        {
+            processInvoker.DynamicInvoke(node, inputValues);
+        }
+
+        if (metadata is { IsValueInput: false, IsValueOutput: true })
+        {
+            processInvoker.DynamicInvoke(node, entry.Values);
+        }
+
+        if (metadata is { IsValueInput: true, IsValueOutput: true })
+        {
+            processInvoker.DynamicInvoke(node, inputValues, entry.Values);
+        }
+
+        if (metadata is { IsValueInput: false, IsValueOutput: false })
+        {
+            processInvoker.DynamicInvoke(node);
+        }
+    }
+
+    private Delegate generateProcessInvoke(Node node)
+    {
+        var metadata = node.Metadata;
+
+        var typeArraySize = 1;
+        if (metadata.IsValueInput) typeArraySize++;
+        if (metadata.IsValueOutput) typeArraySize++;
+        var parameterTypes = new Type[typeArraySize];
+
+        if (metadata is { IsValueInput: true, IsValueOutput: false }) parameterTypes[1] = typeof(IRef[]);
+        if (metadata is { IsValueInput: false, IsValueOutput: true }) parameterTypes[1] = typeof(IRef[]);
+
+        if (metadata is { IsValueInput: true, IsValueOutput: true })
+        {
+            parameterTypes[1] = typeof(IRef[]);
+            parameterTypes[2] = typeof(IRef[]);
+        }
+
+        parameterTypes[0] = typeof(Node);
+
+        var dynamicMethod = new DynamicMethod(
+            name: "InvokeProcess",
+            returnType: typeof(void),
+            parameterTypes: parameterTypes,
+            m: typeof(Node).Module,
+            skipVisibility: true
+        );
+
+        var inputTypes = metadata.Inputs.Select(input => input.Type).ToArray();
+        var outputTypes = metadata.Outputs.Select(output => output.Type).ToArray();
+
+        generateIl(dynamicMethod, metadata.ProcessMethod, inputTypes, outputTypes);
+
+        if (metadata is { IsValueInput: true, IsValueOutput: false }) return dynamicMethod.CreateDelegate(typeof(Action<Node, IRef[]>));
+        if (metadata is { IsValueInput: false, IsValueOutput: true }) return dynamicMethod.CreateDelegate(typeof(Action<Node, IRef[]>));
+        if (metadata is { IsValueInput: true, IsValueOutput: true }) return dynamicMethod.CreateDelegate(typeof(Action<Node, IRef[], IRef[]>));
+
+        return dynamicMethod.CreateDelegate(typeof(Action<Node>));
+    }
+
+    private void generateIl(DynamicMethod dm, MethodInfo method, Type[] inputTypes, Type[] outputTypes)
+    {
+        var il = dm.GetILGenerator();
+
+        il.Emit(OpCodes.Ldarg, 0); // load instance
+
+        for (var i = 0; i < inputTypes.Length; i++)
+        {
+            insertInputIl(il, i, inputTypes[i]);
+        }
+
+        for (var i = 0; i < outputTypes.Length; i++)
+        {
+            insertOutputIl(il, i, outputTypes[i], inputTypes.Length != 0);
+        }
+
+        il.EmitCall(OpCodes.Callvirt, method, null);
+        il.Emit(OpCodes.Ret);
+    }
+
+    private void insertInputIl(ILGenerator il, int index, Type type)
+    {
+        il.Emit(OpCodes.Ldarg, 1);
+        il.Emit(OpCodes.Ldc_I4, index);
+        il.Emit(OpCodes.Ldelem_Ref);
+
+        var refType = typeof(Ref<>).MakeGenericType(type);
+        il.Emit(OpCodes.Castclass, refType);
+
+        var valueField = refType.GetField("Value", BindingFlags.Instance | BindingFlags.Public)!;
+        il.Emit(OpCodes.Ldfld, valueField);
+    }
+
+    private void insertOutputIl(ILGenerator il, int index, Type type, bool inputsExist)
+    {
+        il.Emit(OpCodes.Ldarg, inputsExist ? 2 : 1);
+        il.Emit(OpCodes.Ldc_I4, index);
+        il.Emit(OpCodes.Ldelem_Ref);
+
+        var refType = typeof(Ref<>).MakeGenericType(type);
+        il.Emit(OpCodes.Castclass, refType);
+
+        var valueField = refType.GetField("Value", BindingFlags.Instance | BindingFlags.Public)!;
+        il.Emit(OpCodes.Ldflda, valueField);
+    }
 
     public NodeGroup AddGroup()
     {
