@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
+using System.Reflection.Emit;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Nodes;
@@ -39,9 +39,6 @@ public static class NodeMetadataBuilder
             throw new Exception($"Cannot build {nameof(NodeMetadata)} as the method marked as {nameof(NodeProcessAttribute)} must return void");
 
         var inputParameters = parameters.TakeWhile(p => !p.ParameterType.IsByRef).ToList();
-        // TODO: Temporary
-        inputParameters.RemoveIf(parameter => parameter.ParameterType == typeof(CancellationToken));
-
         var outputParameters = parameters.SkipWhile(p => !p.ParameterType.IsByRef).ToList();
 
         var isValueInput = inputParameters.Count > 0;
@@ -89,7 +86,7 @@ public static class NodeMetadataBuilder
         var inputVariableSize = inputParameters.LastOrDefault()?.GetCustomAttribute<NodeVariableSizeAttribute>();
         var outputVariableSize = outputParameters.LastOrDefault()?.GetCustomAttribute<NodeVariableSizeAttribute>();
 
-        return new NodeMetadata
+        var metadata = new NodeMetadata
         {
             Title = nodeAttribute.Title,
             Path = nodeAttribute.Path,
@@ -109,6 +106,9 @@ public static class NodeMetadataBuilder
             OutputVariableSize = outputVariableSize,
             OutputVariableSizeActual = outputVariableSize?.DefaultSize ?? 0
         };
+
+        metadata.ProcessDelegate = generateProcessDelegate(metadata);
+        return metadata;
     }
 
     private static MethodInfo getProcessMethod(Type type)
@@ -154,6 +154,94 @@ public static class NodeMetadataBuilder
             };
         }
     }
+
+    private static Delegate generateProcessDelegate(NodeMetadata metadata)
+    {
+        var typeArraySize = 1;
+        if (metadata.IsValueInput) typeArraySize++;
+        if (metadata.IsValueOutput) typeArraySize++;
+        var parameterTypes = new Type[typeArraySize];
+
+        parameterTypes[0] = typeof(Node);
+
+        if (metadata is { IsValueInput: true, IsValueOutput: false }) parameterTypes[1] = typeof(object?[]);
+        if (metadata is { IsValueInput: false, IsValueOutput: true }) parameterTypes[1] = typeof(IRef[]);
+
+        if (metadata is { IsValueInput: true, IsValueOutput: true })
+        {
+            parameterTypes[1] = typeof(object?[]);
+            parameterTypes[2] = typeof(IRef[]);
+        }
+
+        var dynamicMethod = new DynamicMethod(
+            name: "InvokeProcess",
+            returnType: typeof(void),
+            parameterTypes: parameterTypes,
+            m: typeof(Node).Module,
+            skipVisibility: true
+        );
+
+        var inputTypes = metadata.Inputs.Select(input => input.Type).ToArray();
+        var outputTypes = metadata.Outputs.Select(output => output.Type).ToArray();
+
+        generateIl(dynamicMethod, metadata.ProcessMethod, inputTypes, outputTypes);
+
+        if (metadata is { IsValueInput: true, IsValueOutput: false }) return dynamicMethod.CreateDelegate(typeof(Action<Node, object?[]>));
+        if (metadata is { IsValueInput: false, IsValueOutput: true }) return dynamicMethod.CreateDelegate(typeof(Action<Node, IRef[]>));
+        if (metadata is { IsValueInput: true, IsValueOutput: true }) return dynamicMethod.CreateDelegate(typeof(Action<Node, object?[], IRef[]>));
+
+        return dynamicMethod.CreateDelegate(typeof(Action<Node>));
+    }
+
+    private static void generateIl(DynamicMethod dm, MethodInfo method, Type[] inputTypes, Type[] outputTypes)
+    {
+        var il = dm.GetILGenerator();
+
+        il.Emit(OpCodes.Ldarg, 0); // load instance
+
+        for (var i = 0; i < inputTypes.Length; i++)
+        {
+            insertInputIl(il, i, inputTypes[i]);
+        }
+
+        for (var i = 0; i < outputTypes.Length; i++)
+        {
+            insertOutputIl(il, i, outputTypes[i], inputTypes.Length != 0);
+        }
+
+        il.EmitCall(OpCodes.Callvirt, method, null);
+        il.Emit(OpCodes.Ret);
+    }
+
+    private static void insertInputIl(ILGenerator il, int index, Type type)
+    {
+        il.Emit(OpCodes.Ldarg, 1);
+        il.Emit(OpCodes.Ldc_I4, index);
+
+        if (type.IsValueType)
+        {
+            il.Emit(OpCodes.Ldelem_Ref);
+            il.Emit(OpCodes.Unbox_Any, type);
+        }
+        else
+        {
+            il.Emit(OpCodes.Ldelem_Ref);
+            il.Emit(OpCodes.Castclass, type);
+        }
+    }
+
+    private static void insertOutputIl(ILGenerator il, int index, Type type, bool inputsExist)
+    {
+        il.Emit(OpCodes.Ldarg, inputsExist ? 2 : 1);
+        il.Emit(OpCodes.Ldc_I4, index);
+        il.Emit(OpCodes.Ldelem_Ref);
+
+        var refType = typeof(Ref<>).MakeGenericType(type);
+        il.Emit(OpCodes.Castclass, refType);
+
+        var valueField = refType.GetField("Value", BindingFlags.Instance | BindingFlags.Public)!;
+        il.Emit(OpCodes.Ldflda, valueField);
+    }
 }
 
 public sealed class NodeMetadata
@@ -162,6 +250,7 @@ public sealed class NodeMetadata
     public string? Path { get; set; }
     public Type[] GenericArguments { get; set; } = null!;
     public MethodInfo ProcessMethod { get; set; } = null!;
+    public Delegate ProcessDelegate { get; set; } = null!;
     public NodeFlowRef[] FlowOutputs { get; set; } = [];
     public NodeValueMetadata[] Inputs { get; set; } = [];
     public NodeValueMetadata[] Outputs { get; set; } = [];

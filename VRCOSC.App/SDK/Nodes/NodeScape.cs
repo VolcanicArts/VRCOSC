@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
 using VRCOSC.App.SDK.Nodes.Types.Base;
 using VRCOSC.App.SDK.Nodes.Types.Strings;
 using VRCOSC.App.Utils;
@@ -175,7 +173,7 @@ public class NodeScape
         }
     }
 
-    private IRef getConnectedValue(Node inputNode, int inputSlot, Type inputType)
+    private IRef getConnectedRef(Node inputNode, int inputSlot, Type inputType)
     {
         var connection = Connections.FirstOrDefault(con => con.InputNodeId == inputNode.Id && con.InputSlot == inputSlot && con.ConnectionType == ConnectionType.Value);
         if (connection is null) return (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(inputType), args: [inputType.IsValueType ? Activator.CreateInstance(inputType) : null])!;
@@ -196,11 +194,46 @@ public class NodeScape
         return (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(inputType), args: [inputType.IsValueType ? Activator.CreateInstance(inputType) : null])!;
     }
 
+    private object? getConnectedValue(Node inputNode, int inputSlot, Type inputType)
+    {
+        var metadata = inputNode.Metadata;
+
+        if (metadata.InputHasVariableSize && metadata.InputsCount - 1 == inputSlot)
+        {
+            var arrSize = metadata.InputVariableSizeActual;
+            var elementType = inputType.GetElementType()!;
+            var values = Array.CreateInstance(elementType, arrSize);
+
+            for (var i = 0; i < arrSize; i++)
+            {
+                values.SetValue(getConnectedRef(inputNode, inputSlot + i, elementType).GetValue(), i);
+            }
+
+            return values;
+        }
+
+        var connection = Connections.FirstOrDefault(con => con.InputNodeId == inputNode.Id && con.InputSlot == inputSlot && con.ConnectionType == ConnectionType.Value);
+        if (connection is null) return inputType.IsValueType ? Activator.CreateInstance(inputType) : null;
+
+        if (!memory.HasEntry(connection.OutputNodeId))
+            executeNode(Nodes[connection.OutputNodeId]);
+
+        var outputMetadata = Nodes[connection.OutputNodeId].Metadata;
+
+        if (connection.OutputSlot >= outputMetadata.OutputsCount - 1 && outputMetadata.OutputHasVariableSize)
+        {
+            var arr = (Array)memory.Read(connection.OutputNodeId).Values[outputMetadata.OutputsCount - 1].GetValue()!;
+            return arr.GetValue(connection.OutputSlot - (outputMetadata.OutputsCount - 1));
+        }
+
+        return getConnectedRef(inputNode, inputSlot, inputType).GetValue();
+    }
+
     private void executeNode(Node node)
     {
         var metadata = GetMetadata(node);
 
-        var inputValues = new IRef[metadata.InputsCount];
+        var inputValues = new object?[metadata.InputsCount];
 
         for (var i = 0; i < metadata.InputsCount; i++)
         {
@@ -211,114 +244,12 @@ public class NodeScape
             memory.CreateEntries(node);
 
         var entry = memory.Read(node.Id);
+        var processDelegate = metadata.ProcessDelegate;
 
-        var processInvoker = generateProcessInvoke(node);
-
-        if (metadata is { IsValueInput: true, IsValueOutput: false })
-        {
-            processInvoker.DynamicInvoke(node, inputValues);
-        }
-
-        if (metadata is { IsValueInput: false, IsValueOutput: true })
-        {
-            processInvoker.DynamicInvoke(node, entry.Values);
-        }
-
-        if (metadata is { IsValueInput: true, IsValueOutput: true })
-        {
-            processInvoker.DynamicInvoke(node, inputValues, entry.Values);
-        }
-
-        if (metadata is { IsValueInput: false, IsValueOutput: false })
-        {
-            processInvoker.DynamicInvoke(node);
-        }
-    }
-
-    private Delegate generateProcessInvoke(Node node)
-    {
-        var metadata = node.Metadata;
-
-        var typeArraySize = 1;
-        if (metadata.IsValueInput) typeArraySize++;
-        if (metadata.IsValueOutput) typeArraySize++;
-        var parameterTypes = new Type[typeArraySize];
-
-        if (metadata is { IsValueInput: true, IsValueOutput: false }) parameterTypes[1] = typeof(IRef[]);
-        if (metadata is { IsValueInput: false, IsValueOutput: true }) parameterTypes[1] = typeof(IRef[]);
-
-        if (metadata is { IsValueInput: true, IsValueOutput: true })
-        {
-            parameterTypes[1] = typeof(IRef[]);
-            parameterTypes[2] = typeof(IRef[]);
-        }
-
-        parameterTypes[0] = typeof(Node);
-
-        var dynamicMethod = new DynamicMethod(
-            name: "InvokeProcess",
-            returnType: typeof(void),
-            parameterTypes: parameterTypes,
-            m: typeof(Node).Module,
-            skipVisibility: true
-        );
-
-        var inputTypes = metadata.Inputs.Select(input => input.Type).ToArray();
-        var outputTypes = metadata.Outputs.Select(output => output.Type).ToArray();
-
-        generateIl(dynamicMethod, metadata.ProcessMethod, inputTypes, outputTypes);
-
-        if (metadata is { IsValueInput: true, IsValueOutput: false }) return dynamicMethod.CreateDelegate(typeof(Action<Node, IRef[]>));
-        if (metadata is { IsValueInput: false, IsValueOutput: true }) return dynamicMethod.CreateDelegate(typeof(Action<Node, IRef[]>));
-        if (metadata is { IsValueInput: true, IsValueOutput: true }) return dynamicMethod.CreateDelegate(typeof(Action<Node, IRef[], IRef[]>));
-
-        return dynamicMethod.CreateDelegate(typeof(Action<Node>));
-    }
-
-    private void generateIl(DynamicMethod dm, MethodInfo method, Type[] inputTypes, Type[] outputTypes)
-    {
-        var il = dm.GetILGenerator();
-
-        il.Emit(OpCodes.Ldarg, 0); // load instance
-
-        for (var i = 0; i < inputTypes.Length; i++)
-        {
-            insertInputIl(il, i, inputTypes[i]);
-        }
-
-        for (var i = 0; i < outputTypes.Length; i++)
-        {
-            insertOutputIl(il, i, outputTypes[i], inputTypes.Length != 0);
-        }
-
-        il.EmitCall(OpCodes.Callvirt, method, null);
-        il.Emit(OpCodes.Ret);
-    }
-
-    private void insertInputIl(ILGenerator il, int index, Type type)
-    {
-        il.Emit(OpCodes.Ldarg, 1);
-        il.Emit(OpCodes.Ldc_I4, index);
-        il.Emit(OpCodes.Ldelem_Ref);
-
-        var refType = typeof(Ref<>).MakeGenericType(type);
-        il.Emit(OpCodes.Castclass, refType);
-
-        var valueField = refType.GetField("Value", BindingFlags.Instance | BindingFlags.Public)!;
-        il.Emit(OpCodes.Ldfld, valueField);
-    }
-
-    private void insertOutputIl(ILGenerator il, int index, Type type, bool inputsExist)
-    {
-        il.Emit(OpCodes.Ldarg, inputsExist ? 2 : 1);
-        il.Emit(OpCodes.Ldc_I4, index);
-        il.Emit(OpCodes.Ldelem_Ref);
-
-        var refType = typeof(Ref<>).MakeGenericType(type);
-        il.Emit(OpCodes.Castclass, refType);
-
-        var valueField = refType.GetField("Value", BindingFlags.Instance | BindingFlags.Public)!;
-        il.Emit(OpCodes.Ldflda, valueField);
+        if (metadata is { IsValueInput: false, IsValueOutput: false }) processDelegate.DynamicInvoke(node);
+        if (metadata is { IsValueInput: true, IsValueOutput: false }) processDelegate.DynamicInvoke(node, inputValues);
+        if (metadata is { IsValueInput: false, IsValueOutput: true }) processDelegate.DynamicInvoke(node, entry.Values);
+        if (metadata is { IsValueInput: true, IsValueOutput: true }) processDelegate.DynamicInvoke(node, inputValues, entry.Values);
     }
 
     public NodeGroup AddGroup()

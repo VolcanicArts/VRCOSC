@@ -48,7 +48,7 @@ public sealed class DemultiplexNode<T> : Node
         [NodeValue("Value")] T value,
         [NodeValue("Default Value")] T defaultValue,
         [NodeValue("Index")] int index,
-        [NodeValue("Outputs")] [NodeVariableSize(2)] ref T[] outOutputs
+        [NodeValue("Outputs")] [NodeVariableSize] ref T[] outOutputs
     )
     {
         for (var i = 0; i < outOutputs.Length; i++)

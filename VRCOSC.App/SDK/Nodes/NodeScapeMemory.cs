@@ -23,11 +23,34 @@ public class NodeScapeMemory
     {
         var metadata = node.Metadata;
 
-        entries.Add(new NodeScapeMemoryEntry(node.Id, metadata.Outputs.Select(outputMetadata =>
+        var entryArray = new IRef[metadata.OutputsCount];
+
+        for (var i = 0; i < metadata.OutputsCount; i++)
         {
-            var defaultValue = getDefault(outputMetadata.Type);
-            return (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(outputMetadata.Type), args: [defaultValue])!;
-        }).ToArray(), scope));
+            var outputMetadata = metadata.Outputs[i];
+
+            if (metadata.OutputHasVariableSize && i == metadata.OutputsCount - 1)
+            {
+                var arrSize = metadata.OutputVariableSizeActual;
+                var elementType = outputMetadata.Type.GetElementType()!;
+                var arr = Array.CreateInstance(elementType, arrSize);
+                var defaultValue = getDefault(elementType);
+
+                for (var j = 0; j < arrSize; j++)
+                {
+                    arr.SetValue(defaultValue, i);
+                }
+
+                entryArray[i] = (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(outputMetadata.Type), args: [arr])!;
+            }
+            else
+            {
+                var defaultValue = getDefault(outputMetadata.Type);
+                entryArray[i] = (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(outputMetadata.Type), args: [defaultValue])!;
+            }
+        }
+
+        entries.Add(new NodeScapeMemoryEntry(node.Id, entryArray, scope));
     }
 
     public NodeScapeMemoryEntry Read(Guid nodeId)
@@ -67,7 +90,10 @@ public class NodeScapeMemoryEntry
     }
 }
 
-public interface IRef;
+public interface IRef
+{
+    public object? GetValue();
+}
 
 public class Ref<T> : IRef
 {
@@ -77,4 +103,6 @@ public class Ref<T> : IRef
     {
         Value = value;
     }
+
+    public object? GetValue() => Value;
 }
