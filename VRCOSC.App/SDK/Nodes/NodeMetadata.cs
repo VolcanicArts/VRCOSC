@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.Utils;
 
@@ -25,7 +26,7 @@ public static class NodeMetadataBuilder
         var method = getProcessMethod(type);
         var parameters = method.GetParameters();
 
-        var isAsync = method.ReturnParameter.ParameterType.IsAssignableTo(typeof(Task));
+        var isAsync = type.IsAssignableTo(typeof(IAsyncNode));
         var isFlowInput = type.IsAssignableTo(typeof(IFlowInput));
         var isFlowOutput = type.IsAssignableTo(typeof(IFlowOutput));
         var isTrigger = type.IsAssignableTo(typeof(IFlowTrigger));
@@ -34,6 +35,9 @@ public static class NodeMetadataBuilder
         if (!allRefsAfterNonRefs) throw new Exception($"Cannot build {nameof(NodeMetadata)} as the defined {nameof(NodeProcessAttribute)} method has non-refs after refs");
 
         var inputParameters = parameters.TakeWhile(p => !p.ParameterType.IsByRef).ToList();
+        // TODO: Temporary
+        inputParameters.RemoveIf(parameter => parameter.ParameterType == typeof(CancellationToken));
+
         var outputParameters = parameters.SkipWhile(p => !p.ParameterType.IsByRef).ToList();
 
         var isValueInput = inputParameters.Count > 0;
@@ -145,7 +149,7 @@ public static class NodeMetadataBuilder
             yield return new NodeValueMetadata
             {
                 Name = name,
-                Type = parameter.ParameterType.IsByRef ? parameter.ParameterType.GetElementType()! : parameter.ParameterType,
+                Parameter = parameter
             };
         }
     }
@@ -238,5 +242,7 @@ public sealed class NodeMetadata
 public sealed class NodeValueMetadata
 {
     public string Name { get; set; } = null!;
-    public Type Type { get; set; } = null!;
+    public ParameterInfo Parameter { get; set; } = null!;
+
+    public Type Type => Parameter.ParameterType.IsByRef ? Parameter.ParameterType.GetElementType()! : Parameter.ParameterType;
 }

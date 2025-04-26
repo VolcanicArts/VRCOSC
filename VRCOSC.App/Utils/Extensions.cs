@@ -300,42 +300,73 @@ public static class TypeExtensions
         return baseType != null && IsSubclassOfRawGeneric(baseType, genericTypeDefinition);
     }
 
-    public static string GetFriendlyName(this Type type)
+    public static string GetFriendlyName(this ParameterInfo pi)
     {
-        if (type.IsGenericParameter)
-        {
-            // It's a type parameter, e.g. T
-            return type.Name;
-        }
-
-        if (type.IsGenericType)
-        {
-            // Get the name without the generic parameter count (e.g., "Dictionary`2" -> "Dictionary")
-            var typeName = type.Name;
-            var backtickIndex = typeName.IndexOf('`');
-
-            if (backtickIndex > 0)
-            {
-                typeName = typeName[..backtickIndex];
-            }
-
-            // Get generic arguments and format them recursively
-            var genericArgs = type.GetGenericArguments();
-            var genericArgNames = new string[genericArgs.Length];
-
-            for (var i = 0; i < genericArgs.Length; i++)
-            {
-                genericArgNames[i] = GetFriendlyName(genericArgs[i]);
-            }
-
-            return $"{typeName}<{string.Join(", ", genericArgNames)}>";
-        }
-
-        // Non-generic type
-        return type.ToReadableName();
+        var ctx = new NullabilityInfoContext();
+        var nullInfo = ctx.Create(pi);
+        return pi.ParameterType.GetFriendlyName(nullInfo);
     }
 
-    public static string ToReadableName(this Type type)
+    public static string GetFriendlyName(this PropertyInfo pi)
+    {
+        var ctx = new NullabilityInfoContext();
+        var nullInfo = ctx.Create(pi);
+        return pi.PropertyType.GetFriendlyName(nullInfo);
+    }
+
+    /// <summary>
+    /// Core formatter: walks the Type (and its nested generic args), consulting the parallel nullInfo tree.
+    /// </summary>
+    public static string GetFriendlyName(this Type t, NullabilityInfo? nullInfo = null)
+    {
+        // 1) Handle Nullable<T> on value types
+        if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>))
+        {
+            // unwrap T and its nullability info
+            var innerType = t.GetGenericArguments()[0];
+            return innerType.GetFriendlyName() + "?";
+        }
+
+        // 2) Handle generic types (e.g. Dictionary<,>, IList<> on interfaces, etc.)
+        string baseName;
+
+        if (t.IsGenericParameter)
+        {
+            baseName = t.Name;
+        }
+        else if (t.IsGenericType)
+        {
+            // strip the `1, `2, etc.
+            var name = t.Name;
+            var idx = name.IndexOf('`');
+            if (idx >= 0) name = name[..idx];
+
+            // recurse into each argument, carrying along its nullInfo
+            var args = t.GetGenericArguments();
+
+            var argNames = args
+                           .Select((argType, i) => argType.GetFriendlyName(nullInfo?.GenericTypeArguments[i]))
+                           .ToArray();
+
+            baseName = $"{name}<{string.Join(", ", argNames)}>";
+        }
+        else
+        {
+            // simple non‐generic
+            baseName = t.toReadableName();
+        }
+
+        // 3) If this is a reference type (class, interface, delegate, array, etc.)
+        //    and the metadata says it's nullable, append “?”
+        if (!t.IsValueType && nullInfo?.ReadState == NullabilityState.Nullable)
+        {
+            baseName += "?";
+        }
+
+        return baseName;
+    }
+
+    private static string toReadableName(this Type type)
     {
         if (type.IsEnum) return type.Name;
 

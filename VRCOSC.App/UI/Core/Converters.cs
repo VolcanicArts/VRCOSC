@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -132,6 +133,18 @@ public class TypeToFriendlyNameConverter : IValueConverter
         if (value is not Type typeValue) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
 
         return typeValue.GetFriendlyName();
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class ParameterInfoToFriendlyNameConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not ParameterInfo parameterInfo) throw new Exception($"{nameof(value)} is not a {nameof(ParameterInfo)}");
+
+        return parameterInfo.GetFriendlyName();
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;

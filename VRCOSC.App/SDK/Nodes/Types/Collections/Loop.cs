@@ -35,6 +35,32 @@ public class ForNode : Node, IFlowInput, IFlowOutput
     }
 }
 
+[Node("For", "Collections")]
+public sealed class ForNodeV2 : Node, IFlowInput, IFlowOutput
+{
+    public NodeFlowRef[] FlowOutputs =>
+    [
+        new("On Finished"),
+        new("On Loop")
+    ];
+
+    [NodeProcess]
+    private void process
+    (
+        [NodeValue("Count")] int count,
+        [NodeValue("Index")] ref int outIndex
+    )
+    {
+        for (var i = 0; i < count; i++)
+        {
+            outIndex = i;
+            TriggerFlow(1, true);
+        }
+
+        TriggerFlow(0);
+    }
+}
+
 [Node("For Each", "Collections")]
 public sealed class ForEachNode<T> : Node, IFlowInput, IFlowOutput
 {

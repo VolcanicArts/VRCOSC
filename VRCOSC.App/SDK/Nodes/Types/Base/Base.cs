@@ -44,6 +44,11 @@ public sealed class ValueDisplayNode<T> : Node, INotifyPropertyChanged
     }
 }
 
+public sealed class StartAsyncNode : Node, IFlowInput, IFlowOutput
+{
+    public NodeFlowRef[] FlowOutputs => [new("Async Continue"), new("Continue")];
+}
+
 public abstract class ConstantNode<T> : Node
 {
     [NodeProcess]

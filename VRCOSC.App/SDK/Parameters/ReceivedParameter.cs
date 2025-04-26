@@ -121,7 +121,7 @@ public sealed class RegisteredParameter : ReceivedParameter
     public override T GetValue<T>()
     {
         if (ParameterTypeFactory.CreateFrom<T>() != moduleParameter.ExpectedType)
-            throw new InvalidCastException($"Parameter's value was expected as {moduleParameter.ExpectedType} and you're trying to use it as {typeof(T).ToReadableName()}");
+            throw new InvalidCastException($"Parameter's value was expected as {moduleParameter.ExpectedType} and you're trying to use it as {typeof(T).GetFriendlyName()}");
 
         return base.GetValue<T>();
     }

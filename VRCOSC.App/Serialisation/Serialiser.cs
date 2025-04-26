@@ -185,7 +185,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e, $"'{FullPath}' was unable to convert {value!.GetType().ToReadableName()} to {targetType.ToReadableName()}");
+            ExceptionHandler.Handle(e, $"'{FullPath}' was unable to convert {value!.GetType().GetFriendlyName()} to {targetType.GetFriendlyName()}");
             throw;
         }
     }

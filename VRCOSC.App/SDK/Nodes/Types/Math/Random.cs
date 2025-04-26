@@ -23,5 +23,5 @@ public sealed class RandomIntNode : RandomNode<int>
 [Node("Random Float", "Math/Random")]
 public sealed class RandomFloatNode : RandomNode<float>
 {
-    protected override float GetRandom(float min, float max) => (float)Interpolation.Map(Random.Shared.NextSingle(), 0, 1, min, max);
+    protected override float GetRandom(float min, float max) => Interpolation.Map(Random.Shared.NextSingle(), 0, 1, min, max);
 }

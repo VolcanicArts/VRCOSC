@@ -75,3 +75,10 @@ public interface IFlowOutput
 }
 
 public interface IFlowTrigger;
+
+public interface IAsyncNode;
+
+public interface ITarget<in T>
+{
+    public void SetValue(T value);
+}

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes.Types.Base;
 using VRCOSC.App.SDK.Nodes.Types.Strings;
@@ -24,6 +25,8 @@ public class NodeScape
 
     public readonly Dictionary<Type, NodeMetadata> Metadata = [];
     public readonly Dictionary<string, object?> Variables = [];
+
+    public int UpdateCount { get; private set; }
 
     public void RegisterNode(Node node)
     {
@@ -219,6 +222,7 @@ public class NodeScape
 
     private readonly Stack<Guid> returnNodes = [];
     private readonly NodeScapeMemory memory = new();
+    private readonly Dictionary<Guid, CancellationTokenSource> tasks = [];
 
     public async void Update()
     {
@@ -231,50 +235,62 @@ public class NodeScape
 
             await startFlow(memory, node.Id);
         }
+
+        UpdateCount++;
     }
 
     private async Task startFlow(NodeScapeMemory memory, Guid? nextNodeId)
     {
-        while (nextNodeId is not null)
+        try
         {
-            var currentNode = Nodes[nextNodeId.Value];
-            var metadata = GetMetadata(currentNode);
-            var processMethod = metadata.ProcessMethod;
-
-            var inputValues = new object?[metadata.Inputs.Length];
-
-            for (var i = 0; i < metadata.Inputs.Length; i++)
+            while (nextNodeId is not null)
             {
-                inputValues[i] = getValueForInput(memory, currentNode, i);
-            }
+                var currentNode = Nodes[nextNodeId.Value];
+                var metadata = GetMetadata(currentNode);
+                var processMethod = metadata.ProcessMethod;
 
-            var outputValues = currentNode.Metadata.Outputs.Select(outputMetadata => getDefault(outputMetadata.Type)).ToArray();
+                if (tasks.TryGetValue(currentNode.Id, out var tokenSource))
+                {
+                    await tokenSource.CancelAsync();
+                    tasks.Remove(currentNode.Id);
+                }
 
-            var valuesArray = new object?[metadata.Inputs.Length + metadata.Outputs.Length];
-            inputValues.CopyTo(valuesArray, 0);
-            outputValues.CopyTo(valuesArray, inputValues.Length);
+                var inputValues = new object?[metadata.InputsCount];
 
-            var result = processMethod.Invoke(currentNode, valuesArray);
+                for (var i = 0; i < metadata.Inputs.Length; i++)
+                {
+                    inputValues[i] = getValueForInput(memory, currentNode, i);
+                }
 
-            NodeConnection? connection = null;
+                var outputValues = currentNode.Metadata.Outputs.Select(outputMetadata => getDefault(outputMetadata.Type)).ToArray();
 
-            if (metadata.IsFlowOutput)
-            {
-                outputValues = valuesArray[inputValues.Length..];
+                var valuesLength = metadata.InputsCount + metadata.OutputsCount;
+                if (metadata.IsAsync) valuesLength += 1;
 
-                var outputFlowSlot = -1;
+                var valuesArray = new object?[valuesLength];
+                inputValues.CopyTo(valuesArray, 0);
+                outputValues.CopyTo(valuesArray, inputValues.Length);
+
+                int result = -1;
 
                 if (metadata.IsAsync)
                 {
-                    // TODO: If this returns a task, we shouldn't wait here. It should spin up another node execute as it's basically triggering another flow when complete
-                    var outputTask = (Task<int>)result!;
-                    await outputTask.ConfigureAwait(false);
-                    outputFlowSlot = outputTask.Result;
+                    var cancellationTokenSource = new CancellationTokenSource();
+                    valuesArray[^1] = cancellationTokenSource.Token;
+                    tasks.Add(currentNode.Id, cancellationTokenSource);
+
+                    result = await Task.Run(() => (int)processMethod.Invoke(currentNode, valuesArray)!, cancellationTokenSource.Token);
+                    if (cancellationTokenSource.IsCancellationRequested) return;
+
+                    tasks.Remove(currentNode.Id);
                 }
                 else
                 {
-                    outputFlowSlot = (int)result!;
+                    result = (int)processMethod.Invoke(currentNode, valuesArray)!;
                 }
+
+                outputValues = valuesArray[inputValues.Length..];
+                var outputFlowSlot = result;
 
                 memory.Write(currentNode.Id, outputValues);
 
@@ -284,25 +300,28 @@ public class NodeScape
                     memory.Push();
                 }
 
-                connection = Connections.FirstOrDefault(con => con.OutputNodeId == currentNode.Id && con.OutputSlot == outputFlowSlot && con.ConnectionType == ConnectionType.Flow);
-            }
+                var connection = Connections.FirstOrDefault(con => con.OutputNodeId == currentNode.Id && con.OutputSlot == outputFlowSlot && con.ConnectionType == ConnectionType.Flow);
 
-            if (connection is null)
-            {
-                if (returnNodes.Count > 0)
+                if (connection is null)
                 {
-                    nextNodeId = returnNodes.Pop();
-                    memory.Pop();
+                    if (returnNodes.Count > 0)
+                    {
+                        nextNodeId = returnNodes.Pop();
+                        memory.Pop();
+                    }
+                    else
+                    {
+                        nextNodeId = null;
+                    }
                 }
                 else
                 {
-                    nextNodeId = null;
+                    nextNodeId = connection.InputNodeId;
                 }
             }
-            else
-            {
-                nextNodeId = connection.InputNodeId;
-            }
+        }
+        catch (TaskCanceledException) // we don't care
+        {
         }
     }
 

@@ -12,7 +12,7 @@ public class StringJoinNode : Node
     private void process
     (
         [NodeValue("Separator")] string? separator,
-        [NodeValue("Inputs")] [NodeVariableSize(2)] string[] inputs,
+        [NodeValue("Inputs")] [NodeVariableSize] string[] inputs,
         [NodeValue("String")] ref string outString
     )
     {

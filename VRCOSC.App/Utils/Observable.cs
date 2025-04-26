@@ -84,7 +84,7 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, IEquata
 
     public void SetValue(object newValue)
     {
-        if (newValue is not T castValue) throw new InvalidOperationException($"Attempted to set anonymous value of type {newValue.GetType().ToReadableName()} for type {typeof(T).ToReadableName()}");
+        if (newValue is not T castValue) throw new InvalidOperationException($"Attempted to set anonymous value of type {newValue.GetType().GetFriendlyName()} for type {typeof(T).GetFriendlyName()}");
 
         Value = castValue;
     }

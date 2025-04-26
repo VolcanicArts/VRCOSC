@@ -44,7 +44,7 @@ public abstract class ListModuleSetting<T> : ListModuleSetting where T : IEquata
 
     public override void Remove(object item)
     {
-        if (item is not T castItem) throw new InvalidOperationException($"Cannot remove type {item.GetType().ToReadableName()} from list with type {typeof(T).ToReadableName()}");
+        if (item is not T castItem) throw new InvalidOperationException($"Cannot remove type {item.GetType().GetFriendlyName()} from list with type {typeof(T).GetFriendlyName()}");
 
         Attribute.Remove(castItem);
     }

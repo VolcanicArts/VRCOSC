@@ -19,6 +19,10 @@ public abstract class Node
 
     public NodeMetadata Metadata => NodeScape.GetMetadata(this);
     protected Player Player => AppManager.GetInstance().VRChatClient.Player;
+
+    protected void TriggerFlow(int index, bool scope = false)
+    {
+    }
 }
 
 public abstract class ModuleNode<T> : Node where T : Module

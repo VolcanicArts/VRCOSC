@@ -171,7 +171,7 @@ public sealed class Player
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"Error while processing default parameter {parameterName}. Type {value.GetType().ToReadableName()}. Value {value}");
+            Logger.Error(e, $"Error while processing default parameter {parameterName}. Type {value.GetType().GetFriendlyName()}. Value {value}");
             return false;
         }
     }
