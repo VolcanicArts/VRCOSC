@@ -45,9 +45,9 @@ public sealed class DemultiplexNode<T> : Node
     [NodeProcess]
     private void process
     (
+        [NodeValue("Index")] int index,
         [NodeValue("Value")] T value,
         [NodeValue("Default Value")] T defaultValue,
-        [NodeValue("Index")] int index,
         [NodeValue("Outputs")] [NodeVariableSize] ref T[] outOutputs
     )
     {

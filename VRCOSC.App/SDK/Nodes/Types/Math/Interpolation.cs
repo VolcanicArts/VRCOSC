@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Nodes.Types.Math;
@@ -28,16 +29,16 @@ public class DampContinuouslyNode : Node
 [Node("Tween", "Math/Interpolation")]
 public sealed class TweenNode : Node, IFlowInput, IFlowOutput, IAsyncNode
 {
-    public NodeFlowRef[] FlowOutputs => [new("On Complete")];
+    public NodeFlowRef[] FlowOutputs => [new("On Complete"), new("On Update")];
 
     [NodeProcess]
-    private int process
+    private Task process
     (
+        CancellationToken cancellationToken,
         [NodeValue("From")] float from,
         [NodeValue("To")] float to,
         [NodeValue("Time Milliseconds")] float timeMilliseconds,
-        [NodeValue("Target")] ITarget<float> target,
-        CancellationToken cancellationToken
+        [NodeValue("Value")] ref float outValue
     )
     {
         var startTime = DateTime.Now;
@@ -50,9 +51,11 @@ public sealed class TweenNode : Node, IFlowInput, IFlowOutput, IAsyncNode
             var currentTime = DateTime.Now;
             percentage = (float)((currentTime - startTime) / (endTime - startTime));
             if (percentage > 1) percentage = 1;
-            target.SetValue(Interpolation.Lerp(from, to, percentage));
+            outValue = Interpolation.Lerp(from, to, percentage);
+            TriggerFlow(1);
         } while (percentage < 1 && !cancellationToken.IsCancellationRequested);
 
-        return 0;
+        TriggerFlow(0);
+        return Task.CompletedTask;
     }
 }

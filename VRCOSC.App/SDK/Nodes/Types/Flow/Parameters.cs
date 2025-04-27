@@ -20,13 +20,13 @@ public sealed class RegisteredParameterReceivedNode<T> : Node, IFlowOutput, IFlo
     }
 
     [NodeProcess]
-    private int process
+    private void process
     (
         [NodeValue("Value")] ref T outValue
     )
     {
         outValue = (T)registeredParameter.Value;
-        return 0;
+        TriggerFlow(0);
     }
 }
 
@@ -37,16 +37,16 @@ public sealed class ParameterReceivedNode<T> : Node, IFlowOutput, IFlowTrigger w
     public NodeFlowRef[] FlowOutputs => [new("On Received")];
 
     [NodeProcess]
-    private int process
+    private void process
     (
         [NodeValue("Parameter Name")] string? parameterName,
         [NodeValue("Value")] ref T outValue
     )
     {
-        if (string.IsNullOrEmpty(parameterName)) return -1;
+        if (string.IsNullOrEmpty(parameterName)) return;
 
         var receivedParameter = new ReceivedParameter(parameterName, default(T));
         outValue = (T)receivedParameter.Value;
-        return 0;
+        TriggerFlow(0);
     }
 }

@@ -265,6 +265,8 @@ public static class ParameterInfoExtensions
 
 public static class TypeExtensions
 {
+    public static object? CreateDefault(this Type type) => type.IsValueType && !type.IsAssignableTo(typeof(Nullable<>)) ? Activator.CreateInstance(type) : null;
+
     public static Type? GetConstructedGenericBase(this Type typeToCheck, Type genericDef)
     {
         if (!genericDef.IsGenericTypeDefinition)
@@ -369,6 +371,7 @@ public static class TypeExtensions
     private static string toReadableName(this Type type)
     {
         if (type.IsEnum) return type.Name;
+        if (type == typeof(object)) return "object";
 
         return Type.GetTypeCode(type) switch
         {

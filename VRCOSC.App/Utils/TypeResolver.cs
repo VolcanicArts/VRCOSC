@@ -39,13 +39,7 @@ public static class TypeResolver
     {
         constructedType = null;
 
-        var typeNames = userInput.Split(',')
-                                 .Select(t => t.Trim())
-                                 .ToArray();
-
-        var typeArgs = typeNames
-                       .Select(resolveType)
-                       .ToArray();
+        var typeArgs = userInput.Split(',').Select(t => resolveType(t.Trim())).ToArray();
 
         if (typeArgs.Any(t => t == null || t.IsAbstract))
             return false;

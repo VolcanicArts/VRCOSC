@@ -12,10 +12,7 @@ public sealed class OnUpdateNode : Node, IFlowOutput, IFlowTrigger
     public NodeFlowRef[] FlowOutputs => [new()];
 
     [NodeProcess]
-    private int process()
-    {
-        return 0;
-    }
+    private void process() => TriggerFlow(0);
 }
 
 [Node("Update Delay", "Flow")]
@@ -26,22 +23,20 @@ public sealed class UpdateDelayNode : Node, IFlowOutput, IFlowTrigger
     private DateTime? lastExecuted;
 
     [NodeProcess]
-    private int process
+    private void process
     (
         [NodeValue("Interval Milliseconds")] int milliseconds
     )
     {
-        if (milliseconds == 0) return -1;
+        if (milliseconds == 0) return;
 
         lastExecuted ??= DateTime.Now;
 
         if (lastExecuted + TimeSpan.FromMilliseconds(milliseconds) <= DateTime.Now)
         {
             lastExecuted = DateTime.Now;
-            return 0;
+            TriggerFlow(0);
         }
-
-        return -1;
     }
 }
 
@@ -51,12 +46,12 @@ public sealed class FireWhileTrueNode : Node, IFlowOutput, IFlowTrigger
     public NodeFlowRef[] FlowOutputs => [new()];
 
     [NodeProcess]
-    private int process
+    private void process
     (
         [NodeValue("Condition")] bool condition
     )
     {
-        return condition ? 0 : -1;
+        if (condition) TriggerFlow(0);
     }
 }
 
@@ -66,12 +61,12 @@ public sealed class FireWhileFalseNode : Node, IFlowOutput, IFlowTrigger
     public NodeFlowRef[] FlowOutputs => [new()];
 
     [NodeProcess]
-    private int process
+    private void process
     (
         [NodeValue("Condition")] bool condition
     )
     {
-        return !condition ? 0 : -1;
+        if (!condition) TriggerFlow(0);
     }
 }
 
@@ -83,14 +78,14 @@ public sealed class FireOnTrueNode : Node, IFlowOutput, IFlowTrigger
     private bool previousCondition;
 
     [NodeProcess]
-    private int process
+    private void process
     (
         [NodeValue("Condition")] bool condition
     )
     {
         var shouldTrigger = !previousCondition && condition;
+        if (shouldTrigger) TriggerFlow(0);
         previousCondition = condition;
-        return shouldTrigger ? 0 : -1;
     }
 }
 
@@ -102,14 +97,14 @@ public sealed class FireOnFalseNode : Node, IFlowOutput, IFlowTrigger
     private bool previousCondition;
 
     [NodeProcess]
-    private int process
+    private void process
     (
         [NodeValue("Condition")] bool condition
     )
     {
         var shouldTrigger = previousCondition && !condition;
+        if (shouldTrigger) TriggerFlow(0);
         previousCondition = condition;
-        return shouldTrigger ? 0 : -1;
     }
 }
 
@@ -121,13 +116,13 @@ public sealed class FireOnChangeNode<T> : Node, IFlowOutput, IFlowTrigger
     private T? previousValue;
 
     [NodeProcess]
-    private int process
+    private void process
     (
         [NodeValue("Value")] T value
     )
     {
-        var result = value is IEquatable<T> valueE ? valueE.Equals(previousValue) : EqualityComparer<T>.Default.Equals(value, previousValue);
+        var areEqual = value is IEquatable<T> valueE ? valueE.Equals(previousValue) : EqualityComparer<T>.Default.Equals(value, previousValue);
+        if (!areEqual) TriggerFlow(0);
         previousValue = value;
-        return !result ? 0 : -1;
     }
 }

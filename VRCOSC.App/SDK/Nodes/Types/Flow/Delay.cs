@@ -11,12 +11,12 @@ public class DelayNode : Node, IFlowInput, IFlowOutput
     public NodeFlowRef[] FlowOutputs => [new()];
 
     [NodeProcess]
-    private async Task<int> process
+    private async Task process
     (
         [NodeValue("Delay Milliseconds")] int delay
     )
     {
         await Task.Delay(delay);
-        return 0;
+        TriggerFlow(0);
     }
 }

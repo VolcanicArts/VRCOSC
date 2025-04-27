@@ -1,8 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
-
 namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
 [Node("If", "Flow")]
@@ -15,12 +13,12 @@ public sealed class IfNode : Node, IFlowInput, IFlowOutput
     ];
 
     [NodeProcess]
-    private int process
+    private void process
     (
         [NodeValue("Condition")] bool condition
     )
     {
-        return condition ? 0 : 1;
+        TriggerFlow(condition ? 0 : 1);
     }
 }
 
@@ -38,7 +36,7 @@ public sealed class IfWithStateNode : Node, IFlowInput, IFlowOutput
     private bool prevCondition;
 
     [NodeProcess]
-    private int process
+    private void process
     (
         [NodeValue("Condition")] bool condition
     )
@@ -46,27 +44,29 @@ public sealed class IfWithStateNode : Node, IFlowInput, IFlowOutput
         if (!prevCondition && condition)
         {
             prevCondition = condition;
-            return 0;
+            TriggerFlow(0);
+            return;
         }
 
         if (prevCondition && !condition)
         {
             prevCondition = condition;
-            return 1;
+            TriggerFlow(1);
+            return;
         }
 
         if (prevCondition && condition)
         {
             prevCondition = condition;
-            return 2;
+            TriggerFlow(2);
+            return;
         }
 
         if (!prevCondition && !condition)
         {
             prevCondition = condition;
-            return 3;
+            TriggerFlow(3);
+            return;
         }
-
-        throw new Exception();
     }
 }

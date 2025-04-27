@@ -19,7 +19,7 @@ public class NodeScapeMemory
         entries.Clear();
     }
 
-    public void CreateEntries(Node node)
+    public void CreateEntry(Node node)
     {
         var metadata = node.Metadata;
 
@@ -34,7 +34,7 @@ public class NodeScapeMemory
                 var arrSize = metadata.OutputVariableSizeActual;
                 var elementType = outputMetadata.Type.GetElementType()!;
                 var arr = Array.CreateInstance(elementType, arrSize);
-                var defaultValue = getDefault(elementType);
+                var defaultValue = elementType.CreateDefault();
 
                 for (var j = 0; j < arrSize; j++)
                 {
@@ -45,7 +45,7 @@ public class NodeScapeMemory
             }
             else
             {
-                var defaultValue = getDefault(outputMetadata.Type);
+                var defaultValue = outputMetadata.Type.CreateDefault();
                 entryArray[i] = (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(outputMetadata.Type), args: [defaultValue])!;
             }
         }
@@ -72,8 +72,6 @@ public class NodeScapeMemory
 
         entries.RemoveIf(entry => entry.Scope > scope);
     }
-
-    private object? getDefault(Type type) => type.IsValueType ? Activator.CreateInstance(type) : null;
 }
 
 public class NodeScapeMemoryEntry

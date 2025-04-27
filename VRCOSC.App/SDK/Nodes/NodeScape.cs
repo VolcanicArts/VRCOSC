@@ -176,7 +176,7 @@ public class NodeScape
     private IRef getConnectedRef(Node inputNode, int inputSlot, Type inputType)
     {
         var connection = Connections.FirstOrDefault(con => con.InputNodeId == inputNode.Id && con.InputSlot == inputSlot && con.ConnectionType == ConnectionType.Value);
-        if (connection is null) return (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(inputType), args: [inputType.IsValueType ? Activator.CreateInstance(inputType) : null])!;
+        if (connection is null) return (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(inputType), args: [inputType.CreateDefault()])!;
 
         var outputNode = Nodes[connection.OutputNodeId];
 
@@ -191,7 +191,7 @@ public class NodeScape
             return memory.Read(outputNode.Id).Values[connection.OutputSlot];
         }
 
-        return (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(inputType), args: [inputType.IsValueType ? Activator.CreateInstance(inputType) : null])!;
+        return (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(inputType), args: [inputType.CreateDefault()])!;
     }
 
     private object? getConnectedValue(Node inputNode, int inputSlot, Type inputType)
@@ -213,7 +213,7 @@ public class NodeScape
         }
 
         var connection = Connections.FirstOrDefault(con => con.InputNodeId == inputNode.Id && con.InputSlot == inputSlot && con.ConnectionType == ConnectionType.Value);
-        if (connection is null) return inputType.IsValueType ? Activator.CreateInstance(inputType) : null;
+        if (connection is null) return inputType.CreateDefault();
 
         if (!memory.HasEntry(connection.OutputNodeId))
             executeNode(Nodes[connection.OutputNodeId]);
@@ -241,7 +241,7 @@ public class NodeScape
         }
 
         if (!memory.HasEntry(node.Id))
-            memory.CreateEntries(node);
+            memory.CreateEntry(node);
 
         var entry = memory.Read(node.Id);
         var processDelegate = metadata.ProcessDelegate;

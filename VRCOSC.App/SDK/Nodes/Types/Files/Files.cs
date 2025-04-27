@@ -17,23 +17,28 @@ public class WriteTextToFileNode : Node, IFlowInput, IFlowOutput
     ];
 
     [NodeProcess]
-    private async Task<int> process
+    private async Task process
     (
         [NodeValue("Text")] string? text,
         [NodeValue("File Path")] string? filePath
     )
     {
-        if (text is null || filePath is null) return -1;
-        if (!File.Exists(filePath)) return 1;
+        if (text is null || filePath is null) return;
+
+        if (!File.Exists(filePath))
+        {
+            TriggerFlow(1);
+            return;
+        }
 
         try
         {
             await File.WriteAllTextAsync(filePath, text);
-            return 0;
+            TriggerFlow(0);
         }
         catch (Exception)
         {
-            return 1;
+            TriggerFlow(1);
         }
     }
 }
