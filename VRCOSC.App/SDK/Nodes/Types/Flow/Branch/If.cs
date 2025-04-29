@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.SDK.Nodes.Types.Flow.Branch;
 
@@ -15,12 +16,12 @@ public sealed class IfNode : Node, IFlowInput, IFlowOutput
     ];
 
     [NodeProcess]
-    private void process
+    private Task process
     (
         CancellationToken token,
         [NodeValue("Condition")] bool condition
     )
     {
-        TriggerFlow(token, condition ? 0 : 1);
+        return TriggerFlow(token, condition ? 0 : 1);
     }
 }

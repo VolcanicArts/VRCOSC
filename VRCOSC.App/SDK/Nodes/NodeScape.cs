@@ -160,13 +160,24 @@ public class NodeScape
         if (tasks.TryGetValue(triggerNode, out var existingTask))
         {
             await existingTask.Source.CancelAsync();
-            await existingTask.Task;
+
+            try
+            {
+                await existingTask.Task;
+            }
+            catch (TaskCanceledException)
+            {
+                // ignore it
+            }
+
             memory.Reset();
             tasks.Remove(triggerNode);
         }
 
         var source = new CancellationTokenSource();
+
         var task = Task.Run(() => executeFlowNode(triggerNode, source.Token), source.Token).ContinueWith(_ => memory.Reset(), TaskContinuationOptions.OnlyOnRanToCompletion);
+
         tasks.Add(triggerNode, new FlowTask(task, source));
     });
 
@@ -246,7 +257,7 @@ public class NodeScape
         return getConnectedRef(inputNode, inputSlot, inputType).GetValue();
     }
 
-    private Task executeFlowNode(Node node, CancellationToken token)
+    private async Task executeFlowNode(Node node, CancellationToken token)
     {
         var metadata = GetMetadata(node);
 
@@ -277,7 +288,17 @@ public class NodeScape
         }
 
         var argsArr = args.ToArray();
-        return (Task)metadata.ProcessMethod.Invoke(node, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, null, argsArr, null)!;
+
+        var task = (Task)metadata.ProcessMethod.Invoke(node, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, null, argsArr, null)!;
+
+        try
+        {
+            await task;
+        }
+        catch (TaskCanceledException)
+        {
+            // ignore it
+        }
     }
 
     private void executeValueNode(Node node)
