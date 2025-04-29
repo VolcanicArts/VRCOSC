@@ -2,6 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.SDK.Nodes.Types.Collections;
 
@@ -15,19 +17,20 @@ public sealed class ForNode : Node, IFlowInput, IFlowOutput
     ];
 
     [NodeProcess]
-    private void process
+    private async Task process
     (
+        CancellationToken token,
         [NodeValue("Count")] int count,
-        [NodeValue("Index")] ref int outIndex
+        [NodeValue("Index")] Ref<int> outIndex
     )
     {
         for (var i = 0; i < count; i++)
         {
-            outIndex = i;
-            TriggerFlow(1, true);
+            outIndex.Value = i;
+            await TriggerFlow(token, 1, true);
         }
 
-        TriggerFlow(0);
+        await TriggerFlow(token, 0);
     }
 }
 
@@ -41,20 +44,25 @@ public sealed class ForEachNode<T> : Node, IFlowInput, IFlowOutput
     ];
 
     [NodeProcess]
-    private void process
+    private async Task process
     (
+        CancellationToken token,
         [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
-        [NodeValue("Element")] ref T outElement
+        [NodeValue("Element")] Ref<T> outElement
     )
     {
         if (enumerable is null) return;
 
         foreach (var element in enumerable)
         {
-            outElement = element;
-            TriggerFlow(1, true);
+            outElement.Value = element;
+            if (token.IsCancellationRequested) break;
+
+            await TriggerFlow(token, 1, true);
         }
 
-        TriggerFlow(0);
+        if (token.IsCancellationRequested) return;
+
+        await TriggerFlow(token, 0);
     }
 }

@@ -13,10 +13,10 @@ public class StringJoinNode : Node
     (
         [NodeValue("Separator")] string? separator,
         [NodeValue("Inputs")] [NodeVariableSize] string[] inputs,
-        [NodeValue("String")] ref string outString
+        [NodeValue("String")] Ref<string> outString
     )
     {
-        outString = string.Join(separator, inputs);
+        outString.Value = string.Join(separator, inputs);
     }
 }
 
@@ -29,12 +29,12 @@ public class StringContainsNode : Node
         [NodeValue("Input")] string? input,
         [NodeValue("Value")] string? value,
         [NodeValue("Comparison")] StringComparison comparison,
-        [NodeValue("Result")] ref bool result
+        [NodeValue("Result")] Ref<bool> result
     )
     {
         if (input is null || value is null) return;
 
-        result = input.Contains(value, comparison);
+        result.Value = input.Contains(value, comparison);
     }
 }
 
@@ -42,9 +42,9 @@ public class StringContainsNode : Node
 public class StringToUpperNode : Node
 {
     [NodeProcess]
-    private void process(string? input, ref string? result)
+    private void process(string? input, Ref<string?> result)
     {
-        result = input?.ToUpper();
+        result.Value = input?.ToUpper();
     }
 }
 
@@ -52,8 +52,8 @@ public class StringToUpperNode : Node
 public class StringToLowerNode : Node
 {
     [NodeProcess]
-    private void process(string? input, ref string? result)
+    private void process(string? input, Ref<string?> result)
     {
-        result = input?.ToLower();
+        result.Value = input?.ToLower();
     }
 }

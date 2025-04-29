@@ -2,6 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using VRCOSC.App.Modules;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.VRChat;
@@ -20,12 +22,14 @@ public abstract class Node
     public NodeMetadata Metadata => NodeScape.GetMetadata(this);
     protected Player Player => AppManager.GetInstance().VRChatClient.Player;
 
-    /// <summary>
-    /// Triggers the flow at the specified <paramref name="slot"/>. Optionally scopes any node memory, useful for loops
-    /// </summary>
-    protected void TriggerFlow(int slot, bool scope = false)
+    protected void TriggerSelf()
     {
-        NodeScape.TriggerOutputFlow(this, slot, scope);
+        NodeScape.StartFlow(this);
+    }
+
+    protected Task TriggerFlow(CancellationToken token, int slot, bool scope = false)
+    {
+        return NodeScape.TriggerOutputFlow(this, token, slot, scope);
     }
 }
 

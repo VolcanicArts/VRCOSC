@@ -70,12 +70,11 @@ public class AppManager
     public WhisperSpeechEngine SpeechEngine = null!;
 
     private Repeater? updateTask;
-    private Repeater? nodeScapeUpdateTask;
     private Repeater vrchatCheckTask = null!;
     private Repeater openvrCheckTask = null!;
     private Repeater openvrUpdateTask = null!;
 
-    public NodeScape NodeScape { get; internal set; }
+    public NodeScape NodeScape { get; internal set; } = null!;
 
     private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
     private readonly object oscMessageQueueLock = new();
@@ -279,6 +278,7 @@ public class AppManager
                 }
 
                 ModuleManager.GetInstance().ParameterReceived(message);
+                NodeScape.ParameterReceived(new ReceivedParameter(message.ParameterName, message.ParameterValue));
             }
         }
     }
@@ -512,9 +512,6 @@ public class AppManager
         updateTask = new Repeater($"{nameof(AppManager)}-{nameof(update)}", update);
         updateTask.Start(TimeSpan.FromSeconds(1d / 60d));
 
-        nodeScapeUpdateTask = new Repeater("NodeScape", () => NodeScape.Update());
-        nodeScapeUpdateTask.Start(TimeSpan.FromSeconds(1d / 100d), true);
-
         VRChatOscClient.OnParameterReceived += onParameterReceived;
         VRChatOscClient.EnableReceive();
 
@@ -585,9 +582,6 @@ public class AppManager
 
         if (updateTask is not null)
             await updateTask.StopAsync();
-
-        if (nodeScapeUpdateTask is not null)
-            await nodeScapeUpdateTask.StopAsync();
 
         await VRChatLogReader.Stop();
         await ModuleManager.GetInstance().StopAsync();

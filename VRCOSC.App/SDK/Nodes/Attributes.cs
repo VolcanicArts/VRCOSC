@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.App.SDK.Nodes;
 
@@ -39,9 +40,7 @@ public class NodeGenericTypeFilterAttribute : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Method)]
-public class NodeProcessAttribute : Attribute
-{
-}
+public class NodeProcessAttribute : Attribute;
 
 [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
 public class NodeVariableSizeAttribute : Attribute
@@ -65,6 +64,12 @@ public class NodeValueAttribute : Attribute
     }
 }
 
+/// <summary>
+/// Causes a node to trigger whenever the value changes. Should only be used on flow output only nodes
+/// </summary>
+[AttributeUsage(AttributeTargets.Parameter)]
+public class NodeReactiveAttribute : Attribute;
+
 public record NodeFlowRef(string Name = "", bool Scope = false);
 
 public interface IFlowInput;
@@ -74,11 +79,7 @@ public interface IFlowOutput
     public NodeFlowRef[] FlowOutputs { get; }
 }
 
-public interface IFlowTrigger;
-
-public interface IAsyncNode;
-
-public interface ITarget<in T>
+public interface IAnyParameterReceiver
 {
-    public void SetValue(T value);
+    public void OnAnyParameterReceived(ReceivedParameter parameter);
 }

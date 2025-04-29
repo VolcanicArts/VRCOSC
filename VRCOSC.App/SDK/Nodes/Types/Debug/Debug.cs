@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.App.SDK.Nodes.Types.Debug;
@@ -13,15 +15,16 @@ public sealed class LogNode : Node, IFlowInput, IFlowOutput
     public NodeFlowRef[] FlowOutputs => [new()];
 
     [NodeProcess]
-    private void process
+    private async Task process
     (
+        CancellationToken token,
         [NodeValue("String")] string? str
     )
     {
         if (string.IsNullOrEmpty(str)) return;
 
         Console.WriteLine(str);
-        TriggerFlow(0);
+        await TriggerFlow(token, 0);
     }
 }
 
@@ -43,9 +46,9 @@ public class StringListOutputDebugNode : Node
     [NodeProcess]
     private void process
     (
-        [NodeValue("String List")] ref List<string> outStringList
+        [NodeValue("String List")] Ref<List<string>> outStringList
     )
     {
-        outStringList = ["Test1", "Test2", "Test3"];
+        outStringList.Value = ["Test1", "Test2", "Test3"];
     }
 }

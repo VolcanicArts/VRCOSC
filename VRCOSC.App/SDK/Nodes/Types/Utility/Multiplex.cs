@@ -12,10 +12,10 @@ public sealed class BooleanMultiplexNode<T> : Node
         [NodeValue("When True")] T valueTrue,
         [NodeValue("When False")] T valueFalse,
         [NodeValue("Condition")] bool condition,
-        [NodeValue("Output")] ref T outOutput
+        [NodeValue("Output")] Ref<T> outOutput
     )
     {
-        outOutput = condition ? valueTrue : valueFalse;
+        outOutput.Value = condition ? valueTrue : valueFalse;
     }
 }
 
@@ -27,15 +27,15 @@ public sealed class MultiplexNode<T> : Node
     (
         [NodeValue("Index")] int index,
         [NodeValue("Inputs")] [NodeVariableSize] T[] inputs,
-        [NodeValue("Element")] ref T element,
-        [NodeValue("Input Count")] ref int outInputCount
+        [NodeValue("Element")] Ref<T> outElement,
+        [NodeValue("Input Count")] Ref<int> outInputCount
     )
     {
-        outInputCount = inputs.Length;
+        outInputCount.Value = inputs.Length;
 
         if (index >= inputs.Length) return;
 
-        element = inputs[index];
+        outElement.Value = inputs[index];
     }
 }
 
@@ -48,12 +48,12 @@ public sealed class DemultiplexNode<T> : Node
         [NodeValue("Index")] int index,
         [NodeValue("Value")] T value,
         [NodeValue("Default Value")] T defaultValue,
-        [NodeValue("Outputs")] [NodeVariableSize] ref T[] outOutputs
+        [NodeValue("Outputs")] [NodeVariableSize] Ref<T[]> outOutputs
     )
     {
-        for (var i = 0; i < outOutputs.Length; i++)
+        for (var i = 0; i < outOutputs.Value.Length; i++)
         {
-            outOutputs[i] = i == index ? value : defaultValue;
+            outOutputs.Value[i] = i == index ? value : defaultValue;
         }
     }
 }

@@ -55,7 +55,7 @@ public class NodeScapeMemory
 
     public NodeScapeMemoryEntry Read(Guid nodeId)
     {
-        return entries.Single(entry => entry.NodeId == nodeId);
+        return entries.First(entry => entry.NodeId == nodeId);
     }
 
     public bool HasEntry(Guid nodeId)
@@ -97,9 +97,9 @@ public class Ref<T> : IRef
 {
     public T Value;
 
-    public Ref(T value)
+    public Ref(T startValue)
     {
-        Value = value;
+        Value = startValue;
     }
 
     public object? GetValue() => Value;

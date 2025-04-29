@@ -4,21 +4,17 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace VRCOSC.App.SDK.Nodes.Types.Flow;
+namespace VRCOSC.App.SDK.Nodes.Types.Flow.Triggers;
 
-[Node("Delay", "Flow")]
-public sealed class DelayNode : Node, IFlowInput, IFlowOutput
+[Node("Fire On Change", "Flow")]
+public sealed class FireOnChangeNode<T> : Node, IFlowOutput
 {
     public NodeFlowRef[] FlowOutputs => [new()];
 
     [NodeProcess]
-    private async Task process
+    private Task process
     (
         CancellationToken token,
-        [NodeValue("Delay Milliseconds")] int delay
-    )
-    {
-        await Task.Delay(delay, token);
-        await TriggerFlow(token, 0);
-    }
+        [NodeValue("Value")] [NodeReactive] T value
+    ) => TriggerFlow(token, 0);
 }

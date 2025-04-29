@@ -1,12 +1,14 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Threading;
+using System.Threading.Tasks;
 using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.App.SDK.Nodes.Types.Flow;
 
 [Node("On Registered Parameter Received", "")]
-public sealed class RegisteredParameterReceivedNode<T> : Node, IFlowOutput, IFlowTrigger
+public sealed class RegisteredParameterReceivedNode<T> : Node, IFlowOutput
 {
     public NodeFlowRef[] FlowOutputs { get; }
 
@@ -20,33 +22,50 @@ public sealed class RegisteredParameterReceivedNode<T> : Node, IFlowOutput, IFlo
     }
 
     [NodeProcess]
-    private void process
+    private async Task process
     (
-        [NodeValue("Value")] ref T outValue
+        CancellationToken token,
+        [NodeValue("Value")] Ref<T> outValue
     )
     {
-        outValue = (T)registeredParameter.Value;
-        TriggerFlow(0);
+        outValue.Value = (T)registeredParameter.Value;
+        await TriggerFlow(token, 0);
     }
 }
 
 [Node("On Parameter Received", "Flow")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public sealed class ParameterReceivedNode<T> : Node, IFlowOutput, IFlowTrigger where T : struct
+public sealed class ParameterReceivedNode<T> : Node, IFlowOutput, IAnyParameterReceiver where T : struct
 {
     public NodeFlowRef[] FlowOutputs => [new("On Received")];
 
+    private ReceivedParameter? lastReceivedParameter;
+
+    public void OnAnyParameterReceived(ReceivedParameter parameter)
+    {
+        lastReceivedParameter = parameter;
+        TriggerSelf();
+    }
+
     [NodeProcess]
-    private void process
+    private async Task process
     (
+        CancellationToken token,
         [NodeValue("Parameter Name")] string? parameterName,
-        [NodeValue("Value")] ref T outValue
+        [NodeValue("Value")] Ref<T> outValue
     )
     {
         if (string.IsNullOrEmpty(parameterName)) return;
+        if (lastReceivedParameter is null) return;
 
-        var receivedParameter = new ReceivedParameter(parameterName, default(T));
-        outValue = (T)receivedParameter.Value;
-        TriggerFlow(0);
+        if (lastReceivedParameter.Name != parameterName || lastReceivedParameter.Type != ParameterTypeFactory.CreateFrom<T>())
+        {
+            lastReceivedParameter = null;
+            return;
+        }
+
+        outValue.Value = (T)lastReceivedParameter.Value;
+        await TriggerFlow(token, 0);
+        lastReceivedParameter = null;
     }
 }

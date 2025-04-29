@@ -15,10 +15,10 @@ public sealed class ValueNode<T> : Node
     [NodeProcess]
     private void process
     (
-        [NodeValue] ref T outValue
+        [NodeValue] Ref<T> outValue
     )
     {
-        outValue = Value;
+        outValue.Value = Value;
     }
 }
 
@@ -49,10 +49,10 @@ public abstract class ConstantNode<T> : Node
     [NodeProcess]
     private void process
     (
-        [NodeValue] ref T outValue
+        [NodeValue] Ref<T> outValue
     )
     {
-        outValue = GetValue();
+        outValue.Value = GetValue();
     }
 
     protected abstract T GetValue();
@@ -66,8 +66,8 @@ public abstract class InputNode : Node
 public sealed class CastNode<TFrom, TTo> : Node
 {
     [NodeProcess]
-    private void process(TFrom value, ref TTo outValue)
+    private void process(TFrom value, Ref<TTo> outValue)
     {
-        outValue = (TTo)Convert.ChangeType(value, typeof(TTo))!;
+        outValue.Value = (TTo)Convert.ChangeType(value, typeof(TTo))!;
     }
 }

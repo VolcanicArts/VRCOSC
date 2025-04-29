@@ -10,9 +10,9 @@ public sealed class ValueRelayNode<T> : Node
     private void process
     (
         [NodeValue] T value,
-        [NodeValue] ref T outValue
+        [NodeValue] Ref<T> outValue
     )
     {
-        outValue = value;
+        outValue.Value = value;
     }
 }

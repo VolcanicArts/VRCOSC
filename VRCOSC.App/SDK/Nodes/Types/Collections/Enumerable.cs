@@ -14,12 +14,12 @@ public sealed class EnumerableElementAtNode<T> : Node
     (
         [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
         [NodeValue("Index")] int index,
-        [NodeValue("Element")] ref T outElement
+        [NodeValue("Element")] Ref<T> outElement
     )
     {
         if (enumerable is null) return;
 
-        outElement = enumerable.ElementAt(index);
+        outElement.Value = enumerable.ElementAt(index);
     }
 }
 
@@ -30,12 +30,12 @@ public class EnumerableCountNode<T> : Node
     private void process
     (
         [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
-        [NodeValue("Count")] ref int outCount
+        [NodeValue("Count")] Ref<int> outCount
     )
     {
         if (enumerable is null) return;
 
-        outCount = enumerable.Count();
+        outCount.Value = enumerable.Count();
     }
 }
 
@@ -50,13 +50,13 @@ public class EnumerableInsertNode<T> : Node, IFlowInput, IFlowOutput
         [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
         [NodeValue("Index")] int index,
         [NodeValue("Value")] T value,
-        [NodeValue("Enumerable")] ref IEnumerable<T> outEnumerable)
+        [NodeValue("Enumerable")] Ref<IEnumerable<T>> outEnumerable)
     {
         if (enumerable is null) return -1;
 
         var list = enumerable.ToList();
         list.Insert(index, value);
-        outEnumerable = list;
+        outEnumerable.Value = list;
 
         return 0;
     }

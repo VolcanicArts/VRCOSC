@@ -15,14 +15,14 @@ public sealed class ToStringNode<T> : Node
         [NodeValue("*")] T o,
         [NodeValue("Format Provider")] IFormatProvider? formatProvider,
         [NodeValue("Format")] string? format,
-        [NodeValue("String")] ref string outString
+        [NodeValue("String")] Ref<string> outString
     )
     {
         formatProvider ??= CultureInfo.CurrentCulture;
 
         if (o is null)
         {
-            outString = "null";
+            outString.Value = "null";
             return;
         }
 
@@ -30,7 +30,7 @@ public sealed class ToStringNode<T> : Node
         {
             if (o is IFormattable formattable)
             {
-                outString = formattable.ToString(format, formatProvider);
+                outString.Value = formattable.ToString(format, formatProvider);
                 return;
             }
         }
@@ -39,7 +39,7 @@ public sealed class ToStringNode<T> : Node
             return;
         }
 
-        outString = o.ToString() ?? "UNKNOWN";
+        outString.Value = o.ToString() ?? "UNKNOWN";
     }
 }
 
@@ -51,14 +51,14 @@ public sealed class StringFormatNode : Node
     (
         [NodeValue("Format")] string? format,
         [NodeValue("Values")] [NodeVariableSize] object?[] values,
-        [NodeValue("String")] ref string? outString
+        [NodeValue("String")] Ref<string?> outString
     )
     {
         if (format is null) return;
 
         try
         {
-            outString = string.Format(format, values);
+            outString.Value = string.Format(format, values);
         }
         catch
         {

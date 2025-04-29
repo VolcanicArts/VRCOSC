@@ -13,9 +13,9 @@ public class ConstructListNode<T> : Node
     private void process
     (
         [NodeValue("Items")] [NodeVariableSize] T[] items,
-        [NodeValue("List")] ref List<T> outList
+        [NodeValue("List")] Ref<List<T>> outList
     )
     {
-        outList = items.ToList();
+        outList.Value = items.ToList();
     }
 }

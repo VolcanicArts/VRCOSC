@@ -5,8 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes.Types.Base;
 using VRCOSC.App.SDK.Nodes.Types.Strings;
+using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Nodes;
@@ -23,8 +27,6 @@ public class NodeScape
 
     public readonly Dictionary<Type, NodeMetadata> Metadata = [];
     public readonly Dictionary<string, object?> Variables = [];
-
-    public int UpdateCount { get; private set; }
 
     public void RegisterNode(Node node)
     {
@@ -137,24 +139,38 @@ public class NodeScape
         return addNode(node);
     }
 
+    public record FlowTask(Task Task, CancellationTokenSource Source);
+
     private readonly NodeScapeMemory memory = new();
+    private readonly Dictionary<Node, FlowTask> tasks = [];
+    private bool shouldRun => AppManager.GetInstance().State.Value == AppManagerState.Started;
 
-    public void Update()
+    public void ParameterReceived(ReceivedParameter parameter)
     {
-        memory.Reset();
+        if (!shouldRun) return;
 
-        foreach (var (_, node) in Nodes)
+        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IAnyParameterReceiver))).Select(node => (IAnyParameterReceiver)node))
         {
-            var metadata = GetMetadata(node);
-            if (!metadata.IsTrigger) continue;
-
-            executeNode(node);
+            node.OnAnyParameterReceived(parameter);
         }
-
-        UpdateCount++;
     }
 
-    public void TriggerOutputFlow(Node sourceNode, int flowSlot, bool shouldScope)
+    public void StartFlow(Node triggerNode) => Task.Run(async () =>
+    {
+        if (tasks.TryGetValue(triggerNode, out var existingTask))
+        {
+            await existingTask.Source.CancelAsync();
+            await existingTask.Task;
+            memory.Reset();
+            tasks.Remove(triggerNode);
+        }
+
+        var source = new CancellationTokenSource();
+        var task = Task.Run(() => executeFlowNode(triggerNode, source.Token), source.Token).ContinueWith(_ => memory.Reset(), TaskContinuationOptions.OnlyOnRanToCompletion);
+        tasks.Add(triggerNode, new FlowTask(task, source));
+    });
+
+    public async Task TriggerOutputFlow(Node sourceNode, CancellationToken token, int flowSlot, bool shouldScope)
     {
         var connection = Connections.FirstOrDefault(con => con.OutputNodeId == sourceNode.Id && con.OutputSlot == flowSlot && con.ConnectionType == ConnectionType.Flow);
         if (connection is null) return;
@@ -165,7 +181,8 @@ public class NodeScape
         }
 
         var destNode = Nodes[connection.InputNodeId];
-        executeNode(destNode);
+
+        await executeFlowNode(destNode, token);
 
         if (shouldScope)
         {
@@ -187,7 +204,7 @@ public class NodeScape
 
         if (outputNode.Metadata is { IsValue: true, IsFlow: false })
         {
-            executeNode(outputNode);
+            executeValueNode(outputNode);
             return memory.Read(outputNode.Id).Values[connection.OutputSlot];
         }
 
@@ -216,7 +233,7 @@ public class NodeScape
         if (connection is null) return inputType.CreateDefault();
 
         if (!memory.HasEntry(connection.OutputNodeId))
-            executeNode(Nodes[connection.OutputNodeId]);
+            executeValueNode(Nodes[connection.OutputNodeId]);
 
         var outputMetadata = Nodes[connection.OutputNodeId].Metadata;
 
@@ -229,27 +246,69 @@ public class NodeScape
         return getConnectedRef(inputNode, inputSlot, inputType).GetValue();
     }
 
-    private void executeNode(Node node)
+    private Task executeFlowNode(Node node, CancellationToken token)
     {
         var metadata = GetMetadata(node);
 
-        var inputValues = new object?[metadata.InputsCount];
-
-        for (var i = 0; i < metadata.InputsCount; i++)
+        var args = new List<object?>
         {
-            inputValues[i] = getConnectedValue(node, i, metadata.Inputs[i].Type);
+            token
+        };
+
+        if (metadata.InputsCount > 0)
+        {
+            var inputValues = new object?[metadata.InputsCount];
+
+            for (var i = 0; i < metadata.InputsCount; i++)
+            {
+                inputValues[i] = getConnectedValue(node, i, metadata.Inputs[i].Type);
+            }
+
+            args.AddRange(inputValues);
         }
 
-        if (!memory.HasEntry(node.Id))
-            memory.CreateEntry(node);
+        if (metadata.OutputsCount > 0)
+        {
+            if (!memory.HasEntry(node.Id))
+                memory.CreateEntry(node);
 
-        var entry = memory.Read(node.Id);
-        var processDelegate = metadata.ProcessDelegate;
+            var entry = memory.Read(node.Id);
+            args.AddRange(entry.Values);
+        }
 
-        if (metadata is { IsValueInput: false, IsValueOutput: false }) processDelegate.DynamicInvoke(node);
-        if (metadata is { IsValueInput: true, IsValueOutput: false }) processDelegate.DynamicInvoke(node, inputValues);
-        if (metadata is { IsValueInput: false, IsValueOutput: true }) processDelegate.DynamicInvoke(node, entry.Values);
-        if (metadata is { IsValueInput: true, IsValueOutput: true }) processDelegate.DynamicInvoke(node, inputValues, entry.Values);
+        var argsArr = args.ToArray();
+        return (Task)metadata.ProcessMethod.Invoke(node, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, null, argsArr, null)!;
+    }
+
+    private void executeValueNode(Node node)
+    {
+        var metadata = GetMetadata(node);
+
+        var args = new List<object?>();
+
+        if (metadata.InputsCount > 0)
+        {
+            var inputValues = new object?[metadata.InputsCount];
+
+            for (var i = 0; i < metadata.InputsCount; i++)
+            {
+                inputValues[i] = getConnectedValue(node, i, metadata.Inputs[i].Type);
+            }
+
+            args.AddRange(inputValues);
+        }
+
+        if (metadata.OutputsCount > 0)
+        {
+            if (!memory.HasEntry(node.Id))
+                memory.CreateEntry(node);
+
+            var entry = memory.Read(node.Id);
+            args.AddRange(entry.Values);
+        }
+
+        var argsArr = args.ToArray();
+        metadata.ProcessMethod.Invoke(node, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, null, argsArr, null);
     }
 
     public NodeGroup AddGroup()

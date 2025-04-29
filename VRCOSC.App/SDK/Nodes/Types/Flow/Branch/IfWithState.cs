@@ -1,26 +1,11 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-namespace VRCOSC.App.SDK.Nodes.Types.Flow;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
-[Node("If", "Flow")]
-public sealed class IfNode : Node, IFlowInput, IFlowOutput
-{
-    public NodeFlowRef[] FlowOutputs =>
-    [
-        new("On True"),
-        new("On False")
-    ];
-
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Condition")] bool condition
-    )
-    {
-        TriggerFlow(condition ? 0 : 1);
-    }
-}
+namespace VRCOSC.App.SDK.Nodes.Types.Flow.Branch;
 
 [Node("If With State", "Flow")]
 public sealed class IfWithStateNode : Node, IFlowInput, IFlowOutput
@@ -36,37 +21,36 @@ public sealed class IfWithStateNode : Node, IFlowInput, IFlowOutput
     private bool prevCondition;
 
     [NodeProcess]
-    private void process
+    private Task process
     (
+        CancellationToken token,
         [NodeValue("Condition")] bool condition
     )
     {
         if (!prevCondition && condition)
         {
             prevCondition = condition;
-            TriggerFlow(0);
-            return;
+            return TriggerFlow(token, 0);
         }
 
         if (prevCondition && !condition)
         {
             prevCondition = condition;
-            TriggerFlow(1);
-            return;
+            return TriggerFlow(token, 1);
         }
 
         if (prevCondition && condition)
         {
             prevCondition = condition;
-            TriggerFlow(2);
-            return;
+            return TriggerFlow(token, 2);
         }
 
         if (!prevCondition && !condition)
         {
             prevCondition = condition;
-            TriggerFlow(3);
-            return;
+            return TriggerFlow(token, 3);
         }
+
+        throw new Exception();
     }
 }
