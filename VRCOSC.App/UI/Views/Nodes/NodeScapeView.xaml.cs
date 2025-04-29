@@ -363,7 +363,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
         {
             Tag = tag,
             Data = pathGeometry,
-            Stroke = connectionType == ConnectionType.Value ? Brushes.Red : Brushes.Aqua,
+            Stroke = connectionType == ConnectionType.Value ? Brushes.OrangeRed : Brushes.DeepSkyBlue,
             StrokeThickness = 4,
             StrokeStartLineCap = PenLineCap.Round,
             StrokeEndLineCap = PenLineCap.Round
@@ -377,7 +377,7 @@ public partial class NodeScapeView : INotifyPropertyChanged
             {
                 Tag = tag,
                 Data = pathGeometry,
-                Stroke = connectionType == ConnectionType.Value ? Brushes.Red : Brushes.Aqua,
+                Stroke = connectionType == ConnectionType.Value ? Brushes.OrangeRed : Brushes.DeepSkyBlue,
                 StrokeThickness = 4,
                 StrokeStartLineCap = PenLineCap.Round,
                 StrokeEndLineCap = PenLineCap.Round

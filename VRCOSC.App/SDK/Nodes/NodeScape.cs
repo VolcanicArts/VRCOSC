@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes.Types.Base;
+using VRCOSC.App.SDK.Nodes.Types.Flow.Impulse;
 using VRCOSC.App.SDK.Nodes.Types.Strings;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
@@ -337,6 +338,14 @@ public class NodeScape
         var nodeGroup = new NodeGroup();
         Groups.Add(nodeGroup);
         return nodeGroup;
+    }
+
+    internal async Task TriggerImpulse(CancellationToken token, string impulseName)
+    {
+        foreach (var receiveImpulseNode in Nodes.Values.OfType<ReceiveImpulseNode>().Where(node => !string.IsNullOrEmpty(node.ImpulseName) && node.ImpulseName == impulseName))
+        {
+            await executeFlowNode(receiveImpulseNode, token);
+        }
     }
 }
 

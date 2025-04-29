@@ -35,37 +35,19 @@ public sealed class RegisteredParameterReceivedNode<T> : Node, IFlowOutput
 
 [Node("On Parameter Received", "Flow")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public sealed class ParameterReceivedNode<T> : Node, IFlowOutput, IAnyParameterReceiver where T : struct
+public sealed class OnParameterReceivedNode<T> : Node, IFlowOutput where T : struct
 {
     public NodeFlowRef[] FlowOutputs => [new("On Received")];
-
-    private ReceivedParameter? lastReceivedParameter;
-
-    public void OnAnyParameterReceived(ReceivedParameter parameter)
-    {
-        lastReceivedParameter = parameter;
-        TriggerSelf();
-    }
 
     [NodeProcess]
     private async Task process
     (
         CancellationToken token,
-        [NodeValue("Parameter Name")] string? parameterName,
+        [NodeValue("Parameter")] [NodeReactive] ReceivedParameter parameter,
         [NodeValue("Value")] Ref<T> outValue
     )
     {
-        if (string.IsNullOrEmpty(parameterName)) return;
-        if (lastReceivedParameter is null) return;
-
-        if (lastReceivedParameter.Name != parameterName || lastReceivedParameter.Type != ParameterTypeFactory.CreateFrom<T>())
-        {
-            lastReceivedParameter = null;
-            return;
-        }
-
-        outValue.Value = (T)lastReceivedParameter.Value;
+        outValue.Value = (T)parameter.Value;
         await TriggerFlow(token, 0);
-        lastReceivedParameter = null;
     }
 }
