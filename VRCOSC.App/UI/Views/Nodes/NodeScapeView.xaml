@@ -313,6 +313,71 @@
             </Border>
         </DataTemplate>
 
+        <DataTemplate x:Key="ParameterSourceDataTemplate">
+            <Border Name="NodeContainer"
+                    CornerRadius="10"
+                    BorderThickness="2"
+                    Padding="1"
+                    BorderBrush="{DynamicResource CForeground3}"
+                    Width="200"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Tag="{Binding}"
+                    MouseDown="NodeContainer_OnMouseDown"
+                    ContextMenu="{StaticResource NodeContextMenu}">
+            <Border.RenderTransform>
+                <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}"/>
+            </Border.RenderTransform>
+                <!--> Node Content <-->
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Border Background="{DynamicResource CBackground4}" Opacity="0.9" CornerRadius="10"/>
+                    <core:SpacedStackPanel VerticalAlignment="Top" Spacing="15" Margin="0 0 0 15">
+                        <!--> Header <-->
+                        <Border Background="{DynamicResource CBackground1}" VerticalAlignment="Top">
+                            <Border.Clip>
+                                <MultiBinding Converter="{StaticResource BorderClipConverter}">
+                                    <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
+                                    <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
+                                    <Binding Path="CornerRadius" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
+                                </MultiBinding>
+                            </Border.Clip>
+                            <core:SpacedStackPanel Orientation="Vertical" Margin="5" Spacing="2">
+                                <TextBlock Foreground="{DynamicResource CForeground2}"
+                                           Text="{Binding Metadata.Title}" FontSize="14"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Top"
+                                           TextWrapping="WrapWithOverflow"
+                                           TextAlignment="Center"/>
+                            </core:SpacedStackPanel>
+                        </Border>
+                        <!--> Value Points <-->
+                        <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource ValueConnectionAreaVisibilityConverter}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <core:SpacedStackPanel Orientation="Vertical" Spacing="10">
+                                <TextBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                         VerticalContentAlignment="Center" FontSize="17" Text="{Binding ParameterName, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="7 0"/>
+                                <!--> Output <-->
+                                <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
+                                              VerticalAlignment="Top" HorizontalAlignment="Right"
+                                              Name="ValueOutputItemsControl"
+                                              ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                              ItemTemplate="{StaticResource ValueOutputWithTitleTemplate}">
+                                    <ItemsControl.RenderTransform>
+                                        <TranslateTransform X="8"/>
+                                    </ItemsControl.RenderTransform>
+                                </ItemsControl>
+                            </core:SpacedStackPanel>
+                        </Grid>
+                    </core:SpacedStackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
         <DataTemplate x:Key="ValueNodeTemplate">
             <Border Name="NodeContainer"
                     CornerRadius="5"
@@ -358,6 +423,7 @@
                 </Grid>
             </Border>
         </DataTemplate>
+
         <DataTemplate x:Key="EnumValueNodeTemplate">
             <Border Name="NodeContainer"
                     CornerRadius="10"
@@ -711,6 +777,7 @@
                                                     ImpulseReceiveNodeTemplate="{StaticResource ImpulseReceiveNodeTemplate}"
                                                     ImpulseSendNodeTemplate="{StaticResource ImpulseSendNodeTemplate}"
                                                     ValueOnlyNodeTemplate="{StaticResource ValueOnlyTemplate}"
+                                                    ParameterSourceNodeTemplate="{StaticResource ParameterSourceDataTemplate}"
                                                     NodeGroupTemplate="{StaticResource NodeGroupTemplate}"/>
     </UserControl.Resources>
     <Grid>

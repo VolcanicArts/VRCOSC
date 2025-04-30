@@ -7,31 +7,6 @@ using System.Runtime.CompilerServices;
 
 namespace VRCOSC.App.SDK.Nodes.Types.Base;
 
-[Node("Value", "Values")]
-public sealed class ValueNode<T> : Node
-{
-    private T value = default!;
-
-    public T Value
-    {
-        get => value;
-        set
-        {
-            this.value = value;
-            NodeScape.WalkForward(this);
-        }
-    }
-
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue] Ref<T> outValue
-    )
-    {
-        outValue.Value = Value;
-    }
-}
-
 public sealed class ValueDisplayNode<T> : Node, INotifyPropertyChanged
 {
     private T value;

@@ -217,23 +217,40 @@ public class NodeScape
         var results = new List<WalkResult>();
         walkForward(results, sourceNode, 0);
 
+        var beforeValues = new Dictionary<Node, object?>();
+        var afterValues = new Dictionary<Node, object?>();
+
         foreach (var walkResult in results)
         {
+            if (beforeValues.ContainsKey(walkResult.ValueOutputNode)) continue;
+
             if (!memory.HasEntry(walkResult.ValueOutputNode.Id))
             {
-                executeValueNode(walkResult.ValueOutputNode);
-                StartFlow(walkResult.TriggerNode);
+                memory.CreateEntry(walkResult.ValueOutputNode);
+                beforeValues.Add(walkResult.ValueOutputNode, walkResult.ValueOutputNode.Metadata.Outputs[walkResult.ValueOutputSlot].Type.CreateDefault());
             }
             else
             {
-                var currentValue = memory.Read(walkResult.ValueOutputNode.Id).Values[walkResult.ValueOutputSlot];
-                executeValueNode(walkResult.ValueOutputNode);
-                var newValue = memory.Read(walkResult.ValueOutputNode.Id).Values[walkResult.ValueOutputSlot];
+                beforeValues.Add(walkResult.ValueOutputNode, memory.Read(walkResult.ValueOutputNode.Id).Values[walkResult.ValueOutputSlot].GetValue());
+            }
 
-                if (currentValue.GetValue() != newValue.GetValue())
+            executeValueNode(walkResult.ValueOutputNode);
+            afterValues.Add(walkResult.ValueOutputNode, memory.Read(walkResult.ValueOutputNode.Id).Values[walkResult.ValueOutputSlot].GetValue());
+        }
+
+        foreach (var walkResult in results)
+        {
+            if (beforeValues.TryGetValue(walkResult.ValueOutputNode, out var value))
+            {
+                if (value != afterValues[walkResult.ValueOutputNode])
                 {
                     StartFlow(walkResult.TriggerNode);
                 }
+            }
+            else
+            {
+                executeValueNode(walkResult.ValueOutputNode);
+                StartFlow(walkResult.TriggerNode);
             }
         }
     }

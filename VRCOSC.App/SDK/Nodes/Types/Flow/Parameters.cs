@@ -43,10 +43,13 @@ public sealed class OnParameterReceivedNode<T> : Node, IFlowOutput where T : str
     private async Task process
     (
         CancellationToken token,
-        [NodeValue("Parameter")] [NodeReactive] ReceivedParameter parameter,
+        [NodeValue("Parameter")] [NodeReactive] ReceivedParameter? parameter,
         [NodeValue("Value")] Ref<T> outValue
     )
     {
+        if (parameter is null) return;
+        if (parameter.Type != ParameterTypeFactory.CreateFrom<T>()) return;
+
         outValue.Value = (T)parameter.Value;
         await TriggerFlow(token, 0);
     }

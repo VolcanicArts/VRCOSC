@@ -12,7 +12,7 @@ namespace VRCOSC.App.SDK.Parameters;
 /// <summary>
 /// Base class of all parameters received from VRChat
 /// </summary>
-public class ReceivedParameter
+public class ReceivedParameter : IEquatable<ReceivedParameter>
 {
     /// <summary>
     /// The received name of the parameter
@@ -68,6 +68,8 @@ public class ReceivedParameter
     /// </summary>
     /// <returns>True if the value is exactly the type passed, otherwise false</returns>
     public bool IsValueType(Type type) => ParameterTypeFactory.CreateFrom(type) == Type;
+
+    public bool Equals(ReceivedParameter? other) => Name == other?.Name && Value == other.Value && Type == other.Type;
 }
 
 /// <summary>

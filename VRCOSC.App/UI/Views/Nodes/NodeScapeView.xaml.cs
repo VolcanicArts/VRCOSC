@@ -15,8 +15,9 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using VRCOSC.App.SDK.Nodes;
-using VRCOSC.App.SDK.Nodes.Types.Base;
 using VRCOSC.App.SDK.Nodes.Types.Inputs;
+using VRCOSC.App.SDK.Nodes.Types.Values;
+using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
@@ -484,6 +485,20 @@ public partial class NodeScapeView : INotifyPropertyChanged
 
             var metadata = NodeScape.GetMetadata(node);
             var slotInputType = metadata.GetTypeOfInputSlot(slot);
+
+            if (slotInputType == typeof(ReceivedParameter))
+            {
+                e.Handled = true;
+
+                var mousePosRelativeToCanvas = Mouse.GetPosition(CanvasContainer);
+                var outputNode = NodeScape.AddNode(typeof(ReceivedParameterSourceNode));
+
+                NodeScape.CreateValueConnection(outputNode.Id, 0, node.Id, slot);
+                outputNode.Position.X = mousePosRelativeToCanvas.X;
+                outputNode.Position.Y = mousePosRelativeToCanvas.Y;
+
+                ConnectionDrag = null;
+            }
 
             if (NodeConstants.INPUT_TYPES.Contains(slotInputType) || slotInputType.IsAssignableTo(typeof(Enum)))
             {
