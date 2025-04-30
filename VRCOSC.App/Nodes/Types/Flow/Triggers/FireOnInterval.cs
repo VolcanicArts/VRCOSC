@@ -7,8 +7,8 @@ using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Flow.Triggers;
 
-[Node("Fire Every", "Flow")]
-public sealed class FireEveryNode : Node, IFlowOutput
+[Node("Fire On Interval", "Flow")]
+public sealed class FireOnIntervalNode : Node, IFlowOutput
 {
     public NodeFlowRef[] FlowOutputs => [new()];
 
@@ -19,12 +19,15 @@ public sealed class FireEveryNode : Node, IFlowOutput
         [NodeValue("Interval Milliseconds")] [NodeReactive] int milliseconds
     )
     {
-        if (milliseconds == 0) return;
+        if (milliseconds == 0) milliseconds = int.MaxValue;
 
-        while (true)
+        while (!token.IsCancellationRequested)
         {
             await TriggerFlow(token, 0);
+            if (token.IsCancellationRequested) break;
+
             await Task.Delay(milliseconds, token);
+            if (token.IsCancellationRequested) break;
         }
     }
 }

@@ -13,7 +13,7 @@ public sealed class ToStringNode<T> : Node
     [NodeProcess]
     private void process
     (
-        [NodeValue("*")] T o,
+        [NodeValue("Value")] T value,
         [NodeValue("Format Provider")] IFormatProvider? formatProvider,
         [NodeValue("Format")] string? format,
         [NodeValue("String")] Ref<string> outString
@@ -21,7 +21,7 @@ public sealed class ToStringNode<T> : Node
     {
         formatProvider ??= CultureInfo.CurrentCulture;
 
-        if (o is null)
+        if (value is null)
         {
             outString.Value = "null";
             return;
@@ -29,7 +29,7 @@ public sealed class ToStringNode<T> : Node
 
         try
         {
-            if (o is IFormattable formattable)
+            if (value is IFormattable formattable)
             {
                 outString.Value = formattable.ToString(format, formatProvider);
                 return;
@@ -40,7 +40,7 @@ public sealed class ToStringNode<T> : Node
             return;
         }
 
-        outString.Value = o.ToString() ?? "UNKNOWN";
+        outString.Value = value.ToString() ?? "UNKNOWN";
     }
 }
 

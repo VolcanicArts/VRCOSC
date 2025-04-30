@@ -20,9 +20,7 @@ public sealed class FireWhileFalseNode : Node, IFlowOutput
         [NodeValue("Condition")] [NodeReactive] bool condition
     )
     {
-        if (condition) return;
-
-        if (milliseconds == 0) milliseconds = int.MaxValue;
+        if (condition || milliseconds == 0) return;
 
         while (!token.IsCancellationRequested)
         {

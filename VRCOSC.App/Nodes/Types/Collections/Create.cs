@@ -13,7 +13,7 @@ public class ConstructListNode<T> : Node
     [NodeProcess]
     private void process
     (
-        [NodeValue("Items")] [NodeVariableSize] T[] items,
+        [NodeValue("Item")] [NodeVariableSize] T[] items,
         [NodeValue("List")] Ref<List<T>> outList
     )
     {

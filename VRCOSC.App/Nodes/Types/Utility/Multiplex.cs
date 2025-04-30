@@ -28,7 +28,7 @@ public sealed class MultiplexNode<T> : Node
     private void process
     (
         [NodeValue("Index")] int index,
-        [NodeValue("Inputs")] [NodeVariableSize] T[] inputs,
+        [NodeValue("Value")] [NodeVariableSize] T[] inputs,
         [NodeValue("Element")] Ref<T> outElement,
         [NodeValue("Input Count")] Ref<int> outInputCount
     )
@@ -50,7 +50,7 @@ public sealed class DemultiplexNode<T> : Node
         [NodeValue("Index")] int index,
         [NodeValue("Value")] T value,
         [NodeValue("Default Value")] T defaultValue,
-        [NodeValue("Outputs")] [NodeVariableSize] Ref<T[]> outOutputs
+        [NodeValue("Value")] [NodeVariableSize] Ref<T[]> outOutputs
     )
     {
         for (var i = 0; i < outOutputs.Value.Length; i++)

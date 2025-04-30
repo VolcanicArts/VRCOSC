@@ -407,6 +407,9 @@ public partial class NodesView : INotifyPropertyChanged
 
     private void ParentContainer_OnMouseUp(object sender, MouseButtonEventArgs e)
     {
+        DependencyObject scope = FocusManager.GetFocusScope(this);
+        FocusManager.SetFocusedElement(scope, this);
+
         Logger.Log($"{nameof(ParentContainer_OnMouseUp)}", LoggingTarget.Information);
 
         if (canvasDrag is not null && e.ChangedButton == CANVAS_DRAG_BUTTON)

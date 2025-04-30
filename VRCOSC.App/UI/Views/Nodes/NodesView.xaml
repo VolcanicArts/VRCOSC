@@ -55,12 +55,24 @@
             <MenuItem Header="Delete Node" Click="NodeContextMenu_DeleteClick" Tag="{Binding}"/>
         </ContextMenu>
 
+        <DataTemplate x:Key="BackgroundTemplate">
+            <Border Background="{DynamicResource CBackground4}" Opacity="0.95">
+                <Border.Clip>
+                    <MultiBinding Converter="{StaticResource BorderClipConverter}">
+                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType={x:Type Grid}, AncestorLevel=1}" />
+                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType={x:Type Grid}, AncestorLevel=1}" />
+                        <Binding Path="CornerRadius" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
+                    </MultiBinding>
+                </Border.Clip>
+            </Border>
+        </DataTemplate>
+
         <DataTemplate x:Key="HeaderTemplate">
             <Border Background="{DynamicResource CBackground1}" VerticalAlignment="Top">
                 <Border.Clip>
                     <MultiBinding Converter="{StaticResource BorderClipConverter}">
-                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
-                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
+                        <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType={x:Type Grid}, AncestorLevel=1}" />
+                        <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType={x:Type Grid}, AncestorLevel=1}" />
                         <Binding Path="CornerRadius" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
                     </MultiBinding>
                 </Border.Clip>
@@ -126,6 +138,14 @@
             </Border>
         </DataTemplate>
 
+        <DataTemplate x:Key="FlowInputWithTitleTemplate">
+            <core:SpacedStackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Left">
+                <ContentPresenter ContentTemplate="{StaticResource FlowInputTemplate}"/>
+                <fa6:FontAwesome Icon="Solid_ChevronRight" VerticalAlignment="Center"
+                                 Foreground="{DynamicResource CForeground2}" FontSize="15"/>
+            </core:SpacedStackPanel>
+        </DataTemplate>
+
         <DataTemplate x:Key="FlowOutputWithTitleTemplate">
             <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right">
                 <TextBlock Text="{Binding Title}" FontSize="13" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}" Margin="0 -1 0 0"/>
@@ -148,16 +168,14 @@
         </DataTemplate>
 
         <DataTemplate x:Key="InputVariableSizeControlTemplate">
-            <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Top" HorizontalAlignment="Left"
-                                   Visibility="{Binding Converter={StaticResource InputValueVariableSizeControlVisibilityConverter}}">
+            <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Top" HorizontalAlignment="Left">
                 <core:IconButton Icon="Solid_Plus" Width="20" Height="20" ButtonColour="Green" Tag="{Binding}" Click="ValueInputAddButton_OnClick"/>
                 <core:IconButton Icon="Solid_Minus" Width="20" Height="20" ButtonColour="Red" Tag="{Binding}" Click="ValueInputRemoveButton_OnClick"/>
             </core:SpacedStackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="OutputVariableSizeControlTemplate">
-            <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Top" HorizontalAlignment="Left"
-                                   Visibility="{Binding Converter={StaticResource OutputValueVariableSizeControlVisibilityConverter}}">
+            <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Top" HorizontalAlignment="Left">
                 <core:IconButton Icon="Solid_Plus" Width="20" Height="20" ButtonColour="Green" Tag="{Binding}" Click="ValueOutputAddButton_OnClick"/>
                 <core:IconButton Icon="Solid_Minus" Width="20" Height="20" ButtonColour="Red" Tag="{Binding}" Click="ValueOutputRemoveButton_OnClick"/>
             </core:SpacedStackPanel>
@@ -186,8 +204,8 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Border Background="{DynamicResource CBackground4}" Opacity="0.9" CornerRadius="10"/>
-                    <core:SpacedStackPanel VerticalAlignment="Top" Spacing="10">
+                    <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
+                    <core:SpacedStackPanel VerticalAlignment="Top" Spacing="10" Margin="0 0 0 10">
                         <!--> Header <-->
                         <Border Background="{DynamicResource CBackground1}" VerticalAlignment="Top">
                             <Border.Clip>
@@ -251,8 +269,8 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Border Background="{DynamicResource CBackground4}" Opacity="0.9" CornerRadius="10"/>
-                    <core:SpacedStackPanel VerticalAlignment="Top" Spacing="15" Margin="0 0 0 15">
+                    <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
+                    <core:SpacedStackPanel VerticalAlignment="Top" Spacing="15" Margin="0 0 0 10">
                         <!--> Header <-->
                         <Border Background="{DynamicResource CBackground1}" VerticalAlignment="Top">
                             <Border.Clip>
@@ -323,7 +341,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Border Background="{DynamicResource CBackground4}" Opacity="0.9" CornerRadius="5"/>
+                    <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <!--> Flow Points <-->
                     <Grid VerticalAlignment="Center">
                         <Grid.RowDefinitions>
@@ -369,8 +387,8 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Border Background="{DynamicResource CBackground4}" Opacity="0.9" CornerRadius="10"/>
-                    <core:SpacedStackPanel VerticalAlignment="Top" Spacing="15" Margin="0 0 0 15">
+                    <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
+                    <core:SpacedStackPanel VerticalAlignment="Top" Spacing="15" Margin="0 0 0 10">
                         <!--> Header <-->
                         <ContentPresenter ContentTemplate="{StaticResource HeaderTemplate}"/>
                         <!--> Value Points <-->
@@ -417,7 +435,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Border Background="{DynamicResource CBackground4}" Opacity="0.9" CornerRadius="5"/>
+                    <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <!--> Value Points <-->
                     <Grid VerticalAlignment="Center">
                         <Grid.RowDefinitions>
@@ -428,7 +446,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                 VerticalContentAlignment="Center" FontSize="17" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                 VerticalContentAlignment="Center" FontSize="17" Text="{Binding Value}"
                                  Margin="7 7 0 7"/>
                         <!--> Output <-->
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
@@ -463,7 +481,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Border Background="{DynamicResource CBackground4}" Opacity="0.9" CornerRadius="10"/>
+                    <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <!--> Value Points <-->
                     <Grid VerticalAlignment="Center" Margin="10">
                         <Grid.RowDefinitions>
@@ -505,7 +523,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Border Background="{DynamicResource CBackground4}" Opacity="0.9" CornerRadius="5"/>
+                    <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <!--> Value Points <-->
                     <Grid VerticalAlignment="Center" Margin="5 5 0 5">
                         <Grid.RowDefinitions>
@@ -549,7 +567,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Border Background="{DynamicResource CBackground4}" Opacity="0.9" CornerRadius="10"/>
+                    <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <!--> Value Points <-->
                     <Grid VerticalAlignment="Top" Margin="0 5">
                         <Grid.RowDefinitions>
@@ -596,7 +614,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <Border Background="{DynamicResource CBackground4}" Opacity="0.9" CornerRadius="2"/>
+                    <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <!--> Value Points <-->
                     <Grid VerticalAlignment="Top" Margin="0 5">
                         <Grid.RowDefinitions>
@@ -666,8 +684,8 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <Border Background="{DynamicResource CBackground4}" Opacity="0.9" CornerRadius="10"/>
-                <core:SpacedStackPanel VerticalAlignment="Top" Spacing="10">
+                <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
+                <core:SpacedStackPanel VerticalAlignment="Top" Spacing="10" Margin="0 0 0 10">
                     <!--> Header <-->
                     <ContentPresenter ContentTemplate="{StaticResource HeaderTemplate}"/>
                     <!--> Flow Points <-->
@@ -676,33 +694,29 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <!--> Input <-->
-                        <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterLeft}}"
-                                      VerticalAlignment="Top" HorizontalAlignment="Left"
-                                      Name="FlowInputItemsControl"
-                                      ItemsPanel="{StaticResource ItemsPanelTemplate}">
-                            <ItemsControl.RenderTransform>
+                        <core:SpacedStackPanel Name="FlowInputContainer" VerticalAlignment="Top" HorizontalAlignment="Left" Spacing="10">
+                            <core:SpacedStackPanel.RenderTransform>
                                 <TranslateTransform X="-8"/>
-                            </ItemsControl.RenderTransform>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <core:SpacedStackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Left">
-                                        <ContentPresenter ContentTemplate="{StaticResource FlowInputTemplate}"/>
-                                        <fa6:FontAwesome Icon="Solid_ChevronRight" VerticalAlignment="Center"
-                                                         Foreground="{DynamicResource CForeground2}" FontSize="15"/>
-                                    </core:SpacedStackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                            </core:SpacedStackPanel.RenderTransform>
+                            <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterLeft}}"
+                                          VerticalAlignment="Top" HorizontalAlignment="Left"
+                                          Name="FlowInputItemsControl"
+                                          ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                          ItemTemplate="{StaticResource FlowInputWithTitleTemplate}">
+                            </ItemsControl>
+                        </core:SpacedStackPanel>
                         <!--> Output <-->
-                        <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
-                                      VerticalAlignment="Top" HorizontalAlignment="Right"
-                                      Name="FlowOutputItemsControl"
-                                      ItemsPanel="{StaticResource ItemsPanelTemplate}"
-                                      ItemTemplate="{StaticResource FlowOutputWithTitleTemplate}">
-                            <ItemsControl.RenderTransform>
+                        <core:SpacedStackPanel Name="FlowOutputContainer" VerticalAlignment="Top" HorizontalAlignment="Right" Spacing="10">
+                            <core:SpacedStackPanel.RenderTransform>
                                 <TranslateTransform X="8"/>
-                            </ItemsControl.RenderTransform>
-                        </ItemsControl>
+                            </core:SpacedStackPanel.RenderTransform>
+                            <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
+                                          VerticalAlignment="Top" HorizontalAlignment="Right"
+                                          Name="FlowOutputItemsControl"
+                                          ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                          ItemTemplate="{StaticResource FlowOutputWithTitleTemplate}">
+                            </ItemsControl>
+                        </core:SpacedStackPanel>
                     </Grid>
                     <!--> Value Points <-->
                     <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource ValueConnectionAreaVisibilityConverter}}">
@@ -720,7 +734,12 @@
                                           ItemsPanel="{StaticResource ItemsPanelTemplate}"
                                           ItemTemplate="{StaticResource ValueInputWithTitleTemplate}">
                             </ItemsControl>
-                            <ContentPresenter ContentTemplate="{StaticResource InputVariableSizeControlTemplate}"/>
+                            <Grid Visibility="{Binding Converter={StaticResource InputValueVariableSizeControlVisibilityConverter}}">
+                                <Grid.RenderTransform>
+                                    <TranslateTransform X="16"/>
+                                </Grid.RenderTransform>
+                                <ContentPresenter ContentTemplate="{StaticResource InputVariableSizeControlTemplate}"/>
+                            </Grid>
                         </core:SpacedStackPanel>
                         <!--> Output <-->
                         <core:SpacedStackPanel Name="ValueOutputContainer" VerticalAlignment="Top" HorizontalAlignment="Right" Spacing="10">
@@ -733,7 +752,12 @@
                                           ItemsPanel="{StaticResource ItemsPanelTemplate}"
                                           ItemTemplate="{StaticResource ValueOutputWithTitleTemplate}">
                             </ItemsControl>
-                            <ContentPresenter ContentTemplate="{StaticResource OutputVariableSizeControlTemplate}"/>
+                            <Grid Visibility="{Binding Converter={StaticResource OutputValueVariableSizeControlVisibilityConverter}}">
+                                <Grid.RenderTransform>
+                                    <TranslateTransform X="-16"/>
+                                </Grid.RenderTransform>
+                                <ContentPresenter ContentTemplate="{StaticResource OutputVariableSizeControlTemplate}"/>
+                            </Grid>
                         </core:SpacedStackPanel>
                     </Grid>
                 </core:SpacedStackPanel>
@@ -753,7 +777,7 @@
                         MouseDown="GroupContainer_OnMouseDown">
                     <Border
                         Background="{DynamicResource CBackground1}"
-                        Opacity="0.9" CornerRadius="20"/>
+                        Opacity="0.95" CornerRadius="20"/>
                 </Border>
                 <Canvas Name="GroupConnectionCanvas" IsHitTestVisible="False"/>
                 <ItemsControl
