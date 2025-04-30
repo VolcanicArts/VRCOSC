@@ -1,0 +1,64 @@
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// See the LICENSE file in the repository root for full license text.
+
+using System.Collections.Generic;
+using System.Linq;
+using VRCOSC.App.SDK.Nodes;
+
+namespace VRCOSC.App.Nodes.Types.Collections;
+
+[Node("Element At", "Collections")]
+public sealed class EnumerableElementAtNode<T> : Node
+{
+    [NodeProcess]
+    private void process
+    (
+        [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
+        [NodeValue("Index")] int index,
+        [NodeValue("Element")] Ref<T> outElement
+    )
+    {
+        if (enumerable is null) return;
+
+        outElement.Value = enumerable.ElementAt(index);
+    }
+}
+
+[Node("Count", "Collections")]
+public class EnumerableCountNode<T> : Node
+{
+    [NodeProcess]
+    private void process
+    (
+        [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
+        [NodeValue("Count")] Ref<int> outCount
+    )
+    {
+        if (enumerable is null) return;
+
+        outCount.Value = enumerable.Count();
+    }
+}
+
+[Node("Insert", "Collections")]
+public class EnumerableInsertNode<T> : Node, IFlowInput, IFlowOutput
+{
+    public NodeFlowRef[] FlowOutputs => [new("On Insertion")];
+
+    [NodeProcess]
+    private int process
+    (
+        [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
+        [NodeValue("Index")] int index,
+        [NodeValue("Value")] T value,
+        [NodeValue("Enumerable")] Ref<IEnumerable<T>> outEnumerable)
+    {
+        if (enumerable is null) return -1;
+
+        var list = enumerable.ToList();
+        list.Insert(index, value);
+        outEnumerable.Value = list;
+
+        return 0;
+    }
+}

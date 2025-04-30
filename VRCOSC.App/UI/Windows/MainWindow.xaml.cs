@@ -17,6 +17,7 @@ using VRCOSC.App.Actions;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Dolly;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Nodes;
 using VRCOSC.App.OVR;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Profiles;
@@ -54,7 +55,7 @@ public partial class MainWindow
     public PackagesView PackagesView = null!;
     public ModulesView ModulesView = null!;
     public ChatBoxView ChatBoxView = null!;
-    public NodeScapeView NodesView = null!;
+    public NodesView NodesView = null!;
     public DollyView DollyView = null!;
     public RunView RunView = null!;
     public ProfilesView ProfilesView = null!;
@@ -164,7 +165,7 @@ public partial class MainWindow
         PackagesView = new PackagesView();
         ModulesView = new ModulesView();
         ChatBoxView = new ChatBoxView();
-        NodesView = new NodeScapeView(AppManager.GetInstance().NodeScape);
+        NodesView = new NodesView();
         DollyView = new DollyView();
         RunView = new RunView();
         ProfilesView = new ProfilesView();
@@ -211,7 +212,7 @@ public partial class MainWindow
 
         ProfileManager.GetInstance().Load();
         ModuleManager.GetInstance().LoadAllModules();
-        NodesView.Load();
+        NodeManager.GetInstance().Load();
         ChatBoxManager.GetInstance().Load();
         RouterManager.GetInstance().Load();
         DollyManager.GetInstance().Load();

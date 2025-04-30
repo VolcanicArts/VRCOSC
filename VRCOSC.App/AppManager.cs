@@ -23,13 +23,13 @@ using VRCOSC.App.Audio.Whisper;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Dolly;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Nodes;
 using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.OVR;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
 using VRCOSC.App.SDK.Handlers;
-using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.SDK.Parameters;
@@ -74,8 +74,6 @@ public class AppManager
     private Repeater openvrCheckTask = null!;
     private Repeater openvrUpdateTask = null!;
 
-    public NodeScape NodeScape { get; internal set; } = null!;
-
     private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
     private readonly object oscMessageQueueLock = new();
 
@@ -88,8 +86,6 @@ public class AppManager
 
     public void Initialise()
     {
-        NodeScape = new NodeScape();
-
         OSCEncoder.SetEncoding(Encoding.UTF8);
         OSCDecoder.SetEncoding(Encoding.UTF8);
 
@@ -278,7 +274,7 @@ public class AppManager
                 }
 
                 ModuleManager.GetInstance().ParameterReceived(message);
-                NodeScape.ParameterReceived(new ReceivedParameter(message.ParameterName, message.ParameterValue));
+                NodeManager.GetInstance().ParameterReceived(new ReceivedParameter(message.ParameterName, message.ParameterValue));
             }
         }
     }

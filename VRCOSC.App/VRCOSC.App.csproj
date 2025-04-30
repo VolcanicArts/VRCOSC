@@ -242,4 +242,15 @@
       </Page>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Resources\Fonts\Iosevka-Regular.ttf" />
+      <Resource Include="Resources\Fonts\Iosevka-Regular.ttf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resources\Fonts\Iosevka-SemiBold.ttf" />
+      <Resource Include="Resources\Fonts\Iosevka-SemiBold.ttf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+    </ItemGroup>
+
 </Project>

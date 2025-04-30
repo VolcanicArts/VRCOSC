@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.Nodes;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
 
@@ -14,7 +14,7 @@ namespace VRCOSC.App.UI.Windows.Nodes;
 
 public partial class NodeCreatorWindow : IManagedWindow
 {
-    public NodeScape NodeScape { get; }
+    public NodeField NodeField { get; }
 
     public Type NodeType { get; }
 
@@ -23,9 +23,9 @@ public partial class NodeCreatorWindow : IManagedWindow
 
     public Type? ConstructedType;
 
-    public NodeCreatorWindow(NodeScape nodeScape, Type nodeType)
+    public NodeCreatorWindow(NodeField nodeField, Type nodeType)
     {
-        NodeScape = nodeScape;
+        NodeField = nodeField;
         NodeType = nodeType;
         InitializeComponent();
         DataContext = this;

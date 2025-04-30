@@ -7,12 +7,14 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using FontAwesome6;
+using VRCOSC.App.Nodes;
+using VRCOSC.App.Nodes.Types.Base;
+using VRCOSC.App.Nodes.Types.Flow;
+using VRCOSC.App.Nodes.Types.Flow.Impulse;
+using VRCOSC.App.Nodes.Types.Inputs;
+using VRCOSC.App.Nodes.Types.Values;
 using VRCOSC.App.SDK.Nodes;
-using VRCOSC.App.SDK.Nodes.Types.Base;
-using VRCOSC.App.SDK.Nodes.Types.Flow;
-using VRCOSC.App.SDK.Nodes.Types.Flow.Impulse;
-using VRCOSC.App.SDK.Nodes.Types.Inputs;
-using VRCOSC.App.SDK.Nodes.Types.Values;
 
 namespace VRCOSC.App.UI.Views.Nodes;
 
@@ -159,6 +161,18 @@ public class ValueVariableSizeControlVisibilityConverter : IValueConverter
         }
 
         return Visibility.Collapsed;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class NodeIconToTitleVisibilityConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not EFontAwesomeIcon icon) return Visibility.Collapsed;
+
+        return icon == EFontAwesomeIcon.None ? Visibility.Visible : Visibility.Collapsed;
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;

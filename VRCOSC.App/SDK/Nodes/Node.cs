@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Nodes;
 using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Utils;
@@ -13,23 +14,23 @@ namespace VRCOSC.App.SDK.Nodes;
 
 public abstract class Node
 {
-    internal NodeScape NodeScape { get; set; } = null!;
+    internal NodeField NodeField { get; set; } = null!;
 
     public Guid Id { get; } = Guid.NewGuid();
     public ObservableVector2 Position { get; } = new(5000, 5000);
     public int ZIndex { get; set; }
 
-    public NodeMetadata Metadata => NodeScape.GetMetadata(this);
+    public NodeMetadata Metadata => NodeField.GetMetadata(this);
     protected Player Player => AppManager.GetInstance().VRChatClient.Player;
 
     protected void TriggerSelf()
     {
-        NodeScape.StartFlow(this);
+        NodeField.StartFlow(this);
     }
 
     protected Task TriggerFlow(CancellationToken token, int slot, bool scope = false)
     {
-        return NodeScape.TriggerOutputFlow(this, token, slot, scope);
+        return NodeField.TriggerOutputFlow(this, token, slot, scope);
     }
 }
 
