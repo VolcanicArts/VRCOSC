@@ -109,6 +109,11 @@ public class NodeScape
         {
             Connections.Remove(existingConnection);
         }
+
+        if (outputMetadata is { IsValueOutput: true, OutputsCount: 1 })
+        {
+            WalkForward(Nodes[outputNodeId]);
+        }
     }
 
     public void DeleteNode(Node node)
@@ -202,6 +207,59 @@ public class NodeScape
         }
     }
 
+    public record WalkResult(Node ValueOutputNode, Node TriggerNode, int ValueOutputSlot);
+
+    /// <summary>
+    /// Walks forward from a source node with a single output to find the value nodes directly before any trigger node, and the trigger node
+    /// </summary>
+    public void WalkForward(Node sourceNode)
+    {
+        var results = new List<WalkResult>();
+        walkForward(results, sourceNode, 0);
+
+        foreach (var walkResult in results)
+        {
+            if (!memory.HasEntry(walkResult.ValueOutputNode.Id))
+            {
+                executeValueNode(walkResult.ValueOutputNode);
+                StartFlow(walkResult.TriggerNode);
+            }
+            else
+            {
+                var currentValue = memory.Read(walkResult.ValueOutputNode.Id).Values[walkResult.ValueOutputSlot];
+                executeValueNode(walkResult.ValueOutputNode);
+                var newValue = memory.Read(walkResult.ValueOutputNode.Id).Values[walkResult.ValueOutputSlot];
+
+                if (currentValue.GetValue() != newValue.GetValue())
+                {
+                    StartFlow(walkResult.TriggerNode);
+                }
+            }
+        }
+    }
+
+    private void walkForward(List<WalkResult> results, Node sourceNode, int outputValueSlot)
+    {
+        var connections = Connections.Where(c => c.ConnectionType == ConnectionType.Value && c.OutputNodeId == sourceNode.Id && c.OutputSlot == outputValueSlot).ToList();
+        if (connections.Count == 0) return;
+
+        foreach (var connection in connections)
+        {
+            var inputNode = Nodes[connection.InputNodeId];
+
+            if (inputNode.Metadata.IsTrigger && inputNode.Metadata.Inputs[connection.InputSlot].IsReactive)
+            {
+                results.Add(new(sourceNode, inputNode, outputValueSlot));
+                continue;
+            }
+
+            for (var i = 0; i < inputNode.Metadata.OutputsCount; i++)
+            {
+                walkForward(results, inputNode, i);
+            }
+        }
+    }
+
     private IRef getConnectedRef(Node inputNode, int inputSlot, Type inputType)
     {
         var connection = Connections.FirstOrDefault(con => con.InputNodeId == inputNode.Id && con.InputSlot == inputSlot && con.ConnectionType == ConnectionType.Value);
@@ -260,6 +318,8 @@ public class NodeScape
 
     private async Task executeFlowNode(Node node, CancellationToken token)
     {
+        // TODO: Check if node has already been executed and refuse
+
         var metadata = GetMetadata(node);
 
         var args = new List<object?>

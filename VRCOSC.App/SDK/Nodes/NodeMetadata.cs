@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.Utils;
@@ -33,10 +32,16 @@ public static class NodeMetadataBuilder
         if ((isFlowInput || isFlowOutput) && method.ReturnParameter.ParameterType != typeof(Task))
             throw new Exception($"Cannot build {nameof(NodeMetadata)} as node is a flow node that doesn't return {nameof(Task)}");
 
-        //var allRefsAfterNonRefs = parameters.Select(p => p.ParameterType.IsAssignableTo(typeof(IRef))).SkipWhile(isRef => !isRef).All(isRef => isRef);
+        var allRefsAfterNonRefs = parameters.Select(p => p.ParameterType.IsGenericType && p.ParameterType.GetGenericTypeDefinition() == typeof(Ref<>)).SkipWhile(isRef => !isRef).All(isRef => isRef);
 
-        //if (!allRefsAfterNonRefs)
-          //  throw new Exception($"Cannot build {nameof(NodeMetadata)} as the defined {nameof(NodeProcessAttribute)} method has non-refs after refs");
+        if (!allRefsAfterNonRefs)
+            throw new Exception($"Cannot build {nameof(NodeMetadata)} as the defined {nameof(NodeProcessAttribute)} method has non-refs after Ref<>");
+
+        if (isFlowInput || isFlowOutput)
+        {
+            if (parameters.FirstOrDefault()?.ParameterType != typeof(CancellationToken))
+                throw new Exception($"Cannot build {nameof(NodeMetadata)} as a flow node has been defined without taking a {nameof(CancellationToken)} as the first process method parameter");
+        }
 
         var inputParametersEnumerable = parameters.TakeWhile(p => !p.ParameterType.IsAssignableTo(typeof(IRef)));
         var outputParametersEnumerable = parameters.SkipWhile(p => !p.ParameterType.IsAssignableTo(typeof(IRef)));
@@ -77,9 +82,9 @@ public static class NodeMetadataBuilder
             if (!outputsHaveOneVariableSize)
                 throw new Exception($"Cannot build {nameof(NodeMetadata)} as only a single {nameof(NodeVariableSizeAttribute)} is allowed for outputs");
 
-            var outputsHaveVariableSizeLas = outputParameters.Last().IsDefined(typeof(NodeVariableSizeAttribute), false);
+            var outputsHaveVariableSizeLast = outputParameters.Last().IsDefined(typeof(NodeVariableSizeAttribute), false);
 
-            if (!outputsHaveVariableSizeLas)
+            if (!outputsHaveVariableSizeLast)
                 throw new Exception($"Cannot build {nameof(NodeMetadata)} as {nameof(NodeVariableSizeAttribute)} is only allowed to be defined on the last output");
         }
 
@@ -108,7 +113,6 @@ public static class NodeMetadataBuilder
             OutputVariableSizeActual = outputVariableSize?.DefaultSize ?? 0
         };
 
-        metadata.ProcessDelegate = generateProcessDelegate(metadata);
         return metadata;
     }
 
@@ -154,161 +158,162 @@ public static class NodeMetadataBuilder
             arr[i] = new NodeValueMetadata
             {
                 Name = name,
-                Parameter = parameter
+                Parameter = parameter,
+                IsReactive = parameter.HasCustomAttribute<NodeReactiveAttribute>()
             };
         }
 
         return arr;
     }
 
+    /***
     private static Delegate generateProcessDelegate(NodeMetadata metadata)
     {
-        var args = new List<Type> { typeof(Node) };
+    var args = new List<Type> { typeof(Node) };
 
-        if (metadata.IsFlow)
-            args.Add(typeof(CancellationToken));
+    if (metadata.IsFlow)
+        args.Add(typeof(CancellationToken));
 
-        if (metadata.IsValueInput)
-            args.Add(typeof(object?[]));
+    if (metadata.IsValueInput)
+        args.Add(typeof(object?[]));
 
-        if (metadata.IsValueOutput)
-            args.Add(typeof(IRef[]));
+    if (metadata.IsValueOutput)
+        args.Add(typeof(IRef[]));
 
-        var argsArr = args.ToArray();
+    var argsArr = args.ToArray();
 
-        var dynamicMethod = new DynamicMethod(
-            name: "InvokeProcess",
-            returnType: metadata.IsFlow ? typeof(Task) : typeof(void),
-            parameterTypes: argsArr,
-            m: typeof(Node).Module,
-            skipVisibility: true
-        );
+    var dynamicMethod = new DynamicMethod(
+        name: "InvokeProcess",
+        returnType: metadata.IsFlow ? typeof(Task) : typeof(void),
+        parameterTypes: argsArr,
+        m: typeof(Node).Module,
+        skipVisibility: true
+    );
 
-        var inputTypes = metadata.Inputs.Select(input => input.Type).ToArray();
-        var outputTypes = metadata.Outputs.Select(output => output.Type).ToArray();
+    var inputTypes = metadata.Inputs.Select(input => input.Type).ToArray();
+    var outputTypes = metadata.Outputs.Select(output => output.Type).ToArray();
 
-        generateIl(dynamicMethod, metadata.ProcessMethod, inputTypes, outputTypes);
-        var delegateType = createDelegateType(metadata.IsFlow, args);
-        return dynamicMethod.CreateDelegate(delegateType);
+    generateIl(dynamicMethod, metadata.ProcessMethod, inputTypes, outputTypes);
+    var delegateType = createDelegateType(metadata.IsFlow, args);
+    return dynamicMethod.CreateDelegate(delegateType);
     }
 
     private static Type createDelegateType(bool isFlow, List<Type> args)
     {
-        if (isFlow)
+    if (isFlow)
+    {
+        args.Add(typeof(Task));
+
+        var argsArr = args.ToArray();
+
+        switch (args.Count)
         {
-            args.Add(typeof(Task));
+            case 2:
+                return typeof(Func<,>).MakeGenericType(argsArr);
 
-            var argsArr = args.ToArray();
+            case 3:
+                return typeof(Func<,,>).MakeGenericType(argsArr);
 
-            switch (args.Count)
-            {
-                case 2:
-                    return typeof(Func<,>).MakeGenericType(argsArr);
+            case 4:
+                return typeof(Func<,,,>).MakeGenericType(argsArr);
 
-                case 3:
-                    return typeof(Func<,,>).MakeGenericType(argsArr);
-
-                case 4:
-                    return typeof(Func<,,,>).MakeGenericType(argsArr);
-
-                case 5:
-                    return typeof(Func<,,,,>).MakeGenericType(argsArr);
-            }
+            case 5:
+                return typeof(Func<,,,,>).MakeGenericType(argsArr);
         }
-        else
+    }
+    else
+    {
+        var argsArr = args.ToArray();
+
+        switch (argsArr.Length)
         {
-            var argsArr = args.ToArray();
+            case 1:
+                return typeof(Action<>).MakeGenericType(argsArr);
 
-            switch (argsArr.Length)
-            {
-                case 1:
-                    return typeof(Action<>).MakeGenericType(argsArr);
+            case 2:
+                return typeof(Action<,>).MakeGenericType(argsArr);
 
-                case 2:
-                    return typeof(Action<,>).MakeGenericType(argsArr);
+            case 3:
+                return typeof(Action<,,>).MakeGenericType(argsArr);
 
-                case 3:
-                    return typeof(Action<,,>).MakeGenericType(argsArr);
-
-                case 4:
-                    return typeof(Action<,,,>).MakeGenericType(argsArr);
-            }
+            case 4:
+                return typeof(Action<,,,>).MakeGenericType(argsArr);
         }
+    }
 
-        throw new Exception();
+    throw new Exception();
     }
 
     private static void generateIl(DynamicMethod dm, MethodInfo method, Type[] inputTypes, Type[] outputTypes)
     {
-        var il = dm.GetILGenerator();
-        var index = 0;
+    var il = dm.GetILGenerator();
+    var index = 0;
 
-        il.Emit(OpCodes.Ldarg, index); // load instance
+    il.Emit(OpCodes.Ldarg, index); // load instance
+    index++;
+
+    if (method.ReturnParameter.ParameterType != typeof(void))
+    {
+        il.Emit(OpCodes.Ldarg, index); // load cancellation token
         index++;
+    }
 
-        if (method.ReturnParameter.ParameterType != typeof(void))
+    if (inputTypes.Length > 0)
+    {
+        il.Emit(OpCodes.Ldarg, index);
+
+        for (var i = 0; i < inputTypes.Length; i++)
         {
-            il.Emit(OpCodes.Ldarg, index); // load cancellation token
-            index++;
+            insertInputIl(il, i, inputTypes[i]);
         }
 
-        if (inputTypes.Length > 0)
+        index++;
+    }
+
+    if (outputTypes.Length > 0)
+    {
+        il.Emit(OpCodes.Ldarg, index);
+
+        for (var i = 0; i < outputTypes.Length; i++)
         {
-            il.Emit(OpCodes.Ldarg, index);
-
-            for (var i = 0; i < inputTypes.Length; i++)
-            {
-                insertInputIl(il, i, inputTypes[i]);
-            }
-
-            index++;
+            insertOutputIl(il, i, outputTypes[i]);
         }
 
-        if (outputTypes.Length > 0)
-        {
-            il.Emit(OpCodes.Ldarg, index);
+        index++;
+    }
 
-            for (var i = 0; i < outputTypes.Length; i++)
-            {
-                insertOutputIl(il, i, outputTypes[i]);
-            }
-
-            index++;
-        }
-
-        il.EmitCall(OpCodes.Callvirt, method, null);
-        il.Emit(OpCodes.Ret);
+    il.EmitCall(OpCodes.Callvirt, method, null);
+    il.Emit(OpCodes.Ret);
     }
 
     private static void insertInputIl(ILGenerator il, int index, Type type)
     {
-        il.Emit(OpCodes.Ldc_I4, index);
+    il.Emit(OpCodes.Ldc_I4, index);
 
-        if (type.IsValueType)
-        {
-            il.Emit(OpCodes.Ldelem_Ref);
-            il.Emit(OpCodes.Unbox_Any, type);
-        }
-        else
-        {
-            il.Emit(OpCodes.Ldelem_Ref);
-            il.Emit(OpCodes.Castclass, type);
-        }
+    if (type.IsValueType)
+    {
+        il.Emit(OpCodes.Ldelem_Ref);
+        il.Emit(OpCodes.Unbox_Any, type);
+    }
+    else
+    {
+        il.Emit(OpCodes.Ldelem_Ref);
+        il.Emit(OpCodes.Castclass, type);
+    }
     }
 
     private static void insertOutputIl(ILGenerator il, int index, Type type)
     {
-        il.Emit(OpCodes.Ldc_I4, index);
-        il.Emit(OpCodes.Ldelem_Ref);
+    il.Emit(OpCodes.Ldc_I4, index);
+    il.Emit(OpCodes.Ldelem_Ref);
 
-        var refType = typeof(Ref<>).MakeGenericType(type);
-        il.Emit(OpCodes.Castclass, refType);
+    var refType = typeof(Ref<>).MakeGenericType(type);
+    il.Emit(OpCodes.Castclass, refType);
 
-        /***
-        var valueField = refType.GetField("Value", BindingFlags.Instance | BindingFlags.Public)!;
-        il.Emit(OpCodes.Ldflda, valueField);
-        ***/
+    var valueField = refType.GetField("Value", BindingFlags.Instance | BindingFlags.Public)!;
+    il.Emit(OpCodes.Ldflda, valueField);
     }
+    ***/
 }
 
 public sealed class NodeMetadata
@@ -317,7 +322,6 @@ public sealed class NodeMetadata
     public string? Path { get; set; }
     public Type[] GenericArguments { get; set; } = null!;
     public MethodInfo ProcessMethod { get; set; } = null!;
-    public Delegate ProcessDelegate { get; set; } = null!;
     public NodeFlowRef[] FlowOutputs { get; set; } = [];
     public NodeValueMetadata[] Inputs { get; set; } = [];
     public NodeValueMetadata[] Outputs { get; set; } = [];
@@ -329,7 +333,6 @@ public sealed class NodeMetadata
     public bool IsFlowOutput { get; set; }
     public bool IsValueInput { get; set; }
     public bool IsValueOutput { get; set; }
-    public bool IsAsync { get; set; }
 
     public bool IsTrigger => IsFlowOutput && !IsFlowInput;
     public bool IsFlow => IsFlowInput || IsFlowOutput;
@@ -400,6 +403,7 @@ public sealed class NodeValueMetadata
 {
     public string Name { get; set; } = null!;
     public ParameterInfo Parameter { get; set; } = null!;
+    public bool IsReactive { get; set; }
 
     public Type Type => Parameter.ParameterType.IsGenericType && Parameter.ParameterType.GetGenericTypeDefinition() == typeof(Ref<>) ? Parameter.ParameterType.GenericTypeArguments[0] : Parameter.ParameterType;
 }

@@ -10,7 +10,17 @@ namespace VRCOSC.App.SDK.Nodes.Types.Base;
 [Node("Value", "Values")]
 public sealed class ValueNode<T> : Node
 {
-    public T Value { get; set; } = default!;
+    private T value = default!;
+
+    public T Value
+    {
+        get => value;
+        set
+        {
+            this.value = value;
+            NodeScape.WalkForward(this);
+        }
+    }
 
     [NodeProcess]
     private void process

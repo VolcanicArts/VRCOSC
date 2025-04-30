@@ -94,21 +94,6 @@ public class EnumItemSourceConverter : IValueConverter
 /// Takes in an integer and converts it to the set colours based on if it's even
 /// </summary>
 /// <remarks>One Way</remarks>
-public class AlternatingColourConverter : IValueConverter
-{
-    public Brush Colour1 { get; init; } = Brushes.Aqua;
-    public Brush Colour2 { get; init; } = Brushes.Aqua;
-
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value is not int intValue) throw new Exception($"{nameof(value)} is not an {nameof(Int32)}");
-
-        return intValue % 2 == 0 ? Colour1 : Colour2;
-    }
-
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
-}
-
 public class AlternatingColourConverterMulti : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
