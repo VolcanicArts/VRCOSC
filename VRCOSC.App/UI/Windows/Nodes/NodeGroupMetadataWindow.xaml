@@ -1,0 +1,12 @@
+﻿<Window x:Class="VRCOSC.App.UI.Windows.Nodes.NodeGroupMetadataWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:VRCOSC.App.UI.Windows.Nodes"
+        mc:Ignorable="d"
+        Title="NodeGroupMetadataWindow" Height="450" Width="800">
+    <Grid>
+        
+    </Grid>
+</Window>

@@ -114,8 +114,11 @@ public class NodeField
 
     public void DeleteNode(Node node)
     {
-        Nodes.Remove(node.Id);
         Connections.RemoveIf(connection => connection.OutputNodeId == node.Id || connection.InputNodeId == node.Id);
+        Groups.ForEach(group => group.Nodes.Remove(node.Id));
+        Nodes.Remove(node.Id);
+
+        Groups.RemoveIf(group => group.Nodes.Count == 0);
 
         // TODO: When a ValueRelayNode is removed, bridge connections
     }

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -22,6 +23,9 @@ using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using Panel = System.Windows.Controls.Panel;
 using Vector = System.Windows.Vector;
 
 namespace VRCOSC.App.UI.Views.Nodes;
@@ -30,12 +34,13 @@ public partial class NodesView : INotifyPropertyChanged
 {
     public const MouseButton CANVAS_DRAG_BUTTON = MouseButton.Middle;
     public const MouseButton ELEMENT_DRAG_BUTTON = MouseButton.Left;
-    public const double SNAP_DISTANCE = 20d;
-    public const double SIGNIFICANT_SNAP_DISTANCE = SNAP_DISTANCE * 20d;
+    public const int SNAP_DISTANCE = 20;
+    public const int SIGNIFICANT_SNAP_DISTANCE = SNAP_DISTANCE * 20;
     public const bool SNAP_ENABLED = true;
-    public const double GROUP_PADDING = SNAP_DISTANCE * 2d;
+    public Padding GroupPadding { get; } = new(30, 55, 30, 30);
 
     private WindowManager nodeCreatorWindowManager = null!;
+    private WindowManager nodeGroupMetadatWindowManager = null!;
     private bool loaded;
 
     public NodesView()
@@ -60,6 +65,7 @@ public partial class NodesView : INotifyPropertyChanged
         if (loaded) return;
 
         nodeCreatorWindowManager = new WindowManager(this);
+        nodeGroupMetadatWindowManager = new WindowManager(this);
 
         ConnectionCanvas.Children.Clear();
 
@@ -94,6 +100,11 @@ public partial class NodesView : INotifyPropertyChanged
             NodesItemsControlItemsSource.Add(nodeGroupViewModel);
         }
 
+        foreach (var oldGroup in oldGroups)
+        {
+            NodesItemsControlItemsSource.RemoveIf(obj => obj is NodeGroupViewModel nodeGroupViewModel && nodeGroupViewModel.NodeGroup == oldGroup);
+        }
+
         await Dispatcher.Yield(DispatcherPriority.Loaded);
         updateGroups(newGroups);
     }
@@ -105,8 +116,7 @@ public partial class NodesView : INotifyPropertyChanged
 
         await Dispatcher.Yield(DispatcherPriority.Loaded);
         newNodes.ForEach(pair => updateNodePosition(pair.Value));
-
-        // TODO: Remove from group as well
+        updateGroups(NodeField.Groups);
     }
 
     private void OnKeyDown(object sender, KeyEventArgs e)
@@ -142,16 +152,20 @@ public partial class NodesView : INotifyPropertyChanged
                 var node = NodeField.Nodes[nodeId];
                 var nodeContainer = getNodeContainerFromId(nodeId);
 
-                topLeft.X = Math.Min(topLeft.X, node.Position.X - GROUP_PADDING);
-                topLeft.Y = Math.Min(topLeft.Y, node.Position.Y - GROUP_PADDING);
-                bottomRight.X = Math.Max(bottomRight.X, node.Position.X + nodeContainer.ActualWidth + GROUP_PADDING);
-                bottomRight.Y = Math.Max(bottomRight.Y, node.Position.Y + nodeContainer.ActualHeight + GROUP_PADDING);
+                topLeft.X = Math.Min(topLeft.X, node.Position.X - GroupPadding.Left);
+                topLeft.Y = Math.Min(topLeft.Y, node.Position.Y - GroupPadding.Top);
+                bottomRight.X = Math.Max(bottomRight.X, node.Position.X + nodeContainer.ActualWidth + GroupPadding.Right);
+                bottomRight.Y = Math.Max(bottomRight.Y, node.Position.Y + nodeContainer.ActualHeight + GroupPadding.Bottom);
             }
 
             var groupContainer = getGroupContainerFromId(group.Id);
 
             var width = bottomRight.X - topLeft.X;
             var height = bottomRight.Y - topLeft.Y;
+
+            width = Math.Max(width, 0);
+            height = Math.Max(height, 0);
+
             groupContainer.Width = width;
             groupContainer.Height = height;
             groupContainer.RenderTransform = new TranslateTransform(topLeft.X, topLeft.Y);
@@ -616,8 +630,8 @@ public partial class NodesView : INotifyPropertyChanged
             var mousePosRelativeToNodesItemsControl = Mouse.GetPosition(CanvasContainer);
             var nodePos = node.Position;
 
-            var offsetX = mousePosRelativeToNodesItemsControl.X - nodePos.X;
-            var offsetY = mousePosRelativeToNodesItemsControl.Y - nodePos.Y;
+            var offsetX = Math.Round(mousePosRelativeToNodesItemsControl.X - nodePos.X);
+            var offsetY = Math.Round(mousePosRelativeToNodesItemsControl.Y - nodePos.Y);
 
             if (SNAP_ENABLED)
             {
@@ -666,8 +680,8 @@ public partial class NodesView : INotifyPropertyChanged
     {
         var mousePosRelativeToNodesItemsControl = Mouse.GetPosition(CanvasContainer);
 
-        var newNodeX = mousePosRelativeToNodesItemsControl.X - nodeDrag.OffsetX;
-        var newNodeY = mousePosRelativeToNodesItemsControl.Y - nodeDrag.OffsetY;
+        var newNodeX = Math.Round(mousePosRelativeToNodesItemsControl.X - nodeDrag.OffsetX);
+        var newNodeY = Math.Round(mousePosRelativeToNodesItemsControl.Y - nodeDrag.OffsetY);
 
         if (SNAP_ENABLED)
         {
@@ -678,15 +692,16 @@ public partial class NodesView : INotifyPropertyChanged
         newNodeX = Math.Clamp(newNodeX, 0, CanvasContainer.Width);
         newNodeY = Math.Clamp(newNodeY, 0, CanvasContainer.Height);
 
-        var positionChanged = Math.Abs(newNodeX - nodeDrag.Node.Position.X) > double.Epsilon || Math.Abs(newNodeY - nodeDrag.Node.Position.Y) > double.Epsilon;
+        // don't check for epsilon purposefully
+        var positionChanged = newNodeX != nodeDrag.Node.Position.X || newNodeY != nodeDrag.Node.Position.Y;
 
         //Logger.Log($"{nameof(NodesItemsControl_OnMouseMove)}: Setting node drag position to {newNodeX},{newNodeY}", LoggingTarget.Information);
 
-        nodeDrag.Node.Position.X = newNodeX;
-        nodeDrag.Node.Position.Y = newNodeY;
-
         if (positionChanged)
         {
+            nodeDrag.Node.Position.X = (int)newNodeX;
+            nodeDrag.Node.Position.Y = (int)newNodeY;
+
             updateConnectionsForNode(nodeDrag.Node);
             updateGroups(NodeField.Groups.Where(group => group.Nodes.Contains(nodeDrag.Node.Id)));
         }
@@ -953,7 +968,7 @@ public partial class NodesView : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    private void WindowContextMenu_ItemClick(object sender, RoutedEventArgs e)
+    private void FieldContextMenu_ItemClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
         var nodeType = (Type)element.Tag;
@@ -998,6 +1013,15 @@ public partial class NodesView : INotifyPropertyChanged
         var node = (Node)element.Tag;
 
         NodeField.DeleteNode(node);
+    }
+
+    private void NodeContextMenu_CreateGroupClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.Tag;
+
+        var group = NodeField.AddGroup();
+        group.Nodes.Add(node.Id);
     }
 
     private void ValueOutputAddButton_OnClick(object sender, RoutedEventArgs e)
@@ -1046,6 +1070,14 @@ public partial class NodesView : INotifyPropertyChanged
 
         var valueInputItemsControl = element.FindVisualParent<FrameworkElement>("ValueInputContainer")!.FindVisualChild<ItemsControl>("ValueInputItemsControl")!;
         valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
+    }
+
+    private void GroupContextMenu_EditTitleClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var nodeGroup = (NodeGroup)element.Tag;
+
+        nodeGroupMetadatWindowManager.TrySpawnChild(new NodeGroupMetadataWindow(nodeGroup));
     }
 }
 

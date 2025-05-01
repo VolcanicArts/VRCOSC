@@ -53,6 +53,11 @@
 
         <ContextMenu x:Key="NodeContextMenu">
             <MenuItem Header="Delete Node" Click="NodeContextMenu_DeleteClick" Tag="{Binding}"/>
+            <MenuItem Header="Create Group" Click="NodeContextMenu_CreateGroupClick" Tag="{Binding}"/>
+        </ContextMenu>
+
+        <ContextMenu x:Key="GroupContextMenu">
+            <MenuItem Header="Edit Title" Click="GroupContextMenu_EditTitleClick" Tag="{Binding NodeGroup}"/>
         </ContextMenu>
 
         <DataTemplate x:Key="BackgroundTemplate">
@@ -207,23 +212,7 @@
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <core:SpacedStackPanel VerticalAlignment="Top" Spacing="10" Margin="0 0 0 10">
                         <!--> Header <-->
-                        <Border Background="{DynamicResource CBackground1}" VerticalAlignment="Top">
-                            <Border.Clip>
-                                <MultiBinding Converter="{StaticResource BorderClipConverter}">
-                                    <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
-                                    <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
-                                    <Binding Path="CornerRadius" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
-                                </MultiBinding>
-                            </Border.Clip>
-                            <core:SpacedStackPanel Orientation="Vertical" Margin="5" Spacing="2">
-                                <TextBlock Foreground="{DynamicResource CForeground2}"
-                                           Text="{Binding Metadata.Title}" FontSize="14"
-                                           FontWeight="SemiBold"
-                                           VerticalAlignment="Top"
-                                           TextWrapping="WrapWithOverflow"
-                                           TextAlignment="Center"/>
-                            </core:SpacedStackPanel>
-                        </Border>
+                        <ContentPresenter ContentTemplate="{StaticResource HeaderTemplate}"/>
                         <!--> Flow Points <-->
                         <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource FlowConnectionAreaVisibilityConverter}}">
                             <Grid.RowDefinitions>
@@ -272,23 +261,7 @@
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <core:SpacedStackPanel VerticalAlignment="Top" Spacing="15" Margin="0 0 0 10">
                         <!--> Header <-->
-                        <Border Background="{DynamicResource CBackground1}" VerticalAlignment="Top">
-                            <Border.Clip>
-                                <MultiBinding Converter="{StaticResource BorderClipConverter}">
-                                    <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
-                                    <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
-                                    <Binding Path="CornerRadius" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
-                                </MultiBinding>
-                            </Border.Clip>
-                            <core:SpacedStackPanel Orientation="Vertical" Margin="5" Spacing="2">
-                                <TextBlock Foreground="{DynamicResource CForeground2}"
-                                           Text="{Binding Metadata.Title}" FontSize="14"
-                                           FontWeight="SemiBold"
-                                           VerticalAlignment="Top"
-                                           TextWrapping="WrapWithOverflow"
-                                           TextAlignment="Center"/>
-                            </core:SpacedStackPanel>
-                        </Border>
+                        <ContentPresenter ContentTemplate="{StaticResource HeaderTemplate}"/>
                         <!--> Flow Points <-->
                         <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource FlowConnectionAreaVisibilityConverter}}">
                             <Grid.RowDefinitions>
@@ -465,11 +438,10 @@
 
         <DataTemplate x:Key="EnumValueNodeTemplate">
             <Border Name="NodeContainer"
-                    CornerRadius="10"
+                    CornerRadius="2"
                     BorderThickness="2"
                     Padding="1"
                     BorderBrush="{DynamicResource CForeground3}"
-                    Width="200"
                     HorizontalAlignment="Left" VerticalAlignment="Top"
                     Tag="{Binding}"
                     MouseDown="NodeContainer_OnMouseDown"
@@ -483,28 +455,32 @@
                     </Grid.RowDefinitions>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <!--> Value Points <-->
-                    <Grid VerticalAlignment="Center" Margin="10">
+                    <Grid VerticalAlignment="Top">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="25"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <ComboBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="15" SelectedValue="{Binding Value}"
+                        <ComboBox Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" FontSize="15" SelectedValue="{Binding Value}"
+                                  VerticalContentAlignment="Center" Margin="7 7 0 7" MinWidth="120"
                                   ItemsSource="{Binding Value, Converter={StaticResource EnumItemSourceConverter}, Mode=OneTime}"/>
                         <!--> Output <-->
-                        <ItemsControl Grid.Column="2" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
+                        <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
                                       Name="ValueOutputItemsControl"
                                       ItemsPanel="{StaticResource ItemsPanelTemplate}"
                                       ItemTemplate="{StaticResource ValueOutputTemplate}">
+                            <ItemsControl.RenderTransform>
+                                <TranslateTransform X="8"/>
+                            </ItemsControl.RenderTransform>
                         </ItemsControl>
                     </Grid>
                 </Grid>
             </Border>
         </DataTemplate>
+
         <DataTemplate x:Key="BoolValueNodeTemplate">
             <Border Name="NodeContainer"
                     CornerRadius="5"
@@ -637,7 +613,7 @@
                         </ItemsControl>
                         <!--> Title <-->
                         <Grid Grid.Column="1" VerticalAlignment="Center">
-                            <Viewbox Stretch="Uniform">
+                            <Viewbox Stretch="Uniform" Margin="10 0">
                                 <TextBlock Foreground="{DynamicResource CForeground2}"
                                            Text="{Binding Metadata.Title}" FontSize="16"
                                            VerticalAlignment="Center"
@@ -767,6 +743,19 @@
             </Grid>
         </Border>
         </DataTemplate>
+
+        <nodes:NodeItemsControlDataTemplateSelector x:Key="GroupItemsControlDataTemplateSelector"
+                                                    NodeTemplate="{StaticResource NodeTemplate}"
+                                                    RelayNodeTemplate="{StaticResource CastNodeTemplate}"
+                                                    ValueInputNodeTemplate="{StaticResource ValueNodeTemplate}"
+                                                    BoolValueInputNodeTemplate="{StaticResource BoolValueNodeTemplate}"
+                                                    EnumValueInputNodeTemplate="{StaticResource EnumValueNodeTemplate}"
+                                                    ButtonInputNodeTemplate="{StaticResource ButtonInputNodeTemplate}"
+                                                    ImpulseReceiveNodeTemplate="{StaticResource ImpulseReceiveNodeTemplate}"
+                                                    ImpulseSendNodeTemplate="{StaticResource ImpulseSendNodeTemplate}"
+                                                    ValueOnlyNodeTemplate="{StaticResource ValueOnlyTemplate}"
+                                                    ParameterSourceNodeTemplate="{StaticResource ParameterSourceDataTemplate}"/>
+
         <!--> Node Group <-->
         <DataTemplate x:Key="NodeGroupTemplate">
             <Grid>
@@ -777,17 +766,23 @@
                         Padding="1"
                         BorderBrush="{DynamicResource CForeground3}"
                         HorizontalAlignment="Left" VerticalAlignment="Top"
-                        MouseDown="GroupContainer_OnMouseDown">
-                    <Border
-                        Background="{DynamicResource CBackground1}"
-                        Opacity="0.95" CornerRadius="20"/>
+                        MouseDown="GroupContainer_OnMouseDown"
+                        ContextMenu="{StaticResource GroupContextMenu}">
+                    <Grid>
+                        <Border
+                            Background="{DynamicResource CBackground1}"
+                            Opacity="0.5" CornerRadius="20"/>
+                        <TextBlock Text="{Binding NodeGroup.Title}" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Top"
+                                   TextWrapping="WrapWithOverflow"
+                                   Foreground="{DynamicResource CForeground3}"/>
+                    </Grid>
                 </Border>
                 <Canvas Name="GroupConnectionCanvas" IsHitTestVisible="False"/>
                 <ItemsControl
                     x:Name="ItemsControl"
                     ItemsSource="{Binding Nodes, Mode=OneWay}"
                     Background="Transparent"
-                    ItemTemplate="{StaticResource NodeTemplate}">
+                    ItemTemplateSelector="{StaticResource GroupItemsControlDataTemplateSelector}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Canvas  />
@@ -838,6 +833,17 @@
                     </Grid.RenderTransform>
                     <Canvas x:Name="CanvasContainerCanvas" />
                     <Canvas x:Name="ConnectionCanvas" IsHitTestVisible="False"/>
+                    <ItemsControl
+                        x:Name="NodesItemsControl"
+                        ItemsSource="{Binding NodesItemsControlItemsSource, Mode=OneWay}"
+                        Background="Transparent"
+                        ItemTemplateSelector="{StaticResource NodeItemsControlDataTemplateSelector}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
                     <Canvas x:Name="DragCanvas" IsHitTestVisible="False">
                         <Path Stroke="LawnGreen" StrokeThickness="4" x:Name="DragPath"
                               StrokeStartLineCap="Round"
@@ -852,29 +858,17 @@
                             </Path.Data>
                         </Path>
                     </Canvas>
-                    <!--> Nodes & Groups <-->
-                    <ItemsControl
-                        x:Name="NodesItemsControl"
-                        ItemsSource="{Binding NodesItemsControlItemsSource, Mode=OneWay}"
-                        Background="Transparent"
-                        ItemTemplateSelector="{StaticResource NodeItemsControlDataTemplateSelector}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Canvas/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
                 </Grid>
             </Grid>
         </Grid>
         <Grid.ContextMenu>
-            <ContextMenu Name="WindowContextMenu" ItemsSource="{Binding FieldContextMenu.Items}">
+            <ContextMenu ItemsSource="{Binding FieldContextMenu.Items}">
                 <ContextMenu.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type sdkNodes:ContextMenuSubMenu}" ItemsSource="{Binding Items}">
                         <TextBlock Text="{Binding Name}" />
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type sdkNodes:ContextMenuItem}">
-                        <MenuItem Header="{Binding Name}" Click="WindowContextMenu_ItemClick" Tag="{Binding Type}"/>
+                        <MenuItem Header="{Binding Name}" Click="FieldContextMenu_ItemClick" Tag="{Binding Type}"/>
                     </DataTemplate>
                 </ContextMenu.Resources>
             </ContextMenu>
