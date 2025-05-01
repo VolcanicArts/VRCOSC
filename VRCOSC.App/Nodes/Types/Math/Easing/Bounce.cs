@@ -12,10 +12,10 @@ public sealed class BounceInNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Bounce.In(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Bounce.In(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -26,10 +26,10 @@ public sealed class BounceOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Bounce.Out(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Bounce.Out(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -40,9 +40,9 @@ public sealed class BounceInOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Bounce.InOut(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Bounce.InOut(float.Clamp(x, 0f, 1f));
     }
 }

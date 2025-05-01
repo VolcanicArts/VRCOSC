@@ -12,10 +12,10 @@ public sealed class QuarticInNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Quartic.In(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Quartic.In(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -26,10 +26,10 @@ public sealed class QuarticOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Quartic.Out(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Quartic.Out(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -40,9 +40,9 @@ public sealed class QuarticInOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Quartic.InOut(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Quartic.InOut(float.Clamp(x, 0f, 1f));
     }
 }

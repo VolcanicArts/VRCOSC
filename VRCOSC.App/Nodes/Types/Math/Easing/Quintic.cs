@@ -12,10 +12,10 @@ public sealed class QuinticInNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Quintic.In(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Quintic.In(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -26,10 +26,10 @@ public sealed class QuinticOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Quintic.Out(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Quintic.Out(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -40,9 +40,9 @@ public sealed class QuinticInOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Quintic.InOut(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Quintic.InOut(float.Clamp(x, 0f, 1f));
     }
 }

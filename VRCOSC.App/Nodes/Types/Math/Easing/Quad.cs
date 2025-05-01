@@ -12,10 +12,10 @@ public sealed class QuadInNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Quadratic.In(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Quadratic.In(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -26,10 +26,10 @@ public sealed class QuadOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Quadratic.Out(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Quadratic.Out(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -40,9 +40,9 @@ public sealed class QuadInOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Quadratic.InOut(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Quadratic.InOut(float.Clamp(x, 0f, 1f));
     }
 }

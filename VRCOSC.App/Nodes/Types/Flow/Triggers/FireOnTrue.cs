@@ -10,7 +10,7 @@ namespace VRCOSC.App.Nodes.Types.Flow.Triggers;
 [Node("Fire On True", "Flow")]
 public sealed class FireOnTrueNode : Node, IFlowOutput
 {
-    public NodeFlowRef[] FlowOutputs => [new()];
+    public NodeFlowRef[] FlowOutputs => [new("On True")];
 
     [NodeProcess]
     private async Task process

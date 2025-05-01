@@ -12,10 +12,10 @@ public sealed class CircularInNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Circular.In(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Circular.In(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -26,10 +26,10 @@ public sealed class CircularOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Circular.Out(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Circular.Out(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -40,9 +40,9 @@ public sealed class CircularInOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Circular.InOut(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Circular.InOut(float.Clamp(x, 0f, 1f));
     }
 }

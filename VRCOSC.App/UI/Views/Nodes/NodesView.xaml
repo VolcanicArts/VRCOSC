@@ -637,12 +637,15 @@
                         </ItemsControl>
                         <!--> Title <-->
                         <Grid Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Foreground="{DynamicResource CForeground2}"
-                                       Text="{Binding Metadata.Title}" FontSize="16"
-                                       TextAlignment="Center"
-                                       TextWrapping="WrapWithOverflow"
-                                       FontWeight="SemiBold"
-                                       Visibility="{Binding Metadata.Icon, Converter={StaticResource NodeIconToTitleVisibilityConverter}}"/>
+                            <Viewbox Stretch="Uniform">
+                                <TextBlock Foreground="{DynamicResource CForeground2}"
+                                           Text="{Binding Metadata.Title}" FontSize="16"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           TextAlignment="Center"
+                                           FontWeight="SemiBold"
+                                           Visibility="{Binding Metadata.Icon, Converter={StaticResource NodeIconToTitleVisibilityConverter}}"/>
+                            </Viewbox>
                             <fa6:FontAwesome Icon="{Binding Metadata.Icon}" FontSize="24"
                                              VerticalAlignment="Center"
                                              HorizontalAlignment="Center"

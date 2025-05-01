@@ -10,7 +10,7 @@ namespace VRCOSC.App.Nodes.Types.Flow.Triggers;
 [Node("Fire On Change", "Flow")]
 public sealed class FireOnChangeNode<T> : Node, IFlowOutput
 {
-    public NodeFlowRef[] FlowOutputs => [new()];
+    public NodeFlowRef[] FlowOutputs => [new("On Change")];
 
     [NodeProcess]
     private Task process

@@ -12,10 +12,10 @@ public sealed class ExponentialInNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Exponential.In(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Exponential.In(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -26,10 +26,10 @@ public sealed class ExponentialOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Exponential.Out(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Exponential.Out(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -40,9 +40,9 @@ public sealed class ExponentialInOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Exponential.InOut(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Exponential.InOut(float.Clamp(x, 0f, 1f));
     }
 }

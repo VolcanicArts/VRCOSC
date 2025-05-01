@@ -12,10 +12,10 @@ public sealed class CubicInNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Cubic.In(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Cubic.In(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -26,10 +26,10 @@ public sealed class CubicOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Cubic.Out(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Cubic.Out(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -40,9 +40,9 @@ public sealed class CubicInOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Cubic.InOut(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Cubic.InOut(float.Clamp(x, 0f, 1f));
     }
 }

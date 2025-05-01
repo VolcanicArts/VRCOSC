@@ -10,7 +10,7 @@ namespace VRCOSC.App.Nodes.Types.Flow.Triggers;
 [Node("Fire On Interval", "Flow")]
 public sealed class FireOnIntervalNode : Node, IFlowOutput
 {
-    public NodeFlowRef[] FlowOutputs => [new()];
+    public NodeFlowRef[] FlowOutputs => [new("On Update")];
 
     [NodeProcess]
     private async Task process

@@ -480,8 +480,7 @@ public partial class NodesView : INotifyPropertyChanged
             var node = ConnectionDrag.Node;
             var slot = ConnectionDrag.Slot;
 
-            var metadata = NodeField.GetMetadata(node);
-            var slotInputType = metadata.GetTypeOfInputSlot(slot);
+            var slotInputType = node.GetTypeOfInputSlot(slot);
 
             if (slotInputType == typeof(ReceivedParameter))
             {
@@ -1006,7 +1005,7 @@ public partial class NodesView : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var node = (Node)element.Tag;
 
-        node.Metadata.OutputVariableSizeActual++;
+        node.VariableSize.ValueOutputSize++;
 
         var valueOutputItemsControl = element.FindVisualParent<FrameworkElement>("ValueOutputContainer")!.FindVisualChild<ItemsControl>("ValueOutputItemsControl")!;
         valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
@@ -1017,9 +1016,9 @@ public partial class NodesView : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var node = (Node)element.Tag;
 
-        if (node.Metadata.OutputVariableSizeActual == 1) return;
+        if (node.VariableSize.ValueOutputSize == 1) return;
 
-        node.Metadata.OutputVariableSizeActual--;
+        node.VariableSize.ValueOutputSize--;
 
         var valueOutputItemsControl = element.FindVisualParent<FrameworkElement>("ValueOutputContainer")!.FindVisualChild<ItemsControl>("ValueOutputItemsControl")!;
         valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
@@ -1030,7 +1029,7 @@ public partial class NodesView : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var node = (Node)element.Tag;
 
-        node.Metadata.InputVariableSizeActual++;
+        node.VariableSize.ValueInputSize++;
 
         var valueInputItemsControl = element.FindVisualParent<FrameworkElement>("ValueInputContainer")!.FindVisualChild<ItemsControl>("ValueInputItemsControl")!;
         valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
@@ -1041,9 +1040,9 @@ public partial class NodesView : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var node = (Node)element.Tag;
 
-        if (node.Metadata.InputVariableSizeActual == 1) return;
+        if (node.VariableSize.ValueInputSize == 1) return;
 
-        node.Metadata.InputVariableSizeActual--;
+        node.VariableSize.ValueInputSize--;
 
         var valueInputItemsControl = element.FindVisualParent<FrameworkElement>("ValueInputContainer")!.FindVisualChild<ItemsControl>("ValueInputItemsControl")!;
         valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();

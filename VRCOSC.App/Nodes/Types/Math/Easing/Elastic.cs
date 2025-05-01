@@ -12,10 +12,10 @@ public sealed class ElasticInNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Elastic.In(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Elastic.In(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -26,10 +26,10 @@ public sealed class ElasticOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Elastic.Out(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Elastic.Out(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -40,9 +40,9 @@ public sealed class ElasticInOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Elastic.InOut(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Elastic.InOut(float.Clamp(x, 0f, 1f));
     }
 }

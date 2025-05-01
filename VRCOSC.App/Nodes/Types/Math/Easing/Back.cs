@@ -12,10 +12,10 @@ public sealed class BackInNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Back.In(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Back.In(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -26,10 +26,10 @@ public sealed class BackOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Back.Out(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Back.Out(float.Clamp(x, 0f, 1f));
     }
 }
 
@@ -40,9 +40,9 @@ public sealed class BackInOutNode : Node
     private void process
     (
         [NodeValue] float x,
-        [NodeValue] ref float outY
+        [NodeValue] Ref<float> outY
     )
     {
-        outY = Utils.Easing.Back.InOut(float.Clamp(x, 0f, 1f));
+        outY.Value = Utils.Easing.Back.InOut(float.Clamp(x, 0f, 1f));
     }
 }
