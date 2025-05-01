@@ -32,7 +32,7 @@ public class NodeFieldMemory
 
             if (metadata.OutputHasVariableSize && i == metadata.OutputsCount - 1)
             {
-                var arrSize = metadata.OutputVariableSizeActual;
+                var arrSize = node.VariableSize.ValueOutputSize;
                 var elementType = outputMetadata.Type.GetElementType()!;
                 var arr = Array.CreateInstance(elementType, arrSize);
                 var defaultValue = elementType.CreateDefault();

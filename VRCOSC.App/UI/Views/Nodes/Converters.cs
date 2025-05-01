@@ -60,7 +60,7 @@ public class ConnectionAmountConverter : IValueConverter
                 {
                     points.Remove(points.Last());
 
-                    points.AddRange(Enumerable.Range(0, node.Metadata.InputVariableSizeActual).Select(i =>
+                    points.AddRange(Enumerable.Range(0, node.VariableSize.ValueInputSize).Select(i =>
                         new ConnectionViewModel(node, node.Metadata.InputsCount - 1 + i, node.Metadata.Inputs.Last().Name, node.Metadata.Inputs.Last().Type.GetElementType())));
                 }
 
@@ -78,7 +78,7 @@ public class ConnectionAmountConverter : IValueConverter
                 {
                     points.Remove(points.Last());
 
-                    points.AddRange(Enumerable.Range(0, node.Metadata.OutputVariableSizeActual).Select(i =>
+                    points.AddRange(Enumerable.Range(0, node.VariableSize.ValueOutputSize).Select(i =>
                         new ConnectionViewModel(node, node.Metadata.OutputsCount - 1 + i, node.Metadata.Outputs.Last().Name, node.Metadata.Outputs.Last().Type.GetElementType())));
                 }
 

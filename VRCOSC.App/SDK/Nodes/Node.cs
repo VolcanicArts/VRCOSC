@@ -15,6 +15,7 @@ namespace VRCOSC.App.SDK.Nodes;
 public abstract class Node
 {
     internal NodeField NodeField { get; set; } = null!;
+    internal NodeVariableSize VariableSize => NodeField.VariableSizes[Id];
 
     public Guid Id { get; } = Guid.NewGuid();
     public ObservableVector2 Position { get; } = new(5000, 5000);

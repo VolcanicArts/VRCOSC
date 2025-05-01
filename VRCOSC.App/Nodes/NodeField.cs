@@ -19,23 +19,15 @@ namespace VRCOSC.App.Nodes;
 
 public class NodeField
 {
-    private readonly object nodesLock = new();
-
     public ObservableDictionary<Guid, Node> Nodes { get; } = [];
     public ObservableCollection<NodeConnection> Connections { get; } = [];
     public ObservableCollection<NodeGroup> Groups { get; } = [];
+    public Dictionary<Guid, NodeVariableSize> VariableSizes = [];
 
     public int ZIndex { get; set; } = 0;
 
     public readonly Dictionary<Type, NodeMetadata> Metadata = [];
     public readonly Dictionary<string, object?> Variables = [];
-
-    public void RegisterNode(Node node)
-    {
-        if (Metadata.ContainsKey(node.GetType())) return;
-
-        Metadata.Add(node.GetType(), NodeMetadataBuilder.BuildFrom(node));
-    }
 
     public NodeMetadata GetMetadata(Node node) => Metadata[node.GetType()];
 
@@ -62,11 +54,14 @@ public class NodeField
 
     public void CreateValueConnection(Guid outputNodeId, int outputValueSlot, Guid inputNodeId, int inputValueSlot)
     {
-        var outputMetadata = GetMetadata(Nodes[outputNodeId]);
-        var inputMetadata = GetMetadata(Nodes[inputNodeId]);
+        var outputNode = Nodes[outputNodeId];
+        var inputNode = Nodes[inputNodeId];
 
-        var outputType = outputMetadata.GetTypeOfOutputSlot(outputValueSlot);
-        var inputType = inputMetadata.GetTypeOfInputSlot(inputValueSlot);
+        var outputMetadata = outputNode.Metadata;
+        var inputMetadata = inputNode.Metadata;
+
+        var outputType = outputNode.GetTypeOfOutputSlot(outputValueSlot);
+        var inputType = inputNode.GetTypeOfInputSlot(inputValueSlot);
         var existingConnection = Connections.FirstOrDefault(con => con.ConnectionType == ConnectionType.Value && con.InputNodeId == inputNodeId && con.InputSlot == inputValueSlot);
 
         var newConnectionMade = false;
@@ -125,28 +120,44 @@ public class NodeField
         // TODO: When a ValueRelayNode is removed, bridge connections
     }
 
-    private Node addNode(Node node)
-    {
-        RegisterNode(node);
-
-        node.ZIndex = ZIndex++;
-        node.NodeField = this;
-
-        lock (nodesLock)
-        {
-            Nodes.Add(node.Id, node);
-        }
-
-        return node;
-    }
-
     public Node AddNode(Type nodeType)
     {
         var node = (Node)Activator.CreateInstance(nodeType)!;
         return addNode(node);
     }
 
-    public record FlowTask(Task Task, CancellationTokenSource Source);
+    private Node addNode(Node node)
+    {
+        NodeMetadata metadata;
+
+        if (Metadata.TryGetValue(node.GetType(), out var foundMetadata))
+        {
+            metadata = foundMetadata;
+        }
+        else
+        {
+            metadata = NodeMetadataBuilder.BuildFrom(node);
+            Metadata.Add(node.GetType(), metadata);
+        }
+
+        if (metadata.InputHasVariableSize || metadata.OutputHasVariableSize)
+        {
+            VariableSizes.Add(node.Id, new NodeVariableSize
+            {
+                ValueInputSize = metadata.InputVariableSize?.DefaultSize ?? 0,
+                ValueOutputSize = metadata.OutputVariableSize?.DefaultSize ?? 0
+            });
+        }
+
+        node.ZIndex = ZIndex++;
+        node.NodeField = this;
+
+        Nodes.Add(node.Id, node);
+
+        return node;
+    }
+
+    private record FlowTask(Task Task, CancellationTokenSource Source);
 
     private readonly NodeFieldMemory memory = new();
     private readonly Dictionary<Node, FlowTask> tasks = [];
@@ -297,7 +308,7 @@ public class NodeField
 
         if (metadata.InputHasVariableSize && metadata.InputsCount - 1 == inputSlot)
         {
-            var arrSize = metadata.InputVariableSizeActual;
+            var arrSize = inputNode.VariableSize.ValueInputSize;
             var elementType = inputType.GetElementType()!;
             var values = Array.CreateInstance(elementType, arrSize);
 

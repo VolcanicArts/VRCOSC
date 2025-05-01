@@ -111,9 +111,7 @@ public static class NodeMetadataBuilder
             Inputs = inputMetadata,
             Outputs = outputMetadata,
             InputVariableSize = inputVariableSize,
-            InputVariableSizeActual = inputVariableSize?.DefaultSize ?? 0,
-            OutputVariableSize = outputVariableSize,
-            OutputVariableSizeActual = outputVariableSize?.DefaultSize ?? 0
+            OutputVariableSize = outputVariableSize
         };
 
         return metadata;
@@ -319,6 +317,12 @@ public static class NodeMetadataBuilder
     ***/
 }
 
+public sealed class NodeVariableSize
+{
+    public int ValueInputSize { get; set; }
+    public int ValueOutputSize { get; set; }
+}
+
 public sealed class NodeMetadata
 {
     public string? Title { get; set; }
@@ -330,9 +334,7 @@ public sealed class NodeMetadata
     public NodeValueMetadata[] Inputs { get; set; } = [];
     public NodeValueMetadata[] Outputs { get; set; } = [];
     public NodeVariableSizeAttribute? InputVariableSize { get; set; }
-    public int InputVariableSizeActual { get; set; }
     public NodeVariableSizeAttribute? OutputVariableSize { get; set; }
-    public int OutputVariableSizeActual { get; set; }
     public bool IsFlowInput { get; set; }
     public bool IsFlowOutput { get; set; }
     public bool IsValueInput { get; set; }
@@ -347,60 +349,8 @@ public sealed class NodeMetadata
     public bool OutputHasVariableSize => OutputVariableSize is not null;
 
     public int FlowCount => FlowOutputs.Length;
-
     public int InputsCount => Inputs.Length;
-
-    public int InputsVirtualCount
-    {
-        get
-        {
-            if (Inputs.Length == 0) return 0;
-            if (InputVariableSize is null) return Inputs.Length;
-
-            return Inputs.Length - 1 + InputVariableSizeActual;
-        }
-    }
-
     public int OutputsCount => Outputs.Length;
-
-    public int OutputsVirtualCount
-    {
-        get
-        {
-            if (Outputs.Length == 0) return 0;
-            if (OutputVariableSize is null) return Outputs.Length;
-
-            return Outputs.Length - 1 + OutputVariableSizeActual;
-        }
-    }
-
-    public Type GetTypeOfInputSlot(int index)
-    {
-        if (InputsCount == 0) throw new Exception($"Cannot get type of input slot when there are no inputs {Title}");
-        if (!InputHasVariableSize && index >= InputsCount) throw new IndexOutOfRangeException();
-        if (InputHasVariableSize && index >= InputsVirtualCount) throw new IndexOutOfRangeException();
-
-        if (InputHasVariableSize)
-        {
-            if (index >= InputsCount - 1) return Inputs.Last().Type.GetElementType()!;
-        }
-
-        return Inputs[index].Type;
-    }
-
-    public Type GetTypeOfOutputSlot(int index)
-    {
-        if (OutputsCount == 0) throw new Exception("Cannot get type of output slot when there are no outputs");
-        if (!OutputHasVariableSize && index >= OutputsCount) throw new IndexOutOfRangeException();
-        if (OutputHasVariableSize && index >= OutputsVirtualCount) throw new IndexOutOfRangeException();
-
-        if (OutputHasVariableSize)
-        {
-            if (index >= OutputsCount - 1) return Outputs.Last().Type.GetElementType()!;
-        }
-
-        return Outputs[index].Type;
-    }
 }
 
 public sealed class NodeValueMetadata
