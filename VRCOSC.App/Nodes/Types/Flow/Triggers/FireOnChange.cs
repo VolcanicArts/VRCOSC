@@ -17,5 +17,5 @@ public sealed class FireOnChangeNode<T> : Node, IFlowOutput
     (
         CancellationToken token,
         [NodeValue("Value")] [NodeReactive] T value
-    ) => TriggerFlow(token, 0);
+    ) => TriggerFlow(token, 0, true);
 }

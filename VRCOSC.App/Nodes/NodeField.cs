@@ -191,13 +191,12 @@ public class NodeField
                 // ignore it
             }
 
-            memory.Reset();
             tasks.Remove(triggerNode);
         }
 
         var source = new CancellationTokenSource();
 
-        var task = Task.Run(() => executeFlowNode(triggerNode, source.Token), source.Token).ContinueWith(_ => memory.Reset(), TaskContinuationOptions.OnlyOnRanToCompletion);
+        var task = Task.Run(() => executeFlowNode(triggerNode, source.Token), source.Token);
 
         tasks.Add(triggerNode, new FlowTask(task, source));
     });

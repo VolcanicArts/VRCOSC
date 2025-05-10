@@ -19,6 +19,6 @@ public sealed class FireOnFalseNode : Node, IFlowOutput
         [NodeValue("Condition")] [NodeReactive] bool condition
     )
     {
-        if (!condition) await TriggerFlow(token, 0);
+        if (!condition) await TriggerFlow(token, 0, true);
     }
 }

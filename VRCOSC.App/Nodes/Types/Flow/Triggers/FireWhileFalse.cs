@@ -24,7 +24,7 @@ public sealed class FireWhileFalseNode : Node, IFlowOutput
 
         while (!token.IsCancellationRequested)
         {
-            await TriggerFlow(token, 0);
+            await TriggerFlow(token, 0, true);
             if (token.IsCancellationRequested) break;
 
             await Task.Delay(milliseconds, token);
