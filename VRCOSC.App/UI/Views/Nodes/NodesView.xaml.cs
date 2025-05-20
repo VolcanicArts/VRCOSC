@@ -19,7 +19,6 @@ using VRCOSC.App.Nodes;
 using VRCOSC.App.Nodes.Types.Inputs;
 using VRCOSC.App.Nodes.Types.Values;
 using VRCOSC.App.SDK.Nodes;
-using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
@@ -335,10 +334,10 @@ public partial class NodesView : INotifyPropertyChanged
         // check if input node is in group
         // TODO: decide where to render
 
-        drawConnectionPath(pathTag, outputSlotElement, inputSlotElement, connection.ConnectionType);
+        drawConnectionPath(pathTag, outputSlotElement, inputSlotElement, connection);
     }
 
-    private void drawConnectionPath(string tag, FrameworkElement outputSlotElement, FrameworkElement inputSlotElement, ConnectionType connectionType)
+    private void drawConnectionPath(string tag, FrameworkElement outputSlotElement, FrameworkElement inputSlotElement, NodeConnection connection)
     {
         var outputElementXOffset = outputSlotElement.Width / 2d;
         var outputElementYOffset = outputSlotElement.Height / 2d;
@@ -350,7 +349,8 @@ public partial class NodesView : INotifyPropertyChanged
 
         var startPoint = outputElementPosRelativeToCanvas;
         var endPoint = inputElementPosRelativeToCanvas;
-        var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.75d, 75d);
+        var minDelta = Math.Min(Math.Abs(endPoint.Y - startPoint.Y) / 2d, 75d);
+        var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.5d, minDelta);
         var controlPoint1 = Point.Add(startPoint, new Vector(delta, 0));
         var controlPoint2 = Point.Add(endPoint, new Vector(-delta, 0));
 
@@ -372,7 +372,7 @@ public partial class NodesView : INotifyPropertyChanged
         {
             Tag = tag,
             Data = pathGeometry,
-            Stroke = connectionType == ConnectionType.Value ? Brushes.OrangeRed : Brushes.DeepSkyBlue,
+            Stroke = connection.ConnectionType == ConnectionType.Value ? connection.OutputType?.GetTypeBrush() : Brushes.DeepSkyBlue,
             StrokeThickness = 4,
             StrokeStartLineCap = PenLineCap.Round,
             StrokeEndLineCap = PenLineCap.Round
@@ -386,7 +386,7 @@ public partial class NodesView : INotifyPropertyChanged
             {
                 Tag = tag,
                 Data = pathGeometry,
-                Stroke = connectionType == ConnectionType.Value ? Brushes.OrangeRed : Brushes.DeepSkyBlue,
+                Stroke = connection.ConnectionType == ConnectionType.Value ? connection.OutputType?.GetTypeBrush() : Brushes.DeepSkyBlue,
                 StrokeThickness = 4,
                 StrokeStartLineCap = PenLineCap.Round,
                 StrokeEndLineCap = PenLineCap.Round
@@ -495,20 +495,7 @@ public partial class NodesView : INotifyPropertyChanged
             var slot = ConnectionDrag.Slot;
 
             var slotInputType = node.GetTypeOfInputSlot(slot);
-
-            if (slotInputType == typeof(ReceivedParameter))
-            {
-                e.Handled = true;
-
-                var mousePosRelativeToCanvas = Mouse.GetPosition(CanvasContainer);
-                var outputNode = NodeField.AddNode(typeof(ReceivedParameterSourceNode));
-
-                NodeField.CreateValueConnection(outputNode.Id, 0, node.Id, slot);
-                outputNode.Position.X = mousePosRelativeToCanvas.X;
-                outputNode.Position.Y = mousePosRelativeToCanvas.Y;
-
-                ConnectionDrag = null;
-            }
+            if (slotInputType.IsGenericType && slotInputType.GetGenericTypeDefinition() == typeof(Nullable<>)) slotInputType = slotInputType.GenericTypeArguments[0];
 
             if (NodeConstants.INPUT_TYPES.Contains(slotInputType) || slotInputType.IsAssignableTo(typeof(Enum)))
             {
@@ -944,7 +931,8 @@ public partial class NodesView : INotifyPropertyChanged
 
         var startPoint = elementPosRelativeToCanvas;
         var endPoint = mousePosRelativeToCanvas;
-        var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.75d, 75d);
+        var minDelta = Math.Min(Math.Abs(endPoint.Y - startPoint.Y) / 2d, 75d);
+        var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.5d, minDelta);
         var controlPoint1 = Point.Add(startPoint, new Vector(isReversed ? -delta : delta, 0));
         var controlPoint2 = Point.Add(endPoint, new Vector(isReversed ? delta : -delta, 0));
 

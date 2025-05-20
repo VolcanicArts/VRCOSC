@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using FontAwesome6;
 using VRCOSC.App.SDK.Nodes;
@@ -41,8 +40,8 @@ public static class NodeMetadataBuilder
 
         if (isFlowInput || isFlowOutput)
         {
-            if (parameters.FirstOrDefault()?.ParameterType != typeof(CancellationToken))
-                throw new Exception($"Cannot build {nameof(NodeMetadata)} as a flow node has been defined without taking a {nameof(CancellationToken)} as the first process method parameter");
+            if (!parameters.First().ParameterType.IsAssignableTo(typeof(FlowContext)))
+                throw new Exception($"Cannot build {nameof(NodeMetadata)} as a flow node has been defined without taking a {nameof(FlowContext)} as the first process method parameter");
         }
 
         var inputParametersEnumerable = parameters.TakeWhile(p => !p.ParameterType.IsAssignableTo(typeof(IRef)));

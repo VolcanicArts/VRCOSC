@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
@@ -15,10 +14,10 @@ public sealed class FireOnTrueNode : Node, IFlowOutput
     [NodeProcess]
     private async Task process
     (
-        CancellationToken token,
+        FlowContext context,
         [NodeValue("Condition")] [NodeReactive] bool condition
     )
     {
-        if (condition) await TriggerFlow(token, 0, true);
+        if (condition) await TriggerFlow(context, 0, true);
     }
 }

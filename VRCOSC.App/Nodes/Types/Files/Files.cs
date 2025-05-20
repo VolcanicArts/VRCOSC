@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
@@ -21,7 +20,7 @@ public class WriteTextToFileNode : Node, IFlowInput, IFlowOutput
     [NodeProcess]
     private async Task process
     (
-        CancellationToken token,
+        FlowContext context,
         [NodeValue("Text")] string? text,
         [NodeValue("File Path")] string? filePath
     )
@@ -30,22 +29,22 @@ public class WriteTextToFileNode : Node, IFlowInput, IFlowOutput
 
         if (!File.Exists(filePath))
         {
-            await TriggerFlow(token, 1);
+            await TriggerFlow(context, 1);
             return;
         }
 
         try
         {
-            await File.WriteAllTextAsync(filePath, text, token);
-            if (token.IsCancellationRequested) return;
+            await File.WriteAllTextAsync(filePath, text, context.Token);
+            if (context.Token.IsCancellationRequested) return;
 
-            await TriggerFlow(token, 0);
+            await TriggerFlow(context, 0);
         }
         catch (Exception)
         {
-            if (token.IsCancellationRequested) return;
+            if (context.Token.IsCancellationRequested) return;
 
-            await TriggerFlow(token, 1);
+            await TriggerFlow(context, 1);
         }
     }
 }

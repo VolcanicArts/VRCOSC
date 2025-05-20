@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
@@ -15,7 +14,7 @@ public sealed class FireOnChangeNode<T> : Node, IFlowOutput
     [NodeProcess]
     private Task process
     (
-        CancellationToken token,
+        FlowContext context,
         [NodeValue("Value")] [NodeReactive] T value
-    ) => TriggerFlow(token, 0, true);
+    ) => TriggerFlow(context, 0, true);
 }

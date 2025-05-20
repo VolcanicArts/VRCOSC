@@ -27,6 +27,22 @@ public class NodeManager
         Fields.Add(new NodeField());
     }
 
+    public void Start()
+    {
+        foreach (var nodeField in Fields)
+        {
+            nodeField.Start();
+        }
+    }
+
+    public void Stop()
+    {
+        foreach (var nodeField in Fields)
+        {
+            nodeField.Stop();
+        }
+    }
+
     public void ParameterReceived(ReceivedParameter parameter)
     {
         foreach (var nodeField in Fields)

@@ -11,10 +11,10 @@ public class Remap1101Node : Node
     [NodeProcess]
     private void process
     (
-        [NodeValue("Value")] float value,
-        [NodeValue("Value")] Ref<float> outValue
+        [NodeValue] float value,
+        [NodeValue] Ref<float> outValue
     )
     {
-        outValue.Value = App.Utils.Interpolation.Map(value, -1, 1, 0, 1);
+        outValue.Value = Utils.Interpolation.Map(value, -1, 1, 0, 1);
     }
 }

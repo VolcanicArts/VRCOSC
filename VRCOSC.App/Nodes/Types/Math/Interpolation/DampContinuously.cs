@@ -18,6 +18,6 @@ public sealed class DampContinuouslyNode : Node
         [NodeValue("Result")] Ref<float> result
     )
     {
-        result.Value = App.Utils.Interpolation.DampContinuously(current, target, lengthMilli / 2f, elapsedTimeMilli);
+        result.Value = Utils.Interpolation.DampContinuously(current, target, lengthMilli / 2f, elapsedTimeMilli);
     }
 }

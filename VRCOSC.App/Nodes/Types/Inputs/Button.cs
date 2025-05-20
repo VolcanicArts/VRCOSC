@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.Nodes.Types.Base;
 
@@ -17,5 +16,5 @@ public sealed class ButtonInputNode : InputNode, IFlowOutput
     public void OnClick() => TriggerSelf();
 
     [NodeProcess]
-    private Task process(CancellationToken token) => TriggerFlow(token, 0);
+    private Task process(FlowContext context) => TriggerFlow(context, 0);
 }

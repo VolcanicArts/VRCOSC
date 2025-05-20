@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
@@ -17,6 +16,6 @@ public sealed class ReceiveImpulseNode : Node, IFlowOutput
     [NodeProcess]
     private Task process
     (
-        CancellationToken token
-    ) => TriggerFlow(token, 0);
+        FlowContext context
+    ) => TriggerFlow(context, 0);
 }

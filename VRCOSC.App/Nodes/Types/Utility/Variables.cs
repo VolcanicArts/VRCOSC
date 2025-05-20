@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
@@ -15,7 +14,7 @@ public sealed class WriteVariableNode<T> : Node, IFlowInput, IFlowOutput
     [NodeProcess]
     private async Task process
     (
-        CancellationToken token,
+        FlowContext context,
         [NodeValue("Name")] string? name,
         [NodeValue("Value")] T value,
         [NodeValue("Persistent")] bool persistent
@@ -24,7 +23,7 @@ public sealed class WriteVariableNode<T> : Node, IFlowInput, IFlowOutput
         if (string.IsNullOrEmpty(name)) return;
 
         NodeField.WriteVariable(name, value, persistent);
-        await TriggerFlow(token, 0);
+        await TriggerFlow(context, 0);
     }
 }
 
@@ -36,7 +35,7 @@ public sealed class ReadVariableNode<T> : Node, IFlowInput, IFlowOutput
     [NodeProcess]
     private async Task process
     (
-        CancellationToken token,
+        FlowContext context,
         [NodeValue("Name")] string? name,
         [NodeValue("Value")] Ref<T> outValue
     )
@@ -46,6 +45,6 @@ public sealed class ReadVariableNode<T> : Node, IFlowInput, IFlowOutput
         if (foundValue is not T foundValueCast) return;
 
         outValue.Value = foundValueCast;
-        await TriggerFlow(token, 0);
+        await TriggerFlow(context, 0);
     }
 }

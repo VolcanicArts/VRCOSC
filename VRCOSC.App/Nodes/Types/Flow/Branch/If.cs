@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
@@ -19,10 +18,10 @@ public sealed class IfNode : Node, IFlowInput, IFlowOutput
     [NodeProcess]
     private Task process
     (
-        CancellationToken token,
+        FlowContext context,
         [NodeValue("Condition")] bool condition
     )
     {
-        return TriggerFlow(token, condition ? 0 : 1);
+        return TriggerFlow(context, condition ? 0 : 1);
     }
 }

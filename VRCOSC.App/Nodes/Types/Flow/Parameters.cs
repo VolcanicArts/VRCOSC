@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Parameters;
@@ -25,33 +24,35 @@ public sealed class RegisteredParameterReceivedNode<T> : Node, IFlowOutput
     [NodeProcess]
     private async Task process
     (
-        CancellationToken token,
+        FlowContext context,
         [NodeValue("Value")] Ref<T> outValue
     )
     {
         outValue.Value = (T)registeredParameter.Value;
-        await TriggerFlow(token, 0);
+        await TriggerFlow(context, 0);
     }
 }
 
 [Node("On Parameter Received", "Flow")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public sealed class OnParameterReceivedNode<T> : Node, IFlowOutput where T : struct
+public sealed class OnParameterReceivedNode<T> : Node, IFlowOutput, IParameterReceiver where T : struct
 {
     public NodeFlowRef[] FlowOutputs => [new("On Received")];
+
+    private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
     [NodeProcess]
     private async Task process
     (
-        CancellationToken token,
-        [NodeValue("Parameter")] [NodeReactive] ReceivedParameter? parameter,
+        ParameterReceiverFlowContext context,
+        [NodeValue("Name")] string? name,
         [NodeValue("Value")] Ref<T> outValue
     )
     {
-        if (parameter is null) return;
-        if (parameter.Type != ParameterTypeFactory.CreateFrom<T>()) return;
+        var parameter = context.Parameter;
+        if (string.IsNullOrEmpty(name) || parameter.Name != name || parameter.Type != parameterType) return;
 
         outValue.Value = (T)parameter.Value;
-        await TriggerFlow(token, 0);
+        await TriggerFlow(context, 0);
     }
 }

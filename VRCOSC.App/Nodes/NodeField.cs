@@ -8,17 +8,24 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types.Base;
 using VRCOSC.App.Nodes.Types.Flow.Impulse;
 using VRCOSC.App.Nodes.Types.Strings;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
 
 public class NodeField
 {
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string Name { get; set; } = "New Node Field";
+
+    private readonly SerialisationManager serialiser;
+
     public ObservableDictionary<Guid, Node> Nodes { get; } = [];
     public ObservableCollection<NodeConnection> Connections { get; } = [];
     public ObservableCollection<NodeGroup> Groups { get; } = [];
@@ -28,6 +35,35 @@ public class NodeField
 
     public readonly Dictionary<Type, NodeMetadata> Metadata = [];
     public readonly Dictionary<string, object?> Variables = [];
+
+    private bool running;
+
+    public NodeField()
+    {
+        serialiser = new SerialisationManager();
+        serialiser.RegisterSerialiser(1, new NodeFieldSerialiser(AppManager.GetInstance().Storage, this));
+        Deserialise();
+    }
+
+    public void Serialise()
+    {
+        serialiser.Serialise();
+    }
+
+    public void Deserialise(string importPath = "")
+    {
+        serialiser.Deserialise(true, importPath);
+    }
+
+    public void Start()
+    {
+        running = true;
+    }
+
+    public void Stop()
+    {
+        running = false;
+    }
 
     public NodeMetadata GetMetadata(Node node) => Metadata[node.GetType()];
 
@@ -44,7 +80,7 @@ public class NodeField
             Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.OutputNodeId == outputNodeId && connection.OutputSlot == outputFlowSlot);
 
         Logger.Log($"Creating flow connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputFlowSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()}");
-        Connections.Add(new NodeConnection(ConnectionType.Flow, outputNodeId, outputFlowSlot, inputNodeId, 0));
+        Connections.Add(new NodeConnection(ConnectionType.Flow, outputNodeId, outputFlowSlot, inputNodeId, 0, null));
 
         if (outputAlreadyHasConnection is not null)
         {
@@ -70,7 +106,7 @@ public class NodeField
         {
             Logger.Log(
                 $"Creating value connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputValueSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()} slot {inputValueSlot}");
-            Connections.Add(new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, inputNodeId, inputValueSlot));
+            Connections.Add(new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, inputNodeId, inputValueSlot, outputType));
             newConnectionMade = true;
         }
         else
@@ -126,10 +162,12 @@ public class NodeField
     public Node AddNode(Type nodeType)
     {
         var node = (Node)Activator.CreateInstance(nodeType)!;
-        return addNode(node);
+        addNode(node);
+        Serialise();
+        return node;
     }
 
-    private Node addNode(Node node)
+    private void addNode(Node node)
     {
         NodeMetadata metadata;
 
@@ -156,31 +194,31 @@ public class NodeField
         node.NodeField = this;
 
         Nodes.Add(node.Id, node);
-
-        return node;
     }
 
     private record FlowTask(Task Task, CancellationTokenSource Source);
 
     private readonly NodeFieldMemory memory = new();
     private readonly Dictionary<Node, FlowTask> tasks = [];
-    private bool shouldRun => AppManager.GetInstance().State.Value == AppManagerState.Started;
 
     public void ParameterReceived(ReceivedParameter parameter)
     {
-        if (!shouldRun) return;
+        if (!running) return;
 
-        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IAnyParameterReceiver))).Select(node => (IAnyParameterReceiver)node))
+        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IParameterReceiver))))
         {
-            node.OnAnyParameterReceived(parameter);
+            StartFlow(node, new ParameterReceiverFlowContext(parameter));
         }
     }
 
-    public void StartFlow(Node triggerNode) => Task.Run(async () =>
+    public void StartFlow(Node triggerNode, FlowContext? context = null) => Task.Run(async () =>
     {
+        context ??= new FlowContext();
+
         if (tasks.TryGetValue(triggerNode, out var existingTask))
         {
             await existingTask.Source.CancelAsync();
+            memory.Reset();
 
             try
             {
@@ -194,15 +232,14 @@ public class NodeField
             tasks.Remove(triggerNode);
         }
 
-        var source = new CancellationTokenSource();
-
-        var task = Task.Run(() => executeFlowNode(triggerNode, source.Token), source.Token);
-
-        tasks.Add(triggerNode, new FlowTask(task, source));
+        var task = Task.Run(() => executeFlowNode(triggerNode, context), context.Token).ContinueWith(_ => memory.Reset());
+        tasks.Add(triggerNode, new FlowTask(task, context.Source));
     });
 
-    public async Task TriggerOutputFlow(Node sourceNode, CancellationToken token, int flowSlot, bool shouldScope)
+    public async Task TriggerOutputFlow(Node sourceNode, FlowContext context, int flowSlot, bool shouldScope)
     {
+        if (context.Token.IsCancellationRequested) return;
+
         var connection = Connections.FirstOrDefault(con => con.OutputNodeId == sourceNode.Id && con.OutputSlot == flowSlot && con.ConnectionType == ConnectionType.Flow);
         if (connection is null) return;
 
@@ -213,7 +250,7 @@ public class NodeField
 
         var destNode = Nodes[connection.InputNodeId];
 
-        await executeFlowNode(destNode, token);
+        await executeFlowNode(destNode, context);
 
         if (shouldScope)
         {
@@ -339,15 +376,17 @@ public class NodeField
         return getConnectedRef(inputNode, inputSlot, inputType).GetValue();
     }
 
-    private async Task executeFlowNode(Node node, CancellationToken token)
+    private async Task executeFlowNode(Node node, FlowContext context)
     {
         // TODO: Check if node has already been executed and refuse
+
+        Logger.Log("Executing " + node.GetType().GetFriendlyName());
 
         var metadata = GetMetadata(node);
 
         var args = new List<object?>
         {
-            token
+            context
         };
 
         if (metadata.InputsCount > 0)
@@ -423,11 +462,11 @@ public class NodeField
         return nodeGroup;
     }
 
-    internal async Task TriggerImpulse(CancellationToken token, string impulseName)
+    internal async Task TriggerImpulse(FlowContext context, string impulseName)
     {
         foreach (var receiveImpulseNode in Nodes.Values.OfType<ReceiveImpulseNode>().Where(node => !string.IsNullOrEmpty(node.ImpulseName) && node.ImpulseName == impulseName))
         {
-            await executeFlowNode(receiveImpulseNode, token);
+            await executeFlowNode(receiveImpulseNode, context);
         }
     }
 }
@@ -439,7 +478,7 @@ public class NodeGroup
     public ObservableCollection<Guid> Nodes { get; } = [];
 }
 
-public record NodeConnection(ConnectionType ConnectionType, Guid OutputNodeId, int OutputSlot, Guid InputNodeId, int InputSlot);
+public record NodeConnection(ConnectionType ConnectionType, Guid OutputNodeId, int OutputSlot, Guid InputNodeId, int InputSlot, Type? OutputType);
 
 public enum ConnectionType
 {

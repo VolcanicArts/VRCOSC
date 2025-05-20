@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
@@ -24,32 +23,32 @@ public sealed class IfWithStateNode : Node, IFlowInput, IFlowOutput
     [NodeProcess]
     private Task process
     (
-        CancellationToken token,
+        FlowContext context,
         [NodeValue("Condition")] bool condition
     )
     {
         if (!prevCondition && condition)
         {
             prevCondition = condition;
-            return TriggerFlow(token, 0);
+            return TriggerFlow(context, 0);
         }
 
         if (prevCondition && !condition)
         {
             prevCondition = condition;
-            return TriggerFlow(token, 1);
+            return TriggerFlow(context, 1);
         }
 
         if (prevCondition && condition)
         {
             prevCondition = condition;
-            return TriggerFlow(token, 2);
+            return TriggerFlow(context, 2);
         }
 
         if (!prevCondition && !condition)
         {
             prevCondition = condition;
-            return TriggerFlow(token, 3);
+            return TriggerFlow(context, 3);
         }
 
         throw new Exception();

@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
@@ -16,7 +15,7 @@ public sealed class TweenNode : Node, IFlowInput, IFlowOutput
     [NodeProcess]
     private async Task process
     (
-        CancellationToken token,
+        FlowContext context,
         [NodeValue("From")] float from,
         [NodeValue("To")] float to,
         [NodeValue("Time Milliseconds")] float timeMilliseconds,
@@ -30,21 +29,21 @@ public sealed class TweenNode : Node, IFlowInput, IFlowOutput
 
         do
         {
-            if (token.IsCancellationRequested) break;
+            if (context.Token.IsCancellationRequested) break;
 
             var currentTime = DateTime.Now;
             percentage = (float)((currentTime - startTime) / (endTime - startTime));
 
             if (percentage > 1) percentage = 1;
 
-            var nextValue = App.Utils.Interpolation.Lerp(from, to, percentage);
+            var nextValue = Utils.Interpolation.Lerp(from, to, percentage);
             outValue.Value = nextValue;
 
-            await TriggerFlow(token, 1);
-        } while (percentage < 1 && !token.IsCancellationRequested);
+            await TriggerFlow(context, 1, true);
+        } while (percentage < 1 && !context.Token.IsCancellationRequested);
 
-        if (token.IsCancellationRequested) return;
+        if (context.Token.IsCancellationRequested) return;
 
-        await TriggerFlow(token, 0);
+        await TriggerFlow(context, 0);
     }
 }

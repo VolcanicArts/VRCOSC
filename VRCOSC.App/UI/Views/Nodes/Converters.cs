@@ -189,7 +189,7 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
     public required DataTemplate? ImpulseSendNodeTemplate { get; set; }
     public required DataTemplate? ImpulseReceiveNodeTemplate { get; set; }
     public required DataTemplate? ValueOnlyNodeTemplate { get; set; }
-    public required DataTemplate? ParameterSourceNodeTemplate { get; set; }
+    public required DataTemplate? AnyParameterReceivedNodeTemplate { get; set; }
     public required DataTemplate? NodeGroupTemplate { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
@@ -198,8 +198,6 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
 
         if (item is ReceiveImpulseNode) return ImpulseReceiveNodeTemplate;
         if (item is SendImpulseNode) return ImpulseSendNodeTemplate;
-
-        if (item is ReceivedParameterSourceNode) return ParameterSourceNodeTemplate;
 
         if (item.GetType().IsGenericType &&
             (item.GetType().GetGenericTypeDefinition() == typeof(CastNode<,>) ||

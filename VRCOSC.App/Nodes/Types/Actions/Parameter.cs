@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Nodes;
@@ -15,7 +14,7 @@ public class SendParameterNode<T> : Node, IFlowInput
     [NodeProcess]
     private Task process
     (
-        CancellationToken _,
+        FlowContext _,
         [NodeValue("Parameter Name")] string name,
         [NodeValue("Value")] T value
     )

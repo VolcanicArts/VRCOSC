@@ -5,15 +5,15 @@ using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Utility;
 
-[Node("Boolean Multiplex", "Utility")]
-public sealed class BooleanMultiplexNode<T> : Node
+[Node("Conditional", "Utility")]
+public sealed class ConditionalNode<T> : Node
 {
     [NodeProcess]
     private void process
     (
+        [NodeValue("Condition")] bool condition,
         [NodeValue("When True")] T valueTrue,
         [NodeValue("When False")] T valueFalse,
-        [NodeValue("Condition")] bool condition,
         [NodeValue("Output")] Ref<T> outOutput
     )
     {

@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Nodes;
@@ -29,9 +28,9 @@ public abstract class Node
         NodeField.StartFlow(this);
     }
 
-    protected Task TriggerFlow(CancellationToken token, int slot, bool scope = false)
+    protected Task TriggerFlow(FlowContext context, int slot, bool scope = false)
     {
-        return NodeField.TriggerOutputFlow(this, token, slot, scope);
+        return NodeField.TriggerOutputFlow(this, context, slot, scope);
     }
 }
 

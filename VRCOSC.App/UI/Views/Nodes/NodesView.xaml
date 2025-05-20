@@ -16,6 +16,7 @@
         <core:BorderClipConverter x:Key="BorderClipConverter"/>
         <core:EnumItemSourceConverter x:Key="EnumItemSourceConverter"/>
         <core:TypeToFriendlyNameConverter x:Key="TypeToFriendlyNameConverter"/>
+        <core:TypeToBrushConverter x:Key="TypeToBrushConverter"/>
         <core:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
         <nodes:ConnectionAmountConverter x:Key="FlowAmountConverterLeft" ConnectionType="Flow" ConnectionSide="Input"/>
         <nodes:ConnectionAmountConverter x:Key="FlowAmountConverterRight" ConnectionType="Flow" ConnectionSide="Output"/>
@@ -122,7 +123,7 @@
         <DataTemplate x:Key="ValueInputTemplate">
             <Border Height="12" Width="12"
                     VerticalAlignment="Center"
-                    Background="{StaticResource ValueBrush}" CornerRadius="6"
+                    Background="{Binding Type, Converter={StaticResource TypeToBrushConverter}}" CornerRadius="6"
                     MouseDown="ValueInput_OnMouseDown"
                     MouseUp="ValueInput_OnMouseUp"
                     ToolTip="{Binding Type, Converter={StaticResource TypeToFriendlyNameConverter}}"
@@ -134,7 +135,7 @@
         <DataTemplate x:Key="ValueOutputTemplate">
             <Border  Height="12" Width="12"
                      VerticalAlignment="Center"
-                     Background="{StaticResource ValueBrush}" CornerRadius="6"
+                     Background="{Binding Type, Converter={StaticResource TypeToBrushConverter}}" CornerRadius="6"
                      MouseDown="ValueOutput_OnMouseDown"
                      MouseUp="ValueOutput_OnMouseUp"
                      ToolTip="{Binding Type, Converter={StaticResource TypeToFriendlyNameConverter}}"
@@ -341,7 +342,7 @@
             </Border>
         </DataTemplate>
 
-        <DataTemplate x:Key="ParameterSourceDataTemplate">
+        <DataTemplate x:Key="AnyParameterReceivedDataTemplate">
             <Border Name="NodeContainer"
                     CornerRadius="10"
                     BorderThickness="2"
@@ -361,28 +362,53 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
-                    <core:SpacedStackPanel VerticalAlignment="Top" Spacing="15" Margin="0 0 0 10">
+                    <core:SpacedStackPanel VerticalAlignment="Top" Spacing="10" Margin="0 0 0 10">
                         <!--> Header <-->
                         <ContentPresenter ContentTemplate="{StaticResource HeaderTemplate}"/>
+                        <!--> Parameter Name <-->
+                        <TextBox Text="{Binding ParameterName}"
+                                 VerticalContentAlignment="Center"
+                                 Height="23" FontSize="13" Margin="5 0"/>
+                        <!--> Flow Points <-->
+                        <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource FlowConnectionAreaVisibilityConverter}}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <!--> Output <-->
+                            <core:SpacedStackPanel Name="FlowOutputContainer" VerticalAlignment="Top" HorizontalAlignment="Right" Spacing="10">
+                                <core:SpacedStackPanel.RenderTransform>
+                                    <TranslateTransform X="8"/>
+                                </core:SpacedStackPanel.RenderTransform>
+                                <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
+                                              VerticalAlignment="Top" HorizontalAlignment="Right"
+                                              Name="FlowOutputItemsControl"
+                                              ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                              ItemTemplate="{StaticResource FlowOutputWithTitleTemplate}">
+                                </ItemsControl>
+                            </core:SpacedStackPanel>
+                        </Grid>
                         <!--> Value Points <-->
                         <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource ValueConnectionAreaVisibilityConverter}}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <core:SpacedStackPanel Orientation="Vertical" Spacing="10">
-                                <TextBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                         VerticalContentAlignment="Center" FontSize="17" Text="{Binding ParameterName, UpdateSourceTrigger=PropertyChanged}"
-                                         Margin="7 0"/>
-                                <!--> Output <-->
+                            <!--> Output <-->
+                            <core:SpacedStackPanel Name="ValueOutputContainer" VerticalAlignment="Top" HorizontalAlignment="Right" Spacing="10">
+                                <core:SpacedStackPanel.RenderTransform>
+                                    <TranslateTransform X="8"/>
+                                </core:SpacedStackPanel.RenderTransform>
                                 <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                               VerticalAlignment="Top" HorizontalAlignment="Right"
                                               Name="ValueOutputItemsControl"
                                               ItemsPanel="{StaticResource ItemsPanelTemplate}"
                                               ItemTemplate="{StaticResource ValueOutputWithTitleTemplate}">
-                                    <ItemsControl.RenderTransform>
-                                        <TranslateTransform X="8"/>
-                                    </ItemsControl.RenderTransform>
                                 </ItemsControl>
+                                <Grid Visibility="{Binding Converter={StaticResource OutputValueVariableSizeControlVisibilityConverter}}">
+                                    <Grid.RenderTransform>
+                                        <TranslateTransform X="-16"/>
+                                    </Grid.RenderTransform>
+                                    <ContentPresenter ContentTemplate="{StaticResource OutputVariableSizeControlTemplate}"/>
+                                </Grid>
                             </core:SpacedStackPanel>
                         </Grid>
                     </core:SpacedStackPanel>
@@ -754,7 +780,7 @@
                                                     ImpulseReceiveNodeTemplate="{StaticResource ImpulseReceiveNodeTemplate}"
                                                     ImpulseSendNodeTemplate="{StaticResource ImpulseSendNodeTemplate}"
                                                     ValueOnlyNodeTemplate="{StaticResource ValueOnlyTemplate}"
-                                                    ParameterSourceNodeTemplate="{StaticResource ParameterSourceDataTemplate}"/>
+                                                    AnyParameterReceivedNodeTemplate="{StaticResource AnyParameterReceivedDataTemplate}"/>
 
         <!--> Node Group <-->
         <DataTemplate x:Key="NodeGroupTemplate">
@@ -802,7 +828,7 @@
                                                     ImpulseReceiveNodeTemplate="{StaticResource ImpulseReceiveNodeTemplate}"
                                                     ImpulseSendNodeTemplate="{StaticResource ImpulseSendNodeTemplate}"
                                                     ValueOnlyNodeTemplate="{StaticResource ValueOnlyTemplate}"
-                                                    ParameterSourceNodeTemplate="{StaticResource ParameterSourceDataTemplate}"
+                                                    AnyParameterReceivedNodeTemplate="{StaticResource AnyParameterReceivedDataTemplate}"
                                                     NodeGroupTemplate="{StaticResource NodeGroupTemplate}"/>
     </UserControl.Resources>
     <Grid>

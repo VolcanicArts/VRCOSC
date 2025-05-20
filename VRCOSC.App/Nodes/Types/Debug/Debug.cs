@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Parameters;
@@ -18,14 +17,14 @@ public sealed class LogNode : Node, IFlowInput, IFlowOutput
     [NodeProcess]
     private async Task process
     (
-        CancellationToken token,
+        FlowContext context,
         [NodeValue("String")] string? str
     )
     {
         if (string.IsNullOrEmpty(str)) return;
 
         Console.WriteLine(str);
-        await TriggerFlow(token, 0);
+        await TriggerFlow(context, 0);
     }
 }
 

@@ -504,6 +504,7 @@ public class AppManager
         await VRChatClient.Player.RetrieveAll();
         await ModuleManager.GetInstance().StartAsync();
         VRChatLogReader.Start();
+        NodeManager.GetInstance().Start();
 
         updateTask = new Repeater($"{nameof(AppManager)}-{nameof(update)}", update);
         updateTask.Start(TimeSpan.FromSeconds(1d / 60d));
@@ -579,6 +580,7 @@ public class AppManager
         if (updateTask is not null)
             await updateTask.StopAsync();
 
+        NodeManager.GetInstance().Stop();
         await VRChatLogReader.Stop();
         await ModuleManager.GetInstance().StopAsync();
         await ChatBoxManager.GetInstance().Stop();

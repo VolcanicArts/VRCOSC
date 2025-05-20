@@ -123,6 +123,18 @@ public class TypeToFriendlyNameConverter : IValueConverter
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
 
+public class TypeToBrushConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not Type typeValue) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
+
+        return typeValue.GetTypeBrush();
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
 public class ParameterInfoToFriendlyNameConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

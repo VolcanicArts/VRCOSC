@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
@@ -15,11 +14,11 @@ public sealed class DelayNode : Node, IFlowInput, IFlowOutput
     [NodeProcess]
     private async Task process
     (
-        CancellationToken token,
+        FlowContext context,
         [NodeValue("Delay Milliseconds")] int delay
     )
     {
-        await Task.Delay(delay, token);
-        await TriggerFlow(token, 0);
+        await Task.Delay(delay, context.Token);
+        await TriggerFlow(context, 0);
     }
 }

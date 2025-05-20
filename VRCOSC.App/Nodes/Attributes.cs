@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Threading;
 using FontAwesome6;
 using VRCOSC.App.SDK.Parameters;
 
@@ -68,13 +69,35 @@ public class NodeValueAttribute : Attribute
     }
 }
 
+public class FlowContext
+{
+    internal CancellationTokenSource Source { get; }
+    public CancellationToken Token { get; }
+
+    internal FlowContext()
+    {
+        Source = new CancellationTokenSource();
+        Token = Source.Token;
+    }
+}
+
+public class ParameterReceiverFlowContext : FlowContext
+{
+    public ReceivedParameter Parameter { get; }
+
+    internal ParameterReceiverFlowContext(ReceivedParameter parameter)
+    {
+        Parameter = parameter;
+    }
+}
+
 /// <summary>
 /// Causes a node to trigger whenever the value changes. Should only be used on flow output only nodes
 /// </summary>
 [AttributeUsage(AttributeTargets.Parameter)]
 public class NodeReactiveAttribute : Attribute;
 
-public record NodeFlowRef(string Name = "", bool Scope = false);
+public record NodeFlowRef(string Name = "");
 
 public interface IFlowInput;
 
@@ -83,7 +106,6 @@ public interface IFlowOutput
     public NodeFlowRef[] FlowOutputs { get; }
 }
 
-public interface IAnyParameterReceiver
-{
-    public void OnAnyParameterReceived(ReceivedParameter parameter);
-}
+public interface IFlowTrigger;
+
+public interface IParameterReceiver;

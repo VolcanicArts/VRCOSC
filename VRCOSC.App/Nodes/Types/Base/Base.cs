@@ -30,6 +30,7 @@ public sealed class ValueDisplayNode<T> : Node, INotifyPropertyChanged
     }
 }
 
+// TODO: Support this changing for fire on change???
 public abstract class ConstantNode<T> : Node
 {
     [NodeProcess]

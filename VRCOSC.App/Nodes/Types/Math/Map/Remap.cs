@@ -12,13 +12,13 @@ public class RemapNode : Node
     private void process
     (
         [NodeValue("Value")] float value,
-        [NodeValue("Value Min")] float vMin,
-        [NodeValue("Value Max")] float vMax,
-        [NodeValue("To Min")] float dMin,
-        [NodeValue("To Max")] float dMax,
+        [NodeValue("In Min")] float vMin,
+        [NodeValue("In Max")] float vMax,
+        [NodeValue("Out Min")] float dMin,
+        [NodeValue("Out Max")] float dMax,
         [NodeValue("Value")] Ref<float> outValue
     )
     {
-        outValue.Value = App.Utils.Interpolation.Map(value, vMin, vMax, dMin, dMax);
+        outValue.Value = Utils.Interpolation.Map(value, vMin, vMax, dMin, dMax);
     }
 }
