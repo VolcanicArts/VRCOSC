@@ -13,8 +13,8 @@ public class WriteTextToFileNode : Node, IFlowInput
     public FlowContinuation OnFinished = new("On Finished");
     public FlowContinuation OnFailed = new("On Failed");
 
-    public ValueInput<string> Text = new(string.Empty);
-    public ValueInput<string> FilePath = new(string.Empty);
+    public ValueInput<string> Text = new();
+    public ValueInput<string> FilePath = new();
 
     protected override void Process(PulseContext c)
     {

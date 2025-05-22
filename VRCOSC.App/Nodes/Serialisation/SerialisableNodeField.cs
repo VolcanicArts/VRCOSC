@@ -43,9 +43,6 @@ public class SerialiableNode
     [JsonProperty("id")]
     public Guid Id { get; set; }
 
-    [JsonProperty("package")]
-    public string? Package { get; set; }
-
     [JsonProperty("type_name")]
     public string TypeName { get; set; } = string.Empty;
 

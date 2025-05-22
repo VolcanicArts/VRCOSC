@@ -124,21 +124,21 @@ public sealed class NodeVariableSize
 
 public sealed class NodeMetadata
 {
-    public string Title { get; set; } = null!;
-    public EFontAwesomeIcon Icon { get; set; }
-    public string? Path { get; set; }
-    public Type[] GenericArguments { get; set; } = null!;
-    public List<IFlow> FlowOutputs { get; set; } = [];
-    public List<IValueInput> ValueInputs { get; set; } = [];
-    public List<IValueOutput> ValueOutputs { get; set; } = [];
-    public NodeValueMetadata[] Inputs { get; set; } = [];
-    public NodeValueMetadata[] Outputs { get; set; } = [];
-    public bool IsFlowInput { get; set; }
-    public bool IsFlowOutput { get; set; }
-    public bool IsValueInput { get; set; }
-    public bool IsValueOutput { get; set; }
-    public bool ValueInputHasVariableSize { get; set; }
-    public bool ValueOutputHasVariableSize { get; set; }
+    public string Title { get; internal set; } = null!;
+    public EFontAwesomeIcon Icon { get; internal set; }
+    public string? Path { get; internal set; }
+    public Type[] GenericArguments { get; internal set; } = null!;
+    public List<IFlow> FlowOutputs { get; internal set; } = [];
+    public List<IValueInput> ValueInputs { get; internal set; } = [];
+    public List<IValueOutput> ValueOutputs { get; internal set; } = [];
+    public NodeValueMetadata[] Inputs { get; internal set; } = [];
+    public NodeValueMetadata[] Outputs { get; internal set; } = [];
+    public bool IsFlowInput { get; internal set; }
+    public bool IsFlowOutput { get; internal set; }
+    public bool IsValueInput { get; internal set; }
+    public bool IsValueOutput { get; internal set; }
+    public bool ValueInputHasVariableSize { get; internal set; }
+    public bool ValueOutputHasVariableSize { get; internal set; }
 
     public bool IsTrigger => IsFlowOutput && !IsFlowInput;
     public bool IsFlow => IsFlowInput || IsFlowOutput;

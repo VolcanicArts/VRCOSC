@@ -17,7 +17,6 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using VRCOSC.App.Nodes;
 using VRCOSC.App.Nodes.Types.Inputs;
-using VRCOSC.App.Nodes.Types.Values;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.UI.Core;
@@ -496,13 +495,16 @@ public partial class NodesView : INotifyPropertyChanged
             var slot = ConnectionDrag.Slot;
 
             var slotInputType = node.GetTypeOfInputSlot(slot);
+            if (slotInputType.IsGenericType && slotInputType.GetGenericTypeDefinition() == typeof(Nullable<>)) slotInputType = slotInputType.GenericTypeArguments[0];
 
             if (NodeConstants.INPUT_TYPES.Contains(slotInputType) || slotInputType.IsAssignableTo(typeof(Enum)) || slotInputType == typeof(Keybind))
             {
                 e.Handled = true;
 
                 var mousePosRelativeToCanvas = Mouse.GetPosition(CanvasContainer);
-                var outputNode = NodeField.AddNode(typeof(ValueNode<>).MakeGenericType(slotInputType));
+
+                var type = typeof(ValueNode<>).MakeGenericType(slotInputType);
+                var outputNode = NodeField.AddNode(type);
 
                 NodeField.CreateValueConnection(outputNode.Id, 0, node.Id, slot);
                 outputNode.Position.X = mousePosRelativeToCanvas.X;
@@ -519,7 +521,7 @@ public partial class NodesView : INotifyPropertyChanged
             var node = ConnectionDrag.Node;
             var mousePosRelativeToCanvas = Mouse.GetPosition(CanvasContainer);
 
-            var outputNode = NodeField.AddNode(typeof(ButtonInputNode));
+            var outputNode = NodeField.AddNode(typeof(ButtonNode));
 
             NodeField.CreateFlowConnection(outputNode.Id, 0, node.Id);
             outputNode.Position.X = mousePosRelativeToCanvas.X;

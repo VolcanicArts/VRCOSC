@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Linq;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Strings;
@@ -11,8 +10,8 @@ namespace VRCOSC.App.Nodes.Types.Strings;
 public sealed class ToStringNode<T> : Node
 {
     public ValueInput<T> Value = new();
-    public ValueInput<string?> Format = new();
-    public ValueInput<IFormatProvider?> FormatProvider = new();
+    public ValueInput<string> Format = new();
+    public ValueInput<IFormatProvider> FormatProvider = new();
     public ValueOutput<string> Result = new();
 
     protected override void Process(PulseContext c)

@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types.Base;
-using VRCOSC.App.Nodes.Types.Flow.Impulse;
 using VRCOSC.App.Nodes.Types.Strings;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Parameters;
@@ -33,7 +32,7 @@ public class NodeField
     public int ZIndex { get; set; } = 0;
 
     public readonly Dictionary<Type, NodeMetadata> Metadata = [];
-    public readonly Dictionary<string, object?> Variables = [];
+    public readonly Dictionary<string, IRef> Variables = [];
     public readonly Dictionary<Guid, Dictionary<IStore, IRef>> GlobalStores = [];
 
     private bool running;
@@ -87,7 +86,7 @@ public class NodeField
         GlobalStores[currentNode.Id][globalStore] = new Ref<T>(value);
     }
 
-    public T? ReadStore<T>(GlobalStore<T> globalStore, PulseContext c)
+    public T ReadStore<T>(GlobalStore<T> globalStore, PulseContext c)
     {
         var currentNode = c.CurrentNode;
         Debug.Assert(currentNode is not null);
@@ -96,15 +95,15 @@ public class NodeField
 
         if (!GlobalStores[currentNode.Id].TryGetValue(globalStore, out var iRef))
         {
-            return (T?)typeof(T).CreateDefault();
+            return default!;
         }
 
-        return (T?)iRef.GetValue();
+        return (T)iRef.GetValue()!;
     }
 
-    public void WriteVariable(string name, object? value, bool persistent)
+    public void WriteVariable<T>(string name, T value, bool persistent)
     {
-        Variables[name] = value;
+        Variables[name] = new Ref<T>(value);
 
         // TODO: Implement persistence saving to file
     }
@@ -148,6 +147,7 @@ public class NodeField
             if (ConversionHelper.HasImplicitConversion(outputType, inputType))
             {
                 Logger.Log($"Inserting cast node from {outputType.GetFriendlyName()} to {inputType.GetFriendlyName()}");
+
                 var castNode = (Node)Activator.CreateInstance(typeof(CastNode<,>).MakeGenericType(outputType, inputType))!;
                 addNode(castNode);
                 castNode.Position.X = (Nodes[outputNodeId].Position.X + Nodes[inputNodeId].Position.X) / 2f;
@@ -362,15 +362,6 @@ public class NodeField
         var nodeGroup = new NodeGroup();
         Groups.Add(nodeGroup);
         return nodeGroup;
-    }
-
-    internal void TriggerImpulse(PulseContext c, string impulseName)
-    {
-        foreach (var receiveImpulseNode in Nodes.Values.OfType<ReceiveImpulseNode>().Where(node => !string.IsNullOrEmpty(node.ImpulseName) && node.ImpulseName == impulseName))
-        {
-            // TODO: Increase context scope
-            ProcessNode(receiveImpulseNode, c);
-        }
     }
 }
 

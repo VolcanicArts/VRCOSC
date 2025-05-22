@@ -3,12 +3,12 @@
 
 using VRCOSC.App.SDK.Nodes;
 
-namespace VRCOSC.App.Nodes.Types.Values;
+namespace VRCOSC.App.Nodes.Types.Inputs;
 
-[Node("Value", "Values")]
+[Node("Value", "Inputs")]
 public sealed class ValueNode<T> : Node
 {
-    private T value;
+    private T value = default!;
 
     public T Value
     {

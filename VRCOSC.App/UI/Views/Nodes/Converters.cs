@@ -11,9 +11,7 @@ using FontAwesome6;
 using VRCOSC.App.Nodes;
 using VRCOSC.App.Nodes.Types.Base;
 using VRCOSC.App.Nodes.Types.Flow;
-using VRCOSC.App.Nodes.Types.Flow.Impulse;
 using VRCOSC.App.Nodes.Types.Inputs;
-using VRCOSC.App.Nodes.Types.Values;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.Utils;
@@ -199,12 +197,9 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
     {
         if (item is null) return null;
 
-        if (item is ReceiveImpulseNode) return ImpulseReceiveNodeTemplate;
-        if (item is SendImpulseNode) return ImpulseSendNodeTemplate;
-
         if (item.GetType().IsGenericType &&
             (item.GetType().GetGenericTypeDefinition() == typeof(CastNode<,>) ||
-             item.GetType().GetGenericTypeDefinition() == typeof(ValueRelayNode<>))) return RelayNodeTemplate;
+             item.GetType().GetGenericTypeDefinition() == typeof(RelayNode<>))) return RelayNodeTemplate;
 
         if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(ValueNode<>))
         {
@@ -215,7 +210,7 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
             return ValueInputNodeTemplate;
         }
 
-        if (item is ButtonInputNode) return ButtonInputNodeTemplate;
+        if (item is ButtonNode) return ButtonInputNodeTemplate;
 
         if (item is Node node && (node.GetType().HasCustomAttribute<NodeCollapsedAttribute>() || node.Metadata.Icon != EFontAwesomeIcon.None)) return ValueOnlyNodeTemplate;
 

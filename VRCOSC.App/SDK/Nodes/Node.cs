@@ -21,7 +21,7 @@ public abstract class Node
 
     public Guid Id { get; } = Guid.NewGuid();
     public ObservableVector2 Position { get; } = new(5000, 5000);
-    public int ZIndex { get; set; }
+    public int ZIndex { get; internal set; }
 
     public NodeMetadata Metadata => NodeField.GetMetadata(this);
     protected Player Player => AppManager.GetInstance().VRChatClient.Player;
@@ -35,7 +35,7 @@ public abstract class Node
         {
             typeof(IFlow),
             typeof(IValueInput),
-            typeof(IValueOutput),
+            typeof(IValueOutput)
         };
 
         foreach (var def in defs)

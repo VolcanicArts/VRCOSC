@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 namespace VRCOSC.App.Utils;
 
@@ -35,18 +34,48 @@ public static class TypeResolver
     // TODO: Reinitialise this when modules are reloaded
     private static readonly Lazy<Dictionary<string, Type>> type_index = new(buildTypeIndex, true);
 
-    public static bool TryConstructGenericType(string userInput, Type openGenericType, [NotNullWhen(true)] out Type? constructedType)
+    public static bool TryConstructGenericType(
+        string userInput,
+        Type openGenericType,
+        [NotNullWhen(true)] out Type? constructedType)
     {
         constructedType = null;
 
-        var typeArgs = userInput.Split(',').Select(t => resolveType(t.Trim())).ToArray();
+        var rawNames = userInput.Split(',');
 
-        if (typeArgs.Any(t => t == null || t.IsAbstract))
-            return false;
+        var typeArgs = new List<Type>(rawNames.Length);
+
+        foreach (var raw in rawNames)
+        {
+            var name = raw.Trim();
+            var wantsNullable = name.EndsWith('?');
+
+            if (wantsNullable)
+            {
+                name = name[..^1];
+            }
+
+            var baseType = resolveType(name);
+
+            if (baseType == null || baseType.IsAbstract)
+            {
+                constructedType = null;
+                return false;
+            }
+
+            Type finalType = baseType;
+
+            if (wantsNullable && baseType.IsValueType)
+            {
+                finalType = typeof(Nullable<>).MakeGenericType(baseType);
+            }
+
+            typeArgs.Add(finalType);
+        }
 
         try
         {
-            constructedType = openGenericType.MakeGenericType(typeArgs!);
+            constructedType = openGenericType.MakeGenericType(typeArgs.ToArray());
             return true;
         }
         catch

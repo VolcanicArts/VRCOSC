@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using FontAwesome6;
 using VRCOSC.App.SDK.Parameters;
-using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
 
@@ -48,9 +47,6 @@ public class NodeGenericTypeFilterAttribute : Attribute
 
 [AttributeUsage(AttributeTargets.Class)]
 public class NodeCollapsedAttribute : Attribute;
-
-[AttributeUsage(AttributeTargets.Class)]
-public class NodeFieldNameAttribute : Attribute;
 
 /// <summary>
 /// Causes a node to trigger whenever the value changes. Should only be used on flow output only nodes
@@ -98,7 +94,7 @@ public interface IStore;
 
 public class LocalStore<T> : IStore
 {
-    public T? Read(PulseContext c)
+    public T Read(PulseContext c)
     {
         return c.ReadStore(this);
     }
@@ -111,7 +107,7 @@ public class LocalStore<T> : IStore
 
 public class GlobalStore<T> : IStore
 {
-    public T? Read(PulseContext c)
+    public T Read(PulseContext c)
     {
         return c.Field.ReadStore(this, c);
     }
@@ -132,9 +128,9 @@ public class ValueInput<T> : IValueInput
 
     internal T DefaultValue { get; }
 
-    public ValueInput(T? defaultValue = default)
+    public ValueInput(T defaultValue = default!)
     {
-        DefaultValue = defaultValue ?? (T)typeof(T).CreateDefault()!;
+        DefaultValue = defaultValue;
     }
 
     public T Read(PulseContext c)
@@ -169,7 +165,7 @@ public class ValueInputList<T> : IValueInput
         Name = name;
     }
 
-    public IReadOnlyList<T?> Read(PulseContext c)
+    public List<T> Read(PulseContext c)
     {
         return c.Read(this);
     }

@@ -11,19 +11,19 @@ public class FireOnChangeNode<T> : Node
 {
     public FlowCall OnChange = new("On Change");
 
+    public GlobalStore<T> Value = new();
+
     [NodeReactive]
     public ValueInput<T> Input = new();
 
-    public GlobalStore<T> Value = new();
-
     protected override void Process(PulseContext c)
     {
-        var input = Input.Read(c);
+        Value.Write(Input.Read(c), c);
+        OnChange.Execute(c);
+    }
 
-        if (!EqualityComparer<T>.Default.Equals(input, Value.Read(c)))
-        {
-            Value.Write(input, c);
-            OnChange.Execute(c);
-        }
+    protected override bool ShouldProcess(PulseContext c)
+    {
+        return !EqualityComparer<T>.Default.Equals(Input.Read(c), Value.Read(c));
     }
 }

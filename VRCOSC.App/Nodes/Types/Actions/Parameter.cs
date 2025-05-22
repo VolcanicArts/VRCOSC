@@ -12,7 +12,7 @@ public class SendParameterNode<T> : Node, IFlowInput where T : unmanaged
 {
     public FlowContinuation Next = new("Next");
 
-    public ValueInput<string> Name = new(string.Empty);
+    public ValueInput<string> Name = new();
     public ValueInput<T> Value = new();
 
     protected override void Process(PulseContext c)

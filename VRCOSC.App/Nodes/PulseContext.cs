@@ -130,18 +130,18 @@ public class PulseContext
         return connection is null ? valueInput.DefaultValue : readValue<T>(connection.OutputNodeId, connection.OutputSlot);
     }
 
-    internal List<T?> Read<T>(ValueInputList<T> valueInputList)
+    internal List<T> Read<T>(ValueInputList<T> valueInputList)
     {
         Debug.Assert(CurrentNode is not null);
 
         var inputIndex = valueInputList.Index;
 
-        var list = new List<T?>();
+        var list = new List<T>();
 
         for (var i = inputIndex; i < CurrentNode.VirtualValueInputCount(); i++)
         {
             var connection = Field.FindConnectionFromValueInput(CurrentNode.Id, i);
-            list.Add(connection is null ? (T?)typeof(T).CreateDefault() : readValue<T>(connection.OutputNodeId, connection.OutputSlot));
+            list.Add(connection is null ? default! : readValue<T>(connection.OutputNodeId, connection.OutputSlot));
         }
 
         return list;
@@ -163,16 +163,16 @@ public class PulseContext
         writeValueList(CurrentNode.Id, outputIndex, listIndex, value);
     }
 
-    internal T? ReadStore<T>(LocalStore<T> localStore)
+    internal T ReadStore<T>(LocalStore<T> localStore)
     {
         Debug.Assert(CurrentNode is not null);
 
         if (!LocalStores[ScopePointer].TryGetValue(CurrentNode.Id, out var refStore))
         {
-            return (T?)typeof(T).CreateDefault();
+            return default!;
         }
 
-        return (T?)refStore[localStore].GetValue();
+        return (T)refStore[localStore].GetValue()!;
     }
 
     internal void WriteStore<T>(LocalStore<T> localStore, T value)

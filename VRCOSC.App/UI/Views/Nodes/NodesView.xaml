@@ -882,9 +882,17 @@
                                                     AnyParameterReceivedNodeTemplate="{StaticResource AnyParameterReceivedDataTemplate}"
                                                     NodeGroupTemplate="{StaticResource NodeGroupTemplate}"/>
     </UserControl.Resources>
-    <Grid>
+    <Grid
+        MouseUp="ParentContainer_OnMouseUp">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="16*" MinWidth="175"/>
+            <ColumnDefinition Width="84*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <Border Background="{DynamicResource CBackground3}"/>
+        </Grid>
         <Grid x:Name="ParentContainer"
-              MouseUp="ParentContainer_OnMouseUp"
+              Grid.Column="1"
               MouseMove="ParentContainer_OnMouseMove"
               HorizontalAlignment="Center" VerticalAlignment="Center"
               Background="{DynamicResource CBackground2}"

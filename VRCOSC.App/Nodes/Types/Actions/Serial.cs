@@ -13,16 +13,19 @@ public sealed class SerialWriteNode : Node, IFlowInput
     public FlowContinuation OnSuccess = new("On Success");
     public FlowContinuation OnFail = new("On Fail");
 
-    public ValueInput<string> PortName = new(string.Empty);
+    public ValueInput<string> PortName = new();
     public ValueInput<int> BaudRate = new();
     public ValueInput<Parity> Parity = new();
     public ValueInput<int> DataBits = new();
     public ValueInput<StopBits> StopBits = new();
-    public ValueInput<string?> Command = new();
+    public ValueInput<string> Command = new();
 
     protected override void Process(PulseContext c)
     {
-        using SerialPort serial = new SerialPort(PortName.Read(c), BaudRate.Read(c), Parity.Read(c), DataBits.Read(c), StopBits.Read(c));
+        var portName = PortName.Read(c);
+        if (string.IsNullOrEmpty(portName)) return;
+
+        using SerialPort serial = new SerialPort(portName, BaudRate.Read(c), Parity.Read(c), DataBits.Read(c), StopBits.Read(c));
         var command = Command.Read(c);
 
         if (string.IsNullOrEmpty(command))

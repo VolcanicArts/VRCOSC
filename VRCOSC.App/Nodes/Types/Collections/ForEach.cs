@@ -6,34 +6,13 @@ using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Collections;
 
-[Node("For", "Collections")]
-public sealed class ForNode : Node, IFlowInput
-{
-    public FlowCall OnIteration = new("On Iteration");
-    public FlowContinuation OnEnd = new("On End");
-
-    public ValueInput<int> Count = new();
-    public ValueOutput<int> Index = new();
-
-    protected override void Process(PulseContext c)
-    {
-        for (var i = 0; i < Count.Read(c); i++)
-        {
-            Index.Write(i, c);
-            OnIteration.Execute(c);
-        }
-
-        OnEnd.Execute(c);
-    }
-}
-
 [Node("For Each", "Collections")]
 public sealed class ForEachNode<T> : Node, IFlowInput
 {
     public FlowCall OnIteration = new("On Iteration");
     public FlowContinuation OnEnd = new("On End");
 
-    public ValueInput<IEnumerable<T>?> Enumerable = new();
+    public ValueInput<IEnumerable<T>> Enumerable = new();
     public ValueOutput<T> Element = new();
 
     protected override void Process(PulseContext c)

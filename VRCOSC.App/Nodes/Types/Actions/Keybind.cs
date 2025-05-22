@@ -14,7 +14,10 @@ public class KeybindPressNode : Node, IFlowInput
 
     protected override void Process(PulseContext c)
     {
-        KeySimulator.PressKeybind(Keybind.Read(c), DurationMilliseconds.Read(c)).Wait(c.Token);
+        var keybind = Keybind.Read(c);
+        if (keybind is null) return;
+
+        KeySimulator.PressKeybind(keybind, DurationMilliseconds.Read(c)).Wait(c.Token);
     }
 }
 
@@ -30,11 +33,14 @@ public class KeybindHoldReleaseNode : Node, IFlowInput
 
     protected override void Process(PulseContext c)
     {
+        var keybind = Keybind.Read(c);
+        if (keybind is null) return;
+
         var condition = Condition.Read(c);
 
         if (!PrevCondition.Read(c) && condition)
         {
-            KeySimulator.HoldKeybind(Keybind.Read(c)).Wait(c.Token);
+            KeySimulator.HoldKeybind(keybind).Wait(c.Token);
             PrevCondition.Write(condition, c);
             Next.Execute(c);
             return;
@@ -42,7 +48,7 @@ public class KeybindHoldReleaseNode : Node, IFlowInput
 
         if (PrevCondition.Read(c) && !condition)
         {
-            KeySimulator.ReleaseKeybind(Keybind.Read(c)).Wait(c.Token);
+            KeySimulator.ReleaseKeybind(keybind).Wait(c.Token);
             PrevCondition.Write(condition, c);
             Next.Execute(c);
             return;

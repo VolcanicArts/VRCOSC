@@ -5,8 +5,8 @@ using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Inputs;
 
-[Node("Button Input", "")]
-public sealed class ButtonInputNode : Node
+[Node("Call", "Inputs")]
+public sealed class ButtonNode : Node
 {
     public FlowContinuation Next = new();
 

@@ -5,8 +5,8 @@ using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
-[Node("Value Relay", "Utility")]
-public sealed class ValueRelayNode<T> : Node
+[Node("Relay", "Utility")]
+public sealed class RelayNode<T> : Node
 {
     public ValueInput<T> Input = new();
     public ValueOutput<T> Output = new();
