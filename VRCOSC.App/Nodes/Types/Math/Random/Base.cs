@@ -7,13 +7,14 @@ namespace VRCOSC.App.Nodes.Types.Math.Random;
 
 public abstract class RandomNode<T> : Node where T : notnull
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Min")] T min,
-        [NodeValue("Max")] T max,
-        [NodeValue("Value")] Ref<T> result
-    ) => result.Value = GetRandom(min, max);
+    public ValueInput<T> Min = new();
+    public ValueInput<T> Max = new();
+    public ValueOutput<T> Result = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Result.Write(GetRandom(Min.Read(c), Max.Read(c)), c);
+    }
 
     protected abstract T GetRandom(T min, T max);
 }

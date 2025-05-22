@@ -14,6 +14,24 @@ namespace VRCOSC.App.SDK.Utils;
 
 public static class KeySimulator
 {
+    public static async Task PressKeybind(Keybind keybind, int milliseconds)
+    {
+        var keys = keybind.Modifiers.Concat(keybind.Keys).Select(key => (KeyCode)KeyInterop.VirtualKeyFromKey(key));
+        await Simulate.Events().ClickChord(keys).Wait(milliseconds).Invoke();
+    }
+
+    public static async Task HoldKeybind(Keybind keybind)
+    {
+        var keys = keybind.Modifiers.Concat(keybind.Keys).Select(key => (KeyCode)KeyInterop.VirtualKeyFromKey(key));
+        await Simulate.Events().Hold(keys).Invoke();
+    }
+
+    public static async Task ReleaseKeybind(Keybind keybind)
+    {
+        var keys = keybind.Modifiers.Concat(keybind.Keys).Select(key => (KeyCode)KeyInterop.VirtualKeyFromKey(key));
+        await Simulate.Events().Release(keys).Invoke();
+    }
+
     public static async Task ExecuteKeybind(Keybind keybind, KeybindMode mode = KeybindMode.Press)
     {
         var keys = keybind.Modifiers.Concat(keybind.Keys).Select(key => (KeyCode)KeyInterop.VirtualKeyFromKey(key));

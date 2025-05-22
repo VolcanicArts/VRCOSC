@@ -2,16 +2,18 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading;
+using System.Collections.Generic;
+using System.Diagnostics;
 using FontAwesome6;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class NodeAttribute : Attribute
 {
-    public string? Title { get; }
+    public string Title { get; }
     public string? Path { get; }
     public EFontAwesomeIcon Icon { get; }
 
@@ -44,68 +46,168 @@ public class NodeGenericTypeFilterAttribute : Attribute
     }
 }
 
-[AttributeUsage(AttributeTargets.Method)]
-public class NodeProcessAttribute : Attribute;
+[AttributeUsage(AttributeTargets.Class)]
+public class NodeCollapsedAttribute : Attribute;
 
-[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property)]
-public class NodeVariableSizeAttribute : Attribute
-{
-    public int DefaultSize { get; }
-
-    public NodeVariableSizeAttribute(int defaultSize = 2)
-    {
-        DefaultSize = defaultSize;
-    }
-}
-
-[AttributeUsage(AttributeTargets.Parameter)]
-public class NodeValueAttribute : Attribute
-{
-    public string Name { get; }
-
-    public NodeValueAttribute(string name = "")
-    {
-        Name = name;
-    }
-}
-
-public class FlowContext
-{
-    internal CancellationTokenSource Source { get; }
-    public CancellationToken Token { get; }
-
-    internal FlowContext()
-    {
-        Source = new CancellationTokenSource();
-        Token = Source.Token;
-    }
-}
-
-public class ParameterReceiverFlowContext : FlowContext
-{
-    public ReceivedParameter Parameter { get; }
-
-    internal ParameterReceiverFlowContext(ReceivedParameter parameter)
-    {
-        Parameter = parameter;
-    }
-}
+[AttributeUsage(AttributeTargets.Class)]
+public class NodeFieldNameAttribute : Attribute;
 
 /// <summary>
 /// Causes a node to trigger whenever the value changes. Should only be used on flow output only nodes
 /// </summary>
-[AttributeUsage(AttributeTargets.Parameter)]
+[AttributeUsage(AttributeTargets.Field)]
 public class NodeReactiveAttribute : Attribute;
 
-public record NodeFlowRef(string Name = "");
+public interface INodeField
+{
+    public int Index { get; internal set; }
+}
+
+public interface IFlow : INodeField
+{
+    public string Name { get; init; }
+}
+
+public class FlowCall : IFlow
+{
+    public int Index { get; set; }
+    public string Name { get; init; }
+
+    public FlowCall(string name = "")
+    {
+        Name = name;
+    }
+
+    public void Execute(PulseContext context) => context.Execute(this);
+}
+
+public class FlowContinuation : IFlow
+{
+    public int Index { get; set; }
+    public string Name { get; init; }
+
+    public FlowContinuation(string name = "")
+    {
+        Name = name;
+    }
+
+    public void Execute(PulseContext context) => context.Execute(this);
+}
+
+public interface IStore;
+
+public class LocalStore<T> : IStore
+{
+    public T? Read(PulseContext c)
+    {
+        return c.ReadStore(this);
+    }
+
+    public void Write(T value, PulseContext c)
+    {
+        c.WriteStore(this, value);
+    }
+}
+
+public class GlobalStore<T> : IStore
+{
+    public T? Read(PulseContext c)
+    {
+        return c.Field.ReadStore(this, c);
+    }
+
+    public void Write(T value, PulseContext c)
+    {
+        c.Field.WriteStore(this, value, c);
+    }
+}
+
+public interface IValueInput : INodeField;
+
+public interface IValueOutput : INodeField;
+
+public class ValueInput<T> : IValueInput
+{
+    public int Index { get; set; }
+
+    internal T DefaultValue { get; }
+
+    public ValueInput(T? defaultValue = default)
+    {
+        DefaultValue = defaultValue ?? (T)typeof(T).CreateDefault()!;
+    }
+
+    public T Read(PulseContext c)
+    {
+        return c.Read(this);
+    }
+}
+
+public class ValueOutput<T> : IValueOutput
+{
+    public int Index { get; set; }
+    public string Name { get; init; }
+
+    public ValueOutput(string name = "")
+    {
+        Name = name;
+    }
+
+    public void Write(T value, PulseContext c)
+    {
+        c.Write(this, value);
+    }
+}
+
+public class ValueInputList<T> : IValueInput
+{
+    public int Index { get; set; }
+    public string Name { get; init; }
+
+    public ValueInputList(string name = "")
+    {
+        Name = name;
+    }
+
+    public IReadOnlyList<T?> Read(PulseContext c)
+    {
+        return c.Read(this);
+    }
+}
+
+public class ValueOutputList<T> : IValueOutput
+{
+    public int Index { get; set; }
+    public string Name { get; init; }
+
+    public T this[int index, PulseContext context]
+    {
+        get => throw new InvalidOperationException();
+        set => Write(index, value, context);
+    }
+
+    public ValueOutputList(string name = "")
+    {
+        Name = name;
+    }
+
+    public int Length(PulseContext c)
+    {
+        // TODO: Decouple this from the context as these won't change during running
+        Debug.Assert(c.CurrentNode is not null);
+
+        return c.CurrentNode.VariableSize.ValueOutputSize;
+    }
+
+    public void Write(int index, T value, PulseContext c)
+    {
+        c.Write(this, index, value);
+    }
+}
 
 public interface IFlowInput;
 
-public interface IFlowOutput
+public interface IParameterReceiver
 {
-    public NodeFlowRef[] FlowOutputs { get; }
+    public void OnParameterReceived(PulseContext c, ReceivedParameter parameter);
 }
-
-public interface IFlowTrigger;
-
-public interface IParameterReceiver;

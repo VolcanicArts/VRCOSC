@@ -6,43 +6,40 @@ using VRCOSC.App.SDK.Nodes;
 namespace VRCOSC.App.Nodes.Types.Math.Easing;
 
 [Node("Sine In", "Math/Easing")]
+[NodeCollapsed]
 public sealed class SineInNode : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue] float x,
-        [NodeValue] Ref<float> outY
-    )
+    public ValueInput<float> X = new();
+    public ValueOutput<float> Y = new();
+
+    protected override void Process(PulseContext c)
     {
-        outY.Value = Utils.Easing.Sinusoidal.In(float.Clamp(x, 0f, 1f));
+        Y.Write(Utils.Easing.Sinusoidal.In(float.Clamp(X.Read(c), 0f, 1f)), c);
     }
 }
 
 [Node("Sine Out", "Math/Easing")]
+[NodeCollapsed]
 public sealed class SineOutNode : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue] float x,
-        [NodeValue] Ref<float> outY
-    )
+    public ValueInput<float> X = new();
+    public ValueOutput<float> Y = new();
+
+    protected override void Process(PulseContext c)
     {
-        outY.Value = Utils.Easing.Sinusoidal.Out(float.Clamp(x, 0f, 1f));
+        Y.Write(Utils.Easing.Sinusoidal.Out(float.Clamp(X.Read(c), 0f, 1f)), c);
     }
 }
 
 [Node("Sine InOut", "Math/Easing")]
+[NodeCollapsed]
 public sealed class SineInOutNode : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue] float x,
-        [NodeValue] Ref<float> outY
-    )
+    public ValueInput<float> X = new();
+    public ValueOutput<float> Y = new();
+
+    protected override void Process(PulseContext c)
     {
-        outY.Value = Utils.Easing.Sinusoidal.InOut(float.Clamp(x, 0f, 1f));
+        Y.Write(Utils.Easing.Sinusoidal.InOut(float.Clamp(X.Read(c), 0f, 1f)), c);
     }
 }

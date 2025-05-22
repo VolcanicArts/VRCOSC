@@ -7,6 +7,7 @@ using VRCOSC.App.Nodes.Types.Base;
 namespace VRCOSC.App.Nodes.Types.Time;
 
 [Node("Current DateTime", "DateTime")]
+[NodeCollapsed]
 public class DateTimeNowConstant : ConstantNode<DateTime>
 {
     protected override DateTime GetValue() => DateTime.Now;

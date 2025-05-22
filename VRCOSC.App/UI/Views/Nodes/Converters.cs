@@ -15,6 +15,8 @@ using VRCOSC.App.Nodes.Types.Flow.Impulse;
 using VRCOSC.App.Nodes.Types.Inputs;
 using VRCOSC.App.Nodes.Types.Values;
 using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.SDK.Utils;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.Nodes;
 
@@ -56,12 +58,12 @@ public class ConnectionAmountConverter : IValueConverter
                 var length = node.Metadata.InputsCount;
                 var points = Enumerable.Range(0, length).Select(i => new ConnectionViewModel(node, i, node.Metadata.Inputs[i].Name, node.Metadata.Inputs[i].Type)).ToList();
 
-                if (node.Metadata.InputHasVariableSize)
+                if (node.Metadata.ValueInputHasVariableSize)
                 {
                     points.Remove(points.Last());
 
                     points.AddRange(Enumerable.Range(0, node.VariableSize.ValueInputSize).Select(i =>
-                        new ConnectionViewModel(node, node.Metadata.InputsCount - 1 + i, node.Metadata.Inputs.Last().Name, node.Metadata.Inputs.Last().Type.GetElementType())));
+                        new ConnectionViewModel(node, node.Metadata.InputsCount - 1 + i, i == 0 ? node.Metadata.Inputs.Last().Name : string.Empty, node.Metadata.Inputs.Last().Type)));
                 }
 
                 return points;
@@ -74,12 +76,12 @@ public class ConnectionAmountConverter : IValueConverter
                 var length = node.Metadata.OutputsCount;
                 var points = Enumerable.Range(0, length).Select(i => new ConnectionViewModel(node, i, node.Metadata.Outputs[i].Name, node.Metadata.Outputs[i].Type)).ToList();
 
-                if (node.Metadata.OutputHasVariableSize)
+                if (node.Metadata.ValueOutputHasVariableSize)
                 {
                     points.Remove(points.Last());
 
                     points.AddRange(Enumerable.Range(0, node.VariableSize.ValueOutputSize).Select(i =>
-                        new ConnectionViewModel(node, node.Metadata.OutputsCount - 1 + i, node.Metadata.Outputs.Last().Name, node.Metadata.Outputs.Last().Type.GetElementType())));
+                        new ConnectionViewModel(node, node.Metadata.OutputsCount - 1 + i, i == 0 ? node.Metadata.Outputs.Last().Name : string.Empty, node.Metadata.Outputs.Last().Type)));
                 }
 
                 return points;
@@ -127,7 +129,7 @@ public class ConnectionAreaVisibilityConverter : IValueConverter
 {
     public bool CheckFlow { get; set; }
 
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not Node node) return Visibility.Collapsed;
 
@@ -152,12 +154,12 @@ public class ValueVariableSizeControlVisibilityConverter : IValueConverter
 
         if (CheckOutput && node.Metadata.IsValueOutput)
         {
-            return node.Metadata.OutputHasVariableSize ? Visibility.Visible : Visibility.Collapsed;
+            return node.Metadata.ValueOutputHasVariableSize ? Visibility.Visible : Visibility.Collapsed;
         }
 
         if (!CheckOutput && node.Metadata.IsValueInput)
         {
-            return node.Metadata.InputHasVariableSize ? Visibility.Visible : Visibility.Collapsed;
+            return node.Metadata.ValueInputHasVariableSize ? Visibility.Visible : Visibility.Collapsed;
         }
 
         return Visibility.Collapsed;
@@ -185,6 +187,7 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
     public required DataTemplate? ValueInputNodeTemplate { get; set; }
     public required DataTemplate? BoolValueInputNodeTemplate { get; set; }
     public required DataTemplate? EnumValueInputNodeTemplate { get; set; }
+    public required DataTemplate? KeybindValueInputNodeTemplate { get; set; }
     public required DataTemplate? ButtonInputNodeTemplate { get; set; }
     public required DataTemplate? ImpulseSendNodeTemplate { get; set; }
     public required DataTemplate? ImpulseReceiveNodeTemplate { get; set; }
@@ -206,6 +209,7 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
         if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(ValueNode<>))
         {
             if (item.GetType().GenericTypeArguments[0] == typeof(bool)) return BoolValueInputNodeTemplate;
+            if (item.GetType().GenericTypeArguments[0] == typeof(Keybind)) return KeybindValueInputNodeTemplate;
             if (item.GetType().GenericTypeArguments[0].IsAssignableTo(typeof(Enum))) return EnumValueInputNodeTemplate;
 
             return ValueInputNodeTemplate;
@@ -213,9 +217,7 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
 
         if (item is ButtonInputNode) return ButtonInputNodeTemplate;
 
-        if (item is Node { Metadata: { IsValue: true, IsFlow: false } } node &&
-            node.Metadata.Inputs.All(input => string.IsNullOrEmpty(input.Name)) &&
-            node.Metadata.Outputs.All(output => string.IsNullOrEmpty(output.Name))) return ValueOnlyNodeTemplate;
+        if (item is Node node && (node.GetType().HasCustomAttribute<NodeCollapsedAttribute>() || node.Metadata.Icon != EFontAwesomeIcon.None)) return ValueOnlyNodeTemplate;
 
         if (item is Node) return NodeTemplate;
         if (item is NodeGroupViewModel) return NodeGroupTemplate;

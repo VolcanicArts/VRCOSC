@@ -9,14 +9,12 @@ namespace VRCOSC.App.Nodes.Types.Math.Noise;
 [Node("Perlin Noise 1D", "Math/Noise")]
 public class PerlinNoise1DNode : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Position")] float position,
-        [NodeValue("Seed")] int? seed,
-        [NodeValue("Value")] Ref<float> outValue
-    )
+    public ValueInput<float> Value = new();
+    public ValueInput<int?> Seed = new();
+    public ValueOutput<float> Result = new();
+
+    protected override void Process(PulseContext c)
     {
-        outValue.Value = (float)new PerlinNoise(seed).Noise(position);
+        Result.Write((float)new PerlinNoise(Seed.Read(c)).Noise(Value.Read(c)), c);
     }
 }

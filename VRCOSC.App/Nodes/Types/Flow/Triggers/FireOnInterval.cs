@@ -7,26 +7,25 @@ using VRCOSC.App.SDK.Nodes;
 namespace VRCOSC.App.Nodes.Types.Flow.Triggers;
 
 [Node("Fire On Interval", "Flow")]
-public sealed class FireOnIntervalNode : Node, IFlowOutput
+public sealed class FireOnIntervalNode : Node
 {
-    public NodeFlowRef[] FlowOutputs => [new("On Update")];
+    public FlowCall OnInterval = new("On Interval");
 
-    [NodeProcess]
-    private async Task process
-    (
-        FlowContext context,
-        [NodeValue("Interval Milliseconds")] [NodeReactive] int milliseconds
-    )
+    [NodeReactive]
+    public ValueInput<int> DelayMilliseconds = new();
+
+    protected override void Process(PulseContext c)
     {
-        if (milliseconds == 0) milliseconds = int.MaxValue;
+        var delay = DelayMilliseconds.Read(c);
+        if (delay <= 0) return;
 
-        while (!context.Token.IsCancellationRequested)
+        while (!c.IsCancelled)
         {
-            await TriggerFlow(context, 0, true);
-            if (context.Token.IsCancellationRequested) break;
+            OnInterval.Execute(c);
+            if (c.IsCancelled) break;
 
-            await Task.Delay(milliseconds, context.Token);
-            if (context.Token.IsCancellationRequested) break;
+            Task.Delay(delay, c.Token).Wait(c.Token);
+            if (c.IsCancelled) break;
         }
     }
 }

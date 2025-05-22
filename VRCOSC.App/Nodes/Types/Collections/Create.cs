@@ -10,13 +10,11 @@ namespace VRCOSC.App.Nodes.Types.Collections;
 [Node("Construct List", "Collections")]
 public class ConstructListNode<T> : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Item")] [NodeVariableSize] T[] items,
-        [NodeValue("List")] Ref<List<T>> outList
-    )
+    public ValueInputList<T> Items = new();
+    public ValueOutput<List<T>> List = new();
+
+    protected override void Process(PulseContext c)
     {
-        outList.Value = items.ToList();
+        List.Write(Items.Read(c).ToList(), c);
     }
 }

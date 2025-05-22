@@ -1,20 +1,29 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Flow.Triggers;
 
 [Node("Fire On Change", "Flow")]
-public sealed class FireOnChangeNode<T> : Node, IFlowOutput
+public class FireOnChangeNode<T> : Node
 {
-    public NodeFlowRef[] FlowOutputs => [new("On Change")];
+    public FlowCall OnChange = new("On Change");
 
-    [NodeProcess]
-    private Task process
-    (
-        FlowContext context,
-        [NodeValue("Value")] [NodeReactive] T value
-    ) => TriggerFlow(context, 0, true);
+    [NodeReactive]
+    public ValueInput<T> Input = new();
+
+    public GlobalStore<T> Value = new();
+
+    protected override void Process(PulseContext c)
+    {
+        var input = Input.Read(c);
+
+        if (!EqualityComparer<T>.Default.Equals(input, Value.Read(c)))
+        {
+            Value.Write(input, c);
+            OnChange.Execute(c);
+        }
+    }
 }

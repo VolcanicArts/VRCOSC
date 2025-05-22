@@ -8,7 +8,7 @@ namespace VRCOSC.App.Nodes.Types.Values;
 [Node("Value", "Values")]
 public sealed class ValueNode<T> : Node
 {
-    private T value = default!;
+    private T value;
 
     public T Value
     {
@@ -20,12 +20,10 @@ public sealed class ValueNode<T> : Node
         }
     }
 
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue] Ref<T> outValue
-    )
+    public ValueOutput<T> Output = new();
+
+    protected override void Process(PulseContext c)
     {
-        outValue.Value = Value;
+        Output.Write(Value, c);
     }
 }

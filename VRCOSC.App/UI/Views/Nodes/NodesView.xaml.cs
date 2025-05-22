@@ -19,6 +19,7 @@ using VRCOSC.App.Nodes;
 using VRCOSC.App.Nodes.Types.Inputs;
 using VRCOSC.App.Nodes.Types.Values;
 using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
@@ -495,9 +496,8 @@ public partial class NodesView : INotifyPropertyChanged
             var slot = ConnectionDrag.Slot;
 
             var slotInputType = node.GetTypeOfInputSlot(slot);
-            if (slotInputType.IsGenericType && slotInputType.GetGenericTypeDefinition() == typeof(Nullable<>)) slotInputType = slotInputType.GenericTypeArguments[0];
 
-            if (NodeConstants.INPUT_TYPES.Contains(slotInputType) || slotInputType.IsAssignableTo(typeof(Enum)))
+            if (NodeConstants.INPUT_TYPES.Contains(slotInputType) || slotInputType.IsAssignableTo(typeof(Enum)) || slotInputType == typeof(Keybind))
             {
                 e.Handled = true;
 
@@ -1066,6 +1066,14 @@ public partial class NodesView : INotifyPropertyChanged
         var nodeGroup = (NodeGroup)element.Tag;
 
         nodeGroupMetadatWindowManager.TrySpawnChild(new NodeGroupMetadataWindow(nodeGroup));
+    }
+
+    private void ButtonInputNode_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var node = (Node)element.Tag;
+
+        NodeField.StartFlow(node);
     }
 }
 

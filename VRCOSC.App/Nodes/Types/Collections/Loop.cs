@@ -2,40 +2,55 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Collections;
 
-[Node("For Each", "Collections")]
-public sealed class ForEachNode<T> : Node, IFlowInput, IFlowOutput
+[Node("For", "Collections")]
+public sealed class ForNode : Node, IFlowInput
 {
-    public NodeFlowRef[] FlowOutputs =>
-    [
-        new("On Finished"),
-        new("On Loop")
-    ];
+    public FlowCall OnIteration = new("On Iteration");
+    public FlowContinuation OnEnd = new("On End");
 
-    [NodeProcess]
-    private async Task process
-    (
-        FlowContext context,
-        [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
-        [NodeValue("Element")] Ref<T> outElement
-    )
+    public ValueInput<int> Count = new();
+    public ValueOutput<int> Index = new();
+
+    protected override void Process(PulseContext c)
     {
+        for (var i = 0; i < Count.Read(c); i++)
+        {
+            Index.Write(i, c);
+            OnIteration.Execute(c);
+        }
+
+        OnEnd.Execute(c);
+    }
+}
+
+[Node("For Each", "Collections")]
+public sealed class ForEachNode<T> : Node, IFlowInput
+{
+    public FlowCall OnIteration = new("On Iteration");
+    public FlowContinuation OnEnd = new("On End");
+
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
+    public ValueOutput<T> Element = new();
+
+    protected override void Process(PulseContext c)
+    {
+        var enumerable = Enumerable.Read(c);
         if (enumerable is null) return;
 
         foreach (var element in enumerable)
         {
-            outElement.Value = element;
-            if (context.Token.IsCancellationRequested) break;
+            Element.Write(element, c);
+            if (c.IsCancelled) return;
 
-            await TriggerFlow(context, 1, true);
+            OnIteration.Execute(c);
         }
 
-        if (context.Token.IsCancellationRequested) return;
+        if (c.IsCancelled) return;
 
-        await TriggerFlow(context, 0);
+        OnEnd.Execute(c);
     }
 }

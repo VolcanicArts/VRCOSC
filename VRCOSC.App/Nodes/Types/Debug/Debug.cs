@@ -2,53 +2,24 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
-using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.App.Nodes.Types.Debug;
 
 [Node("Log", "Debug")]
-public sealed class LogNode : Node, IFlowInput, IFlowOutput
+public sealed class LogNode : Node, IFlowInput
 {
-    public NodeFlowRef[] FlowOutputs => [new()];
+    public FlowContinuation Next = new();
 
-    [NodeProcess]
-    private async Task process
-    (
-        FlowContext context,
-        [NodeValue("String")] string? str
-    )
+    public ValueInput<string> Text = new();
+
+    protected override void Process(PulseContext c)
     {
-        if (string.IsNullOrEmpty(str)) return;
+        var text = Text.Read(c);
 
-        Console.WriteLine(str);
-        await TriggerFlow(context, 0);
-    }
-}
+        if (string.IsNullOrEmpty(text)) return;
 
-[Node("Enum Test", "Debug")]
-public sealed class EnumValueInputDebugNode : Node
-{
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Parameter Type")] ParameterType parameterType
-    )
-    {
-    }
-}
-
-[Node("String List", "Debug")]
-public class StringListOutputDebugNode : Node
-{
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("String List")] Ref<List<string>> outStringList
-    )
-    {
-        outStringList.Value = ["Test1", "Test2", "Test3"];
+        Console.WriteLine(text);
+        Next.Execute(c);
     }
 }

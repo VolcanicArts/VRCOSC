@@ -6,50 +6,98 @@ using VRCOSC.App.SDK.Nodes;
 namespace VRCOSC.App.Nodes.Types.Operators;
 
 [Node("AND", "Operators/Boolean")]
+[NodeCollapsed]
 public class BooleanAndNode : Node
 {
-    [NodeProcess]
-    private void process(bool a, bool b, Ref<bool> result) => result.Value = a && b;
+    public ValueInput<bool> A = new();
+    public ValueInput<bool> B = new();
+    public ValueOutput<bool> Result = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Result.Write(A.Read(c) && B.Read(c), c);
+    }
 }
 
 [Node("OR", "Operators/Boolean")]
+[NodeCollapsed]
 public class BooleanOrNode : Node
 {
-    [NodeProcess]
-    private void process(bool a, bool b, Ref<bool> result) => result.Value = a || b;
+    public ValueInput<bool> A = new();
+    public ValueInput<bool> B = new();
+    public ValueOutput<bool> Result = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Result.Write(A.Read(c) || B.Read(c), c);
+    }
 }
 
 [Node("NOT", "Operators/Boolean")]
+[NodeCollapsed]
 public class BooleanNotNode : Node
 {
-    [NodeProcess]
-    private void process(bool a, Ref<bool> result) => result.Value = !a;
+    public ValueInput<bool> Input = new();
+    public ValueOutput<bool> Result = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Result.Write(!Input.Read(c), c);
+    }
 }
 
 [Node("NAND", "Operators/Boolean")]
+[NodeCollapsed]
 public class BooleanNandNode : Node
 {
-    [NodeProcess]
-    private void process(bool a, bool b, Ref<bool> result) => result.Value = !(a && b);
+    public ValueInput<bool> A = new();
+    public ValueInput<bool> B = new();
+    public ValueOutput<bool> Result = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Result.Write(!(A.Read(c) && B.Read(c)), c);
+    }
 }
 
 [Node("NOR", "Operators/Boolean")]
+[NodeCollapsed]
 public class BooleanNorNode : Node
 {
-    [NodeProcess]
-    private void process(bool a, bool b, Ref<bool> result) => result.Value = !(a || b);
+    public ValueInput<bool> A = new();
+    public ValueInput<bool> B = new();
+    public ValueOutput<bool> Result = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Result.Write(!(A.Read(c) || B.Read(c)), c);
+    }
 }
 
 [Node("XOR", "Operators/Boolean")]
+[NodeCollapsed]
 public class BooleanXorNode : Node
 {
-    [NodeProcess]
-    private void process(bool a, bool b, Ref<bool> result) => result.Value = a ^ b;
+    public ValueInput<bool> A = new();
+    public ValueInput<bool> B = new();
+    public ValueOutput<bool> Result = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Result.Write(A.Read(c) ^ B.Read(c), c);
+    }
 }
 
 [Node("XNOR", "Operators/Boolean")]
-public class BooleanXNorNode : Node
+[NodeCollapsed]
+public class BooleanXnorNode : Node
 {
-    [NodeProcess]
-    private void process(bool a, bool b, Ref<bool> result) => result.Value = a == b;
+    public ValueInput<bool> A = new();
+    public ValueInput<bool> B = new();
+    public ValueOutput<bool> Result = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Result.Write(A.Read(c) == B.Read(c), c);
+    }
 }

@@ -9,15 +9,13 @@ namespace VRCOSC.App.Nodes.Types.Math.Utility;
 [Node("Is Between", "Math/Utility")]
 public class IsBetweenNode<T> : Node where T : INumber<T>
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Value")] float value,
-        [NodeValue("Min")] float min,
-        [NodeValue("Max")] float max,
-        [NodeValue("Result")] Ref<bool> outResult
-    )
+    public ValueInput<float> Value = new();
+    public ValueInput<float> Min = new();
+    public ValueInput<float> Max = new();
+    public ValueOutput<bool> Result = new();
+
+    protected override void Process(PulseContext c)
     {
-        outResult.Value = value >= min && value <= max;
+        Result.Write(Value.Read(c) >= Min.Read(c) && Value.Read(c) <= Max.Read(c), c);
     }
 }

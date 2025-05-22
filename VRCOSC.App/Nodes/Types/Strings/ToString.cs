@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Globalization;
+using System.Linq;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Strings;
@@ -10,20 +10,20 @@ namespace VRCOSC.App.Nodes.Types.Strings;
 [Node("To String", "Strings")]
 public sealed class ToStringNode<T> : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Value")] T value,
-        [NodeValue("Format Provider")] IFormatProvider? formatProvider,
-        [NodeValue("Format")] string? format,
-        [NodeValue("String")] Ref<string> outString
-    )
+    public ValueInput<T> Value = new();
+    public ValueInput<string?> Format = new();
+    public ValueInput<IFormatProvider?> FormatProvider = new();
+    public ValueOutput<string> Result = new();
+
+    protected override void Process(PulseContext c)
     {
-        formatProvider ??= CultureInfo.CurrentCulture;
+        var value = Value.Read(c);
+        var format = Format.Read(c);
+        var formatProvider = FormatProvider.Read(c);
 
         if (value is null)
         {
-            outString.Value = "null";
+            Result.Write("null", c);
             return;
         }
 
@@ -31,7 +31,7 @@ public sealed class ToStringNode<T> : Node
         {
             if (value is IFormattable formattable)
             {
-                outString.Value = formattable.ToString(format, formatProvider);
+                Result.Write(formattable.ToString(format, formatProvider), c);
                 return;
             }
         }
@@ -40,29 +40,26 @@ public sealed class ToStringNode<T> : Node
             return;
         }
 
-        outString.Value = value.ToString() ?? "UNKNOWN";
+        Result.Write(value.ToString() ?? "UNKNOWN", c);
     }
 }
 
 [Node("String Format", "Strings")]
 public sealed class StringFormatNode : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Format")] string? format,
-        [NodeValue("Values")] [NodeVariableSize] object?[] values,
-        [NodeValue("String")] Ref<string?> outString
-    )
-    {
-        if (format is null) return;
+    public ValueInput<string?> Format = new();
+    public ValueInputList<object?> Values = new();
+    public ValueOutput<string> Result = new();
 
+    protected override void Process(PulseContext c)
+    {
         try
         {
-            outString.Value = string.Format(format, values);
+            Result.Write(string.Format(Format.Read(c) ?? string.Empty, Values.Read(c).ToArray()), c);
         }
         catch
         {
+            Result.Write("INVALID FORMAT", c);
         }
     }
 }

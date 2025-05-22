@@ -3,33 +3,31 @@
 
 using System;
 using System.IO.Ports;
-using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Actions;
 
 [Node("Serial Write", "Actions/Serial")]
-public sealed class SerialWriteNode : Node, IFlowInput, IFlowOutput
+public sealed class SerialWriteNode : Node, IFlowInput
 {
-    public NodeFlowRef[] FlowOutputs => [new("On Success"), new("On Fail")];
+    public FlowContinuation OnSuccess = new("On Success");
+    public FlowContinuation OnFail = new("On Fail");
 
-    [NodeProcess]
-    private async Task process
-    (
-        FlowContext context,
-        [NodeValue("Port Name")] string portName,
-        [NodeValue("Baud Rate")] int baudRate,
-        [NodeValue("Parity")] Parity parity,
-        [NodeValue("Data Bits")] int dataBits,
-        [NodeValue("Stop Bits")] StopBits stopBits,
-        [NodeValue("Command")] string command
-    )
+    public ValueInput<string> PortName = new(string.Empty);
+    public ValueInput<int> BaudRate = new();
+    public ValueInput<Parity> Parity = new();
+    public ValueInput<int> DataBits = new();
+    public ValueInput<StopBits> StopBits = new();
+    public ValueInput<string?> Command = new();
+
+    protected override void Process(PulseContext c)
     {
-        using SerialPort serial = new SerialPort(portName, baudRate, parity, dataBits, stopBits);
+        using SerialPort serial = new SerialPort(PortName.Read(c), BaudRate.Read(c), Parity.Read(c), DataBits.Read(c), StopBits.Read(c));
+        var command = Command.Read(c);
 
         if (string.IsNullOrEmpty(command))
         {
-            await TriggerFlow(context, 1);
+            OnFail.Execute(c);
             return;
         }
 
@@ -40,10 +38,14 @@ public sealed class SerialWriteNode : Node, IFlowInput, IFlowOutput
         }
         catch (Exception)
         {
-            await TriggerFlow(context, 1);
+            OnFail.Execute(c);
             return;
         }
+        finally
+        {
+            serial.Close();
+        }
 
-        await TriggerFlow(context, 0);
+        OnSuccess.Execute(c);
     }
 }

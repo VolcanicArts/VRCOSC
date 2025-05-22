@@ -7,18 +7,15 @@ using VRCOSC.App.SDK.Nodes;
 namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Delay", "Flow")]
-public sealed class DelayNode : Node, IFlowInput, IFlowOutput
+public sealed class DelayNode : Node, IFlowInput
 {
-    public NodeFlowRef[] FlowOutputs => [new()];
+    public FlowContinuation Next = new("Next");
 
-    [NodeProcess]
-    private async Task process
-    (
-        FlowContext context,
-        [NodeValue("Delay Milliseconds")] int delay
-    )
+    public ValueInput<int> DelayMilliseconds = new();
+
+    protected override void Process(PulseContext c)
     {
-        await Task.Delay(delay, context.Token);
-        await TriggerFlow(context, 0);
+        Task.Delay(DelayMilliseconds.Read(c), c.Token).Wait(c.Token);
+        Next.Execute(c);
     }
 }

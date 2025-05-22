@@ -8,54 +8,51 @@ namespace VRCOSC.App.Nodes.Types.Utility;
 [Node("Conditional", "Utility")]
 public sealed class ConditionalNode<T> : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Condition")] bool condition,
-        [NodeValue("When True")] T valueTrue,
-        [NodeValue("When False")] T valueFalse,
-        [NodeValue("Output")] Ref<T> outOutput
-    )
+    public ValueInput<bool> Condition = new();
+    public ValueInput<T> True = new();
+    public ValueInput<T> False = new();
+    public ValueOutput<T> Result = new();
+
+    protected override void Process(PulseContext c)
     {
-        outOutput.Value = condition ? valueTrue : valueFalse;
+        Result.Write(Condition.Read(c) ? True.Read(c) : False.Read(c), c);
     }
 }
 
 [Node("Multiplex", "Utility")]
 public sealed class MultiplexNode<T> : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Index")] int index,
-        [NodeValue("Value")] [NodeVariableSize] T[] inputs,
-        [NodeValue("Element")] Ref<T> outElement,
-        [NodeValue("Input Count")] Ref<int> outInputCount
-    )
+    public ValueInput<int> Index = new();
+    public ValueInputList<T> Inputs = new();
+    public ValueOutput<T> Element = new();
+    public ValueOutput<int> InputCount = new();
+
+    protected override void Process(PulseContext c)
     {
-        outInputCount.Value = inputs.Length;
+        var index = Index.Read(c);
+        var inputs = Inputs.Read(c);
+        InputCount.Write(inputs.Count, c);
 
-        if (index >= inputs.Length) return;
+        if (index >= inputs.Count) return;
 
-        outElement.Value = inputs[index];
+        Element.Write(inputs[index], c);
     }
 }
 
 [Node("Demultiplex", "Utility")]
 public sealed class DemultiplexNode<T> : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Index")] int index,
-        [NodeValue("Value")] T value,
-        [NodeValue("Default Value")] T defaultValue,
-        [NodeValue("Value")] [NodeVariableSize] Ref<T[]> outOutputs
-    )
+    public ValueInput<int> Index = new();
+    public ValueInput<T> Value = new();
+    public ValueInput<T> DefaultValue = new();
+    public ValueOutputList<T> Outputs = new();
+
+    protected override void Process(PulseContext c)
     {
-        for (var i = 0; i < outOutputs.Value.Length; i++)
+        for (var i = 0; i < Outputs.Length(c); i++)
         {
-            outOutputs.Value[i] = i == index ? value : defaultValue;
+            var value = i == Index.Read(c) ? Value.Read(c) : DefaultValue.Read(c);
+            Outputs.Write(i, value, c);
         }
     }
 }

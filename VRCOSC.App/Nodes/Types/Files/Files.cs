@@ -3,48 +3,44 @@
 
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Files;
 
 [Node("Write Text To File", "Files")]
-public class WriteTextToFileNode : Node, IFlowInput, IFlowOutput
+public class WriteTextToFileNode : Node, IFlowInput
 {
-    public NodeFlowRef[] FlowOutputs =>
-    [
-        new("On Write Finished"),
-        new("On Write Failed")
-    ];
+    public FlowContinuation OnFinished = new("On Finished");
+    public FlowContinuation OnFailed = new("On Failed");
 
-    [NodeProcess]
-    private async Task process
-    (
-        FlowContext context,
-        [NodeValue("Text")] string? text,
-        [NodeValue("File Path")] string? filePath
-    )
+    public ValueInput<string> Text = new(string.Empty);
+    public ValueInput<string> FilePath = new(string.Empty);
+
+    protected override void Process(PulseContext c)
     {
-        if (text is null || filePath is null) return;
+        var text = Text.Read(c);
+        var filePath = FilePath.Read(c);
+
+        if (string.IsNullOrEmpty(filePath)) return;
 
         if (!File.Exists(filePath))
         {
-            await TriggerFlow(context, 1);
+            OnFailed.Execute(c);
             return;
         }
 
         try
         {
-            await File.WriteAllTextAsync(filePath, text, context.Token);
-            if (context.Token.IsCancellationRequested) return;
+            File.WriteAllTextAsync(filePath, text, c.Token).Wait(c.Token);
+            if (c.IsCancelled) return;
 
-            await TriggerFlow(context, 0);
+            OnFinished.Execute(c);
         }
         catch (Exception)
         {
-            if (context.Token.IsCancellationRequested) return;
+            if (c.IsCancelled) return;
 
-            await TriggerFlow(context, 1);
+            OnFailed.Execute(c);
         }
     }
 }

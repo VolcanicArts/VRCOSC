@@ -8,17 +8,15 @@ namespace VRCOSC.App.Nodes.Types.Math.Map;
 [Node("Remap", "Math/Map")]
 public class RemapNode : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Value")] float value,
-        [NodeValue("In Min")] float vMin,
-        [NodeValue("In Max")] float vMax,
-        [NodeValue("Out Min")] float dMin,
-        [NodeValue("Out Max")] float dMax,
-        [NodeValue("Value")] Ref<float> outValue
-    )
+    public ValueInput<float> Value = new();
+    public ValueInput<float> FromMin = new();
+    public ValueInput<float> FromMax = new();
+    public ValueInput<float> ToMin = new();
+    public ValueInput<float> ToMax = new();
+    public ValueOutput<float> Result = new();
+
+    protected override void Process(PulseContext c)
     {
-        outValue.Value = Utils.Interpolation.Map(value, vMin, vMax, dMin, dMax);
+        Result.Write(Utils.Interpolation.Map(Value.Read(c), FromMin.Read(c), FromMax.Read(c), ToMin.Read(c), ToMax.Read(c)), c);
     }
 }

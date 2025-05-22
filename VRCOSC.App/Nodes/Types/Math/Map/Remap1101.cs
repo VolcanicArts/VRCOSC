@@ -6,15 +6,14 @@ using VRCOSC.App.SDK.Nodes;
 namespace VRCOSC.App.Nodes.Types.Math.Map;
 
 [Node("Remap -1,1 To 0,1", "Math/Map")]
+[NodeCollapsed]
 public class Remap1101Node : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue] float value,
-        [NodeValue] Ref<float> outValue
-    )
+    public ValueInput<float> Value = new();
+    public ValueOutput<float> Result = new();
+
+    protected override void Process(PulseContext c)
     {
-        outValue.Value = Utils.Interpolation.Map(value, -1, 1, 0, 1);
+        Result.Write(Utils.Interpolation.Map(Value.Read(c), -1, 1, 0, 1), c);
     }
 }

@@ -326,7 +326,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <core:TextButton Grid.Column="0" Text="Call" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ButtonColour="Gray" FontSize="17"
-                                         Click="{data:MethodBinding OnClick}" Margin="7 7 0 7" CornerRadius="5"/>
+                                         Click="ButtonInputNode_OnClick" Margin="7 7 0 7" CornerRadius="5" Tag="{Binding}"/>
                         <!--> Output <-->
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
@@ -507,6 +507,53 @@
             </Border>
         </DataTemplate>
 
+        <DataTemplate x:Key="KeybindValueNodeTemplate">
+            <Border Name="NodeContainer"
+                    CornerRadius="2"
+                    BorderThickness="2"
+                    Padding="1"
+                    BorderBrush="{DynamicResource CForeground3}"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Tag="{Binding}"
+                    MouseDown="NodeContainer_OnMouseDown"
+                    ContextMenu="{StaticResource NodeContextMenu}">
+                <Border.RenderTransform>
+                    <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}"/>
+                </Border.RenderTransform>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
+                    <!--> Value Points <-->
+                    <Grid VerticalAlignment="Top">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <core:KeybindPicker Grid.Column="0"
+                                            Keybind="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            Width="250"
+                                            FontSize="16" Margin="5"
+                                            Background="{StaticResource CBackground6}"/>
+                        <!--> Output <-->
+                        <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
+                                      VerticalAlignment="Center" HorizontalAlignment="Right"
+                                      Name="ValueOutputItemsControl"
+                                      ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                      ItemTemplate="{StaticResource ValueOutputTemplate}">
+                            <ItemsControl.RenderTransform>
+                                <TranslateTransform X="8"/>
+                            </ItemsControl.RenderTransform>
+                        </ItemsControl>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
         <DataTemplate x:Key="BoolValueNodeTemplate">
             <Border Name="NodeContainer"
                     CornerRadius="5"
@@ -550,6 +597,7 @@
                 </Grid>
             </Border>
         </DataTemplate>
+
         <!--> Cast Node <-->
         <DataTemplate x:Key="CastNodeTemplate">
             <Border Name="NodeContainer"
@@ -599,6 +647,7 @@
                 </Grid>
             </Border>
         </DataTemplate>
+
         <DataTemplate x:Key="ValueOnlyTemplate">
             <Border Name="NodeContainer"
                     CornerRadius="2"
@@ -775,6 +824,7 @@
                                                     RelayNodeTemplate="{StaticResource CastNodeTemplate}"
                                                     ValueInputNodeTemplate="{StaticResource ValueNodeTemplate}"
                                                     BoolValueInputNodeTemplate="{StaticResource BoolValueNodeTemplate}"
+                                                    KeybindValueInputNodeTemplate="{StaticResource KeybindValueNodeTemplate}"
                                                     EnumValueInputNodeTemplate="{StaticResource EnumValueNodeTemplate}"
                                                     ButtonInputNodeTemplate="{StaticResource ButtonInputNodeTemplate}"
                                                     ImpulseReceiveNodeTemplate="{StaticResource ImpulseReceiveNodeTemplate}"
@@ -823,6 +873,7 @@
                                                     RelayNodeTemplate="{StaticResource CastNodeTemplate}"
                                                     ValueInputNodeTemplate="{StaticResource ValueNodeTemplate}"
                                                     BoolValueInputNodeTemplate="{StaticResource BoolValueNodeTemplate}"
+                                                    KeybindValueInputNodeTemplate="{StaticResource KeybindValueNodeTemplate}"
                                                     EnumValueInputNodeTemplate="{StaticResource EnumValueNodeTemplate}"
                                                     ButtonInputNodeTemplate="{StaticResource ButtonInputNodeTemplate}"
                                                     ImpulseReceiveNodeTemplate="{StaticResource ImpulseReceiveNodeTemplate}"

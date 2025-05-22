@@ -7,27 +7,29 @@ using VRCOSC.App.SDK.Nodes;
 namespace VRCOSC.App.Nodes.Types.Flow.Triggers;
 
 [Node("Fire While True", "Flow")]
-public sealed class FireWhileTrueNode : Node, IFlowOutput
+public sealed class FireWhileTrueNode : Node
 {
-    public NodeFlowRef[] FlowOutputs => [new("Is True")];
+    public FlowCall IsTrue = new("Is True");
 
-    [NodeProcess]
-    private async Task process
-    (
-        FlowContext context,
-        [NodeValue("Interval Milliseconds")] [NodeReactive] int milliseconds,
-        [NodeValue("Condition")] [NodeReactive] bool condition
-    )
+    [NodeReactive]
+    public ValueInput<int> DelayMilliseconds = new();
+
+    [NodeReactive]
+    public ValueInput<bool> Condition = new();
+
+    protected override void Process(PulseContext c)
     {
-        if (!condition || milliseconds == 0) return;
+        var delay = DelayMilliseconds.Read(c);
 
-        while (!context.Token.IsCancellationRequested)
+        if (!Condition.Read(c) || delay == 0) return;
+
+        while (!c.IsCancelled)
         {
-            await TriggerFlow(context, 0, true);
-            if (context.Token.IsCancellationRequested) break;
+            IsTrue.Execute(c);
+            if (c.IsCancelled) break;
 
-            await Task.Delay(milliseconds, context.Token);
-            if (context.Token.IsCancellationRequested) break;
+            Task.Delay(delay, c.Token).Wait(c.Token);
+            if (c.IsCancelled) break;
         }
     }
 }

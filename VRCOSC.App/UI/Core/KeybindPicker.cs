@@ -39,6 +39,7 @@ public class KeybindPicker : UserControl
     public KeybindPicker()
     {
         MouseDown += KeybindPicker_OnMouseDown;
+        MouseUp += KeybindPicker_OnMouseUp;
         PreviewKeyDown += KeybindPicker_OnPreviewKeyDown;
         PreviewKeyUp += KeybindPicker_OnPreviewKeyUp;
     }
@@ -51,6 +52,11 @@ public class KeybindPicker : UserControl
         Modifiers.Clear();
         Keys.Clear();
         keyDownCount = 0;
+    }
+
+    private void KeybindPicker_OnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
     }
 
     private void KeybindPicker_OnPreviewKeyUp(object sender, KeyEventArgs e)

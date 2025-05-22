@@ -2,12 +2,15 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Nodes;
-using VRCOSC.App.SDK.Modules;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Utils;
+using Module = VRCOSC.App.SDK.Modules.Module;
 
 namespace VRCOSC.App.SDK.Nodes;
 
@@ -23,15 +26,77 @@ public abstract class Node
     public NodeMetadata Metadata => NodeField.GetMetadata(this);
     protected Player Player => AppManager.GetInstance().VRChatClient.Player;
 
-    protected void TriggerSelf()
+    protected Node()
     {
-        NodeField.StartFlow(this);
+        var type = GetType();
+        var allFields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
+
+        var defs = new List<Type>
+        {
+            typeof(IFlow),
+            typeof(IValueInput),
+            typeof(IValueOutput),
+        };
+
+        foreach (var def in defs)
+        {
+            var group = allFields
+                        .Where(f => def.IsGenericTypeDefinition
+                            ? f.FieldType.IsGenericType
+                              && f.FieldType.GetGenericTypeDefinition().IsAssignableTo(def)
+                            : f.FieldType.IsAssignableTo(def))
+                        .ToList();
+
+            for (int i = 0; i < group.Count; i++)
+            {
+                var field = group[i];
+                var instance = (INodeField)field.GetValue(this)!;
+                instance.Index = i;
+            }
+        }
     }
 
-    protected Task TriggerFlow(FlowContext context, int slot, bool scope = false)
+    internal void InternalProcess(PulseContext c)
     {
-        return NodeField.TriggerOutputFlow(this, context, slot, scope);
+        try
+        {
+            Process(c);
+        }
+        catch (TaskCanceledException)
+        {
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e);
+        }
     }
+
+    protected abstract void Process(PulseContext c);
+
+    internal bool InternalShouldProcess(PulseContext c)
+    {
+        try
+        {
+            return ShouldProcess(c);
+        }
+        catch (TaskCanceledException)
+        {
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e);
+        }
+
+        return false;
+    }
+
+    protected virtual bool ShouldProcess(PulseContext c) => true;
 }
 
 public abstract class ModuleNode<T> : Node where T : Module

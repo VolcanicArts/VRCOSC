@@ -9,14 +9,14 @@ namespace VRCOSC.App.Nodes.Types.Math.Vectors;
 [Node("Pack Vector2", "Math/Vector")]
 public class PackVector2Node : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("X")] float x,
-        [NodeValue("Y")] float y,
-        [NodeValue("Vector2")] Ref<Vector2> outVector2
-    )
+    public ValueInput<float> X = new();
+    public ValueInput<float> Y = new();
+    public ValueOutput<Vector2> Result = new();
+
+    protected override void Process(PulseContext c)
     {
-        outVector2.Value = new Vector2(x, y);
+        var x = X.Read(c);
+        var y = Y.Read(c);
+        Result.Write(new Vector2(x, y), c);
     }
 }

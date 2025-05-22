@@ -2,48 +2,43 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Flow.Interpolation;
 
 [Node("Tween", "Flow")]
-public sealed class TweenNode : Node, IFlowInput, IFlowOutput
+public sealed class TweenNode : Node, IFlowInput
 {
-    public NodeFlowRef[] FlowOutputs => [new("On Complete"), new("On Update")];
+    public FlowCall OnUpdate = new("On Update");
+    public FlowContinuation OnFinished = new("On Finished");
 
-    [NodeProcess]
-    private async Task process
-    (
-        FlowContext context,
-        [NodeValue("From")] float from,
-        [NodeValue("To")] float to,
-        [NodeValue("Time Milliseconds")] float timeMilliseconds,
-        [NodeValue("Value")] Ref<float> outValue
-    )
+    public ValueInput<float> From = new();
+    public ValueInput<float> To = new();
+    public ValueInput<float> TimeMilliseconds = new();
+    public ValueOutput<float> Value = new();
+
+    protected override void Process(PulseContext c)
     {
         var startTime = DateTime.Now;
-        var endTime = startTime + TimeSpan.FromMilliseconds(timeMilliseconds);
-
-        float percentage;
+        var milliseconds = TimeMilliseconds.Read(c);
+        var endTime = startTime + TimeSpan.FromMilliseconds(milliseconds);
 
         do
         {
-            if (context.Token.IsCancellationRequested) break;
-
             var currentTime = DateTime.Now;
-            percentage = (float)((currentTime - startTime) / (endTime - startTime));
-
+            var percentage = (float)((currentTime - startTime) / (endTime - startTime));
             if (percentage > 1) percentage = 1;
 
-            var nextValue = Utils.Interpolation.Lerp(from, to, percentage);
-            outValue.Value = nextValue;
+            var nextValue = Utils.Interpolation.Lerp(From.Read(c), To.Read(c), percentage);
+            Value.Write(nextValue, c);
 
-            await TriggerFlow(context, 1, true);
-        } while (percentage < 1 && !context.Token.IsCancellationRequested);
+            OnUpdate.Execute(c);
 
-        if (context.Token.IsCancellationRequested) return;
+            if (c.IsCancelled || System.Math.Abs(percentage - 1) < float.Epsilon) break;
+        } while (true);
 
-        await TriggerFlow(context, 0);
+        if (c.IsCancelled) return;
+
+        OnFinished.Execute(c);
     }
 }

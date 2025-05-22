@@ -1,27 +1,23 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Flow.Branch;
 
 [Node("If", "Flow")]
-public sealed class IfNode : Node, IFlowInput, IFlowOutput
+public sealed class IfNode : Node, IFlowInput
 {
-    public NodeFlowRef[] FlowOutputs =>
-    [
-        new("On True"),
-        new("On False")
-    ];
+    public FlowContinuation OnTrue = new("On True");
+    public FlowContinuation OnFalse = new("On False");
 
-    [NodeProcess]
-    private Task process
-    (
-        FlowContext context,
-        [NodeValue("Condition")] bool condition
-    )
+    public ValueInput<bool> Condition = new();
+
+    protected override void Process(PulseContext c)
     {
-        return TriggerFlow(context, condition ? 0 : 1);
+        if (Condition.Read(c))
+            OnTrue.Execute(c);
+        else
+            OnFalse.Execute(c);
     }
 }

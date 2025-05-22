@@ -8,13 +8,11 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Value Relay", "Utility")]
 public sealed class ValueRelayNode<T> : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue] T value,
-        [NodeValue] Ref<T> outValue
-    )
+    public ValueInput<T> Input = new();
+    public ValueOutput<T> Output = new();
+
+    protected override void Process(PulseContext c)
     {
-        outValue.Value = value;
+        Output.Write(Input.Read(c), c);
     }
 }

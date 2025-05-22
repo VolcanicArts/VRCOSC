@@ -2,59 +2,30 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Base;
 
-public sealed class ValueDisplayNode<T> : Node, INotifyPropertyChanged
-{
-    private T value;
-
-    public T Value
-    {
-        get => value;
-        set
-        {
-            this.value = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-}
-
-// TODO: Support this changing for fire on change???
 public abstract class ConstantNode<T> : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue] Ref<T> outValue
-    )
+    public ValueOutput<T> Output = new();
+
+    protected override void Process(PulseContext c)
     {
-        outValue.Value = GetValue();
+        Output.Write(GetValue(), c);
     }
 
     protected abstract T GetValue();
 }
 
-public abstract class InputNode : Node
-{
-}
-
 [Node("Cast", "")]
 public sealed class CastNode<TFrom, TTo> : Node
 {
-    [NodeProcess]
-    private void process(TFrom value, Ref<TTo> outValue)
+    public ValueInput<TFrom> Input = new();
+    public ValueOutput<TTo> Output = new();
+
+    protected override void Process(PulseContext c)
     {
-        outValue.Value = (TTo)Convert.ChangeType(value, typeof(TTo))!;
+        Output.Write((TTo)Convert.ChangeType(Input.Read(c), typeof(TTo))!, c);
     }
 }

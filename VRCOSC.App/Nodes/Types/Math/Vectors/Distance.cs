@@ -9,14 +9,12 @@ namespace VRCOSC.App.Nodes.Types.Math.Vectors;
 [Node("Distance", "Math/Vector2")]
 public sealed class Vector2DistanceNode : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        Vector2 vectorA,
-        Vector2 vectorB,
-        Ref<float> outDistance
-    )
+    public ValueInput<Vector2> VectorA = new();
+    public ValueInput<Vector2> VectorB = new();
+    public ValueOutput<float> Distance = new();
+
+    protected override void Process(PulseContext c)
     {
-        outDistance.Value = Vector2.Distance(vectorA, vectorB);
+        Distance.Write(Vector2.Distance(VectorA.Read(c), VectorB.Read(c)), c);
     }
 }

@@ -115,8 +115,11 @@ public class TypeToFriendlyNameConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not Type typeValue) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
+        if (value is null) return "NULL TYPE";
 
+        if (!value.GetType().IsAssignableTo(typeof(Type))) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
+
+        var typeValue = (Type)value;
         return typeValue.GetFriendlyName();
     }
 
@@ -127,8 +130,11 @@ public class TypeToBrushConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not Type typeValue) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
+        if (value is null) return Brushes.Black;
 
+        if (!value.GetType().IsAssignableTo(typeof(Type))) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
+
+        var typeValue = (Type)value;
         return typeValue.GetTypeBrush();
     }
 

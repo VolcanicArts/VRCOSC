@@ -10,55 +10,60 @@ namespace VRCOSC.App.Nodes.Types.Collections;
 [Node("Element At", "Collections")]
 public sealed class EnumerableElementAtNode<T> : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
-        [NodeValue("Index")] int index,
-        [NodeValue("Element")] Ref<T> outElement
-    )
-    {
-        if (enumerable is null) return;
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
+    public ValueInput<int> Index = new();
+    public ValueOutput<T> Element = new();
 
-        outElement.Value = enumerable.ElementAt(index);
+    protected override void Process(PulseContext c)
+    {
+        var enumerable = Enumerable.Read(c);
+        var index = Index.Read(c);
+
+        if (enumerable is null) return;
+        if (index < 0 || index >= enumerable.Count()) return;
+
+        Element.Write(enumerable.ElementAt(index), c);
     }
 }
 
 [Node("Count", "Collections")]
 public class EnumerableCountNode<T> : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
-        [NodeValue("Count")] Ref<int> outCount
-    )
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
+
+    public ValueOutput<int> Element = new();
+
+    protected override void Process(PulseContext c)
     {
+        var enumerable = Enumerable.Read(c);
         if (enumerable is null) return;
 
-        outCount.Value = enumerable.Count();
+        Element.Write(enumerable.Count(), c);
     }
 }
 
 [Node("Insert", "Collections")]
-public class EnumerableInsertNode<T> : Node, IFlowInput, IFlowOutput
+public class EnumerableInsertNode<T> : Node, IFlowInput
 {
-    public NodeFlowRef[] FlowOutputs => [new("On Insertion")];
+    public FlowContinuation Next = new("Next");
 
-    [NodeProcess]
-    private int process
-    (
-        [NodeValue("Enumerable")] IEnumerable<T>? enumerable,
-        [NodeValue("Index")] int index,
-        [NodeValue("Value")] T value,
-        [NodeValue("Enumerable")] Ref<IEnumerable<T>> outEnumerable)
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
+    public ValueInput<int> Index = new();
+    public ValueInput<T?> Element = new();
+    public ValueOutput<IEnumerable<T>> Result = new();
+
+    protected override void Process(PulseContext c)
     {
-        if (enumerable is null) return -1;
+        var enumerable = Enumerable.Read(c);
+        var index = Index.Read(c);
+        var element = Element.Read(c);
+
+        if (enumerable is null || element is null) return;
 
         var list = enumerable.ToList();
-        list.Insert(index, value);
-        outEnumerable.Value = list;
+        list.Insert(index, element);
+        Result.Write(list, c);
 
-        return 0;
+        Next.Execute(c);
     }
 }

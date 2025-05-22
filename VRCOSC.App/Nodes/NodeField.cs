@@ -4,9 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types.Base;
@@ -35,6 +34,7 @@ public class NodeField
 
     public readonly Dictionary<Type, NodeMetadata> Metadata = [];
     public readonly Dictionary<string, object?> Variables = [];
+    public readonly Dictionary<Guid, Dictionary<IStore, IRef>> GlobalStores = [];
 
     private bool running;
 
@@ -65,7 +65,42 @@ public class NodeField
         running = false;
     }
 
+    public NodeConnection? FindConnectionFromValueInput(Guid nodeId, int index)
+    {
+        return Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeId && c.InputSlot == index);
+    }
+
+    public NodeConnection? FindConnectionFromFlowOutput(Guid nodeId, int index)
+    {
+        return Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Flow && c.OutputNodeId == nodeId && c.OutputSlot == index);
+    }
+
     public NodeMetadata GetMetadata(Node node) => Metadata[node.GetType()];
+
+    public void WriteStore<T>(GlobalStore<T> globalStore, T value, PulseContext c)
+    {
+        var currentNode = c.CurrentNode;
+        Debug.Assert(currentNode is not null);
+
+        GlobalStores.TryAdd(currentNode.Id, new Dictionary<IStore, IRef>());
+
+        GlobalStores[currentNode.Id][globalStore] = new Ref<T>(value);
+    }
+
+    public T? ReadStore<T>(GlobalStore<T> globalStore, PulseContext c)
+    {
+        var currentNode = c.CurrentNode;
+        Debug.Assert(currentNode is not null);
+
+        GlobalStores.TryAdd(currentNode.Id, new Dictionary<IStore, IRef>());
+
+        if (!GlobalStores[currentNode.Id].TryGetValue(globalStore, out var iRef))
+        {
+            return (T?)typeof(T).CreateDefault();
+        }
+
+        return (T?)iRef.GetValue();
+    }
 
     public void WriteVariable(string name, object? value, bool persistent)
     {
@@ -94,7 +129,6 @@ public class NodeField
         var inputNode = Nodes[inputNodeId];
 
         var outputMetadata = outputNode.Metadata;
-        var inputMetadata = inputNode.Metadata;
 
         var outputType = outputNode.GetTypeOfOutputSlot(outputValueSlot);
         var inputType = inputNode.GetTypeOfInputSlot(inputValueSlot);
@@ -181,13 +215,9 @@ public class NodeField
             Metadata.Add(node.GetType(), metadata);
         }
 
-        if (metadata.InputHasVariableSize || metadata.OutputHasVariableSize)
+        if (metadata.ValueInputHasVariableSize || metadata.ValueOutputHasVariableSize)
         {
-            VariableSizes.Add(node.Id, new NodeVariableSize
-            {
-                ValueInputSize = metadata.InputVariableSize?.DefaultSize ?? 0,
-                ValueOutputSize = metadata.OutputVariableSize?.DefaultSize ?? 0
-            });
+            VariableSizes.Add(node.Id, new NodeVariableSize());
         }
 
         node.ZIndex = ZIndex++;
@@ -196,9 +226,8 @@ public class NodeField
         Nodes.Add(node.Id, node);
     }
 
-    private record FlowTask(Task Task, CancellationTokenSource Source);
+    private record FlowTask(Task Task, PulseContext Context);
 
-    private readonly NodeFieldMemory memory = new();
     private readonly Dictionary<Node, FlowTask> tasks = [];
 
     public void ParameterReceived(ReceivedParameter parameter)
@@ -207,18 +236,37 @@ public class NodeField
 
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IParameterReceiver))))
         {
-            StartFlow(node, new ParameterReceiverFlowContext(parameter));
+            StartFlow(node, c =>
+            {
+                var parameterReceiver = (IParameterReceiver)node;
+                parameterReceiver.OnParameterReceived(c, parameter);
+            });
         }
     }
 
-    public void StartFlow(Node triggerNode, FlowContext? context = null) => Task.Run(async () =>
+    public void StartFlow(Node node, Action<PulseContext>? preShouldProcess = null) => Task.Run(async () =>
     {
-        context ??= new FlowContext();
+        var c = new PulseContext(this);
 
-        if (tasks.TryGetValue(triggerNode, out var existingTask))
+        c.CreateMemory(node);
+        c.CurrentNode = node;
+
+        backtrackNode(node, c);
+
+        try
         {
-            await existingTask.Source.CancelAsync();
-            memory.Reset();
+            preShouldProcess?.Invoke(c);
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e);
+        }
+
+        if (!node.InternalShouldProcess(c)) return;
+
+        if (tasks.TryGetValue(node, out var existingTask))
+        {
+            await existingTask.Context.Source.CancelAsync();
 
             try
             {
@@ -226,82 +274,71 @@ public class NodeField
             }
             catch (TaskCanceledException)
             {
-                // ignore it
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e);
             }
 
-            tasks.Remove(triggerNode);
+            tasks.Remove(node);
         }
 
-        var task = Task.Run(() => executeFlowNode(triggerNode, context), context.Token).ContinueWith(_ => memory.Reset());
-        tasks.Add(triggerNode, new FlowTask(task, context.Source));
+        var newTask = Task.Run(() => node.InternalProcess(c), c.Token);
+        tasks.Add(node, new FlowTask(newTask, c));
     });
 
-    public async Task TriggerOutputFlow(Node sourceNode, FlowContext context, int flowSlot, bool shouldScope)
+    public void ProcessNode(Guid nodeId, PulseContext c)
     {
-        if (context.Token.IsCancellationRequested) return;
+        ProcessNode(Nodes[nodeId], c);
+    }
 
-        var connection = Connections.FirstOrDefault(con => con.OutputNodeId == sourceNode.Id && con.OutputSlot == flowSlot && con.ConnectionType == ConnectionType.Flow);
-        if (connection is null) return;
+    public void ProcessNode(Node node, PulseContext c)
+    {
+        if (c.HasRan(node.Id)) return;
 
-        if (shouldScope)
+        backtrackNode(node, c);
+        c.CreateMemory(node);
+        var currentBefore = c.CurrentNode;
+        c.CurrentNode = node;
+        node.InternalProcess(c);
+        c.MarkRan(node.Id);
+        c.CurrentNode = currentBefore;
+    }
+
+    private void backtrackNode(Node node, PulseContext c)
+    {
+        for (var index = 0; index < node.VirtualValueInputCount(); index++)
         {
-            memory.Push();
-        }
+            var connection = FindConnectionFromValueInput(node.Id, index);
+            if (connection is null) continue;
 
-        var destNode = Nodes[connection.InputNodeId];
+            var outputNode = Nodes[connection.OutputNodeId];
+            if (outputNode.Metadata.IsFlow) continue;
 
-        await executeFlowNode(destNode, context);
-
-        if (shouldScope)
-        {
-            memory.Pop();
+            ProcessNode(outputNode, c);
         }
     }
 
-    public record WalkResult(Node ValueOutputNode, Node TriggerNode, int ValueOutputSlot);
-
     /// <summary>
-    /// Walks forward from a source node with a single output to find the value nodes directly before any trigger node, and the trigger node
+    /// Walks forward from a source node with a single output to find the trigger node to execute
     /// </summary>
     public void WalkForward(Node sourceNode)
     {
-        var results = new List<WalkResult>();
-        walkForward(results, sourceNode, 0);
+        var triggerNodes = new List<Node>();
+        walkForward(triggerNodes, sourceNode, 0);
 
-        var beforeValues = new Dictionary<Node, object?>();
-        var afterValues = new Dictionary<Node, object?>();
-
-        foreach (var walkResult in results)
+        foreach (var node in triggerNodes)
         {
-            if (beforeValues.ContainsKey(walkResult.ValueOutputNode)) continue;
-
-            if (!memory.HasEntry(walkResult.ValueOutputNode.Id))
-            {
-                memory.CreateEntry(walkResult.ValueOutputNode);
-                beforeValues.Add(walkResult.ValueOutputNode, walkResult.ValueOutputNode.Metadata.Outputs[walkResult.ValueOutputSlot].Type.CreateDefault());
-            }
-            else
-            {
-                beforeValues.Add(walkResult.ValueOutputNode, memory.Read(walkResult.ValueOutputNode.Id).Values[walkResult.ValueOutputSlot].GetValue());
-            }
-
-            executeValueNode(walkResult.ValueOutputNode);
-            afterValues.Add(walkResult.ValueOutputNode, memory.Read(walkResult.ValueOutputNode.Id).Values[walkResult.ValueOutputSlot].GetValue());
-        }
-
-        foreach (var walkResult in results)
-        {
-            if (beforeValues[walkResult.ValueOutputNode] != afterValues[walkResult.ValueOutputNode])
-            {
-                StartFlow(walkResult.TriggerNode);
-            }
+            StartFlow(node);
         }
     }
 
-    private void walkForward(List<WalkResult> results, Node sourceNode, int outputValueSlot)
+    private void walkForward(List<Node> results, Node sourceNode, int outputValueSlot)
     {
-        var connections = Connections.Where(c => c.ConnectionType == ConnectionType.Value && c.OutputNodeId == sourceNode.Id && c.OutputSlot == outputValueSlot).ToList();
-        if (connections.Count == 0) return;
+        var connections = Connections.Where(c => c.ConnectionType == ConnectionType.Value && c.OutputNodeId == sourceNode.Id && c.OutputSlot == outputValueSlot);
 
         foreach (var connection in connections)
         {
@@ -309,7 +346,7 @@ public class NodeField
 
             if (inputNode.Metadata.IsTrigger && inputNode.Metadata.Inputs[connection.InputSlot].IsReactive)
             {
-                results.Add(new(sourceNode, inputNode, outputValueSlot));
+                results.Add(inputNode);
                 continue;
             }
 
@@ -320,141 +357,6 @@ public class NodeField
         }
     }
 
-    private IRef getConnectedRef(Node inputNode, int inputSlot, Type inputType)
-    {
-        var connection = Connections.FirstOrDefault(con => con.InputNodeId == inputNode.Id && con.InputSlot == inputSlot && con.ConnectionType == ConnectionType.Value);
-        if (connection is null) return (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(inputType), args: [inputType.CreateDefault()])!;
-
-        var outputNode = Nodes[connection.OutputNodeId];
-
-        if (memory.HasEntry(outputNode.Id))
-        {
-            return memory.Read(outputNode.Id).Values[connection.OutputSlot];
-        }
-
-        if (outputNode.Metadata is { IsValue: true, IsFlow: false })
-        {
-            executeValueNode(outputNode);
-            return memory.Read(outputNode.Id).Values[connection.OutputSlot];
-        }
-
-        return (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(inputType), args: [inputType.CreateDefault()])!;
-    }
-
-    private object? getConnectedValue(Node inputNode, int inputSlot, Type inputType)
-    {
-        var metadata = inputNode.Metadata;
-
-        if (metadata.InputHasVariableSize && metadata.InputsCount - 1 == inputSlot)
-        {
-            var arrSize = inputNode.VariableSize.ValueInputSize;
-            var elementType = inputType.GetElementType()!;
-            var values = Array.CreateInstance(elementType, arrSize);
-
-            for (var i = 0; i < arrSize; i++)
-            {
-                values.SetValue(getConnectedRef(inputNode, inputSlot + i, elementType).GetValue(), i);
-            }
-
-            return values;
-        }
-
-        var connection = Connections.FirstOrDefault(con => con.InputNodeId == inputNode.Id && con.InputSlot == inputSlot && con.ConnectionType == ConnectionType.Value);
-        if (connection is null) return inputType.CreateDefault();
-
-        if (!memory.HasEntry(connection.OutputNodeId))
-            executeValueNode(Nodes[connection.OutputNodeId]);
-
-        var outputMetadata = Nodes[connection.OutputNodeId].Metadata;
-
-        if (connection.OutputSlot >= outputMetadata.OutputsCount - 1 && outputMetadata.OutputHasVariableSize)
-        {
-            var arr = (Array)memory.Read(connection.OutputNodeId).Values[outputMetadata.OutputsCount - 1].GetValue()!;
-            return arr.GetValue(connection.OutputSlot - (outputMetadata.OutputsCount - 1));
-        }
-
-        return getConnectedRef(inputNode, inputSlot, inputType).GetValue();
-    }
-
-    private async Task executeFlowNode(Node node, FlowContext context)
-    {
-        // TODO: Check if node has already been executed and refuse
-
-        Logger.Log("Executing " + node.GetType().GetFriendlyName());
-
-        var metadata = GetMetadata(node);
-
-        var args = new List<object?>
-        {
-            context
-        };
-
-        if (metadata.InputsCount > 0)
-        {
-            var inputValues = new object?[metadata.InputsCount];
-
-            for (var i = 0; i < metadata.InputsCount; i++)
-            {
-                inputValues[i] = getConnectedValue(node, i, metadata.Inputs[i].Type);
-            }
-
-            args.AddRange(inputValues);
-        }
-
-        if (metadata.OutputsCount > 0)
-        {
-            if (!memory.HasEntry(node.Id))
-                memory.CreateEntry(node);
-
-            var entry = memory.Read(node.Id);
-            args.AddRange(entry.Values);
-        }
-
-        var argsArr = args.ToArray();
-
-        var task = (Task)metadata.ProcessMethod.Invoke(node, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, null, argsArr, null)!;
-
-        try
-        {
-            await task;
-        }
-        catch (TaskCanceledException)
-        {
-            // ignore it
-        }
-    }
-
-    private void executeValueNode(Node node)
-    {
-        var metadata = GetMetadata(node);
-
-        var args = new List<object?>();
-
-        if (metadata.InputsCount > 0)
-        {
-            var inputValues = new object?[metadata.InputsCount];
-
-            for (var i = 0; i < metadata.InputsCount; i++)
-            {
-                inputValues[i] = getConnectedValue(node, i, metadata.Inputs[i].Type);
-            }
-
-            args.AddRange(inputValues);
-        }
-
-        if (metadata.OutputsCount > 0)
-        {
-            if (!memory.HasEntry(node.Id))
-                memory.CreateEntry(node);
-
-            var entry = memory.Read(node.Id);
-            args.AddRange(entry.Values);
-        }
-
-        var argsArr = args.ToArray();
-        metadata.ProcessMethod.Invoke(node, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, null, argsArr, null);
-    }
-
     public NodeGroup AddGroup()
     {
         var nodeGroup = new NodeGroup();
@@ -462,11 +364,12 @@ public class NodeField
         return nodeGroup;
     }
 
-    internal async Task TriggerImpulse(FlowContext context, string impulseName)
+    internal void TriggerImpulse(PulseContext c, string impulseName)
     {
         foreach (var receiveImpulseNode in Nodes.Values.OfType<ReceiveImpulseNode>().Where(node => !string.IsNullOrEmpty(node.ImpulseName) && node.ImpulseName == impulseName))
         {
-            await executeFlowNode(receiveImpulseNode, context);
+            // TODO: Increase context scope
+            ProcessNode(receiveImpulseNode, c);
         }
     }
 }

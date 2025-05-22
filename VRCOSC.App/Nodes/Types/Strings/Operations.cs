@@ -9,52 +9,55 @@ namespace VRCOSC.App.Nodes.Types.Strings;
 [Node("Join", "Strings")]
 public class StringJoinNode : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Separator")] string? separator,
-        [NodeValue("Inputs")] [NodeVariableSize] string[] inputs,
-        [NodeValue("String")] Ref<string> outString
-    )
+    public ValueInput<string> Separator = new(string.Empty);
+    public ValueInputList<string> Inputs = new();
+    public ValueOutput<string> Output = new();
+
+    protected override void Process(PulseContext c)
     {
-        outString.Value = string.Join(separator, inputs);
+        Output.Write(string.Join(Separator.Read(c), Inputs.Read(c)), c);
     }
 }
 
 [Node("Contains", "Strings")]
 public class StringContainsNode : Node
 {
-    [NodeProcess]
-    private void process
-    (
-        [NodeValue("Input")] string? input,
-        [NodeValue("Value")] string? value,
-        [NodeValue("Comparison")] StringComparison comparison,
-        [NodeValue("Result")] Ref<bool> result
-    )
-    {
-        if (input is null || value is null) return;
+    public ValueInput<string> Input = new(string.Empty);
+    public ValueInput<string> Value = new(string.Empty);
+    public ValueInput<StringComparison> Comparison = new(StringComparison.InvariantCulture);
+    public ValueOutput<bool> Result = new();
 
-        result.Value = input.Contains(value, comparison);
+    protected override void Process(PulseContext c)
+    {
+        var input = Input.Read(c);
+        var value = Value.Read(c);
+
+        if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(value)) return;
+
+        Result.Write(input.Contains(value, Comparison.Read(c)), c);
     }
 }
 
 [Node("To Upper", "Strings")]
 public class StringToUpperNode : Node
 {
-    [NodeProcess]
-    private void process(string? input, Ref<string?> result)
+    public ValueInput<string> Input = new(string.Empty);
+    public ValueOutput<string> Result = new();
+
+    protected override void Process(PulseContext c)
     {
-        result.Value = input?.ToUpper();
+        Result.Write(Input.Read(c).ToUpper(), c);
     }
 }
 
 [Node("To Lower", "Strings")]
 public class StringToLowerNode : Node
 {
-    [NodeProcess]
-    private void process(string? input, Ref<string?> result)
+    public ValueInput<string> Input = new(string.Empty);
+    public ValueOutput<string> Result = new();
+
+    protected override void Process(PulseContext c)
     {
-        result.Value = input?.ToLower();
+        Result.Write(Input.Read(c).ToLower(), c);
     }
 }
