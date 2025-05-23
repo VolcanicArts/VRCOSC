@@ -20,10 +20,10 @@ public class EnumerableInsertNode<T> : Node, IFlowInput
     protected override void Process(PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
+        if (enumerable is null) return;
+
         var index = Index.Read(c);
         var element = Element.Read(c);
-
-        if (enumerable is null) return;
 
         var list = enumerable.ToList();
         list.Insert(index, element);

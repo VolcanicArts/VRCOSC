@@ -6,7 +6,7 @@ using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Math.Vectors;
 
-[Node("Pack Vector3", "Math/Vector")]
+[Node("Pack Vector3", "Math/Vector3")]
 public class PackVector3Node : Node
 {
     public ValueInput<float> X = new();
@@ -20,5 +20,18 @@ public class PackVector3Node : Node
         var y = Y.Read(c);
         var z = Z.Read(c);
         Result.Write(new Vector3(x, y, z), c);
+    }
+}
+
+[Node("Distance", "Math/Vector3")]
+public sealed class Vector3DistanceNode : Node
+{
+    public ValueInput<Vector3> VectorA = new();
+    public ValueInput<Vector3> VectorB = new();
+    public ValueOutput<float> Distance = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Distance.Write(Vector3.Distance(VectorA.Read(c), VectorB.Read(c)), c);
     }
 }

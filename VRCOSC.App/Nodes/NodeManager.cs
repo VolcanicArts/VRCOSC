@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
-using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.OSC.VRChat;
 
 namespace VRCOSC.App.Nodes;
 
@@ -43,11 +43,11 @@ public class NodeManager
         }
     }
 
-    public void ParameterReceived(ReceivedParameter parameter)
+    public void ParameterReceived(VRChatOscMessage message)
     {
         foreach (var nodeField in Fields)
         {
-            nodeField.ParameterReceived(parameter);
+            nodeField.ParameterReceived(message);
         }
     }
 }

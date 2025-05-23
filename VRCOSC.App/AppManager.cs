@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -69,13 +68,9 @@ public class AppManager
 
     public WhisperSpeechEngine SpeechEngine = null!;
 
-    private Repeater? updateTask;
     private Repeater vrchatCheckTask = null!;
     private Repeater openvrCheckTask = null!;
     private Repeater openvrUpdateTask = null!;
-
-    private readonly Queue<VRChatOscMessage> oscMessageQueue = new();
-    private readonly object oscMessageQueueLock = new();
 
     public AppManager()
     {
@@ -186,16 +181,6 @@ public class AppManager
             OVRClient.Update();
     }
 
-    private void update()
-    {
-        if (State.Value != AppManagerState.Started) return;
-
-        lock (oscMessageQueueLock)
-        {
-            processOscMessageQueue();
-        }
-    }
-
     private void checkForOpenVR() => Task.Run(() =>
     {
         OVRClient.Init();
@@ -222,60 +207,54 @@ public class AppManager
     {
         if (string.IsNullOrEmpty(message.Address)) return;
 
-        lock (oscMessageQueueLock)
-        {
-            oscMessageQueue.Enqueue(message);
-        }
+        processOscMessage(message);
     }
 
-    private void processOscMessageQueue()
+    private void processOscMessage(VRChatOscMessage message)
     {
-        while (oscMessageQueue.TryDequeue(out var message))
+        if (message.IsAvatarChangeEvent)
         {
-            if (message.IsAvatarChangeEvent)
+            var avatarId = (string)message.ParameterValue;
+
+            AvatarConfig? avatarConfig = null;
+
+            if (!avatarId.StartsWith("local"))
             {
-                var avatarId = (string)message.ParameterValue;
-
-                AvatarConfig? avatarConfig = null;
-
-                if (!avatarId.StartsWith("local"))
-                {
-                    avatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
-                }
-
-                VRChatClient.HandleAvatarChange();
-                ModuleManager.GetInstance().AvatarChange(avatarConfig);
-
-                if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) continue;
-
-                sendMetadataParameters();
-                sendControlParameters();
+                avatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
             }
 
-            if (message.IsDollyEvent)
+            VRChatClient.HandleAvatarChange();
+            ModuleManager.GetInstance().AvatarChange(avatarConfig);
+
+            if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) return;
+
+            sendMetadataParameters();
+            sendControlParameters();
+        }
+
+        if (message.IsDollyEvent)
+        {
+            DollyManager.GetInstance().HandleDollyEvent(message);
+        }
+
+        if (message.IsAvatarParameter)
+        {
+            var wasPlayerUpdated = VRChatClient.Player.Update(message.ParameterName, message.ParameterValue);
+
+            if (wasPlayerUpdated)
             {
-                DollyManager.GetInstance().HandleDollyEvent(message);
+                ModuleManager.GetInstance().PlayerUpdate();
+                return;
             }
 
-            if (message.IsAvatarParameter)
+            if (message.ParameterName.StartsWith("VRCOSC/Controls"))
             {
-                var wasPlayerUpdated = VRChatClient.Player.Update(message.ParameterName, message.ParameterValue);
-
-                if (wasPlayerUpdated)
-                {
-                    ModuleManager.GetInstance().PlayerUpdate();
-                    return;
-                }
-
-                if (message.ParameterName.StartsWith("VRCOSC/Controls"))
-                {
-                    handleControlParameter(new ReceivedParameter(message.ParameterName, message.ParameterValue));
-                    return;
-                }
-
-                ModuleManager.GetInstance().ParameterReceived(message);
-                NodeManager.GetInstance().ParameterReceived(new ReceivedParameter(message.ParameterName, message.ParameterValue));
+                handleControlParameter(new ReceivedParameter(message.ParameterName, message.ParameterValue));
+                return;
             }
+
+            ModuleManager.GetInstance().ParameterReceived(message);
+            NodeManager.GetInstance().ParameterReceived(message);
         }
     }
 
@@ -506,9 +485,6 @@ public class AppManager
         VRChatLogReader.Start();
         NodeManager.GetInstance().Start();
 
-        updateTask = new Repeater($"{nameof(AppManager)}-{nameof(update)}", update);
-        updateTask.Start(TimeSpan.FromSeconds(1d / 60d));
-
         VRChatOscClient.OnParameterReceived += onParameterReceived;
         VRChatOscClient.EnableReceive();
 
@@ -577,9 +553,6 @@ public class AppManager
         await VRChatOscClient.DisableReceive();
         VRChatOscClient.OnParameterReceived -= onParameterReceived;
 
-        if (updateTask is not null)
-            await updateTask.StopAsync();
-
         NodeManager.GetInstance().Stop();
         await VRChatLogReader.Stop();
         await ModuleManager.GetInstance().StopAsync();
@@ -587,11 +560,6 @@ public class AppManager
         VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
         await RouterManager.GetInstance().Stop();
-
-        lock (oscMessageQueueLock)
-        {
-            oscMessageQueue.Clear();
-        }
 
         State.Value = AppManagerState.Stopped;
     }

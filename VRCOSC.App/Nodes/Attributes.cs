@@ -176,12 +176,6 @@ public class ValueOutputList<T> : IValueOutput
     public int Index { get; set; }
     public string Name { get; init; }
 
-    public T this[int index, PulseContext context]
-    {
-        get => throw new InvalidOperationException();
-        set => Write(index, value, context);
-    }
-
     public ValueOutputList(string name = "")
     {
         Name = name;
@@ -203,7 +197,9 @@ public class ValueOutputList<T> : IValueOutput
 
 public interface IFlowInput;
 
-public interface IParameterReceiver
+public interface IParameterSource
 {
-    public void OnParameterReceived(PulseContext c, ReceivedParameter parameter);
+    public string Name { get; set; }
+
+    public void OnParameterReceived(ReceivedParameter parameter);
 }

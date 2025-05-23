@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types.Base;
 using VRCOSC.App.Nodes.Types.Strings;
+using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Serialisation;
@@ -230,26 +231,26 @@ public class NodeField
 
     private readonly Dictionary<Node, FlowTask> tasks = [];
 
-    public void ParameterReceived(ReceivedParameter parameter)
+    public void ParameterReceived(VRChatOscMessage message)
     {
-        if (!running) return;
-
-        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IParameterReceiver))))
+        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IParameterSource))))
         {
-            StartFlow(node, c =>
+            var parameterSource = (IParameterSource)node;
+
+            if (message.ParameterName == parameterSource.Name)
             {
-                var parameterReceiver = (IParameterReceiver)node;
-                parameterReceiver.OnParameterReceived(c, parameter);
-            });
+                parameterSource.OnParameterReceived(new ReceivedParameter(message.ParameterName, message.ParameterValue));
+                WalkForward(node);
+            }
         }
     }
 
     public void StartFlow(Node node, Action<PulseContext>? preShouldProcess = null) => Task.Run(async () =>
     {
-        var c = new PulseContext(this);
-
-        c.CreateMemory(node);
-        c.CurrentNode = node;
+        var c = new PulseContext(this)
+        {
+            CurrentNode = node
+        };
 
         backtrackNode(node, c);
 
@@ -263,6 +264,8 @@ public class NodeField
         }
 
         if (!node.InternalShouldProcess(c)) return;
+
+        c.CreateMemory(node);
 
         if (tasks.TryGetValue(node, out var existingTask))
         {
