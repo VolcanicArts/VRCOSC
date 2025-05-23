@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
@@ -23,7 +24,8 @@ public class PulseContext
 
     internal List<Dictionary<Guid, IRef[]>> Memory { get; } = [new()];
     internal List<Dictionary<Guid, Dictionary<IStore, IRef>>> LocalStores { get; } = [];
-    internal List<List<Guid>> RanNodes = [];
+    internal List<List<Guid>> RanNodes { get; } = [];
+    internal List<ReceivedParameter> Parameters { get; } = [];
 
     public int ScopePointer;
 
@@ -75,6 +77,22 @@ public class PulseContext
     internal void Execute(FlowContinuation continuation)
     {
         processNext(continuation);
+    }
+
+    public T GetParameter<T>(string name)
+    {
+        var parameter = Parameters.SingleOrDefault(p => p.Name == name && p.Type == ParameterTypeFactory.CreateFrom<T>());
+        if (parameter is not null) return parameter.GetValue<T>();
+
+        parameter = Field.Parameters.SingleOrDefault(p => p.Name == name && p.Type == ParameterTypeFactory.CreateFrom<T>());
+
+        if (parameter is not null)
+        {
+            Parameters.Add(parameter);
+            return parameter.GetValue<T>();
+        }
+
+        return default!;
     }
 
     private void processNext(IFlow next)

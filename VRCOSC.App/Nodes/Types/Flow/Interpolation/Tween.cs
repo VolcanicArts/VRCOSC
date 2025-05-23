@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Flow.Interpolation;
@@ -34,6 +35,7 @@ public sealed class TweenNode : Node, IFlowInput
 
             OnUpdate.Execute(c);
 
+            Task.Delay(TimeSpan.FromSeconds(1f / 60f)).Wait(c.Token);
             if (c.IsCancelled || System.Math.Abs(percentage - 1) < float.Epsilon) break;
         } while (true);
 

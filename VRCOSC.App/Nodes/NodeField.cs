@@ -35,6 +35,7 @@ public class NodeField
     public readonly Dictionary<Type, NodeMetadata> Metadata = [];
     public readonly Dictionary<string, IRef> Variables = [];
     public readonly Dictionary<Guid, Dictionary<IStore, IRef>> GlobalStores = [];
+    public readonly List<ReceivedParameter> Parameters = [];
 
     private bool running;
 
@@ -82,7 +83,8 @@ public class NodeField
         var currentNode = c.CurrentNode;
         Debug.Assert(currentNode is not null);
 
-        GlobalStores.TryAdd(currentNode.Id, new Dictionary<IStore, IRef>());
+        if (!GlobalStores.ContainsKey(currentNode.Id))
+            GlobalStores.Add(currentNode.Id, new Dictionary<IStore, IRef>());
 
         GlobalStores[currentNode.Id][globalStore] = new Ref<T>(value);
     }
@@ -127,8 +129,6 @@ public class NodeField
     {
         var outputNode = Nodes[outputNodeId];
         var inputNode = Nodes[inputNodeId];
-
-        var outputMetadata = outputNode.Metadata;
 
         var outputType = outputNode.GetTypeOfOutputSlot(outputValueSlot);
         var inputType = inputNode.GetTypeOfInputSlot(inputValueSlot);
@@ -175,11 +175,6 @@ public class NodeField
         if (newConnectionMade && existingConnection is not null)
         {
             Connections.Remove(existingConnection);
-        }
-
-        if (outputMetadata is { IsValueOutput: true, OutputsCount: 1 })
-        {
-            WalkForward(Nodes[outputNodeId]);
         }
     }
 
@@ -233,19 +228,21 @@ public class NodeField
 
     public void ParameterReceived(VRChatOscMessage message)
     {
-        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IParameterSource))))
-        {
-            var parameterSource = (IParameterSource)node;
+        var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
 
-            if (message.ParameterName == parameterSource.Name)
-            {
-                parameterSource.OnParameterReceived(new ReceivedParameter(message.ParameterName, message.ParameterValue));
-                WalkForward(node);
-            }
+        Parameters.RemoveIf(p => p.Equals(receivedParameter));
+        Parameters.Add(receivedParameter);
+
+        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IParameterHandler))))
+        {
+            var parameterReceiver = (IParameterHandler)node;
+            if (!parameterReceiver.HandlesParameter(receivedParameter)) continue;
+
+            Task.Run(() => WalkForward(node));
         }
     }
 
-    public void StartFlow(Node node, Action<PulseContext>? preShouldProcess = null) => Task.Run(async () =>
+    public void StartFlow(Node node) => Task.Run(async () =>
     {
         var c = new PulseContext(this)
         {
@@ -253,15 +250,6 @@ public class NodeField
         };
 
         backtrackNode(node, c);
-
-        try
-        {
-            preShouldProcess?.Invoke(c);
-        }
-        catch (Exception e)
-        {
-            ExceptionHandler.Handle(e);
-        }
 
         if (!node.InternalShouldProcess(c)) return;
 
@@ -300,6 +288,7 @@ public class NodeField
 
     public void ProcessNode(Node node, PulseContext c)
     {
+        if (c.IsCancelled) return;
         if (c.HasRan(node.Id)) return;
 
         backtrackNode(node, c);

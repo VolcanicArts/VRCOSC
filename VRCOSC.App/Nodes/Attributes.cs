@@ -197,9 +197,7 @@ public class ValueOutputList<T> : IValueOutput
 
 public interface IFlowInput;
 
-public interface IParameterSource
+internal interface IParameterHandler
 {
-    public string Name { get; set; }
-
-    public void OnParameterReceived(ReceivedParameter parameter);
+    public bool HandlesParameter(ReceivedParameter parameter);
 }

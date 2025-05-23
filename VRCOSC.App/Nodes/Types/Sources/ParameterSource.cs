@@ -8,21 +8,22 @@ namespace VRCOSC.App.Nodes.Types.Sources;
 
 [Node("Parameter Source", "Sources")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public class ParameterSourceNode<T> : Node, IParameterSource where T : unmanaged
+public class ParameterSourceNode<T> : Node, IParameterHandler where T : unmanaged
 {
-    public string Name { get; set; } = "VRCOSC/Media/Play";
+    private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
-    private T value;
+    public string Name { get; set; } = null!;
 
     public ValueOutput<T> Output = new();
 
     protected override void Process(PulseContext c)
     {
+        var value = string.IsNullOrEmpty(Name) ? default : c.GetParameter<T>(Name);
         Output.Write(value, c);
     }
 
-    public void OnParameterReceived(ReceivedParameter parameter)
+    public bool HandlesParameter(ReceivedParameter parameter)
     {
-        value = parameter.GetValue<T>();
+        return string.IsNullOrEmpty(Name) && parameter.Name == Name || parameter.Type == parameterType;
     }
 }

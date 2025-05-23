@@ -69,7 +69,7 @@ public class ReceivedParameter : IEquatable<ReceivedParameter>
     /// <returns>True if the value is exactly the type passed, otherwise false</returns>
     public bool IsValueType(Type type) => ParameterTypeFactory.CreateFrom(type) == Type;
 
-    public bool Equals(ReceivedParameter? other) => Name == other?.Name && Value == other.Value && Type == other.Type;
+    public bool Equals(ReceivedParameter? other) => Name == other?.Name && Type == other.Type;
 }
 
 /// <summary>
