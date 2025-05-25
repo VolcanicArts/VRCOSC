@@ -357,13 +357,6 @@ public class NodeField
     }
 }
 
-public class NodeGroup
-{
-    public Guid Id { get; } = Guid.NewGuid();
-    public string Title { get; set; } = "New Group";
-    public ObservableCollection<Guid> Nodes { get; } = [];
-}
-
 public record NodeConnection(ConnectionType ConnectionType, Guid OutputNodeId, int OutputSlot, Guid InputNodeId, int InputSlot, Type? OutputType);
 
 public enum ConnectionType
