@@ -235,8 +235,15 @@ public class NodeField
 
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IParameterHandler))))
         {
+            var tempContext = new PulseContext(this)
+            {
+                CurrentNode = node,
+            };
+
+            backtrackNode(node, tempContext);
+
             var parameterReceiver = (IParameterHandler)node;
-            if (!parameterReceiver.HandlesParameter(receivedParameter)) continue;
+            if (!parameterReceiver.HandlesParameter(tempContext, receivedParameter)) continue;
 
             Task.Run(() => WalkForward(node));
         }

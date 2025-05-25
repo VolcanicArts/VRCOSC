@@ -209,7 +209,7 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
             return ValueInputNodeTemplate;
         }
 
-        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(ParameterSourceNode<>)) return ParameterSourceTemplate;
+        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DirectParameterSourceNode<>)) return ParameterSourceTemplate;
 
         if (item is ButtonNode) return ButtonInputNodeTemplate;
         if (item is Node node && (node.GetType().HasCustomAttribute<NodeCollapsedAttribute>() || node.Metadata.Icon != EFontAwesomeIcon.None)) return ValueOnlyNodeTemplate;

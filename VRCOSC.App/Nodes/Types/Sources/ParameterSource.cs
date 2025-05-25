@@ -6,9 +6,9 @@ using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.App.Nodes.Types.Sources;
 
-[Node("Parameter Source", "Sources")]
+[Node("Direct Parameter Source", "Sources")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public class ParameterSourceNode<T> : Node, IParameterHandler where T : unmanaged
+public class DirectParameterSourceNode<T> : Node, IParameterHandler where T : unmanaged
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
@@ -22,8 +22,29 @@ public class ParameterSourceNode<T> : Node, IParameterHandler where T : unmanage
         Output.Write(value, c);
     }
 
-    public bool HandlesParameter(ReceivedParameter parameter)
+    public bool HandlesParameter(PulseContext c, ReceivedParameter parameter)
     {
         return string.IsNullOrEmpty(Name) && parameter.Name == Name || parameter.Type == parameterType;
+    }
+}
+
+[Node("Indirect Parameter Source", "Sources")]
+[NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
+public class IndirectParameterSourceNode<T> : Node, IParameterHandler where T : unmanaged
+{
+    private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
+
+    public ValueInput<string> Name = new();
+    public ValueOutput<T> Output = new();
+
+    protected override void Process(PulseContext c)
+    {
+        var value = string.IsNullOrEmpty(Name.Read(c)) ? default : c.GetParameter<T>(Name.Read(c));
+        Output.Write(value, c);
+    }
+
+    public bool HandlesParameter(PulseContext c, ReceivedParameter parameter)
+    {
+        return string.IsNullOrEmpty(Name.Read(c)) && parameter.Name == Name.Read(c) || parameter.Type == parameterType;
     }
 }
