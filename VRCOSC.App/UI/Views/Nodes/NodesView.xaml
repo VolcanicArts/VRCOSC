@@ -13,32 +13,7 @@
         <core:IndexFromListConverter x:Key="IndexFromListConverter"/>
     </UserControl.Resources>
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="16*" MinWidth="175"/>
-            <ColumnDefinition Width="84*"/>
-        </Grid.ColumnDefinitions>
-        <Grid Grid.Column="0">
-            <Border Background="{DynamicResource CBackground3}">
-                <core:SpacedListView ItemsSource="{Binding NodeFieldsSource}" Spacing="5" Margin="5">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="ListViewItem">
-                                        <Border Background="{DynamicResource CBackground2}" MouseDown="FieldButton_OnMouseDown"
-                                                Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}, Converter={StaticResource IndexFromListConverter}}"
-                                                Padding="5" CornerRadius="5">
-                                            <TextBlock Text="{Binding NodeField.Name}" HorizontalAlignment="Center" FontSize="15" Foreground="{DynamicResource CForeground2}"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </core:SpacedListView>
-            </Border>
-        </Grid>
-        <ItemsControl Grid.Column="1" ItemsSource="{Binding NodeFieldsSource}">
+        <ItemsControl ItemsSource="{Binding NodeFieldsSource}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Grid/>
@@ -50,5 +25,24 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+        <core:PassThroughBorder Background="{DynamicResource CBackground3}" HorizontalAlignment="Left" Width="200">
+            <core:SpacedListView ItemsSource="{Binding NodeFieldsSource}" Spacing="5" Margin="5">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListViewItem">
+                                    <Border Background="{DynamicResource CBackground2}" MouseDown="FieldButton_OnMouseDown"
+                                            Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}, Converter={StaticResource IndexFromListConverter}}"
+                                            Padding="5" CornerRadius="5">
+                                        <TextBlock Text="{Binding NodeField.Name}" HorizontalAlignment="Center" FontSize="15" Foreground="{DynamicResource CForeground2}"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListView.ItemContainerStyle>
+            </core:SpacedListView>
+        </core:PassThroughBorder>
     </Grid>
 </UserControl>

@@ -3,10 +3,10 @@
 
 using VRCOSC.App.SDK.Nodes;
 
-namespace VRCOSC.App.Nodes.Types.Flow.Triggers;
+namespace VRCOSC.App.Nodes.Types.Flow;
 
-[Node("Fire On True", "Flow")]
-public sealed class FireOnTrueNode : Node
+[Node("Fire On False", "Flow")]
+public sealed class FireOnFalseNode : Node
 {
     public FlowCall Next = new("Next");
 
@@ -22,7 +22,7 @@ public sealed class FireOnTrueNode : Node
 
     protected override bool ShouldProcess(PulseContext c)
     {
-        if (Input.Read(c) && !PreviousValue.Read(c))
+        if (!Input.Read(c) && PreviousValue.Read(c))
         {
             PreviousValue.Write(Input.Read(c), c);
             return true;

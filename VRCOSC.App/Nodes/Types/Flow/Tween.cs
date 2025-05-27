@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
-namespace VRCOSC.App.Nodes.Types.Flow.Interpolation;
+namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Tween", "Flow")]
 public sealed class TweenNode : Node, IFlowInput

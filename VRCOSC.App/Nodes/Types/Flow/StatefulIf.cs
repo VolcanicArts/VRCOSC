@@ -4,7 +4,7 @@
 using System;
 using VRCOSC.App.SDK.Nodes;
 
-namespace VRCOSC.App.Nodes.Types.Flow.Branch;
+namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Stateful If", "Flow")]
 public sealed class StatefulIfNode : Node, IFlowInput

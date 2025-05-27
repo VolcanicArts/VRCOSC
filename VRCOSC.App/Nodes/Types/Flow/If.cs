@@ -3,7 +3,7 @@
 
 using VRCOSC.App.SDK.Nodes;
 
-namespace VRCOSC.App.Nodes.Types.Flow.Branch;
+namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("If", "Flow")]
 public sealed class IfNode : Node, IFlowInput

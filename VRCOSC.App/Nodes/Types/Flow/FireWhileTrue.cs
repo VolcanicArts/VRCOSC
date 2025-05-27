@@ -4,24 +4,28 @@
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
-namespace VRCOSC.App.Nodes.Types.Flow.Triggers;
+namespace VRCOSC.App.Nodes.Types.Flow;
 
-[Node("Fire On Interval", "Flow")]
-public sealed class FireOnIntervalNode : Node
+[Node("Fire While True", "Flow")]
+public sealed class FireWhileTrueNode : Node
 {
-    public FlowCall OnInterval = new("On Interval");
+    public FlowCall IsTrue = new("Is True");
 
     [NodeReactive]
     public ValueInput<int> DelayMilliseconds = new();
 
+    [NodeReactive]
+    public ValueInput<bool> Condition = new();
+
     protected override void Process(PulseContext c)
     {
         var delay = DelayMilliseconds.Read(c);
-        if (delay <= 0) return;
+
+        if (!Condition.Read(c) || delay == 0) return;
 
         while (!c.IsCancelled)
         {
-            OnInterval.Execute(c);
+            IsTrue.Execute(c);
             if (c.IsCancelled) break;
 
             Task.Delay(delay, c.Token).Wait(c.Token);

@@ -4,12 +4,12 @@
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
-namespace VRCOSC.App.Nodes.Types.Flow.Triggers;
+namespace VRCOSC.App.Nodes.Types.Flow;
 
-[Node("Fire While True", "Flow")]
-public sealed class FireWhileTrueNode : Node
+[Node("Fire While False", "Flow")]
+public sealed class FireWhileFalseNode : Node
 {
-    public FlowCall IsTrue = new("Is True");
+    public FlowCall IsFalse = new("Is False");
 
     [NodeReactive]
     public ValueInput<int> DelayMilliseconds = new();
@@ -21,11 +21,11 @@ public sealed class FireWhileTrueNode : Node
     {
         var delay = DelayMilliseconds.Read(c);
 
-        if (!Condition.Read(c) || delay == 0) return;
+        if (Condition.Read(c) || delay == 0) return;
 
         while (!c.IsCancelled)
         {
-            IsTrue.Execute(c);
+            IsFalse.Execute(c);
             if (c.IsCancelled) break;
 
             Task.Delay(delay, c.Token).Wait(c.Token);

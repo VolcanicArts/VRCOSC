@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using VRCOSC.App.SDK.Nodes;
 
-namespace VRCOSC.App.Nodes.Types.Flow.Triggers;
+namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Fire On Change", "Flow")]
 public class FireOnChangeNode<T> : Node
