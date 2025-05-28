@@ -1088,6 +1088,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var nodeGroup = ((NodeGroupViewModel)element.Tag).NodeGroup;
 
         nodeGroup.Nodes.RemoveIf(_ => true);
+        NodeField.Groups.Remove(nodeGroup);
     }
 
     private void GroupContextMenu_DeleteClick(object sender, RoutedEventArgs e)
@@ -1102,6 +1103,8 @@ public partial class NodeFieldView : INotifyPropertyChanged
         {
             NodeField.Nodes.Remove(node);
         }
+
+        NodeField.Groups.Remove(nodeGroup);
     }
 
     private void ButtonInputNode_OnClick(object sender, RoutedEventArgs e)
