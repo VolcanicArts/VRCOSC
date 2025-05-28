@@ -45,11 +45,15 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
     private bool loaded;
 
-    public NodeFieldView()
+    public NodeField NodeField { get; }
+
+    public NodeFieldView(NodeField nodeField)
     {
+        NodeField = nodeField;
         InitializeComponent();
         KeyDown += OnKeyDown;
         Loaded += OnLoaded;
+        DataContext = this;
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -71,13 +75,9 @@ public partial class NodeFieldView : INotifyPropertyChanged
         loaded = true;
     }
 
-    public static readonly DependencyProperty NodeFieldProperty =
-        DependencyProperty.Register(nameof(NodeField), typeof(NodeField), typeof(NodeFieldView), new FrameworkPropertyMetadata(null));
-
-    public NodeField NodeField
+    public void FocusMainContainer()
     {
-        get => (NodeField)GetValue(NodeFieldProperty);
-        set => SetValue(NodeFieldProperty, value);
+        Focus();
     }
 
     public ObservableCollection<object> NodesItemsControlItemsSource { get; } = [];
@@ -501,6 +501,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
     }
 
     private Point? contextMenuMousePosition;
+    private bool editingFieldTitle;
 
     private void ParentContainer_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
     {
@@ -1118,7 +1119,6 @@ public partial class NodeFieldView : INotifyPropertyChanged
         if (e.ClickCount != 2) return;
 
         e.Handled = true;
-        Logger.Log("Double clicked title", LoggingTarget.Information);
 
         var element = (FrameworkElement)sender;
         var nodeGroupViewModel = (NodeGroupViewModel)element.Tag;

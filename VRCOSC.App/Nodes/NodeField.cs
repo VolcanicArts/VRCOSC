@@ -20,7 +20,7 @@ namespace VRCOSC.App.Nodes;
 public class NodeField
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public string Name { get; set; } = "Default";
+    public Observable<string> Name { get; } = new("Default");
 
     private readonly SerialisationManager serialiser;
 

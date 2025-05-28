@@ -21,7 +21,7 @@ public class NodeFieldSerialiser : ProfiledSerialiser<NodeField, SerialisableNod
 
     protected override bool ExecuteAfterDeserialisation(SerialisableNodeField data)
     {
-        Reference.Name = data.Name;
+        Reference.Name.Value = data.Name;
 
         data.Nodes.ForEach(sN =>
         {

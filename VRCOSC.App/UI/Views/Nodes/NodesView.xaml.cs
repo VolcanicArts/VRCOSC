@@ -4,21 +4,18 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using VRCOSC.App.Nodes;
-using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.Nodes;
 
 public partial class NodesView
 {
-    public ObservableCollection<NodeFieldViewModel> NodeFieldsSource { get; } = [];
+    public ObservableCollection<NodeField> NodeFieldsSource => NodeManager.GetInstance().Fields;
+    private Dictionary<Guid, NodeFieldView> viewCache { get; } = [];
 
     private bool sidePanelOpen;
 
@@ -27,7 +24,6 @@ public partial class NodesView
         InitializeComponent();
         DataContext = this;
         Loaded += OnLoaded;
-        NodeManager.GetInstance().Fields.OnCollectionChanged(OnFieldsCollectionChanged, true);
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -35,17 +31,7 @@ public partial class NodesView
         showNodeField(0);
     }
 
-    private void OnFieldsCollectionChanged(IEnumerable<NodeField> newFields, IEnumerable<NodeField> oldFields)
-    {
-        foreach (var nodeField in oldFields)
-        {
-            NodeFieldsSource.RemoveIf(vm => vm.NodeField == nodeField);
-        }
-
-        NodeFieldsSource.AddRange(newFields.Select(field => new NodeFieldViewModel(field)));
-    }
-
-    private void FieldButton_OnMouseDown(object sender, MouseButtonEventArgs e)
+    private void FieldButton_OnClick(object sender, RoutedEventArgs routedEventArgs)
     {
         var element = (FrameworkElement)sender;
         var index = (int)element.Tag;
@@ -53,13 +39,19 @@ public partial class NodesView
         showNodeField(index);
     }
 
-    private void showNodeField(int index)
+    private async void showNodeField(int index)
     {
-        for (var i = 0; i < NodeFieldsSource.Count; i++)
+        var nodeField = NodeFieldsSource[index];
+
+        if (!viewCache.TryGetValue(nodeField.Id, out var view))
         {
-            var nodeFieldViewModel = NodeFieldsSource[i];
-            nodeFieldViewModel.Selected = i == index;
+            view = new NodeFieldView(nodeField);
+            viewCache[nodeField.Id] = view;
         }
+
+        ActiveField.Content = view;
+        await Dispatcher.Yield(DispatcherPriority.Loaded);
+        view.FocusMainContainer();
     }
 
     private void SidePanelButton_OnClick(object sender, RoutedEventArgs e)
@@ -78,34 +70,5 @@ public partial class NodesView
         PanelTransform.BeginAnimation(TranslateTransform.XProperty, anim);
 
         sidePanelOpen = !sidePanelOpen;
-    }
-}
-
-public class NodeFieldViewModel : INotifyPropertyChanged
-{
-    public NodeField NodeField { get; }
-
-    private bool selected;
-
-    public bool Selected
-    {
-        get => selected;
-        set
-        {
-            selected = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public NodeFieldViewModel(NodeField nodeField)
-    {
-        NodeField = nodeField;
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

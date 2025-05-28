@@ -41,7 +41,7 @@ public class SerialisableNodeField : SerialisableVersion
         Version = 1;
 
         Id = nodeField.Id;
-        Name = nodeField.Name;
+        Name = nodeField.Name.Value;
         Nodes = nodeField.Nodes.Values.Select(node => new SerialiableNode(node)).ToList();
         Connections = nodeField.Connections.Select(connection => new SerialisableConnection(connection)).ToList();
         Groups = nodeField.Groups.Select(group => new SerialisableNodeGroup(group)).ToList();

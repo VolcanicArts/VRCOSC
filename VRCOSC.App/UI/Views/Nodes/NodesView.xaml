@@ -3,28 +3,15 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:nodes="clr-namespace:VRCOSC.App.UI.Views.Nodes"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
              mc:Ignorable="d"
              d:DataContext="{d:DesignData Source=/UI/Views/Nodes/NodesView.xaml}"
              d:DesignHeight="1920" d:DesignWidth="1080">
     <UserControl.Resources>
-        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <core:IndexFromListConverter x:Key="IndexFromListConverter"/>
     </UserControl.Resources>
     <Grid>
-        <ItemsControl ItemsSource="{Binding NodeFieldsSource}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <Grid/>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <nodes:NodeFieldView NodeField="{Binding NodeField}" Visibility="{Binding Selected, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <ContentPresenter x:Name="ActiveField"/>
         <core:PassThroughBorder x:Name="SidePanel" Background="{DynamicResource CBackground3}" HorizontalAlignment="Left" Width="200">
             <Grid>
                 <core:IconButton ButtonColour="Gray" HorizontalAlignment="Right" Width="18" Height="50" CornerRadius="0 5 5 0" Icon="Solid_Bars"
@@ -39,11 +26,10 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="ListViewItem">
-                                        <Border Background="{DynamicResource CBackground2}" MouseDown="FieldButton_OnMouseDown"
+                                        <core:TextButton Background="{DynamicResource CBackground2}"
                                                 Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}, Converter={StaticResource IndexFromListConverter}}"
-                                                Padding="5" CornerRadius="5">
-                                            <TextBlock Text="{Binding NodeField.Name}" HorizontalAlignment="Center" FontSize="15" Foreground="{DynamicResource CForeground2}"/>
-                                        </Border>
+                                                Padding="5" CornerRadius="5" Text="{Binding Name.Value}" Foreground="{DynamicResource CForeground2}" ButtonColour="Gray" Click="FieldButton_OnClick">
+                                        </core:TextButton>
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>

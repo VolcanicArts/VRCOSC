@@ -9,7 +9,6 @@
              xmlns:sdkNodes="clr-namespace:VRCOSC.App.Nodes"
              mc:Ignorable="d"
              d:DesignHeight="720" d:DesignWidth="1280"
-             x:Name="Root"
              Focusable="True">
     <UserControl.Resources>
         <core:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
@@ -776,60 +775,67 @@
                                                     ParameterSourceTemplate="{StaticResource ParameterSourceNode}"/>
 
     </UserControl.Resources>
-    <Grid x:Name="ParentContainer"
-          MouseUp="ParentContainer_OnMouseUp"
-          MouseMove="ParentContainer_OnMouseMove"
-          HorizontalAlignment="Center" VerticalAlignment="Center"
-          Background="{DynamicResource CBackground2}"
-          Width="12000" Height="12000"
-          ContextMenu="{StaticResource MainContextMenu}"
-          ContextMenuOpening="ParentContainer_OnContextMenuOpening">
-        <Grid x:Name="RootContainer"
-              Background="Transparent"
-              Width="12000" Height="12000"
+    <Grid>
+        <Grid x:Name="ParentContainer"
+              MouseUp="ParentContainer_OnMouseUp"
+              MouseMove="ParentContainer_OnMouseMove"
               HorizontalAlignment="Center" VerticalAlignment="Center"
-              MouseDown="RootContainer_OnMouseDown">
-            <Grid.RenderTransform>
-                <TranslateTransform/>
-            </Grid.RenderTransform>
-            <Grid x:Name="CanvasContainer"
+              Background="{DynamicResource CBackground2}"
+              Width="12000" Height="12000"
+              ContextMenu="{StaticResource MainContextMenu}"
+              ContextMenuOpening="ParentContainer_OnContextMenuOpening">
+            <Grid x:Name="RootContainer"
                   Background="Transparent"
-                  Width="10000" Height="10000"
+                  Width="12000" Height="12000"
                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                  MouseMove="CanvasContainer_OnMouseMove"
-                  MouseUp="CanvasContainer_OnMouseUp"
-                  MouseDown="CanvasContainer_OnMouseDown">
+                  MouseDown="RootContainer_OnMouseDown">
                 <Grid.RenderTransform>
-                    <ScaleTransform CenterX="5000" CenterY="5000" ScaleX="1" ScaleY="1"/>
+                    <TranslateTransform/>
                 </Grid.RenderTransform>
-                <Canvas x:Name="CanvasContainerCanvas" />
-                <Canvas x:Name="ConnectionCanvas" IsHitTestVisible="False"/>
-                <ItemsControl
-                    x:Name="NodesItemsControl"
-                    ItemsSource="{Binding NodesItemsControlItemsSource, ElementName=Root, Mode=OneWay}"
-                    Background="Transparent"
-                    ItemTemplateSelector="{StaticResource NodeItemsControlDataTemplateSelector}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Canvas/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
-                <Canvas x:Name="DragCanvas" IsHitTestVisible="False">
-                    <Path Stroke="LawnGreen" StrokeThickness="4" x:Name="DragPath"
-                          StrokeStartLineCap="Round"
-                          StrokeEndLineCap="Round"
-                          Visibility="{Binding ConnectionDrag, ElementName=Root, Converter={StaticResource NullToVisibilityConverter}}">
-                        <Path.Data>
-                            <PathGeometry>
-                                <PathFigure>
-                                    <BezierSegment/>
-                                </PathFigure>
-                            </PathGeometry>
-                        </Path.Data>
-                    </Path>
-                </Canvas>
+                <Grid x:Name="CanvasContainer"
+                      Background="Transparent"
+                      Width="10000" Height="10000"
+                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                      MouseMove="CanvasContainer_OnMouseMove"
+                      MouseUp="CanvasContainer_OnMouseUp"
+                      MouseDown="CanvasContainer_OnMouseDown">
+                    <Grid.RenderTransform>
+                        <ScaleTransform CenterX="5000" CenterY="5000" ScaleX="1" ScaleY="1"/>
+                    </Grid.RenderTransform>
+                    <Canvas x:Name="CanvasContainerCanvas" />
+                    <Canvas x:Name="ConnectionCanvas" IsHitTestVisible="False"/>
+                    <ItemsControl
+                        x:Name="NodesItemsControl"
+                        ItemsSource="{Binding NodesItemsControlItemsSource, Mode=OneWay}"
+                        Background="Transparent"
+                        ItemTemplateSelector="{StaticResource NodeItemsControlDataTemplateSelector}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                    <Canvas x:Name="DragCanvas" IsHitTestVisible="False">
+                        <Path Stroke="LawnGreen" StrokeThickness="4" x:Name="DragPath"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              Visibility="{Binding ConnectionDrag, Converter={StaticResource NullToVisibilityConverter}}">
+                            <Path.Data>
+                                <PathGeometry>
+                                    <PathFigure>
+                                        <BezierSegment/>
+                                    </PathFigure>
+                                </PathGeometry>
+                            </Path.Data>
+                        </Path>
+                    </Canvas>
+                </Grid>
             </Grid>
         </Grid>
+        <Border VerticalAlignment="Top" HorizontalAlignment="Center" Width="750" Height="35" CornerRadius="0 0 10 10" Background="{DynamicResource CBackground7}">
+            <TextBlock Text="{Binding NodeField.Name.Value, Mode=OneWay}" FontSize="25" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis"
+                       Foreground="{DynamicResource CForeground2}"/>
+        </Border>
     </Grid>
 </UserControl>
