@@ -136,6 +136,8 @@ public class NodeField
 
     public void CreateFlowConnection(Guid outputNodeId, int outputFlowSlot, Guid inputNodeId)
     {
+        if (outputNodeId == inputNodeId) return;
+
         var outputAlreadyHasConnection =
             Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.OutputNodeId == outputNodeId && connection.OutputSlot == outputFlowSlot);
 
@@ -150,6 +152,8 @@ public class NodeField
 
     public void CreateValueConnection(Guid outputNodeId, int outputValueSlot, Guid inputNodeId, int inputValueSlot)
     {
+        if (outputNodeId == inputNodeId) return;
+
         var outputNode = Nodes[outputNodeId];
         var inputNode = Nodes[inputNodeId];
 
