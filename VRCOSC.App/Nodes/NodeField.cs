@@ -168,6 +168,8 @@ public class NodeField
         }
         else
         {
+            var group = Groups.SingleOrDefault(group => group.Nodes.Contains(outputNodeId) && group.Nodes.Contains(inputNodeId));
+
             if (ConversionHelper.HasImplicitConversion(outputType, inputType))
             {
                 Logger.Log($"Inserting cast node from {outputType.GetFriendlyName()} to {inputType.GetFriendlyName()}");
@@ -178,6 +180,7 @@ public class NodeField
                 castNode.Position.Y = (Nodes[outputNodeId].Position.Y + Nodes[inputNodeId].Position.Y) / 2f;
                 CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
                 CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
+                group?.Nodes.Add(castNode.Id);
                 newConnectionMade = true;
             }
 
@@ -190,6 +193,7 @@ public class NodeField
                 toStringNode.Position.Y = (Nodes[outputNodeId].Position.Y + Nodes[inputNodeId].Position.Y) / 2f;
                 CreateValueConnection(outputNodeId, outputValueSlot, toStringNode.Id, 0);
                 CreateValueConnection(toStringNode.Id, 0, inputNodeId, inputValueSlot);
+                group?.Nodes.Add(toStringNode.Id);
                 newConnectionMade = true;
             }
         }
