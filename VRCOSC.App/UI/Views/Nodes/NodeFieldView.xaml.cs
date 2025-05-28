@@ -13,6 +13,7 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using VRCOSC.App.Nodes;
@@ -138,8 +139,51 @@ public partial class NodeFieldView : INotifyPropertyChanged
             canvasDrag = null;
 
             var canvasPosition = getRootPosition();
-            canvasPosition.X = 0;
-            canvasPosition.Y = 0;
+
+            var pf = new PathFigure
+            {
+                StartPoint = new Point(canvasPosition.X, canvasPosition.Y),
+                Segments = new PathSegmentCollection
+                {
+                    new LineSegment(new Point(0, 0), isStroked: true)
+                }
+            };
+
+            var pg = new PathGeometry(new[] { pf });
+
+            var animX = new DoubleAnimationUsingPath
+            {
+                PathGeometry = pg,
+                Duration = TimeSpan.FromSeconds(0.5f),
+                Source = PathAnimationSource.X,
+                FillBehavior = FillBehavior.Stop,
+                AccelerationRatio = 0.5,
+                DecelerationRatio = 0.5
+            };
+
+            var animY = new DoubleAnimationUsingPath
+            {
+                PathGeometry = pg,
+                Duration = TimeSpan.FromSeconds(0.5f),
+                Source = PathAnimationSource.Y,
+                FillBehavior = FillBehavior.Stop,
+                AccelerationRatio = 0.5,
+                DecelerationRatio = 0.5
+            };
+
+            animX.Completed += (_, _) => canvasPosition.X = 0;
+            animY.Completed += (_, _) => canvasPosition.Y = 0;
+
+            Storyboard.SetTarget(animX, RootContainer);
+            Storyboard.SetTargetProperty(animX, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.X)"));
+
+            Storyboard.SetTarget(animY, RootContainer);
+            Storyboard.SetTargetProperty(animY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
+
+            var sb = new Storyboard();
+            sb.Children.Add(animX);
+            sb.Children.Add(animY);
+            sb.Begin();
         }
     }
 
