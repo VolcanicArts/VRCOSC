@@ -117,9 +117,14 @@ public class NodeField
         var currentNode = c.CurrentNode;
         Debug.Assert(currentNode is not null);
 
-        GlobalStores.TryAdd(currentNode.Id, new Dictionary<IStore, IRef>());
+        if (!GlobalStores.TryGetValue(currentNode.Id, out var nodeStore))
+        {
+            var value = new Dictionary<IStore, IRef>();
+            GlobalStores.Add(currentNode.Id, value);
+            nodeStore = value;
+        }
 
-        if (!GlobalStores[currentNode.Id].TryGetValue(globalStore, out var iRef))
+        if (!nodeStore.TryGetValue(globalStore, out var iRef))
         {
             return default!;
         }
