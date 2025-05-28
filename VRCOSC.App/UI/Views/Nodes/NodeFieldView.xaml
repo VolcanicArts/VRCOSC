@@ -194,7 +194,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="OutputVariableSizeControlTemplate">
-            <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Top" HorizontalAlignment="Left">
+            <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Top" HorizontalAlignment="Right">
                 <core:IconButton Icon="Solid_Plus" Width="20" Height="20" ButtonColour="Green" Tag="{Binding}" Click="ValueOutputAddButton_OnClick"/>
                 <core:IconButton Icon="Solid_Minus" Width="20" Height="20" ButtonColour="Red" Tag="{Binding}" Click="ValueOutputRemoveButton_OnClick"/>
             </core:SpacedStackPanel>
@@ -210,49 +210,42 @@
                     BorderThickness="2"
                     Padding="1"
                     BorderBrush="{DynamicResource CForeground3}"
-                    Width="200"
+                    Width="240"
                     HorizontalAlignment="Left" VerticalAlignment="Top"
                     Tag="{Binding}"
                     MouseDown="NodeContainer_OnMouseDown"
                     ContextMenu="{StaticResource NodeContextMenu}">
-            <Border.RenderTransform>
-                <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}"/>
-            </Border.RenderTransform>
-                <!--> Node Content <-->
+                <Border.RenderTransform>
+                    <TranslateTransform X="{Binding Position.X}" Y="{Binding Position.Y}"/>
+                </Border.RenderTransform>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <core:SpacedStackPanel VerticalAlignment="Top" Spacing="10" Margin="0 0 0 10">
-                        <!--> Header <-->
                         <ContentPresenter ContentTemplate="{StaticResource HeaderTemplate}"/>
-                        <!--> Value Points <-->
-                        <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource ValueConnectionAreaVisibilityConverter}}">
+                        <Grid VerticalAlignment="Center">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="25"/>
                             </Grid.RowDefinitions>
-                            <TextBox Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                      VerticalContentAlignment="Center" FontSize="17" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                                     Margin="7 0"/>
+                                     Margin="7 0 0 0"/>
                             <!--> Output <-->
-                            <core:SpacedStackPanel Grid.Row="0" Name="ValueOutputContainer" VerticalAlignment="Center" HorizontalAlignment="Right" Spacing="10">
-                                <core:SpacedStackPanel.RenderTransform>
+                            <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
+                                          VerticalAlignment="Center" HorizontalAlignment="Right"
+                                          Name="ValueOutputItemsControl"
+                                          ItemTemplate="{StaticResource ValueOutputTemplate}"
+                                          ItemsPanel="{StaticResource ItemsPanelTemplate}">
+                                <ItemsControl.RenderTransform>
                                     <TranslateTransform X="8"/>
-                                </core:SpacedStackPanel.RenderTransform>
-                                <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
-                                              VerticalAlignment="Top" HorizontalAlignment="Right"
-                                              Name="ValueOutputItemsControl"
-                                              ItemsPanel="{StaticResource ItemsPanelTemplate}"
-                                              ItemTemplate="{StaticResource ValueOutputTemplate}">
-                                </ItemsControl>
-                                <Grid Visibility="{Binding Converter={StaticResource OutputValueVariableSizeControlVisibilityConverter}}">
-                                    <Grid.RenderTransform>
-                                        <TranslateTransform X="-16"/>
-                                    </Grid.RenderTransform>
-                                    <ContentPresenter ContentTemplate="{StaticResource OutputVariableSizeControlTemplate}"/>
-                                </Grid>
-                            </core:SpacedStackPanel>
+                                </ItemsControl.RenderTransform>
+                            </ItemsControl>
                         </Grid>
                     </core:SpacedStackPanel>
                 </Grid>
@@ -265,7 +258,7 @@
                     BorderThickness="2"
                     Padding="1"
                     BorderBrush="{DynamicResource CForeground3}"
-                    Width="150"
+                    Width="160"
                     HorizontalAlignment="Left" VerticalAlignment="Top"
                     Tag="{Binding}"
                     MouseDown="NodeContainer_OnMouseDown"
@@ -281,7 +274,7 @@
                     <!--> Flow Points <-->
                     <Grid VerticalAlignment="Center">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="45"/>
+                            <RowDefinition Height="40"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -493,7 +486,7 @@
                     BorderThickness="2"
                     Padding="1"
                     BorderBrush="{DynamicResource CForeground3}"
-                    Width="45"
+                    Width="40"
                     HorizontalAlignment="Left" VerticalAlignment="Top"
                     Tag="{Binding}"
                     MouseDown="NodeContainer_OnMouseDown"
