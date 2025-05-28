@@ -12,6 +12,7 @@ public class DirectParameterSourceNode<T> : Node, IParameterHandler where T : un
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
+    [NodeProperty("name")]
     public string Name { get; set; } = null!;
 
     public ValueOutput<T> Output = new();

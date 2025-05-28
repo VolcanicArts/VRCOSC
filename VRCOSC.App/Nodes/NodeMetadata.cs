@@ -71,6 +71,8 @@ public static class NodeMetadataBuilder
                 throw new Exception($"Cannot build {nameof(NodeMetadata)} as ValueOutputList<> is only allowed to be defined on the last output");
         }
 
+        var properties = type.GetProperties().Where(property => property.HasCustomAttribute<NodePropertyAttribute>()).ToList();
+
         var inputMetadata = getIoMetadata(valueInputs, node);
         var outputMetadata = getIoMetadata(valueOutputs, node);
 
@@ -90,7 +92,8 @@ public static class NodeMetadataBuilder
             Inputs = inputMetadata,
             Outputs = outputMetadata,
             ValueInputHasVariableSize = inputsHaveVariableSize,
-            ValueOutputHasVariableSize = outputsHaveVariableSize
+            ValueOutputHasVariableSize = outputsHaveVariableSize,
+            Properties = properties
         };
 
         return metadata;
@@ -139,6 +142,8 @@ public sealed class NodeMetadata
     public bool IsValueOutput { get; internal set; }
     public bool ValueInputHasVariableSize { get; internal set; }
     public bool ValueOutputHasVariableSize { get; internal set; }
+
+    public List<PropertyInfo> Properties { get; set; } = [];
 
     public bool IsTrigger => IsFlowOutput && !IsFlowInput;
     public bool IsFlow => IsFlowInput || IsFlowOutput;

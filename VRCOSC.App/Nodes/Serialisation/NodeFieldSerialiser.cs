@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -42,6 +43,12 @@ public class NodeFieldSerialiser : ProfiledSerialiser<NodeField, SerialisableNod
 
             node.Position = new ObservableVector2(sN.Position.X, sN.Position.Y);
             node.ZIndex = sN.ZIndex;
+
+            foreach (var (propertyKey, propertyValue) in sN.Properties)
+            {
+                var property = node.GetType().GetProperties().SingleOrDefault(property => property.TryGetCustomAttribute<NodePropertyAttribute>(out var attribute) && attribute.SerialisedName == propertyKey);
+                property?.SetValue(node, propertyValue);
+            }
         });
 
         data.Connections.ForEach(sC =>

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using Newtonsoft.Json;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.Serialisation;
@@ -35,7 +36,7 @@ public class SerialisableNodeField : SerialisableVersion
     {
     }
 
-    public SerialisableNodeField(Nodes.NodeField nodeField)
+    public SerialisableNodeField(NodeField nodeField)
     {
         Version = 1;
 
@@ -62,6 +63,9 @@ public class SerialiableNode
     [JsonProperty("zindex")]
     public int ZIndex { get; set; }
 
+    [JsonProperty("properties")]
+    public Dictionary<string, object?> Properties { get; set; } = [];
+
     [JsonConstructor]
     public SerialiableNode()
     {
@@ -73,6 +77,7 @@ public class SerialiableNode
         Type = node.GetType().GetFriendlyName();
         Position = new Vector2((float)node.Position.X, (float)node.Position.Y);
         ZIndex = node.ZIndex;
+        Properties.AddRange(node.Metadata.Properties.ToDictionary(property => property.GetCustomAttribute<NodePropertyAttribute>()!.SerialisedName, property => property.GetValue(node)));
     }
 }
 

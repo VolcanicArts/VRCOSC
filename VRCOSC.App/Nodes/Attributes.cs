@@ -45,6 +45,17 @@ public class NodeGenericTypeFilterAttribute : Attribute
     }
 }
 
+[AttributeUsage(AttributeTargets.Property)]
+internal class NodePropertyAttribute : Attribute
+{
+    public string SerialisedName { get; }
+
+    public NodePropertyAttribute(string serialisedName)
+    {
+        SerialisedName = serialisedName;
+    }
+}
+
 [AttributeUsage(AttributeTargets.Class)]
 public class NodeCollapsedAttribute : Attribute;
 

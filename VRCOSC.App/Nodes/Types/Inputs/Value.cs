@@ -10,6 +10,7 @@ public sealed class ValueNode<T> : Node
 {
     private T value = default!;
 
+    [NodeProperty("value")]
     public T Value
     {
         get => value;

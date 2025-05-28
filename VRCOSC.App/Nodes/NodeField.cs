@@ -334,6 +334,8 @@ public class NodeField
     /// </summary>
     public void WalkForward(Node sourceNode)
     {
+        if (!running) return;
+
         var triggerNodes = new List<Node>();
         walkForward(triggerNodes, sourceNode, 0);
 
