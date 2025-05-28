@@ -42,7 +42,7 @@ public class NodeFieldSerialiser : ProfiledSerialiser<NodeField, SerialisableNod
             var node = Reference.AddNode(sN.Id, nodeType);
 
             node.Position = new ObservableVector2(sN.Position.X, sN.Position.Y);
-            node.ZIndex = sN.ZIndex;
+            node.ZIndex.Value = sN.ZIndex;
 
             foreach (var (propertyKey, propertyValue) in sN.Properties)
             {
@@ -63,7 +63,7 @@ public class NodeFieldSerialiser : ProfiledSerialiser<NodeField, SerialisableNod
         data.Groups.ForEach(sG =>
         {
             var group = Reference.AddGroup(sG.Id);
-            group.Title = sG.Title;
+            group.Title.Value = sG.Title;
             group.Nodes.AddRange(sG.Nodes);
         });
 

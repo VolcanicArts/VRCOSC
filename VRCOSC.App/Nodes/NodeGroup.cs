@@ -3,12 +3,13 @@
 
 using System;
 using System.Collections.ObjectModel;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
 
 public class NodeGroup
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public string Title { get; set; } = "New Group";
+    public Observable<string> Title { get; } = new("New Group");
     public ObservableCollection<Guid> Nodes { get; } = [];
 }

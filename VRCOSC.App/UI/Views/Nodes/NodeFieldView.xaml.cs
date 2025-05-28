@@ -244,7 +244,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
             if (itemsControl.ItemContainerGenerator.ContainerFromItem(item) is not FrameworkElement container) continue;
 
             var pair = (Node)container.DataContext;
-            Panel.SetZIndex(container, pair.ZIndex);
+            Panel.SetZIndex(container, pair.ZIndex.Value);
         }
     }
 
@@ -446,6 +446,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
             e.Handled = true;
             Logger.Log($"{nameof(ParentContainer_OnMouseUp)}: Ending canvas drag", LoggingTarget.Information);
             canvasDrag = null;
+            NodeField.Serialise();
             return;
         }
 
@@ -454,6 +455,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
             e.Handled = true;
             Logger.Log($"{nameof(ParentContainer_OnMouseUp)}: Ending node drag", LoggingTarget.Information);
             nodeDrag = null;
+            NodeField.Serialise();
             return;
         }
 
@@ -462,6 +464,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
             e.Handled = true;
             Logger.Log($"{nameof(ParentContainer_OnMouseUp)}: Ending connection drag", LoggingTarget.Information);
             ConnectionDrag = null;
+            NodeField.Serialise();
         }
     }
 
@@ -501,7 +504,6 @@ public partial class NodeFieldView : INotifyPropertyChanged
     }
 
     private Point? contextMenuMousePosition;
-    private bool editingFieldTitle;
 
     private void ParentContainer_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
     {
@@ -585,6 +587,8 @@ public partial class NodeFieldView : INotifyPropertyChanged
             Logger.Log($"{nameof(CanvasContainer_OnMouseUp)}: Ending group drag", LoggingTarget.Information);
             groupDrag = null;
         }
+
+        NodeField.Serialise();
     }
 
     private async void checkForGroupAdditions()
@@ -665,9 +669,9 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         if (NodesItemsControl.ItemContainerGenerator.ContainerFromItem(node) is FrameworkElement container)
         {
-            node.ZIndex = NodeField.ZIndex++;
+            node.ZIndex.Value = NodeField.ZIndex++;
 
-            Panel.SetZIndex(container, node.ZIndex);
+            Panel.SetZIndex(container, node.ZIndex.Value);
             Logger.Log($"{nameof(NodeContainer_OnMouseDown)}: Set Z index to {node.ZIndex}", LoggingTarget.Information);
         }
 

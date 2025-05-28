@@ -21,7 +21,7 @@ public abstract class Node
 
     public Guid Id { get; internal set; } = Guid.NewGuid();
     public ObservableVector2 Position { get; internal set; } = new(5000, 5000);
-    public int ZIndex { get; internal set; }
+    public Observable<int> ZIndex { get; } = new();
 
     public NodeMetadata Metadata => NodeField.GetMetadata(this);
     protected Player Player => AppManager.GetInstance().VRChatClient.Player;

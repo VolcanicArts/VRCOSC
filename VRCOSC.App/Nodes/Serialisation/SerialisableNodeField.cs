@@ -76,7 +76,7 @@ public class SerialiableNode
         Id = node.Id;
         Type = node.GetType().GetFriendlyName();
         Position = new Vector2((float)node.Position.X, (float)node.Position.Y);
-        ZIndex = node.ZIndex;
+        ZIndex = node.ZIndex.Value;
         Properties.AddRange(node.Metadata.Properties.ToDictionary(property => property.GetCustomAttribute<NodePropertyAttribute>()!.SerialisedName, property => property.GetValue(node)));
     }
 }
@@ -132,7 +132,7 @@ public class SerialisableNodeGroup
     public SerialisableNodeGroup(NodeGroup group)
     {
         Id = group.Id;
-        Title = group.Title;
+        Title = group.Title.Value;
         Nodes = group.Nodes.ToList();
     }
 }

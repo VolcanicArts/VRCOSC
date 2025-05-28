@@ -47,6 +47,23 @@ public class NodeField
     {
         Deserialise();
 
+        Nodes.OnCollectionChanged((newNodes, _) =>
+        {
+            foreach (var pair in newNodes)
+            {
+                pair.Value.ZIndex.Subscribe(_ => Serialise());
+            }
+        }, true);
+
+        Groups.OnCollectionChanged((newGroups, _) =>
+        {
+            foreach (var group in newGroups)
+            {
+                group.Nodes.OnCollectionChanged((_, _) => Serialise());
+                group.Title.Subscribe(_ => Serialise());
+            }
+        }, true);
+
         Nodes.OnCollectionChanged((_, _) => Serialise());
         Connections.OnCollectionChanged((_, _) => Serialise());
         Groups.OnCollectionChanged((_, _) => Serialise());
@@ -229,7 +246,7 @@ public class NodeField
             VariableSizes.Add(node.Id, new NodeVariableSize());
         }
 
-        node.ZIndex = ZIndex++;
+        node.ZIndex.Value = ZIndex++;
         node.NodeField = this;
 
         Nodes.Add(node.Id, node);

@@ -736,12 +736,12 @@
                             Opacity="0.5" CornerRadius="20"/>
                         <Grid Margin="20 5">
                             <Grid MouseDown="GroupTitle_MouseDown" Tag="{Binding}" Visibility="{Binding Editing, Converter={StaticResource BoolToVisibilityConverterInverted}}">
-                                <TextBlock Text="{Binding NodeGroup.Title}" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Top"
+                                <TextBlock Text="{Binding NodeGroup.Title.Value}" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Top"
                                            TextTrimming="CharacterEllipsis"
                                            Foreground="{DynamicResource CForeground3}"/>
                             </Grid>
                             <Grid Visibility="{Binding Editing, Converter={StaticResource BoolToVisibilityConverter}}" Background="Transparent" MouseUp="GroupTitleTextBoxContainer_OnMouseUp">
-                                <TextBox Name="GroupTitleTextBox" Text="{Binding NodeGroup.Title}" FontSize="30" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="-1"
+                                <TextBox Name="GroupTitleTextBox" Text="{Binding NodeGroup.Title.Value}" FontSize="30" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="-1"
                                          TextAlignment="Center" Foreground="{DynamicResource CForeground1}" LostFocus="GroupTitleTextBox_LostFocus" Tag="{Binding}" KeyDown="GroupTitleTextBox_KeyDown"/>
                             </Grid>
                         </Grid>
