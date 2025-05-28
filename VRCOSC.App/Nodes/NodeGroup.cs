@@ -8,7 +8,7 @@ namespace VRCOSC.App.Nodes;
 
 public class NodeGroup
 {
-    public Guid Id { get; } = Guid.NewGuid();
+    public Guid Id { get; set; } = Guid.NewGuid();
     public string Title { get; set; } = "New Group";
     public ObservableCollection<Guid> Nodes { get; } = [];
 }

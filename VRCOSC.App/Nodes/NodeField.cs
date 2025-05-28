@@ -20,7 +20,7 @@ namespace VRCOSC.App.Nodes;
 public class NodeField
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public string Name { get; set; } = "New Node Field";
+    public string Name { get; set; } = "Default";
 
     private readonly SerialisationManager serialiser;
 
@@ -41,7 +41,15 @@ public class NodeField
     {
         serialiser = new SerialisationManager();
         serialiser.RegisterSerialiser(1, new NodeFieldSerialiser(AppManager.GetInstance().Storage, this));
+    }
+
+    public void Load()
+    {
         Deserialise();
+
+        Nodes.OnCollectionChanged((_, _) => Serialise());
+        Connections.OnCollectionChanged((_, _) => Serialise());
+        Groups.OnCollectionChanged((_, _) => Serialise());
     }
 
     public void Serialise()
@@ -187,11 +195,18 @@ public class NodeField
         // TODO: When a ValueRelayNode is removed, bridge connections
     }
 
+    public Node AddNode(Guid id, Type nodeType)
+    {
+        var node = (Node)Activator.CreateInstance(nodeType)!;
+        node.Id = id;
+        addNode(node);
+        return node;
+    }
+
     public Node AddNode(Type nodeType)
     {
         var node = (Node)Activator.CreateInstance(nodeType)!;
         addNode(node);
-        Serialise();
         return node;
     }
 
@@ -349,9 +364,10 @@ public class NodeField
         }
     }
 
-    public NodeGroup AddGroup()
+    public NodeGroup AddGroup(Guid? id = null)
     {
         var nodeGroup = new NodeGroup();
+        if (id.HasValue) nodeGroup.Id = id.Value;
         Groups.Add(nodeGroup);
         return nodeGroup;
     }

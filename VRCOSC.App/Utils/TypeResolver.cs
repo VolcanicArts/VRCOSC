@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace VRCOSC.App.Utils;
 
@@ -29,15 +30,60 @@ public static class TypeResolver
             { "string", typeof(string) }
         };
 
-    // Build this dictionary once, on first access:
-    // Key: either FullName or Name (both case-insensitive), Value: the Type
-    // TODO: Reinitialise this when modules are reloaded
-    private static readonly Lazy<Dictionary<string, Type>> type_index = new(buildTypeIndex, true);
+    private static Lazy<Dictionary<string, Type>> typeIndex = new(buildTypeIndex, true);
 
-    public static bool TryConstructGenericType(
-        string userInput,
-        Type openGenericType,
-        [NotNullWhen(true)] out Type? constructedType)
+    public static void Reset() => typeIndex = new(buildTypeIndex, true);
+
+    public static (string ClassName, string Generics) Parse(string typeDeclaration)
+    {
+        if (typeDeclaration == null)
+            throw new ArgumentNullException(nameof(typeDeclaration));
+
+        const string pattern = "^(?<name>[^<]+)(?:<(?<gen>.+)>)?$";
+        var m = Regex.Match(typeDeclaration.Trim(), pattern);
+
+        if (!m.Success)
+            throw new FormatException($"Invalid type declaration: '{typeDeclaration}'");
+
+        var baseName = m.Groups["name"].Value;
+
+        var generics = m.Groups["gen"].Success
+            ? m.Groups["gen"].Value
+            : string.Empty;
+
+        // If there are generic args, count them and append `N
+        if (!string.IsNullOrEmpty(generics))
+        {
+            int count = splitTopLevel(generics, ',', '<', '>').Count;
+            baseName = $"{baseName}`{count}";
+        }
+
+        return (baseName, generics);
+    }
+
+    // Helper: splits `s` on `sep` only when depth between `open`/`close` is zero.
+    private static List<string> splitTopLevel(string s, char sep, char open, char close)
+    {
+        var parts = new List<string>();
+        int depth = 0, last = 0;
+
+        for (int i = 0; i < s.Length; i++)
+        {
+            if (s[i] == open) depth++;
+            else if (s[i] == close) depth--;
+            else if (s[i] == sep && depth == 0)
+            {
+                parts.Add(s.Substring(last, i - last).Trim());
+                last = i + 1;
+            }
+        }
+
+        // final segment
+        parts.Add(s.Substring(last).Trim());
+        return parts;
+    }
+
+    public static bool TryConstructGenericType(string userInput, Type openGenericType, [NotNullWhen(true)] out Type? constructedType)
     {
         constructedType = null;
 
@@ -55,7 +101,7 @@ public static class TypeResolver
                 name = name[..^1];
             }
 
-            var baseType = resolveType(name);
+            var baseType = ResolveType(name);
 
             if (baseType == null || baseType.IsAbstract)
             {
@@ -84,22 +130,19 @@ public static class TypeResolver
         }
     }
 
-    private static Type? resolveType(string name)
+    public static Type? ResolveType(string name)
     {
         name = name.Trim();
 
-        // 1) primitives
         if (PRIMITIVE_TYPE_ALIASES.TryGetValue(name, out var p))
             return p;
 
-        // 2) fully-qualified via the runtime
         var direct = Type.GetType(name, throwOnError: false, ignoreCase: true);
 
         if (direct != null)
             return direct;
 
-        // 3) O(1) lookup in our cached index
-        type_index.Value.TryGetValue(name, out var found);
+        typeIndex.Value.TryGetValue(name, out var found);
         return found;
     }
 
@@ -124,12 +167,10 @@ public static class TypeResolver
 
             foreach (var t in types)
             {
-                if (t.IsAbstract || t.IsGenericTypeDefinition) continue;
+                if (t.IsAbstract) continue;
 
-                // 1) full name
                 if (t.FullName != null) dict.TryAdd(t.FullName, t);
 
-                // 2) simple name (e.g. "DateTime")
                 dict.TryAdd(t.Name, t);
             }
         }
