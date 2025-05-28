@@ -25,6 +25,7 @@ using VRCOSC.App.Utils;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using Panel = System.Windows.Controls.Panel;
+using TextBox = System.Windows.Controls.TextBox;
 using Vector = System.Windows.Vector;
 
 namespace VRCOSC.App.UI.Views.Nodes;
@@ -39,7 +40,6 @@ public partial class NodeFieldView : INotifyPropertyChanged
     public Padding GroupPadding { get; } = new(30, 55, 30, 30);
 
     private WindowManager nodeCreatorWindowManager = null!;
-    private WindowManager nodeGroupMetadataWindowManager = null!;
 
     public ContextMenuRoot FieldContextMenu { get; set; }
 
@@ -57,7 +57,6 @@ public partial class NodeFieldView : INotifyPropertyChanged
         if (loaded) return;
 
         nodeCreatorWindowManager = new WindowManager(this);
-        nodeGroupMetadataWindowManager = new WindowManager(this);
 
         FieldContextMenu = new();
         FieldContextMenu.Items.Add(ContextMenuBuilder.BuildCreateNodesMenu());
@@ -65,9 +64,9 @@ public partial class NodeFieldView : INotifyPropertyChanged
         drawRootCanvasLines();
         setZIndexesOfNodes();
 
-        nodesCollectionBind = NodeField.Nodes.OnCollectionChanged(onNodeCollectionChanged, true);
-        nodeScapeConnectionsBind = NodeField.Connections.OnCollectionChanged(onConnectionsChanged, true);
-        nodeGroupsCollectionBind = NodeField.Groups.OnCollectionChanged(onGroupsChanged, true);
+        NodeField.Nodes.OnCollectionChanged(onNodesChanged, true);
+        NodeField.Connections.OnCollectionChanged(onConnectionsChanged, true);
+        NodeField.Groups.OnCollectionChanged(onGroupsChanged);
 
         loaded = true;
     }
@@ -83,10 +82,6 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
     public ObservableCollection<object> NodesItemsControlItemsSource { get; } = [];
 
-    private IDisposable nodesCollectionBind = null!;
-    private IDisposable nodeScapeConnectionsBind = null!;
-    private IDisposable nodeGroupsCollectionBind = null!;
-
     private async void onGroupsChanged(IEnumerable<NodeGroup> newGroups, IEnumerable<NodeGroup> oldGroups)
     {
         foreach (var newGroup in newGroups)
@@ -96,11 +91,22 @@ public partial class NodeFieldView : INotifyPropertyChanged
                 NodeGroup = newGroup
             };
 
-            newGroup.Nodes.OnCollectionChanged((newNodes, oldNodes) =>
+            newGroup.Nodes.OnCollectionChanged(async (newNodes, oldNodes) =>
             {
-                nodeGroupViewModel.Nodes.AddRange(newNodes.Select(nodeId => NodeField.Nodes[nodeId]));
-                nodeGroupViewModel.Nodes.RemoveIf(node => oldNodes.Contains(node.Id));
-                NodesItemsControlItemsSource.RemoveIf(o => o is Node node && newGroup.Nodes.Contains(node.Id));
+                foreach (var newNodeId in newNodes)
+                {
+                    nodeGroupViewModel.Nodes.Add(NodeField.Nodes[newNodeId]);
+                    NodesItemsControlItemsSource.RemoveIf(o => o is Node node && newGroup.Nodes.Contains(node.Id));
+                }
+
+                foreach (var oldNodeId in oldNodes)
+                {
+                    nodeGroupViewModel.Nodes.RemoveIf(node => oldNodeId == node.Id);
+                    NodesItemsControlItemsSource.Add(NodeField.Nodes[oldNodeId]);
+                }
+
+                await Dispatcher.Yield(DispatcherPriority.Loaded);
+                updateGroups(newGroups);
             }, true);
 
             NodesItemsControlItemsSource.Add(nodeGroupViewModel);
@@ -115,7 +121,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         updateGroups(newGroups);
     }
 
-    private async void onNodeCollectionChanged(IEnumerable<ObservableKeyValuePair<Guid, Node>> newNodes, IEnumerable<ObservableKeyValuePair<Guid, Node>> oldNodes)
+    private async void onNodesChanged(IEnumerable<ObservableKeyValuePair<Guid, Node>> newNodes, IEnumerable<ObservableKeyValuePair<Guid, Node>> oldNodes)
     {
         NodesItemsControlItemsSource.AddRange(newNodes.Select(pair => pair.Value));
         NodesItemsControlItemsSource.RemoveIf(o => o is Node node && oldNodes.Select(pair => pair.Value).Contains(node));
@@ -259,7 +265,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
     private async void onConnectionsChanged(IEnumerable<NodeConnection> newConnections, IEnumerable<NodeConnection> oldConnections)
     {
-        await Dispatcher.Yield(DispatcherPriority.Render);
+        await Dispatcher.Yield(DispatcherPriority.Loaded);
 
         foreach (var newConnection in newConnections)
         {
@@ -306,23 +312,23 @@ public partial class NodeFieldView : INotifyPropertyChanged
         return nodeContainer;
     }
 
-    private FrameworkElement getOutputSlotElementForConnection(NodeConnection connection)
+    private FrameworkElement? getOutputSlotElementForConnection(NodeConnection connection)
     {
         var outputNodeElement = NodesItemsControl.FindVisualChildWhere<FrameworkElement>(element => element is { Name: "NodeContainer", Tag: Node node } && node.Id == connection.OutputNodeId);
-        Debug.Assert(outputNodeElement is not null);
+        if (outputNodeElement is null) return null;
+
         var outputSlotName = connection.ConnectionType == ConnectionType.Flow ? $"flow_output_{connection.OutputSlot}" : $"value_output_{connection.OutputSlot}";
         var outputSlotElement = outputNodeElement.FindVisualChildWhere<FrameworkElement>(element => element.Tag is string slotTag && slotTag == outputSlotName);
-        Debug.Assert(outputSlotElement is not null);
         return outputSlotElement;
     }
 
-    private FrameworkElement getInputSlotElementForConnection(NodeConnection connection)
+    private FrameworkElement? getInputSlotElementForConnection(NodeConnection connection)
     {
         var inputNodeElement = NodesItemsControl.FindVisualChildWhere<FrameworkElement>(element => element is { Name: "NodeContainer", Tag: Node node } && node.Id == connection.InputNodeId);
-        Debug.Assert(inputNodeElement is not null);
+        if (inputNodeElement is null) return null;
+
         var inputSlotName = connection.ConnectionType == ConnectionType.Flow ? $"flow_input_{connection.InputSlot}" : $"value_input_{connection.InputSlot}";
         var inputSlotElement = inputNodeElement.FindVisualChildWhere<FrameworkElement>(element => element.Tag is string slotTag && slotTag == inputSlotName);
-        Debug.Assert(inputSlotElement is not null);
         return inputSlotElement;
     }
 
@@ -330,6 +336,8 @@ public partial class NodeFieldView : INotifyPropertyChanged
     {
         var outputSlotElement = getOutputSlotElementForConnection(connection);
         var inputSlotElement = getInputSlotElementForConnection(connection);
+
+        if (outputSlotElement is null || inputSlotElement is null) return;
 
         var pathTag = connection.ConnectionType == ConnectionType.Flow
             ? $"flow_{connection.OutputNodeId}_{connection.OutputSlot}_{connection.InputNodeId}"
@@ -1069,12 +1077,26 @@ public partial class NodeFieldView : INotifyPropertyChanged
         valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
     }
 
-    private void GroupContextMenu_EditTitleClick(object sender, RoutedEventArgs e)
+    private void GroupContextMenu_DissolveClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
-        var nodeGroup = (NodeGroup)element.Tag;
+        var nodeGroup = ((NodeGroupViewModel)element.Tag).NodeGroup;
 
-        nodeGroupMetadataWindowManager.TrySpawnChild(new NodeGroupMetadataWindow(nodeGroup));
+        nodeGroup.Nodes.RemoveIf(_ => true);
+    }
+
+    private void GroupContextMenu_DeleteClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var nodeGroup = ((NodeGroupViewModel)element.Tag).NodeGroup;
+
+        var nodesCopy = nodeGroup.Nodes.ToList();
+        nodeGroup.Nodes.RemoveIf(_ => true);
+
+        foreach (var node in nodesCopy)
+        {
+            NodeField.Nodes.Remove(node);
+        }
     }
 
     private void ButtonInputNode_OnClick(object sender, RoutedEventArgs e)
@@ -1089,6 +1111,45 @@ public partial class NodeFieldView : INotifyPropertyChanged
     {
         var contextMenu = (ContextMenu)sender;
         contextMenu.ItemsSource = FieldContextMenu.Items;
+    }
+
+    private void GroupTitle_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount != 2) return;
+
+        e.Handled = true;
+        Logger.Log("Double clicked title", LoggingTarget.Information);
+
+        var element = (FrameworkElement)sender;
+        var nodeGroupViewModel = (NodeGroupViewModel)element.Tag;
+
+        nodeGroupViewModel.Editing = true;
+
+        element.Parent.FindVisualChild<TextBox>("GroupTitleTextBox")!.Focus();
+    }
+
+    private void GroupTitleTextBoxContainer_OnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+    }
+
+    private void GroupTitleTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+
+        var element = (FrameworkElement)sender;
+        var nodeGroupViewModel = (NodeGroupViewModel)element.Tag;
+
+        nodeGroupViewModel.Editing = false;
+    }
+
+    private void GroupTitleTextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            e.Handled = true;
+            Focus();
+        }
     }
 }
 
@@ -1106,8 +1167,29 @@ public enum ConnectionDragOrigin
     ValueInput
 }
 
-public class NodeGroupViewModel
+public class NodeGroupViewModel : INotifyPropertyChanged
 {
+    private bool editing;
+
+    public bool Editing
+    {
+        get => editing;
+        set
+        {
+            if (value == editing) return;
+
+            editing = value;
+            OnPropertyChanged();
+        }
+    }
+
     public ObservableCollection<Node> Nodes { get; set; } = [];
     public NodeGroup NodeGroup { get; set; }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }
