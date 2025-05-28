@@ -20,7 +20,7 @@ public class SendParameterNode<T> : Node, IFlowInput where T : unmanaged
         var name = Name.Read(c);
         if (string.IsNullOrEmpty(name)) return;
 
-        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", Value.Read(c));
+        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", Value.Read(c));
         Next.Execute(c);
     }
 }

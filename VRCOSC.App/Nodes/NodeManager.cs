@@ -1,8 +1,9 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.ObjectModel;
-using VRCOSC.App.OSC.VRChat;
+using System.IO;
+using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.App.Nodes;
 
@@ -39,11 +40,11 @@ public class NodeManager
         }
     }
 
-    public void ParameterReceived(VRChatOscMessage message)
+    public void OnParameterReceived(VRChatParameter parameter)
     {
         foreach (var nodeField in Fields)
         {
-            nodeField.ParameterReceived(message);
+            nodeField.OnParameterReceived(parameter);
         }
     }
 }

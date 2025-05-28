@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types.Base;
 using VRCOSC.App.Nodes.Types.Strings;
-using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Serialisation;
@@ -35,7 +34,6 @@ public class NodeField
     public readonly Dictionary<Type, NodeMetadata> Metadata = [];
     public readonly Dictionary<string, IRef> Variables = [];
     public readonly Dictionary<Guid, Dictionary<IStore, IRef>> GlobalStores = [];
-    public readonly List<ReceivedParameter> Parameters = [];
 
     private bool running;
 
@@ -226,24 +224,19 @@ public class NodeField
 
     private readonly Dictionary<Node, FlowTask> tasks = [];
 
-    public void ParameterReceived(VRChatOscMessage message)
+    public void OnParameterReceived(VRChatParameter parameter)
     {
-        var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
-
-        Parameters.RemoveIf(p => p.Equals(receivedParameter));
-        Parameters.Add(receivedParameter);
-
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IParameterHandler))))
         {
             var tempContext = new PulseContext(this)
             {
-                CurrentNode = node,
+                CurrentNode = node
             };
 
             backtrackNode(node, tempContext);
 
             var parameterReceiver = (IParameterHandler)node;
-            if (!parameterReceiver.HandlesParameter(tempContext, receivedParameter)) continue;
+            if (!parameterReceiver.HandlesParameter(tempContext, parameter)) continue;
 
             Task.Run(() => WalkForward(node));
         }

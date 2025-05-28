@@ -18,11 +18,11 @@ public class DirectParameterSourceNode<T> : Node, IParameterHandler where T : un
 
     protected override void Process(PulseContext c)
     {
-        var value = string.IsNullOrEmpty(Name) ? default : c.GetParameter<T>(Name);
+        var value = string.IsNullOrEmpty(Name) ? default : c.FindParameter<T>(Name);
         Output.Write(value, c);
     }
 
-    public bool HandlesParameter(PulseContext c, ReceivedParameter parameter)
+    public bool HandlesParameter(PulseContext c, VRChatParameter parameter)
     {
         return string.IsNullOrEmpty(Name) && parameter.Name == Name || parameter.Type == parameterType;
     }
@@ -39,11 +39,11 @@ public class IndirectParameterSourceNode<T> : Node, IParameterHandler where T : 
 
     protected override void Process(PulseContext c)
     {
-        var value = string.IsNullOrEmpty(Name.Read(c)) ? default : c.GetParameter<T>(Name.Read(c));
+        var value = string.IsNullOrEmpty(Name.Read(c)) ? default : c.FindParameter<T>(Name.Read(c));
         Output.Write(value, c);
     }
 
-    public bool HandlesParameter(PulseContext c, ReceivedParameter parameter)
+    public bool HandlesParameter(PulseContext c, VRChatParameter parameter)
     {
         return string.IsNullOrEmpty(Name.Read(c)) && parameter.Name == Name.Read(c) || parameter.Type == parameterType;
     }

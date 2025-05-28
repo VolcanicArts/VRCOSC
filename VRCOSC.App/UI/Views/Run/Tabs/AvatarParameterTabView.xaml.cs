@@ -26,8 +26,8 @@ public partial class AvatarParameterTabView
     {
         InitializeComponent();
 
-        AppManager.GetInstance().VRChatOscClient.OnParameterSent += OnParameterSent;
-        AppManager.GetInstance().VRChatOscClient.OnParameterReceived += OnParameterReceived;
+        AppManager.GetInstance().VRChatOscClient.OnVRChatOSCMessageSent += onVRChatOSCMessageSent;
+        AppManager.GetInstance().VRChatOscClient.OnVRChatOSCMessageReceived += onVRChatOSCMessageReceived;
         AppManager.GetInstance().State.Subscribe(OnAppManagerStateChange);
 
         timer = new DispatcherTimer
@@ -63,7 +63,7 @@ public partial class AvatarParameterTabView
         }
     }
 
-    private void OnParameterSent(VRChatOscMessage e)
+    private void onVRChatOSCMessageSent(VRChatOSCMessage e)
     {
         if (!e.IsAvatarParameter) return;
 
@@ -76,7 +76,7 @@ public partial class AvatarParameterTabView
         });
     }
 
-    private void OnParameterReceived(VRChatOscMessage e)
+    private void onVRChatOSCMessageReceived(VRChatOSCMessage e)
     {
         if (!e.IsAvatarParameter) return;
 

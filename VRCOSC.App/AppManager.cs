@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -62,7 +63,7 @@ public class AppManager
     public Observable<Theme> ProxyTheme { get; } = new(Theme.Dark);
 
     public ConnectionManager ConnectionManager = null!;
-    public VRChatOscClient VRChatOscClient = null!;
+    public VRChatOSCClient VRChatOscClient = null!;
     public VRChatClient VRChatClient = null!;
     public OVRClient OVRClient = null!;
 
@@ -71,6 +72,8 @@ public class AppManager
     private Repeater vrchatCheckTask = null!;
     private Repeater openvrCheckTask = null!;
     private Repeater openvrUpdateTask = null!;
+
+    private Dictionary<ParameterDefinition, VRChatParameter> parameterCache { get; } = [];
 
     public AppManager()
     {
@@ -87,7 +90,7 @@ public class AppManager
         SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Subscribe(theme => ProxyTheme.Value = theme, true);
 
         ConnectionManager = new ConnectionManager();
-        VRChatOscClient = new VRChatOscClient();
+        VRChatOscClient = new VRChatOSCClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
         OVRClient = new OVRClient();
         ChatBoxWorldBlacklist.Init();
@@ -173,6 +176,21 @@ public class AppManager
         });
     }
 
+    public async Task<VRChatParameter?> FindParameter(ParameterDefinition parameterDefinition, CancellationToken token)
+    {
+        if (parameterCache.TryGetValue(parameterDefinition, out var parameter)) return parameter;
+
+        parameter = await VRChatOscClient.FindParameter(parameterDefinition.Name, token);
+
+        if (parameter is not null && parameter.Type == parameterDefinition.Type)
+        {
+            parameterCache.Add(parameterDefinition, parameter);
+            return parameter;
+        }
+
+        return null;
+    }
+
     public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
     private void updateOVRClient()
@@ -203,17 +221,14 @@ public class AppManager
 
     #region OSC
 
-    private void onParameterReceived(VRChatOscMessage message)
+    private void onVRChatOSCMessageReceived(VRChatOSCMessage message)
     {
         if (string.IsNullOrEmpty(message.Address)) return;
 
-        processOscMessage(message);
-    }
-
-    private void processOscMessage(VRChatOscMessage message)
-    {
         if (message.IsAvatarChangeEvent)
         {
+            parameterCache.Clear();
+
             var avatarId = (string)message.ParameterValue;
 
             AvatarConfig? avatarConfig = null;
@@ -239,7 +254,10 @@ public class AppManager
 
         if (message.IsAvatarParameter)
         {
-            var wasPlayerUpdated = VRChatClient.Player.Update(message.ParameterName, message.ParameterValue);
+            var parameter = new VRChatParameter(message);
+            parameterCache[parameter.GetDefinition()] = parameter;
+
+            var wasPlayerUpdated = VRChatClient.Player.Update(parameter);
 
             if (wasPlayerUpdated)
             {
@@ -247,14 +265,14 @@ public class AppManager
                 return;
             }
 
-            if (message.ParameterName.StartsWith("VRCOSC/Controls"))
+            if (parameter.Name.StartsWith("VRCOSC/Controls"))
             {
-                handleControlParameter(new ReceivedParameter(message.ParameterName, message.ParameterValue));
+                handleControlParameter(parameter);
                 return;
             }
 
-            ModuleManager.GetInstance().ParameterReceived(message);
-            NodeManager.GetInstance().ParameterReceived(message);
+            ModuleManager.GetInstance().OnParameterReceived(parameter);
+            NodeManager.GetInstance().OnParameterReceived(parameter);
         }
     }
 
@@ -271,7 +289,7 @@ public class AppManager
         }
     }
 
-    private void handleControlParameter(ReceivedParameter parameter)
+    private void handleControlParameter(VRChatParameter parameter)
     {
         if (parameter is { Name: "VRCOSC/Controls/ChatBox/Enabled", Type: ParameterType.Bool })
         {
@@ -302,7 +320,7 @@ public class AppManager
 
     private void sendParameter(string parameterName, object value)
     {
-        VRChatOscClient.Send($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{parameterName}", value);
+        VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{parameterName}", value);
     }
 
     #endregion
@@ -485,7 +503,7 @@ public class AppManager
         VRChatLogReader.Start();
         NodeManager.GetInstance().Start();
 
-        VRChatOscClient.OnParameterReceived += onParameterReceived;
+        VRChatOscClient.OnVRChatOSCMessageReceived += onVRChatOSCMessageReceived;
         VRChatOscClient.EnableReceive();
 
         State.Value = AppManagerState.Started;
@@ -551,7 +569,7 @@ public class AppManager
         await SpeechEngine.Teardown();
 
         await VRChatOscClient.DisableReceive();
-        VRChatOscClient.OnParameterReceived -= onParameterReceived;
+        VRChatOscClient.OnVRChatOSCMessageReceived -= onVRChatOSCMessageReceived;
 
         NodeManager.GetInstance().Stop();
         await VRChatLogReader.Stop();

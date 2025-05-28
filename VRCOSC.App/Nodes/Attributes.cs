@@ -199,5 +199,5 @@ public interface IFlowInput;
 
 internal interface IParameterHandler
 {
-    public bool HandlesParameter(PulseContext c, ReceivedParameter parameter);
+    public bool HandlesParameter(PulseContext c, VRChatParameter parameter);
 }

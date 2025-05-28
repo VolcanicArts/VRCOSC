@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
@@ -25,7 +26,7 @@ public class PulseContext
     internal List<Dictionary<Guid, IRef[]>> Memory { get; } = [new()];
     internal List<Dictionary<Guid, Dictionary<IStore, IRef>>> LocalStores { get; } = [];
     internal List<List<Guid>> RanNodes { get; } = [];
-    internal List<ReceivedParameter> Parameters { get; } = [];
+    internal List<Dictionary<ParameterDefinition, VRChatParameter>> ParameterCache { get; } = [];
 
     public int ScopePointer;
 
@@ -39,6 +40,7 @@ public class PulseContext
         Memory.Add(new Dictionary<Guid, IRef[]>());
         LocalStores.Add(new Dictionary<Guid, Dictionary<IStore, IRef>>());
         RanNodes.Add(new List<Guid>());
+        ParameterCache.Add(new Dictionary<ParameterDefinition, VRChatParameter>());
     }
 
     internal bool HasRan(Guid nodeId)
@@ -64,6 +66,7 @@ public class PulseContext
         Memory.Add(new Dictionary<Guid, IRef[]>());
         LocalStores.Add(new Dictionary<Guid, Dictionary<IStore, IRef>>());
         RanNodes.Add(new List<Guid>());
+        ParameterCache.Add(new Dictionary<ParameterDefinition, VRChatParameter>());
         ScopePointer++;
 
         processNext(call);
@@ -71,6 +74,7 @@ public class PulseContext
         Memory.Remove(Memory.Last());
         LocalStores.Remove(LocalStores.Last());
         RanNodes.Remove(RanNodes.Last());
+        ParameterCache.Remove(ParameterCache.Last());
         ScopePointer--;
     }
 
@@ -79,20 +83,26 @@ public class PulseContext
         processNext(continuation);
     }
 
-    public T GetParameter<T>(string name)
+    internal AvatarConfig? FindCurrentAvatar()
     {
-        var parameter = Parameters.SingleOrDefault(p => p.Name == name && p.Type == ParameterTypeFactory.CreateFrom<T>());
-        if (parameter is not null) return parameter.GetValue<T>();
+        var avatarId = AppManager.GetInstance().VRChatOscClient.FindCurrentAvatar(Token).Result;
+        return avatarId is null ? null : AvatarConfigLoader.LoadConfigFor(avatarId);
+    }
 
-        parameter = Field.Parameters.SingleOrDefault(p => p.Name == name && p.Type == ParameterTypeFactory.CreateFrom<T>());
+    internal T FindParameter<T>(string name) where T : unmanaged
+    {
+        var parameterDefinition = new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>());
 
-        if (parameter is not null)
+        // we use a local cache here to make sure that a parameter's value doesn't change while a flow is occurring as a single source could be connected to multiple nodes
+        for (var i = ScopePointer; i >= 0; i--)
         {
-            Parameters.Add(parameter);
-            return parameter.GetValue<T>();
+            if (ParameterCache[i].TryGetValue(parameterDefinition, out var scopedParameter)) return scopedParameter.GetValue<T>();
         }
 
-        return default!;
+        var parameter = AppManager.GetInstance().FindParameter(parameterDefinition, Token).Result;
+        if (parameter is not null) ParameterCache[ScopePointer][parameterDefinition] = parameter;
+
+        return parameter?.GetValue<T>() ?? default!;
     }
 
     private void processNext(IFlow next)

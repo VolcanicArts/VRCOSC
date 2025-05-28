@@ -13,8 +13,8 @@ using System.Threading.Tasks;
 using Windows.Win32;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules.Serialisation;
-using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Modules;
+using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -68,9 +68,9 @@ internal class ModuleManager : INotifyPropertyChanged
         RunningModules.ForEach(module => module.InvokePlayerUpdate());
     }
 
-    public void ParameterReceived(VRChatOscMessage vrChatOscMessage)
+    public void OnParameterReceived(VRChatParameter parameter)
     {
-        RunningModules.ForEach(module => module.OnParameterReceived(vrChatOscMessage));
+        RunningModules.ForEach(module => module.OnParameterReceived(parameter));
     }
 
     public void ChatBoxUpdate()

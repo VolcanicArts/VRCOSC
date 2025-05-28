@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -216,16 +217,6 @@ public abstract class Module
 
     #region Runtime
 
-    private static Regex parameterToRegex(string parameterName)
-    {
-        var pattern = "^"; // start of string
-        pattern += @"(?:VF\d+_)?"; // VRCFury prefix
-        pattern += $"(?:{Regex.Escape(parameterName).Replace(@"\*", @"(\S*?)")})";
-        pattern += "$"; // end of string
-
-        return new Regex(pattern);
-    }
-
     internal async Task Start()
     {
         try
@@ -237,7 +228,7 @@ public abstract class Module
 
             var validReadParameters = Parameters.Where(parameter => !string.IsNullOrWhiteSpace(parameter.Value.Name.Value) && parameter.Value.Mode.HasFlag(ParameterMode.Read) && parameter.Value.Enabled.Value).ToList();
             readParameters.AddRange(validReadParameters);
-            parameterNameRegex.AddRange(validReadParameters.Select(pair => new KeyValuePair<Enum, Regex>(pair.Key, parameterToRegex(pair.Value.Name.Value))));
+            parameterNameRegex.AddRange(validReadParameters.Select(pair => new KeyValuePair<Enum, Regex>(pair.Key, TemplatedVRChatParameter.TemplateAsRegex(pair.Value.Name.Value))));
 
             loadPersistentProperties();
 
@@ -340,7 +331,7 @@ public abstract class Module
 
     protected virtual Task OnModuleStop() => Task.CompletedTask;
 
-    protected virtual void OnAnyParameterReceived(ReceivedParameter parameter)
+    protected virtual void OnAnyParameterReceived(VRChatParameter parameter)
     {
     }
 
@@ -850,7 +841,7 @@ public abstract class Module
     /// </summary>
     protected void ChangeAvatar(string avatarId)
     {
-        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOscConstants.ADDRESS_AVATAR_CHANGE}", avatarId);
+        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_CHANGE}", avatarId);
     }
 
     /// <summary>
@@ -861,7 +852,7 @@ public abstract class Module
     /// <param name="value">The value to set the parameter to</param>
     protected void SendParameter(string name, object value)
     {
-        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", value);
+        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", value);
     }
 
     /// <summary>
@@ -984,63 +975,50 @@ public abstract class Module
         }
     }
 
-    protected Task<string?> FindCurrentAvatar() => AppManager.GetInstance().VRChatOscClient.FindCurrentAvatar();
+    protected Task<string?> FindCurrentAvatar() => AppManager.GetInstance().VRChatOscClient.FindCurrentAvatar(CancellationToken.None);
 
     /// <summary>
     /// Retrieves a parameter's value using OSCQuery
     /// </summary>
     /// <param name="lookup">The lookup of the registered parameter</param>
-    protected Task<ReceivedParameter?> FindParameter(Enum lookup) => FindParameter(Parameters[lookup].Name.Value);
+    protected Task<VRChatParameter?> FindParameter(Enum lookup) => FindParameter(Parameters[lookup].Name.Value);
 
     /// <summary>
     /// Retrieves a parameter's value using OSCQuery
     /// </summary>
     /// <param name="parameterName">The name of the parameter</param>
-    protected Task<ReceivedParameter?> FindParameter(string parameterName) => AppManager.GetInstance().VRChatOscClient.FindParameter(parameterName);
+    protected Task<VRChatParameter?> FindParameter(string parameterName) => AppManager.GetInstance().VRChatOscClient.FindParameter(parameterName, CancellationToken.None);
 
-    internal void OnParameterReceived(VRChatOscMessage message)
+    internal void OnParameterReceived(VRChatParameter parameter)
     {
-        var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
-
         try
         {
-            OnAnyParameterReceived(receivedParameter);
+            OnAnyParameterReceived(parameter);
         }
         catch (Exception e)
         {
             ExceptionHandler.Handle(e, $"Module {FullID} experienced an exception calling {nameof(OnAnyParameterReceived)}");
         }
 
-        Enum? lookup = null;
-        ModuleParameter? parameterData = null;
-        Match? match = null;
+        RegisteredParameter? registeredParameter = null;
 
-        foreach (var (parameterLookup, moduleParameter) in readParameters)
+        foreach (var (lookup, moduleParameter) in readParameters.Where(pair => pair.Value.ExpectedType == parameter.Type))
         {
-            var localMatch = parameterNameRegex[parameterLookup].Match(receivedParameter.Name);
-            if (!localMatch.Success) continue;
+            var templateRegex = parameterNameRegex[lookup];
+            var checkingRegisteredParameter = new RegisteredParameter(lookup, new TemplatedVRChatParameter(moduleParameter.Name.Value, templateRegex, parameter));
+            if (!checkingRegisteredParameter.IsMatch()) continue;
 
-            lookup = parameterLookup;
-            parameterData = moduleParameter;
-            match = localMatch;
+            registeredParameter = checkingRegisteredParameter;
             break;
         }
 
-        if (lookup is null || parameterData is null || match is null) return;
-
-        if (receivedParameter.Type != parameterData.ExpectedType)
-        {
-            Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType.ToString()}` but received type `{receivedParameter.Type.ToString()}`");
-            return;
-        }
-
-        var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData, match);
+        if (registeredParameter is null) return;
 
         List<WaitingParameter> waitingParameters;
 
         lock (parameterWaitListLock)
         {
-            waitingParameters = parameterWaitList.Where(waitingParameter => waitingParameter.Lookup.Equals(lookup)).ToList();
+            waitingParameters = parameterWaitList.Where(waitingParameter => waitingParameter.Lookup.Equals(registeredParameter.Lookup)).ToList();
         }
 
         if (!waitingParameters.Any(waitingParameter => waitingParameter.BlockEvents))
