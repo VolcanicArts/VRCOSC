@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -8,6 +9,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using VRCOSC.App.Nodes;
 using VRCOSC.App.Utils;
 
@@ -16,6 +19,8 @@ namespace VRCOSC.App.UI.Views.Nodes;
 public partial class NodesView
 {
     public ObservableCollection<NodeFieldViewModel> NodeFieldsSource { get; } = [];
+
+    private bool sidePanelOpen;
 
     public NodesView()
     {
@@ -55,6 +60,24 @@ public partial class NodesView
             var nodeFieldViewModel = NodeFieldsSource[i];
             nodeFieldViewModel.Selected = i == index;
         }
+    }
+
+    private void SidePanelButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var from = PanelTransform.X;
+        var to = sidePanelOpen ? -SidePanel.ActualWidth : 0;
+
+        var anim = new DoubleAnimation
+        {
+            From = from,
+            To = to,
+            Duration = TimeSpan.FromMilliseconds(300),
+            EasingFunction = new QuarticEase { EasingMode = EasingMode.EaseInOut }
+        };
+
+        PanelTransform.BeginAnimation(TranslateTransform.XProperty, anim);
+
+        sidePanelOpen = !sidePanelOpen;
     }
 }
 

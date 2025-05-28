@@ -78,6 +78,9 @@
                 <ColumnDefinition Width="70" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
+            <Border Grid.Column="1" Background="{DynamicResource CBackground2}">
+                <ContentControl Name="ContentControl" />
+            </Border>
             <Border Grid.Column="0" Background="{DynamicResource CBackground1}">
                 <Grid>
                     <StackPanel Orientation="Vertical" VerticalAlignment="Top">
@@ -112,9 +115,6 @@
                         </RadioButton>
                     </StackPanel>
                 </Grid>
-            </Border>
-            <Border Grid.Column="1" Background="{DynamicResource CBackground2}">
-                <ContentControl Name="ContentControl" />
             </Border>
         </Grid>
         <Grid Name="LoadingOverlay">
