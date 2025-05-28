@@ -90,7 +90,7 @@ public class NodeField
         Debug.Assert(currentNode is not null);
 
         if (!GlobalStores.ContainsKey(currentNode.Id))
-            GlobalStores.Add(currentNode.Id, new Dictionary<IStore, IRef>());
+            GlobalStores.TryAdd(currentNode.Id, new Dictionary<IStore, IRef>());
 
         GlobalStores[currentNode.Id][globalStore] = new Ref<T>(value);
     }

@@ -66,7 +66,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         NodeField.Nodes.OnCollectionChanged(onNodesChanged, true);
         NodeField.Connections.OnCollectionChanged(onConnectionsChanged, true);
-        NodeField.Groups.OnCollectionChanged(onGroupsChanged);
+        NodeField.Groups.OnCollectionChanged(onGroupsChanged, true);
 
         loaded = true;
     }
@@ -265,7 +265,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
     private async void onConnectionsChanged(IEnumerable<NodeConnection> newConnections, IEnumerable<NodeConnection> oldConnections)
     {
-        await Dispatcher.Yield(DispatcherPriority.Loaded);
+        await Dispatcher.Yield(DispatcherPriority.Render);
 
         foreach (var newConnection in newConnections)
         {
