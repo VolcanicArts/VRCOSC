@@ -99,6 +99,11 @@ public class NodeField
         return Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Flow && c.OutputNodeId == nodeId && c.OutputSlot == index);
     }
 
+    public NodeGroup GetGroupById(Guid id)
+    {
+        return Groups.Single(nodeGroup => nodeGroup.Id == id);
+    }
+
     public NodeMetadata GetMetadata(Node node) => Metadata[node.GetType()];
 
     public void WriteStore<T>(GlobalStore<T> globalStore, T value, PulseContext c)
@@ -146,7 +151,7 @@ public class NodeField
         var outputAlreadyHasConnection =
             Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.OutputNodeId == outputNodeId && connection.OutputSlot == outputFlowSlot);
 
-        Logger.Log($"Creating flow connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputFlowSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()}");
+        Logger.Log($"Creating flow connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputFlowSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()}", LoggingTarget.Information);
         Connections.Add(new NodeConnection(ConnectionType.Flow, outputNodeId, outputFlowSlot, inputNodeId, 0, null));
 
         if (outputAlreadyHasConnection is not null)
@@ -170,8 +175,7 @@ public class NodeField
 
         if (outputType.IsAssignableTo(inputType))
         {
-            Logger.Log(
-                $"Creating value connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputValueSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()} slot {inputValueSlot}");
+            Logger.Log($"Creating value connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputValueSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()} slot {inputValueSlot}", LoggingTarget.Information);
             Connections.Add(new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, inputNodeId, inputValueSlot, outputType));
             newConnectionMade = true;
         }
@@ -181,7 +185,7 @@ public class NodeField
 
             if (ConversionHelper.HasImplicitConversion(outputType, inputType))
             {
-                Logger.Log($"Inserting cast node from {outputType.GetFriendlyName()} to {inputType.GetFriendlyName()}");
+                Logger.Log($"Inserting cast node from {outputType.GetFriendlyName()} to {inputType.GetFriendlyName()}", LoggingTarget.Information);
 
                 var castNode = (Node)Activator.CreateInstance(typeof(CastNode<,>).MakeGenericType(outputType, inputType))!;
                 addNode(castNode);
@@ -195,7 +199,7 @@ public class NodeField
 
             if (inputType == typeof(string))
             {
-                Logger.Log($"Inserting {typeof(ToStringNode<>).MakeGenericType(outputType).GetFriendlyName()}");
+                Logger.Log($"Inserting {typeof(ToStringNode<>).MakeGenericType(outputType).GetFriendlyName()}", LoggingTarget.Information);
                 var toStringNode = (Node)Activator.CreateInstance(typeof(ToStringNode<>).MakeGenericType(outputType))!;
                 addNode(toStringNode);
                 toStringNode.Position.X = (Nodes[outputNodeId].Position.X + Nodes[inputNodeId].Position.X) / 2f;

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
@@ -78,11 +79,10 @@ public static class Extensions
         }
     }
 
-    public static IEnumerable<T> FindVisualChildrenWhere<T>(this DependencyObject element, Func<T, bool> callback) where T : FrameworkElement
+    public static IEnumerable<T> FindVisualChildrenWhere<T>(this DependencyObject element, Func<T, bool> callback, int depth = int.MaxValue) where T : FrameworkElement
     {
-        // TODO: Depth?
-
         var childrenOfType = new List<T>();
+        if (depth == 0) return childrenOfType;
 
         for (var i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
         {
@@ -91,15 +91,34 @@ public static class Extensions
             if (child is T childAsType && callback.Invoke(childAsType))
                 childrenOfType.Add(childAsType);
 
-            childrenOfType.AddRange(FindVisualChildrenWhere(child, callback));
+            depth--;
+            var nestedChildren = FindVisualChildrenWhere(child, callback, depth);
+            depth++;
+            childrenOfType.AddRange(nestedChildren);
         }
 
         return childrenOfType;
     }
 
-    public static T? FindVisualChildWhere<T>(this DependencyObject element, Func<T, bool> callback) where T : FrameworkElement => element.FindVisualChildrenWhere(callback).FirstOrDefault();
-    public static T? FindVisualChild<T>(this DependencyObject element, string name) where T : FrameworkElement => element.FindVisualChildWhere<T>(o => o.Name == name);
-    public static T? FindVisualChildFuzzy<T>(this DependencyObject element, string name) where T : FrameworkElement => element.FindVisualChildWhere<T>(o => o.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase));
+    public static T? FindVisualChildWhere<T>(this DependencyObject element, Func<T, bool> callback, int depth = int.MaxValue) where T : FrameworkElement => element.FindVisualChildrenWhere(callback, depth).FirstOrDefault();
+    public static T? FindVisualChild<T>(this DependencyObject element, string name, int depth = int.MaxValue) where T : FrameworkElement => element.FindVisualChildWhere<T>(o => o.Name == name, depth);
+    public static T? FindVisualChildFuzzy<T>(this DependencyObject element, string name, int depth = int.MaxValue) where T : FrameworkElement => element.FindVisualChildWhere<T>(o => o.Name.Contains(name, StringComparison.InvariantCultureIgnoreCase), depth);
+
+    public static void RemoveChildrenWhere<T>(this Panel element, Func<T, bool> callback) where T : FrameworkElement
+    {
+        var children = element.FindVisualChildrenWhere(callback, 1);
+
+        foreach (var child in children)
+        {
+            element.Children.Remove(child);
+        }
+    }
+
+    public static void RemoveChildWhere<T>(this Panel element, Func<T, bool> callback) where T : FrameworkElement
+    {
+        var child = element.FindVisualChildWhere(callback, 1);
+        element.Children.Remove(child);
+    }
 
     public static void FadeInFromZero(this FrameworkElement element, double durationMilliseconds, Action? onCompleted = null)
     {

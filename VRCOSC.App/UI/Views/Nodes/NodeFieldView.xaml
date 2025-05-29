@@ -33,8 +33,7 @@
         <nodes:ValueVariableSizeControlVisibilityConverter x:Key="OutputValueVariableSizeControlVisibilityConverter" CheckOutput="True"/>
         <nodes:NodeIconToTitleVisibilityConverter x:Key="NodeIconToTitleVisibilityConverter"/>
 
-        <ContextMenu x:Key="MainContextMenu"
-                     Opened="MainContextMenu_OnOpened">
+        <ContextMenu x:Key="FieldContextMenu" ItemsSource="{Binding FieldContextMenu.Items}">
             <ContextMenu.Resources>
                 <HierarchicalDataTemplate DataType="{x:Type sdkNodes:ContextMenuSubMenu}" ItemsSource="{Binding Items}">
                     <TextBlock Text="{Binding Name}" />
@@ -775,7 +774,7 @@
               HorizontalAlignment="Center" VerticalAlignment="Center"
               Background="{DynamicResource CBackground2}"
               Width="12000" Height="12000"
-              ContextMenu="{StaticResource MainContextMenu}"
+              ContextMenu="{StaticResource FieldContextMenu}"
               ContextMenuOpening="ParentContainer_OnContextMenuOpening">
             <Grid x:Name="RootContainer"
                   Background="Transparent"
@@ -789,9 +788,9 @@
                       Background="Transparent"
                       Width="10000" Height="10000"
                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                      MouseDown="CanvasContainer_OnMouseDown"
                       MouseMove="CanvasContainer_OnMouseMove"
-                      MouseUp="CanvasContainer_OnMouseUp"
-                      MouseDown="CanvasContainer_OnMouseDown">
+                      MouseUp="CanvasContainer_OnMouseUp">
                     <Grid.RenderTransform>
                         <ScaleTransform CenterX="5000" CenterY="5000" ScaleX="1" ScaleY="1"/>
                     </Grid.RenderTransform>
@@ -822,6 +821,26 @@
                             </Path.Data>
                         </Path>
                     </Canvas>
+                    <Border x:Name="SelectionContainer"
+                            CornerRadius="2"
+                            BorderThickness="2"
+                            Padding="1"
+                            Width="2000"
+                            Height="2000"
+                            BorderBrush="{DynamicResource CForeground3}"
+                            HorizontalAlignment="Left" VerticalAlignment="Top"
+                            MouseUp="SelectionContainer_OnMouseUp"
+                            MouseDown="SelectionContainer_OnMouseDown"
+                            Visibility="Collapsed">
+                        <Border.RenderTransform>
+                            <TranslateTransform/>
+                        </Border.RenderTransform>
+                        <Grid>
+                            <Border
+                                Background="{DynamicResource CBackground6}"
+                                Opacity="0.25" CornerRadius="2"/>
+                        </Grid>
+                    </Border>
                 </Grid>
             </Grid>
         </Grid>

@@ -51,7 +51,7 @@ public partial class NodesView
 
         ActiveField.Content = view;
         await Dispatcher.Yield(DispatcherPriority.Loaded);
-        view.FocusMainContainer();
+        view.FocusGrid();
     }
 
     private void SidePanelButton_OnClick(object sender, RoutedEventArgs e)
