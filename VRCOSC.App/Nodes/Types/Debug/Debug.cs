@@ -16,7 +16,10 @@ public sealed class LogNode : Node, IFlowInput
     protected override void Process(PulseContext c)
     {
         var text = Text.Read(c);
-        Console.WriteLine(text);
+
+        if (text is not null)
+            Console.WriteLine(text);
+
         Next.Execute(c);
     }
 }

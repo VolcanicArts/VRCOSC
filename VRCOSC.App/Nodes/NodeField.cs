@@ -23,6 +23,7 @@ public class NodeField
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Observable<string> Name { get; } = new("Default");
+    public Observable<bool> Selected { get; set; } = new(true);
 
     private readonly SerialisationManager serialiser;
 
@@ -230,12 +231,13 @@ public class NodeField
         var inputType = inputNode.GetTypeOfInputSlot(inputValueSlot);
         var existingConnection = Connections.FirstOrDefault(con => con.ConnectionType == ConnectionType.Value && con.InputNodeId == inputNodeId && con.InputSlot == inputValueSlot);
 
+        NodeConnection? newConnection = null;
         var newConnectionMade = false;
 
         if (outputType.IsAssignableTo(inputType))
         {
             Logger.Log($"Creating value connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputValueSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()} slot {inputValueSlot}", LoggingTarget.Information);
-            Connections.Add(new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, inputNodeId, inputValueSlot, outputType));
+            newConnection = new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, inputNodeId, inputValueSlot, outputType);
             newConnectionMade = true;
         }
         else
@@ -274,6 +276,11 @@ public class NodeField
         if (newConnectionMade && existingConnection is not null)
         {
             Connections.Remove(existingConnection);
+        }
+
+        if (newConnection is not null)
+        {
+            Connections.Add(newConnection);
         }
     }
 
@@ -332,11 +339,9 @@ public class NodeField
 
     private readonly Dictionary<Node, FlowTask> tasks = [];
 
-    private IEnumerable<Node> eventNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler)));
-
     private void handleNodeEvent(Func<PulseContext, INodeEventHandler, bool> shouldPropagate)
     {
-        foreach (var node in eventNodes)
+        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
         {
             var c = new PulseContext(this)
             {
@@ -346,6 +351,12 @@ public class NodeField
             backtrackNode(node, c);
 
             if (!shouldPropagate.Invoke(c, (INodeEventHandler)node)) continue;
+
+            if (node.Metadata.IsFlowOutput && !node.Metadata.IsFlowInput)
+            {
+                StartFlow(node);
+                continue;
+            }
 
             Task.Run(() => WalkForward(node));
         }
@@ -429,6 +440,21 @@ public class NodeField
         c.CurrentNode = currentBefore;
     }
 
+    private void processImpulseReceiver(Node node, object[] values, PulseContext c)
+    {
+        if (c.IsCancelled) return;
+        if (c.HasRan(node.Id)) return;
+
+        backtrackNode(node, c);
+        c.CreateMemory(node);
+        var currentBefore = c.CurrentNode;
+        c.CurrentNode = node;
+        ((IImpulseReceiver)node).WriteOutputs(values, c);
+        node.InternalProcess(c);
+        c.MarkRan(node.Id);
+        c.CurrentNode = currentBefore;
+    }
+
     private void backtrackNode(Node node, PulseContext c)
     {
         for (var index = 0; index < node.VirtualValueInputCount(); index++)
@@ -490,7 +516,28 @@ public class NodeField
 
     public void SpawnPreset(NodePreset nodePreset)
     {
-        throw new NotImplementedException();
+    }
+
+    public void TriggerImpulse(ImpulseDefinition definition, PulseContext c)
+    {
+        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IImpulseReceiver))))
+        {
+            var impulseNode = (IImpulseReceiver)node;
+
+            if (!string.Equals(definition.Name, impulseNode.Name, StringComparison.CurrentCulture)) continue;
+
+            var type = node.GetType();
+
+            if (definition.Values.Length == 0 && type.IsGenericType) continue;
+
+            if (definition.Values.Length != 0)
+            {
+                if (!type.IsGenericType) continue;
+                if (!type.GenericTypeArguments.SequenceEqual(definition.Values.Select(o => o.GetType()))) continue;
+            }
+
+            processImpulseReceiver(node, definition.Values, c);
+        }
     }
 }
 

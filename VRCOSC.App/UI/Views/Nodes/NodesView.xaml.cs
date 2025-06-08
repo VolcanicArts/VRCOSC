@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
+using System.Windows.Input;
 using System.Windows.Threading;
 using VRCOSC.App.Nodes;
 
@@ -15,12 +15,9 @@ namespace VRCOSC.App.UI.Views.Nodes;
 public partial class NodesView
 {
     public ObservableCollection<NodeField> NodeFieldsSource => NodeManager.GetInstance().Fields;
-    public ObservableCollection<NodePreset> NodePresetSource => NodeManager.GetInstance().Presets;
     private Dictionary<Guid, NodeFieldView> viewCache { get; } = [];
 
-    private NodeField? currentField = null;
-
-    private bool sidePanelOpen;
+    private NodeField? selectedNodeField;
 
     public NodesView()
     {
@@ -31,29 +28,11 @@ public partial class NodesView
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        showNodeField(0);
+        showNodeField(NodeFieldsSource.First());
     }
 
-    private void FieldButton_OnClick(object sender, RoutedEventArgs routedEventArgs)
+    private async void showNodeField(NodeField nodeField)
     {
-        var element = (FrameworkElement)sender;
-        var index = (int)element.Tag;
-
-        showNodeField(index);
-    }
-
-    private void PresetButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var index = (int)element.Tag;
-
-        currentField.SpawnPreset(NodePresetSource[index]);
-    }
-
-    private async void showNodeField(int index)
-    {
-        var nodeField = NodeFieldsSource[index];
-
         if (!viewCache.TryGetValue(nodeField.Id, out var view))
         {
             view = new NodeFieldView(nodeField);
@@ -64,24 +43,43 @@ public partial class NodesView
         await Dispatcher.Yield(DispatcherPriority.Loaded);
         view.FocusGrid();
 
-        currentField = nodeField;
+        selectedNodeField = nodeField;
     }
 
-    private void SidePanelButton_OnClick(object sender, RoutedEventArgs e)
+    private void CreateField_OnClick(object sender, RoutedEventArgs e)
     {
-        var from = PanelTransform.X;
-        var to = sidePanelOpen ? -SidePanel.ActualWidth : 0;
+        e.Handled = true;
 
-        var anim = new DoubleAnimation
+        var newField = new NodeField();
+        NodeManager.GetInstance().Fields.Add(newField);
+        showNodeField(newField);
+    }
+
+    private void FieldTab_OnClick(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+
+        var element = (FrameworkElement)sender;
+        var nodeField = (NodeField)element.Tag;
+
+        showNodeField(nodeField);
+    }
+
+    private void DeleteField_OnClick(object sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+
+        var element = (FrameworkElement)sender;
+        var nodeField = (NodeField)element.Tag;
+
+        if (NodeManager.GetInstance().Fields.Count == 1) return;
+
+        var index = Math.Max(0, NodeManager.GetInstance().Fields.IndexOf(nodeField) + 1);
+        NodeManager.GetInstance().Fields.Remove(nodeField);
+
+        if (selectedNodeField == nodeField)
         {
-            From = from,
-            To = to,
-            Duration = TimeSpan.FromMilliseconds(300),
-            EasingFunction = new QuarticEase { EasingMode = EasingMode.EaseInOut }
-        };
-
-        PanelTransform.BeginAnimation(TranslateTransform.XProperty, anim);
-
-        sidePanelOpen = !sidePanelOpen;
+            showNodeField(NodeManager.GetInstance().Fields[index]);
+        }
     }
 }

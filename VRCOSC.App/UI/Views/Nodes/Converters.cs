@@ -191,10 +191,13 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
     public required DataTemplate? ValueOnlyNodeTemplate { get; set; }
     public required DataTemplate? NodeGroupTemplate { get; set; }
     public required DataTemplate? ParameterSourceTemplate { get; set; }
+    public required DataTemplate? ImpulseTemplate { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
         if (item is null) return null;
+
+        if (item.GetType().IsAssignableTo(typeof(IImpulseNode))) return ImpulseTemplate;
 
         if (item.GetType().IsGenericType &&
             (item.GetType().GetGenericTypeDefinition() == typeof(CastNode<,>) ||

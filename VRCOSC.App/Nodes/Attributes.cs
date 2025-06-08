@@ -209,6 +209,20 @@ public class ValueOutputList<T> : IValueOutput
 
 public interface IFlowInput;
 
+public interface IImpulseNode
+{
+    public string Name { get; set; }
+}
+
+public interface IImpulseSender : IImpulseNode;
+
+public interface IImpulseReceiver : IImpulseNode
+{
+    public void WriteOutputs(object[] values, PulseContext c);
+}
+
+public record ImpulseDefinition(string Name, object[] Values);
+
 internal interface INodeEventHandler
 {
     public bool HandleNodeStart(PulseContext c) => false;
