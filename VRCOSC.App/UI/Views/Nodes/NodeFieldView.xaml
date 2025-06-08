@@ -73,6 +73,12 @@
             <MenuItem Header="Delete Group" Click="GroupContextMenu_DeleteClick" Tag="{Binding}"/>
         </ContextMenu>
 
+        <ContextMenu x:Key="SelectionContextMenu">
+            <MenuItem Header="Create Group" Click="SelectionContextMenu_CreateGroupClick"/>
+            <MenuItem Header="Save As Preset" Click="SelectionContextMenu_SaveAsPresetClick"/>
+            <MenuItem Header="Delete All" Click="SelectionContextMenu_DeleteAllClick"/>
+        </ContextMenu>
+
         <DataTemplate x:Key="BackgroundTemplate">
             <Border Background="{DynamicResource CBackground4}" Opacity="0.95">
                 <Border.Clip>
@@ -825,21 +831,19 @@
                             CornerRadius="2"
                             BorderThickness="2"
                             Padding="1"
-                            Width="2000"
-                            Height="2000"
                             BorderBrush="{DynamicResource CForeground3}"
                             HorizontalAlignment="Left" VerticalAlignment="Top"
                             MouseUp="SelectionContainer_OnMouseUp"
                             MouseDown="SelectionContainer_OnMouseDown"
-                            Visibility="Collapsed">
+                            Visibility="Collapsed"
+                            ContextMenu="{StaticResource SelectionContextMenu}">
                         <Border.RenderTransform>
                             <TranslateTransform/>
                         </Border.RenderTransform>
-                        <Grid>
-                            <Border
-                                Background="{DynamicResource CBackground6}"
-                                Opacity="0.25" CornerRadius="2"/>
-                        </Grid>
+                        <Border
+                            Background="{DynamicResource CBackground6}"
+                            Opacity="0.25"
+                            CornerRadius="2"/>
                     </Border>
                 </Grid>
             </Grid>

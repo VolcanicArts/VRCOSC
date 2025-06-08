@@ -15,7 +15,10 @@ namespace VRCOSC.App.UI.Views.Nodes;
 public partial class NodesView
 {
     public ObservableCollection<NodeField> NodeFieldsSource => NodeManager.GetInstance().Fields;
+    public ObservableCollection<NodePreset> NodePresetSource => NodeManager.GetInstance().Presets;
     private Dictionary<Guid, NodeFieldView> viewCache { get; } = [];
+
+    private NodeField? currentField = null;
 
     private bool sidePanelOpen;
 
@@ -39,6 +42,14 @@ public partial class NodesView
         showNodeField(index);
     }
 
+    private void PresetButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var index = (int)element.Tag;
+
+        currentField.SpawnPreset(NodePresetSource[index]);
+    }
+
     private async void showNodeField(int index)
     {
         var nodeField = NodeFieldsSource[index];
@@ -52,6 +63,8 @@ public partial class NodesView
         ActiveField.Content = view;
         await Dispatcher.Yield(DispatcherPriority.Loaded);
         view.FocusGrid();
+
+        currentField = nodeField;
     }
 
     private void SidePanelButton_OnClick(object sender, RoutedEventArgs e)

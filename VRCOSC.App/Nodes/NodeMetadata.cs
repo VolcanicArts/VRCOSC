@@ -23,17 +23,9 @@ public static class NodeMetadataBuilder
         if (!type.TryGetCustomAttribute<NodeAttribute>(out var nodeAttribute))
             throw new Exception($"Cannot build {nameof(NodeMetadata)} from a type that doesn't use the attribute {nameof(NodeAttribute)}");
 
-        var flowOutputs = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-                              .Where(f => f.FieldType.IsAssignableTo(typeof(IFlow)))
-                              .ToList();
-
-        var valueInputs = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-                              .Where(f => f.FieldType.IsAssignableTo(typeof(IValueInput)))
-                              .ToList();
-
-        var valueOutputs = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-                               .Where(f => f.FieldType.IsAssignableTo(typeof(IValueOutput)))
-                               .ToList();
+        var flowOutputs = getFieldsByType(type, typeof(IFlow));
+        var valueInputs = getFieldsByType(type, typeof(IValueInput));
+        var valueOutputs = getFieldsByType(type, typeof(IValueOutput));
 
         var isFlowInput = type.IsAssignableTo(typeof(IFlowInput));
         var isFlowOutput = flowOutputs.Count != 0;
@@ -97,6 +89,30 @@ public static class NodeMetadataBuilder
         };
 
         return metadata;
+    }
+
+    private static List<FieldInfo> getFieldsByType(Type? type, Type targetFieldType)
+    {
+        var fields = new List<FieldInfo>();
+
+        var hierarchy = new Stack<Type>();
+
+        while (type != null && type != typeof(object))
+        {
+            hierarchy.Push(type);
+            type = type.BaseType;
+        }
+
+        while (hierarchy.Count > 0)
+        {
+            var currentType = hierarchy.Pop();
+
+            var currentFields = currentType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                                           .Where(f => targetFieldType.IsAssignableFrom(f.FieldType));
+            fields.AddRange(currentFields);
+        }
+
+        return fields;
     }
 
     private static NodeValueMetadata[] getIoMetadata(List<FieldInfo> fields, Node node)

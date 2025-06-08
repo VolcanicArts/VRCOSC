@@ -6,6 +6,20 @@ using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Strings;
 
+[Node("Compare", "Strings")]
+public sealed class StringCompareNode : Node
+{
+    public ValueInput<string> A = new();
+    public ValueInput<string> B = new();
+    public ValueInput<StringComparison> Comparison = new();
+    public ValueOutput<int> Result = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Result.Write(string.Compare(A.Read(c), B.Read(c), Comparison.Read(c)), c);
+    }
+}
+
 [Node("Join", "Strings")]
 public class StringJoinNode : Node
 {
@@ -24,7 +38,7 @@ public class StringContainsNode : Node
 {
     public ValueInput<string> Input = new(string.Empty);
     public ValueInput<string> Value = new(string.Empty);
-    public ValueInput<StringComparison> Comparison = new(StringComparison.InvariantCulture);
+    public ValueInput<StringComparison> Comparison = new();
     public ValueOutput<bool> Result = new();
 
     protected override void Process(PulseContext c)
@@ -59,5 +73,17 @@ public class StringToLowerNode : Node
     protected override void Process(PulseContext c)
     {
         Result.Write(Input.Read(c).ToLower(), c);
+    }
+}
+
+[Node("Is Null Or Empty", "Strings")]
+public sealed class StringIsNullOrEmptyNode : Node
+{
+    public ValueInput<string> Input = new(string.Empty);
+    public ValueOutput<bool> Result = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Result.Write(string.IsNullOrEmpty(Input.Read(c)), c);
     }
 }

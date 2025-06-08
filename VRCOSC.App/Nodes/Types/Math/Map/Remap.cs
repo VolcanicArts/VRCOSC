@@ -1,22 +1,29 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Numerics;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Math.Map;
 
 [Node("Remap", "Math/Map")]
-public class RemapNode : Node
+public class RemapNode<T> : Node where T : INumber<T>
 {
-    public ValueInput<float> Value = new();
-    public ValueInput<float> FromMin = new();
-    public ValueInput<float> FromMax = new();
-    public ValueInput<float> ToMin = new();
-    public ValueInput<float> ToMax = new();
-    public ValueOutput<float> Result = new();
+    public ValueInput<T> Value = new();
+    public ValueInput<T> FromMin = new();
+    public ValueInput<T> FromMax = new();
+    public ValueInput<T> ToMin = new();
+    public ValueInput<T> ToMax = new();
+    public ValueOutput<T> Result = new();
 
     protected override void Process(PulseContext c)
     {
-        Result.Write(Utils.Interpolation.Map(Value.Read(c), FromMin.Read(c), FromMax.Read(c), ToMin.Read(c), ToMax.Read(c)), c);
+        var value = double.CreateChecked(Value.Read(c));
+        var fromMin = double.CreateChecked(FromMin.Read(c));
+        var fromMax = double.CreateChecked(FromMax.Read(c));
+        var toMin = double.CreateChecked(ToMin.Read(c));
+        var toMax = double.CreateChecked(ToMax.Read(c));
+
+        Result.Write(T.CreateChecked(Utils.Interpolation.Map(value, fromMin, fromMax, toMin, toMax)), c);
     }
 }

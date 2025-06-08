@@ -14,6 +14,37 @@ using VRCOSC.App.Utils;
 namespace VRCOSC.App.Nodes.Serialisation;
 
 [JsonObject(MemberSerialization.OptIn)]
+public class SerialisableNodePreset : SerialisableVersion
+{
+    [JsonProperty("id")]
+    public Guid Id { get; set; }
+
+    [JsonProperty("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonProperty("nodes")]
+    public List<SerialisableNode> Nodes { get; set; } = [];
+
+    [JsonProperty("connections")]
+    public List<SerialisableConnection> Connections { get; set; } = [];
+
+    [JsonConstructor]
+    public SerialisableNodePreset()
+    {
+    }
+
+    public SerialisableNodePreset(NodePreset nodePreset)
+    {
+        Version = 1;
+
+        Id = nodePreset.Id;
+        Name = nodePreset.Name.Value;
+        Nodes = nodePreset.Nodes;
+        Connections = nodePreset.Connections;
+    }
+}
+
+[JsonObject(MemberSerialization.OptIn)]
 public class SerialisableNodeField : SerialisableVersion
 {
     [JsonProperty("id")]
@@ -23,7 +54,7 @@ public class SerialisableNodeField : SerialisableVersion
     public string Name { get; set; } = string.Empty;
 
     [JsonProperty("nodes")]
-    public List<SerialiableNode> Nodes { get; set; } = [];
+    public List<SerialisableNode> Nodes { get; set; } = [];
 
     [JsonProperty("connections")]
     public List<SerialisableConnection> Connections { get; set; } = [];
@@ -42,14 +73,14 @@ public class SerialisableNodeField : SerialisableVersion
 
         Id = nodeField.Id;
         Name = nodeField.Name.Value;
-        Nodes = nodeField.Nodes.Values.Select(node => new SerialiableNode(node)).ToList();
+        Nodes = nodeField.Nodes.Values.Select(node => new SerialisableNode(node)).ToList();
         Connections = nodeField.Connections.Select(connection => new SerialisableConnection(connection)).ToList();
         Groups = nodeField.Groups.Select(group => new SerialisableNodeGroup(group)).ToList();
     }
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class SerialiableNode
+public class SerialisableNode
 {
     [JsonProperty("id")]
     public Guid Id { get; set; }
@@ -67,11 +98,11 @@ public class SerialiableNode
     public Dictionary<string, object?> Properties { get; set; } = [];
 
     [JsonConstructor]
-    public SerialiableNode()
+    public SerialisableNode()
     {
     }
 
-    public SerialiableNode(Node node)
+    public SerialisableNode(Node node)
     {
         Id = node.Id;
         Type = node.GetType().GetFriendlyName();

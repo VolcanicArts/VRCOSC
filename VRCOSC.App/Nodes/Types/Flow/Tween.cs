@@ -2,21 +2,22 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Numerics;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Tween", "Flow")]
-public sealed class TweenNode : Node, IFlowInput
+public sealed class TweenNode<T> : Node, IFlowInput where T : INumber<T>
 {
     public FlowCall OnUpdate = new("On Update");
     public FlowContinuation OnFinished = new("On Finished");
 
-    public ValueInput<float> From = new();
-    public ValueInput<float> To = new();
+    public ValueInput<T> From = new();
+    public ValueInput<T> To = new();
     public ValueInput<float> TimeMilliseconds = new();
-    public ValueOutput<float> Value = new();
+    public ValueOutput<T> Value = new();
 
     protected override void Process(PulseContext c)
     {
@@ -26,17 +27,19 @@ public sealed class TweenNode : Node, IFlowInput
 
         do
         {
-            var currentTime = DateTime.Now;
-            var percentage = (float)((currentTime - startTime) / (endTime - startTime));
-            if (percentage > 1) percentage = 1;
+            var t = double.Clamp((DateTime.Now - startTime) / (endTime - startTime), 0d, 1d);
 
-            var nextValue = Utils.Interpolation.Lerp(From.Read(c), To.Read(c), percentage);
-            Value.Write(nextValue, c);
+            var fromDouble = double.CreateChecked(From.Read(c));
+            var toDouble = double.CreateChecked(To.Read(c));
+            var valueDouble = fromDouble + (toDouble - fromDouble) * t;
+
+            var value = T.CreateChecked(valueDouble);
+            Value.Write(value, c);
 
             OnUpdate.Execute(c);
 
-            Task.Delay(TimeSpan.FromSeconds(1f / 60f)).Wait(c.Token);
-            if (c.IsCancelled || System.Math.Abs(percentage - 1) < float.Epsilon) break;
+            Task.Delay(TimeSpan.FromSeconds(1d / 60d)).Wait(c.Token);
+            if (c.IsCancelled || System.Math.Abs(t - 1d) < double.Epsilon) break;
         } while (true);
 
         if (c.IsCancelled) return;

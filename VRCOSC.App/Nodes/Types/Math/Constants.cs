@@ -12,3 +12,10 @@ public sealed class PiConstantNode : ConstantNode<float>
 {
     protected override float GetValue() => MathF.PI;
 }
+
+[Node("Tau", "Math/Constants")]
+[NodeCollapsed]
+public sealed class TauConstantNode : ConstantNode<float>
+{
+    protected override float GetValue() => MathF.Tau;
+}

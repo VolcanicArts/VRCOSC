@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -10,25 +10,24 @@ namespace VRCOSC.App.Utils;
 
 public static class TypeResolver
 {
-    public static readonly Dictionary<string, Type> PRIMITIVE_TYPE_ALIASES =
-        new(StringComparer.OrdinalIgnoreCase)
-        {
-            { "bool", typeof(bool) },
-            { "byte", typeof(byte) },
-            { "sbyte", typeof(sbyte) },
-            { "char", typeof(char) },
-            { "decimal", typeof(decimal) },
-            { "double", typeof(double) },
-            { "float", typeof(float) },
-            { "int", typeof(int) },
-            { "uint", typeof(uint) },
-            { "long", typeof(long) },
-            { "ulong", typeof(ulong) },
-            { "short", typeof(short) },
-            { "ushort", typeof(ushort) },
-            { "object", typeof(object) },
-            { "string", typeof(string) }
-        };
+    public static readonly Dictionary<string, Type> TYPE_ALIASES = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "bool", typeof(bool) },
+        { "byte", typeof(byte) },
+        { "sbyte", typeof(sbyte) },
+        { "char", typeof(char) },
+        { "decimal", typeof(decimal) },
+        { "double", typeof(double) },
+        { "float", typeof(float) },
+        { "int", typeof(int) },
+        { "uint", typeof(uint) },
+        { "long", typeof(long) },
+        { "ulong", typeof(ulong) },
+        { "short", typeof(short) },
+        { "ushort", typeof(ushort) },
+        { "object", typeof(object) },
+        { "string", typeof(string) }
+    };
 
     private static Lazy<Dictionary<string, Type>> typeIndex = new(buildTypeIndex, true);
 
@@ -134,7 +133,7 @@ public static class TypeResolver
     {
         name = name.Trim();
 
-        if (PRIMITIVE_TYPE_ALIASES.TryGetValue(name, out var p))
+        if (TYPE_ALIASES.TryGetValue(name, out var p))
             return p;
 
         var direct = Type.GetType(name, throwOnError: false, ignoreCase: true);

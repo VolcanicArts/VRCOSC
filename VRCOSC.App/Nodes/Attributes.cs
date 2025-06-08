@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using FontAwesome6;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.SDK.VRChat;
 
 namespace VRCOSC.App.Nodes;
 
@@ -208,7 +209,15 @@ public class ValueOutputList<T> : IValueOutput
 
 public interface IFlowInput;
 
-internal interface IParameterHandler
+internal interface INodeEventHandler
 {
-    public bool HandlesParameter(PulseContext c, VRChatParameter parameter);
+    public bool HandleNodeStart(PulseContext c) => false;
+    public bool HandleNodeStop(PulseContext c) => false;
+    public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter) => false;
+    public bool HandleAvatarChange(PulseContext c, AvatarConfig? config) => false;
+}
+
+internal interface INodeSource
+{
+    public bool HasChanged(PulseContext c) => false;
 }

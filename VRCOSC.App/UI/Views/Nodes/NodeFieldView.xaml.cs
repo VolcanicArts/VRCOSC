@@ -101,7 +101,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         node.Position.X = newX;
         node.Position.Y = newY;
 
-        redrawAllConnectionsForNode(node);
+        redrawAllConnectionsForNode(node.Id);
         updateAllGroupVisuals(NodeField.Groups.Where(group => group.Nodes.Contains(node.Id)));
     }
 
@@ -190,7 +190,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
     #region Updates
 
-    private void onNodesChanged(IEnumerable<ObservableKeyValuePair<Guid, Node>> newNodes, IEnumerable<ObservableKeyValuePair<Guid, Node>> oldNodes)
+    private async void onNodesChanged(IEnumerable<ObservableKeyValuePair<Guid, Node>> newNodes, IEnumerable<ObservableKeyValuePair<Guid, Node>> oldNodes)
     {
         var newNodesActual = newNodes.Select(pair => pair.Value);
 
@@ -198,6 +198,9 @@ public partial class NodeFieldView : INotifyPropertyChanged
         NodesItemsControlItemsSource.RemoveIf(o => o is Node node && oldNodes.Select(pair => pair.Value).Contains(node));
 
         foreach (var pair in newNodesActual) updateNodePosition(pair);
+
+        await Dispatcher.Yield(DispatcherPriority.Loaded);
+        updateAllGroupVisuals(NodeField.Groups);
     }
 
     private void onConnectionsChanged(IEnumerable<NodeConnection> newConnections, IEnumerable<NodeConnection> oldConnections)
@@ -222,22 +225,21 @@ public partial class NodeFieldView : INotifyPropertyChanged
                 NodeGroup = newGroup
             };
 
-            newGroup.Nodes.OnCollectionChanged(async (newNodes, oldNodes) =>
+            newGroup.Nodes.OnCollectionChanged((newNodes, oldNodes) =>
             {
                 foreach (var newNodeId in newNodes)
                 {
                     nodeGroupViewModel.Nodes.Add(NodeField.Nodes[newNodeId]);
                     NodesItemsControlItemsSource.RemoveIf(o => o is Node node && newGroup.Nodes.Contains(node.Id));
+                    redrawAllConnectionsForNode(newNodeId);
                 }
 
                 foreach (var oldNodeId in oldNodes)
                 {
                     nodeGroupViewModel.Nodes.RemoveIf(node => oldNodeId == node.Id);
                     NodesItemsControlItemsSource.Add(NodeField.Nodes[oldNodeId]);
+                    redrawAllConnectionsForNode(oldNodeId);
                 }
-
-                await Dispatcher.Yield(DispatcherPriority.Loaded);
-                updateAllGroupVisuals(newGroups);
             }, true);
 
             NodesItemsControlItemsSource.Add(nodeGroupViewModel);
@@ -338,7 +340,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
     private async void updateGroupVisual(NodeGroup group)
     {
-        await Dispatcher.Yield(DispatcherPriority.Render);
+        await Dispatcher.Yield(DispatcherPriority.Loaded);
 
         var topLeft = new Point(CanvasContainer.Width, CanvasContainer.Height);
         var bottomRight = new Point(0, 0);
@@ -408,9 +410,9 @@ public partial class NodeFieldView : INotifyPropertyChanged
         }
     }
 
-    private void redrawAllConnectionsForNode(Node node)
+    private void redrawAllConnectionsForNode(Guid nodeId)
     {
-        var connections = NodeField.Connections.Where(connection => connection.OutputNodeId == node.Id || connection.InputNodeId == node.Id);
+        var connections = NodeField.Connections.Where(connection => connection.OutputNodeId == nodeId || connection.InputNodeId == nodeId);
 
         foreach (var connection in connections)
         {
@@ -892,6 +894,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         }
 
         NodeField.Serialise();
+        FocusGrid();
     }
 
     private void checkForGroupAdditions()
@@ -1219,7 +1222,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var node = (Node)element.Tag;
 
-        NodeField.DeleteNode(node);
+        NodeField.DeleteNode(node.Id);
     }
 
     private void NodeContextMenu_CreateGroupClick(object sender, RoutedEventArgs e)
@@ -1249,15 +1252,85 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var nodeGroup = ((NodeGroupViewModel)element.Tag).NodeGroup;
 
-        var nodesCopy = nodeGroup.Nodes.ToList();
-        nodeGroup.Nodes.RemoveIf(_ => true);
+        var nodes = nodeGroup.Nodes.ToList();
 
-        foreach (var node in nodesCopy)
+        foreach (var node in nodes)
         {
-            NodeField.Nodes.Remove(node);
+            NodeField.DeleteNode(node);
+        }
+    }
+
+    #endregion
+
+    #region Selection Context Menu
+
+    private void SelectionContextMenu_CreateGroupClick(object sender, RoutedEventArgs e)
+    {
+        var bounds = new Rect(0, 0, SelectionContainer.ActualWidth, SelectionContainer.ActualHeight);
+
+        var selectedNodes = new List<Guid>();
+
+        foreach (var nodeContainer in NodesItemsControl.FindVisualChildrenWhere<FrameworkElement>(child => child.Name == "NodeContainer"))
+        {
+            var startPoint = nodeContainer.TranslatePoint(new Point(0, 0), SelectionContainer);
+            var endPoint = nodeContainer.TranslatePoint(new Point(nodeContainer.ActualWidth, nodeContainer.ActualHeight), SelectionContainer);
+
+            if (bounds.Contains(startPoint) && bounds.Contains(endPoint))
+                selectedNodes.Add(((Node)nodeContainer.Tag).Id);
         }
 
-        NodeField.Groups.Remove(nodeGroup);
+        selectedNodes.RemoveIf(nodeId => NodeField.Groups.Any(nodeGroup => nodeGroup.Nodes.Contains(nodeId)));
+        SelectionContainer.Visibility = Visibility.Collapsed;
+
+        if (!selectedNodes.Any()) return;
+
+        var group = NodeField.AddGroup();
+        group.Title.Value = "Selection";
+        group.Nodes.AddRange(selectedNodes);
+    }
+
+    private void SelectionContextMenu_SaveAsPresetClick(object sender, RoutedEventArgs e)
+    {
+        var bounds = new Rect(0, 0, SelectionContainer.ActualWidth, SelectionContainer.ActualHeight);
+
+        var selectedNodes = new List<Guid>();
+
+        foreach (var nodeContainer in NodesItemsControl.FindVisualChildrenWhere<FrameworkElement>(child => child.Name == "NodeContainer"))
+        {
+            var startPoint = nodeContainer.TranslatePoint(new Point(0, 0), SelectionContainer);
+            var endPoint = nodeContainer.TranslatePoint(new Point(nodeContainer.ActualWidth, nodeContainer.ActualHeight), SelectionContainer);
+
+            if (bounds.Contains(startPoint) && bounds.Contains(endPoint))
+                selectedNodes.Add(((Node)nodeContainer.Tag).Id);
+        }
+
+        SelectionContainer.Visibility = Visibility.Collapsed;
+        var position = (TranslateTransform)SelectionContainer.RenderTransform;
+
+        NodeField.CreatePreset(selectedNodes, position.X, position.Y);
+    }
+
+    private void SelectionContextMenu_DeleteAllClick(object sender, RoutedEventArgs e)
+    {
+        var bounds = new Rect(0, 0, SelectionContainer.ActualWidth, SelectionContainer.ActualHeight);
+
+        var selectedNodes = new List<Guid>();
+
+        foreach (var nodeContainer in NodesItemsControl.FindVisualChildrenWhere<FrameworkElement>(child => child.Name == "NodeContainer"))
+        {
+            var startPoint = nodeContainer.TranslatePoint(new Point(0, 0), SelectionContainer);
+            var endPoint = nodeContainer.TranslatePoint(new Point(nodeContainer.ActualWidth, nodeContainer.ActualHeight), SelectionContainer);
+
+            if (bounds.Contains(startPoint) && bounds.Contains(endPoint))
+                selectedNodes.Add(((Node)nodeContainer.Tag).Id);
+        }
+
+        SelectionContainer.Visibility = Visibility.Collapsed;
+
+        foreach (var selectedNode in selectedNodes)
+        {
+            NodeField.DeleteNode(selectedNode);
+        }
     }
 
     #endregion

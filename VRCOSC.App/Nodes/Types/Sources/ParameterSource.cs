@@ -8,7 +8,7 @@ namespace VRCOSC.App.Nodes.Types.Sources;
 
 [Node("Direct Parameter Source", "Sources")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public class DirectParameterSourceNode<T> : Node, IParameterHandler where T : unmanaged
+public class DirectParameterSourceNode<T> : Node, INodeEventHandler where T : unmanaged
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
@@ -23,7 +23,7 @@ public class DirectParameterSourceNode<T> : Node, IParameterHandler where T : un
         Output.Write(value, c);
     }
 
-    public bool HandlesParameter(PulseContext c, VRChatParameter parameter)
+    public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter)
     {
         return string.IsNullOrEmpty(Name) && parameter.Name == Name || parameter.Type == parameterType;
     }
@@ -31,7 +31,7 @@ public class DirectParameterSourceNode<T> : Node, IParameterHandler where T : un
 
 [Node("Indirect Parameter Source", "Sources")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public class IndirectParameterSourceNode<T> : Node, IParameterHandler where T : unmanaged
+public class IndirectParameterSourceNode<T> : Node, INodeEventHandler where T : unmanaged
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
@@ -44,7 +44,7 @@ public class IndirectParameterSourceNode<T> : Node, IParameterHandler where T : 
         Output.Write(value, c);
     }
 
-    public bool HandlesParameter(PulseContext c, VRChatParameter parameter)
+    public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter)
     {
         return string.IsNullOrEmpty(Name.Read(c)) && parameter.Name == Name.Read(c) || parameter.Type == parameterType;
     }

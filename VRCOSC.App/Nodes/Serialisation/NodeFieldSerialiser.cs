@@ -11,7 +11,7 @@ namespace VRCOSC.App.Nodes.Serialisation;
 
 public class NodeFieldSerialiser : ProfiledSerialiser<NodeField, SerialisableNodeField>
 {
-    protected override string Directory => Path.Join(base.Directory, "nodes");
+    protected override string Directory => Path.Join(base.Directory, "nodes", "fields");
     protected override string FileName => $"{Reference.Id}.json";
 
     public NodeFieldSerialiser(Storage storage, NodeField reference)
@@ -25,29 +25,53 @@ public class NodeFieldSerialiser : ProfiledSerialiser<NodeField, SerialisableNod
 
         data.Nodes.ForEach(sN =>
         {
-            var declaration = TypeResolver.Parse(sN.Type);
-            var baseType = TypeResolver.ResolveType(declaration.ClassName)!;
-            var generics = declaration.Generics;
-
-            Type nodeType = baseType;
-
-            if (!string.IsNullOrEmpty(generics))
+            try
             {
-                if (TypeResolver.TryConstructGenericType(generics, baseType, out var genericNodeType))
+                var declaration = TypeResolver.Parse(sN.Type);
+                var baseType = TypeResolver.ResolveType(declaration.ClassName)!;
+                var generics = declaration.Generics;
+
+                Type nodeType = baseType;
+
+                if (!string.IsNullOrEmpty(generics))
                 {
-                    nodeType = genericNodeType;
+                    if (TypeResolver.TryConstructGenericType(generics, baseType, out var genericNodeType))
+                    {
+                        nodeType = genericNodeType;
+                    }
+                }
+
+                var node = Reference.AddNode(sN.Id, nodeType);
+
+                node.Position = new ObservableVector2(sN.Position.X, sN.Position.Y);
+                node.ZIndex.Value = sN.ZIndex;
+
+                foreach (var (propertyKey, propertyValue) in sN.Properties)
+                {
+                    var property = node.GetType().GetProperties()
+                                       .SingleOrDefault(property => property.TryGetCustomAttribute<NodePropertyAttribute>(out var attribute) && attribute.SerialisedName == propertyKey);
+
+                    if (property is not null)
+                    {
+                        if (propertyValue is double && property.PropertyType == typeof(float))
+                        {
+                            property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Single));
+                            continue;
+                        }
+
+                        if (propertyValue is long && property.PropertyType == typeof(int))
+                        {
+                            property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Int32));
+                            continue;
+                        }
+
+                        property.SetValue(node, propertyValue);
+                    }
                 }
             }
-
-            var node = Reference.AddNode(sN.Id, nodeType);
-
-            node.Position = new ObservableVector2(sN.Position.X, sN.Position.Y);
-            node.ZIndex.Value = sN.ZIndex;
-
-            foreach (var (propertyKey, propertyValue) in sN.Properties)
+            catch
             {
-                var property = node.GetType().GetProperties().SingleOrDefault(property => property.TryGetCustomAttribute<NodePropertyAttribute>(out var attribute) && attribute.SerialisedName == propertyKey);
-                property?.SetValue(node, propertyValue);
+                // TODO: Handle
             }
         });
 

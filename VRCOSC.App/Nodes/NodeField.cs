@@ -6,12 +6,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types.Base;
 using VRCOSC.App.Nodes.Types.Strings;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -82,11 +84,68 @@ public class NodeField
     public void Start()
     {
         running = true;
+        triggerOnStartNodes();
+        startUpdate();
     }
 
     public void Stop()
     {
+        stopUpdate();
+        triggerOnStopNodes();
+        // TODO: Wait for all contexts to finish
         running = false;
+    }
+
+    private Task? updateTask;
+    private CancellationTokenSource? updateTokenSource;
+
+    private IEnumerable<Node> sourceNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeSource)));
+
+    private void startUpdate()
+    {
+        updateTokenSource = new();
+
+        updateTask = Task.Run(async () =>
+        {
+            while (!updateTokenSource.IsCancellationRequested)
+            {
+                foreach (var node in sourceNodes)
+                {
+                    var c = new PulseContext(this)
+                    {
+                        CurrentNode = node
+                    };
+
+                    backtrackNode(node, c);
+
+                    if (!((INodeSource)node).HasChanged(c)) continue;
+
+                    _ = Task.Run(() => WalkForward(node));
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(1d / 60d));
+            }
+        }, updateTokenSource.Token);
+    }
+
+    private void stopUpdate()
+    {
+        updateTokenSource?.Cancel();
+    }
+
+    public void CreatePreset(List<Guid> nodeIds, double relativeX, double relativeY)
+    {
+        // TODO: Copy nodes and adjust positions to be relative to the selection
+
+        var nodePreset = new NodePreset
+        {
+            Nodes = nodeIds.Select(id => new SerialisableNode(Nodes[id])).ToList()
+        };
+
+        // get connections from each node that only go to another node that's also in the nodeIds list
+
+        NodeManager.GetInstance().Presets.Add(nodePreset);
+        nodePreset.Serialise();
     }
 
     public NodeConnection? FindConnectionFromValueInput(Guid nodeId, int index)
@@ -218,11 +277,11 @@ public class NodeField
         }
     }
 
-    public void DeleteNode(Node node)
+    public void DeleteNode(Guid nodeId)
     {
-        Connections.RemoveIf(connection => connection.OutputNodeId == node.Id || connection.InputNodeId == node.Id);
-        Groups.ForEach(group => group.Nodes.Remove(node.Id));
-        Nodes.Remove(node.Id);
+        Connections.RemoveIf(connection => connection.OutputNodeId == nodeId || connection.InputNodeId == nodeId);
+        Groups.ForEach(group => group.Nodes.Remove(nodeId));
+        Nodes.Remove(nodeId);
 
         Groups.RemoveIf(group => group.Nodes.Count == 0);
 
@@ -273,22 +332,43 @@ public class NodeField
 
     private readonly Dictionary<Node, FlowTask> tasks = [];
 
-    public void OnParameterReceived(VRChatParameter parameter)
+    private IEnumerable<Node> eventNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler)));
+
+    private void handleNodeEvent(Func<PulseContext, INodeEventHandler, bool> shouldPropagate)
     {
-        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IParameterHandler))))
+        foreach (var node in eventNodes)
         {
-            var tempContext = new PulseContext(this)
+            var c = new PulseContext(this)
             {
                 CurrentNode = node
             };
 
-            backtrackNode(node, tempContext);
+            backtrackNode(node, c);
 
-            var parameterReceiver = (IParameterHandler)node;
-            if (!parameterReceiver.HandlesParameter(tempContext, parameter)) continue;
+            if (!shouldPropagate.Invoke(c, (INodeEventHandler)node)) continue;
 
             Task.Run(() => WalkForward(node));
         }
+    }
+
+    public void OnParameterReceived(VRChatParameter parameter)
+    {
+        handleNodeEvent((c, node) => node.HandleParameterReceive(c, parameter));
+    }
+
+    public void OnAvatarChange(AvatarConfig? config)
+    {
+        handleNodeEvent((c, node) => node.HandleAvatarChange(c, config));
+    }
+
+    private void triggerOnStartNodes()
+    {
+        handleNodeEvent((c, node) => node.HandleNodeStart(c));
+    }
+
+    private void triggerOnStopNodes()
+    {
+        handleNodeEvent((c, node) => node.HandleNodeStop(c));
     }
 
     public void StartFlow(Node node) => Task.Run(async () =>
@@ -406,6 +486,11 @@ public class NodeField
         if (id.HasValue) nodeGroup.Id = id.Value;
         Groups.Add(nodeGroup);
         return nodeGroup;
+    }
+
+    public void SpawnPreset(NodePreset nodePreset)
+    {
+        throw new NotImplementedException();
     }
 }
 

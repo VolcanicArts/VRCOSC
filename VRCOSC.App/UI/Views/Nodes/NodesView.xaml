@@ -20,22 +20,70 @@
                         <TranslateTransform X="18"/>
                     </core:IconButton.RenderTransform>
                 </core:IconButton>
-                <core:SpacedListView ItemsSource="{Binding NodeFieldsSource}" Spacing="5" Margin="5">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="ListViewItem">
-                                        <core:TextButton Background="{DynamicResource CBackground2}"
-                                                Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}, Converter={StaticResource IndexFromListConverter}}"
-                                                Padding="5" CornerRadius="5" Text="{Binding Name.Value}" Foreground="{DynamicResource CForeground2}" ButtonColour="Gray" Click="FieldButton_OnClick">
-                                        </core:TextButton>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                </core:SpacedListView>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="7"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="1" Background="{DynamicResource CBackground6}" Margin="2" CornerRadius="5"/>
+                    <Grid Grid.Row="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="Fields" FontSize="20"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource CForeground2}"
+                                   Margin="2"/>
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" >
+                            <core:SpacedListView ItemsSource="{Binding NodeFieldsSource}" Spacing="5" Margin="5 0">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListViewItem">
+                                                    <core:TextButton Background="{DynamicResource CBackground2}"
+                                                            Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}, Converter={StaticResource IndexFromListConverter}}"
+                                                            Padding="5" CornerRadius="5" Text="{Binding Name.Value}" Foreground="{DynamicResource CForeground2}" ButtonColour="Gray" Click="FieldButton_OnClick">
+                                                    </core:TextButton>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </core:SpacedListView>
+                        </ScrollViewer>
+                    </Grid>
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="Presets" FontSize="20"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource CForeground2}"
+                                   Margin="2"/>
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" >
+                            <core:SpacedListView ItemsSource="{Binding NodePresetSource}" Spacing="5" Margin="5 0">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListViewItem">
+                                                    <core:TextButton Background="{DynamicResource CBackground2}"
+                                                            Tag="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListViewItem}}, Converter={StaticResource IndexFromListConverter}}"
+                                                            Padding="5" CornerRadius="5" Text="{Binding Name.Value}" Foreground="{DynamicResource CForeground2}" ButtonColour="Gray" Click="PresetButton_OnClick">
+                                                    </core:TextButton>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </core:SpacedListView>
+                        </ScrollViewer>
+                    </Grid>
+                </Grid>
             </Grid>
             <core:PassThroughBorder.RenderTransform>
                 <TranslateTransform x:Name="PanelTransform" X="-200"/>

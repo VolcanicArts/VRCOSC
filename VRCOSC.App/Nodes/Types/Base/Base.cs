@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Base;
@@ -28,4 +29,24 @@ public sealed class CastNode<TFrom, TTo> : Node
     {
         Output.Write((TTo)Convert.ChangeType(Input.Read(c), typeof(TTo))!, c);
     }
+}
+
+public abstract class SourceNode<T> : Node, INodeSource
+{
+    private GlobalStore<T> prevValue = new();
+
+    public bool HasChanged(PulseContext c)
+    {
+        var value = GetValue(c);
+
+        if (!EqualityComparer<T>.Default.Equals(value, prevValue.Read(c)))
+        {
+            prevValue.Write(value, c);
+            return true;
+        }
+
+        return false;
+    }
+
+    protected abstract T GetValue(PulseContext c);
 }
