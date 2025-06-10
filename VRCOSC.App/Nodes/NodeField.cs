@@ -136,10 +136,11 @@ public class NodeField
         updateTokenSource?.Cancel();
     }
 
-    public void CreatePreset(List<Guid> nodeIds, float posX, float posY)
+    public void CreatePreset(string name, List<Guid> nodeIds, float posX, float posY)
     {
         var nodePreset = new NodePreset
         {
+            Name = { Value = name },
             Nodes = nodeIds.Select(id => new SerialisableNode(Nodes[id])).ToList(),
             Connections = Connections.Where(c => nodeIds.Contains(c.OutputNodeId) && nodeIds.Contains(c.InputNodeId)).Select(c => new SerialisableConnection(c)).ToList()
         };

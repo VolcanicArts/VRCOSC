@@ -43,9 +43,9 @@ public partial class NodeFieldView : INotifyPropertyChanged
     public Padding GroupPadding { get; } = new(30, 55, 30, 30);
     public Padding SelectionPadding { get; } = new(20, 20, 20, 20);
 
-    public double SlotHeight => SNAP_DISTANCE;
-
     private WindowManager nodeCreatorWindowManager = null!;
+    private WindowManager presetCreatorWindowManager = null!;
+
     private bool isFirstLoad = true;
     private Point? fieldContextMenuMousePosition;
 
@@ -70,6 +70,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         if (!isFirstLoad) return;
 
         nodeCreatorWindowManager = new WindowManager(this);
+        presetCreatorWindowManager = new WindowManager(this);
 
         GridCanvasContent.Content = new GridBackgroundVisualHost(CanvasContainer.Width, CanvasContainer.Height, SNAP_DISTANCE, SIGNIFICANT_SNAP_DISTANCE);
         updateNodeContainerZIndexes();
@@ -1333,9 +1334,18 @@ public partial class NodeFieldView : INotifyPropertyChanged
         SelectionContainer.Visibility = Visibility.Collapsed;
         var position = (TranslateTransform)SelectionContainer.RenderTransform;
 
-        NodeField.CreatePreset(selectedNodes, (float)position.X, (float)position.Y);
-        FieldContextMenu.Items.RemoveAt(1);
-        FieldContextMenu.Items.Add(ContextMenuBuilder.BuildSpawnPresetMenu());
+        var presetCreatorWindow = new PresetCreatorWindow();
+
+        presetCreatorWindow.Closed += (_, _) =>
+        {
+            if (string.IsNullOrEmpty(presetCreatorWindow.PresetName)) return;
+
+            NodeField.CreatePreset(presetCreatorWindow.PresetName, selectedNodes, (float)position.X, (float)position.Y);
+            FieldContextMenu.Items.RemoveAt(1);
+            FieldContextMenu.Items.Add(ContextMenuBuilder.BuildSpawnPresetMenu());
+        };
+
+        presetCreatorWindowManager.TrySpawnChild(presetCreatorWindow);
     }
 
     private void SelectionContextMenu_DeleteAllClick(object sender, RoutedEventArgs e)

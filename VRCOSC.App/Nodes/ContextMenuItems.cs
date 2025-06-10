@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using VRCOSC.App.Modules;
@@ -39,7 +40,7 @@ public class ContextMenuPresetItem : IContextMenuEntry
 public class ContextMenuSubMenu : IContextMenuEntry
 {
     public string Name { get; }
-    public List<IContextMenuEntry> Items { get; } = [];
+    public ObservableCollection<IContextMenuEntry> Items { get; } = [];
 
     public ContextMenuSubMenu(string name)
     {
@@ -49,7 +50,7 @@ public class ContextMenuSubMenu : IContextMenuEntry
 
 public class ContextMenuRoot
 {
-    public List<IContextMenuEntry> Items { get; } = [];
+    public ObservableCollection<IContextMenuEntry> Items { get; } = [];
 }
 
 public interface IContextMenuEntry
