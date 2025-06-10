@@ -2,15 +2,17 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Numerics;
 using VRCOSC.App.Nodes.Types.Base;
 using VRCOSC.App.SDK.OVR.Device;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.SteamVR;
 
 [Node("Is Dashboard Visible", "SteamVR")]
 public sealed class SteamVRIsDashboardVisibleNode : SourceNode<bool>
 {
-    public ValueOutput<bool> IsVisible = new();
+    public ValueOutput<bool> IsVisible = new("Is Visible");
 
     protected override void Process(PulseContext c)
     {
@@ -50,8 +52,8 @@ public sealed class SteamVRFPSNode : SourceNode<float>
 public sealed class SteamVRTrackedDeviceInfoNode : SourceNode<int>
 {
     public ValueInput<TrackedDevice> Device = new();
-    public ValueOutput<bool> IsConnected = new();
-    public ValueOutput<bool> IsCharging = new();
+    public ValueOutput<bool> IsConnected = new("Is Connected");
+    public ValueOutput<bool> IsCharging = new("Is Charging");
     public ValueOutput<float> Battery = new();
 
     protected override void Process(PulseContext c)
@@ -69,15 +71,19 @@ public sealed class SteamVRTrackedDeviceInfoNode : SourceNode<int>
     }
 }
 
-[Node("HMD Source", "SteamVR")]
-public sealed class SteamVRHMDSourceNode : SourceNode<string>
+[Node("Device Transform", "SteamVR")]
+public sealed class SteamVRDeviceTransformSourceNode : SourceNode<Transform>
 {
-    public ValueOutput<HMD> HMD = new();
+    public ValueInput<TrackedDevice> Device = new();
+    public ValueOutput<Vector3> Pos = new();
+    public ValueOutput<Quaternion> Rot = new();
 
     protected override void Process(PulseContext c)
     {
-        HMD.Write(AppManager.GetInstance().OVRClient.GetHMD(), c);
+        var transform = Device.Read(c).Transform;
+        Pos.Write(transform.Position, c);
+        Rot.Write(transform.Rotation, c);
     }
 
-    protected override string GetValue(PulseContext c) => AppManager.GetInstance().OVRClient.GetHMD().SerialNumber;
+    protected override Transform GetValue(PulseContext c) => Device.Read(c).Transform;
 }

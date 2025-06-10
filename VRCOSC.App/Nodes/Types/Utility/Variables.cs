@@ -2,12 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.SDK.Nodes;
-using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Utility;
 
-[Node("Write Variable", "Utility")]
-public sealed class WriteVariableNode<T> : Node, IFlowInput
+[Node("Indirect Write Variable", "Utility")]
+public sealed class IndirectWriteVariableNode<T> : Node, IFlowInput
 {
     public FlowContinuation OnWrite = new("On Write");
 
@@ -25,8 +24,8 @@ public sealed class WriteVariableNode<T> : Node, IFlowInput
     }
 }
 
-[Node("Read Variable", "Utility")]
-public sealed class ReadVariableNode<T> : Node
+[Node("Indirect Read Variable", "Utility")]
+public sealed class IndirectReadVariableNode<T> : Node
 {
     public ValueInput<string> Name = new(string.Empty);
     public ValueOutput<T> Value = new();
@@ -37,16 +36,16 @@ public sealed class ReadVariableNode<T> : Node
 
         if (string.IsNullOrEmpty(name)) return;
 
-        var value = (T)typeof(T).CreateDefault()!;
+        var value = default(T);
 
         if (NodeField.Variables.TryGetValue(name, out var valueRef))
         {
-            var foundValue = (T)valueRef.GetValue()!;
+            var foundValue = valueRef.GetValue()!;
             if (foundValue is not T foundValueCast) return;
 
             value = foundValueCast;
         }
 
-        Value.Write(value, c);
+        Value.Write(value!, c);
     }
 }

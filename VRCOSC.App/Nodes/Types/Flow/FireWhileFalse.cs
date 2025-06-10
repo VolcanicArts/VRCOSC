@@ -12,7 +12,7 @@ public sealed class FireWhileFalseNode : Node
     public FlowCall IsFalse = new("Is False");
 
     [NodeReactive]
-    public ValueInput<int> DelayMilliseconds = new();
+    public ValueInput<int> DelayMilliseconds = new("Delay Milliseconds");
 
     [NodeReactive]
     public ValueInput<bool> Condition = new();

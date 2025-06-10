@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -50,7 +50,7 @@ public abstract class Node
             for (int i = 0; i < group.Count; i++)
             {
                 var field = group[i];
-                var instance = (INodeField)field.GetValue(this)!;
+                var instance = (INodeAttribute)field.GetValue(this)!;
                 instance.Index = i;
             }
         }

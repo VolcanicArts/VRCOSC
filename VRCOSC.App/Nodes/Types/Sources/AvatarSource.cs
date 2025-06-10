@@ -9,7 +9,7 @@ namespace VRCOSC.App.Nodes.Types.Sources;
 [Node("Avatar Source", "Sources")]
 public sealed class AvatarSourceNode : Node, INodeEventHandler
 {
-    public ValueOutput<string> AvatarId = new();
+    public ValueOutput<string> AvatarId = new("Id");
     public ValueOutput<string> Name = new();
 
     protected override void Process(PulseContext c)

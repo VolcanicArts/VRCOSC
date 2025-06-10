@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -46,6 +47,22 @@ public class NodeManager
         foreach (var nodePreset in Presets)
         {
             nodePreset.Load();
+        }
+
+        Fields.OnCollectionChanged(FieldsOnCollectionChanged);
+    }
+
+    private void FieldsOnCollectionChanged(IEnumerable<NodeField> newFields, IEnumerable<NodeField> oldFields)
+    {
+        foreach (var nodeField in oldFields)
+        {
+            try
+            {
+                File.Delete(Path.Join(fieldsPath, $"{nodeField.Id}.json"));
+            }
+            catch
+            {
+            }
         }
     }
 

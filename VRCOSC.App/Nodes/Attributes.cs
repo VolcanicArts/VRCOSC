@@ -66,15 +66,13 @@ public class NodeCollapsedAttribute : Attribute;
 [AttributeUsage(AttributeTargets.Field)]
 public class NodeReactiveAttribute : Attribute;
 
-public interface INodeField
+public interface INodeAttribute
 {
     public int Index { get; internal set; }
-}
-
-public interface IFlow : INodeField
-{
     public string Name { get; init; }
 }
+
+public interface IFlow : INodeAttribute;
 
 public class FlowCall : IFlow
 {
@@ -130,18 +128,20 @@ public class GlobalStore<T> : IStore
     }
 }
 
-public interface IValueInput : INodeField;
+public interface IValueInput : INodeAttribute;
 
-public interface IValueOutput : INodeField;
+public interface IValueOutput : INodeAttribute;
 
 public class ValueInput<T> : IValueInput
 {
     public int Index { get; set; }
+    public string Name { get; init; }
 
     internal T DefaultValue { get; }
 
-    public ValueInput(T defaultValue = default!)
+    public ValueInput(string name = "", T defaultValue = default!)
     {
+        Name = name;
         DefaultValue = defaultValue;
     }
 

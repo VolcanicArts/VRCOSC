@@ -74,7 +74,8 @@ public partial class NodesView
 
         if (NodeManager.GetInstance().Fields.Count == 1) return;
 
-        var index = Math.Max(0, NodeManager.GetInstance().Fields.IndexOf(nodeField) + 1);
+        var index = Math.Max(0, NodeManager.GetInstance().Fields.IndexOf(nodeField) - 1);
+
         NodeManager.GetInstance().Fields.Remove(nodeField);
 
         if (selectedNodeField == nodeField)

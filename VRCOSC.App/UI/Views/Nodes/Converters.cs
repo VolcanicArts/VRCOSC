@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using FontAwesome6;
 using VRCOSC.App.Nodes;
+using VRCOSC.App.Nodes.Types.Actions;
 using VRCOSC.App.Nodes.Types.Base;
 using VRCOSC.App.Nodes.Types.Flow;
 using VRCOSC.App.Nodes.Types.Inputs;
@@ -183,21 +184,22 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
 {
     public required DataTemplate? NodeTemplate { get; set; }
     public required DataTemplate? RelayNodeTemplate { get; set; }
-    public required DataTemplate? ValueInputNodeTemplate { get; set; }
-    public required DataTemplate? BoolValueInputNodeTemplate { get; set; }
-    public required DataTemplate? EnumValueInputNodeTemplate { get; set; }
-    public required DataTemplate? KeybindValueInputNodeTemplate { get; set; }
-    public required DataTemplate? ButtonInputNodeTemplate { get; set; }
-    public required DataTemplate? ValueOnlyNodeTemplate { get; set; }
+    public required DataTemplate? TextBoxValueOutputOnlyNodeTemplate { get; set; }
+    public required DataTemplate? ToggleValueOutputOnlyNodeTemplate { get; set; }
+    public required DataTemplate? EnumValueOutputOnlyNodeTemplate { get; set; }
+    public required DataTemplate? KeybindValueOutputOnlyNodeTemplate { get; set; }
+    public required DataTemplate? ButtonNodeTemplate { get; set; }
+    public required DataTemplate? CollapsedNodeTemplate { get; set; }
     public required DataTemplate? NodeGroupTemplate { get; set; }
-    public required DataTemplate? ParameterSourceTemplate { get; set; }
-    public required DataTemplate? ImpulseTemplate { get; set; }
+    public required DataTemplate? TextBoxSourceNodeTemplate { get; set; }
+    public required DataTemplate? NodeWithTextBoxTemplate { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
         if (item is null) return null;
 
-        if (item.GetType().IsAssignableTo(typeof(IImpulseNode))) return ImpulseTemplate;
+        if (item.GetType().IsAssignableTo(typeof(IImpulseNode))) return NodeWithTextBoxTemplate;
+        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DirectSendParameterNode<>)) return NodeWithTextBoxTemplate;
 
         if (item.GetType().IsGenericType &&
             (item.GetType().GetGenericTypeDefinition() == typeof(CastNode<,>) ||
@@ -205,17 +207,17 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
 
         if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(ValueNode<>))
         {
-            if (item.GetType().GenericTypeArguments[0] == typeof(bool)) return BoolValueInputNodeTemplate;
-            if (item.GetType().GenericTypeArguments[0] == typeof(Keybind)) return KeybindValueInputNodeTemplate;
-            if (item.GetType().GenericTypeArguments[0].IsAssignableTo(typeof(Enum))) return EnumValueInputNodeTemplate;
+            if (item.GetType().GenericTypeArguments[0] == typeof(bool)) return ToggleValueOutputOnlyNodeTemplate;
+            if (item.GetType().GenericTypeArguments[0] == typeof(Keybind)) return KeybindValueOutputOnlyNodeTemplate;
+            if (item.GetType().GenericTypeArguments[0].IsAssignableTo(typeof(Enum))) return EnumValueOutputOnlyNodeTemplate;
 
-            return ValueInputNodeTemplate;
+            return TextBoxValueOutputOnlyNodeTemplate;
         }
 
-        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DirectParameterSourceNode<>)) return ParameterSourceTemplate;
+        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DirectParameterSourceNode<>)) return TextBoxSourceNodeTemplate;
 
-        if (item is ButtonNode) return ButtonInputNodeTemplate;
-        if (item is Node node && (node.GetType().HasCustomAttribute<NodeCollapsedAttribute>() || node.Metadata.Icon != EFontAwesomeIcon.None)) return ValueOnlyNodeTemplate;
+        if (item is ButtonNode) return ButtonNodeTemplate;
+        if (item is Node node && (node.GetType().HasCustomAttribute<NodeCollapsedAttribute>() || node.Metadata.Icon != EFontAwesomeIcon.None)) return CollapsedNodeTemplate;
         if (item is Node) return NodeTemplate;
         if (item is NodeGroupViewModel) return NodeGroupTemplate;
 

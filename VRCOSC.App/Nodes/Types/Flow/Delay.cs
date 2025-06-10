@@ -11,11 +11,11 @@ public sealed class DelayNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
 
-    public ValueInput<int> DelayMilliseconds = new();
+    public ValueInput<int> Milliseconds = new("Milliseconds");
 
     protected override void Process(PulseContext c)
     {
-        Task.Delay(DelayMilliseconds.Read(c), c.Token).Wait(c.Token);
+        Task.Delay(Milliseconds.Read(c), c.Token).Wait(c.Token);
         Next.Execute(c);
     }
 }

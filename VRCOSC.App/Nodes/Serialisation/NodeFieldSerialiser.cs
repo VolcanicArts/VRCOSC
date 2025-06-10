@@ -71,17 +71,22 @@ public class NodeFieldSerialiser : ProfiledSerialiser<NodeField, SerialisableNod
             }
             catch
             {
-                // TODO: Handle
             }
         });
 
         data.Connections.ForEach(sC =>
         {
-            if (sC.Type == ConnectionType.Flow)
-                Reference.CreateFlowConnection(sC.OutputNodeId, sC.OutputNodeSlot, sC.InputNodeId);
+            try
+            {
+                if (sC.Type == ConnectionType.Flow)
+                    Reference.CreateFlowConnection(sC.OutputNodeId, sC.OutputNodeSlot, sC.InputNodeId);
 
-            if (sC.Type == ConnectionType.Value)
-                Reference.CreateValueConnection(sC.OutputNodeId, sC.OutputNodeSlot, sC.InputNodeId, sC.InputNodeSlot);
+                if (sC.Type == ConnectionType.Value)
+                    Reference.CreateValueConnection(sC.OutputNodeId, sC.OutputNodeSlot, sC.InputNodeId, sC.InputNodeSlot);
+            }
+            catch
+            {
+            }
         });
 
         data.Groups.ForEach(sG =>

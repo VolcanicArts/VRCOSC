@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.Nodes.Serialisation;
@@ -84,6 +85,7 @@ public class NodeField
 
     public void Start()
     {
+        Variables.Clear();
         running = true;
         triggerOnStartNodes();
         startUpdate();
@@ -134,16 +136,18 @@ public class NodeField
         updateTokenSource?.Cancel();
     }
 
-    public void CreatePreset(List<Guid> nodeIds, double relativeX, double relativeY)
+    public void CreatePreset(List<Guid> nodeIds, float posX, float posY)
     {
-        // TODO: Copy nodes and adjust positions to be relative to the selection
-
         var nodePreset = new NodePreset
         {
-            Nodes = nodeIds.Select(id => new SerialisableNode(Nodes[id])).ToList()
+            Nodes = nodeIds.Select(id => new SerialisableNode(Nodes[id])).ToList(),
+            Connections = Connections.Where(c => nodeIds.Contains(c.OutputNodeId) && nodeIds.Contains(c.InputNodeId)).Select(c => new SerialisableConnection(c)).ToList()
         };
 
-        // get connections from each node that only go to another node that's also in the nodeIds list
+        foreach (var node in nodePreset.Nodes)
+        {
+            node.Position = new Vector2(node.Position.X - posX, node.Position.Y - posY);
+        }
 
         NodeManager.GetInstance().Presets.Add(nodePreset);
         nodePreset.Serialise();
@@ -212,7 +216,7 @@ public class NodeField
             Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.OutputNodeId == outputNodeId && connection.OutputSlot == outputFlowSlot);
 
         Logger.Log($"Creating flow connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputFlowSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()}", LoggingTarget.Information);
-        Connections.Add(new NodeConnection(ConnectionType.Flow, outputNodeId, outputFlowSlot, inputNodeId, 0, null));
+        Connections.Add(new NodeConnection(ConnectionType.Flow, outputNodeId, outputFlowSlot, null, inputNodeId, 0, null));
 
         if (outputAlreadyHasConnection is not null)
         {
@@ -237,7 +241,7 @@ public class NodeField
         if (outputType.IsAssignableTo(inputType))
         {
             Logger.Log($"Creating value connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputValueSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()} slot {inputValueSlot}", LoggingTarget.Information);
-            newConnection = new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, inputNodeId, inputValueSlot, outputType);
+            newConnection = new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, outputType, inputNodeId, inputValueSlot, inputType);
             newConnectionMade = true;
         }
         else
@@ -384,6 +388,8 @@ public class NodeField
 
     public void StartFlow(Node node) => Task.Run(async () =>
     {
+        if (!running) return;
+
         var c = new PulseContext(this)
         {
             CurrentNode = node
@@ -492,8 +498,11 @@ public class NodeField
         foreach (var connection in connections)
         {
             var inputNode = Nodes[connection.InputNodeId];
+            var inputSlot = connection.InputSlot;
 
-            if (inputNode.Metadata.IsTrigger && inputNode.Metadata.Inputs[connection.InputSlot].IsReactive)
+            if (inputSlot >= inputNode.Metadata.InputsCount) inputSlot = inputNode.Metadata.InputsCount - 1;
+
+            if (inputNode.Metadata.IsTrigger && inputNode.Metadata.Inputs[inputSlot].IsReactive)
             {
                 results.Add(inputNode);
                 continue;
@@ -512,10 +521,6 @@ public class NodeField
         if (id.HasValue) nodeGroup.Id = id.Value;
         Groups.Add(nodeGroup);
         return nodeGroup;
-    }
-
-    public void SpawnPreset(NodePreset nodePreset)
-    {
     }
 
     public void TriggerImpulse(ImpulseDefinition definition, PulseContext c)
@@ -541,7 +546,7 @@ public class NodeField
     }
 }
 
-public record NodeConnection(ConnectionType ConnectionType, Guid OutputNodeId, int OutputSlot, Guid InputNodeId, int InputSlot, Type? OutputType);
+public record NodeConnection(ConnectionType ConnectionType, Guid OutputNodeId, int OutputSlot, Type? OutputType, Guid InputNodeId, int InputSlot, Type? InputType);
 
 public enum ConnectionType
 {

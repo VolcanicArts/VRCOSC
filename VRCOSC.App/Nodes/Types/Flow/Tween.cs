@@ -16,7 +16,7 @@ public sealed class TweenNode<T> : Node, IFlowInput where T : INumber<T>
 
     public ValueInput<T> From = new();
     public ValueInput<T> To = new();
-    public ValueInput<float> TimeMilliseconds = new();
+    public ValueInput<float> TimeMilliseconds = new("Time Milliseconds");
     public ValueOutput<T> Value = new();
 
     protected override void Process(PulseContext c)

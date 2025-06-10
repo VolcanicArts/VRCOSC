@@ -12,15 +12,27 @@ using Module = VRCOSC.App.SDK.Modules.Module;
 
 namespace VRCOSC.App.Nodes;
 
-public class ContextMenuItem : IContextMenuEntry
+public class ContextMenuNodeTypeItem : IContextMenuEntry
 {
     public string Name { get; }
     public Type Type { get; }
 
-    public ContextMenuItem(string name, Type type)
+    public ContextMenuNodeTypeItem(string name, Type type)
     {
         Name = name;
         Type = type;
+    }
+}
+
+public class ContextMenuPresetItem : IContextMenuEntry
+{
+    public string Name { get; }
+    public NodePreset Preset { get; }
+
+    public ContextMenuPresetItem(string name, NodePreset preset)
+    {
+        Name = name;
+        Preset = preset;
     }
 }
 
@@ -47,6 +59,18 @@ public interface IContextMenuEntry
 
 public static class ContextMenuBuilder
 {
+    public static ContextMenuSubMenu BuildSpawnPresetMenu()
+    {
+        var root = new ContextMenuSubMenu("Spawn Preset");
+
+        foreach (var nodePreset in NodeManager.GetInstance().Presets)
+        {
+            root.Items.Add(new ContextMenuPresetItem(nodePreset.Name.Value, nodePreset));
+        }
+
+        return root;
+    }
+
     public static ContextMenuSubMenu BuildCreateNodesMenu()
     {
         var root = new ContextMenuSubMenu("Create Node");
@@ -138,14 +162,14 @@ public static class ContextMenuBuilder
             {
                 var constructed = nodeType.MakeGenericType(gt);
                 var friendly = $"{attr.Title} ({gt.GetFriendlyName()})";
-                genMenu.Items.Add(new ContextMenuItem(friendly, constructed));
+                genMenu.Items.Add(new ContextMenuNodeTypeItem(friendly, constructed));
             }
 
             list.Add(genMenu);
         }
         else
         {
-            list.Add(new ContextMenuItem(attr.Title, nodeType));
+            list.Add(new ContextMenuNodeTypeItem(attr.Title, nodeType));
         }
     }
 
@@ -223,7 +247,7 @@ public static class ContextMenuDebugger
                 printEntry(child, indent + 1);
             }
         }
-        else if (entry is ContextMenuItem item)
+        else if (entry is ContextMenuNodeTypeItem item)
         {
             Console.WriteLine($"{indentStr}I {item.Name}");
         }

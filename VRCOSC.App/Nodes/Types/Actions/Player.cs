@@ -6,7 +6,7 @@ using VRCOSC.App.SDK.Nodes;
 namespace VRCOSC.App.Nodes.Types.Actions;
 
 [Node("Mute Set", "Actions/Player")]
-public sealed class VRChatPlayerMuteSetActionNode : Node, IFlowInput
+public sealed class PlayerMuteSetNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
 
@@ -24,13 +24,89 @@ public sealed class VRChatPlayerMuteSetActionNode : Node, IFlowInput
 }
 
 [Node("Mute Toggle", "Actions/Player")]
-public sealed class VRChatPlayerMuteToggleActionNode : Node, IFlowInput
+public sealed class PlayerMuteToggleNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
 
     protected override void Process(PulseContext c)
     {
         Player.ToggleVoice();
+        Next.Execute(c);
+    }
+}
+
+[Node("Jump", "Actions/Player")]
+public sealed class PlayerJumpNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    protected override void Process(PulseContext c)
+    {
+        Player.Jump();
+        Next.Execute(c);
+    }
+}
+
+[Node("Look Horizontal", "Actions/Player")]
+public sealed class PlayerLookHorizontalNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<float> Angle = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Player.LookHorizontal(Angle.Read(c));
+        Next.Execute(c);
+    }
+}
+
+[Node("Move Vertical", "Actions/Player")]
+public sealed class PlayerMoveVerticalNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<float> Percentage = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Player.MoveVertical(Percentage.Read(c));
+        Next.Execute(c);
+    }
+}
+
+[Node("Move Horizontal", "Actions/Player")]
+public sealed class PlayerMoveHorizontalNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<float> Percentage = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Player.MoveHorizontal(Percentage.Read(c));
+        Next.Execute(c);
+    }
+}
+
+[Node("Set Run", "Actions/Player")]
+public sealed class PlayerSetRunNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<bool> Run = new();
+
+    protected override void Process(PulseContext c)
+    {
+        if (Run.Read(c))
+        {
+            Player.Run();
+        }
+        else
+        {
+            Player.StopRun();
+        }
+
         Next.Execute(c);
     }
 }

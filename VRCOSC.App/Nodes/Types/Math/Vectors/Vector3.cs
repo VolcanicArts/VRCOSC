@@ -23,6 +23,23 @@ public class PackVector3Node : Node
     }
 }
 
+[Node("Unpack Vector3", "Math/Vector3")]
+public sealed class UnpackVector3Node : Node
+{
+    public ValueInput<Vector3> Vector = new();
+    public ValueOutput<float> X = new();
+    public ValueOutput<float> Y = new();
+    public ValueOutput<float> Z = new();
+
+    protected override void Process(PulseContext c)
+    {
+        var vector = Vector.Read(c);
+        X.Write(vector.X, c);
+        Y.Write(vector.Y, c);
+        Z.Write(vector.Z, c);
+    }
+}
+
 [Node("Distance", "Math/Vector3")]
 public sealed class Vector3DistanceNode : Node
 {

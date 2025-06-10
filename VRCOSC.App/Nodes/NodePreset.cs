@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -34,5 +35,83 @@ public class NodePreset
     public void Serialise()
     {
         serialiser.Serialise();
+    }
+
+    public void SpawnTo(NodeField targetField, double posX, double posY)
+    {
+        var nodeIdMapping = new Dictionary<Guid, Guid>();
+
+        Nodes.ForEach(sN =>
+        {
+            try
+            {
+                var declaration = TypeResolver.Parse(sN.Type);
+                var baseType = TypeResolver.ResolveType(declaration.ClassName)!;
+                var generics = declaration.Generics;
+
+                Type nodeType = baseType;
+
+                if (!string.IsNullOrEmpty(generics))
+                {
+                    if (TypeResolver.TryConstructGenericType(generics, baseType, out var genericNodeType))
+                    {
+                        nodeType = genericNodeType;
+                    }
+                }
+
+                var newId = Guid.NewGuid();
+                nodeIdMapping.Add(sN.Id, newId);
+                var node = targetField.AddNode(newId, nodeType);
+
+                node.Position = new ObservableVector2(sN.Position.X + posX, sN.Position.Y + posY);
+                node.ZIndex.Value = sN.ZIndex;
+
+                foreach (var (propertyKey, propertyValue) in sN.Properties)
+                {
+                    var property = node.GetType().GetProperties()
+                                       .SingleOrDefault(property => property.TryGetCustomAttribute<NodePropertyAttribute>(out var attribute) && attribute.SerialisedName == propertyKey);
+
+                    if (property is not null)
+                    {
+                        if (propertyValue is double && property.PropertyType == typeof(float))
+                        {
+                            property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Single));
+                            continue;
+                        }
+
+                        if (propertyValue is long && property.PropertyType == typeof(int))
+                        {
+                            property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Int32));
+                            continue;
+                        }
+
+                        property.SetValue(node, propertyValue);
+                    }
+                }
+            }
+            catch
+            {
+            }
+        });
+
+        Connections.ForEach(sC =>
+        {
+            try
+            {
+                switch (sC.Type)
+                {
+                    case ConnectionType.Flow:
+                        targetField.CreateFlowConnection(nodeIdMapping[sC.OutputNodeId], sC.OutputNodeSlot, nodeIdMapping[sC.InputNodeId]);
+                        break;
+
+                    case ConnectionType.Value:
+                        targetField.CreateValueConnection(nodeIdMapping[sC.OutputNodeId], sC.OutputNodeSlot, nodeIdMapping[sC.InputNodeId], sC.InputNodeSlot);
+                        break;
+                }
+            }
+            catch
+            {
+            }
+        });
     }
 }

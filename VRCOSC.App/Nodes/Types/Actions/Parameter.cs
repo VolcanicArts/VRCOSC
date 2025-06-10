@@ -6,9 +6,9 @@ using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Actions;
 
-[Node("Send Parameter", "Actions")]
+[Node("Indirect Send Parameter", "Actions")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public class SendParameterNode<T> : Node, IFlowInput where T : unmanaged
+public class IndirectSendParameterNode<T> : Node, IFlowInput where T : unmanaged
 {
     public FlowContinuation Next = new("Next");
 
@@ -21,6 +21,26 @@ public class SendParameterNode<T> : Node, IFlowInput where T : unmanaged
         if (string.IsNullOrEmpty(name)) return;
 
         AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", Value.Read(c));
+        Next.Execute(c);
+    }
+}
+
+[Node("Direct Send Parameter", "Actions")]
+[NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
+public class DirectSendParameterNode<T> : Node, IFlowInput where T : unmanaged
+{
+    [NodeProperty("name")]
+    public string Name { get; set; } = string.Empty;
+
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<T> Value = new();
+
+    protected override void Process(PulseContext c)
+    {
+        if (string.IsNullOrEmpty(Name)) return;
+
+        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{Name}", Value.Read(c));
         Next.Execute(c);
     }
 }

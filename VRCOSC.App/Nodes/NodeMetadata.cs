@@ -122,10 +122,11 @@ public static class NodeMetadataBuilder
         for (var i = 0; i < fields.Count; i++)
         {
             var field = fields[i];
+            var instance = (INodeAttribute)field.GetValue(node)!;
 
             arr[i] = new NodeValueMetadata
             {
-                Name = field.Name,
+                Name = string.IsNullOrEmpty(instance.Name) ? field.Name : instance.Name,
                 Parameter = field,
                 IsReactive = field.HasCustomAttribute<NodeReactiveAttribute>()
             };

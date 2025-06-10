@@ -11,7 +11,7 @@ public sealed class ToStringNode<T> : Node
 {
     public ValueInput<T> Value = new();
     public ValueInput<string> Format = new();
-    public ValueInput<IFormatProvider> FormatProvider = new();
+    public ValueInput<IFormatProvider> FormatProvider = new("Format Provider");
     public ValueOutput<string> Result = new();
 
     protected override void Process(PulseContext c)

@@ -65,11 +65,18 @@ public class KeybindPicker : UserControl
 
         if (keyDownCount != 0) return;
 
-        Keybind = new Keybind
+        if (Modifiers.Count == 0 && Keys.Count == 1 && Keys[0] == Key.Escape)
         {
-            Modifiers = Modifiers.ToList(),
-            Keys = Keys.ToList()
-        };
+            Keybind = new Keybind();
+        }
+        else
+        {
+            Keybind = new Keybind
+            {
+                Modifiers = Modifiers.ToList(),
+                Keys = Keys.ToList()
+            };
+        }
 
         Keyboard.ClearFocus();
     }

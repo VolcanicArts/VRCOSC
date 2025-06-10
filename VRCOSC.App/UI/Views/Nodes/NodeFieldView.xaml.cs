@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -37,11 +37,13 @@ public partial class NodeFieldView : INotifyPropertyChanged
 {
     public const MouseButton CANVAS_DRAG_BUTTON = MouseButton.Middle;
     public const MouseButton ELEMENT_DRAG_BUTTON = MouseButton.Left;
-    public const int SNAP_DISTANCE = 20;
+    public const int SNAP_DISTANCE = 25;
     public const int SIGNIFICANT_SNAP_DISTANCE = SNAP_DISTANCE * 20;
     public const bool SNAP_ENABLED = true;
     public Padding GroupPadding { get; } = new(30, 55, 30, 30);
     public Padding SelectionPadding { get; } = new(20, 20, 20, 20);
+
+    public double SlotHeight => SNAP_DISTANCE;
 
     private WindowManager nodeCreatorWindowManager = null!;
     private bool isFirstLoad = true;
@@ -55,6 +57,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
     {
         NodeField = nodeField;
         FieldContextMenu.Items.Add(ContextMenuBuilder.BuildCreateNodesMenu());
+        FieldContextMenu.Items.Add(ContextMenuBuilder.BuildSpawnPresetMenu());
 
         InitializeComponent();
         KeyDown += OnKeyDown;
@@ -68,7 +71,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         nodeCreatorWindowManager = new WindowManager(this);
 
-        drawGridLines();
+        GridCanvasContent.Content = new GridBackgroundVisualHost(CanvasContainer.Width, CanvasContainer.Height, SNAP_DISTANCE, SIGNIFICANT_SNAP_DISTANCE);
         updateNodeContainerZIndexes();
 
         NodeField.Nodes.OnCollectionChanged(onNodesChanged, true);
@@ -93,7 +96,15 @@ public partial class NodeFieldView : INotifyPropertyChanged
         if (double.IsNaN(newY)) newY = node.Position.Y;
 
         var nodeContainer = getNodeContainerFromId(node.Id);
+        var nodeOffset = getNodeSnapOffset(node, nodeContainer);
+
+        newX += nodeOffset.X;
+        newY += nodeOffset.Y;
+
         snapAndClampPosition(ref newX, ref newY, nodeContainer.ActualWidth, nodeContainer.ActualHeight);
+
+        newX -= nodeOffset.X;
+        newY -= nodeOffset.Y;
 
         var positionChanged = Math.Abs(newX - node.Position.X) > double.Epsilon || Math.Abs(newY - node.Position.Y) > double.Epsilon;
         if (!positionChanged) return;
@@ -103,6 +114,35 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         redrawAllConnectionsForNode(node.Id);
         updateAllGroupVisuals(NodeField.Groups.Where(group => group.Nodes.Contains(node.Id)));
+    }
+
+    private (double X, double Y) getNodeSnapOffset(Node node, FrameworkElement nodeContainer)
+    {
+        var snappingSlotElement = getSnappingSlotElementForConnection(node, nodeContainer);
+        var elementPos = snappingSlotElement.TranslatePoint(new Point(0, 0), CanvasContainer) + new Vector(snappingSlotElement.ActualWidth / 2d, snappingSlotElement.ActualHeight / 2d);
+
+        return (elementPos.X - node.Position.X, elementPos.Y - node.Position.Y);
+    }
+
+    private FrameworkElement getSnappingSlotElementForConnection(Node node, FrameworkElement nodeContainer)
+    {
+        var outputSlotName = string.Empty;
+
+        if (node.Metadata.IsFlowInput)
+            outputSlotName = "flow_input_0";
+        else if (node.Metadata.IsFlowOutput)
+            outputSlotName = "flow_output_0";
+        else if (node.Metadata.IsValueOutput)
+            outputSlotName = "value_output_0";
+        else if (node.Metadata.IsValueInput)
+            outputSlotName = "value_input_0";
+
+        if (string.IsNullOrEmpty(outputSlotName)) throw new InvalidOperationException();
+
+        var outputSlotElement = nodeContainer.FindVisualChildWhere<FrameworkElement>(element => element.Tag is string slotTag && slotTag == outputSlotName);
+        Debug.Assert(outputSlotElement is not null);
+
+        return outputSlotElement;
     }
 
     private void snapAndClampPosition(ref double x, ref double y, double width = double.NaN, double height = double.NaN)
@@ -123,55 +163,6 @@ public partial class NodeFieldView : INotifyPropertyChanged
     #endregion
 
     #region Setup
-
-    private void drawGridLines()
-    {
-        CanvasContainerCanvas.Children.Clear();
-
-        for (var i = 0; i <= CanvasContainer.Width / SNAP_DISTANCE; i++)
-        {
-            var significant = i % (SIGNIFICANT_SNAP_DISTANCE / SNAP_DISTANCE) == 0;
-            var xPos = i * SNAP_DISTANCE;
-            var lineHeight = CanvasContainer.Height;
-
-            if (!SNAP_ENABLED && !significant) continue;
-
-            var line = new Line
-            {
-                X1 = xPos,
-                Y1 = 0,
-                X2 = xPos,
-                Y2 = lineHeight,
-                Stroke = significant ? (Brush)FindResource("CForeground2") : (Brush)FindResource("CBackground1"),
-                StrokeThickness = 1,
-                Opacity = significant ? 0.5f : 1f
-            };
-
-            CanvasContainerCanvas.Children.Add(line);
-        }
-
-        for (var i = 0; i <= CanvasContainer.Height / SNAP_DISTANCE; i++)
-        {
-            var significant = i % (SIGNIFICANT_SNAP_DISTANCE / SNAP_DISTANCE) == 0;
-            var yPos = i * SNAP_DISTANCE;
-            var lineWidth = CanvasContainer.Width;
-
-            if (!SNAP_ENABLED && !significant) continue;
-
-            var line = new Line
-            {
-                X1 = 0,
-                Y1 = yPos,
-                X2 = lineWidth,
-                Y2 = yPos,
-                Stroke = significant ? (Brush)FindResource("CForeground2") : (Brush)FindResource("CBackground1"),
-                StrokeThickness = 1,
-                Opacity = significant ? 0.5f : 1f
-            };
-
-            CanvasContainerCanvas.Children.Add(line);
-        }
-    }
 
     private void updateNodeContainerZIndexes()
     {
@@ -485,7 +476,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         var startPoint = outputElementPosRelativeToCanvas;
         var endPoint = inputElementPosRelativeToCanvas;
-        var minDelta = Math.Min(Math.Abs(endPoint.Y - startPoint.Y) / 2d, 75d);
+        var minDelta = Math.Min(Math.Abs(endPoint.Y - startPoint.Y) / 2d, 50d);
         var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.5d, minDelta);
         var controlPoint1 = Point.Add(startPoint, new Vector(delta, 0));
         var controlPoint2 = Point.Add(endPoint, new Vector(-delta, 0));
@@ -502,12 +493,32 @@ public partial class NodeFieldView : INotifyPropertyChanged
         bezierSegment.Point2 = controlPoint2;
         bezierSegment.Point3 = endPoint;
 
+        bezierSegment.Freeze();
+        pathFigure.Freeze();
+        pathGeometry.Freeze();
+
+        Brush brush;
+
+        if (connection.ConnectionType == ConnectionType.Flow)
+        {
+            brush = Brushes.DeepSkyBlue;
+        }
+        else
+        {
+            brush = new LinearGradientBrush(connection.OutputType?.GetTypeBrush().Color ?? Brushes.Black.Color, connection.InputType?.GetTypeBrush().Color ?? Brushes.Black.Color, new Point(0, 0), new Point(1, 1))
+            {
+                MappingMode = BrushMappingMode.Absolute,
+                StartPoint = startPoint,
+                EndPoint = endPoint
+            };
+        }
+
         var path = new Path
         {
             Tag = tag,
             Data = pathGeometry,
-            Stroke = connection.ConnectionType == ConnectionType.Value ? connection.OutputType?.GetTypeBrush() : Brushes.DeepSkyBlue,
-            StrokeThickness = 4,
+            Stroke = brush,
+            StrokeThickness = 3.5,
             StrokeStartLineCap = PenLineCap.Round,
             StrokeEndLineCap = PenLineCap.Round
         };
@@ -521,7 +532,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
                 Tag = tag,
                 Data = pathGeometry,
                 Stroke = connection.ConnectionType == ConnectionType.Value ? connection.OutputType?.GetTypeBrush() : Brushes.DeepSkyBlue,
-                StrokeThickness = 4,
+                StrokeThickness = 3.5,
                 StrokeStartLineCap = PenLineCap.Round,
                 StrokeEndLineCap = PenLineCap.Round
             };
@@ -1174,7 +1185,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
     #region Field Context Menu
 
-    private void FieldContextMenu_ItemClick(object sender, RoutedEventArgs e)
+    private void FieldContextMenu_NodeTypeItemClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
         var nodeType = (Type)element.Tag;
@@ -1211,6 +1222,21 @@ public partial class NodeFieldView : INotifyPropertyChanged
         }
 
         ConnectionDrag = null;
+    }
+
+    private void FieldContextMenu_PresetItemClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var preset = (NodePreset)element.Tag;
+
+        Debug.Assert(fieldContextMenuMousePosition is not null);
+
+        var fieldContextMenuPos = fieldContextMenuMousePosition.Value;
+        var posX = fieldContextMenuPos.X;
+        var posY = fieldContextMenuPos.Y;
+
+        snapAndClampPosition(ref posX, ref posY);
+        preset.SpawnTo(NodeField, posX, posY);
     }
 
     #endregion
@@ -1282,7 +1308,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         selectedNodes.RemoveIf(nodeId => NodeField.Groups.Any(nodeGroup => nodeGroup.Nodes.Contains(nodeId)));
         SelectionContainer.Visibility = Visibility.Collapsed;
 
-        if (!selectedNodes.Any()) return;
+        if (selectedNodes.Count == 0) return;
 
         var group = NodeField.AddGroup();
         group.Title.Value = "Selection";
@@ -1307,7 +1333,9 @@ public partial class NodeFieldView : INotifyPropertyChanged
         SelectionContainer.Visibility = Visibility.Collapsed;
         var position = (TranslateTransform)SelectionContainer.RenderTransform;
 
-        NodeField.CreatePreset(selectedNodes, position.X, position.Y);
+        NodeField.CreatePreset(selectedNodes, (float)position.X, (float)position.Y);
+        FieldContextMenu.Items.RemoveAt(1);
+        FieldContextMenu.Items.Add(ContextMenuBuilder.BuildSpawnPresetMenu());
     }
 
     private void SelectionContextMenu_DeleteAllClick(object sender, RoutedEventArgs e)
@@ -1356,6 +1384,8 @@ public partial class NodeFieldView : INotifyPropertyChanged
         if (node.VariableSize.ValueOutputSize == 1) return;
 
         node.VariableSize.ValueOutputSize--;
+
+        // TODO: Remove connection
 
         var valueOutputItemsControl = element.FindVisualParent<FrameworkElement>("ValueOutputContainer")!.FindVisualChild<ItemsControl>("ValueOutputItemsControl")!;
         valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();

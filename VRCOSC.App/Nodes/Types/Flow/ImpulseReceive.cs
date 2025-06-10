@@ -92,7 +92,7 @@ public class ImpulseReceiveNode<T1, T2, T3> : Node, IImpulseReceiver
     }
 }
 
-[Node("Impulse Receive With Data 3", "Flow/Impulse Receive")]
+[Node("Impulse Receive With Data 4", "Flow/Impulse Receive")]
 public class ImpulseReceiveNode<T1, T2, T3, T4> : Node, IImpulseReceiver
 {
     [NodeProperty("name")]
