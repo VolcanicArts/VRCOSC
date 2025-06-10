@@ -149,7 +149,7 @@ public static class ContextMenuBuilder
     }
 
     private static void addNodeEntry(
-        List<IContextMenuEntry> list,
+        ObservableCollection<IContextMenuEntry> list,
         Type nodeType,
         NodeAttribute attr)
     {
@@ -200,7 +200,7 @@ public static class ContextMenuBuilder
         }
     }
 
-    private static void sortMenu(List<IContextMenuEntry> entries)
+    private static void sortMenu(ObservableCollection<IContextMenuEntry> entries)
     {
         var sorted = entries
                      .OrderBy(e => e is not ContextMenuSubMenu)

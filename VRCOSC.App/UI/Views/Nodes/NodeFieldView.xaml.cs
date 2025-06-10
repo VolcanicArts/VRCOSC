@@ -1393,9 +1393,13 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         if (node.VariableSize.ValueOutputSize == 1) return;
 
-        node.VariableSize.ValueOutputSize--;
+        var outputSlot = node.Metadata.OutputsCount + node.VariableSize.ValueOutputSize - 1;
+        var connectionToRemove = NodeField.Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.OutputNodeId == node.Id && c.OutputSlot == outputSlot);
 
-        // TODO: Remove connection
+        if (connectionToRemove is not null)
+            NodeField.Connections.Remove(connectionToRemove);
+
+        node.VariableSize.ValueOutputSize--;
 
         var valueOutputItemsControl = element.FindVisualParent<FrameworkElement>("ValueOutputContainer")!.FindVisualChild<ItemsControl>("ValueOutputItemsControl")!;
         valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
@@ -1420,6 +1424,12 @@ public partial class NodeFieldView : INotifyPropertyChanged
         if (node.VariableSize.ValueInputSize == 1) return;
 
         node.VariableSize.ValueInputSize--;
+
+        var inputSlot = node.Metadata.InputsCount + node.VariableSize.ValueInputSize - 1;
+        var connectionToRemove = NodeField.Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == node.Id && c.InputSlot == inputSlot);
+
+        if (connectionToRemove is not null)
+            NodeField.Connections.Remove(connectionToRemove);
 
         var valueInputItemsControl = element.FindVisualParent<FrameworkElement>("ValueInputContainer")!.FindVisualChild<ItemsControl>("ValueInputItemsControl")!;
         valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
