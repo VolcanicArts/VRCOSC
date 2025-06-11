@@ -23,7 +23,7 @@ public sealed class StringCompareNode : Node
 [Node("Join", "Strings")]
 public class StringJoinNode : Node
 {
-    public ValueInput<string> Separator = new(string.Empty);
+    public ValueInput<string> Separator = new(defaultValue: string.Empty);
     public ValueInputList<string> Inputs = new();
     public ValueOutput<string> Output = new();
 
@@ -36,8 +36,8 @@ public class StringJoinNode : Node
 [Node("Contains", "Strings")]
 public class StringContainsNode : Node
 {
-    public ValueInput<string> Input = new(string.Empty);
-    public ValueInput<string> Value = new(string.Empty);
+    public ValueInput<string> Input = new(defaultValue: string.Empty);
+    public ValueInput<string> Value = new(defaultValue: string.Empty);
     public ValueInput<StringComparison> Comparison = new();
     public ValueOutput<bool> Result = new();
 
@@ -53,9 +53,10 @@ public class StringContainsNode : Node
 }
 
 [Node("To Upper", "Strings")]
+[NodeCollapsed]
 public class StringToUpperNode : Node
 {
-    public ValueInput<string> Input = new(string.Empty);
+    public ValueInput<string> Input = new(defaultValue: string.Empty);
     public ValueOutput<string> Result = new();
 
     protected override void Process(PulseContext c)
@@ -65,9 +66,10 @@ public class StringToUpperNode : Node
 }
 
 [Node("To Lower", "Strings")]
+[NodeCollapsed]
 public class StringToLowerNode : Node
 {
-    public ValueInput<string> Input = new(string.Empty);
+    public ValueInput<string> Input = new(defaultValue: string.Empty);
     public ValueOutput<string> Result = new();
 
     protected override void Process(PulseContext c)
@@ -77,9 +79,10 @@ public class StringToLowerNode : Node
 }
 
 [Node("Is Null Or Empty", "Strings")]
+[NodeCollapsed]
 public sealed class StringIsNullOrEmptyNode : Node
 {
-    public ValueInput<string> Input = new(string.Empty);
+    public ValueInput<string> Input = new(defaultValue: string.Empty);
     public ValueOutput<bool> Result = new();
 
     protected override void Process(PulseContext c)

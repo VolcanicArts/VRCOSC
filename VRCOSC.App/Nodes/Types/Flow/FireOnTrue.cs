@@ -13,7 +13,7 @@ public sealed class FireOnTrueNode : Node
     public GlobalStore<bool> PreviousValue = new();
 
     [NodeReactive]
-    public ValueInput<bool> Input = new();
+    public ValueInput<bool> Condition = new();
 
     protected override void Process(PulseContext c)
     {
@@ -22,13 +22,13 @@ public sealed class FireOnTrueNode : Node
 
     protected override bool ShouldProcess(PulseContext c)
     {
-        if (Input.Read(c) && !PreviousValue.Read(c))
+        if (Condition.Read(c) && !PreviousValue.Read(c))
         {
-            PreviousValue.Write(Input.Read(c), c);
+            PreviousValue.Write(Condition.Read(c), c);
             return true;
         }
 
-        PreviousValue.Write(Input.Read(c), c);
+        PreviousValue.Write(Condition.Read(c), c);
         return false;
     }
 }

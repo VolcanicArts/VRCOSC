@@ -27,46 +27,47 @@ public class NodeFieldSerialiser : ProfiledSerialiser<NodeField, SerialisableNod
         {
             try
             {
-                var declaration = TypeResolver.Parse(sN.Type);
-                var baseType = TypeResolver.ResolveType(declaration.ClassName)!;
-                var generics = declaration.Generics;
-
-                Type nodeType = baseType;
-
-                if (!string.IsNullOrEmpty(generics))
-                {
-                    if (TypeResolver.TryConstructGenericType(generics, baseType, out var genericNodeType))
-                    {
-                        nodeType = genericNodeType;
-                    }
-                }
+                var nodeType = TypeResolver.Construct(sN.Type);
+                if (nodeType is null) return;
 
                 var node = Reference.AddNode(sN.Id, nodeType);
 
                 node.Position = new ObservableVector2(sN.Position.X, sN.Position.Y);
                 node.ZIndex.Value = sN.ZIndex;
 
-                foreach (var (propertyKey, propertyValue) in sN.Properties)
+                if (sN.Properties is not null)
                 {
-                    var property = node.GetType().GetProperties()
-                                       .SingleOrDefault(property => property.TryGetCustomAttribute<NodePropertyAttribute>(out var attribute) && attribute.SerialisedName == propertyKey);
-
-                    if (property is not null)
+                    foreach (var (propertyKey, propertyValue) in sN.Properties)
                     {
-                        if (propertyValue is double && property.PropertyType == typeof(float))
-                        {
-                            property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Single));
-                            continue;
-                        }
+                        var property = node.GetType().GetProperties()
+                                           .SingleOrDefault(property => property.TryGetCustomAttribute<NodePropertyAttribute>(out var attribute) && attribute.SerialisedName == propertyKey);
 
-                        if (propertyValue is long && property.PropertyType == typeof(int))
+                        if (property is not null)
                         {
-                            property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Int32));
-                            continue;
-                        }
+                            if (propertyValue is double && property.PropertyType == typeof(float))
+                            {
+                                property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Single));
+                                continue;
+                            }
 
-                        property.SetValue(node, propertyValue);
+                            if (propertyValue is long && property.PropertyType == typeof(int))
+                            {
+                                property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Int32));
+                                continue;
+                            }
+
+                            property.SetValue(node, propertyValue);
+                        }
                     }
+                }
+
+                if (node.Metadata.ValueInputHasVariableSize || node.Metadata.ValueOutputHasVariableSize)
+                {
+                    Reference.VariableSizes[node.Id] = new NodeVariableSize
+                    {
+                        ValueInputSize = sN.ValueInputSize ?? 1,
+                        ValueOutputSize = sN.ValueOutputSize ?? 1
+                    };
                 }
             }
             catch
@@ -91,9 +92,33 @@ public class NodeFieldSerialiser : ProfiledSerialiser<NodeField, SerialisableNod
 
         data.Groups.ForEach(sG =>
         {
-            var group = Reference.AddGroup(sG.Id);
-            group.Title.Value = sG.Title;
-            group.Nodes.AddRange(sG.Nodes);
+            try
+            {
+                var group = Reference.AddGroup(sG.Id);
+                group.Title.Value = sG.Title;
+                group.Nodes.AddRange(sG.Nodes);
+            }
+            catch
+            {
+            }
+        });
+
+        data.Variables.ForEach(sV =>
+        {
+            try
+            {
+                var resolvedType = TypeResolver.Construct(sV.Type);
+                if (resolvedType is null) return;
+
+                if (resolvedType == typeof(float)) sV.Value = (float)Convert.ChangeType(sV.Value!, typeof(float));
+                if (resolvedType == typeof(int)) sV.Value = (int)Convert.ChangeType(sV.Value!, typeof(int));
+
+                var valueRef = (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(resolvedType), sV.Value)!;
+                Reference.PersistentVariables.Add(sV.Key, valueRef);
+            }
+            catch
+            {
+            }
         });
 
         return false;

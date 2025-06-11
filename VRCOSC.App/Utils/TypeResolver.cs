@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
+// ReSharper disable InconsistentNaming
+
 namespace VRCOSC.App.Utils;
 
-public static class TypeResolver
+public static partial class TypeResolver
 {
     public static readonly Dictionary<string, Type> TYPE_ALIASES = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -33,16 +35,34 @@ public static class TypeResolver
 
     public static void Reset() => typeIndex = new(buildTypeIndex, true);
 
-    public static (string ClassName, string Generics) Parse(string typeDeclaration)
+    public static Type? Construct(string friendlyName)
     {
-        if (typeDeclaration == null)
-            throw new ArgumentNullException(nameof(typeDeclaration));
+        var (className, generics) = extractTypeNameAndGenerics(friendlyName);
+        var baseType = resolveTypeFromName(className);
+        if (baseType is null) return null;
 
-        const string pattern = "^(?<name>[^<]+)(?:<(?<gen>.+)>)?$";
-        var m = Regex.Match(typeDeclaration.Trim(), pattern);
+        var constructedType = baseType;
+
+        if (baseType.IsGenericType)
+        {
+            if (string.IsNullOrEmpty(generics)) return null;
+            if (!TryConstructGenericType(generics, baseType, out var constructedGenericType)) return null;
+
+            constructedType = constructedGenericType;
+        }
+
+        return constructedType;
+    }
+
+    private static (string TypeName, string Generics) extractTypeNameAndGenerics(string friendlyName)
+    {
+        if (friendlyName == null)
+            throw new ArgumentNullException(nameof(friendlyName));
+
+        var m = FriendlyNameRegex().Match(friendlyName.Trim());
 
         if (!m.Success)
-            throw new FormatException($"Invalid type declaration: '{typeDeclaration}'");
+            throw new FormatException($"Invalid type declaration: '{friendlyName}'");
 
         var baseName = m.Groups["name"].Value;
 
@@ -78,15 +98,15 @@ public static class TypeResolver
         }
 
         // final segment
-        parts.Add(s.Substring(last).Trim());
+        parts.Add(s[last..].Trim());
         return parts;
     }
 
-    public static bool TryConstructGenericType(string userInput, Type openGenericType, [NotNullWhen(true)] out Type? constructedType)
+    public static bool TryConstructGenericType(string genericCsl, Type openGenericType, [NotNullWhen(true)] out Type? constructedType)
     {
         constructedType = null;
 
-        var rawNames = userInput.Split(',');
+        var rawNames = genericCsl.Split(',');
 
         var typeArgs = new List<Type>(rawNames.Length);
 
@@ -100,7 +120,7 @@ public static class TypeResolver
                 name = name[..^1];
             }
 
-            var baseType = ResolveType(name);
+            var baseType = resolveTypeFromName(name);
 
             if (baseType == null || baseType.IsAbstract)
             {
@@ -129,7 +149,7 @@ public static class TypeResolver
         }
     }
 
-    public static Type? ResolveType(string name)
+    private static Type? resolveTypeFromName(string name)
     {
         name = name.Trim();
 
@@ -176,4 +196,7 @@ public static class TypeResolver
 
         return dict;
     }
+
+    [GeneratedRegex("^(?<name>[^<]+)(?:<(?<gen>.+)>)?$")]
+    private static partial Regex FriendlyNameRegex();
 }

@@ -128,6 +128,8 @@ public class GlobalStore<T> : IStore
     }
 }
 
+public interface IForceReprocess;
+
 public interface IValueInput : INodeAttribute;
 
 public interface IValueOutput : INodeAttribute;

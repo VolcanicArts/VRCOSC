@@ -251,6 +251,7 @@ public class PulseContext
 public interface IRef
 {
     public object? GetValue();
+    public Type GetValueType();
 }
 
 public class Ref<T> : IRef
@@ -263,4 +264,5 @@ public class Ref<T> : IRef
     }
 
     public object? GetValue() => Value;
+    public Type GetValueType() => typeof(T);
 }

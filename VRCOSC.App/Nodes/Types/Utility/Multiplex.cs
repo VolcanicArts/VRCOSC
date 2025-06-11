@@ -49,10 +49,13 @@ public sealed class DemultiplexNode<T> : Node
 
     protected override void Process(PulseContext c)
     {
+        var index = Index.Read(c);
+        var value = Value.Read(c);
+        var defaultValue = DefaultValue.Read(c);
+
         for (var i = 0; i < Outputs.Length(c); i++)
         {
-            var value = i == Index.Read(c) ? Value.Read(c) : DefaultValue.Read(c);
-            Outputs.Write(i, value, c);
+            Outputs.Write(i, i == index ? value : defaultValue, c);
         }
     }
 }

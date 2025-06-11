@@ -10,10 +10,10 @@ namespace VRCOSC.App.Nodes.Types.Math.Map;
 public class RemapNode<T> : Node where T : INumber<T>
 {
     public ValueInput<T> Value = new();
-    public ValueInput<T> FromMin = new();
-    public ValueInput<T> FromMax = new();
-    public ValueInput<T> ToMin = new();
-    public ValueInput<T> ToMax = new();
+    public ValueInput<T> FromMin = new("From Min");
+    public ValueInput<T> FromMax = new("From Max");
+    public ValueInput<T> ToMin = new("To Min");
+    public ValueInput<T> ToMax = new("To Max");
     public ValueOutput<T> Result = new();
 
     protected override void Process(PulseContext c)

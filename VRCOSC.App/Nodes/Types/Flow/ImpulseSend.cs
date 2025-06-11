@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
@@ -23,7 +24,7 @@ public class ImpulseSendNode<T1> : Node, IImpulseSender, IFlowInput
     [NodeProperty("name")]
     public string Name { get; set; } = string.Empty;
 
-    public ValueInput<T1> First = new();
+    public ValueInput<T1> First = new(typeof(T1).GetFriendlyName());
 
     protected override void Process(PulseContext c)
     {
@@ -37,8 +38,8 @@ public class ImpulseSendNode<T1, T2> : Node, IImpulseSender, IFlowInput
     [NodeProperty("name")]
     public string Name { get; set; } = string.Empty;
 
-    public ValueInput<T1> First = new();
-    public ValueInput<T2> Second = new();
+    public ValueInput<T1> First = new(typeof(T1).GetFriendlyName());
+    public ValueInput<T2> Second = new(typeof(T2).GetFriendlyName());
 
     protected override void Process(PulseContext c)
     {
@@ -52,9 +53,9 @@ public class ImpulseSendNode<T1, T2, T3> : Node, IImpulseSender, IFlowInput
     [NodeProperty("name")]
     public string Name { get; set; } = string.Empty;
 
-    public ValueInput<T1> First = new();
-    public ValueInput<T2> Second = new();
-    public ValueInput<T3> Third = new();
+    public ValueInput<T1> First = new(typeof(T1).GetFriendlyName());
+    public ValueInput<T2> Second = new(typeof(T2).GetFriendlyName());
+    public ValueInput<T3> Third = new(typeof(T3).GetFriendlyName());
 
     protected override void Process(PulseContext c)
     {
@@ -68,10 +69,10 @@ public class ImpulseSendNode<T1, T2, T3, T4> : Node, IImpulseSender, IFlowInput
     [NodeProperty("name")]
     public string Name { get; set; } = string.Empty;
 
-    public ValueInput<T1> First = new();
-    public ValueInput<T2> Second = new();
-    public ValueInput<T3> Third = new();
-    public ValueInput<T4> Fourth = new();
+    public ValueInput<T1> First = new(typeof(T1).GetFriendlyName());
+    public ValueInput<T2> Second = new(typeof(T2).GetFriendlyName());
+    public ValueInput<T3> Third = new(typeof(T3).GetFriendlyName());
+    public ValueInput<T4> Fourth = new(typeof(T4).GetFriendlyName());
 
     protected override void Process(PulseContext c)
     {

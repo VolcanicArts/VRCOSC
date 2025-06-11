@@ -14,6 +14,7 @@ using VRCOSC.App.Nodes.Types.Base;
 using VRCOSC.App.Nodes.Types.Flow;
 using VRCOSC.App.Nodes.Types.Inputs;
 using VRCOSC.App.Nodes.Types.Sources;
+using VRCOSC.App.Nodes.Types.Utility;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.Utils;
@@ -190,6 +191,7 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
     public required DataTemplate? KeybindValueOutputOnlyNodeTemplate { get; set; }
     public required DataTemplate? ButtonNodeTemplate { get; set; }
     public required DataTemplate? CollapsedNodeTemplate { get; set; }
+    public required DataTemplate? CollapsedOutputOnlyNodeTemplate { get; set; }
     public required DataTemplate? NodeGroupTemplate { get; set; }
     public required DataTemplate? TextBoxSourceNodeTemplate { get; set; }
     public required DataTemplate? NodeWithTextBoxTemplate { get; set; }
@@ -200,6 +202,9 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
 
         if (item.GetType().IsAssignableTo(typeof(IImpulseNode))) return NodeWithTextBoxTemplate;
         if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DirectSendParameterNode<>)) return NodeWithTextBoxTemplate;
+        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DirectParameterSourceNode<>)) return TextBoxSourceNodeTemplate;
+        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(VariableSourceNode<>)) return TextBoxSourceNodeTemplate;
+        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DirectWriteVariableNode<>)) return NodeWithTextBoxTemplate;
 
         if (item.GetType().IsGenericType &&
             (item.GetType().GetGenericTypeDefinition() == typeof(CastNode<,>) ||
@@ -214,10 +219,11 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
             return TextBoxValueOutputOnlyNodeTemplate;
         }
 
-        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DirectParameterSourceNode<>)) return TextBoxSourceNodeTemplate;
-
         if (item is ButtonNode) return ButtonNodeTemplate;
-        if (item is Node node && (node.GetType().HasCustomAttribute<NodeCollapsedAttribute>() || node.Metadata.Icon != EFontAwesomeIcon.None)) return CollapsedNodeTemplate;
+
+        if (item is Node node && (node.GetType().HasCustomAttribute<NodeCollapsedAttribute>() || node.Metadata.Icon != EFontAwesomeIcon.None))
+            return node.Metadata.IsValueOutput && !node.Metadata.IsValueInput ? CollapsedOutputOnlyNodeTemplate : CollapsedNodeTemplate;
+
         if (item is Node) return NodeTemplate;
         if (item is NodeGroupViewModel) return NodeGroupTemplate;
 

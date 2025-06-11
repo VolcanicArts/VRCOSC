@@ -89,9 +89,10 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
     #region Helpers
 
-    private async void updateNodePosition(Node node, double newX = double.NaN, double newY = double.NaN)
+    private async void updateNodePosition(Node node, double newX = double.NaN, double newY = double.NaN, bool yieldForRender = true, bool updateGroupVisuals = true)
     {
-        await Dispatcher.Yield(DispatcherPriority.Render);
+        if (yieldForRender)
+            await Dispatcher.Yield(DispatcherPriority.Render);
 
         if (double.IsNaN(newX)) newX = node.Position.X;
         if (double.IsNaN(newY)) newY = node.Position.Y;
@@ -113,8 +114,10 @@ public partial class NodeFieldView : INotifyPropertyChanged
         node.Position.X = newX;
         node.Position.Y = newY;
 
-        redrawAllConnectionsForNode(node.Id);
-        updateAllGroupVisuals(NodeField.Groups.Where(group => group.Nodes.Contains(node.Id)));
+        redrawAllConnectionsForNode(node.Id, false);
+
+        if (updateGroupVisuals)
+            updateAllGroupVisuals(NodeField.Groups.Where(group => group.Nodes.Contains(node.Id)));
     }
 
     private (double X, double Y) getNodeSnapOffset(Node node, FrameworkElement nodeContainer)
@@ -129,10 +132,10 @@ public partial class NodeFieldView : INotifyPropertyChanged
     {
         var outputSlotName = string.Empty;
 
-        if (node.Metadata.IsFlowInput)
-            outputSlotName = "flow_input_0";
-        else if (node.Metadata.IsFlowOutput)
+        if (node.Metadata.IsFlowOutput)
             outputSlotName = "flow_output_0";
+        else if (node.Metadata.IsFlowInput)
+            outputSlotName = "flow_input_0";
         else if (node.Metadata.IsValueOutput)
             outputSlotName = "value_output_0";
         else if (node.Metadata.IsValueInput)
@@ -182,7 +185,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
     #region Updates
 
-    private async void onNodesChanged(IEnumerable<ObservableKeyValuePair<Guid, Node>> newNodes, IEnumerable<ObservableKeyValuePair<Guid, Node>> oldNodes)
+    private void onNodesChanged(IEnumerable<ObservableKeyValuePair<Guid, Node>> newNodes, IEnumerable<ObservableKeyValuePair<Guid, Node>> oldNodes)
     {
         var newNodesActual = newNodes.Select(pair => pair.Value);
 
@@ -190,9 +193,6 @@ public partial class NodeFieldView : INotifyPropertyChanged
         NodesItemsControlItemsSource.RemoveIf(o => o is Node node && oldNodes.Select(pair => pair.Value).Contains(node));
 
         foreach (var pair in newNodesActual) updateNodePosition(pair);
-
-        await Dispatcher.Yield(DispatcherPriority.Loaded);
-        updateAllGroupVisuals(NodeField.Groups);
     }
 
     private void onConnectionsChanged(IEnumerable<NodeConnection> newConnections, IEnumerable<NodeConnection> oldConnections)
@@ -223,14 +223,12 @@ public partial class NodeFieldView : INotifyPropertyChanged
                 {
                     nodeGroupViewModel.Nodes.Add(NodeField.Nodes[newNodeId]);
                     NodesItemsControlItemsSource.RemoveIf(o => o is Node node && newGroup.Nodes.Contains(node.Id));
-                    redrawAllConnectionsForNode(newNodeId);
                 }
 
                 foreach (var oldNodeId in oldNodes)
                 {
                     nodeGroupViewModel.Nodes.RemoveIf(node => oldNodeId == node.Id);
                     NodesItemsControlItemsSource.Add(NodeField.Nodes[oldNodeId]);
-                    redrawAllConnectionsForNode(oldNodeId);
                 }
             }, true);
 
@@ -372,9 +370,10 @@ public partial class NodeFieldView : INotifyPropertyChanged
             : $"value_{connection.OutputNodeId}_{connection.OutputSlot}_{connection.InputNodeId}_{connection.InputSlot}";
     }
 
-    private async void createConnectionVisual(NodeConnection connection)
+    private async void createConnectionVisual(NodeConnection connection, bool yieldForRender = true)
     {
-        await Dispatcher.Yield(DispatcherPriority.Render);
+        if (yieldForRender)
+            await Dispatcher.Yield(DispatcherPriority.Render);
 
         var outputSlotElement = getOutputSlotElementForConnection(connection);
         var inputSlotElement = getInputSlotElementForConnection(connection);
@@ -388,9 +387,10 @@ public partial class NodeFieldView : INotifyPropertyChanged
         drawConnectionPath(pathTag, outputSlotElement, inputSlotElement, connection);
     }
 
-    private async void removeConnectionVisual(NodeConnection connection)
+    private async void removeConnectionVisual(NodeConnection connection, bool yieldForRender = true)
     {
-        await Dispatcher.Yield(DispatcherPriority.Render);
+        if (yieldForRender)
+            await Dispatcher.Yield(DispatcherPriority.Render);
 
         var pathTag = getPathTagForConnection(connection);
 
@@ -402,14 +402,14 @@ public partial class NodeFieldView : INotifyPropertyChanged
         }
     }
 
-    private void redrawAllConnectionsForNode(Guid nodeId)
+    private void redrawAllConnectionsForNode(Guid nodeId, bool yieldForRender = true)
     {
         var connections = NodeField.Connections.Where(connection => connection.OutputNodeId == nodeId || connection.InputNodeId == nodeId);
 
         foreach (var connection in connections)
         {
-            removeConnectionVisual(connection);
-            createConnectionVisual(connection);
+            removeConnectionVisual(connection, yieldForRender);
+            createConnectionVisual(connection, yieldForRender);
         }
     }
 
@@ -506,7 +506,8 @@ public partial class NodeFieldView : INotifyPropertyChanged
         }
         else
         {
-            brush = new LinearGradientBrush(connection.OutputType?.GetTypeBrush().Color ?? Brushes.Black.Color, connection.InputType?.GetTypeBrush().Color ?? Brushes.Black.Color, new Point(0, 0), new Point(1, 1))
+            brush = new LinearGradientBrush(connection.OutputType?.GetTypeBrush().Color ?? Brushes.Black.Color, connection.InputType?.GetTypeBrush().Color ?? Brushes.Black.Color, new Point(0, 0),
+                new Point(1, 1))
             {
                 MappingMode = BrushMappingMode.Absolute,
                 StartPoint = startPoint,
@@ -525,21 +526,6 @@ public partial class NodeFieldView : INotifyPropertyChanged
         };
 
         ConnectionCanvas.Children.Add(path);
-
-        foreach (var canvas in NodesItemsControl.FindVisualChildrenWhere<Canvas>(element => element.Name == "GroupConnectionCanvas"))
-        {
-            var pathInner = new Path
-            {
-                Tag = tag,
-                Data = pathGeometry,
-                Stroke = connection.ConnectionType == ConnectionType.Value ? connection.OutputType?.GetTypeBrush() : Brushes.DeepSkyBlue,
-                StrokeThickness = 3.5,
-                StrokeStartLineCap = PenLineCap.Round,
-                StrokeEndLineCap = PenLineCap.Round
-            };
-
-            canvas.Children.Add(pathInner);
-        }
     }
 
     private TranslateTransform getRootPosition()
@@ -649,6 +635,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
                 var outputNode = NodeField.AddNode(type);
 
                 NodeField.CreateValueConnection(outputNode.Id, 0, node.Id, slot);
+
                 outputNode.Position.X = mousePosRelativeToCanvas.X;
                 outputNode.Position.Y = mousePosRelativeToCanvas.Y;
 
@@ -813,11 +800,15 @@ public partial class NodeFieldView : INotifyPropertyChanged
         // I have literally no idea
         diffX /= 2;
 
-        foreach (var nodeId in NodeField.GetGroupById(groupDrag.Group).Nodes)
+        var nodeGroup = NodeField.GetGroupById(groupDrag.Group);
+
+        foreach (var nodeId in nodeGroup.Nodes)
         {
             var node = NodeField.Nodes[nodeId];
-            updateNodePosition(node, node.Position.X + diffX, node.Position.Y + diffY);
+            updateNodePosition(node, node.Position.X + diffX, node.Position.Y + diffY, false, false);
         }
+
+        updateGroupVisual(nodeGroup);
     }
 
     private void updateNodeDrag()
@@ -833,7 +824,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         updateNodePosition(node, newX, newY);
     }
 
-    private void updateSelectionDrag()
+    private async void updateSelectionDrag()
     {
         if (selectionDrag is null) return;
 
@@ -854,10 +845,12 @@ public partial class NodeFieldView : INotifyPropertyChanged
         selectionTransform.X = newX;
         selectionTransform.Y = newY;
 
+        //await Dispatcher.Yield(DispatcherPriority.Render);
+
         foreach (var nodeId in selectionDrag.Nodes)
         {
             var node = NodeField.Nodes[nodeId];
-            updateNodePosition(node, node.Position.X + diffX, node.Position.Y + diffY);
+            updateNodePosition(node, node.Position.X + diffX, node.Position.Y + diffY, false);
         }
     }
 
@@ -1014,7 +1007,8 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var node = (Node)element.FindVisualParent<ItemsControl>()!.DataContext;
         var slot = getSlotFromConnectionElement(element);
 
-        var existingConnection = NodeField.Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.InputNodeId == node.Id && connection.InputSlot == slot);
+        var existingConnection =
+            NodeField.Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.InputNodeId == node.Id && connection.InputSlot == slot);
 
         if (existingConnection is not null)
         {
@@ -1104,7 +1098,8 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var node = (Node)element.FindVisualParent<ItemsControl>()!.DataContext;
         var slot = getSlotFromConnectionElement(element);
 
-        var existingConnection = NodeField.Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Value && connection.InputNodeId == node.Id && connection.InputSlot == slot);
+        var existingConnection =
+            NodeField.Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Value && connection.InputNodeId == node.Id && connection.InputSlot == slot);
 
         if (existingConnection is not null)
         {
@@ -1252,15 +1247,6 @@ public partial class NodeFieldView : INotifyPropertyChanged
         NodeField.DeleteNode(node.Id);
     }
 
-    private void NodeContextMenu_CreateGroupClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var node = (Node)element.Tag;
-
-        var group = NodeField.AddGroup();
-        group.Nodes.Add(node.Id);
-    }
-
     #endregion
 
     #region Group Context Menu
@@ -1382,6 +1368,8 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         node.VariableSize.ValueOutputSize++;
 
+        NodeField.Serialise();
+
         var valueOutputItemsControl = element.FindVisualParent<FrameworkElement>("ValueOutputContainer")!.FindVisualChild<ItemsControl>("ValueOutputItemsControl")!;
         valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
     }
@@ -1401,6 +1389,8 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         node.VariableSize.ValueOutputSize--;
 
+        NodeField.Serialise();
+
         var valueOutputItemsControl = element.FindVisualParent<FrameworkElement>("ValueOutputContainer")!.FindVisualChild<ItemsControl>("ValueOutputItemsControl")!;
         valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
     }
@@ -1411,6 +1401,8 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var node = (Node)element.Tag;
 
         node.VariableSize.ValueInputSize++;
+
+        NodeField.Serialise();
 
         var valueInputItemsControl = element.FindVisualParent<FrameworkElement>("ValueInputContainer")!.FindVisualChild<ItemsControl>("ValueInputItemsControl")!;
         valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
@@ -1423,13 +1415,15 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         if (node.VariableSize.ValueInputSize == 1) return;
 
-        node.VariableSize.ValueInputSize--;
-
         var inputSlot = node.Metadata.InputsCount + node.VariableSize.ValueInputSize - 1;
         var connectionToRemove = NodeField.Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == node.Id && c.InputSlot == inputSlot);
 
         if (connectionToRemove is not null)
             NodeField.Connections.Remove(connectionToRemove);
+
+        node.VariableSize.ValueInputSize--;
+
+        NodeField.Serialise();
 
         var valueInputItemsControl = element.FindVisualParent<FrameworkElement>("ValueInputContainer")!.FindVisualChild<ItemsControl>("ValueInputItemsControl")!;
         valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();

@@ -45,19 +45,8 @@ public class NodePreset
         {
             try
             {
-                var declaration = TypeResolver.Parse(sN.Type);
-                var baseType = TypeResolver.ResolveType(declaration.ClassName)!;
-                var generics = declaration.Generics;
-
-                Type nodeType = baseType;
-
-                if (!string.IsNullOrEmpty(generics))
-                {
-                    if (TypeResolver.TryConstructGenericType(generics, baseType, out var genericNodeType))
-                    {
-                        nodeType = genericNodeType;
-                    }
-                }
+                var nodeType = TypeResolver.Construct(sN.Type);
+                if (nodeType is null) return;
 
                 var newId = Guid.NewGuid();
                 nodeIdMapping.Add(sN.Id, newId);
@@ -66,27 +55,39 @@ public class NodePreset
                 node.Position = new ObservableVector2(sN.Position.X + posX, sN.Position.Y + posY);
                 node.ZIndex.Value = sN.ZIndex;
 
-                foreach (var (propertyKey, propertyValue) in sN.Properties)
+                if (sN.Properties is not null)
                 {
-                    var property = node.GetType().GetProperties()
-                                       .SingleOrDefault(property => property.TryGetCustomAttribute<NodePropertyAttribute>(out var attribute) && attribute.SerialisedName == propertyKey);
-
-                    if (property is not null)
+                    foreach (var (propertyKey, propertyValue) in sN.Properties)
                     {
-                        if (propertyValue is double && property.PropertyType == typeof(float))
-                        {
-                            property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Single));
-                            continue;
-                        }
+                        var property = node.GetType().GetProperties()
+                                           .SingleOrDefault(property => property.TryGetCustomAttribute<NodePropertyAttribute>(out var attribute) && attribute.SerialisedName == propertyKey);
 
-                        if (propertyValue is long && property.PropertyType == typeof(int))
+                        if (property is not null)
                         {
-                            property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Int32));
-                            continue;
-                        }
+                            if (propertyValue is double && property.PropertyType == typeof(float))
+                            {
+                                property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Single));
+                                continue;
+                            }
 
-                        property.SetValue(node, propertyValue);
+                            if (propertyValue is long && property.PropertyType == typeof(int))
+                            {
+                                property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Int32));
+                                continue;
+                            }
+
+                            property.SetValue(node, propertyValue);
+                        }
                     }
+                }
+
+                if (node.Metadata.ValueInputHasVariableSize || node.Metadata.ValueOutputHasVariableSize)
+                {
+                    targetField.VariableSizes[node.Id] = new NodeVariableSize
+                    {
+                        ValueInputSize = sN.ValueInputSize ?? 1,
+                        ValueOutputSize = sN.ValueOutputSize ?? 1
+                    };
                 }
             }
             catch

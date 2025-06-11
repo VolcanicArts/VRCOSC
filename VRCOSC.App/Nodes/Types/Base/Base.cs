@@ -7,6 +7,7 @@ using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Base;
 
+[NodeCollapsed]
 public abstract class ConstantNode<T> : Node
 {
     public ValueOutput<T> Output = new();

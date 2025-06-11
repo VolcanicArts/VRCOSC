@@ -62,6 +62,9 @@ public class SerialisableNodeField : SerialisableVersion
     [JsonProperty("groups")]
     public List<SerialisableNodeGroup> Groups { get; set; } = [];
 
+    [JsonProperty("variables")]
+    public List<SerialisableVariable> Variables { get; } = [];
+
     [JsonConstructor]
     public SerialisableNodeField()
     {
@@ -76,10 +79,11 @@ public class SerialisableNodeField : SerialisableVersion
         Nodes = nodeField.Nodes.Values.Select(node => new SerialisableNode(node)).ToList();
         Connections = nodeField.Connections.Select(connection => new SerialisableConnection(connection)).ToList();
         Groups = nodeField.Groups.Select(group => new SerialisableNodeGroup(group)).ToList();
+        Variables = nodeField.PersistentVariables.Select(variable => new SerialisableVariable(variable)).ToList();
     }
 }
 
-[JsonObject(MemberSerialization.OptIn)]
+[JsonObject(MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
 public class SerialisableNode
 {
     [JsonProperty("id")]
@@ -95,7 +99,13 @@ public class SerialisableNode
     public int ZIndex { get; set; }
 
     [JsonProperty("properties")]
-    public Dictionary<string, object?> Properties { get; set; } = [];
+    public Dictionary<string, object?>? Properties { get; set; }
+
+    [JsonProperty("value_input_size")]
+    public int? ValueInputSize { get; set; }
+
+    [JsonProperty("value_output_size")]
+    public int? ValueOutputSize { get; set; }
 
     [JsonConstructor]
     public SerialisableNode()
@@ -108,7 +118,22 @@ public class SerialisableNode
         Type = node.GetType().GetFriendlyName();
         Position = new Vector2((float)node.Position.X, (float)node.Position.Y);
         ZIndex = node.ZIndex.Value;
-        Properties.AddRange(node.Metadata.Properties.ToDictionary(property => property.GetCustomAttribute<NodePropertyAttribute>()!.SerialisedName, property => property.GetValue(node)));
+
+        if (node.Metadata.Properties.Count != 0)
+        {
+            Properties = new Dictionary<string, object?>();
+            Properties.AddRange(node.Metadata.Properties.ToDictionary(property => property.GetCustomAttribute<NodePropertyAttribute>()!.SerialisedName, property => property.GetValue(node)));
+        }
+
+        if (node.Metadata.ValueInputHasVariableSize)
+        {
+            ValueInputSize = node.VariableSize.ValueInputSize;
+        }
+
+        if (node.Metadata.ValueOutputHasVariableSize)
+        {
+            ValueOutputSize = node.VariableSize.ValueOutputSize;
+        }
     }
 }
 
@@ -117,16 +142,16 @@ public class SerialisableConnection
     [JsonProperty("type")]
     public ConnectionType Type { get; set; }
 
-    [JsonProperty("output_node_id")]
+    [JsonProperty("out_id")]
     public Guid OutputNodeId { get; set; }
 
-    [JsonProperty("output_node_slot")]
+    [JsonProperty("out_slot")]
     public int OutputNodeSlot { get; set; }
 
-    [JsonProperty("input_node_id")]
+    [JsonProperty("in_id")]
     public Guid InputNodeId { get; set; }
 
-    [JsonProperty("input_node_slot")]
+    [JsonProperty("in_slot")]
     public int InputNodeSlot { get; set; }
 
     [JsonConstructor]
@@ -150,7 +175,7 @@ public class SerialisableNodeGroup
     public Guid Id { get; set; }
 
     [JsonProperty("title")]
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
 
     [JsonProperty("nodes")]
     public List<Guid> Nodes { get; set; } = [];
@@ -165,5 +190,29 @@ public class SerialisableNodeGroup
         Id = group.Id;
         Title = group.Title.Value;
         Nodes = group.Nodes.ToList();
+    }
+}
+
+public class SerialisableVariable
+{
+    [JsonProperty("key")]
+    public string Key { get; set; } = null!;
+
+    [JsonProperty("value")]
+    public object? Value { get; set; }
+
+    [JsonProperty("type")]
+    public string Type { get; set; } = null!;
+
+    [JsonConstructor]
+    public SerialisableVariable()
+    {
+    }
+
+    public SerialisableVariable(KeyValuePair<string, IRef> pair)
+    {
+        Key = pair.Key;
+        Value = pair.Value.GetValue();
+        Type = pair.Value.GetValueType().GetFriendlyName();
     }
 }

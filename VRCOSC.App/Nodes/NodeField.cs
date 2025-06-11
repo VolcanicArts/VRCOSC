@@ -37,6 +37,7 @@ public class NodeField
 
     public readonly Dictionary<Type, NodeMetadata> Metadata = [];
     public readonly Dictionary<string, IRef> Variables = [];
+    public readonly Dictionary<string, IRef> PersistentVariables = [];
     public readonly Dictionary<Guid, Dictionary<IStore, IRef>> GlobalStores = [];
 
     private bool running;
@@ -85,7 +86,11 @@ public class NodeField
 
     public void Start()
     {
-        Variables.Clear();
+        foreach (var (key, value) in PersistentVariables)
+        {
+            Variables.Add(key, value);
+        }
+
         running = true;
         triggerOnStartNodes();
         startUpdate();
@@ -97,6 +102,7 @@ public class NodeField
         triggerOnStopNodes();
         // TODO: Wait for all contexts to finish
         running = false;
+        Variables.Clear();
     }
 
     private Task? updateTask;
@@ -206,7 +212,11 @@ public class NodeField
     {
         Variables[name] = new Ref<T>(value);
 
-        // TODO: Implement persistence saving to file
+        if (persistent)
+        {
+            PersistentVariables[name] = new Ref<T>(value);
+            Serialise();
+        }
     }
 
     public void CreateFlowConnection(Guid outputNodeId, int outputFlowSlot, Guid inputNodeId)
@@ -436,7 +446,7 @@ public class NodeField
     public void ProcessNode(Node node, PulseContext c)
     {
         if (c.IsCancelled) return;
-        if (c.HasRan(node.Id)) return;
+        if (c.HasRan(node.Id) && !node.Metadata.ForceReprocess) return;
 
         backtrackNode(node, c);
         c.CreateMemory(node);
@@ -450,7 +460,6 @@ public class NodeField
     private void processImpulseReceiver(Node node, object[] values, PulseContext c)
     {
         if (c.IsCancelled) return;
-        if (c.HasRan(node.Id)) return;
 
         backtrackNode(node, c);
         c.CreateMemory(node);
@@ -458,7 +467,6 @@ public class NodeField
         c.CurrentNode = node;
         ((IImpulseReceiver)node).WriteOutputs(values, c);
         node.InternalProcess(c);
-        c.MarkRan(node.Id);
         c.CurrentNode = currentBefore;
     }
 

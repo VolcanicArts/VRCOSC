@@ -6,9 +6,9 @@ using System.Numerics;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Nodes;
 
-namespace VRCOSC.App.Nodes.Types.Flow;
+namespace VRCOSC.App.Nodes.Types.Math.Interpolation;
 
-[Node("Tween", "Flow")]
+[Node("Tween", "Math/Interpolation")]
 public sealed class TweenNode<T> : Node, IFlowInput where T : INumber<T>
 {
     public FlowCall OnUpdate = new("On Update");

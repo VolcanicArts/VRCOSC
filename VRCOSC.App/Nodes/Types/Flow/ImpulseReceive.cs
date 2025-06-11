@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
@@ -31,7 +32,7 @@ public class ImpulseReceiveNode<T1> : Node, IImpulseReceiver
 
     public FlowCall OnCall = new("On Call");
 
-    public ValueOutput<T1> First = new();
+    public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
 
     protected override void Process(PulseContext c)
     {
@@ -52,8 +53,8 @@ public class ImpulseReceiveNode<T1, T2> : Node, IImpulseReceiver
 
     public FlowCall OnCall = new("On Call");
 
-    public ValueOutput<T1> First = new();
-    public ValueOutput<T2> Second = new();
+    public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
+    public ValueOutput<T2> Second = new(typeof(T2).GetFriendlyName());
 
     protected override void Process(PulseContext c)
     {
@@ -75,9 +76,9 @@ public class ImpulseReceiveNode<T1, T2, T3> : Node, IImpulseReceiver
 
     public FlowCall OnCall = new("On Call");
 
-    public ValueOutput<T1> First = new();
-    public ValueOutput<T2> Second = new();
-    public ValueOutput<T3> Third = new();
+    public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
+    public ValueOutput<T2> Second = new(typeof(T2).GetFriendlyName());
+    public ValueOutput<T3> Third = new(typeof(T3).GetFriendlyName());
 
     protected override void Process(PulseContext c)
     {
@@ -100,10 +101,10 @@ public class ImpulseReceiveNode<T1, T2, T3, T4> : Node, IImpulseReceiver
 
     public FlowCall OnCall = new("On Call");
 
-    public ValueOutput<T1> First = new();
-    public ValueOutput<T2> Second = new();
-    public ValueOutput<T3> Third = new();
-    public ValueOutput<T4> Fourth = new();
+    public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
+    public ValueOutput<T2> Second = new(typeof(T2).GetFriendlyName());
+    public ValueOutput<T3> Third = new(typeof(T3).GetFriendlyName());
+    public ValueOutput<T4> Fourth = new(typeof(T4).GetFriendlyName());
 
     protected override void Process(PulseContext c)
     {
