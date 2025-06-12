@@ -108,7 +108,8 @@ public class NodeField
     private Task? updateTask;
     private CancellationTokenSource? updateTokenSource;
 
-    private IEnumerable<Node> sourceNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeSource)));
+    private IEnumerable<Node> updateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IUpdateNode))
+                                                                        && Connections.Any(c => c.InputNodeId == node.Id || c.OutputNodeId == node.Id));
 
     private void startUpdate()
     {
@@ -116,23 +117,36 @@ public class NodeField
 
         updateTask = Task.Run(async () =>
         {
-            while (!updateTokenSource.IsCancellationRequested)
+            try
             {
-                foreach (var node in sourceNodes)
+                while (!updateTokenSource.IsCancellationRequested)
                 {
-                    var c = new PulseContext(this)
+                    foreach (var node in updateNodes)
                     {
-                        CurrentNode = node
-                    };
+                        var c = new PulseContext(this)
+                        {
+                            CurrentNode = node
+                        };
 
-                    backtrackNode(node, c);
+                        backtrackNode(node, c);
 
-                    if (!((INodeSource)node).HasChanged(c)) continue;
+                        if (!((IUpdateNode)node).HasChanged(c)) continue;
 
-                    _ = Task.Run(() => WalkForward(node));
+                        _ = Task.Run(() => WalkForward(node), updateTokenSource.Token);
+                    }
+
+                    await Task.Delay(TimeSpan.FromSeconds(1d / 60d), updateTokenSource.Token);
                 }
-
-                await Task.Delay(TimeSpan.FromSeconds(1d / 60d));
+            }
+            catch (TaskCanceledException)
+            {
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e);
             }
         }, updateTokenSource.Token);
     }

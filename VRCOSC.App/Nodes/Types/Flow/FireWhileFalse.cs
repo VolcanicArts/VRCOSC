@@ -9,6 +9,8 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Fire While False", "Flow")]
 public sealed class FireWhileFalseNode : Node
 {
+    public GlobalStore<bool> PrevCondition = new();
+
     public FlowCall IsFalse = new("Is False");
 
     [NodeReactive]
@@ -19,6 +21,8 @@ public sealed class FireWhileFalseNode : Node
 
     protected override void Process(PulseContext c)
     {
+        PrevCondition.Write(Condition.Read(c), c);
+
         var delay = DelayMilliseconds.Read(c);
 
         if (Condition.Read(c) || delay == 0) return;
@@ -32,4 +36,6 @@ public sealed class FireWhileFalseNode : Node
             if (c.IsCancelled) break;
         }
     }
+
+    protected override bool ShouldProcess(PulseContext c) => PrevCondition.Read(c) != Condition.Read(c);
 }

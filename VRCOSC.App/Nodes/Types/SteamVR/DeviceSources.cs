@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.App.Nodes.Types.Base;
 using VRCOSC.App.SDK.OVR.Device;
 
 // ReSharper disable InconsistentNaming
@@ -9,7 +8,7 @@ using VRCOSC.App.SDK.OVR.Device;
 namespace VRCOSC.App.Nodes.Types.SteamVR;
 
 [Node("HMD", "SteamVR/Devices")]
-public sealed class SteamVRHMDSourceNode : SourceNode<string>
+public sealed class SteamVRHMDSourceNode : UpdateNode<string>
 {
     public ValueOutput<HMD> Device = new();
 
@@ -22,7 +21,7 @@ public sealed class SteamVRHMDSourceNode : SourceNode<string>
 }
 
 [Node("Left Controller", "SteamVR/Devices")]
-public sealed class SteamVRLeftControllerSourceNode : SourceNode<string>
+public sealed class SteamVRLeftControllerSourceNode : UpdateNode<string>
 {
     public ValueOutput<Controller> Device = new();
 
@@ -35,7 +34,7 @@ public sealed class SteamVRLeftControllerSourceNode : SourceNode<string>
 }
 
 [Node("Right Controller", "SteamVR/Devices")]
-public sealed class SteamVRRightControllerSourceNode : SourceNode<string>
+public sealed class SteamVRRightControllerSourceNode : UpdateNode<string>
 {
     public ValueOutput<Controller> Device = new();
 

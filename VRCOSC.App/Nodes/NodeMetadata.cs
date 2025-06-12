@@ -85,7 +85,7 @@ public static class NodeMetadataBuilder
             Outputs = outputMetadata,
             ValueInputHasVariableSize = inputsHaveVariableSize,
             ValueOutputHasVariableSize = outputsHaveVariableSize,
-            ForceReprocess = type.IsAssignableTo(typeof(IForceReprocess)),
+            ForceReprocess = type.HasCustomAttribute<NodeForceReprocessAttribute>(),
             Properties = properties
         };
 

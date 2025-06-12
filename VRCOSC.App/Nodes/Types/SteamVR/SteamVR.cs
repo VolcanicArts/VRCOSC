@@ -3,14 +3,15 @@
 
 using System;
 using System.Numerics;
-using VRCOSC.App.Nodes.Types.Base;
 using VRCOSC.App.SDK.OVR.Device;
 using VRCOSC.App.Utils;
+
+// ReSharper disable InconsistentNaming
 
 namespace VRCOSC.App.Nodes.Types.SteamVR;
 
 [Node("Is Dashboard Visible", "SteamVR")]
-public sealed class SteamVRIsDashboardVisibleNode : SourceNode<bool>
+public sealed class SteamVRIsDashboardVisibleNode : UpdateNode<bool>
 {
     public ValueOutput<bool> IsVisible = new("Is Visible");
 
@@ -23,7 +24,7 @@ public sealed class SteamVRIsDashboardVisibleNode : SourceNode<bool>
 }
 
 [Node("Is User Present", "SteamVR")]
-public sealed class SteamVRIsUserPresentNode : SourceNode<bool>
+public sealed class SteamVRIsUserPresentNode : UpdateNode<bool>
 {
     public ValueOutput<bool> IsPresent = new();
 
@@ -36,7 +37,7 @@ public sealed class SteamVRIsUserPresentNode : SourceNode<bool>
 }
 
 [Node("FPS", "SteamVR")]
-public sealed class SteamVRFPSNode : SourceNode<float>
+public sealed class SteamVRFPSNode : UpdateNode<float>
 {
     public ValueOutput<float> FPS = new();
 
@@ -49,7 +50,7 @@ public sealed class SteamVRFPSNode : SourceNode<float>
 }
 
 [Node("Tracked Device Info", "SteamVR")]
-public sealed class SteamVRTrackedDeviceInfoNode : SourceNode<int>
+public sealed class SteamVRTrackedDeviceInfoNode : UpdateNode<int>
 {
     public ValueInput<TrackedDevice> Device = new();
     public ValueOutput<bool> IsConnected = new("Is Connected");
@@ -72,7 +73,7 @@ public sealed class SteamVRTrackedDeviceInfoNode : SourceNode<int>
 }
 
 [Node("Device Transform", "SteamVR")]
-public sealed class SteamVRDeviceTransformSourceNode : SourceNode<Transform>
+public sealed class SteamVRDeviceTransformSourceNode : UpdateNode<Transform>
 {
     public ValueInput<TrackedDevice> Device = new();
     public ValueOutput<Vector3> Pos = new();

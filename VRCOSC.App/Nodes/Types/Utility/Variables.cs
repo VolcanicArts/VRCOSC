@@ -74,7 +74,8 @@ public sealed class ReadVariableNode<T> : Node, IFlowInput
 }
 
 [Node("Variable Source", "Variables")]
-public sealed class VariableSourceNode<T> : Node, IForceReprocess
+[NodeForceReprocess]
+public sealed class VariableSourceNode<T> : Node
 {
     [NodeProperty("test")]
     public string Name { get; set; } = string.Empty;

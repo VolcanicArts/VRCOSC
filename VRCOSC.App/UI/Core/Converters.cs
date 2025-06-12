@@ -14,6 +14,13 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Core;
 
+public class ObjectToStringConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => value?.ToString() ?? "null";
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
 public class NullToVisibilityConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

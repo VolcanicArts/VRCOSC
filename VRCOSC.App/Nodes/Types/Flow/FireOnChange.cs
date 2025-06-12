@@ -12,20 +12,20 @@ public class FireOnChangeNode<T> : Node
 {
     public FlowCall OnChange = new("On Change");
 
-    public GlobalStore<T> Value = new();
+    public GlobalStore<T> PrevValue = new();
 
     [NodeReactive]
-    public ValueInput<T> Input = new();
+    public ValueInput<T> Value = new();
 
     protected override void Process(PulseContext c)
     {
-        Value.Write(Input.Read(c), c);
+        PrevValue.Write(Value.Read(c), c);
         OnChange.Execute(c);
     }
 
     protected override bool ShouldProcess(PulseContext c)
     {
-        return !EqualityComparer<T>.Default.Equals(Input.Read(c), Value.Read(c));
+        return !EqualityComparer<T>.Default.Equals(Value.Read(c), PrevValue.Read(c));
     }
 }
 
@@ -34,21 +34,21 @@ public class FireOnChangeMultiNode<T> : Node
 {
     public FlowCall OnChange = new("On Change");
 
-    public GlobalStore<List<T>> Values = new();
+    public GlobalStore<List<T>> PrevValues = new();
 
     [NodeReactive]
-    public ValueInputList<T> Inputs = new();
+    public ValueInputList<T> Values = new();
 
     protected override void Process(PulseContext c)
     {
-        Values.Write(Inputs.Read(c), c);
+        PrevValues.Write(Values.Read(c), c);
         OnChange.Execute(c);
     }
 
     protected override bool ShouldProcess(PulseContext c)
     {
-        var inputs = Inputs.Read(c);
-        var values = Values.Read(c);
+        var inputs = Values.Read(c);
+        var values = PrevValues.Read(c);
         if (values is null || inputs.Count != values.Count) return true;
 
         return inputs.Where((input, i) => !EqualityComparer<T>.Default.Equals(input, values[i])).Any();

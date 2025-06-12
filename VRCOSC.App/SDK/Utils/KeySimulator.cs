@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Newtonsoft.Json;
+using VRCOSC.App.Utils;
 using WindowsInput;
 using WindowsInput.Events;
 
@@ -64,6 +65,13 @@ public class Keybind
 
     [JsonProperty("keys")]
     public List<Key> Keys { get; set; } = [];
+
+    public override string ToString()
+    {
+        if (Modifiers.Count == 0 && Keys.Count == 0) return "None";
+
+        return string.Join(" + ", Modifiers.Concat(Keys).Select(key => key.ToReadableString()));
+    }
 }
 
 public enum KeybindMode

@@ -11,11 +11,11 @@ public sealed class FireIfTrueNode : Node
     public FlowCall Next = new("Next");
 
     [NodeReactive]
-    public ValueInput<bool> Input = new();
+    public ValueInput<bool> Condition = new();
 
     protected override void Process(PulseContext c)
     {
-        if (Input.Read(c))
+        if (Condition.Read(c))
             Next.Execute(c);
     }
 }

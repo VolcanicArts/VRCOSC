@@ -195,6 +195,7 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
     public required DataTemplate? NodeGroupTemplate { get; set; }
     public required DataTemplate? TextBoxSourceNodeTemplate { get; set; }
     public required DataTemplate? NodeWithTextBoxTemplate { get; set; }
+    public required DataTemplate? DisplayNodeTemplate { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
@@ -205,6 +206,7 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
         if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DirectParameterSourceNode<>)) return TextBoxSourceNodeTemplate;
         if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(VariableSourceNode<>)) return TextBoxSourceNodeTemplate;
         if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DirectWriteVariableNode<>)) return NodeWithTextBoxTemplate;
+        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DisplayNode<>)) return DisplayNodeTemplate;
 
         if (item.GetType().IsGenericType &&
             (item.GetType().GetGenericTypeDefinition() == typeof(CastNode<,>) ||

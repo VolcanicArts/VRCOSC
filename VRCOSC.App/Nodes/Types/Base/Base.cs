@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Base;
@@ -32,22 +34,40 @@ public sealed class CastNode<TFrom, TTo> : Node
     }
 }
 
-public abstract class SourceNode<T> : Node, INodeSource
+[Node("Display", "")]
+public sealed class DisplayNode<T> : UpdateNode<T>, INotifyPropertyChanged
 {
-    private GlobalStore<T> prevValue = new();
+    private T value;
 
-    public bool HasChanged(PulseContext c)
+    public T Value
     {
-        var value = GetValue(c);
-
-        if (!EqualityComparer<T>.Default.Equals(value, prevValue.Read(c)))
+        get => value;
+        set
         {
-            prevValue.Write(value, c);
-            return true;
-        }
+            if (EqualityComparer<T>.Default.Equals(value, this.value)) return;
 
-        return false;
+            this.value = value;
+            OnPropertyChanged();
+        }
     }
 
-    protected abstract T GetValue(PulseContext c);
+    public ValueInput<T> Input = new();
+
+    protected override void Process(PulseContext c)
+    {
+    }
+
+    // janky, but it's internal so it's fine
+    protected override T GetValue(PulseContext c)
+    {
+        Value = Input.Read(c);
+        return default!;
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 }

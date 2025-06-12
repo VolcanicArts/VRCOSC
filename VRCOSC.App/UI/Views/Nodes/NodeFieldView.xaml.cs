@@ -17,6 +17,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using VRCOSC.App.Nodes;
+using VRCOSC.App.Nodes.Types.Base;
 using VRCOSC.App.Nodes.Types.Inputs;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Utils;
@@ -641,6 +642,28 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
                 ConnectionDrag = null;
             }
+        }
+
+        if (ConnectionDrag is not null && ConnectionDrag.Origin == ConnectionDragOrigin.ValueOutput)
+        {
+            var node = ConnectionDrag.Node;
+            var slot = ConnectionDrag.Slot;
+
+            var slotOutputType = node.GetTypeOfOutputSlot(slot);
+
+            e.Handled = true;
+
+            var mousePosRelativeToCanvas = Mouse.GetPosition(CanvasContainer);
+
+            var type = typeof(DisplayNode<>).MakeGenericType(slotOutputType);
+            var inputNode = NodeField.AddNode(type);
+
+            NodeField.CreateValueConnection(node.Id, slot, inputNode.Id, 0);
+
+            inputNode.Position.X = mousePosRelativeToCanvas.X;
+            inputNode.Position.Y = mousePosRelativeToCanvas.Y;
+
+            ConnectionDrag = null;
         }
 
         if (ConnectionDrag is not null && ConnectionDrag.Origin == ConnectionDragOrigin.FlowInput)

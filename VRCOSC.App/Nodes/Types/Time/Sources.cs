@@ -2,13 +2,12 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using VRCOSC.App.Nodes.Types.Base;
 
 namespace VRCOSC.App.Nodes.Types.Time;
 
 [Node("DateTime Now", "DateTime")]
 [NodeCollapsed]
-public class DateTimeNowSourceNode : SourceNode<DateTime>
+public class DateTimeNowSourceNode : UpdateNode<DateTime>
 {
     public ValueOutput<DateTime> DateTime = new();
 
@@ -18,4 +17,18 @@ public class DateTimeNowSourceNode : SourceNode<DateTime>
     }
 
     protected override DateTime GetValue(PulseContext c) => System.DateTime.Now;
+}
+
+[Node("Date Now", "DateTime")]
+[NodeCollapsed]
+public class DateNowSourceNode : UpdateNode<DateTime>
+{
+    public ValueOutput<DateTime> Date = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Date.Write(DateTime.Today, c);
+    }
+
+    protected override DateTime GetValue(PulseContext c) => DateTime.Today;
 }

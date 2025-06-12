@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using FontAwesome6;
+using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 
@@ -60,11 +61,19 @@ internal class NodePropertyAttribute : Attribute
 [AttributeUsage(AttributeTargets.Class)]
 public class NodeCollapsedAttribute : Attribute;
 
+/// <inheritdoc />
 /// <summary>
 /// Causes a node to trigger whenever the value changes. Should only be used on flow output only nodes
 /// </summary>
 [AttributeUsage(AttributeTargets.Field)]
 public class NodeReactiveAttribute : Attribute;
+
+/// <inheritdoc />
+/// <summary>
+/// Forces a node to reprocess when its outputs requested. Good for source nodes to act as a ref instead of value
+/// </summary>
+[AttributeUsage(AttributeTargets.Class)]
+public class NodeForceReprocessAttribute : Attribute;
 
 public interface INodeAttribute
 {
@@ -127,8 +136,6 @@ public class GlobalStore<T> : IStore
         c.Field.WriteStore(this, value, c);
     }
 }
-
-public interface IForceReprocess;
 
 public interface IValueInput : INodeAttribute;
 
@@ -233,7 +240,28 @@ internal interface INodeEventHandler
     public bool HandleAvatarChange(PulseContext c, AvatarConfig? config) => false;
 }
 
-internal interface INodeSource
+internal interface IUpdateNode
 {
-    public bool HasChanged(PulseContext c) => false;
+    public bool HasChanged(PulseContext c);
+}
+
+/// <summary>
+/// Processes this node at 60hz, and then processes and updates downstream trigger nodes of the update if the result of <see cref="GetValue"/> has changed
+/// </summary>
+/// <remarks>This is useful for output values that need to be polled</remarks>
+public abstract class UpdateNode<T> : Node, IUpdateNode
+{
+    private readonly GlobalStore<T> prevValue = new();
+
+    public bool HasChanged(PulseContext c)
+    {
+        var value = GetValue(c);
+
+        if (EqualityComparer<T>.Default.Equals(value, prevValue.Read(c))) return false;
+
+        prevValue.Write(value, c);
+        return true;
+    }
+
+    protected abstract T GetValue(PulseContext c);
 }
