@@ -9,12 +9,9 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using FontAwesome6;
 using VRCOSC.App.Nodes;
-using VRCOSC.App.Nodes.Types.Actions;
 using VRCOSC.App.Nodes.Types.Base;
 using VRCOSC.App.Nodes.Types.Flow;
 using VRCOSC.App.Nodes.Types.Inputs;
-using VRCOSC.App.Nodes.Types.Sources;
-using VRCOSC.App.Nodes.Types.Utility;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.Utils;
@@ -201,34 +198,58 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
     {
         if (item is null) return null;
 
-        if (item.GetType().IsAssignableTo(typeof(IImpulseNode))) return NodeWithTextBoxTemplate;
-        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DirectSendParameterNode<>)) return NodeWithTextBoxTemplate;
-        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DirectParameterSourceNode<>)) return TextBoxSourceNodeTemplate;
-        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(VariableSourceNode<>)) return TextBoxSourceNodeTemplate;
-        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DirectWriteVariableNode<>)) return NodeWithTextBoxTemplate;
-        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(DisplayNode<>)) return DisplayNodeTemplate;
+        var type = item.GetType();
 
-        if (item.GetType().IsGenericType &&
-            (item.GetType().GetGenericTypeDefinition() == typeof(CastNode<,>) ||
-             item.GetType().GetGenericTypeDefinition() == typeof(RelayNode<>))) return RelayNodeTemplate;
-
-        if (item.GetType().IsGenericType && item.GetType().GetGenericTypeDefinition() == typeof(ValueNode<>))
+        switch (item)
         {
-            if (item.GetType().GenericTypeArguments[0] == typeof(bool)) return ToggleValueOutputOnlyNodeTemplate;
-            if (item.GetType().GenericTypeArguments[0] == typeof(Keybind)) return KeybindValueOutputOnlyNodeTemplate;
-            if (item.GetType().GenericTypeArguments[0].IsAssignableTo(typeof(Enum))) return EnumValueOutputOnlyNodeTemplate;
+            case Node node:
+            {
+                var metadata = node.Metadata;
 
-            return TextBoxValueOutputOnlyNodeTemplate;
+                if (type.IsGenericType)
+                {
+                    var genDef = type.GetGenericTypeDefinition();
+
+                    if (genDef == typeof(DisplayNode<>)) return DisplayNodeTemplate;
+                    if (genDef == typeof(CastNode<,>)) return RelayNodeTemplate;
+                    if (genDef == typeof(RelayNode<>)) return RelayNodeTemplate;
+
+                    if (genDef == typeof(ValueNode<>))
+                    {
+                        var valueType = type.GenericTypeArguments[0];
+
+                        if (valueType == typeof(bool)) return ToggleValueOutputOnlyNodeTemplate;
+                        if (valueType == typeof(Keybind)) return KeybindValueOutputOnlyNodeTemplate;
+                        if (valueType.IsAssignableTo(typeof(Enum))) return EnumValueOutputOnlyNodeTemplate;
+
+                        return TextBoxValueOutputOnlyNodeTemplate;
+                    }
+                }
+
+                if (type.IsAssignableTo(typeof(IHasTextProperty)))
+                {
+                    if (metadata is { IsFlow: false, IsValueInput: false, IsValueOutput: true, OutputsCount: 1 }) return TextBoxSourceNodeTemplate;
+
+                    return NodeWithTextBoxTemplate;
+                }
+
+                if (node is ButtonNode) return ButtonNodeTemplate;
+
+                if (type.HasCustomAttribute<NodeCollapsedAttribute>() || metadata.Icon != EFontAwesomeIcon.None)
+                {
+                    if (metadata is { IsValueInput: false, IsValueOutput: true }) return CollapsedOutputOnlyNodeTemplate;
+
+                    return CollapsedNodeTemplate;
+                }
+
+                return NodeTemplate;
+            }
+
+            case NodeGroupViewModel:
+                return NodeGroupTemplate;
+
+            default:
+                return null;
         }
-
-        if (item is ButtonNode) return ButtonNodeTemplate;
-
-        if (item is Node node && (node.GetType().HasCustomAttribute<NodeCollapsedAttribute>() || node.Metadata.Icon != EFontAwesomeIcon.None))
-            return node.Metadata.IsValueOutput && !node.Metadata.IsValueInput ? CollapsedOutputOnlyNodeTemplate : CollapsedNodeTemplate;
-
-        if (item is Node) return NodeTemplate;
-        if (item is NodeGroupViewModel) return NodeGroupTemplate;
-
-        return null;
     }
 }

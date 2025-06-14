@@ -20,7 +20,7 @@ public class PulseContext
 
     public bool IsCancelled => Token.IsCancellationRequested;
 
-    internal readonly NodeField Field;
+    internal readonly NodeGraph Graph;
     internal Node? CurrentNode { get; set; }
 
     internal List<Dictionary<Guid, IRef[]>> Memory { get; } = [new()];
@@ -30,9 +30,9 @@ public class PulseContext
 
     public int ScopePointer;
 
-    internal PulseContext(NodeField field)
+    internal PulseContext(NodeGraph graph)
     {
-        Field = field;
+        Graph = graph;
 
         Source = new CancellationTokenSource();
         Token = Source.Token;
@@ -112,15 +112,15 @@ public class PulseContext
         Debug.Assert(CurrentNode is not null);
 
         var outputIndex = next.Index;
-        var connection = Field.FindConnectionFromFlowOutput(CurrentNode.Id, outputIndex);
+        var connection = Graph.FindConnectionFromFlowOutput(CurrentNode.Id, outputIndex);
         if (connection is null) return;
 
-        Field.ProcessNode(connection.InputNodeId, this);
+        Graph.ProcessNode(connection.InputNodeId, this);
     }
 
     private T readValue<T>(Guid nodeId, int index)
     {
-        var metadata = Field.Nodes[nodeId].Metadata;
+        var metadata = Graph.Nodes[nodeId].Metadata;
         var hasVariableSize = metadata.ValueOutputHasVariableSize;
 
         for (var i = ScopePointer; i >= 0; i--)
@@ -156,7 +156,7 @@ public class PulseContext
         Debug.Assert(CurrentNode is not null);
 
         var inputIndex = valueInput.Index;
-        var connection = Field.FindConnectionFromValueInput(CurrentNode.Id, inputIndex);
+        var connection = Graph.FindConnectionFromValueInput(CurrentNode.Id, inputIndex);
         return connection is null ? valueInput.DefaultValue : readValue<T>(connection.OutputNodeId, connection.OutputSlot);
     }
 
@@ -170,7 +170,7 @@ public class PulseContext
 
         for (var i = inputIndex; i < CurrentNode.VirtualValueInputCount(); i++)
         {
-            var connection = Field.FindConnectionFromValueInput(CurrentNode.Id, i);
+            var connection = Graph.FindConnectionFromValueInput(CurrentNode.Id, i);
             list.Add(connection is null ? default! : readValue<T>(connection.OutputNodeId, connection.OutputSlot));
         }
 

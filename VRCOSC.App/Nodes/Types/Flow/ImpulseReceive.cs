@@ -9,8 +9,8 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Impulse Receive", "Flow/Impulse Receive")]
 public class ImpulseReceiveNode : Node, IImpulseReceiver
 {
-    [NodeProperty("name")]
-    public string Name { get; set; } = string.Empty;
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
 
     public FlowCall OnCall = new("On Call");
 
@@ -27,8 +27,8 @@ public class ImpulseReceiveNode : Node, IImpulseReceiver
 [Node("Impulse Receive With Data", "Flow/Impulse Receive")]
 public class ImpulseReceiveNode<T1> : Node, IImpulseReceiver
 {
-    [NodeProperty("name")]
-    public string Name { get; set; } = string.Empty;
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
 
     public FlowCall OnCall = new("On Call");
 
@@ -48,8 +48,8 @@ public class ImpulseReceiveNode<T1> : Node, IImpulseReceiver
 [Node("Impulse Receive With Data 2", "Flow/Impulse Receive")]
 public class ImpulseReceiveNode<T1, T2> : Node, IImpulseReceiver
 {
-    [NodeProperty("name")]
-    public string Name { get; set; } = string.Empty;
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
 
     public FlowCall OnCall = new("On Call");
 
@@ -71,8 +71,8 @@ public class ImpulseReceiveNode<T1, T2> : Node, IImpulseReceiver
 [Node("Impulse Receive With Data 3", "Flow/Impulse Receive")]
 public class ImpulseReceiveNode<T1, T2, T3> : Node, IImpulseReceiver
 {
-    [NodeProperty("name")]
-    public string Name { get; set; } = string.Empty;
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
 
     public FlowCall OnCall = new("On Call");
 
@@ -96,8 +96,8 @@ public class ImpulseReceiveNode<T1, T2, T3> : Node, IImpulseReceiver
 [Node("Impulse Receive With Data 4", "Flow/Impulse Receive")]
 public class ImpulseReceiveNode<T1, T2, T3, T4> : Node, IImpulseReceiver
 {
-    [NodeProperty("name")]
-    public string Name { get; set; } = string.Empty;
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
 
     public FlowCall OnCall = new("On Call");
 

@@ -37,7 +37,7 @@ public class NodePreset
         serialiser.Serialise();
     }
 
-    public void SpawnTo(NodeField targetField, double posX, double posY)
+    public void SpawnTo(NodeGraph targetGraph, double posX, double posY)
     {
         var nodeIdMapping = new Dictionary<Guid, Guid>();
 
@@ -50,7 +50,7 @@ public class NodePreset
 
                 var newId = Guid.NewGuid();
                 nodeIdMapping.Add(sN.Id, newId);
-                var node = targetField.AddNode(newId, nodeType);
+                var node = targetGraph.AddNode(newId, nodeType);
 
                 node.Position = new ObservableVector2(sN.Position.X + posX, sN.Position.Y + posY);
                 node.ZIndex.Value = sN.ZIndex;
@@ -83,7 +83,7 @@ public class NodePreset
 
                 if (node.Metadata.ValueInputHasVariableSize || node.Metadata.ValueOutputHasVariableSize)
                 {
-                    targetField.VariableSizes[node.Id] = new NodeVariableSize
+                    targetGraph.VariableSizes[node.Id] = new NodeVariableSize
                     {
                         ValueInputSize = sN.ValueInputSize ?? 1,
                         ValueOutputSize = sN.ValueOutputSize ?? 1
@@ -102,11 +102,11 @@ public class NodePreset
                 switch (sC.Type)
                 {
                     case ConnectionType.Flow:
-                        targetField.CreateFlowConnection(nodeIdMapping[sC.OutputNodeId], sC.OutputNodeSlot, nodeIdMapping[sC.InputNodeId]);
+                        targetGraph.CreateFlowConnection(nodeIdMapping[sC.OutputNodeId], sC.OutputNodeSlot, nodeIdMapping[sC.InputNodeId]);
                         break;
 
                     case ConnectionType.Value:
-                        targetField.CreateValueConnection(nodeIdMapping[sC.OutputNodeId], sC.OutputNodeSlot, nodeIdMapping[sC.InputNodeId], sC.InputNodeSlot);
+                        targetGraph.CreateValueConnection(nodeIdMapping[sC.OutputNodeId], sC.OutputNodeSlot, nodeIdMapping[sC.InputNodeId], sC.InputNodeSlot);
                         break;
                 }
             }

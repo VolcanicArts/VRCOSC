@@ -14,7 +14,7 @@ namespace VRCOSC.App.UI.Windows.Nodes;
 
 public partial class NodeCreatorWindow : IManagedWindow
 {
-    public NodeField NodeField { get; }
+    public NodeGraph NodeGraph { get; }
 
     public Type NodeType { get; }
 
@@ -23,9 +23,9 @@ public partial class NodeCreatorWindow : IManagedWindow
 
     public Type? ConstructedType;
 
-    public NodeCreatorWindow(NodeField nodeField, Type nodeType)
+    public NodeCreatorWindow(NodeGraph nodeGraph, Type nodeType)
     {
-        NodeField = nodeField;
+        NodeGraph = nodeGraph;
         NodeType = nodeType;
         InitializeComponent();
         DataContext = this;

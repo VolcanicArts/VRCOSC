@@ -16,14 +16,14 @@ namespace VRCOSC.App.SDK.Nodes;
 
 public abstract class Node
 {
-    internal NodeField NodeField { get; set; } = null!;
-    internal NodeVariableSize VariableSize => NodeField.VariableSizes[Id];
+    internal NodeGraph NodeGraph { get; set; } = null!;
+    internal NodeVariableSize VariableSize => NodeGraph.VariableSizes[Id];
 
     public Guid Id { get; internal set; } = Guid.NewGuid();
     public ObservableVector2 Position { get; internal set; } = new(5000, 5000);
     public Observable<int> ZIndex { get; } = new();
 
-    public NodeMetadata Metadata => NodeField.GetMetadata(this);
+    public NodeMetadata Metadata => NodeGraph.GetMetadata(this);
     protected Player Player => AppManager.GetInstance().VRChatClient.Player;
 
     protected Node()

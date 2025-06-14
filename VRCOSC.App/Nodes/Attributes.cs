@@ -48,7 +48,7 @@ public class NodeGenericTypeFilterAttribute : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Property)]
-internal class NodePropertyAttribute : Attribute
+public class NodePropertyAttribute : Attribute
 {
     public string SerialisedName { get; }
 
@@ -128,12 +128,12 @@ public class GlobalStore<T> : IStore
 {
     public T Read(PulseContext c)
     {
-        return c.Field.ReadStore(this, c);
+        return c.Graph.ReadStore(this, c);
     }
 
     public void Write(T value, PulseContext c)
     {
-        c.Field.WriteStore(this, value, c);
+        c.Graph.WriteStore(this, value, c);
     }
 }
 
@@ -216,16 +216,18 @@ public class ValueOutputList<T> : IValueOutput
     }
 }
 
+public interface IHasTextProperty
+{
+    public string Text { get; set; }
+}
+
 public interface IFlowInput;
 
-public interface IImpulseNode
-{
-    public string Name { get; set; }
-}
+public interface IImpulseNode;
 
 public interface IImpulseSender : IImpulseNode;
 
-public interface IImpulseReceiver : IImpulseNode
+public interface IImpulseReceiver : IImpulseNode, IHasTextProperty
 {
     public void WriteOutputs(object[] values, PulseContext c);
 }

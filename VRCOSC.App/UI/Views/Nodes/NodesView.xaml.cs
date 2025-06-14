@@ -14,10 +14,10 @@ namespace VRCOSC.App.UI.Views.Nodes;
 
 public partial class NodesView
 {
-    public ObservableCollection<NodeField> NodeFieldsSource => NodeManager.GetInstance().Fields;
-    private Dictionary<Guid, NodeFieldView> viewCache { get; } = [];
+    public ObservableCollection<NodeGraph> NodeGraphsSource => NodeManager.GetInstance().Graphs;
+    private Dictionary<Guid, NodeGraphView> viewCache { get; } = [];
 
-    private NodeField? selectedNodeField;
+    private NodeGraph? selectedGraph;
 
     public NodesView()
     {
@@ -28,59 +28,59 @@ public partial class NodesView
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        showNodeField(NodeFieldsSource.First());
+        showNodeGraph(NodeGraphsSource.First());
     }
 
-    private async void showNodeField(NodeField nodeField)
+    private async void showNodeGraph(NodeGraph nodeGraph)
     {
-        if (!viewCache.TryGetValue(nodeField.Id, out var view))
+        if (!viewCache.TryGetValue(nodeGraph.Id, out var view))
         {
-            view = new NodeFieldView(nodeField);
-            viewCache[nodeField.Id] = view;
+            view = new NodeGraphView(nodeGraph);
+            viewCache[nodeGraph.Id] = view;
         }
 
         ActiveField.Content = view;
         await Dispatcher.Yield(DispatcherPriority.Loaded);
         view.FocusGrid();
 
-        selectedNodeField = nodeField;
+        selectedGraph = nodeGraph;
     }
 
-    private void CreateField_OnClick(object sender, RoutedEventArgs e)
+    private void CreateGraph_OnClick(object sender, RoutedEventArgs e)
     {
         e.Handled = true;
 
-        var newField = new NodeField();
-        NodeManager.GetInstance().Fields.Add(newField);
-        showNodeField(newField);
+        var newGraph = new NodeGraph();
+        NodeManager.GetInstance().Graphs.Add(newGraph);
+        showNodeGraph(newGraph);
     }
 
-    private void FieldTab_OnClick(object sender, MouseButtonEventArgs e)
-    {
-        e.Handled = true;
-
-        var element = (FrameworkElement)sender;
-        var nodeField = (NodeField)element.Tag;
-
-        showNodeField(nodeField);
-    }
-
-    private void DeleteField_OnClick(object sender, RoutedEventArgs e)
+    private void GraphTab_OnClick(object sender, MouseButtonEventArgs e)
     {
         e.Handled = true;
 
         var element = (FrameworkElement)sender;
-        var nodeField = (NodeField)element.Tag;
+        var graph = (NodeGraph)element.Tag;
 
-        if (NodeManager.GetInstance().Fields.Count == 1) return;
+        showNodeGraph(graph);
+    }
 
-        var index = Math.Max(0, NodeManager.GetInstance().Fields.IndexOf(nodeField) - 1);
+    private void DeleteGraph_OnClick(object sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
 
-        NodeManager.GetInstance().Fields.Remove(nodeField);
+        var element = (FrameworkElement)sender;
+        var graph = (NodeGraph)element.Tag;
 
-        if (selectedNodeField == nodeField)
+        if (NodeManager.GetInstance().Graphs.Count == 1) return;
+
+        var index = Math.Max(0, NodeManager.GetInstance().Graphs.IndexOf(graph) - 1);
+
+        NodeManager.GetInstance().Graphs.Remove(graph);
+
+        if (selectedGraph == graph)
         {
-            showNodeField(NodeManager.GetInstance().Fields[index]);
+            showNodeGraph(NodeManager.GetInstance().Graphs[index]);
         }
     }
 }

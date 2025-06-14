@@ -20,7 +20,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
 
-public class NodeField
+public class NodeGraph
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Observable<string> Name { get; } = new("Default");
@@ -42,10 +42,10 @@ public class NodeField
 
     private bool running;
 
-    public NodeField()
+    public NodeGraph()
     {
         serialiser = new SerialisationManager();
-        serialiser.RegisterSerialiser(1, new NodeFieldSerialiser(AppManager.GetInstance().Storage, this));
+        serialiser.RegisterSerialiser(1, new NodeGraphSerialiser(AppManager.GetInstance().Storage, this));
     }
 
     public void Load()
@@ -359,7 +359,7 @@ public class NodeField
         }
 
         node.ZIndex.Value = ZIndex++;
-        node.NodeField = this;
+        node.NodeGraph = this;
 
         Nodes.Add(node.Id, node);
     }
@@ -552,7 +552,7 @@ public class NodeField
         {
             var impulseNode = (IImpulseReceiver)node;
 
-            if (!string.Equals(definition.Name, impulseNode.Name, StringComparison.CurrentCulture)) continue;
+            if (!string.Equals(definition.Name, impulseNode.Text, StringComparison.CurrentCulture)) continue;
 
             var type = node.GetType();
 

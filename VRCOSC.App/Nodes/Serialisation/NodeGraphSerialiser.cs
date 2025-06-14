@@ -9,17 +9,17 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Serialisation;
 
-public class NodeFieldSerialiser : ProfiledSerialiser<NodeField, SerialisableNodeField>
+public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNodeGraph>
 {
-    protected override string Directory => Path.Join(base.Directory, "nodes", "fields");
+    protected override string Directory => Path.Join(base.Directory, "nodes", "graphs");
     protected override string FileName => $"{Reference.Id}.json";
 
-    public NodeFieldSerialiser(Storage storage, NodeField reference)
+    public NodeGraphSerialiser(Storage storage, NodeGraph reference)
         : base(storage, reference)
     {
     }
 
-    protected override bool ExecuteAfterDeserialisation(SerialisableNodeField data)
+    protected override bool ExecuteAfterDeserialisation(SerialisableNodeGraph data)
     {
         Reference.Name.Value = data.Name;
 

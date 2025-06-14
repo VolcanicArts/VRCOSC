@@ -370,7 +370,7 @@ public partial class MainWindow
 #if DEBUG
         manifest.Applications[0].BinaryPathWindows = Environment.ProcessPath!;
 #else
-        manifest.Applications[0].BinaryPathWindows = Path.Join(VelopackLocator.GetDefault(null).RootAppDir, "current", "VRCOSC.exe");
+        manifest.Applications[0].BinaryPathWindows = Path.Join(VelopackLocator.CreateDefaultForPlatform().RootAppDir, "current", "VRCOSC.exe");
 #endif
         manifest.Applications[0].ActionManifestPath = runtimeOVRStorage.GetFullPath("action_manifest.json");
         manifest.Applications[0].ImagePath = runtimeOVRStorage.GetFullPath("SteamImage.png");

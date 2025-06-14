@@ -17,25 +17,25 @@ public class NodeManager
     private static NodeManager? instance;
     internal static NodeManager GetInstance() => instance ??= new NodeManager();
 
-    private string fieldsPath => AppManager.GetInstance().Storage.GetFullPath(Path.Join("profiles", ProfileManager.GetInstance().ActiveProfile.Value.ID.ToString(), "nodes", "fields"));
+    private string graphsPath => AppManager.GetInstance().Storage.GetFullPath(Path.Join("profiles", ProfileManager.GetInstance().ActiveProfile.Value.ID.ToString(), "nodes", "graphs"));
     private string presetsPath => AppManager.GetInstance().Storage.GetFullPath(Path.Join("profiles", ProfileManager.GetInstance().ActiveProfile.Value.ID.ToString(), "nodes", "presets"));
 
-    public ObservableCollection<NodeField> Fields { get; } = [];
+    public ObservableCollection<NodeGraph> Graphs { get; } = [];
     public ObservableCollection<NodePreset> Presets { get; } = [];
 
     public void Load()
     {
-        if (Directory.Exists(fieldsPath))
+        if (Directory.Exists(graphsPath))
         {
-            var loadedFields = Directory.EnumerateFiles(fieldsPath);
-            Fields.AddRange(loadedFields.Select(field => new NodeField { Id = Guid.Parse(Path.GetFileNameWithoutExtension(new FileInfo(field).Name)) }));
+            var loadedGraphs = Directory.EnumerateFiles(graphsPath);
+            Graphs.AddRange(loadedGraphs.Select(field => new NodeGraph { Id = Guid.Parse(Path.GetFileNameWithoutExtension(new FileInfo(field).Name)) }));
         }
 
-        if (Fields.Count == 0) Fields.Add(new NodeField());
+        if (Graphs.Count == 0) Graphs.Add(new NodeGraph());
 
-        foreach (var nodeField in Fields)
+        foreach (var graph in Graphs)
         {
-            nodeField.Load();
+            graph.Load();
         }
 
         if (Directory.Exists(presetsPath))
@@ -49,16 +49,16 @@ public class NodeManager
             nodePreset.Load();
         }
 
-        Fields.OnCollectionChanged(FieldsOnCollectionChanged);
+        Graphs.OnCollectionChanged(FieldsOnCollectionChanged);
     }
 
-    private void FieldsOnCollectionChanged(IEnumerable<NodeField> newFields, IEnumerable<NodeField> oldFields)
+    private void FieldsOnCollectionChanged(IEnumerable<NodeGraph> newGraphs, IEnumerable<NodeGraph> oldGraphs)
     {
-        foreach (var nodeField in oldFields)
+        foreach (var oldGraph in oldGraphs)
         {
             try
             {
-                File.Delete(Path.Join(fieldsPath, $"{nodeField.Id}.json"));
+                File.Delete(Path.Join(graphsPath, $"{oldGraph.Id}.json"));
             }
             catch
             {
@@ -68,25 +68,25 @@ public class NodeManager
 
     public void Start()
     {
-        foreach (var nodeField in Fields)
+        foreach (var graph in Graphs)
         {
-            nodeField.Start();
+            graph.Start();
         }
     }
 
     public void Stop()
     {
-        foreach (var nodeField in Fields)
+        foreach (var graph in Graphs)
         {
-            nodeField.Stop();
+            graph.Stop();
         }
     }
 
     public void OnParameterReceived(VRChatParameter parameter)
     {
-        foreach (var nodeField in Fields)
+        foreach (var graph in Graphs)
         {
-            nodeField.OnParameterReceived(parameter);
+            graph.OnParameterReceived(parameter);
         }
     }
 }

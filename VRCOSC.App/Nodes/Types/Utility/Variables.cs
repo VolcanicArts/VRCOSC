@@ -19,16 +19,16 @@ public sealed class IndirectWriteVariableNode<T> : Node, IFlowInput
         var name = Name.Read(c);
         if (string.IsNullOrEmpty(name)) return;
 
-        NodeField.WriteVariable(name, Value.Read(c), Persistent.Read(c));
+        NodeGraph.WriteVariable(name, Value.Read(c), Persistent.Read(c));
         OnWrite.Execute(c);
     }
 }
 
 [Node("Direct Write Variable", "Variables")]
-public sealed class DirectWriteVariableNode<T> : Node, IFlowInput
+public sealed class DirectWriteVariableNode<T> : Node, IFlowInput, IHasTextProperty
 {
-    [NodeProperty("test")]
-    public string Name { get; set; } = string.Empty;
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
 
     public FlowContinuation OnWrite = new("On Write");
 
@@ -37,9 +37,9 @@ public sealed class DirectWriteVariableNode<T> : Node, IFlowInput
 
     protected override void Process(PulseContext c)
     {
-        if (string.IsNullOrEmpty(Name)) return;
+        if (string.IsNullOrEmpty(Text)) return;
 
-        NodeField.WriteVariable(Name, Value.Read(c), Persistent.Read(c));
+        NodeGraph.WriteVariable(Text, Value.Read(c), Persistent.Read(c));
         OnWrite.Execute(c);
     }
 }
@@ -60,7 +60,7 @@ public sealed class ReadVariableNode<T> : Node, IFlowInput
 
         var value = default(T);
 
-        if (NodeField.Variables.TryGetValue(name, out var valueRef))
+        if (NodeGraph.Variables.TryGetValue(name, out var valueRef))
         {
             var foundValue = valueRef.GetValue()!;
             if (foundValue is not T foundValueCast) return;
@@ -75,20 +75,20 @@ public sealed class ReadVariableNode<T> : Node, IFlowInput
 
 [Node("Variable Source", "Variables")]
 [NodeForceReprocess]
-public sealed class VariableSourceNode<T> : Node
+public sealed class VariableSourceNode<T> : Node, IHasTextProperty
 {
-    [NodeProperty("test")]
-    public string Name { get; set; } = string.Empty;
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
 
     public ValueOutput<T> Value = new();
 
     protected override void Process(PulseContext c)
     {
-        if (string.IsNullOrEmpty(Name)) return;
+        if (string.IsNullOrEmpty(Text)) return;
 
         var value = default(T);
 
-        if (NodeField.Variables.TryGetValue(Name, out var valueRef))
+        if (NodeGraph.Variables.TryGetValue(Text, out var valueRef))
         {
             var foundValue = valueRef.GetValue()!;
             if (foundValue is not T foundValueCast) return;

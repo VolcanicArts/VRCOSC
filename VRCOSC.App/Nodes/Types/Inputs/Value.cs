@@ -17,7 +17,7 @@ public sealed class ValueNode<T> : Node
         set
         {
             this.value = value;
-            NodeField.WalkForward(this);
+            NodeGraph.WalkForward(this);
         }
     }
 

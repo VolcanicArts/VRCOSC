@@ -15,7 +15,7 @@
         <Grid Grid.Row="0">
             <Border Background="{DynamicResource CBackground3}"/>
             <core:SpacedStackPanel Orientation="Horizontal" Spacing="5">
-                <ItemsControl ItemsSource="{Binding NodeFieldsSource, Mode=OneWay}" Background="Transparent">
+                <ItemsControl ItemsSource="{Binding NodeGraphsSource, Mode=OneWay}" Background="Transparent">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"/>
@@ -23,7 +23,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Grid x:Name="RootGrid" MouseDown="FieldTab_OnClick" Tag="{Binding}">
+                            <Grid x:Name="RootGrid" MouseDown="GraphTab_OnClick" Tag="{Binding}">
                                 <Grid.Resources>
                                     <Storyboard x:Key="ShowCloseIcon">
                                         <DoubleAnimation
@@ -79,7 +79,7 @@
                                             HorizontalAlignment="Center"
                                             Margin="10 0 0 0"
                                             IsHitTestVisible="True"
-                                            MouseDown="DeleteField_OnClick"
+                                            MouseDown="DeleteGraph_OnClick"
                                             Tag="{Binding}">
 
                                         <TextBlock x:Name="CloseIcon"
@@ -125,7 +125,7 @@
                         Margin="5"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        Click="CreateField_OnClick"
+                        Click="CreateGraph_OnClick"
                         Background="Transparent"
                         BorderThickness="0">
                     <Button.Style>

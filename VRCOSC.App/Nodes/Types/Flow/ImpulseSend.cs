@@ -7,51 +7,51 @@ using VRCOSC.App.Utils;
 namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Impulse Send", "Flow/Impulse Send")]
-public class ImpulseSendNode : Node, IImpulseSender, IFlowInput
+public class ImpulseSendNode : Node, IImpulseSender, IFlowInput, IHasTextProperty
 {
-    [NodeProperty("name")]
-    public string Name { get; set; } = string.Empty;
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
 
     protected override void Process(PulseContext c)
     {
-        c.Field.TriggerImpulse(new ImpulseDefinition(Name, []), c);
+        c.Graph.TriggerImpulse(new ImpulseDefinition(Text, []), c);
     }
 }
 
 [Node("Impulse Send With Data", "Flow/Impulse Send")]
-public class ImpulseSendNode<T1> : Node, IImpulseSender, IFlowInput
+public class ImpulseSendNode<T1> : Node, IImpulseSender, IFlowInput, IHasTextProperty
 {
-    [NodeProperty("name")]
-    public string Name { get; set; } = string.Empty;
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
 
     public ValueInput<T1> First = new(typeof(T1).GetFriendlyName());
 
     protected override void Process(PulseContext c)
     {
-        c.Field.TriggerImpulse(new ImpulseDefinition(Name, [First.Read(c)!]), c);
+        c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!]), c);
     }
 }
 
 [Node("Impulse Send With Data 2", "Flow/Impulse Send")]
-public class ImpulseSendNode<T1, T2> : Node, IImpulseSender, IFlowInput
+public class ImpulseSendNode<T1, T2> : Node, IImpulseSender, IFlowInput, IHasTextProperty
 {
-    [NodeProperty("name")]
-    public string Name { get; set; } = string.Empty;
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
 
     public ValueInput<T1> First = new(typeof(T1).GetFriendlyName());
     public ValueInput<T2> Second = new(typeof(T2).GetFriendlyName());
 
     protected override void Process(PulseContext c)
     {
-        c.Field.TriggerImpulse(new ImpulseDefinition(Name, [First.Read(c)!, Second.Read(c)!]), c);
+        c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!]), c);
     }
 }
 
 [Node("Impulse Send With Data 3", "Flow/Impulse Send")]
-public class ImpulseSendNode<T1, T2, T3> : Node, IImpulseSender, IFlowInput
+public class ImpulseSendNode<T1, T2, T3> : Node, IImpulseSender, IFlowInput, IHasTextProperty
 {
-    [NodeProperty("name")]
-    public string Name { get; set; } = string.Empty;
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
 
     public ValueInput<T1> First = new(typeof(T1).GetFriendlyName());
     public ValueInput<T2> Second = new(typeof(T2).GetFriendlyName());
@@ -59,15 +59,15 @@ public class ImpulseSendNode<T1, T2, T3> : Node, IImpulseSender, IFlowInput
 
     protected override void Process(PulseContext c)
     {
-        c.Field.TriggerImpulse(new ImpulseDefinition(Name, [First.Read(c)!, Second.Read(c)!, Third.Read(c)!]), c);
+        c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!, Third.Read(c)!]), c);
     }
 }
 
 [Node("Impulse Send With Data 4", "Flow/Impulse Send")]
-public class ImpulseSendNode<T1, T2, T3, T4> : Node, IImpulseSender, IFlowInput
+public class ImpulseSendNode<T1, T2, T3, T4> : Node, IImpulseSender, IFlowInput, IHasTextProperty
 {
-    [NodeProperty("name")]
-    public string Name { get; set; } = string.Empty;
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
 
     public ValueInput<T1> First = new(typeof(T1).GetFriendlyName());
     public ValueInput<T2> Second = new(typeof(T2).GetFriendlyName());
@@ -76,6 +76,6 @@ public class ImpulseSendNode<T1, T2, T3, T4> : Node, IImpulseSender, IFlowInput
 
     protected override void Process(PulseContext c)
     {
-        c.Field.TriggerImpulse(new ImpulseDefinition(Name, [First.Read(c)!, Second.Read(c)!, Third.Read(c)!, Fourth.Read(c)!]), c);
+        c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!, Third.Read(c)!, Fourth.Read(c)!]), c);
     }
 }

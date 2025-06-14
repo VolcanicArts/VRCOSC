@@ -34,7 +34,7 @@ using Vector = System.Windows.Vector;
 
 namespace VRCOSC.App.UI.Views.Nodes;
 
-public partial class NodeFieldView : INotifyPropertyChanged
+public partial class NodeGraphView : INotifyPropertyChanged
 {
     public const MouseButton CANVAS_DRAG_BUTTON = MouseButton.Middle;
     public const MouseButton ELEMENT_DRAG_BUTTON = MouseButton.Left;
@@ -51,12 +51,12 @@ public partial class NodeFieldView : INotifyPropertyChanged
     private Point? fieldContextMenuMousePosition;
 
     public ContextMenuRoot FieldContextMenu { get; } = new();
-    public NodeField NodeField { get; }
+    public NodeGraph NodeGraph { get; }
     public ObservableCollection<object> NodesItemsControlItemsSource { get; } = [];
 
-    public NodeFieldView(NodeField nodeField)
+    public NodeGraphView(NodeGraph nodeGraph)
     {
-        NodeField = nodeField;
+        NodeGraph = nodeGraph;
         FieldContextMenu.Items.Add(ContextMenuBuilder.BuildCreateNodesMenu());
         FieldContextMenu.Items.Add(ContextMenuBuilder.BuildSpawnPresetMenu());
 
@@ -76,9 +76,9 @@ public partial class NodeFieldView : INotifyPropertyChanged
         GridCanvasContent.Content = new GridBackgroundVisualHost(CanvasContainer.Width, CanvasContainer.Height, SNAP_DISTANCE, SIGNIFICANT_SNAP_DISTANCE);
         updateNodeContainerZIndexes();
 
-        NodeField.Nodes.OnCollectionChanged(onNodesChanged, true);
-        NodeField.Connections.OnCollectionChanged(onConnectionsChanged, true);
-        NodeField.Groups.OnCollectionChanged(onGroupsChanged, true);
+        NodeGraph.Nodes.OnCollectionChanged(onNodesChanged, true);
+        NodeGraph.Connections.OnCollectionChanged(onConnectionsChanged, true);
+        NodeGraph.Groups.OnCollectionChanged(onGroupsChanged, true);
 
         isFirstLoad = false;
     }
@@ -118,7 +118,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         redrawAllConnectionsForNode(node.Id, false);
 
         if (updateGroupVisuals)
-            updateAllGroupVisuals(NodeField.Groups.Where(group => group.Nodes.Contains(node.Id)));
+            updateAllGroupVisuals(NodeGraph.Groups.Where(group => group.Nodes.Contains(node.Id)));
     }
 
     private (double X, double Y) getNodeSnapOffset(Node node, FrameworkElement nodeContainer)
@@ -222,14 +222,14 @@ public partial class NodeFieldView : INotifyPropertyChanged
             {
                 foreach (var newNodeId in newNodes)
                 {
-                    nodeGroupViewModel.Nodes.Add(NodeField.Nodes[newNodeId]);
+                    nodeGroupViewModel.Nodes.Add(NodeGraph.Nodes[newNodeId]);
                     NodesItemsControlItemsSource.RemoveIf(o => o is Node node && newGroup.Nodes.Contains(node.Id));
                 }
 
                 foreach (var oldNodeId in oldNodes)
                 {
                     nodeGroupViewModel.Nodes.RemoveIf(node => oldNodeId == node.Id);
-                    NodesItemsControlItemsSource.Add(NodeField.Nodes[oldNodeId]);
+                    NodesItemsControlItemsSource.Add(NodeGraph.Nodes[oldNodeId]);
                 }
             }, true);
 
@@ -338,7 +338,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         foreach (var nodeId in group.Nodes)
         {
-            var node = NodeField.Nodes[nodeId];
+            var node = NodeGraph.Nodes[nodeId];
             var nodeContainer = getNodeContainerFromId(nodeId);
 
             topLeft.X = Math.Min(topLeft.X, node.Position.X - GroupPadding.Left);
@@ -405,7 +405,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
     private void redrawAllConnectionsForNode(Guid nodeId, bool yieldForRender = true)
     {
-        var connections = NodeField.Connections.Where(connection => connection.OutputNodeId == nodeId || connection.InputNodeId == nodeId);
+        var connections = NodeGraph.Connections.Where(connection => connection.OutputNodeId == nodeId || connection.InputNodeId == nodeId);
 
         foreach (var connection in connections)
         {
@@ -562,14 +562,14 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
     private void ParentContainer_OnMouseUp(object sender, MouseButtonEventArgs e)
     {
-        DependencyObject scope = FocusManager.GetFocusScope(this);
+        var scope = FocusManager.GetFocusScope(this);
         FocusManager.SetFocusedElement(scope, this);
 
         if (canvasDrag is not null && e.ChangedButton == CANVAS_DRAG_BUTTON)
         {
             e.Handled = true;
             canvasDrag = null;
-            NodeField.Serialise();
+            NodeGraph.Serialise();
             return;
         }
 
@@ -577,7 +577,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         {
             e.Handled = true;
             nodeDrag = null;
-            NodeField.Serialise();
+            NodeGraph.Serialise();
             return;
         }
 
@@ -585,7 +585,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         {
             e.Handled = true;
             ConnectionDrag = null;
-            NodeField.Serialise();
+            NodeGraph.Serialise();
         }
     }
 
@@ -633,9 +633,9 @@ public partial class NodeFieldView : INotifyPropertyChanged
                 var mousePosRelativeToCanvas = Mouse.GetPosition(CanvasContainer);
 
                 var type = typeof(ValueNode<>).MakeGenericType(slotInputType);
-                var outputNode = NodeField.AddNode(type);
+                var outputNode = NodeGraph.AddNode(type);
 
-                NodeField.CreateValueConnection(outputNode.Id, 0, node.Id, slot);
+                NodeGraph.CreateValueConnection(outputNode.Id, 0, node.Id, slot);
 
                 outputNode.Position.X = mousePosRelativeToCanvas.X;
                 outputNode.Position.Y = mousePosRelativeToCanvas.Y;
@@ -656,9 +656,9 @@ public partial class NodeFieldView : INotifyPropertyChanged
             var mousePosRelativeToCanvas = Mouse.GetPosition(CanvasContainer);
 
             var type = typeof(DisplayNode<>).MakeGenericType(slotOutputType);
-            var inputNode = NodeField.AddNode(type);
+            var inputNode = NodeGraph.AddNode(type);
 
-            NodeField.CreateValueConnection(node.Id, slot, inputNode.Id, 0);
+            NodeGraph.CreateValueConnection(node.Id, slot, inputNode.Id, 0);
 
             inputNode.Position.X = mousePosRelativeToCanvas.X;
             inputNode.Position.Y = mousePosRelativeToCanvas.Y;
@@ -673,9 +673,9 @@ public partial class NodeFieldView : INotifyPropertyChanged
             var node = ConnectionDrag.Node;
             var mousePosRelativeToCanvas = Mouse.GetPosition(CanvasContainer);
 
-            var outputNode = NodeField.AddNode(typeof(ButtonNode));
+            var outputNode = NodeGraph.AddNode(typeof(ButtonNode));
 
-            NodeField.CreateFlowConnection(outputNode.Id, 0, node.Id);
+            NodeGraph.CreateFlowConnection(outputNode.Id, 0, node.Id);
             outputNode.Position.X = mousePosRelativeToCanvas.X;
             outputNode.Position.Y = mousePosRelativeToCanvas.Y;
 
@@ -763,7 +763,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
     {
         if (NodesItemsControl.ItemContainerGenerator.ContainerFromItem(node) is FrameworkElement container)
         {
-            node.ZIndex.Value = NodeField.ZIndex++;
+            node.ZIndex.Value = NodeGraph.ZIndex++;
             Panel.SetZIndex(container, node.ZIndex.Value);
         }
 
@@ -823,11 +823,11 @@ public partial class NodeFieldView : INotifyPropertyChanged
         // I have literally no idea
         diffX /= 2;
 
-        var nodeGroup = NodeField.GetGroupById(groupDrag.Group);
+        var nodeGroup = NodeGraph.GetGroupById(groupDrag.Group);
 
         foreach (var nodeId in nodeGroup.Nodes)
         {
-            var node = NodeField.Nodes[nodeId];
+            var node = NodeGraph.Nodes[nodeId];
             updateNodePosition(node, node.Position.X + diffX, node.Position.Y + diffY, false, false);
         }
 
@@ -843,7 +843,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var newX = Math.Round(mousePosRelativeToNodesItemsControl.X - nodeDrag.OffsetX);
         var newY = Math.Round(mousePosRelativeToNodesItemsControl.Y - nodeDrag.OffsetY);
 
-        var node = NodeField.Nodes[nodeDrag.Node];
+        var node = NodeGraph.Nodes[nodeDrag.Node];
         updateNodePosition(node, newX, newY);
     }
 
@@ -872,7 +872,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         foreach (var nodeId in selectionDrag.Nodes)
         {
-            var node = NodeField.Nodes[nodeId];
+            var node = NodeGraph.Nodes[nodeId];
             updateNodePosition(node, node.Position.X + diffX, node.Position.Y + diffY, false);
         }
     }
@@ -921,14 +921,14 @@ public partial class NodeFieldView : INotifyPropertyChanged
             shrinkWrapSelection();
         }
 
-        NodeField.Serialise();
+        NodeGraph.Serialise();
         FocusGrid();
     }
 
     private void checkForGroupAdditions()
     {
         if (nodeDrag is null) return;
-        if (NodeField.Groups.Any(nodeGroup => nodeGroup.Nodes.Contains(nodeDrag.Node))) return;
+        if (NodeGraph.Groups.Any(nodeGroup => nodeGroup.Nodes.Contains(nodeDrag.Node))) return;
 
         NodeGroup? groupToUpdate = null;
 
@@ -1031,12 +1031,12 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var slot = getSlotFromConnectionElement(element);
 
         var existingConnection =
-            NodeField.Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.InputNodeId == node.Id && connection.InputSlot == slot);
+            NodeGraph.Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.InputNodeId == node.Id && connection.InputSlot == slot);
 
         if (existingConnection is not null)
         {
-            NodeField.Connections.Remove(existingConnection);
-            node = NodeField.Nodes[existingConnection.OutputNodeId];
+            NodeGraph.Connections.Remove(existingConnection);
+            node = NodeGraph.Nodes[existingConnection.OutputNodeId];
             slot = existingConnection.OutputSlot;
             element = getOutputSlotElementForConnection(existingConnection);
             Logger.Log($"{nameof(FlowInput_OnMouseDown)}: Starting output flow drag from node {node.Metadata.Title} in slot {slot}", LoggingTarget.Information);
@@ -1068,7 +1068,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var slot = getSlotFromConnectionElement(element);
 
         Logger.Log($"{nameof(FlowInput_OnMouseUp)}: Ending input flow drag on node {node.Metadata.Title} in slot {slot}", LoggingTarget.Information);
-        NodeField.CreateFlowConnection(ConnectionDrag.Node.Id, ConnectionDrag.Slot, node.Id);
+        NodeGraph.CreateFlowConnection(ConnectionDrag.Node.Id, ConnectionDrag.Slot, node.Id);
 
         ConnectionDrag = null;
     }
@@ -1106,7 +1106,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var slot = getSlotFromConnectionElement(element);
 
         Logger.Log($"{nameof(FlowOutput_OnMouseUp)}: Ending output flow drag on node {node.Metadata.Title} in slot {slot}", LoggingTarget.Information);
-        NodeField.CreateFlowConnection(node.Id, slot, ConnectionDrag.Node.Id);
+        NodeGraph.CreateFlowConnection(node.Id, slot, ConnectionDrag.Node.Id);
 
         ConnectionDrag = null;
     }
@@ -1122,12 +1122,12 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var slot = getSlotFromConnectionElement(element);
 
         var existingConnection =
-            NodeField.Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Value && connection.InputNodeId == node.Id && connection.InputSlot == slot);
+            NodeGraph.Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Value && connection.InputNodeId == node.Id && connection.InputSlot == slot);
 
         if (existingConnection is not null)
         {
-            NodeField.Connections.Remove(existingConnection);
-            node = NodeField.Nodes[existingConnection.OutputNodeId];
+            NodeGraph.Connections.Remove(existingConnection);
+            node = NodeGraph.Nodes[existingConnection.OutputNodeId];
             slot = existingConnection.OutputSlot;
             element = getOutputSlotElementForConnection(existingConnection);
             Logger.Log($"{nameof(ValueInput_OnMouseDown)}: Starting output value drag from node {node.Metadata.Title} in slot {slot}", LoggingTarget.Information);
@@ -1159,7 +1159,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var slot = getSlotFromConnectionElement(element);
 
         Logger.Log($"{nameof(ValueInput_OnMouseUp)}: Ending input value drag on node {node.Metadata.Title} in slot {slot}", LoggingTarget.Information);
-        NodeField.CreateValueConnection(ConnectionDrag.Node.Id, ConnectionDrag.Slot, node.Id, slot);
+        NodeGraph.CreateValueConnection(ConnectionDrag.Node.Id, ConnectionDrag.Slot, node.Id, slot);
         ConnectionDrag = null;
     }
 
@@ -1196,35 +1196,35 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var slot = getSlotFromConnectionElement(element);
 
         Logger.Log($"{nameof(ValueOutput_OnMouseUp)}: Ending output value drag on node {node.GetType().Name} in slot {slot}", LoggingTarget.Information);
-        NodeField.CreateValueConnection(node.Id, slot, ConnectionDrag.Node.Id, ConnectionDrag.Slot);
+        NodeGraph.CreateValueConnection(node.Id, slot, ConnectionDrag.Node.Id, ConnectionDrag.Slot);
         ConnectionDrag = null;
     }
 
     #endregion
 
-    #region Field Context Menu
+    #region Graph Context Menu
 
-    private void FieldContextMenu_NodeTypeItemClick(object sender, RoutedEventArgs e)
+    private void GraphContextMenu_NodeTypeItemClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
         var nodeType = (Type)element.Tag;
 
         Debug.Assert(fieldContextMenuMousePosition is not null);
 
-        var fieldContextMenuPos = fieldContextMenuMousePosition.Value;
-        var posX = fieldContextMenuPos.X;
-        var posY = fieldContextMenuPos.Y;
+        var graphContextMenuPos = fieldContextMenuMousePosition.Value;
+        var posX = graphContextMenuPos.X;
+        var posY = graphContextMenuPos.Y;
         snapAndClampPosition(ref posX, ref posY);
 
         if (nodeType.IsGenericTypeDefinition)
         {
-            var nodeCreatorWindow = new NodeCreatorWindow(NodeField, nodeType);
+            var nodeCreatorWindow = new NodeCreatorWindow(NodeGraph, nodeType);
 
             nodeCreatorWindow.Closed += (_, _) =>
             {
                 if (nodeCreatorWindow.ConstructedType is null) return;
 
-                var node = NodeField.AddNode(nodeCreatorWindow.ConstructedType);
+                var node = NodeGraph.AddNode(nodeCreatorWindow.ConstructedType);
                 node.Position.X = posX;
                 node.Position.Y = posY;
                 updateNodePosition(node);
@@ -1234,7 +1234,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         }
         else
         {
-            var node = NodeField.AddNode(nodeType);
+            var node = NodeGraph.AddNode(nodeType);
             node.Position.X = posX;
             node.Position.Y = posY;
             updateNodePosition(node);
@@ -1255,7 +1255,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var posY = fieldContextMenuPos.Y;
 
         snapAndClampPosition(ref posX, ref posY);
-        preset.SpawnTo(NodeField, posX, posY);
+        preset.SpawnTo(NodeGraph, posX, posY);
     }
 
     #endregion
@@ -1267,7 +1267,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var node = (Node)element.Tag;
 
-        NodeField.DeleteNode(node.Id);
+        NodeGraph.DeleteNode(node.Id);
     }
 
     #endregion
@@ -1280,7 +1280,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var nodeGroup = ((NodeGroupViewModel)element.Tag).NodeGroup;
 
         nodeGroup.Nodes.RemoveIf(_ => true);
-        NodeField.Groups.Remove(nodeGroup);
+        NodeGraph.Groups.Remove(nodeGroup);
     }
 
     private void GroupContextMenu_DeleteClick(object sender, RoutedEventArgs e)
@@ -1292,7 +1292,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         foreach (var node in nodes)
         {
-            NodeField.DeleteNode(node);
+            NodeGraph.DeleteNode(node);
         }
     }
 
@@ -1315,12 +1315,12 @@ public partial class NodeFieldView : INotifyPropertyChanged
                 selectedNodes.Add(((Node)nodeContainer.Tag).Id);
         }
 
-        selectedNodes.RemoveIf(nodeId => NodeField.Groups.Any(nodeGroup => nodeGroup.Nodes.Contains(nodeId)));
+        selectedNodes.RemoveIf(nodeId => NodeGraph.Groups.Any(nodeGroup => nodeGroup.Nodes.Contains(nodeId)));
         SelectionContainer.Visibility = Visibility.Collapsed;
 
         if (selectedNodes.Count == 0) return;
 
-        var group = NodeField.AddGroup();
+        var group = NodeGraph.AddGroup();
         group.Title.Value = "Selection";
         group.Nodes.AddRange(selectedNodes);
     }
@@ -1349,7 +1349,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         {
             if (string.IsNullOrEmpty(presetCreatorWindow.PresetName)) return;
 
-            NodeField.CreatePreset(presetCreatorWindow.PresetName, selectedNodes, (float)position.X, (float)position.Y);
+            NodeGraph.CreatePreset(presetCreatorWindow.PresetName, selectedNodes, (float)position.X, (float)position.Y);
             FieldContextMenu.Items.RemoveAt(1);
             FieldContextMenu.Items.Add(ContextMenuBuilder.BuildSpawnPresetMenu());
         };
@@ -1376,7 +1376,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         foreach (var selectedNode in selectedNodes)
         {
-            NodeField.DeleteNode(selectedNode);
+            NodeGraph.DeleteNode(selectedNode);
         }
     }
 
@@ -1391,7 +1391,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         node.VariableSize.ValueOutputSize++;
 
-        NodeField.Serialise();
+        NodeGraph.Serialise();
 
         var valueOutputItemsControl = element.FindVisualParent<FrameworkElement>("ValueOutputContainer")!.FindVisualChild<ItemsControl>("ValueOutputItemsControl")!;
         valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
@@ -1405,14 +1405,14 @@ public partial class NodeFieldView : INotifyPropertyChanged
         if (node.VariableSize.ValueOutputSize == 1) return;
 
         var outputSlot = node.Metadata.OutputsCount + node.VariableSize.ValueOutputSize - 1;
-        var connectionToRemove = NodeField.Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.OutputNodeId == node.Id && c.OutputSlot == outputSlot);
+        var connectionToRemove = NodeGraph.Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.OutputNodeId == node.Id && c.OutputSlot == outputSlot);
 
         if (connectionToRemove is not null)
-            NodeField.Connections.Remove(connectionToRemove);
+            NodeGraph.Connections.Remove(connectionToRemove);
 
         node.VariableSize.ValueOutputSize--;
 
-        NodeField.Serialise();
+        NodeGraph.Serialise();
 
         var valueOutputItemsControl = element.FindVisualParent<FrameworkElement>("ValueOutputContainer")!.FindVisualChild<ItemsControl>("ValueOutputItemsControl")!;
         valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
@@ -1425,7 +1425,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
         node.VariableSize.ValueInputSize++;
 
-        NodeField.Serialise();
+        NodeGraph.Serialise();
 
         var valueInputItemsControl = element.FindVisualParent<FrameworkElement>("ValueInputContainer")!.FindVisualChild<ItemsControl>("ValueInputItemsControl")!;
         valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
@@ -1439,14 +1439,14 @@ public partial class NodeFieldView : INotifyPropertyChanged
         if (node.VariableSize.ValueInputSize == 1) return;
 
         var inputSlot = node.Metadata.InputsCount + node.VariableSize.ValueInputSize - 1;
-        var connectionToRemove = NodeField.Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == node.Id && c.InputSlot == inputSlot);
+        var connectionToRemove = NodeGraph.Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == node.Id && c.InputSlot == inputSlot);
 
         if (connectionToRemove is not null)
-            NodeField.Connections.Remove(connectionToRemove);
+            NodeGraph.Connections.Remove(connectionToRemove);
 
         node.VariableSize.ValueInputSize--;
 
-        NodeField.Serialise();
+        NodeGraph.Serialise();
 
         var valueInputItemsControl = element.FindVisualParent<FrameworkElement>("ValueInputContainer")!.FindVisualChild<ItemsControl>("ValueInputItemsControl")!;
         valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
@@ -1496,6 +1496,62 @@ public partial class NodeFieldView : INotifyPropertyChanged
 
     #endregion
 
+    #region NodeGraph Title
+
+    private bool graphTitleEditing;
+
+    public bool GraphTitleEditing
+    {
+        get => graphTitleEditing;
+        set
+        {
+            if (value == graphTitleEditing) return;
+
+            graphTitleEditing = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private void NodeGraphTitle_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount != 2) return;
+
+        e.Handled = true;
+        GraphTitleEditing = true;
+        NodeGraphTitleTextBox.Focus();
+    }
+
+    private void NodeGraphTitleTextBoxContainer_OnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+    }
+
+    private void NodeGraphTitleTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+
+        GraphTitleEditing = false;
+
+        if (string.IsNullOrEmpty(NodeGraphTitleTextBox.Text))
+        {
+            NodeGraph.Name.Value = "New Graph";
+            return;
+        }
+
+        NodeGraph.Name.Value = NodeGraphTitleTextBox.Text;
+    }
+
+    private void NodeGraphTitleTextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            e.Handled = true;
+            Focus();
+        }
+    }
+
+    #endregion
+
     #region Button Node
 
     private void ButtonInputNode_OnClick(object sender, RoutedEventArgs e)
@@ -1503,7 +1559,7 @@ public partial class NodeFieldView : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var node = (Node)element.Tag;
 
-        NodeField.StartFlow(node);
+        NodeGraph.StartFlow(node);
     }
 
     #endregion

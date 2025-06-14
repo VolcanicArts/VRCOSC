@@ -45,7 +45,7 @@ public class SerialisableNodePreset : SerialisableVersion
 }
 
 [JsonObject(MemberSerialization.OptIn)]
-public class SerialisableNodeField : SerialisableVersion
+public class SerialisableNodeGraph : SerialisableVersion
 {
     [JsonProperty("id")]
     public Guid Id { get; set; }
@@ -66,20 +66,20 @@ public class SerialisableNodeField : SerialisableVersion
     public List<SerialisableVariable> Variables { get; } = [];
 
     [JsonConstructor]
-    public SerialisableNodeField()
+    public SerialisableNodeGraph()
     {
     }
 
-    public SerialisableNodeField(NodeField nodeField)
+    public SerialisableNodeGraph(NodeGraph nodeGraph)
     {
         Version = 1;
 
-        Id = nodeField.Id;
-        Name = nodeField.Name.Value;
-        Nodes = nodeField.Nodes.Values.Select(node => new SerialisableNode(node)).ToList();
-        Connections = nodeField.Connections.Select(connection => new SerialisableConnection(connection)).ToList();
-        Groups = nodeField.Groups.Select(group => new SerialisableNodeGroup(group)).ToList();
-        Variables = nodeField.PersistentVariables.Select(variable => new SerialisableVariable(variable)).ToList();
+        Id = nodeGraph.Id;
+        Name = nodeGraph.Name.Value;
+        Nodes = nodeGraph.Nodes.Values.Select(node => new SerialisableNode(node)).ToList();
+        Connections = nodeGraph.Connections.Select(connection => new SerialisableConnection(connection)).ToList();
+        Groups = nodeGraph.Groups.Select(group => new SerialisableNodeGroup(group)).ToList();
+        Variables = nodeGraph.PersistentVariables.Select(variable => new SerialisableVariable(variable)).ToList();
     }
 }
 

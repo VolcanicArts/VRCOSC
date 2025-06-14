@@ -12,15 +12,12 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Settings;
-using VRCOSC.App.UI.Core;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.AppSettings;
 
 public partial class AppDebugView
 {
-    private WindowManager? nodeFieldWindowManager;
-
     public AppDebugView()
     {
         InitializeComponent();
@@ -54,8 +51,6 @@ public partial class AppDebugView
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        nodeFieldWindowManager ??= new WindowManager(this);
-
         port9000DispatcherTimer = new DTWrapper($"{nameof(AppDebugView)}-{nameof(updatePort9000Process)}", TimeSpan.FromSeconds(5), true, updatePort9000Process);
         port9000DispatcherTimer.Start();
     }

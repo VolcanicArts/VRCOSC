@@ -8,24 +8,24 @@ namespace VRCOSC.App.Nodes.Types.Sources;
 
 [Node("Direct Parameter Source", "Sources")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public class DirectParameterSourceNode<T> : Node, INodeEventHandler where T : unmanaged
+public class DirectParameterSourceNode<T> : Node, INodeEventHandler, IHasTextProperty where T : unmanaged
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
-    [NodeProperty("name")]
-    public string Name { get; set; } = null!;
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
 
     public ValueOutput<T> Output = new();
 
     protected override void Process(PulseContext c)
     {
-        var value = string.IsNullOrEmpty(Name) ? default : c.FindParameter<T>(Name);
+        var value = string.IsNullOrEmpty(Text) ? default : c.FindParameter<T>(Text);
         Output.Write(value, c);
     }
 
     public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter)
     {
-        return string.IsNullOrEmpty(Name) && parameter.Name == Name || parameter.Type == parameterType;
+        return string.IsNullOrEmpty(Text) && parameter.Name == Text || parameter.Type == parameterType;
     }
 }
 
