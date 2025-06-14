@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
@@ -87,6 +88,14 @@ public class NodeManager
         foreach (var graph in Graphs)
         {
             graph.OnParameterReceived(parameter);
+        }
+    }
+
+    public void OnAvatarChange(AvatarConfig? config)
+    {
+        foreach (var graph in Graphs)
+        {
+            graph.OnAvatarChange(config);
         }
     }
 }

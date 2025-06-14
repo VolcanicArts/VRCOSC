@@ -74,6 +74,7 @@ public class AppManager
     private Repeater openvrUpdateTask = null!;
 
     private Dictionary<ParameterDefinition, VRChatParameter> parameterCache { get; } = [];
+    public AvatarConfig? CurrentAvatarConfig { get; private set; }
 
     public AppManager()
     {
@@ -184,7 +185,7 @@ public class AppManager
 
         if (parameter is not null && parameter.Type == parameterDefinition.Type)
         {
-            parameterCache.Add(parameterDefinition, parameter);
+            parameterCache[parameterDefinition] = parameter;
             return parameter;
         }
 
@@ -238,8 +239,11 @@ public class AppManager
                 avatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
             }
 
+            CurrentAvatarConfig = avatarConfig;
+
             VRChatClient.HandleAvatarChange();
             ModuleManager.GetInstance().AvatarChange(avatarConfig);
+            NodeManager.GetInstance().OnAvatarChange(avatarConfig);
 
             if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) return;
 

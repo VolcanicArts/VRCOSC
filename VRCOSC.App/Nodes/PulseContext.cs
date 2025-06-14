@@ -85,10 +85,7 @@ public class PulseContext
 
     internal AvatarConfig? FindCurrentAvatar()
     {
-        // TODO: Cache
-        var avatarId = AppManager.GetInstance().VRChatOscClient.FindCurrentAvatar(Token).Result;
-        // TODO: This shouldn't be here
-        return avatarId is null ? null : AvatarConfigLoader.LoadConfigFor(avatarId);
+        return AppManager.GetInstance().CurrentAvatarConfig;
     }
 
     internal T FindParameter<T>(string name) where T : unmanaged

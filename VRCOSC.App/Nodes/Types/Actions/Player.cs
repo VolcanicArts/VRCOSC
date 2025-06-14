@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Actions;
@@ -108,5 +109,21 @@ public sealed class PlayerSetRunNode : Node, IFlowInput
         }
 
         Next.Execute(c);
+    }
+}
+
+[Node("Change Avatar", "Actions/Player")]
+public sealed class PlayerChangeAvatarNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<string> AvatarId = new("Avatar Id");
+
+    protected override void Process(PulseContext c)
+    {
+        var avatarId = AvatarId.Read(c);
+        if (string.IsNullOrEmpty(avatarId)) return;
+
+        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_CHANGE}", avatarId);
     }
 }

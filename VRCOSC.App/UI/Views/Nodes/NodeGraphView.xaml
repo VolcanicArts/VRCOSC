@@ -520,7 +520,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <ItemsControl Grid.Column="0" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterLeft}}"
-                                      VerticalAlignment="Center" HorizontalAlignment="Left"
+                                      VerticalAlignment="Top" HorizontalAlignment="Left"
                                       Name="ValueInputItemsControl"
                                       ItemsPanel="{StaticResource ItemsPanelTemplate}"
                                       ItemTemplate="{StaticResource ValueInputCollapsedTemplate}">
@@ -530,12 +530,12 @@
                         </ItemsControl>
                         <TextBlock Grid.Column="1"
                                    Foreground="{DynamicResource CForeground2}"
-                                   Text="{Binding Value, Converter={StaticResource ObjectToStringConverter}}" FontSize="18"
+                                   Text="{Binding Value, Converter={StaticResource ObjectToStringConverter}}" FontSize="16"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Center"
                                    TextAlignment="Center"
                                    TextWrapping="WrapWithOverflow"
-                                   MaxWidth="200"
+                                   MaxWidth="300"
                                    Margin="0 -2 10 0"
                                    FontWeight="SemiBold"/>
                     </Grid>
