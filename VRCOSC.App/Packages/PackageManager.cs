@@ -48,7 +48,7 @@ public class PackageManager
         storage = baseStorage.GetStorageForDirectory("packages/remote");
 
         builtinSources.Add(OfficialModulesSource = new PackageSource("VolcanicArts", "VRCOSC-Modules", PackageType.Official));
-        builtinSources.Add(new PackageSource("DJDavid98", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
+        builtinSources.Add(new PackageSource("WentTheFox", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
 
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));
