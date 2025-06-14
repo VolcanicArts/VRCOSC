@@ -3,6 +3,7 @@
 
 using System;
 using Valve.VR;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.OVR.Device;
 
@@ -45,6 +46,8 @@ public class TrackedDevice
     /// </summary>
     public DeviceRole Role { get; internal set; }
 
+    public Transform Transform { get; internal set; }
+
     internal void Update()
     {
         if (!IsValid) return;
@@ -53,5 +56,6 @@ public class TrackedDevice
         ProvidesBatteryStatus = IsConnected && OVRHelper.GetBoolTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
         IsCharging = IsConnected && OVRHelper.GetBoolTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
         BatteryPercentage = MathF.Max(0f, IsConnected ? OVRHelper.GetFloatTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float) : 0f);
+        Transform = OVRHelper.GetTrackedPose(Index);
     }
 }

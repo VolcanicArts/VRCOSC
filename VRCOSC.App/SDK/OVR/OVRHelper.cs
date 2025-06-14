@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Valve.VR;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.OVR;
 
@@ -42,6 +44,36 @@ internal static class OVRHelper
 
         OpenVR.Compositor.GetFrameTiming(ref frameTiming, 0);
         return frameTiming.m_flTotalRenderGpuMs;
+    }
+
+    internal static Transform GetTrackedPose(uint deviceIndex)
+    {
+        if (!OpenVR.System.IsTrackedDeviceConnected(deviceIndex))
+            return Transform.Zero;
+
+        var poses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
+        OpenVR.System.GetDeviceToAbsoluteTrackingPose(ETrackingUniverseOrigin.TrackingUniverseStanding, 0, poses);
+
+        var pose = poses[deviceIndex];
+
+        if (!pose.bPoseIsValid)
+            return Transform.Zero;
+
+        var mat = pose.mDeviceToAbsoluteTracking;
+
+        // Convert from SteamVR's right-handed system
+        Vector3 position = new Vector3(mat.m3, mat.m7, -mat.m11);
+
+        Matrix4x4 matrix = new Matrix4x4(
+            mat.m0, mat.m1, mat.m2, 0,
+            mat.m4, mat.m5, mat.m6, 0,
+            mat.m8, mat.m9, mat.m10, 0,
+            0, 0, 0, 1
+        );
+
+        Quaternion rotation = Quaternion.CreateFromRotationMatrix(matrix);
+
+        return new Transform(position, rotation);
     }
 
     internal static InputAnalogActionData_t GetAnalogueInput(ulong identifier)

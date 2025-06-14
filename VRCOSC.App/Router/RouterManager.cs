@@ -88,7 +88,7 @@ public class RouterManager
             }
         }
 
-        AppManager.GetInstance().VRChatOscClient.OnParameterReceived += onParameterReceived;
+        AppManager.GetInstance().VRChatOscClient.OnVRChatOSCMessageReceived += onParameterReceived;
 
         started = true;
     }
@@ -97,7 +97,7 @@ public class RouterManager
     {
         if (!started) return;
 
-        AppManager.GetInstance().VRChatOscClient.OnParameterReceived -= onParameterReceived;
+        AppManager.GetInstance().VRChatOscClient.OnVRChatOSCMessageReceived -= onParameterReceived;
 
         foreach (var (route, sender) in senders)
         {
@@ -115,7 +115,7 @@ public class RouterManager
         receivers.Clear();
     }
 
-    private void onParameterReceived(VRChatOscMessage message)
+    private void onParameterReceived(VRChatOSCMessage message)
     {
         foreach (var (_, sender) in senders)
         {

@@ -20,7 +20,7 @@ public static class ParameterTypeFactory
         if (type == typeof(int)) return ParameterType.Int;
         if (type == typeof(float)) return ParameterType.Float;
 
-        throw new InvalidOperationException($"Parameters can only be of type bool, int, or float");
+        throw new InvalidOperationException("Parameters can only be of type bool, int, or float");
     }
 
     /// <summary>

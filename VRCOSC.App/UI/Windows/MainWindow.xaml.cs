@@ -17,6 +17,7 @@ using VRCOSC.App.Actions;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Dolly;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Nodes;
 using VRCOSC.App.OVR;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Profiles;
@@ -30,6 +31,7 @@ using VRCOSC.App.UI.Views.ChatBox;
 using VRCOSC.App.UI.Views.Dolly;
 using VRCOSC.App.UI.Views.Information;
 using VRCOSC.App.UI.Views.Modules;
+using VRCOSC.App.UI.Views.Nodes;
 using VRCOSC.App.UI.Views.Packages;
 using VRCOSC.App.UI.Views.Profiles;
 using VRCOSC.App.UI.Views.Run;
@@ -53,6 +55,7 @@ public partial class MainWindow
     public PackagesView PackagesView = null!;
     public ModulesView ModulesView = null!;
     public ChatBoxView ChatBoxView = null!;
+    public NodesView NodesView = null!;
     public DollyView DollyView = null!;
     public RunView RunView = null!;
     public ProfilesView ProfilesView = null!;
@@ -162,6 +165,7 @@ public partial class MainWindow
         PackagesView = new PackagesView();
         ModulesView = new ModulesView();
         ChatBoxView = new ChatBoxView();
+        NodesView = new NodesView();
         DollyView = new DollyView();
         RunView = new RunView();
         ProfilesView = new ProfilesView();
@@ -208,6 +212,7 @@ public partial class MainWindow
 
         ProfileManager.GetInstance().Load();
         ModuleManager.GetInstance().LoadAllModules();
+        NodeManager.GetInstance().Load();
         ChatBoxManager.GetInstance().Load();
         RouterManager.GetInstance().Load();
         DollyManager.GetInstance().Load();
@@ -365,7 +370,7 @@ public partial class MainWindow
 #if DEBUG
         manifest.Applications[0].BinaryPathWindows = Environment.ProcessPath!;
 #else
-        manifest.Applications[0].BinaryPathWindows = Path.Join(VelopackLocator.GetDefault(null).RootAppDir, "current", "VRCOSC.exe");
+        manifest.Applications[0].BinaryPathWindows = Path.Join(VelopackLocator.CreateDefaultForPlatform().RootAppDir, "current", "VRCOSC.exe");
 #endif
         manifest.Applications[0].ActionManifestPath = runtimeOVRStorage.GetFullPath("action_manifest.json");
         manifest.Applications[0].ImagePath = runtimeOVRStorage.GetFullPath("SteamImage.png");
@@ -484,6 +489,11 @@ public partial class MainWindow
     private void ChatBoxButton_OnClick(object sender, RoutedEventArgs e)
     {
         setContent(ChatBoxView);
+    }
+
+    private void NodesButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setContent(NodesView);
     }
 
     private void DollyButton_OnClick(object sender, RoutedEventArgs e)

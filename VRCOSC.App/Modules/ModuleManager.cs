@@ -13,8 +13,8 @@ using System.Threading.Tasks;
 using Windows.Win32;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules.Serialisation;
-using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Modules;
+using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -68,9 +68,9 @@ internal class ModuleManager : INotifyPropertyChanged
         RunningModules.ForEach(module => module.InvokePlayerUpdate());
     }
 
-    public void ParameterReceived(VRChatOscMessage vrChatOscMessage)
+    public void OnParameterReceived(VRChatParameter parameter)
     {
-        RunningModules.ForEach(module => module.OnParameterReceived(vrChatOscMessage));
+        RunningModules.ForEach(module => module.OnParameterReceived(parameter));
     }
 
     public void ChatBoxUpdate()
@@ -87,6 +87,7 @@ internal class ModuleManager : INotifyPropertyChanged
 
     #region Management
 
+    public Module GetModuleInstanceFromType(Type moduleType) => modules.Single(module => module.GetType() == moduleType);
     public IEnumerable<T> GetModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
     public IEnumerable<T> GetRunningModulesOfType<T>() => RunningModules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
     public IEnumerable<T> GetEnabledModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T)) && module.Enabled.Value).Cast<T>();

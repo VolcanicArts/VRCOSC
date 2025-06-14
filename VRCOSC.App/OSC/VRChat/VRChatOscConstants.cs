@@ -5,7 +5,7 @@
 
 namespace VRCOSC.App.OSC.VRChat;
 
-public static class VRChatOscConstants
+public static class VRChatOSCConstants
 {
     public const string ADDRESS_AVATAR_PARAMETERS_PREFIX = "/avatar/parameters/";
     public const string ADDRESS_AVATAR_CHANGE = "/avatar/change";

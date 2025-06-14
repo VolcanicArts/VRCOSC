@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -12,6 +13,23 @@ using VRCOSC.App.Utils;
 // ReSharper disable MemberCanBePrivate.Global
 
 namespace VRCOSC.App.UI.Core;
+
+public class ObjectToStringConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => value?.ToString() ?? "null";
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class NullToVisibilityConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        return value is null ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
 
 /// <inheritdoc />
 /// <summary>
@@ -65,26 +83,24 @@ public class StringToVisibilityConverter : IValueConverter
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
 
-/// <inheritdoc />
-/// <summary>
-/// Takes in an integer and converts it to the set colours based on if it's even
-/// </summary>
-/// <remarks>One Way</remarks>
-public class AlternatingColourConverter : IValueConverter
+public class EnumItemSourceConverter : IValueConverter
 {
-    public Brush Colour1 { get; init; } = Brushes.Aqua;
-    public Brush Colour2 { get; init; } = Brushes.Aqua;
-
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not int intValue) throw new Exception($"{nameof(value)} is not an {nameof(Int32)}");
+        if (value is null) return null;
+        if (!value.GetType().IsAssignableTo(typeof(Enum))) return null;
 
-        return intValue % 2 == 0 ? Colour1 : Colour2;
+        return Enum.GetValues(value.GetType());
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
 
+/// <inheritdoc />
+/// <summary>
+/// Takes in an integer and converts it to the set colours based on if it's even
+/// </summary>
+/// <remarks>One Way</remarks>
 public class AlternatingColourConverterMulti : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
@@ -102,13 +118,43 @@ public class AlternatingColourConverterMulti : IMultiValueConverter
 /// Converts a <see cref="T:System.Type" /> in a friendlier type name
 /// </summary>
 /// <remarks>One Way</remarks>
-public class TypeToReadableTypeConverter : IValueConverter
+public class TypeToFriendlyNameConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not Type typeValue) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
+        if (value is null) return "NULL TYPE";
 
-        return typeValue.ToReadableName();
+        if (!value.GetType().IsAssignableTo(typeof(Type))) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
+
+        var typeValue = (Type)value;
+        return typeValue.GetFriendlyName();
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class TypeToBrushConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is null) return Brushes.Black;
+
+        if (!value.GetType().IsAssignableTo(typeof(Type))) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
+
+        var typeValue = (Type)value;
+        return typeValue.GetTypeBrush();
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class ParameterInfoToFriendlyNameConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not ParameterInfo parameterInfo) throw new Exception($"{nameof(value)} is not a {nameof(ParameterInfo)}");
+
+        return parameterInfo.GetFriendlyName();
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;

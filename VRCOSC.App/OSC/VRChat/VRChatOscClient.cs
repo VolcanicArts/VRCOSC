@@ -4,6 +4,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using FastOSC;
 using Newtonsoft.Json;
@@ -14,10 +15,10 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.OSC.VRChat;
 
-public class VRChatOscClient
+public class VRChatOSCClient
 {
-    public Action<VRChatOscMessage>? OnParameterSent;
-    public Action<VRChatOscMessage>? OnParameterReceived;
+    public Action<VRChatOSCMessage>? OnVRChatOSCMessageSent;
+    public Action<VRChatOSCMessage>? OnVRChatOSCMessageReceived;
 
     private readonly HttpClient client = new();
 
@@ -29,16 +30,16 @@ public class VRChatOscClient
     public IPEndPoint? SendEndpoint { get; private set; }
     public IPEndPoint? ReceiveEndpoint { get; private set; }
 
-    public VRChatOscClient()
+    public VRChatOSCClient()
     {
         client.Timeout = TimeSpan.FromMilliseconds(50);
 
         receiver.OnMessageReceived += message =>
         {
-            var data = new VRChatOscMessage(message);
+            var data = new VRChatOSCMessage(message);
             if (data.Arguments.Length == 0) return;
 
-            OnParameterReceived?.Invoke(data);
+            OnVRChatOSCMessageReceived?.Invoke(data);
         };
     }
 
@@ -46,7 +47,7 @@ public class VRChatOscClient
     {
         var message = new OSCMessage(address, values);
         sender.Send(message);
-        OnParameterSent?.Invoke(new VRChatOscMessage(message));
+        OnVRChatOSCMessageSent?.Invoke(new VRChatOSCMessage(message));
     }
 
     public void Initialise(IPEndPoint send, IPEndPoint receive)
@@ -77,7 +78,7 @@ public class VRChatOscClient
         this.connectionManager = connectionManager;
     }
 
-    public async Task<OSCQueryNode?> FindAddress(string address)
+    public async Task<OSCQueryNode?> FindAddress(string address, CancellationToken token)
     {
         var oscMode = SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode);
 
@@ -89,13 +90,17 @@ public class VRChatOscClient
 
         try
         {
-            var response = await client.GetAsync(new Uri(url));
+            var response = await client.GetAsync(new Uri(url), token);
             if (!response.IsSuccessStatusCode) return null;
 
-            var content = await response.Content.ReadAsStringAsync();
+            var content = await response.Content.ReadAsStringAsync(token);
             var node = JsonConvert.DeserializeObject<OSCQueryNode>(content);
 
             return node is null || node.Access == OSCQueryNodeAccess.NoValue ? null : node;
+        }
+        catch (TaskCanceledException)
+        {
+            throw;
         }
         catch (Exception e)
         {
@@ -104,9 +109,9 @@ public class VRChatOscClient
         }
     }
 
-    public async Task<ReceivedParameter?> FindParameter(string parameterName)
+    public async Task<VRChatParameter?> FindParameter(string parameterName, CancellationToken token)
     {
-        var node = await FindAddress(VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX + parameterName);
+        var node = await FindAddress(VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX + parameterName, token);
         if (node?.Value is null || node.Value.Length == 0) return null;
 
         object parameterValue = node.OscType switch
@@ -118,12 +123,12 @@ public class VRChatOscClient
             _ => throw new InvalidOperationException($"Unknown type '{node.OscType}'")
         };
 
-        return new ReceivedParameter(parameterName, parameterValue);
+        return new VRChatParameter(parameterName, parameterValue);
     }
 
-    public async Task<string?> FindCurrentAvatar()
+    public async Task<string?> FindCurrentAvatar(CancellationToken token)
     {
-        var node = await FindAddress(VRChatOscConstants.ADDRESS_AVATAR_CHANGE);
+        var node = await FindAddress(VRChatOSCConstants.ADDRESS_AVATAR_CHANGE, token);
         if (node?.Value is null || node.Value.Length == 0) return null;
 
         return Convert.ToString(node.Value[0]);

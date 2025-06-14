@@ -154,9 +154,9 @@ public partial class SpeechView
         set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechNoiseCutoff).Value = value / 100f;
     }
 
-    public double VolumeAdjustmentSliderValue
+    public float VolumeAdjustmentSliderValue
     {
-        get => Interpolation.Map(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value, 0, 3, 0, 300);
+        get => (float)Interpolation.Map(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value, 0, 3, 0, 300);
         set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value = (float)Interpolation.Map(value, 0, 300, 0, 3);
     }
 }

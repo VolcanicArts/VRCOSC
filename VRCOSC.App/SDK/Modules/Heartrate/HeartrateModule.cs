@@ -213,7 +213,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     {
         if (GetSettingValue<bool>(HeartrateSetting.SmoothValue))
         {
-            currentValue = (float)Interpolation.DampContinuously(currentValue, targetValue, GetSettingValue<int>(HeartrateSetting.SmoothValueLength) / 2d, 50d);
+            currentValue = (float)Interpolation.DampContinuously(currentValue, targetValue, GetSettingValue<int>(HeartrateSetting.SmoothValueLength) / 2f, 50f);
         }
         else
         {
@@ -242,7 +242,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 
         if (GetSettingValue<bool>(HeartrateSetting.SmoothAverage))
         {
-            currentAverage = (float)Interpolation.DampContinuously(currentAverage, targetAverage, GetSettingValue<int>(HeartrateSetting.SmoothAverageLength) / 2d, 50d);
+            currentAverage = (float)Interpolation.DampContinuously(currentAverage, targetAverage, GetSettingValue<int>(HeartrateSetting.SmoothAverageLength) / 2f, 50f);
         }
         else
         {

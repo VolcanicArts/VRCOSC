@@ -327,7 +327,7 @@ public class ChatBoxManager : INotifyPropertyChanged
     public void SendText(string text)
     {
         var finalText = convertSpecialCharacters(text);
-        AppManager.GetInstance().VRChatOscClient.Send(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, finalText, true, false);
+        AppManager.GetInstance().VRChatOscClient.Send(VRChatOSCConstants.ADDRESS_CHATBOX_INPUT, finalText, true, false);
     }
 
     private static string convertSpecialCharacters(string input)
@@ -346,7 +346,7 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     private void setTyping(bool typing)
     {
-        AppManager.GetInstance().VRChatOscClient.Send(VRChatOscConstants.ADDRESS_CHATBOX_TYPING, typing);
+        AppManager.GetInstance().VRChatOscClient.Send(VRChatOSCConstants.ADDRESS_CHATBOX_TYPING, typing);
     }
 
     #region States

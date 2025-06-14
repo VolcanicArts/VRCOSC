@@ -38,7 +38,8 @@
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Octokit" Version="14.0.0" />
         <PackageReference Include="Semver" Version="3.0.0" />
-        <PackageReference Include="Velopack" Version="0.0.1053" />
+        <PackageReference Include="Singulink.WPF.Data.MethodBinding" Version="1.1.0" />
+        <PackageReference Include="Velopack" Version="0.0.1298" />
         <PackageReference Include="VolcanicArts.FastOSC" Version="1.1.1" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />
         <PackageReference Include="Whisper.net" Version="1.8.1" />
@@ -239,6 +240,17 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Resources\Fonts\Iosevka-Regular.ttf" />
+      <Resource Include="Resources\Fonts\Iosevka-Regular.ttf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resources\Fonts\Iosevka-SemiBold.ttf" />
+      <Resource Include="Resources\Fonts\Iosevka-SemiBold.ttf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
     </ItemGroup>
 
 </Project>

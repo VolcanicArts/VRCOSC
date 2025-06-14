@@ -13,7 +13,7 @@ public class VRChatClient
 
     private bool lastKnownOpenState;
 
-    public VRChatClient(VRChatOscClient oscClient)
+    public VRChatClient(VRChatOSCClient oscClient)
     {
         Player = new Player(oscClient);
     }

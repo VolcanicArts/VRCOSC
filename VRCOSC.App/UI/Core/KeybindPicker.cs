@@ -39,6 +39,7 @@ public class KeybindPicker : UserControl
     public KeybindPicker()
     {
         MouseDown += KeybindPicker_OnMouseDown;
+        MouseUp += KeybindPicker_OnMouseUp;
         PreviewKeyDown += KeybindPicker_OnPreviewKeyDown;
         PreviewKeyUp += KeybindPicker_OnPreviewKeyUp;
     }
@@ -53,17 +54,29 @@ public class KeybindPicker : UserControl
         keyDownCount = 0;
     }
 
+    private void KeybindPicker_OnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+    }
+
     private void KeybindPicker_OnPreviewKeyUp(object sender, KeyEventArgs e)
     {
         keyDownCount--;
 
         if (keyDownCount != 0) return;
 
-        Keybind = new Keybind
+        if (Modifiers.Count == 0 && Keys.Count == 1 && Keys[0] == Key.Escape)
         {
-            Modifiers = Modifiers.ToList(),
-            Keys = Keys.ToList()
-        };
+            Keybind = new Keybind();
+        }
+        else
+        {
+            Keybind = new Keybind
+            {
+                Modifiers = Modifiers.ToList(),
+                Keys = Keys.ToList()
+            };
+        }
 
         Keyboard.ClearFocus();
     }

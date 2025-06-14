@@ -4,8 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Input;
 using Windows.Win32;
@@ -67,17 +70,46 @@ public static class ObservableCollectionExtensions
     /// Binds a callback to collection changed with the option of running once immediately.
     /// Callback is (NewItems, OldItems)
     /// </summary>
-    /// <remarks>When run once immediately is true, NewItems will contain the collection</remarks>
-    public static void OnCollectionChanged<T>(this ObservableCollection<T> collection, Action<IEnumerable<T>, IEnumerable<T>> callback, bool runOnceImmediately = false)
+    /// <remarks>
+    /// When run once immediately is true, NewItems will contain the entire collection.
+    /// Returns an IDisposable that, when disposed, unregisters the event handler.
+    /// </remarks>
+    public static IDisposable OnCollectionChanged<T>(this ObservableCollection<T> collection, Action<IEnumerable<T>, IEnumerable<T>> callback, bool runOnceImmediately = false)
     {
-        collection.CollectionChanged += (_, e) =>
+        NotifyCollectionChangedEventHandler handler = (_, e) =>
         {
-            callback.Invoke(e.NewItems?.Cast<T>() ?? Array.Empty<T>(), e.OldItems?.Cast<T>() ?? Array.Empty<T>());
+            callback.Invoke(
+                e.NewItems?.Cast<T>() ?? Array.Empty<T>(),
+                e.OldItems?.Cast<T>() ?? Array.Empty<T>());
         };
+
+        collection.CollectionChanged += handler;
 
         if (runOnceImmediately)
         {
             callback.Invoke(collection, Array.Empty<T>());
+        }
+
+        return new DisposableAction(() => collection.CollectionChanged -= handler);
+    }
+
+    private class DisposableAction : IDisposable
+    {
+        private readonly Action _disposeAction;
+        private bool _disposed;
+
+        public DisposableAction(Action disposeAction)
+        {
+            _disposeAction = disposeAction;
+        }
+
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _disposeAction();
+                _disposed = true;
+            }
         }
     }
 }
@@ -209,33 +241,156 @@ public static class KeyExtensions
     }
 }
 
+public static class MemberInfoExtensions
+{
+    public static bool TryGetCustomAttribute<T>(this MemberInfo info, [NotNullWhen(true)] out T? attribute) where T : Attribute
+    {
+        attribute = info.GetCustomAttribute<T>();
+        return attribute is not null;
+    }
+
+    public static bool HasCustomAttribute<T>(this MemberInfo info) where T : Attribute => info.GetCustomAttribute<T>() is not null;
+}
+
+public static class ParameterInfoExtensions
+{
+    public static bool TryGetCustomAttribute<T>(this ParameterInfo info, [NotNullWhen(true)] out T? attribute) where T : Attribute
+    {
+        attribute = info.GetCustomAttribute<T>();
+        return attribute is not null;
+    }
+
+    public static bool HasCustomAttribute<T>(this ParameterInfo info) where T : Attribute => info.GetCustomAttribute<T>() is not null;
+}
+
 public static class TypeExtensions
 {
-    public static string ToReadableName(this Type type)
+    public static object? CreateDefault(this Type type) => type.IsValueType && !type.IsAssignableTo(typeof(Nullable<>)) ? Activator.CreateInstance(type) : null;
+
+    public static Type? GetConstructedGenericBase(this Type typeToCheck, Type genericDef)
     {
-        if (type.IsSubclassOf(typeof(Enum))) return "Enum";
+        if (!genericDef.IsGenericTypeDefinition)
+            throw new ArgumentException("Must be an open generic, e.g. typeof(MyBase<>)", nameof(genericDef));
+
+        var cur = typeToCheck;
+
+        while (cur != null && cur != typeof(object))
+        {
+            var bt = cur.BaseType;
+
+            if (bt is { IsGenericType: true } &&
+                bt.GetGenericTypeDefinition() == genericDef)
+            {
+                return bt;
+            }
+
+            cur = bt;
+        }
+
+        return null;
+    }
+
+    public static bool IsSubclassOfRawGeneric(this Type typeToCheck, Type genericTypeDefinition)
+    {
+        if (!genericTypeDefinition.IsGenericTypeDefinition)
+            throw new ArgumentException("Must be a generic type definition, e.g. typeof(B<>)", nameof(genericTypeDefinition));
+
+        if (typeToCheck.IsGenericType && typeToCheck.GetGenericTypeDefinition() == genericTypeDefinition) return true;
+        if (typeToCheck.GetInterfaces().Any(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == genericTypeDefinition)) return true;
+
+        var baseType = typeToCheck.BaseType;
+        return baseType != null && IsSubclassOfRawGeneric(baseType, genericTypeDefinition);
+    }
+
+    public static string GetFriendlyName(this ParameterInfo pi)
+    {
+        var ctx = new NullabilityInfoContext();
+        var nullInfo = ctx.Create(pi);
+        return pi.ParameterType.GetFriendlyName(nullInfo);
+    }
+
+    public static string GetFriendlyName(this PropertyInfo pi)
+    {
+        var ctx = new NullabilityInfoContext();
+        var nullInfo = ctx.Create(pi);
+        return pi.PropertyType.GetFriendlyName(nullInfo);
+    }
+
+    /// <summary>
+    /// Core formatter: walks the Type (and its nested generic args), consulting the parallel nullInfo tree.
+    /// </summary>
+    public static string GetFriendlyName(this Type t, NullabilityInfo? nullInfo = null)
+    {
+        // 1) Handle Nullable<T> on value types
+        if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>))
+        {
+            // unwrap T and its nullability info
+            var innerType = t.GetGenericArguments()[0];
+            return innerType.GetFriendlyName() + "?";
+        }
+
+        // 2) Handle generic types (e.g. Dictionary<,>, IList<> on interfaces, etc.)
+        string baseName;
+
+        if (t.IsGenericParameter)
+        {
+            baseName = t.Name;
+        }
+        else if (t.IsGenericType)
+        {
+            // strip the `1, `2, etc.
+            var name = t.Name;
+            var idx = name.IndexOf('`');
+            if (idx >= 0) name = name[..idx];
+
+            // recurse into each argument, carrying along its nullInfo
+            var args = t.GetGenericArguments();
+
+            var argNames = args
+                           .Select((argType, i) => argType.GetFriendlyName(nullInfo?.GenericTypeArguments[i]))
+                           .ToArray();
+
+            baseName = $"{name}<{string.Join(", ", argNames)}>";
+        }
+        else
+        {
+            // simple non‐generic
+            baseName = t.toReadableName();
+        }
+
+        // 3) If this is a reference type (class, interface, delegate, array, etc.)
+        //    and the metadata says it's nullable, append “?”
+        if (!t.IsValueType && nullInfo?.ReadState == NullabilityState.Nullable)
+        {
+            baseName += "?";
+        }
+
+        return baseName;
+    }
+
+    private static string toReadableName(this Type type)
+    {
+        if (type.IsEnum) return type.Name;
+        if (type == typeof(object)) return "object";
 
         return Type.GetTypeCode(type) switch
         {
-            TypeCode.Empty => "Null",
-            TypeCode.Object => type.Name,
-            TypeCode.DBNull => "DBNull",
-            TypeCode.Boolean => "Bool",
-            TypeCode.Char => "Char",
-            TypeCode.SByte => "Byte",
-            TypeCode.Byte => "UByte",
-            TypeCode.Int16 => "Short",
-            TypeCode.UInt16 => "UShort",
-            TypeCode.Int32 => "Int",
-            TypeCode.UInt32 => "UInt",
-            TypeCode.Int64 => "Long",
-            TypeCode.UInt64 => "ULong",
-            TypeCode.Single => "Float",
-            TypeCode.Double => "Double",
-            TypeCode.Decimal => "Decimal",
-            TypeCode.DateTime => "DateTime",
-            TypeCode.String => "String",
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Unknown type provided")
+            TypeCode.Empty => "null",
+            TypeCode.Boolean => "bool",
+            TypeCode.Char => "char",
+            TypeCode.Byte => "byte",
+            TypeCode.SByte => "sbyte",
+            TypeCode.Int16 => "short",
+            TypeCode.UInt16 => "ushort",
+            TypeCode.Int32 => "int",
+            TypeCode.UInt32 => "uint",
+            TypeCode.Int64 => "long",
+            TypeCode.UInt64 => "ulong",
+            TypeCode.Single => "float",
+            TypeCode.Double => "double",
+            TypeCode.Decimal => "decimal",
+            TypeCode.String => "string",
+            _ => type.Name
         };
     }
 
@@ -246,6 +401,31 @@ public static class TypeExtensions
             var parameters = constructorInfo.GetParameters();
             return parameters.Length == parameterTypes.Length && !parameters.Where((parameterInfo, i) => !parameterInfo.ParameterType.IsAssignableTo(parameterTypes[i])).Any();
         });
+    }
+
+    public static bool IsTuple(this Type type)
+    {
+        if (!type.IsGenericType)
+            return false;
+
+        var genericType = type.GetGenericTypeDefinition();
+
+        return genericType == typeof(Tuple<>) ||
+               genericType == typeof(Tuple<,>) ||
+               genericType == typeof(Tuple<,,>) ||
+               genericType == typeof(Tuple<,,,>) ||
+               genericType == typeof(Tuple<,,,,>) ||
+               genericType == typeof(Tuple<,,,,,>) ||
+               genericType == typeof(Tuple<,,,,,,>) ||
+               genericType == typeof(Tuple<,,,,,,,>) ||
+               genericType == typeof(ValueTuple<>) ||
+               genericType == typeof(ValueTuple<,>) ||
+               genericType == typeof(ValueTuple<,,>) ||
+               genericType == typeof(ValueTuple<,,,>) ||
+               genericType == typeof(ValueTuple<,,,,>) ||
+               genericType == typeof(ValueTuple<,,,,,>) ||
+               genericType == typeof(ValueTuple<,,,,,,>) ||
+               genericType == typeof(ValueTuple<,,,,,,,>);
     }
 }
 

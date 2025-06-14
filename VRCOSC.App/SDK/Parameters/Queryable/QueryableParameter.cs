@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using VRCOSC.App.SDK.Utils;
@@ -54,7 +55,7 @@ public class QueryableParameter : IEquatable<QueryableParameter>
     {
         previousValid = false;
 
-        var parameter = await AppManager.GetInstance().VRChatOscClient.FindParameter(Name.Value);
+        var parameter = await AppManager.GetInstance().VRChatOscClient.FindParameter(Name.Value, CancellationToken.None);
         if (parameter is null) return;
 
         switch (parameter.Type)
@@ -79,7 +80,7 @@ public class QueryableParameter : IEquatable<QueryableParameter>
         }
     }
 
-    public QueryResult Evaluate(ReceivedParameter parameter)
+    public QueryResult Evaluate(VRChatParameter parameter)
     {
         try
         {

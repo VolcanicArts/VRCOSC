@@ -21,10 +21,10 @@ public partial class ChatBoxPreviewView
 
         DataContext = this;
 
-        AppManager.GetInstance().VRChatOscClient.OnParameterSent += OnParameterSent;
+        AppManager.GetInstance().VRChatOscClient.OnVRChatOSCMessageSent += OnVRChatOSCMessageSent;
     }
 
-    private void OnParameterSent(VRChatOscMessage message) => Dispatcher.Invoke(() =>
+    private void OnVRChatOSCMessageSent(VRChatOSCMessage message) => Dispatcher.Invoke(() =>
     {
         if (!message.IsChatboxInput) return;
 
