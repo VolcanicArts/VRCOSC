@@ -31,7 +31,7 @@ public static class AvatarConfigLoader
             return null;
         }
 
-        var userFolder = oscFolderContents.First();
+        var userFolder = oscFolderContents.OrderByDescending(path => new DirectoryInfo(path).LastWriteTime).First();
 
         var avatarFolderPath = Path.Combine(userFolder, "Avatars");
 
