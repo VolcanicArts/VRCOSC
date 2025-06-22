@@ -90,11 +90,6 @@ public class OVRDeviceManager
         auditLeftController();
         auditRightController();
         auditGenericTrackedDevices();
-
-        foreach (TrackedDevice trackedDevice in TrackedDevices.Values)
-        {
-            trackedDevice.Update();
-        }
     }
 
     private void addTrackedDevice<T>(string serialNumber, DeviceRole deviceRole, uint index) where T : TrackedDevice

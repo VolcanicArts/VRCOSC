@@ -74,6 +74,11 @@ public class OVRClient
         FPS = 1000.0f / OVRHelper.GetFrameTimeMilli();
 
         Input.Update();
+
+        foreach (TrackedDevice trackedDevice in OVRDeviceManager.GetInstance().TrackedDevices.Values)
+        {
+            trackedDevice.Update();
+        }
     }
 
     private void pollEvents()

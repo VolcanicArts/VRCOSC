@@ -1,0 +1,129 @@
+{
+  "alias_info": {},
+  "app_key": "volcanicarts.vrcosc",
+  "bindings": {
+    "/actions/haptic": {
+      "haptics": [
+        {
+          "output": "/actions/haptic/out/lefthand",
+          "path": "/user/hand/left/output/haptic"
+        },
+        {
+          "output": "/actions/haptic/out/righthand",
+          "path": "/user/hand/right/output/haptic"
+        },
+        {
+          "output": "/actions/haptic/out/leftfoot",
+          "path": "/user/foot/left/output/haptic"
+        },
+        {
+          "output": "/actions/haptic/out/rightfoot",
+          "path": "/user/foot/right/output/haptic"
+        },
+        {
+          "output": "/actions/haptic/out/waist",
+          "path": "/user/waist/output/haptic"
+        },
+        {
+          "output": "/actions/haptic/out/chest",
+          "path": "/user/chest/output/haptic"
+        },
+        {
+          "output": "/actions/haptic/out/leftknee",
+          "path": "/user/knee/left/output/haptic"
+        },
+        {
+          "output": "/actions/haptic/out/rightknee",
+          "path": "/user/knee/right/output/haptic"
+        },
+        {
+          "output": "/actions/haptic/out/leftelbow",
+          "path": "/user/elbow/left/output/haptic"
+        },
+        {
+          "output": "/actions/haptic/out/rightelbow",
+          "path": "/user/elbow/right/output/haptic"
+        },
+        {
+          "output": "/actions/haptic/out/head",
+          "path": "/user/head/output/haptic"
+        }
+      ]
+    },
+    "/actions/main": {
+      "sources": [
+        {
+          "inputs": {
+            "position": {
+              "output": "/actions/main/in/left_pad_position"
+            },
+            "touch": {
+              "output": "/actions/main/in/left_pad_touch"
+            },
+            "click": {
+              "output": "/actions/main/in/left_pad_click"
+            }
+          },
+          "mode": "trackpad",
+          "path": "/user/hand/left/input/trackpad"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/main/in/left_grip_click"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/left/input/grip"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/main/in/left_trigger_click"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/left/input/trigger"
+        },
+        {
+          "inputs": {
+            "position": {
+              "output": "/actions/main/in/right_pad_position"
+            },
+            "touch": {
+              "output": "/actions/main/in/right_pad_touch"
+            },
+            "click": {
+              "output": "/actions/main/in/right_pad_click"
+            }
+          },
+          "mode": "trackpad",
+          "path": "/user/hand/right/input/trackpad"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/main/in/right_grip_click"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/grip"
+        },
+        {
+          "inputs": {
+            "click": {
+              "output": "/actions/main/in/right_trigger_click"
+            }
+          },
+          "mode": "button",
+          "path": "/user/hand/right/input/trigger"
+        }
+      ]
+    }
+  },
+  "controller_type": "vive",
+  "description": "A modular OSC program creator made for VRChat",
+  "name": "VRCOSC",
+  "options": {},
+  "simulated_actions": []
+}

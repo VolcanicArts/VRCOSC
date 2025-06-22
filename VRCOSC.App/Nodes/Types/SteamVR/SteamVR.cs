@@ -88,28 +88,134 @@ public sealed class SteamVRDeviceTransformSourceNode : Node, IUpdateNode
     public bool OnUpdate(PulseContext c) => true;
 }
 
-[Node("Button State", "SteamVR")]
-public sealed class SteamVRControllerButtonStateNode : Node, IUpdateNode
+[Node("Controller Trigger", "SteamVR")]
+public sealed class SteamVRControllerTriggerNode : Node, IUpdateNode
 {
     public ValueInput<Controller> Controller = new();
 
-    public ValueOutput<bool> A = new();
-    public ValueOutput<bool> B = new();
+    public ValueOutput<float> Pull = new();
+    public ValueOutput<bool> Touch = new();
+    public ValueOutput<bool> Click = new();
 
     protected override void Process(PulseContext c)
     {
         var controller = Controller.Read(c);
         if (controller is null) return;
 
-        A.Write(controller.Input.A.Touched, c);
-        B.Write(controller.Input.B.Touched, c);
+        Pull.Write(controller.Input.Trigger.Pull, c);
+        Touch.Write(controller.Input.Trigger.Touch, c);
+        Click.Write(controller.Input.Trigger.Click, c);
     }
 
     public bool OnUpdate(PulseContext c) => true;
 }
 
-[Node("Index Fingers", "SteamVR")]
-public sealed class SteamVRIndexFingersNode : Node, IUpdateNode
+[Node("Controller Stick", "SteamVR")]
+public sealed class SteamVRControllerStickNode : Node, IUpdateNode
+{
+    public ValueInput<Controller> Controller = new();
+
+    public ValueOutput<Vector2> Position = new();
+    public ValueOutput<bool> Touch = new();
+    public ValueOutput<bool> Click = new();
+
+    protected override void Process(PulseContext c)
+    {
+        var controller = Controller.Read(c);
+        if (controller is null) return;
+
+        Position.Write(controller.Input.Stick.Position, c);
+        Touch.Write(controller.Input.Stick.Touch, c);
+        Click.Write(controller.Input.Stick.Click, c);
+    }
+
+    public bool OnUpdate(PulseContext c) => true;
+}
+
+[Node("Controller Primary", "SteamVR")]
+public sealed class SteamVRControllerPrimaryNode : Node, IUpdateNode
+{
+    public ValueInput<Controller> Controller = new();
+
+    public ValueOutput<bool> Touch = new();
+    public ValueOutput<bool> Click = new();
+
+    protected override void Process(PulseContext c)
+    {
+        var controller = Controller.Read(c);
+        if (controller is null) return;
+
+        Touch.Write(controller.Input.Primary.Touch, c);
+        Click.Write(controller.Input.Primary.Click, c);
+    }
+
+    public bool OnUpdate(PulseContext c) => true;
+}
+
+[Node("Controller Secondary", "SteamVR")]
+public sealed class SteamVRControllerSecondaryNode : Node, IUpdateNode
+{
+    public ValueInput<Controller> Controller = new();
+
+    public ValueOutput<bool> Touch = new();
+    public ValueOutput<bool> Click = new();
+
+    protected override void Process(PulseContext c)
+    {
+        var controller = Controller.Read(c);
+        if (controller is null) return;
+
+        Touch.Write(controller.Input.Secondary.Touch, c);
+        Click.Write(controller.Input.Secondary.Click, c);
+    }
+
+    public bool OnUpdate(PulseContext c) => true;
+}
+
+[Node("Controller Grip", "SteamVR")]
+public sealed class SteamVRControllerGripNode : Node, IUpdateNode
+{
+    public ValueInput<Controller> Controller = new();
+
+    public ValueOutput<float> Pull = new();
+    public ValueOutput<bool> Click = new();
+
+    protected override void Process(PulseContext c)
+    {
+        var controller = Controller.Read(c);
+        if (controller is null) return;
+
+        Pull.Write(controller.Input.Grip.Pull, c);
+        Click.Write(controller.Input.Grip.Click, c);
+    }
+
+    public bool OnUpdate(PulseContext c) => true;
+}
+
+[Node("Controller Pad", "SteamVR")]
+public sealed class SteamVRControllerPadNode : Node, IUpdateNode
+{
+    public ValueInput<Controller> Controller = new();
+
+    public ValueOutput<Vector2> Position = new();
+    public ValueOutput<bool> Touch = new();
+    public ValueOutput<bool> Click = new();
+
+    protected override void Process(PulseContext c)
+    {
+        var controller = Controller.Read(c);
+        if (controller is null) return;
+
+        Position.Write(controller.Input.Pad.Position, c);
+        Touch.Write(controller.Input.Pad.Touch, c);
+        Click.Write(controller.Input.Pad.Click, c);
+    }
+
+    public bool OnUpdate(PulseContext c) => true;
+}
+
+[Node("Controller Skeleton", "SteamVR")]
+public sealed class SteamVRControllerSkeletonNode : Node, IUpdateNode
 {
     public ValueInput<Controller> Controller = new();
 
@@ -123,10 +229,10 @@ public sealed class SteamVRIndexFingersNode : Node, IUpdateNode
         var controller = Controller.Read(c);
         if (controller is null) return;
 
-        Index.Write(controller.Input.IndexFinger, c);
-        Middle.Write(controller.Input.MiddleFinger, c);
-        Ring.Write(controller.Input.RingFinger, c);
-        Pinky.Write(controller.Input.PinkyFinger, c);
+        Index.Write(controller.Input.Skeleton.Index, c);
+        Middle.Write(controller.Input.Skeleton.Middle, c);
+        Ring.Write(controller.Input.Skeleton.Ring, c);
+        Pinky.Write(controller.Input.Skeleton.Pinky, c);
     }
 
     public bool OnUpdate(PulseContext c) => true;
