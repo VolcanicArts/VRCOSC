@@ -252,6 +252,8 @@
       <Resource Include="Resources\Fonts\Iosevka-SemiBold.ttf">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Resource>
+      <None Remove="Resources\OpenVR\vive_bindings.json" />
+      <EmbeddedResource Include="Resources\OpenVR\vive_bindings.json" />
     </ItemGroup>
 
 </Project>

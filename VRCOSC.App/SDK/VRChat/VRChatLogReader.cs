@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using VRCOSC.App.Modules;
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.Utils;
 
@@ -38,7 +37,11 @@ internal static class VRChatLogReader
 
     private static string? currentWorldId { get; set; }
 
-    public static Action<string>? OnWorldEnter;
+    private static readonly List<IVRCClientEventHandler> handlers = [];
+
+    public static void Register(IVRCClientEventHandler handler) => handlers.Add(handler);
+
+    public static void Deregister(IVRCClientEventHandler handler) => handlers.Remove(handler);
 
     internal static void Start()
     {
@@ -140,8 +143,6 @@ internal static class VRChatLogReader
         return DateTime.ParseExact(foundDateTime, "yyyy.MM.dd HH:mm:ss", null);
     }
 
-    private static IEnumerable<IVRCClientEventHandler> handlers => ModuleManager.GetInstance().GetRunningModulesOfType<IVRCClientEventHandler>();
-
     private static void checkInstanceLeft(LogLine logLine)
     {
         var match = instance_left_regex.Match(logLine.Line);
@@ -169,7 +170,6 @@ internal static class VRChatLogReader
             return;
         }
 
-        OnWorldEnter?.Invoke(currentWorldId);
         handlers.ForEach(handler => handler.OnInstanceJoined(new VRChatClientEventInstanceJoined(logLine.DateTime, currentWorldId)));
     }
 

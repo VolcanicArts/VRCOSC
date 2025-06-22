@@ -7,24 +7,25 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.VRChat;
 
 namespace VRCOSC.App.Utils;
 
-internal static class ChatBoxWorldBlacklist
+internal class ChatBoxWorldBlacklist : IVRCClientEventHandler
 {
     private const string blacklist_url = "https://github.com/cyberkitsune/chatbox-club-blacklist/raw/master/npblacklist.json";
 
-    private static Blacklist? blacklist;
+    private Blacklist? blacklist;
 
-    public static bool IsCurrentWorldBlacklisted { get; private set; }
+    public bool IsCurrentWorldBlacklisted { get; private set; }
 
-    internal static void Init()
+    public ChatBoxWorldBlacklist()
     {
-        VRChatLogReader.OnWorldEnter += updateCurrentWorld;
+        VRChatLogReader.Register(this);
     }
 
-    private static async void updateCurrentWorld(string worldID)
+    private async void updateCurrentWorld(string worldID)
     {
         await requestBlacklist();
 
@@ -32,7 +33,7 @@ internal static class ChatBoxWorldBlacklist
         Logger.Log($"Is world blacklisted?: {(IsCurrentWorldBlacklisted ? "Yes" : "No")}");
     }
 
-    private static async Task requestBlacklist()
+    private async Task requestBlacklist()
     {
         try
         {
@@ -50,6 +51,11 @@ internal static class ChatBoxWorldBlacklist
         {
             blacklist = null;
         }
+    }
+
+    public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
+    {
+        updateCurrentWorld(eventArgs.WorldId);
     }
 }
 

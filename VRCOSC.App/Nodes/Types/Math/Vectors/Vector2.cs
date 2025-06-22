@@ -21,6 +21,21 @@ public class PackVector2Node : Node
     }
 }
 
+[Node("Unpack Vector2", "Math/Vector2")]
+public sealed class UnpackVector2Node : Node
+{
+    public ValueInput<Vector2> Vector = new();
+    public ValueOutput<float> X = new();
+    public ValueOutput<float> Y = new();
+
+    protected override void Process(PulseContext c)
+    {
+        var vector = Vector.Read(c);
+        X.Write(vector.X, c);
+        Y.Write(vector.Y, c);
+    }
+}
+
 [Node("Distance", "Math/Vector2")]
 public sealed class Vector2DistanceNode : Node
 {

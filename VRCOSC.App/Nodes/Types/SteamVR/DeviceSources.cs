@@ -8,40 +8,40 @@ using VRCOSC.App.SDK.OVR.Device;
 namespace VRCOSC.App.Nodes.Types.SteamVR;
 
 [Node("HMD", "SteamVR/Devices")]
-public sealed class SteamVRHMDSourceNode : UpdateNode<HMD>
+public sealed class SteamVRHMDSourceNode : UpdateNode<HMD?>
 {
-    public ValueOutput<HMD> Device = new();
+    public ValueOutput<HMD?> Device = new();
 
     protected override void Process(PulseContext c)
     {
         Device.Write(AppManager.GetInstance().OVRClient.GetHMD(), c);
     }
 
-    protected override HMD GetValue(PulseContext c) => AppManager.GetInstance().OVRClient.GetHMD();
+    protected override HMD? GetValue(PulseContext c) => AppManager.GetInstance().OVRClient.GetHMD();
 }
 
 [Node("Left Controller", "SteamVR/Devices")]
-public sealed class SteamVRLeftControllerSourceNode : UpdateNode<Controller>
+public sealed class SteamVRLeftControllerSourceNode : UpdateNode<Controller?>
 {
-    public ValueOutput<Controller> Device = new();
+    public ValueOutput<Controller?> Device = new();
 
     protected override void Process(PulseContext c)
     {
         Device.Write(AppManager.GetInstance().OVRClient.GetLeftController(), c);
     }
 
-    protected override Controller GetValue(PulseContext c) => AppManager.GetInstance().OVRClient.GetLeftController();
+    protected override Controller? GetValue(PulseContext c) => AppManager.GetInstance().OVRClient.GetLeftController();
 }
 
 [Node("Right Controller", "SteamVR/Devices")]
-public sealed class SteamVRRightControllerSourceNode : UpdateNode<Controller>
+public sealed class SteamVRRightControllerSourceNode : UpdateNode<Controller?>
 {
-    public ValueOutput<Controller> Device = new();
+    public ValueOutput<Controller?> Device = new();
 
     protected override void Process(PulseContext c)
     {
-        Device.Write(AppManager.GetInstance().OVRClient.GetRightController(), c);
+        Device.Write(AppManager.GetInstance().OVRClient.GetRightController()!, c);
     }
 
-    protected override Controller GetValue(PulseContext c) => AppManager.GetInstance().OVRClient.GetRightController();
+    protected override Controller? GetValue(PulseContext c) => AppManager.GetInstance().OVRClient.GetRightController();
 }
