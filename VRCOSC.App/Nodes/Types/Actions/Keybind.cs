@@ -9,8 +9,10 @@ namespace VRCOSC.App.Nodes.Types.Actions;
 [Node("Press Keybind", "Keybind")]
 public class KeybindPressNode : Node, IFlowInput
 {
+    public FlowContinuation Next = new();
+
     public ValueInput<Keybind> Keybind = new();
-    public ValueInput<int> DurationMilliseconds = new();
+    public ValueInput<int> DurationMilliseconds = new("Duration Milliseconds");
 
     protected override void Process(PulseContext c)
     {
@@ -18,18 +20,19 @@ public class KeybindPressNode : Node, IFlowInput
         if (keybind is null) return;
 
         KeySimulator.PressKeybind(keybind, DurationMilliseconds.Read(c)).Wait(c.Token);
+        Next.Execute(c);
     }
 }
 
 [Node("Hold/Release Keybind", "Keybind")]
 public class KeybindHoldReleaseNode : Node, IFlowInput
 {
+    public GlobalStore<bool> PrevCondition = new();
+
     public FlowContinuation Next = new("Next");
 
     public ValueInput<Keybind> Keybind = new();
     public ValueInput<bool> Condition = new();
-
-    public GlobalStore<bool> PrevCondition = new();
 
     protected override void Process(PulseContext c)
     {

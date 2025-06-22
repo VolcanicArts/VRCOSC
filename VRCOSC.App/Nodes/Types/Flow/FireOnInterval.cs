@@ -12,7 +12,7 @@ public sealed class FireOnIntervalNode : Node
     public FlowCall OnInterval = new("On Interval");
 
     [NodeReactive]
-    public ValueInput<int> DelayMilliseconds = new();
+    public ValueInput<int> DelayMilliseconds = new("Delay Milliseconds");
 
     protected override void Process(PulseContext c)
     {

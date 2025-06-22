@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
@@ -75,11 +76,11 @@ public class NodeManager
         }
     }
 
-    public void Stop()
+    public async Task Stop()
     {
         foreach (var graph in Graphs)
         {
-            graph.Stop();
+            await graph.Stop();
         }
     }
 
@@ -96,6 +97,22 @@ public class NodeManager
         foreach (var graph in Graphs)
         {
             graph.OnAvatarChange(config);
+        }
+    }
+
+    public void OnPartialSpeechResult(string result)
+    {
+        foreach (var graph in Graphs)
+        {
+            graph.OnPartialSpeechResult(result);
+        }
+    }
+
+    public void OnFinalSpeechResult(string result)
+    {
+        foreach (var graph in Graphs)
+        {
+            graph.OnFinalSpeechResult(result);
         }
     }
 }

@@ -59,27 +59,24 @@ public class OVRDeviceManager
         switch (deviceRole)
         {
             case DeviceRole.Head:
-                TrackedDevices[serialNumber] = new HMD
+                TrackedDevices[serialNumber] = new HMD(serialNumber)
                 {
-                    SerialNumber = serialNumber,
                     Index = index,
                     Role = deviceRole
                 };
                 return;
 
             case DeviceRole.LeftHand or DeviceRole.RightHand:
-                TrackedDevices[serialNumber] = new Controller
+                TrackedDevices[serialNumber] = new Controller(serialNumber)
                 {
-                    SerialNumber = serialNumber,
                     Index = index,
                     Role = deviceRole
                 };
                 return;
 
             default:
-                TrackedDevices[serialNumber] = new TrackedDevice
+                TrackedDevices[serialNumber] = new TrackedDevice(serialNumber)
                 {
-                    SerialNumber = serialNumber,
                     Index = index,
                     Role = deviceRole
                 };
@@ -109,8 +106,7 @@ public class OVRDeviceManager
         }
 
         Logger.Log($"Auditing new tracked device {serialNumber} as {deviceRole}");
-        TrackedDevice newDevice = Activator.CreateInstance<T>();
-        newDevice.SerialNumber = serialNumber;
+        TrackedDevice newDevice = (TrackedDevice)Activator.CreateInstance(typeof(T), args: [serialNumber])!;
         newDevice.Index = index;
         newDevice.Role = deviceRole;
         TrackedDevices.Add(serialNumber, newDevice);

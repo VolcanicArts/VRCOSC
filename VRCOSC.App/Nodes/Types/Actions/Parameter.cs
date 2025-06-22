@@ -18,7 +18,7 @@ public class IndirectSendParameterNode<T> : Node, IFlowInput where T : unmanaged
     protected override void Process(PulseContext c)
     {
         var name = Name.Read(c);
-        if (string.IsNullOrEmpty(name)) return;
+        if (string.IsNullOrWhiteSpace(name)) return;
 
         AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", Value.Read(c));
         Next.Execute(c);
@@ -38,7 +38,7 @@ public class DirectSendParameterNode<T> : Node, IFlowInput, IHasTextProperty whe
 
     protected override void Process(PulseContext c)
     {
-        if (string.IsNullOrEmpty(Text)) return;
+        if (string.IsNullOrWhiteSpace(Text)) return;
 
         AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{Text}", Value.Read(c));
         Next.Execute(c);

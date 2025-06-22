@@ -5,7 +5,12 @@ using VRCOSC.App.SDK.OVR.Input;
 
 namespace VRCOSC.App.SDK.OVR.Device;
 
-public class Controller : TrackedDevice
+public record Controller : TrackedDevice
 {
+    public Controller(string serialNumber)
+        : base(serialNumber)
+    {
+    }
+
     public InputStates Input { get; } = new();
 }

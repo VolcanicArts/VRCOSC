@@ -3,6 +3,10 @@
 
 namespace VRCOSC.App.SDK.OVR.Device;
 
-public class HMD : TrackedDevice
+public record HMD : TrackedDevice
 {
+    public HMD(string serialNumber)
+        : base(serialNumber)
+    {
+    }
 }

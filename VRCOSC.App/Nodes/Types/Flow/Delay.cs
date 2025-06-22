@@ -15,6 +15,8 @@ public sealed class DelayNode : Node, IFlowInput
 
     protected override void Process(PulseContext c)
     {
+        if (Milliseconds.Read(c) <= 0) return;
+
         Task.Delay(Milliseconds.Read(c), c.Token).Wait(c.Token);
         Next.Execute(c);
     }

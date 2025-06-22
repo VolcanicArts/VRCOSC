@@ -35,9 +35,9 @@ public sealed class CastNode<TFrom, TTo> : Node
 }
 
 [Node("Display", "")]
-public sealed class DisplayNode<T> : UpdateNode<T>, INotifyPropertyChanged
+public sealed class DisplayNode<T> : Node, IDisplayNode, IUpdateNode, INotifyPropertyChanged
 {
-    private T value;
+    private T value = default!;
 
     public T Value
     {
@@ -55,14 +55,12 @@ public sealed class DisplayNode<T> : UpdateNode<T>, INotifyPropertyChanged
 
     protected override void Process(PulseContext c)
     {
+        Value = Input.Read(c);
     }
 
-    // janky, but it's internal so it's fine
-    protected override T GetValue(PulseContext c)
-    {
-        Value = Input.Read(c);
-        return default!;
-    }
+    public bool OnUpdate(PulseContext c) => true;
+
+    public void Clear() => Value = default!;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

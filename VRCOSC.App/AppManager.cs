@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -73,7 +73,7 @@ public class AppManager
     private Repeater openvrCheckTask = null!;
     private Repeater openvrUpdateTask = null!;
 
-    private Dictionary<ParameterDefinition, VRChatParameter> parameterCache { get; } = [];
+    private ConcurrentDictionary<ParameterDefinition, VRChatParameter> parameterCache { get; } = [];
     public AvatarConfig? CurrentAvatarConfig { get; private set; }
 
     public AppManager()
@@ -98,29 +98,39 @@ public class AppManager
 
         SpeechEngine = new WhisperSpeechEngine();
 
-        SpeechEngine.OnPartialResult += result => ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
+        SpeechEngine.OnPartialResult += result =>
         {
-            try
+            ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
             {
-                module.OnPartialSpeechResult(result);
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e, $"{((Module)module).FullID} experienced an issue calling {nameof(ISpeechHandler.OnPartialSpeechResult)}");
-            }
-        });
+                try
+                {
+                    module.OnPartialSpeechResult(result);
+                }
+                catch (Exception e)
+                {
+                    ExceptionHandler.Handle(e, $"{((Module)module).FullID} experienced an issue calling {nameof(ISpeechHandler.OnPartialSpeechResult)}");
+                }
+            });
 
-        SpeechEngine.OnFinalResult += result => ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
+            NodeManager.GetInstance().OnPartialSpeechResult(result);
+        };
+
+        SpeechEngine.OnFinalResult += result =>
         {
-            try
+            ModuleManager.GetInstance().GetRunningModulesOfType<ISpeechHandler>().ForEach(module =>
             {
-                module.OnFinalSpeechResult(result);
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e, $"{((Module)module).FullID} experienced an issue calling {nameof(ISpeechHandler.OnFinalSpeechResult)}");
-            }
-        });
+                try
+                {
+                    module.OnFinalSpeechResult(result);
+                }
+                catch (Exception e)
+                {
+                    ExceptionHandler.Handle(e, $"{((Module)module).FullID} experienced an issue calling {nameof(ISpeechHandler.OnFinalSpeechResult)}");
+                }
+            });
+
+            NodeManager.GetInstance().OnFinalSpeechResult(result);
+        };
 
         var chosenInputDeviceSetting = SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedMicrophoneID);
 
@@ -575,7 +585,7 @@ public class AppManager
         await VRChatOscClient.DisableReceive();
         VRChatOscClient.OnVRChatOSCMessageReceived -= onVRChatOSCMessageReceived;
 
-        NodeManager.GetInstance().Stop();
+        await NodeManager.GetInstance().Stop();
         await VRChatLogReader.Stop();
         await ModuleManager.GetInstance().StopAsync();
         await ChatBoxManager.GetInstance().Stop();

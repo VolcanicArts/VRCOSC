@@ -7,19 +7,19 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.OVR.Device;
 
-public class TrackedDevice
+public record TrackedDevice
 {
     public bool IsValid => Index != OpenVR.k_unTrackedDeviceIndexInvalid;
+
+    /// <summary>
+    /// The serial number of the device. This is unchanging and can be used as a reference between sessions
+    /// </summary>
+    public string SerialNumber { get; }
 
     /// <summary>
     /// The index of the device. This changes between sessions. Do not user this as a reference between sessions
     /// </summary>
     public uint Index { get; internal set; } = OpenVR.k_unTrackedDeviceIndexInvalid;
-
-    /// <summary>
-    /// The serial number of the device. This is unchanging and can be used as a reference between sessions
-    /// </summary>
-    public string SerialNumber { get; internal set; } = string.Empty;
 
     /// <summary>
     /// Whether the device is currently connected to this OVR session
@@ -48,6 +48,11 @@ public class TrackedDevice
 
     public Transform Transform { get; internal set; }
 
+    public TrackedDevice(string serialNumber)
+    {
+        SerialNumber = serialNumber;
+    }
+
     internal void Update()
     {
         if (!IsValid) return;
@@ -58,4 +63,8 @@ public class TrackedDevice
         BatteryPercentage = MathF.Max(0f, IsConnected ? OVRHelper.GetFloatTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float) : 0f);
         Transform = OVRHelper.GetTrackedPose(Index);
     }
+
+    public virtual bool Equals(TrackedDevice? other) => SerialNumber == other?.SerialNumber;
+
+    public override int GetHashCode() => SerialNumber.GetHashCode();
 }

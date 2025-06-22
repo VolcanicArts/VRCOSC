@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -44,19 +44,10 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
 
                         if (property is not null)
                         {
-                            if (propertyValue is double && property.PropertyType == typeof(float))
+                            if (TryConvertToTargetType(propertyValue, property.PropertyType, out var convertedValue))
                             {
-                                property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Single));
-                                continue;
+                                property.SetValue(node, convertedValue);
                             }
-
-                            if (propertyValue is long && property.PropertyType == typeof(int))
-                            {
-                                property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Int32));
-                                continue;
-                            }
-
-                            property.SetValue(node, propertyValue);
                         }
                     }
                 }

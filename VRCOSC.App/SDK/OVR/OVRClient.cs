@@ -58,10 +58,10 @@ public class OVRClient
         OpenVR.Applications.AddApplicationManifest(Metadata.ApplicationManifest, false);
     }
 
-    public TrackedDevice GetTrackedDevice(DeviceRole deviceRole) => OVRDeviceManager.GetInstance().GetTrackedDevice(deviceRole) ?? new TrackedDevice();
-    public HMD GetHMD() => (HMD)(OVRDeviceManager.GetInstance().GetTrackedDevice(DeviceRole.Head) ?? new HMD());
-    public Controller GetLeftController() => (Controller)(OVRDeviceManager.GetInstance().GetTrackedDevice(DeviceRole.LeftHand) ?? new Controller());
-    public Controller GetRightController() => (Controller)(OVRDeviceManager.GetInstance().GetTrackedDevice(DeviceRole.RightHand) ?? new Controller());
+    public TrackedDevice GetTrackedDevice(DeviceRole deviceRole) => OVRDeviceManager.GetInstance().GetTrackedDevice(deviceRole) ?? new TrackedDevice(string.Empty);
+    public HMD GetHMD() => (HMD)(OVRDeviceManager.GetInstance().GetTrackedDevice(DeviceRole.Head) ?? new HMD(string.Empty));
+    public Controller GetLeftController() => (Controller)(OVRDeviceManager.GetInstance().GetTrackedDevice(DeviceRole.LeftHand) ?? new Controller(string.Empty));
+    public Controller GetRightController() => (Controller)(OVRDeviceManager.GetInstance().GetTrackedDevice(DeviceRole.RightHand) ?? new Controller(string.Empty));
 
     internal void Update()
     {

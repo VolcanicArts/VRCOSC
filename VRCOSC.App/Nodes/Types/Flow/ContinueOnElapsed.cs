@@ -17,6 +17,8 @@ public sealed class ContinueOnElapsedNode : Node, IFlowInput
 
     protected override void Process(PulseContext c)
     {
+        if (ElapsedMilliseconds.Read(c) <= 0) return;
+
         var dateTimeNow = DateTime.Now;
 
         if ((dateTimeNow - lastUpdate.Read(c)).TotalMilliseconds >= ElapsedMilliseconds.Read(c))

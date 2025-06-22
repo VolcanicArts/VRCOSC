@@ -10,7 +10,7 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Fire On Change", "Flow")]
 public class FireOnChangeNode<T> : Node
 {
-    public FlowCall OnChange = new("On Change");
+    public FlowCall Next = new("Next");
 
     public GlobalStore<T> PrevValue = new();
 
@@ -20,7 +20,7 @@ public class FireOnChangeNode<T> : Node
     protected override void Process(PulseContext c)
     {
         PrevValue.Write(Value.Read(c), c);
-        OnChange.Execute(c);
+        Next.Execute(c);
     }
 
     protected override bool ShouldProcess(PulseContext c)
@@ -32,7 +32,7 @@ public class FireOnChangeNode<T> : Node
 [Node("Fire On Change Multi", "Flow")]
 public class FireOnChangeMultiNode<T> : Node
 {
-    public FlowCall OnChange = new("On Change");
+    public FlowCall Next = new("Next");
 
     public GlobalStore<List<T>> PrevValues = new();
 
@@ -42,7 +42,7 @@ public class FireOnChangeMultiNode<T> : Node
     protected override void Process(PulseContext c)
     {
         PrevValues.Write(Values.Read(c), c);
-        OnChange.Execute(c);
+        Next.Execute(c);
     }
 
     protected override bool ShouldProcess(PulseContext c)

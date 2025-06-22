@@ -240,11 +240,21 @@ internal interface INodeEventHandler
     public bool HandleNodeStop(PulseContext c) => false;
     public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter) => false;
     public bool HandleAvatarChange(PulseContext c, AvatarConfig? config) => false;
+    public bool HandlePartialSpeechResult(PulseContext c, string result) => false;
+    public bool HandleFinalSpeechResult(PulseContext c, string result) => false;
 }
 
-internal interface IUpdateNode
+internal interface IDisplayNode
 {
-    public bool HasChanged(PulseContext c);
+    public void Clear();
+}
+
+public interface IUpdateNode
+{
+    /// <summary>
+    /// Called at 60hz. Return true if the node should cause a flow process if something has changed.
+    /// </summary>
+    public bool OnUpdate(PulseContext c);
 }
 
 /// <summary>
@@ -255,7 +265,7 @@ public abstract class UpdateNode<T> : Node, IUpdateNode
 {
     private readonly GlobalStore<T> prevValue = new();
 
-    public bool HasChanged(PulseContext c)
+    public bool OnUpdate(PulseContext c)
     {
         var value = GetValue(c);
 

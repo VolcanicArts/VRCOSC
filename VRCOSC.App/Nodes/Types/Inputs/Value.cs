@@ -5,7 +5,7 @@ using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Inputs;
 
-[Node("Value", "Inputs")]
+[Node("Value", "")]
 public sealed class ValueNode<T> : Node
 {
     private T value = default!;

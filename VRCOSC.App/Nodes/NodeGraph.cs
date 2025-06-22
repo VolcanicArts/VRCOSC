@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -38,7 +39,7 @@ public class NodeGraph
     public readonly Dictionary<Type, NodeMetadata> Metadata = [];
     public readonly Dictionary<string, IRef> Variables = [];
     public readonly Dictionary<string, IRef> PersistentVariables = [];
-    public readonly Dictionary<Guid, Dictionary<IStore, IRef>> GlobalStores = [];
+    public readonly ConcurrentDictionary<Guid, Dictionary<IStore, IRef>> GlobalStores = [];
 
     private bool running;
 
@@ -93,23 +94,62 @@ public class NodeGraph
 
         running = true;
         triggerOnStartNodes();
+        walkForwardAllValueNodes();
         startUpdate();
     }
 
-    public void Stop()
+    public async Task Stop()
     {
-        stopUpdate();
+        await updateTokenSource!.CancelAsync();
+        await updateTask!;
         triggerOnStopNodes();
-        // TODO: Wait for all contexts to finish
+        clearDisplayNodes();
+
+        try
+        {
+            await Task.WhenAll(tasks.Values.Select(t => t.Context.Source.CancelAsync()));
+            await Task.WhenAll(tasks.Values.Select(t => t.Task).ToArray());
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e);
+        }
+
+        tasks.Clear();
+        GlobalStores.Clear();
         running = false;
         Variables.Clear();
+    }
+
+    private void walkForwardAllValueNodes()
+    {
+        var triggerNodes = new List<Node>();
+
+        foreach (var node in Nodes.Values.Where(node => !node.Metadata.IsFlow && !node.Metadata.IsValueInput && node.Metadata.IsValueOutput))
+        {
+            walkForward(triggerNodes, node, 0);
+        }
+
+        foreach (var triggerNode in triggerNodes.DistinctBy(node => node.Id))
+        {
+            StartFlow(triggerNode);
+        }
+    }
+
+    private void clearDisplayNodes()
+    {
+        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IDisplayNode))))
+        {
+            ((IDisplayNode)node).Clear();
+        }
     }
 
     private Task? updateTask;
     private CancellationTokenSource? updateTokenSource;
 
-    private IEnumerable<Node> updateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IUpdateNode))
-                                                                        && Connections.Any(c => c.InputNodeId == node.Id || c.OutputNodeId == node.Id));
+    private readonly object updateNodesLock = new();
+
+    private IEnumerable<Node> updateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IUpdateNode)));
 
     private void startUpdate()
     {
@@ -121,18 +161,34 @@ public class NodeGraph
             {
                 while (!updateTokenSource.IsCancellationRequested)
                 {
-                    foreach (var node in updateNodes)
+                    lock (updateNodesLock)
                     {
-                        var c = new PulseContext(this)
+                        foreach (var node in updateNodes)
                         {
-                            CurrentNode = node
-                        };
+                            var c = new PulseContext(this)
+                            {
+                                CurrentNode = node
+                            };
 
-                        backtrackNode(node, c);
+                            backtrackNode(node, c);
 
-                        if (!((IUpdateNode)node).HasChanged(c)) continue;
+                            if (!((IUpdateNode)node).OnUpdate(c)) continue;
+                            if (!node.InternalShouldProcess(c)) continue;
 
-                        _ = Task.Run(() => WalkForward(node), updateTokenSource.Token);
+                            if (node.Metadata.IsFlowOutput && !node.Metadata.IsFlowInput)
+                            {
+                                StartFlow(node);
+                                continue;
+                            }
+
+                            if (node.GetType().IsAssignableTo(typeof(IDisplayNode)))
+                            {
+                                StartFlow(node);
+                                continue;
+                            }
+
+                            _ = Task.Run(() => WalkForward(node), updateTokenSource.Token);
+                        }
                     }
 
                     await Task.Delay(TimeSpan.FromSeconds(1d / 60d), updateTokenSource.Token);
@@ -149,11 +205,6 @@ public class NodeGraph
                 ExceptionHandler.Handle(e);
             }
         }, updateTokenSource.Token);
-    }
-
-    private void stopUpdate()
-    {
-        updateTokenSource?.Cancel();
     }
 
     public void CreatePreset(string name, List<Guid> nodeIds, float posX, float posY)
@@ -184,11 +235,6 @@ public class NodeGraph
         return Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Flow && c.OutputNodeId == nodeId && c.OutputSlot == index);
     }
 
-    public NodeGroup GetGroupById(Guid id)
-    {
-        return Groups.Single(nodeGroup => nodeGroup.Id == id);
-    }
-
     public NodeMetadata GetMetadata(Node node) => Metadata[node.GetType()];
 
     public void WriteStore<T>(GlobalStore<T> globalStore, T value, PulseContext c)
@@ -210,7 +256,7 @@ public class NodeGraph
         if (!GlobalStores.TryGetValue(currentNode.Id, out var nodeStore))
         {
             var value = new Dictionary<IStore, IRef>();
-            GlobalStores.Add(currentNode.Id, value);
+            GlobalStores.TryAdd(currentNode.Id, value);
             nodeStore = value;
         }
 
@@ -233,6 +279,19 @@ public class NodeGraph
         }
     }
 
+    public void RemoveConnection(NodeConnection connection)
+    {
+        Connections.Remove(connection);
+
+        // update all the trigger nodes when we remove a connection
+        var nodes = Nodes.Values.Where(node => connection.InputNodeId == node.Id && node.Metadata.IsTrigger);
+
+        foreach (var node in nodes)
+        {
+            StartFlow(node);
+        }
+    }
+
     public void CreateFlowConnection(Guid outputNodeId, int outputFlowSlot, Guid inputNodeId)
     {
         if (outputNodeId == inputNodeId) return;
@@ -245,7 +304,7 @@ public class NodeGraph
 
         if (outputAlreadyHasConnection is not null)
         {
-            Connections.Remove(outputAlreadyHasConnection);
+            RemoveConnection(outputAlreadyHasConnection);
         }
     }
 
@@ -304,7 +363,7 @@ public class NodeGraph
         // if the input already had a connection, disconnect it
         if (newConnectionMade && existingConnection is not null)
         {
-            Connections.Remove(existingConnection);
+            RemoveConnection(existingConnection);
         }
 
         if (newConnection is not null)
@@ -366,10 +425,12 @@ public class NodeGraph
 
     private record FlowTask(Task Task, PulseContext Context);
 
-    private readonly Dictionary<Node, FlowTask> tasks = [];
+    private readonly ConcurrentDictionary<Node, FlowTask> tasks = [];
 
     private void handleNodeEvent(Func<PulseContext, INodeEventHandler, bool> shouldPropagate)
     {
+        if (!running) return;
+
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
         {
             var c = new PulseContext(this)
@@ -381,7 +442,7 @@ public class NodeGraph
 
             if (!shouldPropagate.Invoke(c, (INodeEventHandler)node)) continue;
 
-            if (node.Metadata.IsFlowOutput && !node.Metadata.IsFlowInput)
+            if (node.Metadata.IsTrigger)
             {
                 StartFlow(node);
                 continue;
@@ -399,6 +460,16 @@ public class NodeGraph
     public void OnAvatarChange(AvatarConfig? config)
     {
         handleNodeEvent((c, node) => node.HandleAvatarChange(c, config));
+    }
+
+    public void OnPartialSpeechResult(string result)
+    {
+        handleNodeEvent((c, node) => node.HandlePartialSpeechResult(c, result));
+    }
+
+    public void OnFinalSpeechResult(string result)
+    {
+        handleNodeEvent((c, node) => node.HandleFinalSpeechResult(c, result));
     }
 
     private void triggerOnStartNodes()
@@ -445,11 +516,13 @@ public class NodeGraph
                 ExceptionHandler.Handle(e);
             }
 
-            tasks.Remove(node);
+            tasks.TryRemove(node, out _);
         }
 
+        c.MarkRan(node.Id);
+
         var newTask = Task.Run(() => node.InternalProcess(c), c.Token);
-        tasks.Add(node, new FlowTask(newTask, c));
+        tasks.TryAdd(node, new FlowTask(newTask, c));
     });
 
     public void ProcessNode(Guid nodeId, PulseContext c)
@@ -466,8 +539,8 @@ public class NodeGraph
         c.CreateMemory(node);
         var currentBefore = c.CurrentNode;
         c.CurrentNode = node;
-        node.InternalProcess(c);
         c.MarkRan(node.Id);
+        node.InternalProcess(c);
         c.CurrentNode = currentBefore;
     }
 
@@ -480,6 +553,7 @@ public class NodeGraph
         var currentBefore = c.CurrentNode;
         c.CurrentNode = node;
         ((IImpulseReceiver)node).WriteOutputs(values, c);
+        c.MarkRan(node.Id);
         node.InternalProcess(c);
         c.CurrentNode = currentBefore;
     }
@@ -492,7 +566,15 @@ public class NodeGraph
             if (connection is null) continue;
 
             var outputNode = Nodes[connection.OutputNodeId];
-            if (outputNode.Metadata.IsFlow) continue;
+
+            if (outputNode.Metadata.IsFlow)
+            {
+                // we want to create default memory so that backtracking the outputs exists
+                if (!c.HasRan(outputNode.Id))
+                    c.CreateMemory(outputNode);
+
+                continue;
+            }
 
             ProcessNode(outputNode, c);
         }
@@ -508,7 +590,7 @@ public class NodeGraph
         var triggerNodes = new List<Node>();
         walkForward(triggerNodes, sourceNode, 0);
 
-        foreach (var node in triggerNodes)
+        foreach (var node in triggerNodes.DistinctBy(node => node.Id))
         {
             StartFlow(node);
         }
