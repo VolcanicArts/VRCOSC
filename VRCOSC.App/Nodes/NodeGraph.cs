@@ -547,6 +547,9 @@ public class NodeGraph : IVRCClientEventHandler
 
         backtrackNode(node, c);
         c.CreateMemory(node);
+
+        if (!node.InternalShouldProcess(c)) return;
+
         var currentBefore = c.CurrentNode;
         c.CurrentNode = node;
         c.MarkRan(node.Id);
@@ -560,6 +563,9 @@ public class NodeGraph : IVRCClientEventHandler
 
         backtrackNode(node, c);
         c.CreateMemory(node);
+
+        if (!node.InternalShouldProcess(c)) return;
+
         var currentBefore = c.CurrentNode;
         c.CurrentNode = node;
         ((IImpulseReceiver)node).WriteOutputs(values, c);
