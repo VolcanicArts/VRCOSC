@@ -1013,10 +1013,10 @@ public abstract class Module
 
         RegisteredParameter? registeredParameter = null;
 
-        foreach (var (lookup, moduleParameter) in readParameters.Where(pair => pair.Value.ExpectedType == parameter.Type))
+        foreach (var (lookup, _) in readParameters.Where(pair => pair.Value.ExpectedType == parameter.Type))
         {
             var templateRegex = parameterNameRegex[lookup];
-            var checkingRegisteredParameter = new RegisteredParameter(lookup, new TemplatedVRChatParameter(moduleParameter.Name.Value, templateRegex, parameter));
+            var checkingRegisteredParameter = new RegisteredParameter(lookup, new TemplatedVRChatParameter(templateRegex, parameter));
             if (!checkingRegisteredParameter.IsMatch()) continue;
 
             registeredParameter = checkingRegisteredParameter;

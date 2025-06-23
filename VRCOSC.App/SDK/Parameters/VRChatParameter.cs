@@ -106,16 +106,13 @@ public record TemplatedVRChatParameter : VRChatParameter
 {
     public static Regex TemplateAsRegex(string template) => new($"^(?:{Regex.Escape(template).Replace(@"\*", @"(\S*?)")})$");
 
-    public string Template { get; }
-
     private Regex templateRegex { get; }
 
     private List<Wildcard> wildcards { get; } = [];
 
-    internal TemplatedVRChatParameter(string template, Regex templateRegex, VRChatParameter other)
+    internal TemplatedVRChatParameter(Regex templateRegex, VRChatParameter other)
         : base(other)
     {
-        Template = template;
         this.templateRegex = templateRegex;
         decodeWildcards();
     }
@@ -123,7 +120,6 @@ public record TemplatedVRChatParameter : VRChatParameter
     internal TemplatedVRChatParameter(string template, VRChatParameter other)
         : base(other)
     {
-        Template = template;
         templateRegex = TemplateAsRegex(template);
         decodeWildcards();
     }

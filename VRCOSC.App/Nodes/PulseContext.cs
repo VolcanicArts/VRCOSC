@@ -88,7 +88,7 @@ public class PulseContext
         return AppManager.GetInstance().CurrentAvatarConfig;
     }
 
-    internal VRChatParameter? GetParameter<T>(string name) where T : unmanaged
+    internal VRChatParameter? GetParameter<T>(string name)
     {
         var parameterDefinition = new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>());
 

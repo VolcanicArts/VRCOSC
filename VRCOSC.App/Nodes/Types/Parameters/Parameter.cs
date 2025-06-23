@@ -68,7 +68,7 @@ public class DriveParameterNode<T> : UpdateNode<T>, IHasTextProperty
 
 [Node("Parameter Source", "Parameters/Receive")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public class ParameterSourceNode<T> : Node, INodeEventHandler, IHasTextProperty where T : unmanaged
+public class ParameterSourceNode<T> : Node, INodeEventHandler, IHasTextProperty
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
@@ -93,7 +93,7 @@ public class ParameterSourceNode<T> : Node, INodeEventHandler, IHasTextProperty 
 
 [Node("Read Parameter", "Parameters/Receive")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public class ReadParameterNode<T> : Node, IFlowInput where T : unmanaged
+public class ReadParameterNode<T> : Node, IFlowInput
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
@@ -113,7 +113,7 @@ public class ReadParameterNode<T> : Node, IFlowInput where T : unmanaged
 }
 
 [Node("Wildcard Parameter Source", "Parameters/Receive/Wildcard")]
-public sealed class WildcardParameterSourceNode<T, W0> : Node, INodeEventHandler, IHasTextProperty where T : unmanaged
+public sealed class WildcardParameterSourceNode<T, W0> : Node, INodeEventHandler, IHasTextProperty
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
@@ -142,7 +142,7 @@ public sealed class WildcardParameterSourceNode<T, W0> : Node, INodeEventHandler
         var parameter = Parameter.Read(c);
         if (parameter is null) return;
 
-        var templatedParameter = new TemplatedVRChatParameter(Text, textRegex, parameter);
+        var templatedParameter = new TemplatedVRChatParameter(textRegex, parameter);
         if (!templatedParameter.IsMatch()) return;
         if (!templatedParameter.IsWildcardType<W0>(0)) return;
 
@@ -160,7 +160,7 @@ public sealed class WildcardParameterSourceNode<T, W0> : Node, INodeEventHandler
 }
 
 [Node("Wildcard Parameter Source 2", "Parameters/Receive/Wildcard")]
-public sealed class WildcardParameterSourceNode<T, W0, W1> : Node, INodeEventHandler, IHasTextProperty where T : unmanaged
+public sealed class WildcardParameterSourceNode<T, W0, W1> : Node, INodeEventHandler, IHasTextProperty
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
@@ -190,7 +190,7 @@ public sealed class WildcardParameterSourceNode<T, W0, W1> : Node, INodeEventHan
         var parameter = Parameter.Read(c);
         if (parameter is null) return;
 
-        var templatedParameter = new TemplatedVRChatParameter(Text, textRegex, parameter);
+        var templatedParameter = new TemplatedVRChatParameter(textRegex, parameter);
         if (!templatedParameter.IsMatch()) return;
         if (!templatedParameter.IsWildcardType<W0>(0)) return;
         if (!templatedParameter.IsWildcardType<W1>(1)) return;
@@ -210,7 +210,7 @@ public sealed class WildcardParameterSourceNode<T, W0, W1> : Node, INodeEventHan
 }
 
 [Node("Wildcard Parameter Source 3", "Parameters/Receive/Wildcard")]
-public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : Node, INodeEventHandler, IHasTextProperty where T : unmanaged
+public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : Node, INodeEventHandler, IHasTextProperty
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
@@ -241,7 +241,7 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : Node, INodeEven
         var parameter = Parameter.Read(c);
         if (parameter is null) return;
 
-        var templatedParameter = new TemplatedVRChatParameter(Text, textRegex, parameter);
+        var templatedParameter = new TemplatedVRChatParameter(textRegex, parameter);
         if (!templatedParameter.IsMatch()) return;
         if (!templatedParameter.IsWildcardType<W0>(0)) return;
         if (!templatedParameter.IsWildcardType<W1>(1)) return;
@@ -263,7 +263,7 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : Node, INodeEven
 }
 
 [Node("Wildcard Parameter Source 4", "Parameters/Receive/Wildcard")]
-public sealed class WildcardParameterSourceNode<T, W0, W1, W2, W3> : Node, INodeEventHandler, IHasTextProperty where T : unmanaged
+public sealed class WildcardParameterSourceNode<T, W0, W1, W2, W3> : Node, INodeEventHandler, IHasTextProperty
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
@@ -295,7 +295,7 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2, W3> : Node, INode
         var parameter = Parameter.Read(c);
         if (parameter is null) return;
 
-        var templatedParameter = new TemplatedVRChatParameter(Text, textRegex, parameter);
+        var templatedParameter = new TemplatedVRChatParameter(textRegex, parameter);
         if (!templatedParameter.IsMatch()) return;
         if (!templatedParameter.IsWildcardType<W0>(0)) return;
         if (!templatedParameter.IsWildcardType<W1>(1)) return;
