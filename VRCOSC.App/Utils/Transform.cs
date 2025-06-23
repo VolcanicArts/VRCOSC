@@ -6,10 +6,16 @@ using System.Numerics;
 
 namespace VRCOSC.App.Utils;
 
-public readonly record struct Transform
+public struct Transform
 {
-    public readonly Vector3 Position;
-    public readonly Quaternion Rotation;
+    public Vector3 Position;
+    public Quaternion Rotation;
+
+    public Transform()
+    {
+        Position = Vector3.Zero;
+        Rotation = Quaternion.Identity;
+    }
 
     public Transform(Vector3 position, Quaternion rotation)
     {
@@ -17,7 +23,7 @@ public readonly record struct Transform
         Rotation = rotation;
     }
 
-    public static Transform Zero => new(Vector3.Zero, Quaternion.Zero);
+    public static Transform Identity => new();
 }
 
 public static class TransformExtensions

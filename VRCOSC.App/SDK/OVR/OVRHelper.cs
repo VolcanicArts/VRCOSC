@@ -52,7 +52,7 @@ internal static class OVRHelper
         var system = OpenVR.System;
 
         if (system == null)
-            return Transform.Zero;
+            return Transform.Identity;
 
         for (uint i = 0; i < OpenVR.k_unMaxTrackedDeviceCount; i++)
         {
@@ -72,7 +72,7 @@ internal static class OVRHelper
                 var pose = poses[i];
 
                 if (!pose.bPoseIsValid)
-                    return Transform.Zero;
+                    return Transform.Identity;
 
                 var mat = pose.mDeviceToAbsoluteTracking;
 
@@ -99,7 +99,7 @@ internal static class OVRHelper
             }
         }
 
-        return Transform.Zero;
+        return Transform.Identity;
     }
 
     internal static InputAnalogActionData_t GetAnalogueInput(ulong identifier)
