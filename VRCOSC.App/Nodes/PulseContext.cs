@@ -88,20 +88,20 @@ public class PulseContext
         return AppManager.GetInstance().CurrentAvatarConfig;
     }
 
-    internal T FindParameter<T>(string name) where T : unmanaged
+    internal VRChatParameter? GetParameter<T>(string name) where T : unmanaged
     {
         var parameterDefinition = new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>());
 
         // we use a local cache here to make sure that a parameter's value doesn't change while a flow is occurring as a single source could be connected to multiple nodes
         for (var i = ScopePointer; i >= 0; i--)
         {
-            if (ParameterCache[i].TryGetValue(parameterDefinition, out var scopedParameter)) return scopedParameter.GetValue<T>();
+            if (ParameterCache[i].TryGetValue(parameterDefinition, out var scopedParameter)) return scopedParameter;
         }
 
         var parameter = AppManager.GetInstance().FindParameter(parameterDefinition, Token).Result;
         if (parameter is not null) ParameterCache[ScopePointer][parameterDefinition] = parameter;
 
-        return parameter?.GetValue<T>() ?? default!;
+        return parameter;
     }
 
     private void processNext(IFlow next)
