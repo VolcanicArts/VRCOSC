@@ -102,12 +102,21 @@ public class OVRClient
 
     public void TriggerHaptic(DeviceRole deviceRole, float durationSeconds, float frequency, float amplitude)
     {
-        if (!HasInitialised || deviceRole == DeviceRole.Unset) return;
+        if (!HasInitialised) return;
 
         var trackedDevice = OVRDeviceManager.GetInstance().GetTrackedDevice(deviceRole);
-        if (trackedDevice is null || !trackedDevice.IsConnected) return;
+        if (trackedDevice is null || !trackedDevice.IsConnected || deviceRole == DeviceRole.Unset) return;
 
         OVRHelper.TriggerHaptic(Input.GetHapticActionHandle(deviceRole), trackedDevice.Index, durationSeconds, frequency, amplitude);
+    }
+
+    public void TriggerHaptic(TrackedDevice trackedDevice, float durationSeconds, float frequency, float amplitude)
+    {
+        if (!HasInitialised) return;
+
+        if (trackedDevice is null || !trackedDevice.IsConnected || trackedDevice.Role == DeviceRole.Unset) return;
+
+        OVRHelper.TriggerHaptic(Input.GetHapticActionHandle(trackedDevice.Role), trackedDevice.Index, durationSeconds, frequency, amplitude);
     }
 
     /// <summary>
