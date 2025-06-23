@@ -21,7 +21,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
 
-public class NodeGraph
+public class NodeGraph : IVRCClientEventHandler
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Observable<string> Name { get; } = new("Default");
@@ -96,10 +96,12 @@ public class NodeGraph
         triggerOnStartNodes();
         walkForwardAllValueNodes();
         startUpdate();
+        VRChatLogReader.Register(this);
     }
 
     public async Task Stop()
     {
+        VRChatLogReader.Deregister(this);
         await updateTokenSource!.CancelAsync();
         await updateTask!;
         triggerOnStopNodes();
@@ -480,6 +482,31 @@ public class NodeGraph
     private void triggerOnStopNodes()
     {
         handleNodeEvent((c, node) => node.HandleNodeStop(c));
+    }
+
+    public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
+    {
+        handleNodeEvent((c, node) => node.HandleOnInstanceJoined(c, eventArgs));
+    }
+
+    public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs)
+    {
+        handleNodeEvent((c, node) => node.HandleOnInstanceLeft(c, eventArgs));
+    }
+
+    public void OnUserJoined(VRChatClientEventUserJoined eventArgs)
+    {
+        handleNodeEvent((c, node) => node.HandleOnUserJoined(c, eventArgs));
+    }
+
+    public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
+    {
+        handleNodeEvent((c, node) => node.HandleOnUserLeft(c, eventArgs));
+    }
+
+    public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs)
+    {
+        handleNodeEvent((c, node) => node.HandleOnAvatarPreChange(c, eventArgs));
     }
 
     public void StartFlow(Node node) => Task.Run(async () =>

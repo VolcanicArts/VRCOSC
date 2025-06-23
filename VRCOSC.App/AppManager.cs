@@ -12,8 +12,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Interop;
-using System.Windows.Media;
 using FastOSC;
 using org.mariuszgromada.math.mxparser;
 using Valve.VR;
@@ -43,7 +41,7 @@ using Module = VRCOSC.App.SDK.Modules.Module;
 
 namespace VRCOSC.App;
 
-public class AppManager
+internal class AppManager
 {
 #if DEBUG
     public const string APP_NAME = "VRCOSC-Dev";
@@ -66,6 +64,7 @@ public class AppManager
     public VRChatOSCClient VRChatOscClient = null!;
     public VRChatClient VRChatClient = null!;
     public OVRClient OVRClient = null!;
+    public ChatBoxWorldBlacklist ChatBoxWorldBlacklist = null!;
 
     public WhisperSpeechEngine SpeechEngine = null!;
 
@@ -94,7 +93,7 @@ public class AppManager
         VRChatOscClient = new VRChatOSCClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
         OVRClient = new OVRClient();
-        ChatBoxWorldBlacklist.Init();
+        ChatBoxWorldBlacklist = new ChatBoxWorldBlacklist();
 
         SpeechEngine = new WhisperSpeechEngine();
 
@@ -213,7 +212,7 @@ public class AppManager
 
         OVRDeviceManager.GetInstance().Update();
 
-        RenderOptions.ProcessRenderMode = OVRClient.HasInitialised ? RenderMode.SoftwareOnly : RenderMode.Default;
+        //RenderOptions.ProcessRenderMode = OVRClient.HasInitialised ? RenderMode.SoftwareOnly : RenderMode.Default;
     });
 
     private async void checkForVRChatAutoStart()
@@ -510,8 +509,8 @@ public class AppManager
         ChatBoxManager.GetInstance().Start();
         await VRChatClient.Player.RetrieveAll();
         await ModuleManager.GetInstance().StartAsync();
-        VRChatLogReader.Start();
         NodeManager.GetInstance().Start();
+        VRChatLogReader.Start();
 
         VRChatOscClient.OnVRChatOSCMessageReceived += onVRChatOSCMessageReceived;
         VRChatOscClient.EnableReceive();
@@ -581,8 +580,8 @@ public class AppManager
         await VRChatOscClient.DisableReceive();
         VRChatOscClient.OnVRChatOSCMessageReceived -= onVRChatOSCMessageReceived;
 
-        await NodeManager.GetInstance().Stop();
         await VRChatLogReader.Stop();
+        await NodeManager.GetInstance().Stop();
         await ModuleManager.GetInstance().StopAsync();
         await ChatBoxManager.GetInstance().Stop();
         VRChatClient.Teardown();

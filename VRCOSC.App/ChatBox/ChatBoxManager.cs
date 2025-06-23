@@ -276,7 +276,7 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     private void evaluateClips()
     {
-        if (ChatBoxWorldBlacklist.IsCurrentWorldBlacklisted && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ChatBoxWorldBlacklist))
+        if (AppManager.GetInstance().ChatBoxWorldBlacklist.IsCurrentWorldBlacklisted && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ChatBoxWorldBlacklist))
         {
             handleClip(null);
             return;

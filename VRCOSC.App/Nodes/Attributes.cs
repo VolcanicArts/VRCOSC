@@ -242,6 +242,11 @@ internal interface INodeEventHandler
     public bool HandleAvatarChange(PulseContext c, AvatarConfig? config) => false;
     public bool HandlePartialSpeechResult(PulseContext c, string result) => false;
     public bool HandleFinalSpeechResult(PulseContext c, string result) => false;
+    public bool HandleOnInstanceJoined(PulseContext c, VRChatClientEventInstanceJoined eventArgs) => false;
+    public bool HandleOnInstanceLeft(PulseContext c, VRChatClientEventInstanceLeft eventArgs) => false;
+    public bool HandleOnUserJoined(PulseContext c, VRChatClientEventUserJoined eventArgs) => false;
+    public bool HandleOnUserLeft(PulseContext c, VRChatClientEventUserLeft eventArgs) => false;
+    public bool HandleOnAvatarPreChange(PulseContext c, VRChatClientEventAvatarPreChange eventArgs) => false;
 }
 
 internal interface IDisplayNode
