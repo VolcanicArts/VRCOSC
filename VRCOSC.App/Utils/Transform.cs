@@ -26,28 +26,36 @@ public static class TransformExtensions
     {
         q = Quaternion.Normalize(q);
 
-        var sinrCosp = 2 * (q.W * q.X + q.Y * q.Z);
-        var cosrCosp = 1 - 2 * (q.X * q.X + q.Y * q.Y);
-        var roll = MathF.Atan2(sinrCosp, cosrCosp);
+        // Pitch (X-axis)
+        var sinp = 2 * (q.W * q.X + q.Y * q.Z);
+        var cosp = 1 - 2 * (q.X * q.X + q.Y * q.Y);
+        var pitch = MathF.Atan2(sinp, cosp);
 
-        var sinp = 2 * (q.W * q.Y - q.Z * q.X);
+        // Yaw (Y-axis)
+        var siny = 2 * (q.W * q.Y - q.Z * q.X);
 
-        // Use 90 degrees if out of range
-        var pitch = MathF.Abs(sinp) >= 1 ? MathF.CopySign(MathF.PI / 2, sinp) : MathF.Asin(sinp);
+        var yaw = MathF.Abs(siny) >= 1
+            ? MathF.CopySign(MathF.PI / 2, siny)
+            : MathF.Asin(siny);
 
-        var sinyCosp = 2 * (q.W * q.Z + q.X * q.Y);
-        var cosyCosp = 1 - 2 * (q.Y * q.Y + q.Z * q.Z);
-        var yaw = MathF.Atan2(sinyCosp, cosyCosp);
+        // Roll (Z-axis)
+        var sinr = 2 * (q.W * q.Z + q.X * q.Y);
+        var cosr = 1 - 2 * (q.Y * q.Y + q.Z * q.Z);
+        var roll = MathF.Atan2(sinr, cosr);
 
         return new Vector3(
-            pitch * 180f / MathF.PI,
-            yaw * 180f / MathF.PI,
-            roll * 180f / MathF.PI
+            float.RadiansToDegrees(pitch),
+            float.RadiansToDegrees(yaw),
+            float.RadiansToDegrees(roll)
         );
     }
 
     public static Quaternion EulerToQuaternion(this Vector3 vector)
     {
-        return Quaternion.CreateFromYawPitchRoll(vector.Y, vector.X, vector.Z);
+        var pitch = float.DegreesToRadians(vector.X);
+        var yaw = float.DegreesToRadians(vector.Y);
+        var roll = float.DegreesToRadians(vector.Z);
+
+        return Quaternion.CreateFromYawPitchRoll(yaw, pitch, roll);
     }
 }
