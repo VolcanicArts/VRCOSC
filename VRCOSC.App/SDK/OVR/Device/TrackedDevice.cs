@@ -61,10 +61,28 @@ public record TrackedDevice
         ProvidesBatteryStatus = IsConnected && OVRHelper.GetBoolTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
         IsCharging = IsConnected && OVRHelper.GetBoolTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
         BatteryPercentage = MathF.Max(0f, IsConnected ? OVRHelper.GetFloatTrackedDeviceProperty(Index, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float) : 0f);
-        Transform = OVRHelper.GetTrackedPose(Index);
+        Transform = OVRHelper.GetTrackedPose(SerialNumber);
     }
 
     public virtual bool Equals(TrackedDevice? other) => SerialNumber == other?.SerialNumber;
 
     public override int GetHashCode() => SerialNumber.GetHashCode();
+}
+
+public record HMD : TrackedDevice
+{
+    public HMD(string serialNumber)
+        : base(serialNumber)
+    {
+    }
+}
+
+public record Controller : TrackedDevice
+{
+    public Controller(string serialNumber)
+        : base(serialNumber)
+    {
+    }
+
+    public InputState Input;
 }

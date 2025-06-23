@@ -188,8 +188,8 @@
 		}
 	},
 	"controller_type": "oculus_touch",
-	"description": "A modular OSC program creator made for VRChat",
-	"name": "VRCOSC",
+	"description": "Oculus Bindings for VRCOSC",
+	"name": "vrcosc_oculus_touch",
 	"options": {},
 	"simulated_actions": []
 }

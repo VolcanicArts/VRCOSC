@@ -10,6 +10,7 @@ using VRCOSC.App.SDK.OVR.Device;
 namespace VRCOSC.App.Nodes.Types.SteamVR;
 
 [Node("Is Dashboard Visible", "SteamVR")]
+[NodeCollapsed]
 public sealed class SteamVRIsDashboardVisibleNode : Node, IUpdateNode
 {
     public ValueOutput<bool> IsVisible = new("Is Visible");
@@ -23,6 +24,7 @@ public sealed class SteamVRIsDashboardVisibleNode : Node, IUpdateNode
 }
 
 [Node("Is User Present", "SteamVR")]
+[NodeCollapsed]
 public sealed class SteamVRIsUserPresentNode : Node, IUpdateNode
 {
     public ValueOutput<bool> IsPresent = new();
@@ -35,7 +37,8 @@ public sealed class SteamVRIsUserPresentNode : Node, IUpdateNode
     public bool OnUpdate(PulseContext c) => true;
 }
 
-[Node("FPS", "SteamVR")]
+[Node("VR FPS", "SteamVR")]
+[NodeCollapsed]
 public sealed class SteamVRFPSNode : Node, IUpdateNode
 {
     public ValueOutput<float> FPS = new();
@@ -48,8 +51,8 @@ public sealed class SteamVRFPSNode : Node, IUpdateNode
     public bool OnUpdate(PulseContext c) => true;
 }
 
-[Node("Tracked Device Info", "SteamVR")]
-public sealed class SteamVRTrackedDeviceInfoNode : Node, IUpdateNode
+[Node("Device Info", "SteamVR")]
+public sealed class SteamVRDeviceInfoNode : Node, IUpdateNode
 {
     public ValueInput<TrackedDevice> Device = new();
     public ValueOutput<bool> IsConnected = new("Is Connected");
@@ -66,7 +69,7 @@ public sealed class SteamVRTrackedDeviceInfoNode : Node, IUpdateNode
         Battery.Write(device.BatteryPercentage, c);
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public bool OnUpdate(PulseContext c) => Device.Read(c) is not null;
 }
 
 [Node("Device Transform", "SteamVR")]
@@ -85,10 +88,10 @@ public sealed class SteamVRDeviceTransformSourceNode : Node, IUpdateNode
         Rot.Write(device.Transform.Rotation, c);
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public bool OnUpdate(PulseContext c) => Device.Read(c) is not null;
 }
 
-[Node("Controller Trigger", "SteamVR")]
+[Node("Controller Trigger", "SteamVR/Input")]
 public sealed class SteamVRControllerTriggerNode : Node, IUpdateNode
 {
     public ValueInput<Controller> Controller = new();
@@ -107,10 +110,10 @@ public sealed class SteamVRControllerTriggerNode : Node, IUpdateNode
         Click.Write(controller.Input.Trigger.Click, c);
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
 }
 
-[Node("Controller Stick", "SteamVR")]
+[Node("Controller Stick", "SteamVR/Input")]
 public sealed class SteamVRControllerStickNode : Node, IUpdateNode
 {
     public ValueInput<Controller> Controller = new();
@@ -129,10 +132,10 @@ public sealed class SteamVRControllerStickNode : Node, IUpdateNode
         Click.Write(controller.Input.Stick.Click, c);
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
 }
 
-[Node("Controller Primary", "SteamVR")]
+[Node("Controller Primary", "SteamVR/Input")]
 public sealed class SteamVRControllerPrimaryNode : Node, IUpdateNode
 {
     public ValueInput<Controller> Controller = new();
@@ -149,10 +152,10 @@ public sealed class SteamVRControllerPrimaryNode : Node, IUpdateNode
         Click.Write(controller.Input.Primary.Click, c);
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
 }
 
-[Node("Controller Secondary", "SteamVR")]
+[Node("Controller Secondary", "SteamVR/Input")]
 public sealed class SteamVRControllerSecondaryNode : Node, IUpdateNode
 {
     public ValueInput<Controller> Controller = new();
@@ -169,10 +172,10 @@ public sealed class SteamVRControllerSecondaryNode : Node, IUpdateNode
         Click.Write(controller.Input.Secondary.Click, c);
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
 }
 
-[Node("Controller Grip", "SteamVR")]
+[Node("Controller Grip", "SteamVR/Input")]
 public sealed class SteamVRControllerGripNode : Node, IUpdateNode
 {
     public ValueInput<Controller> Controller = new();
@@ -189,10 +192,10 @@ public sealed class SteamVRControllerGripNode : Node, IUpdateNode
         Click.Write(controller.Input.Grip.Click, c);
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
 }
 
-[Node("Controller Pad", "SteamVR")]
+[Node("Controller Pad", "SteamVR/Input")]
 public sealed class SteamVRControllerPadNode : Node, IUpdateNode
 {
     public ValueInput<Controller> Controller = new();
@@ -211,10 +214,10 @@ public sealed class SteamVRControllerPadNode : Node, IUpdateNode
         Click.Write(controller.Input.Pad.Click, c);
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
 }
 
-[Node("Controller Skeleton", "SteamVR")]
+[Node("Controller Skeleton", "SteamVR/Input")]
 public sealed class SteamVRControllerSkeletonNode : Node, IUpdateNode
 {
     public ValueInput<Controller> Controller = new();
@@ -235,5 +238,5 @@ public sealed class SteamVRControllerSkeletonNode : Node, IUpdateNode
         Pinky.Write(controller.Input.Skeleton.Pinky, c);
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
 }

@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Valve.VR;
+using VRCOSC.App.OVR;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.OVR;
@@ -46,34 +47,59 @@ internal static class OVRHelper
         return frameTiming.m_flTotalRenderGpuMs;
     }
 
-    internal static Transform GetTrackedPose(uint deviceIndex)
+    internal static Transform GetTrackedPose(string serialNumber)
     {
-        if (!OpenVR.System.IsTrackedDeviceConnected(deviceIndex))
+        var system = OpenVR.System;
+
+        if (system == null)
             return Transform.Zero;
 
-        var poses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
-        OpenVR.System.GetDeviceToAbsoluteTrackingPose(ETrackingUniverseOrigin.TrackingUniverseStanding, 0, poses);
+        for (uint i = 0; i < OpenVR.k_unMaxTrackedDeviceCount; i++)
+        {
+            if (!system.IsTrackedDeviceConnected(i))
+                continue;
 
-        var pose = poses[deviceIndex];
+            var deviceSerial = GetStringTrackedDeviceProperty(i, ETrackedDeviceProperty.Prop_SerialNumber_String);
 
-        if (!pose.bPoseIsValid)
-            return Transform.Zero;
+            if (string.IsNullOrEmpty(deviceSerial))
+                continue;
 
-        var mat = pose.mDeviceToAbsoluteTracking;
+            if (deviceSerial == serialNumber)
+            {
+                var poses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
+                OpenVR.System.GetDeviceToAbsoluteTrackingPose(ETrackingUniverseOrigin.TrackingUniverseStanding, 0, poses);
 
-        // Convert from SteamVR's right-handed system
-        Vector3 position = new Vector3(mat.m3, mat.m7, -mat.m11);
+                var pose = poses[i];
 
-        Matrix4x4 matrix = new Matrix4x4(
-            mat.m0, mat.m1, mat.m2, 0,
-            mat.m4, mat.m5, mat.m6, 0,
-            mat.m8, mat.m9, mat.m10, 0,
-            0, 0, 0, 1
-        );
+                if (!pose.bPoseIsValid)
+                    return Transform.Zero;
 
-        Quaternion rotation = Quaternion.CreateFromRotationMatrix(matrix);
+                var mat = pose.mDeviceToAbsoluteTracking;
 
-        return new Transform(position, rotation);
+                var position = new Vector3(mat.m3, mat.m7, mat.m11);
+
+                var matrix = new Matrix4x4(
+                    mat.m0, mat.m1, mat.m2, 0,
+                    mat.m4, mat.m5, mat.m6, 0,
+                    mat.m8, mat.m9, mat.m10, 0,
+                    0, 0, 0, 1
+                );
+
+                var rotation = Quaternion.CreateFromRotationMatrix(matrix);
+
+                var role = OVRDeviceManager.GetInstance().GetTrackedDevice(serialNumber)?.Role;
+
+                // Apply role-based rotation correction (Z-up to Z-forward)
+                if (role is DeviceRole.Waist or DeviceRole.Chest or DeviceRole.LeftFoot or DeviceRole.RightFoot or DeviceRole.LeftKnee or DeviceRole.RightKnee or DeviceRole.LeftElbow or DeviceRole.RightElbow)
+                {
+                    rotation = Quaternion.Multiply(rotation, Quaternion.CreateFromAxisAngle(Vector3.UnitX, -MathF.PI / 2));
+                }
+
+                return new Transform(position, rotation);
+            }
+        }
+
+        return Transform.Zero;
     }
 
     internal static InputAnalogActionData_t GetAnalogueInput(ulong identifier)
@@ -114,7 +140,7 @@ internal static class OVRHelper
 
     internal static bool GetBoolTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
-        if (index == OpenVR.k_unTrackedDeviceIndexInvalid) return default;
+        if (index == OpenVR.k_unTrackedDeviceIndexInvalid) return false;
 
         var error = ETrackedPropertyError.TrackedProp_Success;
         var value = OpenVR.System.GetBoolTrackedDeviceProperty(index, property, ref error);
@@ -127,7 +153,7 @@ internal static class OVRHelper
 
     internal static int GetInt32TrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
-        if (index == OpenVR.k_unTrackedDeviceIndexInvalid) return default;
+        if (index == OpenVR.k_unTrackedDeviceIndexInvalid) return 0;
 
         var error = ETrackedPropertyError.TrackedProp_Success;
         var value = OpenVR.System.GetInt32TrackedDeviceProperty(index, property, ref error);
@@ -140,7 +166,7 @@ internal static class OVRHelper
 
     internal static float GetFloatTrackedDeviceProperty(uint index, ETrackedDeviceProperty property)
     {
-        if (index == OpenVR.k_unTrackedDeviceIndexInvalid) return default;
+        if (index == OpenVR.k_unTrackedDeviceIndexInvalid) return 0f;
 
         var error = ETrackedPropertyError.TrackedProp_Success;
         var value = OpenVR.System.GetFloatTrackedDeviceProperty(index, property, ref error);

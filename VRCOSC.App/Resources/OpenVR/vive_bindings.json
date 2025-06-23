@@ -122,8 +122,6 @@
     }
   },
   "controller_type": "vive",
-  "description": "A modular OSC program creator made for VRChat",
-  "name": "VRCOSC",
-  "options": {},
-  "simulated_actions": []
+  "description": "Vive bindings for VRCOSC",
+  "name": "vrcosc_vive"
 }

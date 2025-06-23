@@ -148,8 +148,6 @@ public class AppManager
 
         OVRClient.OnShutdown += () => Application.Current.Dispatcher.Invoke(() =>
         {
-            OVRDeviceManager.GetInstance().Serialise();
-
             if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.OVRAutoClose))
             {
                 Application.Current.Shutdown();
@@ -161,8 +159,6 @@ public class AppManager
 
     public void InitialLoadComplete()
     {
-        OVRDeviceManager.GetInstance().Deserialise();
-
         VRChatOscClient.Init(ConnectionManager);
 
         vrchatCheckTask = new Repeater($"{nameof(AppManager)}-{nameof(checkForVRChatAutoStart)}", checkForVRChatAutoStart);

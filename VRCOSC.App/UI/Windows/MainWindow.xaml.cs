@@ -18,7 +18,6 @@ using VRCOSC.App.ChatBox;
 using VRCOSC.App.Dolly;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Nodes;
-using VRCOSC.App.OVR;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
@@ -122,8 +121,6 @@ public partial class MainWindow
             Close();
             return;
         }
-
-        OVRDeviceManager.GetInstance().Serialise();
 
         trayIcon?.Dispose();
     }

@@ -2,35 +2,39 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Concurrent;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using Valve.VR;
-using VRCOSC.App.OVR.Serialisation;
 using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.OVR.Device;
-using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.OVR;
 
 public class OVRDeviceManager
 {
+    private static readonly string openvrpathsfilelocation = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "openvr", "openvrpaths.vrpath");
+
     private static OVRDeviceManager? instance;
     internal static OVRDeviceManager GetInstance() => instance ??= new OVRDeviceManager();
 
+    // qualified serial number : device role
+    internal ConcurrentDictionary<string, DeviceRole> Roles { get; } = new();
+
     // serial number : tracked device
-    internal ObservableDictionary<string, TrackedDevice> TrackedDevices { get; } = new();
+    internal ConcurrentDictionary<string, TrackedDevice> TrackedDevices { get; } = new();
 
     private readonly object deviceRolesLock = new();
 
-    private readonly SerialisationManager serialisationManager = new();
-
-    internal OVRDeviceManager()
+    public TrackedDevice? GetTrackedDevice(string serialNumber)
     {
-        serialisationManager.RegisterSerialiser(1, new OVRDeviceManagerSerialiser(AppManager.GetInstance().Storage, this));
+        lock (deviceRolesLock)
+        {
+            return TrackedDevices.Values.Where(trackedDevice => trackedDevice.SerialNumber == serialNumber && trackedDevice.IsConnected).MaxBy(trackedDevice => trackedDevice.Index);
+        }
     }
-
-    public void Deserialise() => serialisationManager.Deserialise();
-    public void Serialise() => serialisationManager.Serialise();
 
     public TrackedDevice? GetTrackedDevice(DeviceRole role)
     {
@@ -40,10 +44,8 @@ public class OVRDeviceManager
         }
     }
 
-    public void AddOrUpdateDeviceRole(string serialNumber, DeviceRole deviceRole)
+    private void addOrUpdateDeviceRole(string serialNumber, DeviceRole deviceRole, uint index)
     {
-        var index = OpenVR.k_unTrackedDeviceIndexInvalid;
-
         if (TrackedDevices.TryGetValue(serialNumber, out var device))
         {
             index = device.Index;
@@ -86,25 +88,36 @@ public class OVRDeviceManager
 
     public void Update()
     {
+        getRolesFromSteamVR();
         auditHMD();
         auditLeftController();
         auditRightController();
         auditGenericTrackedDevices();
     }
 
-    private void addTrackedDevice<T>(string serialNumber, DeviceRole deviceRole, uint index) where T : TrackedDevice
+    private void getRolesFromSteamVR()
     {
-        if (TrackedDevices.TryGetValue(serialNumber, out var existingDevice))
-        {
-            existingDevice.Index = index;
-            return;
-        }
+        Roles.Clear();
 
-        Logger.Log($"Auditing new tracked device {serialNumber} as {deviceRole}");
-        TrackedDevice newDevice = (TrackedDevice)Activator.CreateInstance(typeof(T), args: [serialNumber])!;
-        newDevice.Index = index;
-        newDevice.Role = deviceRole;
-        TrackedDevices.Add(serialNumber, newDevice);
+        if (!File.Exists(openvrpathsfilelocation)) return;
+
+        var openVRPaths = JsonConvert.DeserializeObject<OpenVRPaths>(File.ReadAllText(openvrpathsfilelocation));
+        if (openVRPaths is null) return;
+
+        var steamVRSettingsFilePath = Path.Join(openVRPaths.Config[0], "steamvr.vrsettings");
+        if (!File.Exists(steamVRSettingsFilePath)) return;
+
+        var steamVRSettings = JsonConvert.DeserializeObject<SteamVRSettings>(File.ReadAllText(steamVRSettingsFilePath));
+        if (steamVRSettings is null) return;
+
+        var trackers = steamVRSettings.Trackers;
+
+        foreach (var (key, value) in trackers)
+        {
+            var serialNumber = key.Split('/').Last();
+            var role = Enum.Parse<DeviceRole>(value.Split('_').Last());
+            Roles.TryAdd(serialNumber, role);
+        }
     }
 
     private void auditHMD()
@@ -113,8 +126,7 @@ public class OVRDeviceManager
         if (connectedHMDIndex == OpenVR.k_unTrackedDeviceIndexInvalid) return;
 
         var connectedHMDSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedHMDIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
-
-        addTrackedDevice<HMD>(connectedHMDSerial, DeviceRole.Head, connectedHMDIndex);
+        addOrUpdateDeviceRole(connectedHMDSerial, DeviceRole.Head, connectedHMDIndex);
     }
 
     private void auditLeftController()
@@ -127,8 +139,7 @@ public class OVRDeviceManager
             if (connectedLeftControllerIndex == OpenVR.k_unTrackedDeviceIndexInvalid) return;
 
             var connectedLeftControllerSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedLeftControllerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
-
-            addTrackedDevice<Controller>(connectedLeftControllerSerial, DeviceRole.LeftHand, connectedLeftControllerIndex);
+            addOrUpdateDeviceRole(connectedLeftControllerSerial, DeviceRole.LeftHand, connectedLeftControllerIndex);
         }
         else
         {
@@ -136,7 +147,7 @@ public class OVRDeviceManager
             {
                 var connectedLeftControllerSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedLeftControllerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
 
-                addTrackedDevice<Controller>(connectedLeftControllerSerial, DeviceRole.LeftHand, connectedLeftControllerIndex);
+                addOrUpdateDeviceRole(connectedLeftControllerSerial, DeviceRole.LeftHand, connectedLeftControllerIndex);
             }
         }
     }
@@ -152,7 +163,7 @@ public class OVRDeviceManager
 
             var connectedRightControllerSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedRightControllerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
 
-            addTrackedDevice<Controller>(connectedRightControllerSerial, DeviceRole.RightHand, connectedRightControllerIndex);
+            addOrUpdateDeviceRole(connectedRightControllerSerial, DeviceRole.RightHand, connectedRightControllerIndex);
         }
         else
         {
@@ -160,7 +171,7 @@ public class OVRDeviceManager
             {
                 var connectedRightControllerSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedRightControllerIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
 
-                addTrackedDevice<Controller>(connectedRightControllerSerial, DeviceRole.RightHand, connectedRightControllerIndex);
+                addOrUpdateDeviceRole(connectedRightControllerSerial, DeviceRole.RightHand, connectedRightControllerIndex);
             }
         }
     }
@@ -173,7 +184,15 @@ public class OVRDeviceManager
         {
             var connectedGenericDeviceSerial = OVRHelper.GetStringTrackedDeviceProperty(connectedGenericDeviceIndex, ETrackedDeviceProperty.Prop_SerialNumber_String);
 
-            addTrackedDevice<TrackedDevice>(connectedGenericDeviceSerial, DeviceRole.Unset, connectedGenericDeviceIndex);
+            if (Roles.Any(pair => pair.Key.EndsWith(connectedGenericDeviceSerial)))
+            {
+                var deviceRole = Roles.Single(pair => pair.Key.EndsWith(connectedGenericDeviceSerial)).Value;
+                addOrUpdateDeviceRole(connectedGenericDeviceSerial, deviceRole, connectedGenericDeviceIndex);
+            }
+            else
+            {
+                addOrUpdateDeviceRole(connectedGenericDeviceSerial, DeviceRole.Unset, connectedGenericDeviceIndex);
+            }
         }
     }
 }

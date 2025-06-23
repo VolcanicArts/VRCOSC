@@ -290,8 +290,8 @@
 		}
 	},
 	"controller_type": "knuckles",
-	"description": "A modular OSC program creator made for VRChat",
-	"name": "VRCOSC",
+	"description": "Knuckles bindings for VRCOSC",
+	"name": "vrcosc_knuckles",
 	"options": {},
 	"simulated_actions": []
 }

@@ -58,6 +58,7 @@ public class OVRClient
         OpenVR.Applications.AddApplicationManifest(Metadata.ApplicationManifest, false);
     }
 
+    public TrackedDevice? GetTrackedDevice(string serialNumber) => OVRDeviceManager.GetInstance().GetTrackedDevice(serialNumber);
     public TrackedDevice? GetTrackedDevice(DeviceRole deviceRole) => OVRDeviceManager.GetInstance().GetTrackedDevice(deviceRole);
     public HMD? GetHMD() => (HMD?)OVRDeviceManager.GetInstance().GetTrackedDevice(DeviceRole.Head);
     public Controller? GetLeftController() => (Controller?)OVRDeviceManager.GetInstance().GetTrackedDevice(DeviceRole.LeftHand);
@@ -117,7 +118,7 @@ public class OVRClient
         if (!HasInitialised) return false;
 
         var hmd = GetHMD();
-        if (!hmd.IsConnected) return false;
+        if (hmd is null || !hmd.IsConnected) return false;
 
         return OpenVR.System.GetTrackedDeviceActivityLevel(hmd.Index) == EDeviceActivityLevel.k_EDeviceActivityLevel_UserInteraction;
     }
