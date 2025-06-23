@@ -18,6 +18,7 @@ using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.Modules;
 using VRCOSC.App.OSC.VRChat;
+using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.SDK.Modules.Attributes.Types;
 using VRCOSC.App.SDK.OVR;
@@ -242,6 +243,11 @@ public abstract class Module
 
             initialiseUpdateAttributes(GetType());
 
+            if (GetType().IsAssignableTo(typeof(IVRCClientEventHandler)))
+            {
+                VRChatLogReader.Register((IVRCClientEventHandler)this);
+            }
+
             State.Value = ModuleState.Started;
         }
         catch (Exception e)
@@ -254,6 +260,11 @@ public abstract class Module
     internal async Task Stop()
     {
         State.Value = ModuleState.Stopping;
+
+        if (GetType().IsAssignableTo(typeof(IVRCClientEventHandler)))
+        {
+            VRChatLogReader.Deregister((IVRCClientEventHandler)this);
+        }
 
         foreach (var updateTask in updateTasks) await updateTask.StopAsync();
         updateTasks.Clear();
