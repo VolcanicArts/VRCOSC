@@ -168,8 +168,8 @@ public class NodeGraph : IVRCClientEventHandler
 
                             backtrackNode(node, c);
 
-                            if (!((IUpdateNode)node).OnUpdate(c)) continue;
                             if (!node.InternalShouldProcess(c)) continue;
+                            if (!((IUpdateNode)node).OnUpdate(c)) continue;
 
                             if (node.Metadata.IsTrigger || (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput))
                             {
