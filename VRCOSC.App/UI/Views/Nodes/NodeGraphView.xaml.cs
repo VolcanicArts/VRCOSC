@@ -454,9 +454,9 @@ public partial class NodeGraphView
             brush = new LinearGradientBrush(connection.OutputType?.GetTypeBrush().Color ?? Brushes.Black.Color, connection.InputType?.GetTypeBrush().Color ?? Brushes.Black.Color, new Point(0, 0),
                 new Point(1, 1))
             {
-                MappingMode = BrushMappingMode.Absolute,
-                StartPoint = startPoint,
-                EndPoint = endPoint
+                MappingMode = BrushMappingMode.RelativeToBoundingBox,
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 1)
             };
         }
 
