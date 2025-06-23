@@ -615,7 +615,11 @@ public class NodeGraph : IVRCClientEventHandler
         if (!running) return;
 
         var triggerNodes = new List<Node>();
-        walkForward(triggerNodes, sourceNode, 0);
+
+        for (var i = 0; i < sourceNode.VirtualValueOutputCount(); i++)
+        {
+            walkForward(triggerNodes, sourceNode, i);
+        }
 
         foreach (var node in triggerNodes.DistinctBy(node => node.Id))
         {
