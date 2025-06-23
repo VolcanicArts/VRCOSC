@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Numerics;
 using VRCOSC.App.SDK.Nodes;
 
@@ -37,14 +38,40 @@ public sealed class UnpackVector2Node : Node
 }
 
 [Node("Distance", "Math/Vector2")]
+[NodeCollapsed]
 public sealed class Vector2DistanceNode : Node
 {
-    public ValueInput<Vector2> VectorA = new();
-    public ValueInput<Vector2> VectorB = new();
+    public ValueInput<Vector2> A = new();
+    public ValueInput<Vector2> B = new();
     public ValueOutput<float> Distance = new();
 
     protected override void Process(PulseContext c)
     {
-        Distance.Write(Vector2.Distance(VectorA.Read(c), VectorB.Read(c)), c);
+        Distance.Write(Vector2.Distance(A.Read(c), B.Read(c)), c);
+    }
+}
+
+[Node("Contains", "Math/Vector2")]
+public sealed class Vector2ContainsNode : Node
+{
+    public ValueInput<Vector2> A = new();
+    public ValueInput<Vector2> B = new();
+    public ValueInput<Vector2> Point = new();
+    public ValueOutput<bool> Result = new();
+
+    protected override void Process(PulseContext c)
+    {
+        Result.Write(isPointInBox(A.Read(c), B.Read(c), Point.Read(c)), c);
+    }
+
+    private static bool isPointInBox(Vector2 a, Vector2 b, Vector2 point)
+    {
+        var minX = MathF.Min(a.X, b.X);
+        var maxX = MathF.Max(a.X, b.X);
+        var minY = MathF.Min(a.Y, b.Y);
+        var maxY = MathF.Max(a.Y, b.Y);
+
+        return point.X >= minX && point.X <= maxX &&
+               point.Y >= minY && point.Y <= maxY;
     }
 }
