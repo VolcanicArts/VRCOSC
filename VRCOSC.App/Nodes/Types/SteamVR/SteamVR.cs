@@ -4,6 +4,7 @@
 using System.Numerics;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.OVR.Device;
+using VRCOSC.App.Utils;
 
 // ReSharper disable InconsistentNaming
 
@@ -76,16 +77,23 @@ public sealed class SteamVRDeviceInfoNode : Node, IUpdateNode
 public sealed class SteamVRDeviceTransformSourceNode : Node, IUpdateNode
 {
     public ValueInput<TrackedDevice> Device = new();
-    public ValueOutput<Vector3> Pos = new();
-    public ValueOutput<Quaternion> Rot = new();
+    public ValueOutput<Vector3> Position = new();
+    public ValueOutput<Quaternion> Rotation = new();
 
     protected override void Process(PulseContext c)
     {
         var device = Device.Read(c);
-        if (device is null) return;
 
-        Pos.Write(device.Transform.Position, c);
-        Rot.Write(device.Transform.Rotation, c);
+        if (device is null)
+        {
+            Position.Write(Transform.Identity.Position, c);
+            Rotation.Write(Transform.Identity.Rotation, c);
+        }
+        else
+        {
+            Position.Write(device.Transform.Position, c);
+            Rotation.Write(device.Transform.Rotation, c);
+        }
     }
 
     public bool OnUpdate(PulseContext c) => Device.Read(c) is not null;
