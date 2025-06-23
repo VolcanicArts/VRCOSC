@@ -24,6 +24,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
 
     protected virtual string Directory => string.Empty;
     protected virtual string FileName => string.Empty;
+    protected virtual Formatting Format => Formatting.Indented;
 
     private readonly Storage baseStorage;
 
@@ -99,7 +100,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
             lock (serialisationLock)
             {
                 var data = (TSerialisable)Activator.CreateInstance(typeof(TSerialisable), Reference)!;
-                var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data, Formatting.Indented));
+                var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data, Format));
                 using var stream = baseStorage.GetStorageForDirectory(Directory).CreateFileSafely(FileName);
                 stream.Write(bytes);
             }

@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -13,6 +14,7 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
 {
     protected override string Directory => Path.Join(base.Directory, "nodes", "graphs");
     protected override string FileName => $"{Reference.Id}.json";
+    protected override Formatting Format => Formatting.None;
 
     public NodeGraphSerialiser(Storage storage, NodeGraph reference)
         : base(storage, reference)
