@@ -44,3 +44,22 @@ public class DirectSendParameterNode<T> : Node, IFlowInput, IHasTextProperty whe
         Next.Execute(c);
     }
 }
+
+[Node("Drive Parameter", "Actions")]
+[NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
+public class DriveParameterNode<T> : UpdateNode<T>, IHasTextProperty
+{
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
+
+    public ValueInput<T> Value = new();
+
+    protected override void Process(PulseContext c)
+    {
+        if (string.IsNullOrWhiteSpace(Text)) return;
+
+        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{Text}", Value.Read(c));
+    }
+
+    protected override T GetValue(PulseContext c) => Value.Read(c);
+}
