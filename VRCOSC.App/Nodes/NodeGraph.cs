@@ -10,9 +10,11 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types.Base;
 using VRCOSC.App.Nodes.Types.Strings;
+using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
@@ -52,14 +54,6 @@ public class NodeGraph : IVRCClientEventHandler
     public void Load()
     {
         Deserialise();
-
-        Nodes.OnCollectionChanged((newNodes, _) =>
-        {
-            foreach (var pair in newNodes)
-            {
-                pair.Value.ZIndex.Subscribe(_ => Serialise());
-            }
-        }, true);
 
         Groups.OnCollectionChanged((newGroups, _) =>
         {
@@ -177,7 +171,7 @@ public class NodeGraph : IVRCClientEventHandler
                             if (!((IUpdateNode)node).OnUpdate(c)) continue;
                             if (!node.InternalShouldProcess(c)) continue;
 
-                            if (node.Metadata.IsFlowOutput && !node.Metadata.IsFlowInput)
+                            if (node.Metadata.IsTrigger || (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput))
                             {
                                 StartFlow(node);
                                 continue;
@@ -301,7 +295,6 @@ public class NodeGraph : IVRCClientEventHandler
         var outputAlreadyHasConnection =
             Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.OutputNodeId == outputNodeId && connection.OutputSlot == outputFlowSlot);
 
-        Logger.Log($"Creating flow connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputFlowSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()}", LoggingTarget.Information);
         Connections.Add(new NodeConnection(ConnectionType.Flow, outputNodeId, outputFlowSlot, null, inputNodeId, 0, null));
 
         if (outputAlreadyHasConnection is not null)
@@ -326,7 +319,6 @@ public class NodeGraph : IVRCClientEventHandler
 
         if (outputType.IsAssignableTo(inputType))
         {
-            Logger.Log($"Creating value connection from {Nodes[outputNodeId].GetType().GetFriendlyName()} slot {outputValueSlot} to {Nodes[inputNodeId].GetType().GetFriendlyName()} slot {inputValueSlot}", LoggingTarget.Information);
             newConnection = new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, outputType, inputNodeId, inputValueSlot, inputType);
             newConnectionMade = true;
         }
@@ -336,12 +328,7 @@ public class NodeGraph : IVRCClientEventHandler
 
             if (ConversionHelper.HasImplicitConversion(outputType, inputType))
             {
-                Logger.Log($"Inserting cast node from {outputType.GetFriendlyName()} to {inputType.GetFriendlyName()}", LoggingTarget.Information);
-
-                var castNode = (Node)Activator.CreateInstance(typeof(CastNode<,>).MakeGenericType(outputType, inputType))!;
-                addNode(castNode);
-                castNode.Position.X = (Nodes[outputNodeId].Position.X + Nodes[inputNodeId].Position.X) / 2f;
-                castNode.Position.Y = (Nodes[outputNodeId].Position.Y + Nodes[inputNodeId].Position.Y) / 2f;
+                var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
                 CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
                 CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
                 group?.Nodes.Add(castNode.Id);
@@ -350,11 +337,7 @@ public class NodeGraph : IVRCClientEventHandler
 
             if (inputType == typeof(string))
             {
-                Logger.Log($"Inserting {typeof(ToStringNode<>).MakeGenericType(outputType).GetFriendlyName()}", LoggingTarget.Information);
-                var toStringNode = (Node)Activator.CreateInstance(typeof(ToStringNode<>).MakeGenericType(outputType))!;
-                addNode(toStringNode);
-                toStringNode.Position.X = (Nodes[outputNodeId].Position.X + Nodes[inputNodeId].Position.X) / 2f;
-                toStringNode.Position.Y = (Nodes[outputNodeId].Position.Y + Nodes[inputNodeId].Position.Y) / 2f;
+                var toStringNode = AddNode(typeof(ToStringNode<>).MakeGenericType(outputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
                 CreateValueConnection(outputNodeId, outputValueSlot, toStringNode.Id, 0);
                 CreateValueConnection(toStringNode.Id, 0, inputNodeId, inputValueSlot);
                 group?.Nodes.Add(toStringNode.Id);
@@ -385,17 +368,19 @@ public class NodeGraph : IVRCClientEventHandler
         // TODO: When a ValueRelayNode is removed, bridge connections
     }
 
-    public Node AddNode(Guid id, Type nodeType)
+    public Node AddNode(Guid id, Type nodeType, Point initialPosition)
     {
         var node = (Node)Activator.CreateInstance(nodeType)!;
         node.Id = id;
+        node.NodePosition = initialPosition;
         addNode(node);
         return node;
     }
 
-    public Node AddNode(Type nodeType)
+    public Node AddNode(Type nodeType, Point initialPosition)
     {
         var node = (Node)Activator.CreateInstance(nodeType)!;
+        node.NodePosition = initialPosition;
         addNode(node);
         return node;
     }
@@ -419,9 +404,7 @@ public class NodeGraph : IVRCClientEventHandler
             VariableSizes.Add(node.Id, new NodeVariableSize());
         }
 
-        node.ZIndex.Value = ZIndex++;
         node.NodeGraph = this;
-
         Nodes.Add(node.Id, node);
     }
 

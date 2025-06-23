@@ -1,9 +1,10 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using Newtonsoft.Json;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -32,10 +33,7 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
                 var nodeType = TypeResolver.Construct(sN.Type);
                 if (nodeType is null) return;
 
-                var node = Reference.AddNode(sN.Id, nodeType);
-
-                node.Position = new ObservableVector2(sN.Position.X, sN.Position.Y);
-                node.ZIndex.Value = sN.ZIndex;
+                var node = Reference.AddNode(sN.Id, nodeType, new Point(sN.Position.X, sN.Position.Y));
 
                 if (sN.Properties is not null)
                 {

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Nodes;
 using VRCOSC.App.SDK.VRChat;
@@ -19,9 +20,8 @@ public abstract class Node
     internal NodeGraph NodeGraph { get; set; } = null!;
     internal NodeVariableSize VariableSize => NodeGraph.VariableSizes[Id];
 
-    public Guid Id { get; internal set; } = Guid.NewGuid();
-    public ObservableVector2 Position { get; internal set; } = new(5000, 5000);
-    public Observable<int> ZIndex { get; } = new();
+    internal Guid Id { get; set; } = Guid.NewGuid();
+    internal Point NodePosition { get; set; } = new(5000, 5000);
 
     public NodeMetadata Metadata => NodeGraph.GetMetadata(this);
     protected Player Player => AppManager.GetInstance().VRChatClient.Player;

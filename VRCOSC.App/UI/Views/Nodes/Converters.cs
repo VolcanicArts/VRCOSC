@@ -12,13 +12,12 @@ using VRCOSC.App.Nodes;
 using VRCOSC.App.Nodes.Types.Base;
 using VRCOSC.App.Nodes.Types.Flow;
 using VRCOSC.App.Nodes.Types.Inputs;
-using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.Nodes;
 
-public record ConnectionViewModel(Node Node, int Slot, string Title, Type? Type);
+public record ConnectionViewModel(NodeGraphItem NodeGraphItem, int Slot, string Title, Type? Type);
 
 public class ConnectionAmountConverter : IValueConverter
 {
@@ -27,41 +26,41 @@ public class ConnectionAmountConverter : IValueConverter
 
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not Node node) return null;
+        if (value is not NodeGraphItem item) return null;
 
-        if (ConnectionType == ConnectionType.Flow && node.Metadata.IsFlow)
+        if (ConnectionType == ConnectionType.Flow && item.Node.Metadata.IsFlow)
         {
             if (ConnectionSide == ConnectionSide.Input)
             {
-                if (node.Metadata.IsTrigger) return Array.Empty<ConnectionViewModel>();
-                if (!node.Metadata.IsFlowInput) return Array.Empty<ConnectionViewModel>();
+                if (item.Node.Metadata.IsTrigger) return Array.Empty<ConnectionViewModel>();
+                if (!item.Node.Metadata.IsFlowInput) return Array.Empty<ConnectionViewModel>();
 
-                return new ConnectionViewModel[] { new(node, 0, string.Empty, null) };
+                return new ConnectionViewModel[] { new(item, 0, string.Empty, null) };
             }
 
             if (ConnectionSide == ConnectionSide.Output)
             {
-                if (!node.Metadata.IsFlowOutput) return Array.Empty<ConnectionViewModel>();
+                if (!item.Node.Metadata.IsFlowOutput) return Array.Empty<ConnectionViewModel>();
 
-                return Enumerable.Range(0, node.Metadata.FlowCount).Select(i => new ConnectionViewModel(node, i, node.Metadata.FlowOutputs[i].Name, null)).ToList();
+                return Enumerable.Range(0, item.Node.Metadata.FlowCount).Select(i => new ConnectionViewModel(item, i, item.Node.Metadata.FlowOutputs[i].Name, null)).ToList();
             }
         }
 
-        if (ConnectionType == ConnectionType.Value && node.Metadata.IsValue)
+        if (ConnectionType == ConnectionType.Value && item.Node.Metadata.IsValue)
         {
             if (ConnectionSide == ConnectionSide.Input)
             {
-                if (!node.Metadata.IsValueInput) return Array.Empty<ConnectionViewModel>();
+                if (!item.Node.Metadata.IsValueInput) return Array.Empty<ConnectionViewModel>();
 
-                var length = node.Metadata.InputsCount;
-                var points = Enumerable.Range(0, length).Select(i => new ConnectionViewModel(node, i, node.Metadata.Inputs[i].Name, node.Metadata.Inputs[i].Type)).ToList();
+                var length = item.Node.Metadata.InputsCount;
+                var points = Enumerable.Range(0, length).Select(i => new ConnectionViewModel(item, i, item.Node.Metadata.Inputs[i].Name, item.Node.Metadata.Inputs[i].Type)).ToList();
 
-                if (node.Metadata.ValueInputHasVariableSize)
+                if (item.Node.Metadata.ValueInputHasVariableSize)
                 {
                     points.Remove(points.Last());
 
-                    points.AddRange(Enumerable.Range(0, node.VariableSize.ValueInputSize).Select(i =>
-                        new ConnectionViewModel(node, node.Metadata.InputsCount - 1 + i, i == 0 ? node.Metadata.Inputs.Last().Name : string.Empty, node.Metadata.Inputs.Last().Type)));
+                    points.AddRange(Enumerable.Range(0, item.Node.VariableSize.ValueInputSize).Select(i =>
+                        new ConnectionViewModel(item, item.Node.Metadata.InputsCount - 1 + i, i == 0 ? item.Node.Metadata.Inputs.Last().Name : string.Empty, item.Node.Metadata.Inputs.Last().Type)));
                 }
 
                 return points;
@@ -69,17 +68,17 @@ public class ConnectionAmountConverter : IValueConverter
 
             if (ConnectionSide == ConnectionSide.Output)
             {
-                if (!node.Metadata.IsValueOutput) return Array.Empty<ConnectionViewModel>();
+                if (!item.Node.Metadata.IsValueOutput) return Array.Empty<ConnectionViewModel>();
 
-                var length = node.Metadata.OutputsCount;
-                var points = Enumerable.Range(0, length).Select(i => new ConnectionViewModel(node, i, node.Metadata.Outputs[i].Name, node.Metadata.Outputs[i].Type)).ToList();
+                var length = item.Node.Metadata.OutputsCount;
+                var points = Enumerable.Range(0, length).Select(i => new ConnectionViewModel(item, i, item.Node.Metadata.Outputs[i].Name, item.Node.Metadata.Outputs[i].Type)).ToList();
 
-                if (node.Metadata.ValueOutputHasVariableSize)
+                if (item.Node.Metadata.ValueOutputHasVariableSize)
                 {
                     points.Remove(points.Last());
 
-                    points.AddRange(Enumerable.Range(0, node.VariableSize.ValueOutputSize).Select(i =>
-                        new ConnectionViewModel(node, node.Metadata.OutputsCount - 1 + i, i == 0 ? node.Metadata.Outputs.Last().Name : string.Empty, node.Metadata.Outputs.Last().Type)));
+                    points.AddRange(Enumerable.Range(0, item.Node.VariableSize.ValueOutputSize).Select(i =>
+                        new ConnectionViewModel(item, item.Node.Metadata.OutputsCount - 1 + i, i == 0 ? item.Node.Metadata.Outputs.Last().Name : string.Empty, item.Node.Metadata.Outputs.Last().Type)));
                 }
 
                 return points;
@@ -101,6 +100,7 @@ public class SlotNameConverter : IValueConverter
     {
         if (value is not ConnectionViewModel connectionViewModel) return null;
 
+        // TODO: Convert this to be a struct of ConnectionType and Slot
         switch (ConnectionSide)
         {
             case ConnectionSide.Output when ConnectionType == ConnectionType.Flow:
@@ -129,14 +129,14 @@ public class ConnectionAreaVisibilityConverter : IValueConverter
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not Node node) return Visibility.Collapsed;
+        if (value is not NodeGraphItem item) return Visibility.Collapsed;
 
         if (CheckFlow)
         {
-            return node.Metadata.IsFlow ? Visibility.Visible : Visibility.Collapsed;
+            return item.Node.Metadata.IsFlow ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        return node.Metadata.IsValue ? Visibility.Visible : Visibility.Collapsed;
+        return item.Node.Metadata.IsValue ? Visibility.Visible : Visibility.Collapsed;
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
@@ -148,16 +148,16 @@ public class ValueVariableSizeControlVisibilityConverter : IValueConverter
 
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value is not Node node) return Visibility.Collapsed;
+        if (value is not NodeGraphItem item) return Visibility.Collapsed;
 
-        if (CheckOutput && node.Metadata.IsValueOutput)
+        if (CheckOutput && item.Node.Metadata.IsValueOutput)
         {
-            return node.Metadata.ValueOutputHasVariableSize ? Visibility.Visible : Visibility.Collapsed;
+            return item.Node.Metadata.ValueOutputHasVariableSize ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        if (!CheckOutput && node.Metadata.IsValueInput)
+        if (!CheckOutput && item.Node.Metadata.IsValueInput)
         {
-            return node.Metadata.ValueInputHasVariableSize ? Visibility.Visible : Visibility.Collapsed;
+            return item.Node.Metadata.ValueInputHasVariableSize ? Visibility.Visible : Visibility.Collapsed;
         }
 
         return Visibility.Collapsed;
@@ -178,7 +178,7 @@ public class NodeIconToTitleVisibilityConverter : IValueConverter
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
 
-public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
+public class GraphItemsDataTemplateSelector : DataTemplateSelector
 {
     public required DataTemplate? NodeTemplate { get; set; }
     public required DataTemplate? RelayNodeTemplate { get; set; }
@@ -191,65 +191,64 @@ public class NodeItemsControlDataTemplateSelector : DataTemplateSelector
     public required DataTemplate? CollapsedOutputOnlyNodeTemplate { get; set; }
     public required DataTemplate? NodeGroupTemplate { get; set; }
     public required DataTemplate? TextBoxSourceNodeTemplate { get; set; }
+    public required DataTemplate? TextBoxDriveNodeTemplate { get; set; }
     public required DataTemplate? NodeWithTextBoxTemplate { get; set; }
     public required DataTemplate? DisplayNodeTemplate { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
-        if (item is null) return null;
-
-        var type = item.GetType();
-
-        switch (item)
+        if (item is NodeGroupGraphItem nodeGroupGraphItem)
         {
-            case Node node:
+            return NodeGroupTemplate;
+        }
+
+        if (item is NodeGraphItem nodeGraphItem)
+        {
+            var node = nodeGraphItem.Node;
+            var type = node.GetType();
+
+            var metadata = node.Metadata;
+
+            if (type.IsGenericType)
             {
-                var metadata = node.Metadata;
+                var genDef = type.GetGenericTypeDefinition();
 
-                if (type.IsGenericType)
+                if (genDef == typeof(DisplayNode<>)) return DisplayNodeTemplate;
+                if (genDef == typeof(CastNode<,>)) return RelayNodeTemplate;
+                if (genDef == typeof(RelayNode<>)) return RelayNodeTemplate;
+
+                if (genDef == typeof(ValueNode<>))
                 {
-                    var genDef = type.GetGenericTypeDefinition();
+                    var valueType = type.GenericTypeArguments[0];
 
-                    if (genDef == typeof(DisplayNode<>)) return DisplayNodeTemplate;
-                    if (genDef == typeof(CastNode<,>)) return RelayNodeTemplate;
-                    if (genDef == typeof(RelayNode<>)) return RelayNodeTemplate;
+                    if (valueType == typeof(bool)) return ToggleValueOutputOnlyNodeTemplate;
+                    if (valueType == typeof(Keybind)) return KeybindValueOutputOnlyNodeTemplate;
+                    if (valueType.IsAssignableTo(typeof(Enum))) return EnumValueOutputOnlyNodeTemplate;
 
-                    if (genDef == typeof(ValueNode<>))
-                    {
-                        var valueType = type.GenericTypeArguments[0];
-
-                        if (valueType == typeof(bool)) return ToggleValueOutputOnlyNodeTemplate;
-                        if (valueType == typeof(Keybind)) return KeybindValueOutputOnlyNodeTemplate;
-                        if (valueType.IsAssignableTo(typeof(Enum))) return EnumValueOutputOnlyNodeTemplate;
-
-                        return TextBoxValueOutputOnlyNodeTemplate;
-                    }
+                    return TextBoxValueOutputOnlyNodeTemplate;
                 }
-
-                if (type.IsAssignableTo(typeof(IHasTextProperty)))
-                {
-                    if (metadata is { IsFlow: false, IsValueInput: false, IsValueOutput: true, OutputsCount: 1 }) return TextBoxSourceNodeTemplate;
-
-                    return NodeWithTextBoxTemplate;
-                }
-
-                if (node is ButtonNode) return ButtonNodeTemplate;
-
-                if (type.HasCustomAttribute<NodeCollapsedAttribute>() || metadata.Icon != EFontAwesomeIcon.None)
-                {
-                    if (metadata is { IsValueInput: false, IsValueOutput: true }) return CollapsedOutputOnlyNodeTemplate;
-
-                    return CollapsedNodeTemplate;
-                }
-
-                return NodeTemplate;
             }
 
-            case NodeGroupViewModel:
-                return NodeGroupTemplate;
+            if (type.IsAssignableTo(typeof(IHasTextProperty)))
+            {
+                if (metadata is { IsFlow: false, IsValueInput: false, IsValueOutput: true, OutputsCount: 1 }) return TextBoxSourceNodeTemplate;
+                if (metadata is { IsFlow: false, IsValueInput: true, IsValueOutput: false, InputsCount: 1 }) return TextBoxDriveNodeTemplate;
 
-            default:
-                return null;
+                return NodeWithTextBoxTemplate;
+            }
+
+            if (node is ButtonNode) return ButtonNodeTemplate;
+
+            if (type.HasCustomAttribute<NodeCollapsedAttribute>() || metadata.Icon != EFontAwesomeIcon.None)
+            {
+                if (metadata is { IsValueInput: false, IsValueOutput: true }) return CollapsedOutputOnlyNodeTemplate;
+
+                return CollapsedNodeTemplate;
+            }
+
+            return NodeTemplate;
         }
+
+        return null;
     }
 }

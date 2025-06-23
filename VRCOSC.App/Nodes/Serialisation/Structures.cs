@@ -95,9 +95,6 @@ public class SerialisableNode
     [JsonProperty("position")]
     public Vector2 Position { get; set; }
 
-    [JsonProperty("zindex")]
-    public int ZIndex { get; set; }
-
     [JsonProperty("properties")]
     public Dictionary<string, object?>? Properties { get; set; }
 
@@ -116,8 +113,7 @@ public class SerialisableNode
     {
         Id = node.Id;
         Type = node.GetType().GetFriendlyName();
-        Position = new Vector2((float)node.Position.X, (float)node.Position.Y);
-        ZIndex = node.ZIndex.Value;
+        Position = new Vector2((float)node.NodePosition.X, (float)node.NodePosition.Y);
 
         if (node.Metadata.Properties.Count != 0)
         {

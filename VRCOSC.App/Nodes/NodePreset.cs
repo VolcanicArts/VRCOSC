@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -50,10 +51,7 @@ public class NodePreset
 
                 var newId = Guid.NewGuid();
                 nodeIdMapping.Add(sN.Id, newId);
-                var node = targetGraph.AddNode(newId, nodeType);
-
-                node.Position = new ObservableVector2(sN.Position.X + posX, sN.Position.Y + posY);
-                node.ZIndex.Value = sN.ZIndex;
+                var node = targetGraph.AddNode(newId, nodeType, new Point(sN.Position.X + posX, sN.Position.Y + posY));
 
                 if (sN.Properties is not null)
                 {
