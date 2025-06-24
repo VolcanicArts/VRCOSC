@@ -263,13 +263,11 @@ internal class AppManager
             if (wasPlayerUpdated)
             {
                 ModuleManager.GetInstance().PlayerUpdate();
-                return;
             }
 
             if (parameter.Name.StartsWith("VRCOSC/Controls"))
             {
                 handleControlParameter(parameter);
-                return;
             }
 
             ModuleManager.GetInstance().OnParameterReceived(parameter);
