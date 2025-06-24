@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -370,12 +370,21 @@ public sealed class Player
 
     public void Mute()
     {
-        oscClient.Send(actionToAddress(VRChatButtonInput.Voice), 1);
+        if (IsMuted) return;
+
+        ToggleVoice();
     }
 
     public void UnMute()
     {
-        oscClient.Send(actionToAddress(VRChatButtonInput.Voice), 0);
+        if (!IsMuted) return;
+
+        ToggleVoice();
+    }
+
+    public void PushToTalk(bool active)
+    {
+        oscClient.Send(actionToAddress(VRChatButtonInput.Voice), active ? 1 : 0);
     }
 
     public void MoveVertical(float value)
