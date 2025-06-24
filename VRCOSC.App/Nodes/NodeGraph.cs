@@ -526,18 +526,24 @@ public class NodeGraph : IVRCClientEventHandler
         if (c.HasRan(node.Id) && !node.Metadata.ForceReprocess) return;
 
         await backtrackNode(node, c);
+        if (c.IsCancelled) return;
 
         var currentBefore = c.CurrentNode;
         c.CurrentNode = node;
 
         c.CreateMemory(node);
         c.MarkRan(node.Id);
+        if (c.IsCancelled) return;
 
         if (!node.InternalShouldProcess(c)) return;
+        if (c.IsCancelled) return;
 
         onPreProcess?.Invoke();
+        if (c.IsCancelled) return;
 
         await node.InternalProcess(c);
+        if (c.IsCancelled) return;
+
         c.CurrentNode = currentBefore;
     }
 

@@ -8,7 +8,7 @@ using VRCOSC.App.SDK.VRChat;
 namespace VRCOSC.App.Nodes.Types.Player;
 
 [Node("Player Movement", "Player")]
-public sealed class PlayerMovementNode : Node
+public sealed class PlayerMovementNode : Node, IUpdateNode
 {
     public ValueOutput<Vector3> Velocity = new();
     public ValueOutput<float> AngularY = new("Angular Y");
@@ -23,10 +23,12 @@ public sealed class PlayerMovementNode : Node
         Upright.Write(player.Upright, c);
         return Task.CompletedTask;
     }
+
+    public bool OnUpdate(PulseContext c) => true;
 }
 
 [Node("Player Gesture", "Player")]
-public sealed class PlayerGestureNode : Node
+public sealed class PlayerGestureNode : Node, IUpdateNode
 {
     public ValueOutput<GestureType> LeftType = new("Left Type");
     public ValueOutput<float> LeftWeight = new("Left Weight");
@@ -43,10 +45,12 @@ public sealed class PlayerGestureNode : Node
         RightWeight.Write(player.GestureRightWeight, c);
         return Task.CompletedTask;
     }
+
+    public bool OnUpdate(PulseContext c) => true;
 }
 
 [Node("Player Voice", "Player")]
-public sealed class PlayerVoiceNode : Node
+public sealed class PlayerVoiceNode : Node, IUpdateNode
 {
     public ValueOutput<Viseme> Viseme = new();
     public ValueOutput<float> Voice = new();
@@ -59,10 +63,12 @@ public sealed class PlayerVoiceNode : Node
         Voice.Write(player.Voice, c);
         return Task.CompletedTask;
     }
+
+    public bool OnUpdate(PulseContext c) => true;
 }
 
 [Node("Player Identity", "Player")]
-public sealed class PlayerIdentityNode : Node
+public sealed class PlayerIdentityNode : Node, IUpdateNode
 {
     public ValueOutput<bool> IsVR = new("Is VR");
     public ValueOutput<bool> IsMuted = new("Is Muted");
@@ -87,10 +93,12 @@ public sealed class PlayerIdentityNode : Node
         TrackingType.Write(player.TrackingType, c);
         return Task.CompletedTask;
     }
+
+    public bool OnUpdate(PulseContext c) => true;
 }
 
 [Node("Player Size", "Player")]
-public sealed class PlayerSizeNode : Node
+public sealed class PlayerSizeNode : Node, IUpdateNode
 {
     public ValueOutput<bool> ScaleModified = new("Scale Modified");
     public ValueOutput<float> ScaleFactor = new("Scale Factor");
@@ -109,4 +117,6 @@ public sealed class PlayerSizeNode : Node
         EyeHeightAsPercent.Write(player.EyeHeightAsPercent, c);
         return Task.CompletedTask;
     }
+
+    public bool OnUpdate(PulseContext c) => true;
 }
