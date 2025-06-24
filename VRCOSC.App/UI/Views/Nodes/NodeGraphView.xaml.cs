@@ -18,9 +18,9 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using VRCOSC.App.Nodes;
-using VRCOSC.App.Nodes.Types.Base;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Inputs;
-using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.Nodes.Types.Utility;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows.Nodes;
@@ -286,7 +286,7 @@ public partial class NodeGraphView
                 var foundConnection = ConnectionItems.SingleOrDefault(c => c == new ConnectionItem(connection, new Path()));
 
                 if (foundConnection is not null)
-                    updateConnectionPath(foundConnection);
+                    updateConnectionItemPath(foundConnection);
                 else
                     ConnectionItems.Add(new ConnectionItem(connection, createConnectionPath(connection)));
             }
@@ -391,22 +391,17 @@ public partial class NodeGraphView
         return connection.ConnectionType == ConnectionType.Flow ? nodeGraphItem.FlowInputs[connection.InputSlot] : nodeGraphItem.ValueInputs[connection.InputSlot];
     }
 
-    private void updateConnectionPath(ConnectionItem item)
+    private void updateConnectionItemPath(ConnectionItem item)
     {
-        var outElement = getOutputSlotElementForConnection(item.Connection);
-        var inElement = getInputSlotElementForConnection(item.Connection);
+        var path = item.Path;
+        var connection = item.Connection;
 
-        var outOffset = new Vector(outElement.Width / 2d, outElement.Height / 2d);
-        var inOffset = new Vector(inElement.Width / 2d, inElement.Height / 2d);
+        var startPoint = getConnectionPointRelativeToGraph(getOutputSlotElementForConnection(connection));
+        var endPoint = getConnectionPointRelativeToGraph(getInputSlotElementForConnection(connection));
 
-        var startPoint = outElement.TranslatePoint(new Point(0, 0), GraphContainer) + outOffset;
-        var endPoint = inElement.TranslatePoint(new Point(0, 0), GraphContainer) + inOffset;
-        var minDelta = Math.Min(Math.Abs(endPoint.Y - startPoint.Y) / 2d, 50d);
-        var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.5d, minDelta);
-        var controlPoint1 = Point.Add(startPoint, new Vector(delta, 0));
-        var controlPoint2 = Point.Add(endPoint, new Vector(-delta, 0));
+        var (controlPoint1, controlPoint2) = getBezierControlPoints(startPoint, endPoint);
 
-        var pathGeometry = (PathGeometry)item.Path.Data;
+        var pathGeometry = (PathGeometry)path.Data;
         var pathFigure = pathGeometry.Figures[0];
         var bezierSegment = (BezierSegment)pathFigure.Segments[0];
 
@@ -414,60 +409,84 @@ public partial class NodeGraphView
         bezierSegment.Point1 = controlPoint1;
         bezierSegment.Point2 = controlPoint2;
         bezierSegment.Point3 = endPoint;
+
+        if (connection.ConnectionType == ConnectionType.Value)
+        {
+            var startColor = connection.OutputType!.GetTypeBrush().Color;
+            var endColor = connection.InputType!.GetTypeBrush().Color;
+            path.Stroke = createGradientBrush(startPoint, endPoint, startColor, endColor);
+        }
     }
 
     private Path createConnectionPath(NodeConnection connection)
     {
-        var outElement = getOutputSlotElementForConnection(connection);
-        var inElement = getInputSlotElementForConnection(connection);
+        var startPoint = getConnectionPointRelativeToGraph(getOutputSlotElementForConnection(connection));
+        var endPoint = getConnectionPointRelativeToGraph(getInputSlotElementForConnection(connection));
 
-        var outOffset = new Vector(outElement.Width / 2d, outElement.Height / 2d);
-        var inOffset = new Vector(inElement.Width / 2d, inElement.Height / 2d);
+        var (controlPoint1, controlPoint2) = getBezierControlPoints(startPoint, endPoint);
 
-        var startPoint = outElement.TranslatePoint(new Point(0, 0), GraphContainer) + outOffset;
-        var endPoint = inElement.TranslatePoint(new Point(0, 0), GraphContainer) + inOffset;
-        var minDelta = Math.Min(Math.Abs(endPoint.Y - startPoint.Y) / 2d, 50d);
-        var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.5d, minDelta);
-        var controlPoint1 = Point.Add(startPoint, new Vector(delta, 0));
-        var controlPoint2 = Point.Add(endPoint, new Vector(-delta, 0));
-
-        var pathGeometry = new PathGeometry();
-        var pathFigure = new PathFigure();
-        var bezierSegment = new BezierSegment();
-
-        pathGeometry.Figures.Add(pathFigure);
-        pathFigure.Segments.Add(bezierSegment);
-
-        pathFigure.StartPoint = startPoint;
-        bezierSegment.Point1 = controlPoint1;
-        bezierSegment.Point2 = controlPoint2;
-        bezierSegment.Point3 = endPoint;
-
-        Brush brush;
-
-        if (connection.ConnectionType == ConnectionType.Flow)
+        var pathFigure = new PathFigure
         {
-            brush = Brushes.DeepSkyBlue;
-        }
-        else
-        {
-            brush = new LinearGradientBrush(connection.OutputType?.GetTypeBrush().Color ?? Brushes.Black.Color, connection.InputType?.GetTypeBrush().Color ?? Brushes.Black.Color, new Point(0, 0),
-                new Point(1, 1))
-            {
-                MappingMode = BrushMappingMode.RelativeToBoundingBox,
-                StartPoint = new Point(0, 0),
-                EndPoint = new Point(1, 1)
-            };
-        }
+            StartPoint = startPoint,
+            Segments = { new BezierSegment(controlPoint1, controlPoint2, endPoint, true) }
+        };
 
         var path = new Path
         {
-            Data = pathGeometry,
-            Stroke = brush,
+            Data = new PathGeometry { Figures = { pathFigure } },
             StrokeThickness = 3
         };
 
+        if (connection.ConnectionType == ConnectionType.Flow)
+        {
+            path.Stroke = Brushes.DeepSkyBlue;
+        }
+        else
+        {
+            var startColor = connection.OutputType!.GetTypeBrush().Color;
+            var endColor = connection.InputType!.GetTypeBrush().Color;
+            path.Stroke = createGradientBrush(startPoint, endPoint, startColor, endColor);
+        }
+
         return path;
+    }
+
+    private Point getConnectionPointRelativeToGraph(FrameworkElement element)
+    {
+        var centerOffset = new Vector(element.Width / 2d, element.Height / 2d);
+        return element.TranslatePoint(new Point(0, 0), GraphContainer) + centerOffset;
+    }
+
+    private (Point cp1, Point cp2) getBezierControlPoints(Point startPoint, Point endPoint)
+    {
+        var minDelta = Math.Min(Math.Abs(endPoint.Y - startPoint.Y) / 2d, 50d);
+        var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.5d, minDelta);
+
+        return (Point.Add(startPoint, new Vector(delta, 0)), Point.Add(endPoint, new Vector(-delta, 0)));
+    }
+
+    private LinearGradientBrush createGradientBrush(Point startPoint, Point endPoint, Color startColor, Color endColor)
+    {
+        var x = Math.Min(startPoint.X, endPoint.X);
+        var y = Math.Min(startPoint.Y, endPoint.Y);
+        var width = Math.Abs(endPoint.X - startPoint.X);
+        var height = Math.Abs(endPoint.Y - startPoint.Y);
+
+        width = width == 0 ? 1 : width;
+        height = height == 0 ? 1 : height;
+
+        var bounds = new Rect(x, y, width, height);
+
+        var relativeStart = new Point((startPoint.X - bounds.X) / bounds.Width,
+            (startPoint.Y - bounds.Y) / bounds.Height);
+
+        var relativeEnd = new Point((endPoint.X - bounds.X) / bounds.Width,
+            (endPoint.Y - bounds.Y) / bounds.Height);
+
+        return new LinearGradientBrush(startColor, endColor, relativeStart, relativeEnd)
+        {
+            MappingMode = BrushMappingMode.RelativeToBoundingBox
+        };
     }
 
     private void updateNodeGroupGraphItem(NodeGroupGraphItem item)
@@ -496,9 +515,9 @@ public partial class NodeGraphView
         item.Height = height;
     }
 
-    private bool updateGraphItemPosition(GraphItem item)
+    private void refreshGraphItemPosition(GraphItem item)
     {
-        return updateGraphItemPosition(item, new Point(item.PosX, item.PosY));
+        updateGraphItemPosition(item, new Point(item.PosX, item.PosY));
     }
 
     private bool updateGraphItemPosition(GraphItem item, Point position)
@@ -1142,7 +1161,9 @@ public partial class NodeGraphView
                 var outputNodeGraphItem = GraphItems.OfType<NodeGraphItem>().Single(outputNodeGraphItem => outputNodeGraphItem.Node.Id == existingConnection.OutputNodeId);
 
                 Graph.RemoveConnection(existingConnection);
-                connectionDrag = new ConnectionDrag(ConnectionDragOrigin.ValueOutput, outputNodeGraphItem, existingConnection.OutputSlot, outputNodeGraphItem.ValueOutputs[existingConnection.OutputSlot]);
+
+                connectionDrag = new ConnectionDrag(ConnectionDragOrigin.ValueOutput, outputNodeGraphItem, existingConnection.OutputSlot,
+                    outputNodeGraphItem.ValueOutputs[existingConnection.OutputSlot]);
             }
         }
 
@@ -1155,7 +1176,9 @@ public partial class NodeGraphView
                 var outputNodeGraphItem = GraphItems.OfType<NodeGraphItem>().Single(outputNodeGraphItem => outputNodeGraphItem.Node.Id == existingConnection.OutputNodeId);
 
                 Graph.RemoveConnection(existingConnection);
-                connectionDrag = new ConnectionDrag(ConnectionDragOrigin.FlowOutput, outputNodeGraphItem, existingConnection.OutputSlot, outputNodeGraphItem.FlowOutputs[existingConnection.OutputSlot]);
+
+                connectionDrag = new ConnectionDrag(ConnectionDragOrigin.FlowOutput, outputNodeGraphItem, existingConnection.OutputSlot,
+                    outputNodeGraphItem.FlowOutputs[existingConnection.OutputSlot]);
             }
         }
 
@@ -1278,7 +1301,7 @@ public partial class NodeGraphView
         Dispatcher.Invoke(() =>
         {
             populateNodeGraphItemSnapOffset(nodeGraphItem);
-            updateGraphItemPosition(nodeGraphItem);
+            refreshGraphItemPosition(nodeGraphItem);
             drawNodeConnections(nodeGraphItem.Node);
         }, DispatcherPriority.Render);
     }
