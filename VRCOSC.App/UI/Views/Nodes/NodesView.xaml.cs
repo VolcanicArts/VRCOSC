@@ -73,6 +73,9 @@ public partial class NodesView
 
         if (NodeManager.GetInstance().Graphs.Count == 1) return;
 
+        var result = MessageBox.Show("Are you sure you want to delete this graph?", "Graph Delete Warning", MessageBoxButton.YesNo);
+        if (result != MessageBoxResult.Yes) return;
+
         var index = Math.Max(0, NodeManager.GetInstance().Graphs.IndexOf(graph) - 1);
 
         NodeManager.GetInstance().Graphs.Remove(graph);
