@@ -145,14 +145,6 @@ internal class AppManager
             ActionManifest = Storage.GetFullPath("runtime/openvr/action_manifest.json")
         });
 
-        OVRClient.OnShutdown += () => Application.Current.Dispatcher.Invoke(() =>
-        {
-            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.OVRAutoClose))
-            {
-                Application.Current.Shutdown();
-            }
-        });
-
         OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
     }
 

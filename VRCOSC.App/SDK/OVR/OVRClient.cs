@@ -5,10 +5,12 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using Valve.VR;
 using VRCOSC.App.OVR;
 using VRCOSC.App.SDK.OVR.Device;
 using VRCOSC.App.SDK.OVR.Metadata;
+using VRCOSC.App.Settings;
 
 namespace VRCOSC.App.SDK.OVR;
 
@@ -19,8 +21,6 @@ public class OVRClient
     public readonly OVRInput Input;
 
     internal OVRMetadata? Metadata;
-
-    internal Action? OnShutdown;
 
     internal OVRClient()
     {
@@ -142,11 +142,17 @@ public class OVRClient
         return OpenVR.Overlay.IsDashboardVisible();
     }
 
-    private void shutdown()
+    private async void shutdown()
     {
+        await AppManager.GetInstance().StopAsync();
+
         OpenVR.Shutdown();
         HasInitialised = false;
-        OnShutdown?.Invoke();
+
+        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.OVRAutoClose))
+        {
+            Application.Current.Shutdown();
+        }
     }
 
     internal void SetAutoLaunch(bool value)

@@ -11,7 +11,7 @@ internal class OVRManifest
     public string Source = "builtin";
 
     [JsonProperty("applications")]
-    public OVRApplication[] Applications = [new OVRApplication()];
+    public OVRApplication[] Applications = [new()];
 }
 
 internal class OVRApplication
