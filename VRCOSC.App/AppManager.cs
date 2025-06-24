@@ -499,7 +499,7 @@ internal class AppManager
         ChatBoxManager.GetInstance().Start();
         await VRChatClient.Player.RetrieveAll();
         await ModuleManager.GetInstance().StartAsync();
-        NodeManager.GetInstance().Start();
+        await NodeManager.GetInstance().Start();
         VRChatLogReader.Start();
 
         VRChatOscClient.OnVRChatOSCMessageReceived += onVRChatOSCMessageReceived;

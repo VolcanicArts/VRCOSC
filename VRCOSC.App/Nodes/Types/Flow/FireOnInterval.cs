@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Threading.Tasks;
-using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
@@ -14,17 +13,17 @@ public sealed class FireOnIntervalNode : Node
     [NodeReactive]
     public ValueInput<int> DelayMilliseconds = new("Delay Milliseconds");
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var delay = DelayMilliseconds.Read(c);
         if (delay <= 0) return;
 
         while (!c.IsCancelled)
         {
-            OnInterval.Execute(c);
+            await OnInterval.Execute(c);
             if (c.IsCancelled) break;
 
-            Task.Delay(delay, c.Token).Wait(c.Token);
+            await Task.Delay(delay, c.Token);
             if (c.IsCancelled) break;
         }
     }

@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
@@ -15,7 +15,7 @@ public sealed class ContinueOnElapsedNode : Node, IFlowInput
 
     public ValueInput<int> ElapsedMilliseconds = new("Elapsed Milliseconds");
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         if (ElapsedMilliseconds.Read(c) <= 0) return;
 
@@ -24,7 +24,7 @@ public sealed class ContinueOnElapsedNode : Node, IFlowInput
         if ((dateTimeNow - lastUpdate.Read(c)).TotalMilliseconds >= ElapsedMilliseconds.Read(c))
         {
             lastUpdate.Write(dateTimeNow, c);
-            OnElapsed.Execute(c);
+            await OnElapsed.Execute(c);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Utility;
 
@@ -14,13 +14,13 @@ public sealed class IndirectWriteVariableNode<T> : Node, IFlowInput
     public ValueInput<T> Value = new();
     public ValueInput<bool> Persistent = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var name = Name.Read(c);
         if (string.IsNullOrEmpty(name)) return;
 
         NodeGraph.WriteVariable(name, Value.Read(c), Persistent.Read(c));
-        OnWrite.Execute(c);
+        await OnWrite.Execute(c);
     }
 }
 
@@ -35,12 +35,12 @@ public sealed class DirectWriteVariableNode<T> : Node, IFlowInput, IHasTextPrope
     public ValueInput<T> Value = new();
     public ValueInput<bool> Persistent = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         if (string.IsNullOrEmpty(Text)) return;
 
         NodeGraph.WriteVariable(Text, Value.Read(c), Persistent.Read(c));
-        OnWrite.Execute(c);
+        await OnWrite.Execute(c);
     }
 }
 
@@ -52,7 +52,7 @@ public sealed class ReadVariableNode<T> : Node, IFlowInput
     public ValueInput<string> Name = new(string.Empty);
     public ValueOutput<T> Value = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var name = Name.Read(c);
 
@@ -69,7 +69,7 @@ public sealed class ReadVariableNode<T> : Node, IFlowInput
         }
 
         Value.Write(value!, c);
-        OnRead.Execute(c);
+        await OnRead.Execute(c);
     }
 }
 
@@ -82,20 +82,21 @@ public sealed class VariableSourceNode<T> : Node, IHasTextProperty
 
     public ValueOutput<T> Value = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
-        if (string.IsNullOrEmpty(Text)) return;
+        if (string.IsNullOrEmpty(Text)) return Task.CompletedTask;
 
         var value = default(T);
 
         if (NodeGraph.Variables.TryGetValue(Text, out var valueRef))
         {
             var foundValue = valueRef.GetValue()!;
-            if (foundValue is not T foundValueCast) return;
+            if (foundValue is not T foundValueCast) return Task.CompletedTask;
 
             value = foundValueCast;
         }
 
         Value.Write(value!, c);
+        return Task.CompletedTask;
     }
 }

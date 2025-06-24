@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Collections;
 
@@ -17,10 +17,10 @@ public class EnumerableInsertNode<T> : Node, IFlowInput
     public ValueInput<T> Element = new();
     public ValueOutput<IEnumerable<T>> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
-        if (enumerable is null) return;
+        if (enumerable is null) return Task.CompletedTask;
 
         var index = Index.Read(c);
         var element = Element.Read(c);
@@ -30,5 +30,6 @@ public class EnumerableInsertNode<T> : Node, IFlowInput
         Result.Write(list, c);
 
         Next.Execute(c);
+        return Task.CompletedTask;
     }
 }

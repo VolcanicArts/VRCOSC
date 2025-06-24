@@ -1,7 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Utility;
 
@@ -13,9 +13,10 @@ public sealed class ConditionalNode<T> : Node
     public ValueInput<T> False = new();
     public ValueOutput<T> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(Condition.Read(c) ? True.Read(c) : False.Read(c), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -27,15 +28,16 @@ public sealed class MultiplexNode<T> : Node
     public ValueOutput<T> Element = new();
     public ValueOutput<int> InputCount = new("Input Count");
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var index = Index.Read(c);
         var inputs = Inputs.Read(c);
         InputCount.Write(inputs.Count, c);
 
-        if (index >= inputs.Count) return;
+        if (index >= inputs.Count) return Task.CompletedTask;
 
         Element.Write(inputs[index], c);
+        return Task.CompletedTask;
     }
 }
 
@@ -47,7 +49,7 @@ public sealed class DemultiplexNode<T> : Node
     public ValueInput<T> DefaultValue = new("Default Value");
     public ValueOutputList<T> Outputs = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var index = Index.Read(c);
         var value = Value.Read(c);
@@ -57,5 +59,7 @@ public sealed class DemultiplexNode<T> : Node
         {
             Outputs.Write(i, i == index ? value : defaultValue, c);
         }
+
+        return Task.CompletedTask;
     }
 }

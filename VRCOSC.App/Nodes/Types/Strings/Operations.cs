@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Strings;
 
@@ -14,9 +14,10 @@ public sealed class StringCompareNode : Node
     public ValueInput<StringComparison> Comparison = new();
     public ValueOutput<int> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(string.Compare(A.Read(c), B.Read(c), Comparison.Read(c)), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -27,9 +28,10 @@ public class StringJoinNode : Node
     public ValueInputList<string> Inputs = new();
     public ValueOutput<string> Output = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Output.Write(string.Join(Separator.Read(c), Inputs.Read(c)), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -41,14 +43,15 @@ public class StringContainsNode : Node
     public ValueInput<StringComparison> Comparison = new();
     public ValueOutput<bool> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var input = Input.Read(c);
         var value = Value.Read(c);
 
-        if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(value)) return;
+        if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(value)) return Task.CompletedTask;
 
         Result.Write(input.Contains(value, Comparison.Read(c)), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -59,9 +62,10 @@ public class StringToUpperNode : Node
     public ValueInput<string> Input = new(defaultValue: string.Empty);
     public ValueOutput<string> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(Input.Read(c).ToUpper(), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -72,9 +76,10 @@ public class StringToLowerNode : Node
     public ValueInput<string> Input = new(defaultValue: string.Empty);
     public ValueOutput<string> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(Input.Read(c).ToLower(), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -85,8 +90,9 @@ public sealed class StringIsNullOrEmptyNode : Node
     public ValueInput<string> Input = new(defaultValue: string.Empty);
     public ValueOutput<bool> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(string.IsNullOrEmpty(Input.Read(c)), c);
+        return Task.CompletedTask;
     }
 }

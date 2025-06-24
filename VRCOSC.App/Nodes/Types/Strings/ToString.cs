@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Strings;
 
@@ -14,7 +14,7 @@ public sealed class ToStringNode<T> : Node
     public ValueInput<IFormatProvider> FormatProvider = new("Format Provider");
     public ValueOutput<string> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var value = Value.Read(c);
         var format = Format.Read(c);
@@ -23,7 +23,7 @@ public sealed class ToStringNode<T> : Node
         if (value is null)
         {
             Result.Write("null", c);
-            return;
+            return Task.CompletedTask;
         }
 
         try
@@ -31,15 +31,16 @@ public sealed class ToStringNode<T> : Node
             if (value is IFormattable formattable)
             {
                 Result.Write(formattable.ToString(format, formatProvider), c);
-                return;
+                return Task.CompletedTask;
             }
         }
         catch
         {
-            return;
+            return Task.CompletedTask;
         }
 
         Result.Write(value.ToString() ?? "UNKNOWN", c);
+        return Task.CompletedTask;
     }
 }
 
@@ -50,7 +51,7 @@ public sealed class StringFormatNode : Node
     public ValueInputList<object?> Values = new();
     public ValueOutput<string> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         try
         {
@@ -60,5 +61,7 @@ public sealed class StringFormatNode : Node
         {
             Result.Write("INVALID FORMAT", c);
         }
+
+        return Task.CompletedTask;
     }
 }

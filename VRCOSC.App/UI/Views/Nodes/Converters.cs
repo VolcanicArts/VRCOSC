@@ -9,9 +9,10 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using FontAwesome6;
 using VRCOSC.App.Nodes;
-using VRCOSC.App.Nodes.Types.Base;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Flow;
 using VRCOSC.App.Nodes.Types.Inputs;
+using VRCOSC.App.Nodes.Types.Utility;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.Utils;
 
@@ -194,6 +195,7 @@ public class GraphItemsDataTemplateSelector : DataTemplateSelector
     public required DataTemplate? TextBoxDriveNodeTemplate { get; set; }
     public required DataTemplate? NodeWithTextBoxTemplate { get; set; }
     public required DataTemplate? DisplayNodeTemplate { get; set; }
+    public required DataTemplate? PassthroughDisplayNodeTemplate { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
@@ -214,6 +216,7 @@ public class GraphItemsDataTemplateSelector : DataTemplateSelector
                 var genDef = type.GetGenericTypeDefinition();
 
                 if (genDef == typeof(DisplayNode<>)) return DisplayNodeTemplate;
+                if (genDef == typeof(PassthroughDisplayNode<>)) return PassthroughDisplayNodeTemplate;
                 if (genDef == typeof(CastNode<,>)) return RelayNodeTemplate;
                 if (genDef == typeof(RelayNode<>)) return RelayNodeTemplate;
 

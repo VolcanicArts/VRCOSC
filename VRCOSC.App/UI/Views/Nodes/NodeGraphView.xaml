@@ -1,4 +1,4 @@
-<UserControl x:Class="VRCOSC.App.UI.Views.Nodes.NodeGraphView"
+﻿<UserControl x:Class="VRCOSC.App.UI.Views.Nodes.NodeGraphView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -591,6 +591,60 @@
             </Border>
         </DataTemplate>
 
+        <DataTemplate x:Key="PassthroughDisplayNodeTemplate">
+            <Border Name="NodeContainer"
+                    CornerRadius="2"
+                    BorderThickness="2"
+                    BorderBrush="{DynamicResource CForeground3}"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Tag="{Binding}"
+                    Width="252"
+                    MouseDown="NodeContainer_OnMouseDown"
+                    Cursor="Hand"
+                    ContextMenu="{StaticResource NodeContextMenu}">
+                <Border.RenderTransform>
+                    <TranslateTransform X="{Binding PosX}" Y="{Binding PosY}"/>
+                </Border.RenderTransform>
+                <Grid>
+                    <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
+                    <Grid VerticalAlignment="Top" Margin="0 5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ItemsControl Grid.Column="0" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterLeft}}"
+                                      VerticalAlignment="Top" HorizontalAlignment="Left"
+                                      Name="ValueInputItemsControl"
+                                      ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                      ItemTemplate="{StaticResource ValueInputCollapsedTemplate}">
+                            <ItemsControl.RenderTransform>
+                                <TranslateTransform X="-6"/>
+                            </ItemsControl.RenderTransform>
+                        </ItemsControl>
+                        <TextBlock Grid.Column="1"
+                                   Foreground="{DynamicResource CForeground2}"
+                                   Text="{Binding Node.Value, Converter={StaticResource ObjectToStringConverter}}" FontSize="12"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Stretch"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Margin="0 -2 10 0"
+                                   FontWeight="SemiBold"/>
+                        <ItemsControl Grid.Column="2" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
+                                      VerticalAlignment="Top" HorizontalAlignment="Right"
+                                      Name="ValueOutputItemsControl"
+                                      ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                      ItemTemplate="{StaticResource ValueOutputCollapsedTemplate}">
+                            <ItemsControl.RenderTransform>
+                                <TranslateTransform X="6"/>
+                            </ItemsControl.RenderTransform>
+                        </ItemsControl>
+                    </Grid>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
         <DataTemplate x:Key="CollapsedTemplate">
             <Border Name="NodeContainer"
                     CornerRadius="2"
@@ -920,7 +974,8 @@
                                               TextBoxSourceNodeTemplate="{StaticResource TextBoxSourceNodeTemplate}"
                                               TextBoxDriveNodeTemplate="{StaticResource TextBoxDriveNodeTemplate}"
                                               NodeWithTextBoxTemplate="{StaticResource NodeWithTextBoxTemplate}"
-                                              DisplayNodeTemplate="{StaticResource DisplayNodeTemplate}"/>
+                                              DisplayNodeTemplate="{StaticResource DisplayNodeTemplate}"
+                                              PassthroughDisplayNodeTemplate="{StaticResource PassthroughDisplayNodeTemplate}"/>
 
         <DataTemplate x:Key="ConnectionTemplate">
             <ContentPresenter Content="{Binding Path, Mode=OneTime}"/>

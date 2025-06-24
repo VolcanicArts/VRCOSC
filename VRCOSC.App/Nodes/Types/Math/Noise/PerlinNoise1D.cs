@@ -1,7 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Math.Noise;
@@ -13,8 +13,9 @@ public class PerlinNoise1DNode : Node
     public ValueInput<int?> Seed = new();
     public ValueOutput<float> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write((float)new PerlinNoise(Seed.Read(c)).Noise(Value.Read(c)), c);
+        return Task.CompletedTask;
     }
 }

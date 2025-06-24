@@ -1,7 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Speech;
 
@@ -14,10 +14,10 @@ public sealed class OnSpeechResultNode : Node, INodeEventHandler
 
     public ValueOutput<string> Text = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         Text.Write(textStore.Read(c), c);
-        OnResult.Execute(c);
+        await OnResult.Execute(c);
         textStore.Write(string.Empty, c);
     }
 

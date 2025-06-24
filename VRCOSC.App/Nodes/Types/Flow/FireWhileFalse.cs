@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Threading.Tasks;
-using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
@@ -20,7 +19,7 @@ public sealed class FireWhileFalseNode : Node
     [NodeReactive]
     public ValueInput<bool> Condition = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         PrevCondition.Write(Condition.Read(c), c);
         PrevDelay.Write(DelayMilliseconds.Read(c), c);
@@ -31,10 +30,10 @@ public sealed class FireWhileFalseNode : Node
 
         while (!c.IsCancelled)
         {
-            IsFalse.Execute(c);
+            await IsFalse.Execute(c);
             if (c.IsCancelled) break;
 
-            Task.Delay(delay, c.Token).Wait(c.Token);
+            await Task.Delay(delay, c.Token);
             if (c.IsCancelled) break;
         }
     }

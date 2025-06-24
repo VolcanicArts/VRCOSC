@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Collections;
 
@@ -13,11 +13,12 @@ public class EnumerableCountNode<T> : Node
     public ValueInput<IEnumerable<T>> Enumerable = new();
     public ValueOutput<int> Element = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
-        if (enumerable is null) return;
+        if (enumerable is null) return Task.CompletedTask;
 
         Element.Write(enumerable.Count(), c);
+        return Task.CompletedTask;
     }
 }

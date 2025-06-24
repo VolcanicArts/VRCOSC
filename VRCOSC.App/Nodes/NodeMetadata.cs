@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using FontAwesome6;
-using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;

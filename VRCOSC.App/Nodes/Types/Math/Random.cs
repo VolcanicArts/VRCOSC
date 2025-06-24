@@ -3,7 +3,7 @@
 
 using System;
 using System.Numerics;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Math;
 
@@ -16,7 +16,7 @@ public sealed class RandomNode<T> : Node where T : INumber<T>
     public ValueInput<T> Max = new();
     public ValueOutput<T> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var minDouble = double.CreateChecked(Min.Read(c));
         var maxDouble = double.CreateChecked(Max.Read(c));
@@ -25,5 +25,6 @@ public sealed class RandomNode<T> : Node where T : INumber<T>
 
         var value = T.CreateChecked(valueDouble);
         Result.Write(value, c);
+        return Task.CompletedTask;
     }
 }

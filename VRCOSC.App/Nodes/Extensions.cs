@@ -3,7 +3,7 @@
 
 using System;
 using System.Linq;
-using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.Nodes.Types;
 
 namespace VRCOSC.App.Nodes;
 

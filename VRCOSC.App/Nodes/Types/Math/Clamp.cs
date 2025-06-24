@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Numerics;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Math;
 
@@ -14,8 +14,9 @@ public class ClampNode<T> : Node where T : INumber<T>
     public ValueInput<T> Max = new();
     public ValueOutput<T> Output = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Output.Write(T.Clamp(Value.Read(c), Min.Read(c), Max.Read(c)), c);
+        return Task.CompletedTask;
     }
 }

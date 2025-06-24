@@ -2,20 +2,26 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using VRCOSC.App.Nodes.Types.Base;
 
-namespace VRCOSC.App.Nodes.Types.Math;
+namespace VRCOSC.App.Nodes.Types.Math.Constants;
+
+[Node("E", "Math/Constants")]
+[NodeCollapsed]
+public sealed class EValueOutputNode : ValueOutputNode<float>
+{
+    protected override float GetValue() => MathF.E;
+}
 
 [Node("Pi", "Math/Constants")]
 [NodeCollapsed]
-public sealed class PiConstantNode : ConstantNode<float>
+public sealed class PiValueOutputNode : ValueOutputNode<float>
 {
     protected override float GetValue() => MathF.PI;
 }
 
 [Node("Tau", "Math/Constants")]
 [NodeCollapsed]
-public sealed class TauConstantNode : ConstantNode<float>
+public sealed class TauValueOutputNode : ValueOutputNode<float>
 {
     protected override float GetValue() => MathF.Tau;
 }

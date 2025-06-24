@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
@@ -17,10 +17,10 @@ public class FireOnChangeNode<T> : Node
     [NodeReactive]
     public ValueInput<T> Value = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         PrevValue.Write(Value.Read(c), c);
-        Next.Execute(c);
+        await Next.Execute(c);
     }
 
     protected override bool ShouldProcess(PulseContext c)
@@ -39,10 +39,10 @@ public class FireOnChangeMultiNode<T> : Node
     [NodeReactive]
     public ValueInputList<T> Values = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         PrevValues.Write(Values.Read(c), c);
-        Next.Execute(c);
+        await Next.Execute(c);
     }
 
     protected override bool ShouldProcess(PulseContext c)

@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
@@ -18,7 +18,7 @@ public sealed class StatefulIfNode : Node, IFlowInput
 
     public ValueInput<bool> Condition = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var prevCondition = PrevCondition.Read(c);
         var condition = Condition.Read(c);
@@ -26,28 +26,28 @@ public sealed class StatefulIfNode : Node, IFlowInput
         if (!prevCondition && condition)
         {
             PrevCondition.Write(condition, c);
-            OnBecameTrue.Execute(c);
+            await OnBecameTrue.Execute(c);
             return;
         }
 
         if (prevCondition && !condition)
         {
             PrevCondition.Write(condition, c);
-            OnBecameFalse.Execute(c);
+            await OnBecameFalse.Execute(c);
             return;
         }
 
         if (prevCondition && condition)
         {
             PrevCondition.Write(condition, c);
-            OnStillTrue.Execute(c);
+            await OnStillTrue.Execute(c);
             return;
         }
 
         if (!prevCondition && !condition)
         {
             PrevCondition.Write(condition, c);
-            OnStillFalse.Execute(c);
+            await OnStillFalse.Execute(c);
             return;
         }
 

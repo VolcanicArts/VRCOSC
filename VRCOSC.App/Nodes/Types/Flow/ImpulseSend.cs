@@ -1,7 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
@@ -12,9 +12,9 @@ public class ImpulseSendNode : Node, IImpulseSender, IFlowInput, IHasTextPropert
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
-        c.Graph.TriggerImpulse(new ImpulseDefinition(Text, []), c);
+        await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, []), c);
     }
 }
 
@@ -26,9 +26,9 @@ public class ImpulseSendNode<T1> : Node, IImpulseSender, IFlowInput, IHasTextPro
 
     public ValueInput<T1> First = new(typeof(T1).GetFriendlyName());
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
-        c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!]), c);
+        await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!]), c);
     }
 }
 
@@ -41,9 +41,9 @@ public class ImpulseSendNode<T1, T2> : Node, IImpulseSender, IFlowInput, IHasTex
     public ValueInput<T1> First = new(typeof(T1).GetFriendlyName());
     public ValueInput<T2> Second = new(typeof(T2).GetFriendlyName());
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
-        c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!]), c);
+        await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!]), c);
     }
 }
 
@@ -57,9 +57,9 @@ public class ImpulseSendNode<T1, T2, T3> : Node, IImpulseSender, IFlowInput, IHa
     public ValueInput<T2> Second = new(typeof(T2).GetFriendlyName());
     public ValueInput<T3> Third = new(typeof(T3).GetFriendlyName());
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
-        c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!, Third.Read(c)!]), c);
+        await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!, Third.Read(c)!]), c);
     }
 }
 
@@ -74,8 +74,8 @@ public class ImpulseSendNode<T1, T2, T3, T4> : Node, IImpulseSender, IFlowInput,
     public ValueInput<T3> Third = new(typeof(T3).GetFriendlyName());
     public ValueInput<T4> Fourth = new(typeof(T4).GetFriendlyName());
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
-        c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!, Third.Read(c)!, Fourth.Read(c)!]), c);
+        await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!, Third.Read(c)!, Fourth.Read(c)!]), c);
     }
 }

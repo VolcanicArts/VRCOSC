@@ -1,7 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 using VRCOSC.App.SDK.VRChat;
 
 namespace VRCOSC.App.Nodes.Types.Sources;
@@ -12,7 +12,7 @@ public sealed class AvatarSourceNode : Node, INodeEventHandler
     public ValueOutput<string> AvatarId = new("Id");
     public ValueOutput<string> Name = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var avatar = c.FindCurrentAvatar();
 
@@ -26,6 +26,8 @@ public sealed class AvatarSourceNode : Node, INodeEventHandler
             AvatarId.Write(avatar.Id, c);
             Name.Write(avatar.Name, c);
         }
+
+        return Task.CompletedTask;
     }
 
     public bool HandleAvatarChange(PulseContext c, AvatarConfig? config) => true;

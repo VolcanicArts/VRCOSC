@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Numerics;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Math.Map;
 
@@ -16,7 +16,7 @@ public class RemapNode<T> : Node where T : INumber<T>
     public ValueInput<T> ToMax = new("To Max");
     public ValueOutput<T> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var value = double.CreateChecked(Value.Read(c));
         var fromMin = double.CreateChecked(FromMin.Read(c));
@@ -25,5 +25,6 @@ public class RemapNode<T> : Node where T : INumber<T>
         var toMax = double.CreateChecked(ToMax.Read(c));
 
         Result.Write(T.CreateChecked(Utils.Interpolation.Map(value, fromMin, fromMax, toMin, toMax)), c);
+        return Task.CompletedTask;
     }
 }

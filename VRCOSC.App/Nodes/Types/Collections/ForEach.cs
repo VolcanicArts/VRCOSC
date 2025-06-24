@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Collections;
 
@@ -15,7 +15,7 @@ public sealed class ForEachNode<T> : Node, IFlowInput
     public ValueInput<IEnumerable<T>> Enumerable = new();
     public ValueOutput<T> Element = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
         if (enumerable is null) return;
@@ -25,11 +25,11 @@ public sealed class ForEachNode<T> : Node, IFlowInput
             Element.Write(element, c);
             if (c.IsCancelled) return;
 
-            OnIteration.Execute(c);
+            await OnIteration.Execute(c);
         }
 
         if (c.IsCancelled) return;
 
-        OnEnd.Execute(c);
+        await OnEnd.Execute(c);
     }
 }

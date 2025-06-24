@@ -3,7 +3,7 @@
 
 #if DEBUG
 using System;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Debug;
 
@@ -14,14 +14,14 @@ public sealed class LogNode : Node, IFlowInput
 
     public ValueInput<string> Text = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var text = Text.Read(c);
 
         if (text is not null)
             Console.WriteLine(text);
 
-        Next.Execute(c);
+        await Next.Execute(c);
     }
 }
 #endif

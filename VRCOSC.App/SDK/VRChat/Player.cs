@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -14,8 +14,8 @@ public sealed class Player
 {
     public Viseme Viseme { get; private set; }
     public float Voice { get; private set; }
-    public Gesture GestureLeft { get; private set; }
-    public Gesture GestureRight { get; private set; }
+    public GestureType GestureTypeLeft { get; private set; }
+    public GestureType GestureTypeRight { get; private set; }
     public float GestureLeftWeight { get; private set; }
     public float GestureRightWeight { get; private set; }
     public float AngularY { get; private set; }
@@ -78,11 +78,11 @@ public sealed class Player
                     break;
 
                 case VRChatAvatarParameter.GestureLeft:
-                    GestureLeft = (Gesture)(int)parameter.Value;
+                    GestureTypeLeft = (GestureType)(int)parameter.Value;
                     break;
 
                 case VRChatAvatarParameter.GestureRight:
-                    GestureRight = (Gesture)(int)parameter.Value;
+                    GestureTypeRight = (GestureType)(int)parameter.Value;
                     break;
 
                 case VRChatAvatarParameter.GestureLeftWeight:
@@ -192,8 +192,8 @@ public sealed class Player
     {
         Viseme = default;
         Voice = default;
-        GestureLeft = default;
-        GestureRight = default;
+        GestureTypeLeft = default;
+        GestureTypeRight = default;
         GestureLeftWeight = default;
         GestureRightWeight = default;
         AngularY = default;
@@ -453,7 +453,7 @@ public enum Viseme
     U
 }
 
-public enum Gesture
+public enum GestureType
 {
     Neutral,
     Fist,

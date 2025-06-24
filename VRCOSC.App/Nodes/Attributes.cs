@@ -4,8 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using FontAwesome6;
-using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 
@@ -93,7 +94,7 @@ public class FlowCall : IFlow
         Name = name;
     }
 
-    public void Execute(PulseContext context) => context.Execute(this);
+    public Task Execute(PulseContext context) => context.Execute(this);
 }
 
 public class FlowContinuation : IFlow
@@ -106,12 +107,12 @@ public class FlowContinuation : IFlow
         Name = name;
     }
 
-    public void Execute(PulseContext context) => context.Execute(this);
+    public Task Execute(PulseContext context) => context.Execute(this);
 }
 
 public interface IStore;
 
-public class LocalStore<T> : IStore
+public class ContextStore<T> : IStore
 {
     public T Read(PulseContext c)
     {

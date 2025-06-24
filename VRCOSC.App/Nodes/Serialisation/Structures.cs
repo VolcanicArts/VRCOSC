@@ -7,7 +7,7 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using Newtonsoft.Json;
-using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 

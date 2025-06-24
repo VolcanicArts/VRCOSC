@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Numerics;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 using VRCOSC.App.SDK.OVR.Device;
 using VRCOSC.App.Utils;
 
@@ -16,9 +16,10 @@ public sealed class SteamVRIsDashboardVisibleNode : Node, IUpdateNode
 {
     public ValueOutput<bool> IsVisible = new("Is Visible");
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         IsVisible.Write(AppManager.GetInstance().OVRClient.IsDashboardVisible(), c);
+        return Task.CompletedTask;
     }
 
     public bool OnUpdate(PulseContext c) => true;
@@ -30,9 +31,10 @@ public sealed class SteamVRIsUserPresentNode : Node, IUpdateNode
 {
     public ValueOutput<bool> IsPresent = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         IsPresent.Write(AppManager.GetInstance().OVRClient.IsUserPresent(), c);
+        return Task.CompletedTask;
     }
 
     public bool OnUpdate(PulseContext c) => true;
@@ -44,9 +46,10 @@ public sealed class SteamVRFPSNode : Node, IUpdateNode
 {
     public ValueOutput<float> FPS = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         FPS.Write(AppManager.GetInstance().OVRClient.FPS, c);
+        return Task.CompletedTask;
     }
 
     public bool OnUpdate(PulseContext c) => true;
@@ -60,14 +63,15 @@ public sealed class SteamVRDeviceInfoNode : Node, IUpdateNode
     public ValueOutput<bool> IsCharging = new("Is Charging");
     public ValueOutput<float> Battery = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var device = Device.Read(c);
-        if (device is null) return;
+        if (device is null) return Task.CompletedTask;
 
         IsConnected.Write(device.IsConnected, c);
         IsCharging.Write(device.IsCharging, c);
         Battery.Write(device.BatteryPercentage, c);
+        return Task.CompletedTask;
     }
 
     public bool OnUpdate(PulseContext c) => Device.Read(c) is not null;
@@ -80,7 +84,7 @@ public sealed class SteamVRDeviceTransformSourceNode : Node, IUpdateNode
     public ValueOutput<Vector3> Position = new();
     public ValueOutput<Quaternion> Rotation = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var device = Device.Read(c);
 
@@ -94,6 +98,8 @@ public sealed class SteamVRDeviceTransformSourceNode : Node, IUpdateNode
             Position.Write(device.Transform.Position, c);
             Rotation.Write(device.Transform.Rotation, c);
         }
+
+        return Task.CompletedTask;
     }
 
     public bool OnUpdate(PulseContext c) => Device.Read(c) is not null;
@@ -108,14 +114,15 @@ public sealed class SteamVRControllerTriggerNode : Node, IUpdateNode
     public ValueOutput<bool> Touch = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var controller = Controller.Read(c);
-        if (controller is null) return;
+        if (controller is null) return Task.CompletedTask;
 
         Pull.Write(controller.Input.Trigger.Pull, c);
         Touch.Write(controller.Input.Trigger.Touch, c);
         Click.Write(controller.Input.Trigger.Click, c);
+        return Task.CompletedTask;
     }
 
     public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
@@ -130,14 +137,15 @@ public sealed class SteamVRControllerStickNode : Node, IUpdateNode
     public ValueOutput<bool> Touch = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var controller = Controller.Read(c);
-        if (controller is null) return;
+        if (controller is null) return Task.CompletedTask;
 
         Position.Write(controller.Input.Stick.Position, c);
         Touch.Write(controller.Input.Stick.Touch, c);
         Click.Write(controller.Input.Stick.Click, c);
+        return Task.CompletedTask;
     }
 
     public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
@@ -151,13 +159,14 @@ public sealed class SteamVRControllerPrimaryNode : Node, IUpdateNode
     public ValueOutput<bool> Touch = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var controller = Controller.Read(c);
-        if (controller is null) return;
+        if (controller is null) return Task.CompletedTask;
 
         Touch.Write(controller.Input.Primary.Touch, c);
         Click.Write(controller.Input.Primary.Click, c);
+        return Task.CompletedTask;
     }
 
     public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
@@ -171,13 +180,14 @@ public sealed class SteamVRControllerSecondaryNode : Node, IUpdateNode
     public ValueOutput<bool> Touch = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var controller = Controller.Read(c);
-        if (controller is null) return;
+        if (controller is null) return Task.CompletedTask;
 
         Touch.Write(controller.Input.Secondary.Touch, c);
         Click.Write(controller.Input.Secondary.Click, c);
+        return Task.CompletedTask;
     }
 
     public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
@@ -191,13 +201,14 @@ public sealed class SteamVRControllerGripNode : Node, IUpdateNode
     public ValueOutput<float> Pull = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var controller = Controller.Read(c);
-        if (controller is null) return;
+        if (controller is null) return Task.CompletedTask;
 
         Pull.Write(controller.Input.Grip.Pull, c);
         Click.Write(controller.Input.Grip.Click, c);
+        return Task.CompletedTask;
     }
 
     public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
@@ -212,14 +223,15 @@ public sealed class SteamVRControllerPadNode : Node, IUpdateNode
     public ValueOutput<bool> Touch = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var controller = Controller.Read(c);
-        if (controller is null) return;
+        if (controller is null) return Task.CompletedTask;
 
         Position.Write(controller.Input.Pad.Position, c);
         Touch.Write(controller.Input.Pad.Touch, c);
         Click.Write(controller.Input.Pad.Click, c);
+        return Task.CompletedTask;
     }
 
     public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
@@ -235,15 +247,16 @@ public sealed class SteamVRControllerSkeletonNode : Node, IUpdateNode
     public ValueOutput<float> Ring = new();
     public ValueOutput<float> Pinky = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var controller = Controller.Read(c);
-        if (controller is null) return;
+        if (controller is null) return Task.CompletedTask;
 
         Index.Write(controller.Input.Skeleton.Index, c);
         Middle.Write(controller.Input.Skeleton.Middle, c);
         Ring.Write(controller.Input.Skeleton.Ring, c);
         Pinky.Write(controller.Input.Skeleton.Pinky, c);
+        return Task.CompletedTask;
     }
 
     public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;

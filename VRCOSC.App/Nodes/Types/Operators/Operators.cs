@@ -2,8 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FontAwesome6;
-using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Operators;
 
@@ -14,9 +14,10 @@ public sealed class EqualsNode<T> : Node
     public ValueInput<T> B = new();
     public ValueOutput<bool> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(EqualityComparer<T>.Default.Equals(A.Read(c), B.Read(c)), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -27,8 +28,9 @@ public sealed class NotEqualsNode<T> : Node
     public ValueInput<T> B = new();
     public ValueOutput<bool> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(!EqualityComparer<T>.Default.Equals(A.Read(c), B.Read(c)), c);
+        return Task.CompletedTask;
     }
 }

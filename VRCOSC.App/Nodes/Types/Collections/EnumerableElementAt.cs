@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Collections;
 
@@ -14,14 +14,15 @@ public sealed class EnumerableElementAtNode<T> : Node
     public ValueInput<int> Index = new();
     public ValueOutput<T> Element = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
-        if (enumerable is null) return;
+        if (enumerable is null) return Task.CompletedTask;
 
         var index = Index.Read(c);
-        if (index < 0 || index >= enumerable.Count()) return;
+        if (index < 0 || index >= enumerable.Count()) return Task.CompletedTask;
 
         Element.Write(enumerable.ElementAt(index), c);
+        return Task.CompletedTask;
     }
 }

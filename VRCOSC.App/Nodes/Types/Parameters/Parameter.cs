@@ -2,8 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
-using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.App.Nodes.Types.Parameters;
@@ -17,13 +17,13 @@ public class IndirectSendParameterNode<T> : Node, IFlowInput where T : unmanaged
     public ValueInput<string> Name = new();
     public ValueInput<T> Value = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var name = Name.Read(c);
         if (string.IsNullOrWhiteSpace(name)) return;
 
         AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", Value.Read(c));
-        Next.Execute(c);
+        await Next.Execute(c);
     }
 }
 
@@ -38,12 +38,12 @@ public class DirectSendParameterNode<T> : Node, IFlowInput, IHasTextProperty whe
 
     public ValueInput<T> Value = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         if (string.IsNullOrWhiteSpace(Text)) return;
 
         AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{Text}", Value.Read(c));
-        Next.Execute(c);
+        await Next.Execute(c);
     }
 }
 
@@ -56,11 +56,12 @@ public class DriveParameterNode<T> : UpdateNode<T>, IHasTextProperty
 
     public ValueInput<T> Value = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
-        if (string.IsNullOrWhiteSpace(Text)) return;
+        if (string.IsNullOrWhiteSpace(Text)) return Task.CompletedTask;
 
         AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{Text}", Value.Read(c));
+        return Task.CompletedTask;
     }
 
     protected override T GetValue(PulseContext c) => Value.Read(c);
@@ -77,9 +78,9 @@ public class ParameterSourceNode<T> : Node, INodeEventHandler, IHasTextProperty
 
     public ValueOutput<T> Value = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
-        var parameter = c.GetParameter<T>(Text);
+        var parameter = await c.GetParameter<T>(Text);
         if (parameter is null) return;
 
         Value.Write(parameter.GetValue<T>(), c);
@@ -102,13 +103,13 @@ public class ReadParameterNode<T> : Node, IFlowInput
     public ValueInput<string> Name = new();
     public ValueOutput<T> Value = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
-        var parameter = c.GetParameter<T>(Name.Read(c));
+        var parameter = await c.GetParameter<T>(Name.Read(c));
         if (parameter is null || parameter.Type != parameterType) return;
 
         Value.Write(parameter.GetValue<T>(), c);
-        Next.Execute(c);
+        await Next.Execute(c);
     }
 }
 
@@ -137,17 +138,18 @@ public sealed class WildcardParameterSourceNode<T, W0> : Node, INodeEventHandler
     public ValueOutput<T> Value = new();
     public ValueOutput<W0> Wildcard0 = new("Wildcard 0");
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var parameter = Parameter.Read(c);
-        if (parameter is null) return;
+        if (parameter is null) return Task.CompletedTask;
 
         var templatedParameter = new TemplatedVRChatParameter(textRegex, parameter);
-        if (!templatedParameter.IsMatch()) return;
-        if (!templatedParameter.IsWildcardType<W0>(0)) return;
+        if (!templatedParameter.IsMatch()) return Task.CompletedTask;
+        if (!templatedParameter.IsWildcardType<W0>(0)) return Task.CompletedTask;
 
         Value.Write(parameter.GetValue<T>(), c);
         Wildcard0.Write(templatedParameter.GetWildcard<W0>(0), c);
+        return Task.CompletedTask;
     }
 
     public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter)
@@ -185,19 +187,20 @@ public sealed class WildcardParameterSourceNode<T, W0, W1> : Node, INodeEventHan
     public ValueOutput<W0> Wildcard0 = new("Wildcard 0");
     public ValueOutput<W1> Wildcard1 = new("Wildcard 1");
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var parameter = Parameter.Read(c);
-        if (parameter is null) return;
+        if (parameter is null) return Task.CompletedTask;
 
         var templatedParameter = new TemplatedVRChatParameter(textRegex, parameter);
-        if (!templatedParameter.IsMatch()) return;
-        if (!templatedParameter.IsWildcardType<W0>(0)) return;
-        if (!templatedParameter.IsWildcardType<W1>(1)) return;
+        if (!templatedParameter.IsMatch()) return Task.CompletedTask;
+        if (!templatedParameter.IsWildcardType<W0>(0)) return Task.CompletedTask;
+        if (!templatedParameter.IsWildcardType<W1>(1)) return Task.CompletedTask;
 
         Value.Write(parameter.GetValue<T>(), c);
         Wildcard0.Write(templatedParameter.GetWildcard<W0>(0), c);
         Wildcard1.Write(templatedParameter.GetWildcard<W1>(1), c);
+        return Task.CompletedTask;
     }
 
     public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter)
@@ -236,21 +239,22 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : Node, INodeEven
     public ValueOutput<W1> Wildcard1 = new("Wildcard 1");
     public ValueOutput<W2> Wildcard2 = new("Wildcard 2");
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var parameter = Parameter.Read(c);
-        if (parameter is null) return;
+        if (parameter is null) return Task.CompletedTask;
 
         var templatedParameter = new TemplatedVRChatParameter(textRegex, parameter);
-        if (!templatedParameter.IsMatch()) return;
-        if (!templatedParameter.IsWildcardType<W0>(0)) return;
-        if (!templatedParameter.IsWildcardType<W1>(1)) return;
-        if (!templatedParameter.IsWildcardType<W2>(2)) return;
+        if (!templatedParameter.IsMatch()) return Task.CompletedTask;
+        if (!templatedParameter.IsWildcardType<W0>(0)) return Task.CompletedTask;
+        if (!templatedParameter.IsWildcardType<W1>(1)) return Task.CompletedTask;
+        if (!templatedParameter.IsWildcardType<W2>(2)) return Task.CompletedTask;
 
         Value.Write(parameter.GetValue<T>(), c);
         Wildcard0.Write(templatedParameter.GetWildcard<W0>(0), c);
         Wildcard1.Write(templatedParameter.GetWildcard<W1>(1), c);
         Wildcard2.Write(templatedParameter.GetWildcard<W2>(2), c);
+        return Task.CompletedTask;
     }
 
     public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter)
@@ -290,23 +294,24 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2, W3> : Node, INode
     public ValueOutput<W2> Wildcard2 = new("Wildcard 2");
     public ValueOutput<W3> Wildcard3 = new("Wildcard 3");
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var parameter = Parameter.Read(c);
-        if (parameter is null) return;
+        if (parameter is null) return Task.CompletedTask;
 
         var templatedParameter = new TemplatedVRChatParameter(textRegex, parameter);
-        if (!templatedParameter.IsMatch()) return;
-        if (!templatedParameter.IsWildcardType<W0>(0)) return;
-        if (!templatedParameter.IsWildcardType<W1>(1)) return;
-        if (!templatedParameter.IsWildcardType<W2>(2)) return;
-        if (!templatedParameter.IsWildcardType<W3>(3)) return;
+        if (!templatedParameter.IsMatch()) return Task.CompletedTask;
+        if (!templatedParameter.IsWildcardType<W0>(0)) return Task.CompletedTask;
+        if (!templatedParameter.IsWildcardType<W1>(1)) return Task.CompletedTask;
+        if (!templatedParameter.IsWildcardType<W2>(2)) return Task.CompletedTask;
+        if (!templatedParameter.IsWildcardType<W3>(3)) return Task.CompletedTask;
 
         Value.Write(parameter.GetValue<T>(), c);
         Wildcard0.Write(templatedParameter.GetWildcard<W0>(0), c);
         Wildcard1.Write(templatedParameter.GetWildcard<W1>(1), c);
         Wildcard2.Write(templatedParameter.GetWildcard<W2>(2), c);
         Wildcard3.Write(templatedParameter.GetWildcard<W3>(3), c);
+        return Task.CompletedTask;
     }
 
     public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter)

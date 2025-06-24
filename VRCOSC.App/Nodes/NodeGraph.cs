@@ -12,10 +12,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using VRCOSC.App.Nodes.Serialisation;
-using VRCOSC.App.Nodes.Types.Base;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Strings;
 using VRCOSC.App.SDK.Handlers;
-using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
@@ -79,7 +78,7 @@ public class NodeGraph : IVRCClientEventHandler
         serialiser.Deserialise(true, importPath);
     }
 
-    public void Start()
+    public async Task Start()
     {
         foreach (var (key, value) in PersistentVariables)
         {
@@ -87,7 +86,7 @@ public class NodeGraph : IVRCClientEventHandler
         }
 
         running = true;
-        triggerOnStartNodes();
+        await triggerOnStartNodes();
         walkForwardAllValueNodes();
         startUpdate();
         VRChatLogReader.Register(this);
@@ -98,23 +97,25 @@ public class NodeGraph : IVRCClientEventHandler
         VRChatLogReader.Deregister(this);
         await updateTokenSource!.CancelAsync();
         await updateTask!;
-        triggerOnStopNodes();
-        clearDisplayNodes();
 
         try
         {
+            // TODO: Improve to know if a flow contains any nodes that loop, indefinitely, if so cancel and wait otherwise wait
             await Task.WhenAll(tasks.Values.Select(t => t.Context.Source.CancelAsync()));
-            await Task.WhenAll(tasks.Values.Select(t => t.Task).ToArray());
+            await Task.WhenAll(tasks.Values.Select(t => t.Task));
         }
         catch (Exception e)
         {
             ExceptionHandler.Handle(e);
         }
 
+        await triggerOnStopNodes();
+        clearDisplayNodes();
+
         tasks.Clear();
         GlobalStores.Clear();
-        running = false;
         Variables.Clear();
+        running = false;
     }
 
     private void walkForwardAllValueNodes()
@@ -143,8 +144,6 @@ public class NodeGraph : IVRCClientEventHandler
     private Task? updateTask;
     private CancellationTokenSource? updateTokenSource;
 
-    private readonly object updateNodesLock = new();
-
     private IEnumerable<Node> updateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IUpdateNode)));
 
     private void startUpdate()
@@ -157,44 +156,20 @@ public class NodeGraph : IVRCClientEventHandler
             {
                 while (!updateTokenSource.IsCancellationRequested)
                 {
-                    lock (updateNodesLock)
+                    foreach (var node in updateNodes)
                     {
-                        foreach (var node in updateNodes)
-                        {
-                            var c = new PulseContext(this)
-                            {
-                                CurrentNode = node
-                            };
+                        var c = new PulseContext(this) { CurrentNode = node };
 
-                            backtrackNode(node, c);
+                        await backtrackNode(node, c);
 
-                            if (!node.InternalShouldProcess(c)) continue;
-                            if (!((IUpdateNode)node).OnUpdate(c)) continue;
+                        if (!node.InternalShouldProcess(c)) continue;
+                        if (!((IUpdateNode)node).OnUpdate(c)) continue;
 
-                            if (node.Metadata.IsTrigger || (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput))
-                            {
-                                StartFlow(node);
-                                continue;
-                            }
-
-                            if (node.GetType().IsAssignableTo(typeof(IDisplayNode)))
-                            {
-                                StartFlow(node);
-                                continue;
-                            }
-
-                            _ = Task.Run(() => WalkForward(node), updateTokenSource.Token);
-                        }
+                        TriggerTree(node);
                     }
 
-                    await Task.Delay(TimeSpan.FromSeconds(1d / 60d), updateTokenSource.Token);
+                    await Task.Delay(TimeSpan.FromSeconds(1d / 60d));
                 }
-            }
-            catch (TaskCanceledException)
-            {
-            }
-            catch (OperationCanceledException)
-            {
             }
             catch (Exception e)
             {
@@ -335,6 +310,15 @@ public class NodeGraph : IVRCClientEventHandler
                 newConnectionMade = true;
             }
 
+            if (outputType.IsEnum && inputType == typeof(int))
+            {
+                var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
+                CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
+                CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
+                group?.Nodes.Add(castNode.Id);
+                newConnectionMade = true;
+            }
+
             if (inputType == typeof(string))
             {
                 var toStringNode = AddNode(typeof(ToStringNode<>).MakeGenericType(outputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
@@ -412,169 +396,152 @@ public class NodeGraph : IVRCClientEventHandler
 
     private readonly ConcurrentDictionary<Node, FlowTask> tasks = [];
 
-    private void handleNodeEvent(Func<PulseContext, INodeEventHandler, bool> shouldPropagate)
+    private async Task triggerOnStartNodes()
     {
-        if (!running) return;
+        var startTasks = new List<Task>();
 
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
         {
-            var c = new PulseContext(this)
-            {
-                CurrentNode = node
-            };
+            var c = new PulseContext(this) { CurrentNode = node };
 
-            backtrackNode(node, c);
+            var handler = (INodeEventHandler)node;
+            if (!handler.HandleNodeStart(c)) continue;
 
-            if (!shouldPropagate.Invoke(c, (INodeEventHandler)node)) continue;
+            startTasks.Add(ProcessNode(node, c));
+        }
 
-            if (node.Metadata.IsTrigger)
-            {
-                StartFlow(node);
-                continue;
-            }
+        await Task.WhenAll(startTasks);
+    }
 
-            Task.Run(() => WalkForward(node));
+    private async Task triggerOnStopNodes()
+    {
+        var stopTasks = new List<Task>();
+
+        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
+        {
+            var c = new PulseContext(this) { CurrentNode = node };
+
+            var handler = (INodeEventHandler)node;
+            if (!handler.HandleNodeStop(c)) continue;
+
+            stopTasks.Add(ProcessNode(node, c));
+        }
+
+        await Task.WhenAll(stopTasks);
+    }
+
+    private void handleNodeEvent(Func<PulseContext, INodeEventHandler, bool> shouldHandleEvent)
+    {
+        Debug.Assert(running);
+
+        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
+        {
+            var c = new PulseContext(this) { CurrentNode = node };
+
+            if (!shouldHandleEvent.Invoke(c, (INodeEventHandler)node)) continue;
+
+            TriggerTree(node);
         }
     }
 
     public void OnParameterReceived(VRChatParameter parameter)
     {
-        handleNodeEvent((c, node) => node.HandleParameterReceive(c, parameter));
+        Task.Run(() => handleNodeEvent((c, node) => node.HandleParameterReceive(c, parameter)));
     }
 
     public void OnAvatarChange(AvatarConfig? config)
     {
-        handleNodeEvent((c, node) => node.HandleAvatarChange(c, config));
+        Task.Run(() => handleNodeEvent((c, node) => node.HandleAvatarChange(c, config)));
     }
 
     public void OnPartialSpeechResult(string result)
     {
-        handleNodeEvent((c, node) => node.HandlePartialSpeechResult(c, result));
+        Task.Run(() => handleNodeEvent((c, node) => node.HandlePartialSpeechResult(c, result)));
     }
 
     public void OnFinalSpeechResult(string result)
     {
-        handleNodeEvent((c, node) => node.HandleFinalSpeechResult(c, result));
-    }
-
-    private void triggerOnStartNodes()
-    {
-        handleNodeEvent((c, node) => node.HandleNodeStart(c));
-    }
-
-    private void triggerOnStopNodes()
-    {
-        handleNodeEvent((c, node) => node.HandleNodeStop(c));
+        Task.Run(() => handleNodeEvent((c, node) => node.HandleFinalSpeechResult(c, result)));
     }
 
     public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
     {
-        handleNodeEvent((c, node) => node.HandleOnInstanceJoined(c, eventArgs));
+        Task.Run(() => handleNodeEvent((c, node) => node.HandleOnInstanceJoined(c, eventArgs)));
     }
 
     public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs)
     {
-        handleNodeEvent((c, node) => node.HandleOnInstanceLeft(c, eventArgs));
+        Task.Run(() => handleNodeEvent((c, node) => node.HandleOnInstanceLeft(c, eventArgs)));
     }
 
     public void OnUserJoined(VRChatClientEventUserJoined eventArgs)
     {
-        handleNodeEvent((c, node) => node.HandleOnUserJoined(c, eventArgs));
+        Task.Run(() => handleNodeEvent((c, node) => node.HandleOnUserJoined(c, eventArgs)));
     }
 
     public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
     {
-        handleNodeEvent((c, node) => node.HandleOnUserLeft(c, eventArgs));
+        Task.Run(() => handleNodeEvent((c, node) => node.HandleOnUserLeft(c, eventArgs)));
     }
 
     public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs)
     {
-        handleNodeEvent((c, node) => node.HandleOnAvatarPreChange(c, eventArgs));
+        Task.Run(() => handleNodeEvent((c, node) => node.HandleOnAvatarPreChange(c, eventArgs)));
     }
 
-    public void StartFlow(Node node) => Task.Run(async () =>
+    public void StartFlow(Node node)
     {
         if (!running) return;
 
-        var c = new PulseContext(this)
-        {
-            CurrentNode = node
-        };
-
-        backtrackNode(node, c);
-
-        if (!node.InternalShouldProcess(c)) return;
-
-        c.CreateMemory(node);
-
         if (tasks.TryGetValue(node, out var existingTask))
         {
-            await existingTask.Context.Source.CancelAsync();
-
-            try
-            {
-                await existingTask.Task;
-            }
-            catch (TaskCanceledException)
-            {
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e);
-            }
-
+            existingTask.Context.Source.Cancel();
+            existingTask.Task.Wait();
             tasks.TryRemove(node, out _);
         }
 
-        c.MarkRan(node.Id);
+        var c = new PulseContext(this);
 
-        var newTask = Task.Run(() => node.InternalProcess(c), c.Token);
+        // display node, parameter driver, we don't need a task for them so just process and let them go
+        if (!node.Metadata.IsFlow && node.Metadata.IsValueInput && !node.Metadata.IsValueOutput)
+        {
+            _ = ProcessNode(node, c);
+            return;
+        }
+
+        var newTask = Task.Run(async () =>
+        {
+            await ProcessNode(node, c);
+            tasks.TryRemove(node, out _);
+        });
+
         tasks.TryAdd(node, new FlowTask(newTask, c));
-    });
-
-    public void ProcessNode(Guid nodeId, PulseContext c)
-    {
-        ProcessNode(Nodes[nodeId], c);
     }
 
-    public void ProcessNode(Node node, PulseContext c)
+    public Task ProcessNode(Guid nodeId, PulseContext c) => ProcessNode(Nodes[nodeId], c);
+
+    public async Task ProcessNode(Node node, PulseContext c, Action? onPreProcess = null)
     {
         if (c.IsCancelled) return;
         if (c.HasRan(node.Id) && !node.Metadata.ForceReprocess) return;
 
-        backtrackNode(node, c);
-        c.CreateMemory(node);
-
-        if (!node.InternalShouldProcess(c)) return;
+        await backtrackNode(node, c);
 
         var currentBefore = c.CurrentNode;
         c.CurrentNode = node;
-        c.MarkRan(node.Id);
-        node.InternalProcess(c);
-        c.CurrentNode = currentBefore;
-    }
 
-    private void processImpulseReceiver(Node node, object[] values, PulseContext c)
-    {
-        if (c.IsCancelled) return;
-
-        backtrackNode(node, c);
         c.CreateMemory(node);
+        c.MarkRan(node.Id);
 
         if (!node.InternalShouldProcess(c)) return;
 
-        var currentBefore = c.CurrentNode;
-        c.CurrentNode = node;
-        ((IImpulseReceiver)node).WriteOutputs(values, c);
-        c.MarkRan(node.Id);
-        node.InternalProcess(c);
+        onPreProcess?.Invoke();
+
+        await node.InternalProcess(c);
         c.CurrentNode = currentBefore;
     }
 
-    private void backtrackNode(Node node, PulseContext c)
+    private async Task backtrackNode(Node node, PulseContext c)
     {
         for (var index = 0; index < node.VirtualValueInputCount(); index++)
         {
@@ -592,18 +559,23 @@ public class NodeGraph : IVRCClientEventHandler
                 continue;
             }
 
-            ProcessNode(outputNode, c);
+            await ProcessNode(outputNode, c);
         }
     }
 
-    /// <summary>
-    /// Walks forward from a source node with a single output to find the trigger node to execute
-    /// </summary>
-    public void WalkForward(Node sourceNode)
+    public void TriggerTree(Node sourceNode)
     {
         if (!running) return;
 
         var triggerNodes = new List<Node>();
+
+        if (sourceNode.Metadata.IsTrigger ||
+            sourceNode.Metadata.IsValueInput && !sourceNode.Metadata.IsValueOutput ||
+            sourceNode.GetType().IsAssignableTo(typeof(IDisplayNode)))
+        {
+            StartFlow(sourceNode);
+            return;
+        }
 
         for (var i = 0; i < sourceNode.VirtualValueOutputCount(); i++)
         {
@@ -633,7 +605,7 @@ public class NodeGraph : IVRCClientEventHandler
                 continue;
             }
 
-            for (var i = 0; i < inputNode.Metadata.OutputsCount; i++)
+            for (var i = 0; i < inputNode.VirtualValueOutputCount(); i++)
             {
                 walkForward(results, inputNode, i);
             }
@@ -648,7 +620,7 @@ public class NodeGraph : IVRCClientEventHandler
         return nodeGroup;
     }
 
-    public void TriggerImpulse(ImpulseDefinition definition, PulseContext c)
+    public async Task TriggerImpulse(ImpulseDefinition definition, PulseContext c)
     {
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IImpulseReceiver))))
         {
@@ -666,7 +638,7 @@ public class NodeGraph : IVRCClientEventHandler
                 if (!type.GenericTypeArguments.SequenceEqual(definition.Values.Select(o => o.GetType()))) continue;
             }
 
-            processImpulseReceiver(node, definition.Values, c);
+            await ProcessNode(node, c, () => impulseNode.WriteOutputs(definition.Values, c));
         }
     }
 }

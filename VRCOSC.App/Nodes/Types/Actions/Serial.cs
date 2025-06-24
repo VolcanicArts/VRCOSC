@@ -3,7 +3,7 @@
 
 using System;
 using System.IO.Ports;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Actions;
 
@@ -20,7 +20,7 @@ public sealed class SerialWriteNode : Node, IFlowInput
     public ValueInput<StopBits> StopBits = new();
     public ValueInput<string> Command = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var portName = PortName.Read(c);
         if (string.IsNullOrEmpty(portName)) return;
@@ -30,7 +30,7 @@ public sealed class SerialWriteNode : Node, IFlowInput
 
         if (string.IsNullOrEmpty(command))
         {
-            OnFail.Execute(c);
+            await OnFail.Execute(c);
             return;
         }
 
@@ -41,7 +41,7 @@ public sealed class SerialWriteNode : Node, IFlowInput
         }
         catch (Exception)
         {
-            OnFail.Execute(c);
+            await OnFail.Execute(c);
             return;
         }
         finally
@@ -49,6 +49,6 @@ public sealed class SerialWriteNode : Node, IFlowInput
             serial.Close();
         }
 
-        OnSuccess.Execute(c);
+        await OnSuccess.Execute(c);
     }
 }

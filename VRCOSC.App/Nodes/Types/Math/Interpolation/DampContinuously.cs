@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Numerics;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Math.Interpolation;
 
@@ -15,8 +15,9 @@ public sealed class DampContinuouslyNode<T> : Node where T : INumber<T>
     public ValueInput<float> ElapsedTimeMilliseconds = new();
     public ValueOutput<T> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(T.CreateChecked(Utils.Interpolation.DampContinuously(double.CreateChecked(Current.Read(c)), double.CreateChecked(Target.Read(c)), LengthMilliseconds.Read(c) / 2f, ElapsedTimeMilliseconds.Read(c))), c);
+        return Task.CompletedTask;
     }
 }

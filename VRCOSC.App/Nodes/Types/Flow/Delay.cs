@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Threading.Tasks;
-using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
@@ -13,11 +12,11 @@ public sealed class DelayNode : Node, IFlowInput
 
     public ValueInput<int> Milliseconds = new("Milliseconds");
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         if (Milliseconds.Read(c) <= 0) return;
 
-        Task.Delay(Milliseconds.Read(c), c.Token).Wait(c.Token);
-        Next.Execute(c);
+        await Task.Delay(Milliseconds.Read(c), c.Token);
+        await Next.Execute(c);
     }
 }

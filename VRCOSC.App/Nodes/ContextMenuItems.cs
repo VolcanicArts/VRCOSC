@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.Utils;
 using Module = VRCOSC.App.SDK.Modules.Module;

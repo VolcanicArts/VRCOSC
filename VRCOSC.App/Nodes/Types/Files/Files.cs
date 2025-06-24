@@ -3,20 +3,20 @@
 
 using System;
 using System.IO;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Files;
 
 [Node("Write Text To File", "Files")]
 public class WriteTextToFileNode : Node, IFlowInput
 {
-    public FlowContinuation OnFinished = new("On Finished");
+    public FlowContinuation OnSuccess = new("On Finished");
     public FlowContinuation OnFailed = new("On Failed");
 
     public ValueInput<string> FilePath = new("File Path");
     public ValueInput<string> Text = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var text = Text.Read(c);
         var filePath = FilePath.Read(c);
@@ -25,22 +25,51 @@ public class WriteTextToFileNode : Node, IFlowInput
 
         if (!File.Exists(filePath))
         {
-            OnFailed.Execute(c);
+            await OnFailed.Execute(c);
             return;
         }
 
         try
         {
-            File.WriteAllTextAsync(filePath, text, c.Token).Wait(c.Token);
-            if (c.IsCancelled) return;
-
-            OnFinished.Execute(c);
+            await File.WriteAllTextAsync(filePath, text, c.Token);
+            await OnSuccess.Execute(c);
         }
         catch (Exception)
         {
-            if (c.IsCancelled) return;
+            await OnFailed.Execute(c);
+        }
+    }
+}
 
-            OnFailed.Execute(c);
+[Node("Read Text From File", "Files")]
+public class ReadTextFromFileNode : Node, IFlowInput
+{
+    public FlowContinuation OnSuccess = new("On Success");
+    public FlowContinuation OnFailed = new("On Failed");
+
+    public ValueInput<string> FilePath = new("File Path");
+    public ValueOutput<string> Text = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        var filePath = FilePath.Read(c);
+
+        if (string.IsNullOrEmpty(filePath)) return;
+
+        if (!File.Exists(filePath))
+        {
+            await OnFailed.Execute(c);
+            return;
+        }
+
+        try
+        {
+            Text.Write(await File.ReadAllTextAsync(filePath, c.Token), c);
+            await OnSuccess.Execute(c);
+        }
+        catch (Exception)
+        {
+            await OnFailed.Execute(c);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Math.Easing;
 
@@ -12,9 +12,10 @@ public sealed class SineInNode : Node
     public ValueInput<float> X = new();
     public ValueOutput<float> Y = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Y.Write(Utils.Easing.Sinusoidal.In(float.Clamp(X.Read(c), 0f, 1f)), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -25,9 +26,10 @@ public sealed class SineOutNode : Node
     public ValueInput<float> X = new();
     public ValueOutput<float> Y = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Y.Write(Utils.Easing.Sinusoidal.Out(float.Clamp(X.Read(c), 0f, 1f)), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -38,8 +40,9 @@ public sealed class SineInOutNode : Node
     public ValueInput<float> X = new();
     public ValueOutput<float> Y = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Y.Write(Utils.Easing.Sinusoidal.InOut(float.Clamp(X.Read(c), 0f, 1f)), c);
+        return Task.CompletedTask;
     }
 }

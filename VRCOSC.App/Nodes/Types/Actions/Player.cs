@@ -1,8 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
-using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Actions;
 
@@ -13,14 +13,14 @@ public sealed class PlayerMuteSetNode : Node, IFlowInput
 
     public ValueInput<bool> Muted = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         if (Muted.Read(c))
-            Player.Mute();
+            c.GetPlayer().Mute();
         else
-            Player.UnMute();
+            c.GetPlayer().UnMute();
 
-        Next.Execute(c);
+        await Next.Execute(c);
     }
 }
 
@@ -29,10 +29,24 @@ public sealed class PlayerMuteToggleNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
-        Player.ToggleVoice();
-        Next.Execute(c);
+        c.GetPlayer().ToggleVoice();
+        await Next.Execute(c);
+    }
+}
+
+[Node("Push To Talk", "Actions/Player")]
+public sealed class PlayerPushToTalkNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<bool> Active = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        c.GetPlayer().PushToTalk(Active.Read(c));
+        await Next.Execute(c);
     }
 }
 
@@ -41,10 +55,10 @@ public sealed class PlayerJumpNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
-        Player.Jump();
-        Next.Execute(c);
+        c.GetPlayer().Jump();
+        await Next.Execute(c);
     }
 }
 
@@ -55,10 +69,10 @@ public sealed class PlayerLookHorizontalNode : Node, IFlowInput
 
     public ValueInput<float> Angle = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
-        Player.LookHorizontal(Angle.Read(c));
-        Next.Execute(c);
+        c.GetPlayer().LookHorizontal(Angle.Read(c));
+        await Next.Execute(c);
     }
 }
 
@@ -69,10 +83,10 @@ public sealed class PlayerMoveVerticalNode : Node, IFlowInput
 
     public ValueInput<float> Percentage = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
-        Player.MoveVertical(Percentage.Read(c));
-        Next.Execute(c);
+        c.GetPlayer().MoveVertical(Percentage.Read(c));
+        await Next.Execute(c);
     }
 }
 
@@ -83,10 +97,10 @@ public sealed class PlayerMoveHorizontalNode : Node, IFlowInput
 
     public ValueInput<float> Percentage = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
-        Player.MoveHorizontal(Percentage.Read(c));
-        Next.Execute(c);
+        c.GetPlayer().MoveHorizontal(Percentage.Read(c));
+        await Next.Execute(c);
     }
 }
 
@@ -97,18 +111,14 @@ public sealed class PlayerSetRunNode : Node, IFlowInput
 
     public ValueInput<bool> Run = new();
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         if (Run.Read(c))
-        {
-            Player.Run();
-        }
+            c.GetPlayer().Run();
         else
-        {
-            Player.StopRun();
-        }
+            c.GetPlayer().StopRun();
 
-        Next.Execute(c);
+        await Next.Execute(c);
     }
 }
 
@@ -119,11 +129,12 @@ public sealed class PlayerChangeAvatarNode : Node, IFlowInput
 
     public ValueInput<string> AvatarId = new("Avatar Id");
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var avatarId = AvatarId.Read(c);
-        if (string.IsNullOrEmpty(avatarId)) return;
+        if (string.IsNullOrEmpty(avatarId)) return Task.CompletedTask;
 
         AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_CHANGE}", avatarId);
+        return Task.CompletedTask;
     }
 }

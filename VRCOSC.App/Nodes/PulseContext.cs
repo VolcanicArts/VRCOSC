@@ -6,7 +6,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Utils;
@@ -24,7 +25,7 @@ public class PulseContext
     internal Node? CurrentNode { get; set; }
 
     internal List<Dictionary<Guid, IRef[]>> Memory { get; } = [new()];
-    internal List<Dictionary<Guid, Dictionary<IStore, IRef>>> LocalStores { get; } = [];
+    internal Dictionary<Guid, Dictionary<IStore, IRef>> Stores { get; } = [];
     internal List<List<Guid>> RanNodes { get; } = [];
     internal List<Dictionary<ParameterDefinition, VRChatParameter>> ParameterCache { get; } = [];
 
@@ -38,7 +39,6 @@ public class PulseContext
         Token = Source.Token;
 
         Memory.Add(new Dictionary<Guid, IRef[]>());
-        LocalStores.Add(new Dictionary<Guid, Dictionary<IStore, IRef>>());
         RanNodes.Add(new List<Guid>());
         ParameterCache.Add(new Dictionary<ParameterDefinition, VRChatParameter>());
     }
@@ -61,26 +61,24 @@ public class PulseContext
         RanNodes[ScopePointer].Add(nodeId);
     }
 
-    internal void Execute(FlowCall call)
+    internal async Task Execute(FlowCall call)
     {
         Memory.Add(new Dictionary<Guid, IRef[]>());
-        LocalStores.Add(new Dictionary<Guid, Dictionary<IStore, IRef>>());
         RanNodes.Add(new List<Guid>());
         ParameterCache.Add(new Dictionary<ParameterDefinition, VRChatParameter>());
         ScopePointer++;
 
-        processNext(call);
+        await processNext(call);
 
         Memory.Remove(Memory.Last());
-        LocalStores.Remove(LocalStores.Last());
         RanNodes.Remove(RanNodes.Last());
         ParameterCache.Remove(ParameterCache.Last());
         ScopePointer--;
     }
 
-    internal void Execute(FlowContinuation continuation)
+    internal Task Execute(FlowContinuation continuation)
     {
-        processNext(continuation);
+        return processNext(continuation);
     }
 
     internal AvatarConfig? FindCurrentAvatar()
@@ -88,7 +86,9 @@ public class PulseContext
         return AppManager.GetInstance().CurrentAvatarConfig;
     }
 
-    internal VRChatParameter? GetParameter<T>(string name)
+    internal Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
+
+    internal async Task<VRChatParameter?> GetParameter<T>(string name)
     {
         var parameterDefinition = new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>());
 
@@ -98,21 +98,19 @@ public class PulseContext
             if (ParameterCache[i].TryGetValue(parameterDefinition, out var scopedParameter)) return scopedParameter;
         }
 
-        var parameter = AppManager.GetInstance().FindParameter(parameterDefinition, Token).Result;
+        var parameter = await AppManager.GetInstance().FindParameter(parameterDefinition, Token);
         if (parameter is not null) ParameterCache[ScopePointer][parameterDefinition] = parameter;
 
         return parameter;
     }
 
-    private void processNext(IFlow next)
+    private Task processNext(IFlow next)
     {
         Debug.Assert(CurrentNode is not null);
 
         var outputIndex = next.Index;
         var connection = Graph.FindConnectionFromFlowOutput(CurrentNode.Id, outputIndex);
-        if (connection is null) return;
-
-        Graph.ProcessNode(connection.InputNodeId, this);
+        return connection is null ? Task.CompletedTask : Graph.ProcessNode(connection.InputNodeId, this);
     }
 
     private T readValue<T>(Guid nodeId, int index)
@@ -190,24 +188,24 @@ public class PulseContext
         writeValueList(CurrentNode.Id, outputIndex, listIndex, value);
     }
 
-    internal T ReadStore<T>(LocalStore<T> localStore)
+    internal T ReadStore<T>(ContextStore<T> contextStore)
     {
         Debug.Assert(CurrentNode is not null);
 
-        if (!LocalStores[ScopePointer].TryGetValue(CurrentNode.Id, out var refStore))
+        if (!Stores.TryGetValue(CurrentNode.Id, out var refStore))
         {
             return default!;
         }
 
-        return (T)refStore[localStore].GetValue()!;
+        return (T)refStore[contextStore].GetValue()!;
     }
 
-    internal void WriteStore<T>(LocalStore<T> localStore, T value)
+    internal void WriteStore<T>(ContextStore<T> contextStore, T value)
     {
         Debug.Assert(CurrentNode is not null);
 
-        LocalStores[ScopePointer].TryAdd(CurrentNode.Id, new Dictionary<IStore, IRef>());
-        LocalStores[ScopePointer][CurrentNode.Id][localStore] = new Ref<T>(value);
+        Stores.TryAdd(CurrentNode.Id, new Dictionary<IStore, IRef>());
+        Stores[CurrentNode.Id][contextStore] = new Ref<T>(value);
     }
 
     internal void CreateMemory(Node node)

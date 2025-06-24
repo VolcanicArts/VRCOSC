@@ -68,11 +68,11 @@ public class NodeManager
         }
     }
 
-    public void Start()
+    public async Task Start()
     {
         foreach (var graph in Graphs)
         {
-            graph.Start();
+            await graph.Start();
         }
     }
 

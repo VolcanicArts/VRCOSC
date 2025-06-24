@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Numerics;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Math;
 
@@ -13,7 +13,7 @@ public class FactorialNode<T> : Node where T : INumber<T>
     public ValueInput<int> Input = new();
     public ValueOutput<T> Output = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var result = T.One;
 
@@ -23,5 +23,6 @@ public class FactorialNode<T> : Node where T : INumber<T>
         }
 
         Output.Write(result, c);
+        return Task.CompletedTask;
     }
 }

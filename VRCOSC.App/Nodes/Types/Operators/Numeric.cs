@@ -2,8 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Numerics;
+using System.Threading.Tasks;
 using FontAwesome6;
-using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Operators;
 
@@ -14,9 +14,10 @@ public sealed class AddNode<T> : Node where T : INumber<T>
     public ValueInput<T> B = new();
     public ValueOutput<T> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(A.Read(c) + B.Read(c), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -27,9 +28,10 @@ public sealed class SubtractNode<T> : Node where T : INumber<T>
     public ValueInput<T> B = new();
     public ValueOutput<T> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(A.Read(c) - B.Read(c), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -40,9 +42,10 @@ public sealed class MultiplyNode<T> : Node where T : INumber<T>
     public ValueInput<T> B = new();
     public ValueOutput<T> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(A.Read(c) * B.Read(c), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -53,9 +56,10 @@ public sealed class DivideNode<T> : Node where T : INumber<T>
     public ValueInput<T> B = new();
     public ValueOutput<T> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(A.Read(c) / B.Read(c), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -66,9 +70,10 @@ public sealed class ModuloNode<T> : Node where T : INumber<T>
     public ValueInput<T> B = new();
     public ValueOutput<T> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(A.Read(c) % B.Read(c), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -79,9 +84,10 @@ public sealed class GreaterThanNode<T> : Node where T : INumber<T>
     public ValueInput<T> B = new();
     public ValueOutput<bool> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(A.Read(c) > B.Read(c), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -92,9 +98,10 @@ public sealed class GreaterThanOrEqualNode<T> : Node where T : INumber<T>
     public ValueInput<T> B = new();
     public ValueOutput<bool> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(A.Read(c) >= B.Read(c), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -105,9 +112,10 @@ public sealed class LessThanNode<T> : Node where T : INumber<T>
     public ValueInput<T> B = new();
     public ValueOutput<bool> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(A.Read(c) < B.Read(c), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -118,9 +126,10 @@ public sealed class LessThanOrEqualNode<T> : Node where T : INumber<T>
     public ValueInput<T> B = new();
     public ValueOutput<bool> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(A.Read(c) <= B.Read(c), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -131,9 +140,10 @@ public sealed class ToBoolNode<T> : Node where T : INumber<T>
     public ValueInput<T> Input = new();
     public ValueOutput<bool> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(Input.Read(c) > T.Zero, c);
+        return Task.CompletedTask;
     }
 }
 
@@ -144,9 +154,10 @@ public sealed class IncrementNode<T> : Node where T : INumber<T>
     public ValueInput<T> Input = new();
     public ValueOutput<T> Output = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Output.Write(Input.Read(c) + T.One, c);
+        return Task.CompletedTask;
     }
 }
 
@@ -157,8 +168,9 @@ public sealed class DecrementNode<T> : Node where T : INumber<T>
     public ValueInput<T> Input = new();
     public ValueOutput<T> Output = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Output.Write(Input.Read(c) - T.One, c);
+        return Task.CompletedTask;
     }
 }

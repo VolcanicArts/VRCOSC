@@ -2,10 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Numerics;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Nodes.Types.Math;
+namespace VRCOSC.App.Nodes.Types.Math.Utility;
 
 [Node("Quaternion To Euler", "Math/Utility")]
 public class QuaternionToEulerNode : Node
@@ -13,9 +13,10 @@ public class QuaternionToEulerNode : Node
     public ValueInput<Quaternion> Quaternion = new();
     public ValueOutput<Vector3> Euler = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Euler.Write(Quaternion.Read(c).QuaternionToEuler(), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -25,9 +26,10 @@ public class EulerToQuaternionNode : Node
     public ValueInput<Vector3> Euler = new();
     public ValueOutput<Quaternion> Quaternion = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Quaternion.Write(Euler.Read(c).EulerToQuaternion(), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -39,8 +41,9 @@ public class QuaternionFromAnglesNode : Node
     public ValueInput<float> Z = new();
     public ValueOutput<Quaternion> Quaternion = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Quaternion.Write(System.Numerics.Quaternion.CreateFromYawPitchRoll(Y.Read(c), X.Read(c), Z.Read(c)), c);
+        return Task.CompletedTask;
     }
 }

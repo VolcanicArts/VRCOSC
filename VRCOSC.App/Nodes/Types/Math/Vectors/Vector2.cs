@@ -3,7 +3,7 @@
 
 using System;
 using System.Numerics;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Math.Vectors;
 
@@ -14,11 +14,12 @@ public class PackVector2Node : Node
     public ValueInput<float> Y = new();
     public ValueOutput<Vector2> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var x = X.Read(c);
         var y = Y.Read(c);
         Result.Write(new Vector2(x, y), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -29,11 +30,12 @@ public sealed class UnpackVector2Node : Node
     public ValueOutput<float> X = new();
     public ValueOutput<float> Y = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var vector = Vector.Read(c);
         X.Write(vector.X, c);
         Y.Write(vector.Y, c);
+        return Task.CompletedTask;
     }
 }
 
@@ -45,9 +47,10 @@ public sealed class Vector2DistanceNode : Node
     public ValueInput<Vector2> B = new();
     public ValueOutput<float> Distance = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Distance.Write(Vector2.Distance(A.Read(c), B.Read(c)), c);
+        return Task.CompletedTask;
     }
 }
 
@@ -59,9 +62,10 @@ public sealed class Vector2ContainsNode : Node
     public ValueInput<Vector2> Point = new();
     public ValueOutput<bool> Result = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Result.Write(isPointInBox(A.Read(c), B.Read(c), Point.Read(c)), c);
+        return Task.CompletedTask;
     }
 
     private static bool isPointInBox(Vector2 a, Vector2 b, Vector2 point)

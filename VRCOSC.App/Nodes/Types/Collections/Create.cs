@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Collections;
 
@@ -13,8 +13,9 @@ public class ConstructListNode<T> : Node
     public ValueInputList<T> Items = new();
     public ValueOutput<List<T>> List = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         List.Write(Items.Read(c).ToList(), c);
+        return Task.CompletedTask;
     }
 }

@@ -4,7 +4,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using NAudio.Wave;
-using VRCOSC.App.SDK.Nodes;
 
 namespace VRCOSC.App.Nodes.Types.Audio;
 
@@ -16,7 +15,7 @@ public sealed class AudioPlayOnce : Node, IFlowInput
     public ValueInput<string> FilePath = new("File Path");
     public ValueInput<float> Volume = new("Volume", 1f);
 
-    protected override void Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var filePath = FilePath.Read(c);
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath)) return;
@@ -29,7 +28,7 @@ public sealed class AudioPlayOnce : Node, IFlowInput
         outputDevice.Init(audioFile);
         outputDevice.Play();
 
-        Task.Delay(audioFile.TotalTime, c.Token).Wait(c.Token);
-        OnFinished.Execute(c);
+        await Task.Delay(audioFile.TotalTime, c.Token);
+        await OnFinished.Execute(c);
     }
 }

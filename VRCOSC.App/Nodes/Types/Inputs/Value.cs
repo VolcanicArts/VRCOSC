@@ -1,7 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.App.SDK.Nodes;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Inputs;
 
@@ -17,14 +17,15 @@ public sealed class ValueNode<T> : Node
         set
         {
             this.value = value;
-            NodeGraph.WalkForward(this);
+            NodeGraph.TriggerTree(this);
         }
     }
 
     public ValueOutput<T> Output = new();
 
-    protected override void Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         Output.Write(Value, c);
+        return Task.CompletedTask;
     }
 }
