@@ -24,7 +24,7 @@ public class PulseContext
     internal readonly NodeGraph Graph;
     internal Node? CurrentNode { get; set; }
 
-    internal List<Dictionary<Guid, IRef[]>> Memory { get; } = [new()];
+    internal Stack<Dictionary<Guid, IRef[]>> Memory { get; } = [];
     internal Dictionary<Guid, Dictionary<IStore, IRef>> Stores { get; } = [];
     internal List<List<Guid>> RanNodes { get; } = [];
     internal List<Dictionary<ParameterDefinition, VRChatParameter>> ParameterCache { get; } = [];
@@ -38,7 +38,7 @@ public class PulseContext
         Source = new CancellationTokenSource();
         Token = Source.Token;
 
-        Memory.Add(new Dictionary<Guid, IRef[]>());
+        Memory.Push(new Dictionary<Guid, IRef[]>());
         RanNodes.Add(new List<Guid>());
         ParameterCache.Add(new Dictionary<ParameterDefinition, VRChatParameter>());
     }
@@ -63,14 +63,14 @@ public class PulseContext
 
     internal async Task Execute(FlowCall call)
     {
-        Memory.Add(new Dictionary<Guid, IRef[]>());
+        Memory.Push(new Dictionary<Guid, IRef[]>());
         RanNodes.Add(new List<Guid>());
         ParameterCache.Add(new Dictionary<ParameterDefinition, VRChatParameter>());
         ScopePointer++;
 
         await processNext(call);
 
-        Memory.Remove(Memory.Last());
+        Memory.Pop();
         RanNodes.Remove(RanNodes.Last());
         ParameterCache.Remove(ParameterCache.Last());
         ScopePointer--;
@@ -118,9 +118,9 @@ public class PulseContext
         var metadata = Graph.Nodes[nodeId].Metadata;
         var hasVariableSize = metadata.ValueOutputHasVariableSize;
 
-        for (var i = ScopePointer; i >= 0; i--)
+        for (var i = 0; i < Memory.Count; i++)
         {
-            var innerMemory = Memory[i];
+            var innerMemory = Memory.ElementAt(i);
             if (!innerMemory.TryGetValue(nodeId, out var refs)) continue;
 
             if (hasVariableSize && index >= metadata.OutputsCount - 1)
@@ -133,17 +133,17 @@ public class PulseContext
             return (T)refs[index].GetValue()!;
         }
 
-        throw new InvalidOperationException();
+        throw new InvalidOperationException($"Could not read from {nodeId} at index {index}");
     }
 
     private void writeValue<T>(Guid nodeId, int index, T value)
     {
-        ((Ref<T>)Memory[ScopePointer][nodeId][index]).Value = value;
+        ((Ref<T>)Memory.Peek()[nodeId][index]).Value = value;
     }
 
     private void writeValueList<T>(Guid nodeId, int index, int listIndex, T value)
     {
-        ((Ref<T[]>)Memory[ScopePointer][nodeId][index]).Value[listIndex] = value;
+        ((Ref<T[]>)Memory.Peek()[nodeId][index]).Value[listIndex] = value;
     }
 
     internal T Read<T>(ValueInput<T> valueInput)
@@ -239,7 +239,7 @@ public class PulseContext
             }
         }
 
-        Memory[ScopePointer][node.Id] = valueOutputRefs;
+        Memory.Peek()[node.Id] = valueOutputRefs;
     }
 }
 
