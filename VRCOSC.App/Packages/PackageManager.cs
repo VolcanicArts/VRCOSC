@@ -88,14 +88,14 @@ public class PackageManager
         MainWindow.GetInstance().PackagesView.Refresh();
     }
 
-    public bool AnyInstalledPackageUpdates() => Sources.Where(source => source.IsInstalled()).Any(packageSource => packageSource.GetLatestNonPreRelease() is not null);
+    public bool AnyInstalledPackageUpdates(bool includePreRelease) => Sources.Where(source => source.IsInstalled()).Any(packageSource => packageSource.GetLatestPackages(includePreRelease) is not null);
 
-    public async Task UpdateAllInstalledPackages()
+    public async Task UpdateAllInstalledPackages(bool includePreRelease)
     {
         var tasks = Sources.Where(source => source.IsInstalled()).Select(packageSource =>
         {
-            var latestNonPreRelease = packageSource.GetLatestNonPreRelease();
-            return latestNonPreRelease is null ? Task.CompletedTask : InstallPackage(packageSource, latestNonPreRelease, false, false);
+            var latestRelease = packageSource.GetLatestPackages(includePreRelease);
+            return latestRelease is null ? Task.CompletedTask : InstallPackage(packageSource, latestRelease, false, false);
         });
 
         await Task.WhenAll(tasks);

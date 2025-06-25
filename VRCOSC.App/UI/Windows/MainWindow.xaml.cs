@@ -171,6 +171,8 @@ public partial class MainWindow
 
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
 
+        var isBeta = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCMetadata.InstalledUpdateChannel) == UpdateChannel.Beta;
+
         await PackageManager.GetInstance().Load();
 
         var appVersionChanged = hasAppVersionChanged();
@@ -184,9 +186,9 @@ public partial class MainWindow
         {
             await PackageManager.GetInstance().RefreshAllSources(true);
 
-            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && PackageManager.GetInstance().AnyInstalledPackageUpdates())
+            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && PackageManager.GetInstance().AnyInstalledPackageUpdates(isBeta))
             {
-                await PackageManager.GetInstance().UpdateAllInstalledPackages();
+                await PackageManager.GetInstance().UpdateAllInstalledPackages(isBeta);
             }
         }
 
