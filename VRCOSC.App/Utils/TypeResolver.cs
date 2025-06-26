@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+using System.Reflection;
 
 // ReSharper disable InconsistentNaming
 
@@ -38,6 +38,10 @@ public static partial class TypeResolver
     public static Type? Construct(string friendlyName)
     {
         var (className, generics) = extractTypeNameAndGenerics(friendlyName);
+
+        if (string.IsNullOrWhiteSpace(className))
+            return null;
+
         var baseType = resolveTypeFromName(className);
         if (baseType is null) return null;
 
@@ -45,7 +49,7 @@ public static partial class TypeResolver
 
         if (baseType.IsGenericType)
         {
-            if (string.IsNullOrEmpty(generics)) return null;
+            if (string.IsNullOrWhiteSpace(generics)) return null;
             if (!TryConstructGenericType(generics, baseType, out var constructedGenericType)) return null;
 
             constructedType = constructedGenericType;
@@ -56,26 +60,27 @@ public static partial class TypeResolver
 
     private static (string TypeName, string Generics) extractTypeNameAndGenerics(string friendlyName)
     {
-        if (friendlyName == null)
+        if (string.IsNullOrWhiteSpace(friendlyName))
             throw new ArgumentNullException(nameof(friendlyName));
 
-        var m = FriendlyNameRegex().Match(friendlyName.Trim());
+        string trimmed = friendlyName.Trim();
 
-        if (!m.Success)
-            throw new FormatException($"Invalid type declaration: '{friendlyName}'");
+        int genStart = trimmed.IndexOf('<');
 
-        var baseName = m.Groups["name"].Value;
+        // No generics present
+        if (genStart < 0)
+            return (trimmed, string.Empty);
 
-        var generics = m.Groups["gen"].Success
-            ? m.Groups["gen"].Value
-            : string.Empty;
+        // Incomplete/malformed generic — return (null, null) to signal invalid format
+        if (!trimmed.EndsWith('>'))
+            return (string.Empty, string.Empty); // signal error to Construct()
 
-        // If there are generic args, count them and append `N
-        if (!string.IsNullOrEmpty(generics))
-        {
-            int count = splitTopLevel(generics, ',', '<', '>').Count;
-            baseName = $"{baseName}`{count}";
-        }
+        string baseName = trimmed[..genStart];
+        string generics = trimmed[(genStart + 1)..^1]; // between < >
+
+        // Count generic args
+        var segments = splitTopLevel(generics, ',', '<', '>');
+        baseName = $"{baseName}`{segments.Count}";
 
         return (baseName, generics);
     }
@@ -86,7 +91,7 @@ public static partial class TypeResolver
         var parts = new List<string>();
         int depth = 0, last = 0;
 
-        for (int i = 0; i < s.Length; i++)
+        for (var i = 0; i < s.Length; i++)
         {
             if (s[i] == open) depth++;
             else if (s[i] == close) depth--;
@@ -106,33 +111,41 @@ public static partial class TypeResolver
     {
         constructedType = null;
 
-        var rawNames = genericCsl.Split(',');
+        if (string.IsNullOrWhiteSpace(genericCsl))
+            return false;
 
-        var typeArgs = new List<Type>(rawNames.Length);
+        var rawNames = splitTopLevel(genericCsl, ',', '<', '>');
+
+        var typeArgs = new List<Type>(rawNames.Count);
 
         foreach (var raw in rawNames)
         {
             var name = raw.Trim();
+
+            if (string.IsNullOrEmpty(name))
+            {
+                constructedType = null;
+                return false; // Invalid generic parameter (e.g. trailing comma)
+            }
+
             var wantsNullable = name.EndsWith('?');
 
             if (wantsNullable)
-            {
                 name = name[..^1];
-            }
 
-            var baseType = resolveTypeFromName(name);
+            var resolved = Construct(name); // Recursively resolve nested generics
 
-            if (baseType == null || baseType.IsAbstract)
+            if (resolved == null || resolved.IsAbstract)
             {
                 constructedType = null;
                 return false;
             }
 
-            Type finalType = baseType;
+            Type finalType = resolved;
 
-            if (wantsNullable && baseType.IsValueType)
+            if (wantsNullable && resolved.IsValueType)
             {
-                finalType = typeof(Nullable<>).MakeGenericType(baseType);
+                finalType = typeof(Nullable<>).MakeGenericType(resolved);
             }
 
             typeArgs.Add(finalType);
@@ -140,13 +153,65 @@ public static partial class TypeResolver
 
         try
         {
+            if (!SatisfiesConstraints(openGenericType, typeArgs))
+            {
+                constructedType = null;
+                return false;
+            }
+
             constructedType = openGenericType.MakeGenericType(typeArgs.ToArray());
             return true;
         }
         catch
         {
+            constructedType = null;
             return false;
         }
+    }
+
+    private static bool SatisfiesConstraints(Type openGenericType, List<Type> typeArgs)
+    {
+        if (!openGenericType.IsGenericTypeDefinition)
+            return true;
+
+        var genericParams = openGenericType.GetGenericArguments();
+
+        for (int i = 0; i < genericParams.Length; i++)
+        {
+            var param = genericParams[i];
+            var arg = typeArgs[i];
+
+            // Base type/interface constraints
+            foreach (var constraint in param.GetGenericParameterConstraints())
+            {
+                var constructedConstraint = constraint;
+
+                if (constructedConstraint.IsGenericType && constructedConstraint.ContainsGenericParameters)
+                {
+                    constructedConstraint = constructedConstraint.GetGenericTypeDefinition().MakeGenericType(typeArgs.ToArray());
+                }
+
+                if (!constructedConstraint.IsAssignableFrom(arg))
+                    return false;
+            }
+
+            var attrs = param.GenericParameterAttributes;
+
+            if (attrs.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint) && arg.IsValueType)
+                return false;
+
+            if (attrs.HasFlag(GenericParameterAttributes.NotNullableValueTypeConstraint) &&
+                (!arg.IsValueType || Nullable.GetUnderlyingType(arg) != null))
+                return false;
+
+            if (attrs.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint))
+            {
+                if (arg.IsAbstract || arg.GetConstructor(Type.EmptyTypes) == null)
+                    return false;
+            }
+        }
+
+        return true;
     }
 
     private static Type? resolveTypeFromName(string name)
@@ -196,7 +261,4 @@ public static partial class TypeResolver
 
         return dict;
     }
-
-    [GeneratedRegex("^(?<name>[^<]+)(?:<(?<gen>.+)>)?$")]
-    private static partial Regex FriendlyNameRegex();
 }
