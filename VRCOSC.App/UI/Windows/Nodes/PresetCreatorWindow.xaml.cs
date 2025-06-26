@@ -23,7 +23,7 @@ public partial class PresetCreatorWindow : IManagedWindow
 
     private void NameText_OnKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter && !string.IsNullOrEmpty(PresetName)) Close();
+        if (e.Key == Key.Enter && !string.IsNullOrWhiteSpace(PresetName)) Close();
     }
 
     private void NameText_OnTextChanged(object sender, TextChangedEventArgs e)

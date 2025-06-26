@@ -624,7 +624,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         if (e.ChangedButton == GRAPH_ITEM_DRAG_BUTTON)
         {
-            Debug.Assert(selectionDrag is null);
+            Debug.Assert(selectionCreate is null);
 
             e.Handled = true;
 

@@ -5,9 +5,9 @@ using System;
 using System.IO.Ports;
 using System.Threading.Tasks;
 
-namespace VRCOSC.App.Nodes.Types.Actions;
+namespace VRCOSC.App.Nodes.Types.Serial;
 
-[Node("Serial Write", "Actions/Serial")]
+[Node("Serial Write", "Serial")]
 public sealed class SerialWriteNode : Node, IFlowInput
 {
     public FlowContinuation OnSuccess = new("On Success");

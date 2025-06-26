@@ -7,7 +7,7 @@ using VRCOSC.App.SDK.VRChat;
 
 namespace VRCOSC.App.Nodes.Types.Player;
 
-[Node("Player Movement", "Player")]
+[Node("Player Movement", "Player/Info")]
 public sealed class PlayerMovementNode : Node, IUpdateNode
 {
     public ValueOutput<Vector3> Velocity = new();
@@ -27,7 +27,7 @@ public sealed class PlayerMovementNode : Node, IUpdateNode
     public bool OnUpdate(PulseContext c) => true;
 }
 
-[Node("Player Gesture", "Player")]
+[Node("Player Gesture", "Player/Info")]
 public sealed class PlayerGestureNode : Node, IUpdateNode
 {
     public ValueOutput<GestureType> LeftType = new("Left Type");
@@ -49,7 +49,7 @@ public sealed class PlayerGestureNode : Node, IUpdateNode
     public bool OnUpdate(PulseContext c) => true;
 }
 
-[Node("Player Voice", "Player")]
+[Node("Player Voice", "Player/Info")]
 public sealed class PlayerVoiceNode : Node, IUpdateNode
 {
     public ValueOutput<Viseme> Viseme = new();
@@ -67,7 +67,7 @@ public sealed class PlayerVoiceNode : Node, IUpdateNode
     public bool OnUpdate(PulseContext c) => true;
 }
 
-[Node("Player Identity", "Player")]
+[Node("Player Identity", "Player/Info")]
 public sealed class PlayerIdentityNode : Node, IUpdateNode
 {
     public ValueOutput<bool> IsVR = new("Is VR");
@@ -97,7 +97,7 @@ public sealed class PlayerIdentityNode : Node, IUpdateNode
     public bool OnUpdate(PulseContext c) => true;
 }
 
-[Node("Player Size", "Player")]
+[Node("Player Size", "Player/Info")]
 public sealed class PlayerSizeNode : Node, IUpdateNode
 {
     public ValueOutput<bool> ScaleModified = new("Scale Modified");

@@ -4,9 +4,9 @@
 using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
 
-namespace VRCOSC.App.Nodes.Types.Actions;
+namespace VRCOSC.App.Nodes.Types.Player;
 
-[Node("Mute Set", "Actions/Player")]
+[Node("Mute Set", "Player/Actions")]
 public sealed class PlayerMuteSetNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -24,7 +24,7 @@ public sealed class PlayerMuteSetNode : Node, IFlowInput
     }
 }
 
-[Node("Mute Toggle", "Actions/Player")]
+[Node("Mute Toggle", "Player/Actions")]
 public sealed class PlayerMuteToggleNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -36,7 +36,7 @@ public sealed class PlayerMuteToggleNode : Node, IFlowInput
     }
 }
 
-[Node("Push To Talk", "Actions/Player")]
+[Node("Push To Talk", "Player/Actions")]
 public sealed class PlayerPushToTalkNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -50,7 +50,7 @@ public sealed class PlayerPushToTalkNode : Node, IFlowInput
     }
 }
 
-[Node("Jump", "Actions/Player")]
+[Node("Jump", "Player/Actions")]
 public sealed class PlayerJumpNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -62,7 +62,7 @@ public sealed class PlayerJumpNode : Node, IFlowInput
     }
 }
 
-[Node("Look Horizontal", "Actions/Player")]
+[Node("Look Horizontal", "Player/Actions")]
 public sealed class PlayerLookHorizontalNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -76,7 +76,7 @@ public sealed class PlayerLookHorizontalNode : Node, IFlowInput
     }
 }
 
-[Node("Move Vertical", "Actions/Player")]
+[Node("Move Vertical", "Player/Actions")]
 public sealed class PlayerMoveVerticalNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -85,12 +85,15 @@ public sealed class PlayerMoveVerticalNode : Node, IFlowInput
 
     protected override async Task Process(PulseContext c)
     {
-        c.GetPlayer().MoveVertical(Percentage.Read(c));
+        var percentage = Percentage.Read(c);
+        percentage = float.Clamp(percentage, 0f, 1f);
+
+        c.GetPlayer().MoveVertical(percentage);
         await Next.Execute(c);
     }
 }
 
-[Node("Move Horizontal", "Actions/Player")]
+[Node("Move Horizontal", "Player/Actions")]
 public sealed class PlayerMoveHorizontalNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -99,12 +102,15 @@ public sealed class PlayerMoveHorizontalNode : Node, IFlowInput
 
     protected override async Task Process(PulseContext c)
     {
-        c.GetPlayer().MoveHorizontal(Percentage.Read(c));
+        var percentage = Percentage.Read(c);
+        percentage = float.Clamp(percentage, 0f, 1f);
+
+        c.GetPlayer().MoveHorizontal(percentage);
         await Next.Execute(c);
     }
 }
 
-[Node("Set Run", "Actions/Player")]
+[Node("Set Run", "Player/Actions")]
 public sealed class PlayerSetRunNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -122,7 +128,7 @@ public sealed class PlayerSetRunNode : Node, IFlowInput
     }
 }
 
-[Node("Change Avatar", "Actions/Player")]
+[Node("Change Avatar", "Player/Actions")]
 public sealed class PlayerChangeAvatarNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
