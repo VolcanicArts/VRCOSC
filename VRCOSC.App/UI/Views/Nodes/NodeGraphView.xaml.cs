@@ -262,7 +262,7 @@ public partial class NodeGraphView
 
     private void drawNodeConnections(Node node)
     {
-        var connections = Graph.Connections.Where(c => c.InputNodeId == node.Id || c.OutputNodeId == node.Id);
+        var connections = Graph.Connections.Values.Where(c => c.InputNodeId == node.Id || c.OutputNodeId == node.Id);
         drawNodeConnections(connections);
     }
 
@@ -633,6 +633,7 @@ public partial class NodeGraphView
 
         if (e.ChangedButton == GRAPH_ITEM_DRAG_BUTTON && graphItemDrag is not null)
         {
+            checkForGroupAdditions();
             e.Handled = true;
             graphItemDrag = null;
             OuterContainer.ReleaseMouseCapture();
@@ -669,6 +670,33 @@ public partial class NodeGraphView
         }
 
         Graph.Serialise();
+    }
+
+    private void checkForGroupAdditions()
+    {
+        Debug.Assert(graphItemDrag is not null);
+        if (graphItemDrag.Item is not NodeGraphItem nodeGraphItem) return;
+
+        if (Graph.Groups.Values.Any(nodeGroup => nodeGroup.Nodes.Contains(nodeGraphItem.Node.Id))) return;
+
+        NodeGroupGraphItem? groupToUpdate = null;
+
+        foreach (var nodeGroupGraphItem in GraphItems.OfType<NodeGroupGraphItem>().Reverse())
+        {
+            var groupContainer = nodeGroupGraphItem.Element;
+
+            var mousePosRelativeToGroupContainer = Mouse.GetPosition(groupContainer);
+            var bounds = new Rect(0, 0, groupContainer.ActualWidth, groupContainer.ActualHeight);
+            if (!bounds.Contains(mousePosRelativeToGroupContainer)) continue;
+
+            groupToUpdate = nodeGroupGraphItem;
+        }
+
+        if (groupToUpdate is not null)
+        {
+            groupToUpdate.Group.Nodes.Add(nodeGraphItem.Node.Id);
+            updateNodeGroupGraphItem(groupToUpdate);
+        }
     }
 
     private void OuterContainer_OnMouseMove(object sender, MouseEventArgs e)
@@ -913,7 +941,7 @@ public partial class NodeGraphView
         var offsetFromGrid = new Vector(topLeft.X % SNAP_DISTANCE, topLeft.Y % SNAP_DISTANCE);
 
         var connections = items.OfType<NodeGraphItem>()
-                               .SelectMany(nodeGraphItem => Graph.Connections.Where(c => c.InputNodeId == nodeGraphItem.Node.Id || c.OutputNodeId == nodeGraphItem.Node.Id))
+                               .SelectMany(nodeGraphItem => Graph.Connections.Values.Where(c => c.InputNodeId == nodeGraphItem.Node.Id || c.OutputNodeId == nodeGraphItem.Node.Id))
                                .Distinct();
 
         selection = new GraphItemSelection(offsetFromGrid, items.ToArray(), connections.ToArray());
@@ -1030,7 +1058,7 @@ public partial class NodeGraphView
                                            .Where(nodeGraphItem => nodeGroupGraphItem.Group.Nodes.Contains(nodeGraphItem.Node.Id))
                                            .ToList();
 
-            var connections = nodeGraphItems.SelectMany(nodeGraphItem => Graph.Connections.Where(c => c.InputNodeId == nodeGraphItem.Node.Id || c.OutputNodeId == nodeGraphItem.Node.Id))
+            var connections = nodeGraphItems.SelectMany(nodeGraphItem => Graph.Connections.Values.Where(c => c.InputNodeId == nodeGraphItem.Node.Id || c.OutputNodeId == nodeGraphItem.Node.Id))
                                             .Distinct();
 
             var offsetFromGrid = new Vector(groupPos.X % SNAP_DISTANCE, groupPos.Y % SNAP_DISTANCE);
@@ -1107,6 +1135,14 @@ public partial class NodeGraphView
     {
         var element = (FrameworkElement)sender;
         var nodeGraphItem = (NodeGraphItem)element.Tag;
+
+        var groupToUpdate = GraphItems.OfType<NodeGroupGraphItem>().SingleOrDefault(nodeGroupGraphItem => nodeGroupGraphItem.Group.Nodes.Contains(nodeGraphItem.Node.Id));
+
+        if (groupToUpdate is not null)
+        {
+            groupToUpdate.Group.Nodes.Remove(nodeGraphItem.Node.Id);
+            updateNodeGroupGraphItem(groupToUpdate);
+        }
 
         Graph.DeleteNode(nodeGraphItem.Node.Id);
         Graph.MarkDirty();
@@ -1200,7 +1236,7 @@ public partial class NodeGraphView
 
         if (source == ConnectionDragOrigin.ValueInput)
         {
-            var existingConnection = Graph.Connections.FirstOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == slot);
+            var existingConnection = Graph.Connections.Values.FirstOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == slot);
 
             if (existingConnection is not null)
             {
@@ -1216,7 +1252,7 @@ public partial class NodeGraphView
 
         if (source == ConnectionDragOrigin.FlowInput)
         {
-            var existingConnection = Graph.Connections.FirstOrDefault(c => c.ConnectionType == ConnectionType.Flow && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == slot);
+            var existingConnection = Graph.Connections.Values.FirstOrDefault(c => c.ConnectionType == ConnectionType.Flow && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == slot);
 
             if (existingConnection is not null)
             {
@@ -1389,7 +1425,7 @@ public partial class NodeGraphView
         if (nodeGraphItem.Node.VariableSize.ValueInputSize == 1) return;
 
         var inputSlot = nodeGraphItem.Node.Metadata.InputsCount + nodeGraphItem.Node.VariableSize.ValueInputSize - 1;
-        var connectionToRemove = Graph.Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == inputSlot);
+        var connectionToRemove = Graph.Connections.Values.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == inputSlot);
 
         if (connectionToRemove is not null)
         {
@@ -1430,7 +1466,7 @@ public partial class NodeGraphView
         if (nodeGraphItem.Node.VariableSize.ValueOutputSize == 1) return;
 
         var inputSlot = nodeGraphItem.Node.Metadata.OutputsCount + nodeGraphItem.Node.VariableSize.ValueOutputSize - 1;
-        var connectionToRemove = Graph.Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == inputSlot);
+        var connectionToRemove = Graph.Connections.Values.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == inputSlot);
 
         if (connectionToRemove is not null)
         {

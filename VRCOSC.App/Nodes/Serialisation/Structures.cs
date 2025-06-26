@@ -77,7 +77,7 @@ public class SerialisableNodeGraph : SerialisableVersion
         Id = nodeGraph.Id;
         Name = nodeGraph.Name.Value;
         Nodes = nodeGraph.Nodes.Values.Select(node => new SerialisableNode(node)).ToList();
-        Connections = nodeGraph.Connections.Select(connection => new SerialisableConnection(connection)).ToList();
+        Connections = nodeGraph.Connections.Values.Select(connection => new SerialisableConnection(connection)).ToList();
         Groups = nodeGraph.Groups.Values.Select(group => new SerialisableNodeGroup(group)).ToList();
         Variables = nodeGraph.PersistentVariables.Select(variable => new SerialisableVariable(variable)).ToList();
     }

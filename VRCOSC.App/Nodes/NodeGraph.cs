@@ -30,7 +30,7 @@ public class NodeGraph : IVRCClientEventHandler
     private readonly SerialisationManager serialiser;
 
     public ConcurrentDictionary<Guid, Node> Nodes { get; } = [];
-    public List<NodeConnection> Connections { get; } = [];
+    public ConcurrentDictionary<Guid, NodeConnection> Connections { get; } = [];
     public ConcurrentDictionary<Guid, NodeGroup> Groups { get; } = [];
     public ConcurrentDictionary<Guid, NodeVariableSize> VariableSizes = [];
 
@@ -163,9 +163,9 @@ public class NodeGraph : IVRCClientEventHandler
     {
         var node = Nodes[nodeId];
 
-        foreach (var connection in Connections.Where(connection => connection.OutputNodeId == nodeId || connection.InputNodeId == nodeId).ToList())
+        foreach (var connection in Connections.Values.Where(connection => connection.OutputNodeId == nodeId || connection.InputNodeId == nodeId).ToList())
         {
-            Connections.Remove(connection);
+            Connections.TryRemove(connection.Id, out _);
             RemovedConnections.Add(connection);
         }
 
@@ -183,10 +183,10 @@ public class NodeGraph : IVRCClientEventHandler
         if (outputNodeId == inputNodeId) return;
 
         var outputAlreadyHasConnection =
-            Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.OutputNodeId == outputNodeId && connection.OutputSlot == outputFlowSlot);
+            Connections.Values.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.OutputNodeId == outputNodeId && connection.OutputSlot == outputFlowSlot);
 
-        var newConnection = new NodeConnection(ConnectionType.Flow, outputNodeId, outputFlowSlot, null, inputNodeId, 0, null);
-        Connections.Add(newConnection);
+        var newConnection = new NodeConnection(Guid.NewGuid(), ConnectionType.Flow, outputNodeId, outputFlowSlot, null, inputNodeId, 0, null);
+        Connections.TryAdd(newConnection.Id, newConnection);
         AddedConnections.Add(newConnection);
 
         if (outputAlreadyHasConnection is not null)
@@ -204,14 +204,14 @@ public class NodeGraph : IVRCClientEventHandler
 
         var outputType = outputNode.GetTypeOfOutputSlot(outputValueSlot);
         var inputType = inputNode.GetTypeOfInputSlot(inputValueSlot);
-        var existingConnection = Connections.FirstOrDefault(con => con.ConnectionType == ConnectionType.Value && con.InputNodeId == inputNodeId && con.InputSlot == inputValueSlot);
+        var existingConnection = Connections.Values.FirstOrDefault(con => con.ConnectionType == ConnectionType.Value && con.InputNodeId == inputNodeId && con.InputSlot == inputValueSlot);
 
         NodeConnection? newConnection = null;
         var newConnectionMade = false;
 
         if (outputType.IsAssignableTo(inputType))
         {
-            newConnection = new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, outputType, inputNodeId, inputValueSlot, inputType);
+            newConnection = new NodeConnection(Guid.NewGuid(), ConnectionType.Value, outputNodeId, outputValueSlot, outputType, inputNodeId, inputValueSlot, inputType);
             newConnectionMade = true;
         }
         else
@@ -254,14 +254,14 @@ public class NodeGraph : IVRCClientEventHandler
 
         if (newConnection is not null)
         {
-            Connections.Add(newConnection);
+            Connections.TryAdd(newConnection.Id, newConnection);
             AddedConnections.Add(newConnection);
         }
     }
 
     public void RemoveConnection(NodeConnection connection)
     {
-        Connections.Remove(connection);
+        Connections.TryRemove(connection.Id, out _);
         RemovedConnections.Add(connection);
 
         // update all the trigger nodes when we remove a connection
@@ -357,7 +357,7 @@ public class NodeGraph : IVRCClientEventHandler
         {
             Name = { Value = name },
             Nodes = nodeIds.Select(id => new SerialisableNode(Nodes[id])).ToList(),
-            Connections = Connections.Where(c => nodeIds.Contains(c.OutputNodeId) && nodeIds.Contains(c.InputNodeId)).Select(c => new SerialisableConnection(c)).ToList()
+            Connections = Connections.Values.Where(c => nodeIds.Contains(c.OutputNodeId) && nodeIds.Contains(c.InputNodeId)).Select(c => new SerialisableConnection(c)).ToList()
         };
 
         foreach (var node in nodePreset.Nodes)
@@ -371,12 +371,12 @@ public class NodeGraph : IVRCClientEventHandler
 
     public NodeConnection? FindConnectionFromValueInput(Guid nodeId, int index)
     {
-        return Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeId && c.InputSlot == index);
+        return Connections.Values.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeId && c.InputSlot == index);
     }
 
     public NodeConnection? FindConnectionFromFlowOutput(Guid nodeId, int index)
     {
-        return Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Flow && c.OutputNodeId == nodeId && c.OutputSlot == index);
+        return Connections.Values.SingleOrDefault(c => c.ConnectionType == ConnectionType.Flow && c.OutputNodeId == nodeId && c.OutputSlot == index);
     }
 
     public NodeMetadata GetMetadata(Node node) => Metadata[node.GetType()];
@@ -627,7 +627,7 @@ public class NodeGraph : IVRCClientEventHandler
 
     private void walkForward(List<Node> results, Node sourceNode, int outputValueSlot)
     {
-        var connections = Connections.Where(c => c.ConnectionType == ConnectionType.Value && c.OutputNodeId == sourceNode.Id && c.OutputSlot == outputValueSlot);
+        var connections = Connections.Values.Where(c => c.ConnectionType == ConnectionType.Value && c.OutputNodeId == sourceNode.Id && c.OutputSlot == outputValueSlot);
 
         foreach (var connection in connections)
         {
@@ -672,7 +672,7 @@ public class NodeGraph : IVRCClientEventHandler
     }
 }
 
-public record NodeConnection(ConnectionType ConnectionType, Guid OutputNodeId, int OutputSlot, Type? OutputType, Guid InputNodeId, int InputSlot, Type? InputType);
+public record NodeConnection(Guid Id, ConnectionType ConnectionType, Guid OutputNodeId, int OutputSlot, Type? OutputType, Guid InputNodeId, int InputSlot, Type? InputType);
 
 public enum ConnectionType
 {
