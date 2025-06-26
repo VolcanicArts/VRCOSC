@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 
 // ReSharper disable InconsistentNaming
 
@@ -153,12 +152,6 @@ public static partial class TypeResolver
 
         try
         {
-            if (!SatisfiesConstraints(openGenericType, typeArgs))
-            {
-                constructedType = null;
-                return false;
-            }
-
             constructedType = openGenericType.MakeGenericType(typeArgs.ToArray());
             return true;
         }
@@ -167,51 +160,6 @@ public static partial class TypeResolver
             constructedType = null;
             return false;
         }
-    }
-
-    private static bool SatisfiesConstraints(Type openGenericType, List<Type> typeArgs)
-    {
-        if (!openGenericType.IsGenericTypeDefinition)
-            return true;
-
-        var genericParams = openGenericType.GetGenericArguments();
-
-        for (int i = 0; i < genericParams.Length; i++)
-        {
-            var param = genericParams[i];
-            var arg = typeArgs[i];
-
-            // Base type/interface constraints
-            foreach (var constraint in param.GetGenericParameterConstraints())
-            {
-                var constructedConstraint = constraint;
-
-                if (constructedConstraint.IsGenericType && constructedConstraint.ContainsGenericParameters)
-                {
-                    constructedConstraint = constructedConstraint.GetGenericTypeDefinition().MakeGenericType(typeArgs.ToArray());
-                }
-
-                if (!constructedConstraint.IsAssignableFrom(arg))
-                    return false;
-            }
-
-            var attrs = param.GenericParameterAttributes;
-
-            if (attrs.HasFlag(GenericParameterAttributes.ReferenceTypeConstraint) && arg.IsValueType)
-                return false;
-
-            if (attrs.HasFlag(GenericParameterAttributes.NotNullableValueTypeConstraint) &&
-                (!arg.IsValueType || Nullable.GetUnderlyingType(arg) != null))
-                return false;
-
-            if (attrs.HasFlag(GenericParameterAttributes.DefaultConstructorConstraint))
-            {
-                if (arg.IsAbstract || arg.GetConstructor(Type.EmptyTypes) == null)
-                    return false;
-            }
-        }
-
-        return true;
     }
 
     private static Type? resolveTypeFromName(string name)
