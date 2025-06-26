@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -19,12 +20,14 @@ public sealed class HTTPGETNode : Node, IFlowInput
     public FlowContinuation OnFail = new("On Fail");
 
     public ValueInput<string> URL = new();
+    public ValueInput<Dictionary<string, string>> Headers = new();
     public ValueOutput<HttpStatusCode> StatusCode = new("Status Code");
     public ValueOutput<string> Content = new();
 
     protected override async Task Process(PulseContext c)
     {
         var url = URL.Read(c);
+        var headers = Headers.Read(c);
 
         if (string.IsNullOrEmpty(url))
         {
@@ -32,14 +35,20 @@ public sealed class HTTPGETNode : Node, IFlowInput
             return;
         }
 
+        headers ??= new Dictionary<string, string>();
+
         try
         {
-            var result = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, new Uri(url)), c.Token);
+            using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(url));
+
+            foreach (var header in headers) request.Headers.Add(header.Key, header.Value);
+
+            var result = await client.SendAsync(request, c.Token);
             StatusCode.Write(result.StatusCode, c);
 
             result.EnsureSuccessStatusCode();
 
-            var content = result.Content.ReadAsStringAsync(c.Token).Result;
+            var content = await result.Content.ReadAsStringAsync(c.Token);
             Content.Write(content, c);
 
             await OnSuccess.Execute(c);
@@ -60,11 +69,13 @@ public sealed class HTTPPOSTNode : Node, IFlowInput
     public FlowContinuation OnFail = new("On Fail");
 
     public ValueInput<string> URL = new();
+    public ValueInput<Dictionary<string, string>> Headers = new();
     public ValueOutput<HttpStatusCode> StatusCode = new("Status Code");
 
     protected override async Task Process(PulseContext c)
     {
         var url = URL.Read(c);
+        var headers = Headers.Read(c);
 
         if (string.IsNullOrEmpty(url))
         {
@@ -72,9 +83,15 @@ public sealed class HTTPPOSTNode : Node, IFlowInput
             return;
         }
 
+        headers ??= new Dictionary<string, string>();
+
         try
         {
-            var result = await client.SendAsync(new HttpRequestMessage(HttpMethod.Post, new Uri(url)), c.Token);
+            using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(url));
+
+            foreach (var header in headers) request.Headers.Add(header.Key, header.Value);
+
+            var result = await client.SendAsync(request, c.Token);
             StatusCode.Write(result.StatusCode, c);
 
             result.EnsureSuccessStatusCode();
