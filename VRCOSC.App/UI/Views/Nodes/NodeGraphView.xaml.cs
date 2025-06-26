@@ -35,7 +35,7 @@ using Vector = System.Windows.Vector;
 
 namespace VRCOSC.App.UI.Views.Nodes;
 
-public partial class NodeGraphView
+public partial class NodeGraphView : INotifyPropertyChanged
 {
     public const int SNAP_DISTANCE = 25;
     public const int SIGNIFICANT_SNAP_STEP = 20;
@@ -65,6 +65,19 @@ public partial class NodeGraphView
     private SelectionDrag? selectionDrag;
 
     private GraphItemSelection? selection;
+    private bool contentVisible = true;
+
+    public bool ContentVisible
+    {
+        get => contentVisible;
+        set
+        {
+            if (value == contentVisible) return;
+
+            contentVisible = value;
+            OnPropertyChanged();
+        }
+    }
 
     public NodeGraphView(NodeGraph graph)
     {
@@ -729,6 +742,8 @@ public partial class NodeGraphView
             graphTransform.Scale.ScaleX = Math.Max(graphTransform.Scale.ScaleX / zoom_factor, min_scale);
             graphTransform.Scale.ScaleY = Math.Max(graphTransform.Scale.ScaleY / zoom_factor, min_scale);
         }
+
+        ContentVisible = graphTransform.Scale.ScaleX >= 0.4d;
 
         updateGraphDrag();
         updateGraphItemDrag();
@@ -1482,6 +1497,13 @@ public partial class NodeGraphView
         valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
 
         Dispatcher.Invoke(() => populateNodeGraphItem(nodeGraphItem), DispatcherPriority.Render);
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
 

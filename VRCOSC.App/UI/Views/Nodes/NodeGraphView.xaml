@@ -14,6 +14,7 @@
     <UserControl.Resources>
         <core:ObjectToStringConverter x:Key="ObjectToStringConverter"/>
         <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterHidden" False="Hidden"/>
         <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterInverted" True="Collapsed" False="Visible"/>
         <core:BorderClipConverter x:Key="BorderClipConverter"/>
         <core:EnumItemSourceConverter x:Key="EnumItemSourceConverter"/>
@@ -110,7 +111,8 @@
                         <Binding Path="CornerRadius" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
                     </MultiBinding>
                 </Border.Clip>
-                <StackPanel Orientation="Vertical" Margin="5">
+                <StackPanel Orientation="Vertical" Margin="5"
+                            Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                     <TextBlock Foreground="{DynamicResource CForeground2}"
                                Text="{Binding Node.Metadata.Title}" FontSize="14"
                                FontWeight="SemiBold"
@@ -189,48 +191,58 @@
         </DataTemplate>
 
         <DataTemplate x:Key="FlowInputWithTitleTemplate">
-            <core:SpacedStackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Left" Height="25" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="25" VerticalAlignment="Center"
+                                   Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                 <ContentPresenter ContentTemplate="{StaticResource FlowInputTemplate}"/>
                 <fa6:FontAwesome Icon="Solid_ChevronRight" VerticalAlignment="Center"
+                                 Margin="4 0 0 0"
                                  Foreground="{DynamicResource CForeground2}" FontSize="15"/>
-            </core:SpacedStackPanel>
+            </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="FlowOutputWithTitleTemplate">
-            <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right" Height="25" VerticalAlignment="Center">
-                <TextBlock Text="{Binding Title}" FontSize="13" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}" Margin="0 -1 0 0"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25" VerticalAlignment="Center"
+                                   Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+                <TextBlock Text="{Binding Title}" FontSize="13" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}" Margin="0 -1 5 0"/>
                 <fa6:FontAwesome Icon="Solid_ChevronRight" VerticalAlignment="Center"
+                                 Margin="0 0 4 0"
                                  Foreground="{DynamicResource CForeground2}" FontSize="15"/>
                 <ContentPresenter ContentTemplate="{StaticResource FlowOutputTemplate}"/>
-            </core:SpacedStackPanel>
+            </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="ValueInputWithTitleTemplate">
-            <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Left" Height="25" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="25" VerticalAlignment="Center"
+                                                Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                 <ContentPresenter ContentTemplate="{StaticResource ValueInputTemplate}"/>
-                <TextBlock Text="{Binding Title}" FontSize="13" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}" Margin="0 -1 0 0"/>
-            </core:SpacedStackPanel>
+                <TextBlock Text="{Binding Title}" FontSize="13" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}" Margin="5 -1 0 0"/>
+            </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="ValueOutputWithTitleTemplate">
-            <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" HorizontalAlignment="Right" Height="25" VerticalAlignment="Center">
-                <TextBlock Text="{Binding Title}" FontSize="13" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}" Margin="0 -1 0 0"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25" VerticalAlignment="Center"
+                        Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+                <TextBlock Text="{Binding Title}" FontSize="13" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}" Margin="0 -1 5 0"/>
                 <ContentPresenter ContentTemplate="{StaticResource ValueOutputTemplate}"/>
-            </core:SpacedStackPanel>
+            </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="InputVariableSizeControlTemplate">
-            <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Top" HorizontalAlignment="Left" Height="25">
-                <core:IconButton Icon="Solid_Plus" Width="20" Height="20" ButtonColour="Green" Tag="{Binding}" Click="InputVariableSize_IncreaseOnClick"/>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Height="25"
+                        Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+                <core:IconButton Icon="Solid_Plus" Width="20" Height="20" ButtonColour="Green" Tag="{Binding}" Click="InputVariableSize_IncreaseOnClick"
+                                 Margin="0 0 5 0"/>
                 <core:IconButton Icon="Solid_Minus" Width="20" Height="20" ButtonColour="Red" Tag="{Binding}" Click="InputVariableSize_DecreaseOnClick"/>
-            </core:SpacedStackPanel>
+            </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="OutputVariableSizeControlTemplate">
-            <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Top" HorizontalAlignment="Right" Height="25">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Height="25"
+                        Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                 <core:IconButton Icon="Solid_Plus" Width="20" Height="20" ButtonColour="Green" Tag="{Binding}" Click="OutputVariableSize_IncreaseOnClick"/>
-                <core:IconButton Icon="Solid_Minus" Width="20" Height="20" ButtonColour="Red" Tag="{Binding}" Click="OutputVariableSize_DecreaseOnClick"/>
-            </core:SpacedStackPanel>
+                <core:IconButton Icon="Solid_Minus" Width="20" Height="20" ButtonColour="Red" Tag="{Binding}" Click="OutputVariableSize_DecreaseOnClick"
+                                 Margin="5 0 0 0"/>
+            </StackPanel>
         </DataTemplate>
 
         <ItemsPanelTemplate x:Key="ItemsPanelTemplate">
@@ -262,7 +274,8 @@
                             </Grid.ColumnDefinitions>
                             <TextBox HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                      VerticalContentAlignment="Center" FontSize="15" Text="{Binding Node.Text, UpdateSourceTrigger=PropertyChanged}"
-                                     Margin="7 0 0 0"/>
+                                     Margin="7 0 0 0"
+                                     Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
                             <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                           VerticalAlignment="Center" HorizontalAlignment="Right"
                                           Name="ValueOutputItemsControl"
@@ -312,7 +325,8 @@
                             </ItemsControl>
                             <TextBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                      VerticalContentAlignment="Center" FontSize="15" Text="{Binding Node.Text, UpdateSourceTrigger=PropertyChanged}"
-                                     Margin="0 0 7 0"/>
+                                     Margin="0 0 7 0"
+                                     Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
                         </Grid>
                     </StackPanel>
                 </Grid>
@@ -341,7 +355,8 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <core:TextButton Grid.Column="0" Text="Call" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ButtonColour="Gray" FontSize="17"
-                                         Margin="5 5 0 5" CornerRadius="2" Tag="{Binding}" Cursor="Arrow" Click="ButtonNode_OnClick"/>
+                                         Margin="5 5 0 5" CornerRadius="2" Tag="{Binding}" Cursor="Arrow" Click="ButtonNode_OnClick"
+                                         Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
                                       Name="FlowOutputItemsControl"
@@ -379,7 +394,8 @@
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                  VerticalContentAlignment="Center" FontSize="16" Text="{Binding Node.Value}"
-                                 Margin="5 5 0 5"/>
+                                 Margin="5 5 0 5"
+                                 Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
                                       Name="ValueOutputItemsControl"
@@ -419,7 +435,8 @@
                                   VerticalContentAlignment="Center" Margin="5 5 0 5"
                                   ItemsSource="{Binding Node.Value, Converter={StaticResource EnumItemSourceConverter}, Mode=OneTime}"
                                   Tag="{Binding}"
-                                  SelectionChanged="EnumValueNode_OnSelectionChanged"/>
+                                  SelectionChanged="EnumValueNode_OnSelectionChanged"
+                                  Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
                                       Name="ValueOutputItemsControl"
@@ -458,7 +475,8 @@
                         <core:KeybindPicker Grid.Column="0"
                                             Keybind="{Binding Node.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             FontSize="16" Margin="5 5 0 5"
-                                            Background="{StaticResource CBackground6}"/>
+                                            Background="{StaticResource CBackground6}"
+                                            Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
                                       Name="ValueOutputItemsControl"
@@ -494,7 +512,8 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <core:VRCOSCCheckBox Grid.Column="0" Width="27" Height="27" IsChecked="{Binding Node.Value}"
-                                             CornerRadius="2" BorderThickness="2" Cursor="Arrow" Margin="5 5 0 5"/>
+                                             CornerRadius="2" BorderThickness="2" Cursor="Arrow" Margin="5 5 0 5"
+                                             Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
                                       Name="ValueOutputItemsControl"
@@ -587,7 +606,8 @@
                                    TextWrapping="WrapWithOverflow"
                                    MaxWidth="300"
                                    Margin="0 -2 10 0"
-                                   FontWeight="SemiBold"/>
+                                   FontWeight="SemiBold"
+                                   Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
                     </Grid>
                 </Grid>
             </Border>
@@ -632,7 +652,8 @@
                                    TextAlignment="Center"
                                    TextWrapping="Wrap"
                                    Margin="0 -2 10 0"
-                                   FontWeight="SemiBold"/>
+                                   FontWeight="SemiBold"
+                                   Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
                         <ItemsControl Grid.Column="2" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Top" HorizontalAlignment="Right"
                                       Name="ValueOutputItemsControl"
@@ -677,7 +698,8 @@
                                 <TranslateTransform X="-6"/>
                             </ItemsControl.RenderTransform>
                         </ItemsControl>
-                        <Grid Grid.Column="1" VerticalAlignment="Center">
+                        <Grid Grid.Column="1" VerticalAlignment="Center"
+                              Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                             <Viewbox Stretch="Uniform" Margin="0 -1 0 0">
                                 <TextBlock Foreground="{DynamicResource CForeground2}"
                                            Text="{Binding Node.Metadata.Title}" FontSize="15"
@@ -728,7 +750,8 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Grid Grid.Column="0" VerticalAlignment="Center">
+                        <Grid Grid.Column="0" VerticalAlignment="Center"
+                              Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                             <Viewbox Stretch="Uniform" Margin="6 -1 0 0">
                                 <TextBlock Foreground="{DynamicResource CForeground2}"
                                            Text="{Binding Node.Metadata.Title}" FontSize="15"
@@ -777,7 +800,8 @@
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <StackPanel VerticalAlignment="Top" Margin="0 0 0 5">
                         <ContentPresenter ContentTemplate="{StaticResource HeaderTemplate}"/>
-                        <Border VerticalAlignment="Top" Height="25" Margin="6 0">
+                        <Border VerticalAlignment="Top" Height="25" Margin="6 0"
+                                Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                             <TextBox HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                      VerticalContentAlignment="Center" FontSize="15" Text="{Binding Node.Text, UpdateSourceTrigger=PropertyChanged}"/>
                         </Border>
