@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using Newtonsoft.Json.Linq;
 using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -38,20 +39,20 @@ public class NodePreset
         serialiser.Serialise();
     }
 
-    public void SpawnTo(NodeGraph targetGraph, double posX, double posY)
+    public void SpawnTo(NodeGraph targetGraph, Point pos)
     {
         var nodeIdMapping = new Dictionary<Guid, Guid>();
 
-        Nodes.ForEach(sN =>
+        foreach (var sN in Nodes)
         {
             try
             {
                 var nodeType = TypeResolver.Construct(sN.Type);
-                if (nodeType is null) return;
+                if (nodeType is null) continue;
 
                 var newId = Guid.NewGuid();
                 nodeIdMapping.Add(sN.Id, newId);
-                var node = targetGraph.AddNode(newId, nodeType, new Point(sN.Position.X + posX, sN.Position.Y + posY));
+                var node = targetGraph.AddNode(nodeType, new Point(pos.X + sN.Position.X, pos.Y + sN.Position.Y), newId);
 
                 if (sN.Properties is not null)
                 {
@@ -62,19 +63,10 @@ public class NodePreset
 
                         if (property is not null)
                         {
-                            if (propertyValue is double && property.PropertyType == typeof(float))
+                            if (tryConvertToTargetType(propertyValue, property.PropertyType, out var convertedValue))
                             {
-                                property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Single));
-                                continue;
+                                property.SetValue(node, convertedValue);
                             }
-
-                            if (propertyValue is long && property.PropertyType == typeof(int))
-                            {
-                                property.SetValue(node, Convert.ChangeType(propertyValue, TypeCode.Int32));
-                                continue;
-                            }
-
-                            property.SetValue(node, propertyValue);
                         }
                     }
                 }
@@ -88,29 +80,58 @@ public class NodePreset
                     };
                 }
             }
-            catch
+            catch (Exception e)
             {
+                ExceptionHandler.Handle(e);
             }
-        });
+        }
 
-        Connections.ForEach(sC =>
+        var nodeIds = Nodes.Select(sN => sN.Id).ToList();
+
+        foreach (var sC in Connections)
         {
+            if (!nodeIds.Contains(sC.InputNodeId) || !nodeIds.Contains(sC.OutputNodeId)) continue;
+
             try
             {
-                switch (sC.Type)
-                {
-                    case ConnectionType.Flow:
-                        targetGraph.CreateFlowConnection(nodeIdMapping[sC.OutputNodeId], sC.OutputNodeSlot, nodeIdMapping[sC.InputNodeId]);
-                        break;
+                if (sC.Type == ConnectionType.Flow)
+                    targetGraph.CreateFlowConnection(nodeIdMapping[sC.OutputNodeId], sC.OutputNodeSlot, nodeIdMapping[sC.InputNodeId]);
 
-                    case ConnectionType.Value:
-                        targetGraph.CreateValueConnection(nodeIdMapping[sC.OutputNodeId], sC.OutputNodeSlot, nodeIdMapping[sC.InputNodeId], sC.InputNodeSlot);
-                        break;
-                }
+                if (sC.Type == ConnectionType.Value)
+                    targetGraph.CreateValueConnection(nodeIdMapping[sC.OutputNodeId], sC.OutputNodeSlot, nodeIdMapping[sC.InputNodeId], sC.InputNodeSlot);
             }
-            catch
+            catch (Exception e)
             {
+                ExceptionHandler.Handle(e);
             }
-        });
+        }
+    }
+
+    private bool tryConvertToTargetType(object? value, Type targetType, out object? outValue)
+    {
+        switch (value)
+        {
+            case null:
+                outValue = null;
+                return true;
+
+            case JToken token:
+                outValue = token.ToObject(targetType)!;
+                return true;
+
+            case var subValue when targetType.IsAssignableTo(typeof(Enum)):
+                outValue = Enum.ToObject(targetType, subValue);
+                return true;
+
+            case long utcTicks when targetType == typeof(DateTimeOffset):
+                var utcDateTime = new DateTime(utcTicks, DateTimeKind.Utc);
+                var localDateTime = TimeZoneInfo.ConvertTimeFromUtc(utcDateTime, TimeZoneInfo.Local);
+                outValue = new DateTimeOffset(localDateTime, TimeZoneInfo.Local.GetUtcOffset(localDateTime));
+                return true;
+
+            default:
+                outValue = Convert.ChangeType(value, targetType);
+                return true;
+        }
     }
 }

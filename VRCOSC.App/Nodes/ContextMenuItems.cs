@@ -61,21 +61,18 @@ public interface IContextMenuEntry
 
 public static class ContextMenuBuilder
 {
-    public static ContextMenuSubMenu BuildSpawnPresetMenu()
+    public static Lazy<ContextMenuSubMenu> GraphCreateNodeContextSubMenu = new(buildCreateNodeContextMenu);
+    public static Lazy<ContextMenuSubMenu> GraphPresetContextSubMenu = new(buildGraphPresetSubMenu);
+
+    public static void Refresh()
     {
-        var root = new ContextMenuSubMenu("Spawn Preset");
-
-        foreach (var nodePreset in NodeManager.GetInstance().Presets)
-        {
-            root.Items.Add(new ContextMenuPresetItem(nodePreset.Name.Value, nodePreset));
-        }
-
-        return root;
+        GraphCreateNodeContextSubMenu = new Lazy<ContextMenuSubMenu>(buildCreateNodeContextMenu);
+        GraphPresetContextSubMenu = new Lazy<ContextMenuSubMenu>(buildGraphPresetSubMenu);
     }
 
-    public static ContextMenuSubMenu BuildCreateNodesMenu()
+    private static ContextMenuSubMenu buildCreateNodeContextMenu()
     {
-        var root = new ContextMenuSubMenu("Create Node");
+        var createNodeSubMenu = new ContextMenuSubMenu("Create Node");
         var nodeTypes = getAllNodeTypes().ToList();
         var executingAsm = Assembly.GetExecutingAssembly();
 
@@ -86,7 +83,7 @@ public static class ContextMenuBuilder
             if (attr == null || string.IsNullOrWhiteSpace(attr.Path))
                 continue;
 
-            var currentList = root.Items;
+            var currentList = createNodeSubMenu.Items;
             var pathParts = attr.Path.Split('/');
 
             foreach (var part in pathParts)
@@ -104,7 +101,7 @@ public static class ContextMenuBuilder
             addNodeEntry(currentList, type, attr);
         }
 
-        sortMenu(root.Items);
+        sortMenu(createNodeSubMenu.Items);
 
         var modulesMenu = new ContextMenuSubMenu("Modules");
         var external = nodeTypes.Where(t => t.Assembly != executingAsm);
@@ -144,9 +141,21 @@ public static class ContextMenuBuilder
         }
 
         if (modulesMenu.Items.Count > 0)
-            root.Items.Insert(0, modulesMenu);
+            createNodeSubMenu.Items.Insert(0, modulesMenu);
 
-        return root;
+        return createNodeSubMenu;
+    }
+
+    private static ContextMenuSubMenu buildGraphPresetSubMenu()
+    {
+        var presetSubMenu = new ContextMenuSubMenu("Spawn Preset");
+
+        foreach (var nodePreset in NodeManager.GetInstance().Presets)
+        {
+            presetSubMenu.Items.Add(new ContextMenuPresetItem(nodePreset.Name.Value, nodePreset));
+        }
+
+        return presetSubMenu;
     }
 
     private static void addNodeEntry(

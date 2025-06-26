@@ -13,7 +13,6 @@
              Focusable="True">
     <UserControl.Resources>
         <core:ObjectToStringConverter x:Key="ObjectToStringConverter"/>
-        <core:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterInverted" True="Collapsed" False="Visible"/>
         <core:BorderClipConverter x:Key="BorderClipConverter"/>
@@ -60,7 +59,10 @@
             <MenuItem Header="Delete Node" Click="NodeContextMenu_DeleteClick" Tag="{Binding}"/>
         </ContextMenu>
 
-        <ContextMenu x:Key="GroupContextMenu"/>
+        <ContextMenu x:Key="GroupContextMenu">
+            <MenuItem Header="Dissolve Group" Click="GroupContextMenu_DissolveClick" Tag="{Binding}"/>
+            <MenuItem Header="Delete Group" Click="GroupContextMenu_DeleteClick" Tag="{Binding}"/>
+        </ContextMenu>
 
         <ContextMenu x:Key="SelectionContextMenu">
             <MenuItem Header="Create Group" Click="SelectionContextMenu_CreateGroupClick"/>
@@ -219,15 +221,15 @@
 
         <DataTemplate x:Key="InputVariableSizeControlTemplate">
             <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Top" HorizontalAlignment="Left" Height="25">
-                <core:IconButton Icon="Solid_Plus" Width="20" Height="20" ButtonColour="Green" Tag="{Binding}"/>
-                <core:IconButton Icon="Solid_Minus" Width="20" Height="20" ButtonColour="Red" Tag="{Binding}"/>
+                <core:IconButton Icon="Solid_Plus" Width="20" Height="20" ButtonColour="Green" Tag="{Binding}" Click="InputVariableSize_IncreaseOnClick"/>
+                <core:IconButton Icon="Solid_Minus" Width="20" Height="20" ButtonColour="Red" Tag="{Binding}" Click="InputVariableSize_DecreaseOnClick"/>
             </core:SpacedStackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="OutputVariableSizeControlTemplate">
             <core:SpacedStackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Top" HorizontalAlignment="Right" Height="25">
-                <core:IconButton Icon="Solid_Plus" Width="20" Height="20" ButtonColour="Green" Tag="{Binding}"/>
-                <core:IconButton Icon="Solid_Minus" Width="20" Height="20" ButtonColour="Red" Tag="{Binding}"/>
+                <core:IconButton Icon="Solid_Plus" Width="20" Height="20" ButtonColour="Green" Tag="{Binding}" Click="OutputVariableSize_IncreaseOnClick"/>
+                <core:IconButton Icon="Solid_Minus" Width="20" Height="20" ButtonColour="Red" Tag="{Binding}" Click="OutputVariableSize_DecreaseOnClick"/>
             </core:SpacedStackPanel>
         </DataTemplate>
 

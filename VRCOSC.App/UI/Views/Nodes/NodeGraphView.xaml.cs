@@ -49,9 +49,9 @@ public partial class NodeGraphView
 
     public ObservableCollection<GraphItem> GraphItems { get; } = [];
     public ObservableCollection<ConnectionItem> ConnectionItems { get; } = [];
-    public ObservableCollection<GraphItem> SelectionItems { get; } = [];
 
     private WindowManager nodeCreatorWindowManager = null!;
+    private WindowManager presetCreatorWindowManager = null!;
 
     private bool hasLoaded;
     private int zIndex;
@@ -75,6 +75,8 @@ public partial class NodeGraphView
 
         Loaded += OnLoaded;
         KeyDown += OnKeyDown;
+
+        Graph.OnMarkedDirty += OnGraphMarkedDirty;
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -84,8 +86,9 @@ public partial class NodeGraphView
         if (hasLoaded) return;
 
         nodeCreatorWindowManager = new WindowManager(this);
+        presetCreatorWindowManager = new WindowManager(this);
 
-        Task.Run(onFirstLoad);
+        Task.Run(Graph.MarkDirty);
     }
 
     private void OnKeyDown(object sender, KeyEventArgs e)
@@ -96,29 +99,45 @@ public partial class NodeGraphView
         }
     }
 
-    private async Task onFirstLoad()
+    private async Task OnGraphMarkedDirty()
     {
-        // let the UI update for a bit to ensure animations stay smooth
-        await Task.Delay(150);
+        if (!hasLoaded)
+        {
+            // let the UI update for a bit to ensure animations stay smooth
+            await Task.Delay(150);
+        }
 
-        var initialNodes = Graph.Nodes.Values.Select(node => new NodeGraphItem(node)).ToList();
-        var initialConnections = Graph.Connections;
-        var initialGroups = Graph.Groups.Select(nodeGroup => new NodeGroupGraphItem(nodeGroup)).ToList();
+        if (Graph.RemovedNodes.Count != 0)
+            GraphItems.RemoveIf(item => item is NodeGraphItem nodeGraphItem && Graph.RemovedNodes.Contains(nodeGraphItem.Node));
+
+        if (Graph.RemovedConnections.Count != 0)
+            ConnectionItems.RemoveIf(item => Graph.RemovedConnections.Contains(item.Connection));
+
+        if (Graph.RemovedGroups.Count != 0)
+            GraphItems.RemoveIf(item => item is NodeGroupGraphItem nodeGroupGraphItem && Graph.RemovedGroups.Contains(nodeGroupGraphItem.Group));
+
+        var addedNodes = Graph.AddedNodes.Select(node => new NodeGraphItem(node)).ToList();
+        var addedConnections = Graph.AddedConnections;
+        var addedGroups = Graph.AddedGroups.Select(group => new NodeGroupGraphItem(group)).ToList();
+
+        var offset = GraphItems.Count;
 
         await Dispatcher.InvokeAsync(() =>
         {
-            drawGraphBackground();
-            GraphContainer.ContextMenu!.Items.Add(ContextMenuBuilder.BuildCreateNodesMenu());
-            GraphItems.AddRange(initialNodes);
-            GraphItems.AddRange(initialGroups);
+            if (!hasLoaded)
+                drawGraphBackground();
+
+            RefreshContextMenu();
+            GraphItems.AddRange(addedNodes);
+            GraphItems.AddRange(addedGroups);
         });
 
         await Dispatcher.InvokeAsync(() =>
         {
-            for (var i = 0; i < initialNodes.Count; i++)
+            for (var i = 0; i < addedNodes.Count; i++)
             {
-                var nodeGraphItem = initialNodes[i];
-                var itemContainer = (FrameworkElement)GraphItemsControl.ItemContainerGenerator.ContainerFromIndex(i);
+                var nodeGraphItem = addedNodes[i];
+                var itemContainer = (FrameworkElement)GraphItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + i);
                 var nodeContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
 
                 nodeGraphItem.Element = nodeContainer;
@@ -126,10 +145,10 @@ public partial class NodeGraphView
                 updateGraphItemPosition(nodeGraphItem, nodeGraphItem.Node.NodePosition);
             }
 
-            for (var i = 0; i < initialGroups.Count; i++)
+            for (var i = 0; i < addedGroups.Count; i++)
             {
-                var nodeGroupGraphItem = initialGroups[i];
-                var itemContainer = (FrameworkElement)GraphItemsControl.ItemContainerGenerator.ContainerFromIndex(initialNodes.Count + i);
+                var nodeGroupGraphItem = addedGroups[i];
+                var itemContainer = (FrameworkElement)GraphItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + addedNodes.Count + i);
                 var groupContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
                 Panel.SetZIndex(itemContainer, -1);
 
@@ -137,39 +156,25 @@ public partial class NodeGraphView
                 updateNodeGroupGraphItem(nodeGroupGraphItem);
             }
 
-            drawNodeConnections(initialConnections);
+            drawNodeConnections(addedConnections);
         }, DispatcherPriority.Render);
 
-        Dispatcher.Invoke(() =>
+        if (!hasLoaded)
         {
-            hasLoaded = true;
-            LoadingOverlay.FadeOut(250);
-        });
-
-        Graph.Nodes.OnCollectionChanged(onNodesCollectionChanged);
-        Graph.Connections.OnCollectionChanged(onConnectionsCollectionsChanged);
-    }
-
-    private void onNodesCollectionChanged(IEnumerable<ObservableKeyValuePair<Guid, Node>> newNodes, IEnumerable<ObservableKeyValuePair<Guid, Node>> oldNodes)
-    {
-        var newNodesList = newNodes.ToList();
-
-        if (newNodesList.Count != 0)
-        {
-            // we should never be bulk adding nodes from listening on collection change to ensure correct usage of the dispatcher
-            Debug.Assert(newNodesList.Count == 1);
-            var node = newNodesList[0].Value;
-            Dispatcher.Invoke(() => _ = drawNode(node, node.NodePosition));
+            Dispatcher.Invoke(() =>
+            {
+                hasLoaded = true;
+                LoadingOverlay.FadeOut(250);
+            });
         }
-
-        // we allow bulk removing of nodes as this doesn't need a dispatcher
-        GraphItems.RemoveIf(item => item is NodeGraphItem nodeGraphItem && oldNodes.Select(pair => pair.Value).Contains(nodeGraphItem.Node));
     }
 
-    private void onConnectionsCollectionsChanged(IEnumerable<NodeConnection> newConnections, IEnumerable<NodeConnection> oldConnections)
+    public void RefreshContextMenu()
     {
-        Dispatcher.Invoke(() => drawNodeConnections(newConnections), DispatcherPriority.Render);
-        ConnectionItems.RemoveIf(c => oldConnections.Contains(c.Connection));
+        ContextMenuBuilder.Refresh();
+        GraphContainer.ContextMenu!.Items.Clear();
+        GraphContainer.ContextMenu!.Items.Add(ContextMenuBuilder.GraphCreateNodeContextSubMenu.Value);
+        GraphContainer.ContextMenu!.Items.Add(ContextMenuBuilder.GraphPresetContextSubMenu.Value);
     }
 
     #region Graph Background
@@ -255,22 +260,6 @@ public partial class NodeGraphView
         SelectionVisual.Visibility = Visibility.Collapsed;
     }
 
-    private async Task drawNode(Node node, Point initialPosition)
-    {
-        var nodeGraphItem = new NodeGraphItem(node);
-        GraphItems.Add(nodeGraphItem);
-
-        await Dispatcher.InvokeAsync(() =>
-        {
-            var itemContainer = (FrameworkElement)GraphItemsControl.ItemContainerGenerator.ContainerFromIndex(GraphItems.Count - 1);
-            var nodeContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
-
-            nodeGraphItem.Element = nodeContainer;
-            populateNodeGraphItem(nodeGraphItem);
-            updateGraphItemPosition(nodeGraphItem, initialPosition);
-        }, DispatcherPriority.Render);
-    }
-
     private void drawNodeConnections(Node node)
     {
         var connections = Graph.Connections.Where(c => c.InputNodeId == node.Id || c.OutputNodeId == node.Id);
@@ -279,9 +268,9 @@ public partial class NodeGraphView
 
     private void drawNodeConnections(IEnumerable<NodeConnection> connections)
     {
-        try
+        foreach (var connection in connections)
         {
-            foreach (var connection in connections)
+            try
             {
                 var foundConnection = ConnectionItems.SingleOrDefault(c => c == new ConnectionItem(connection, new Path()));
 
@@ -290,10 +279,10 @@ public partial class NodeGraphView
                 else
                     ConnectionItems.Add(new ConnectionItem(connection, createConnectionPath(connection)));
             }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e);
+            }
         }
     }
 
@@ -751,7 +740,7 @@ public partial class NodeGraphView
         {
             drawNodeConnections(nodeGraphItem.Node);
 
-            var group = Graph.Groups.SingleOrDefault(group => group.Nodes.Contains(nodeGraphItem.Node.Id));
+            var group = Graph.Groups.Values.SingleOrDefault(group => group.Nodes.Contains(nodeGraphItem.Node.Id));
 
             if (group is not null)
             {
@@ -956,6 +945,7 @@ public partial class NodeGraphView
                     var type = typeof(ValueNode<>).MakeGenericType(slotInputType);
                     var outputNode = Graph.AddNode(type, mousePos);
                     Graph.CreateValueConnection(outputNode.Id, 0, node.Id, slot);
+                    Graph.MarkDirty();
                     stopConnectionDrag();
                     return;
                 }
@@ -970,6 +960,7 @@ public partial class NodeGraphView
                 var type = typeof(DisplayNode<>).MakeGenericType(slotOutputType);
                 var inputNode = Graph.AddNode(type, mousePos);
                 Graph.CreateValueConnection(node.Id, slot, inputNode.Id, 0);
+                Graph.MarkDirty();
                 stopConnectionDrag();
                 return;
             }
@@ -980,6 +971,7 @@ public partial class NodeGraphView
 
                 var outputNode = Graph.AddNode(typeof(ButtonNode), mousePos);
                 Graph.CreateFlowConnection(outputNode.Id, 0, node.Id);
+                Graph.MarkDirty();
                 stopConnectionDrag();
                 return;
             }
@@ -1090,6 +1082,7 @@ public partial class NodeGraphView
                 if (nodeCreatorWindow.ConstructedType is null) return;
 
                 Graph.AddNode(nodeCreatorWindow.ConstructedType, graphContextMenuPosition);
+                Graph.MarkDirty();
             };
 
             nodeCreatorWindowManager.TrySpawnChild(nodeCreatorWindow);
@@ -1097,11 +1090,17 @@ public partial class NodeGraphView
         else
         {
             Graph.AddNode(nodeType, graphContextMenuPosition);
+            Graph.MarkDirty();
         }
     }
 
     private void GraphContextMenu_PresetItemClick(object sender, RoutedEventArgs e)
     {
+        var element = (FrameworkElement)sender;
+        var preset = (NodePreset)element.Tag;
+
+        preset.SpawnTo(Graph, graphContextMenuPosition);
+        Graph.MarkDirty();
     }
 
     private void NodeContextMenu_DeleteClick(object sender, RoutedEventArgs e)
@@ -1110,14 +1109,60 @@ public partial class NodeGraphView
         var nodeGraphItem = (NodeGraphItem)element.Tag;
 
         Graph.DeleteNode(nodeGraphItem.Node.Id);
+        Graph.MarkDirty();
+    }
+
+    private void GroupContextMenu_DissolveClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var nodeGroupGraphItem = (NodeGroupGraphItem)element.Tag;
+
+        Graph.DeleteGroup(nodeGroupGraphItem.Group.Id);
+        Graph.MarkDirty();
+    }
+
+    private void GroupContextMenu_DeleteClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var nodeGroupGraphItem = (NodeGroupGraphItem)element.Tag;
+
+        foreach (var node in nodeGroupGraphItem.Group.Nodes.ToList())
+        {
+            Graph.DeleteNode(node);
+        }
+
+        Graph.DeleteGroup(nodeGroupGraphItem.Group.Id);
+        Graph.MarkDirty();
     }
 
     private void SelectionContextMenu_CreateGroupClick(object sender, RoutedEventArgs e)
     {
+        Debug.Assert(selection is not null);
+
+        Graph.AddGroup(selection.Items.OfType<NodeGraphItem>().Select(item => item.Node.Id));
+        Graph.MarkDirty();
+        deselectGraphItems();
     }
 
     private void SelectionContextMenu_SaveAsPresetClick(object sender, RoutedEventArgs e)
     {
+        Debug.Assert(selection is not null);
+
+        var selectedNodes = selection.Items.OfType<NodeGraphItem>().Select(item => item.Node.Id).ToList();
+        var position = (TranslateTransform)SelectionVisual.RenderTransform;
+
+        var presetCreatorWindow = new PresetCreatorWindow();
+
+        presetCreatorWindow.Closed += (_, _) =>
+        {
+            if (string.IsNullOrEmpty(presetCreatorWindow.PresetName)) return;
+
+            Graph.CreatePreset(presetCreatorWindow.PresetName, selectedNodes, (float)position.X, (float)position.Y);
+            RefreshContextMenu();
+        };
+
+        presetCreatorWindowManager.TrySpawnChild(presetCreatorWindow);
+        deselectGraphItems();
     }
 
     private void SelectionContextMenu_DeleteAllClick(object sender, RoutedEventArgs e)
@@ -1132,6 +1177,7 @@ public partial class NodeGraphView
             }
         }
 
+        Graph.MarkDirty();
         deselectGraphItems();
     }
 
@@ -1161,6 +1207,7 @@ public partial class NodeGraphView
                 var outputNodeGraphItem = GraphItems.OfType<NodeGraphItem>().Single(outputNodeGraphItem => outputNodeGraphItem.Node.Id == existingConnection.OutputNodeId);
 
                 Graph.RemoveConnection(existingConnection);
+                Graph.MarkDirty();
 
                 connectionDrag = new ConnectionDrag(ConnectionDragOrigin.ValueOutput, outputNodeGraphItem, existingConnection.OutputSlot,
                     outputNodeGraphItem.ValueOutputs[existingConnection.OutputSlot]);
@@ -1176,6 +1223,7 @@ public partial class NodeGraphView
                 var outputNodeGraphItem = GraphItems.OfType<NodeGraphItem>().Single(outputNodeGraphItem => outputNodeGraphItem.Node.Id == existingConnection.OutputNodeId);
 
                 Graph.RemoveConnection(existingConnection);
+                Graph.MarkDirty();
 
                 connectionDrag = new ConnectionDrag(ConnectionDragOrigin.FlowOutput, outputNodeGraphItem, existingConnection.OutputSlot,
                     outputNodeGraphItem.FlowOutputs[existingConnection.OutputSlot]);
@@ -1201,16 +1249,28 @@ public partial class NodeGraphView
         var (_, slot) = connectionDataFromElement(destinationElement);
 
         if (connectionDrag.Origin == ConnectionDragOrigin.FlowInput && destination == ConnectionDragOrigin.FlowOutput)
+        {
             Graph.CreateFlowConnection(nodeGraphItem.Node.Id, slot, connectionDrag.NodeGraphItem.Node.Id);
+            Graph.MarkDirty();
+        }
 
         if (connectionDrag.Origin == ConnectionDragOrigin.FlowOutput && destination == ConnectionDragOrigin.FlowInput)
+        {
             Graph.CreateFlowConnection(connectionDrag.NodeGraphItem.Node.Id, connectionDrag.Slot, nodeGraphItem.Node.Id);
+            Graph.MarkDirty();
+        }
 
         if (connectionDrag.Origin == ConnectionDragOrigin.ValueInput && destination == ConnectionDragOrigin.ValueOutput)
+        {
             Graph.CreateValueConnection(nodeGraphItem.Node.Id, slot, connectionDrag.NodeGraphItem.Node.Id, connectionDrag.Slot);
+            Graph.MarkDirty();
+        }
 
         if (connectionDrag.Origin == ConnectionDragOrigin.ValueOutput && destination == ConnectionDragOrigin.ValueInput)
+        {
             Graph.CreateValueConnection(connectionDrag.NodeGraphItem.Node.Id, connectionDrag.Slot, nodeGraphItem.Node.Id, slot);
+            Graph.MarkDirty();
+        }
 
         stopConnectionDrag();
     }
@@ -1304,6 +1364,88 @@ public partial class NodeGraphView
             refreshGraphItemPosition(nodeGraphItem);
             drawNodeConnections(nodeGraphItem.Node);
         }, DispatcherPriority.Render);
+    }
+
+    private void InputVariableSize_IncreaseOnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var nodeGraphItem = (NodeGraphItem)element.Tag;
+
+        nodeGraphItem.Node.VariableSize.ValueInputSize++;
+
+        Graph.Serialise();
+
+        var valueInputItemsControl = nodeGraphItem.ValueInputs.Last().FindVisualParent<ItemsControl>("ValueInputItemsControl")!;
+        valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
+
+        Dispatcher.Invoke(() => populateNodeGraphItem(nodeGraphItem), DispatcherPriority.Render);
+    }
+
+    private void InputVariableSize_DecreaseOnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var nodeGraphItem = (NodeGraphItem)element.Tag;
+
+        if (nodeGraphItem.Node.VariableSize.ValueInputSize == 1) return;
+
+        var inputSlot = nodeGraphItem.Node.Metadata.InputsCount + nodeGraphItem.Node.VariableSize.ValueInputSize - 1;
+        var connectionToRemove = Graph.Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == inputSlot);
+
+        if (connectionToRemove is not null)
+        {
+            Graph.RemoveConnection(connectionToRemove);
+            Graph.MarkDirty();
+        }
+
+        nodeGraphItem.Node.VariableSize.ValueInputSize--;
+
+        Graph.Serialise();
+
+        var valueInputItemsControl = nodeGraphItem.ValueInputs.Last().FindVisualParent<ItemsControl>("ValueInputItemsControl")!;
+        valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
+
+        Dispatcher.Invoke(() => populateNodeGraphItem(nodeGraphItem), DispatcherPriority.Render);
+    }
+
+    private void OutputVariableSize_IncreaseOnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var nodeGraphItem = (NodeGraphItem)element.Tag;
+
+        nodeGraphItem.Node.VariableSize.ValueOutputSize++;
+
+        Graph.Serialise();
+
+        var valueOutputItemsControl = nodeGraphItem.ValueOutputs.Last().FindVisualParent<ItemsControl>("ValueOutputItemsControl")!;
+        valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
+
+        Dispatcher.Invoke(() => populateNodeGraphItem(nodeGraphItem), DispatcherPriority.Render);
+    }
+
+    private void OutputVariableSize_DecreaseOnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var nodeGraphItem = (NodeGraphItem)element.Tag;
+
+        if (nodeGraphItem.Node.VariableSize.ValueOutputSize == 1) return;
+
+        var inputSlot = nodeGraphItem.Node.Metadata.OutputsCount + nodeGraphItem.Node.VariableSize.ValueOutputSize - 1;
+        var connectionToRemove = Graph.Connections.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == inputSlot);
+
+        if (connectionToRemove is not null)
+        {
+            Graph.RemoveConnection(connectionToRemove);
+            Graph.MarkDirty();
+        }
+
+        nodeGraphItem.Node.VariableSize.ValueOutputSize--;
+
+        Graph.Serialise();
+
+        var valueOutputItemsControl = nodeGraphItem.ValueOutputs.Last().FindVisualParent<ItemsControl>("ValueOutputItemsControl")!;
+        valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
+
+        Dispatcher.Invoke(() => populateNodeGraphItem(nodeGraphItem), DispatcherPriority.Render);
     }
 }
 

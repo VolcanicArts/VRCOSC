@@ -11,7 +11,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types;
 
-public abstract class Node
+public abstract class Node : IEquatable<Node>
 {
     internal NodeGraph NodeGraph { get; set; } = null!;
     internal NodeVariableSize VariableSize => NodeGraph.VariableSizes[Id];
@@ -87,4 +87,23 @@ public abstract class Node
     }
 
     protected virtual bool ShouldProcess(PulseContext c) => true;
+
+    public bool Equals(Node? other)
+    {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+
+        return Id.Equals(other.Id);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+
+        return Equals((Node)obj);
+    }
+
+    public override int GetHashCode() => Id.GetHashCode();
 }

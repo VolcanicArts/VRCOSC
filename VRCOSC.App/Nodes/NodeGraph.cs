@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
@@ -30,12 +29,10 @@ public class NodeGraph : IVRCClientEventHandler
 
     private readonly SerialisationManager serialiser;
 
-    public ObservableDictionary<Guid, Node> Nodes { get; } = [];
-    public ObservableCollection<NodeConnection> Connections { get; } = [];
-    public ObservableCollection<NodeGroup> Groups { get; } = [];
-    public Dictionary<Guid, NodeVariableSize> VariableSizes = [];
-
-    public int ZIndex { get; set; } = 0;
+    public ConcurrentDictionary<Guid, Node> Nodes { get; } = [];
+    public List<NodeConnection> Connections { get; } = [];
+    public ConcurrentDictionary<Guid, NodeGroup> Groups { get; } = [];
+    public ConcurrentDictionary<Guid, NodeVariableSize> VariableSizes = [];
 
     public readonly Dictionary<Type, NodeMetadata> Metadata = [];
     public readonly Dictionary<string, IRef> Variables = [];
@@ -43,6 +40,15 @@ public class NodeGraph : IVRCClientEventHandler
     public readonly ConcurrentDictionary<Guid, Dictionary<IStore, IRef>> GlobalStores = [];
 
     private bool running;
+
+    public List<Node> AddedNodes = [];
+    public List<Node> RemovedNodes = [];
+    public List<NodeConnection> AddedConnections = [];
+    public List<NodeConnection> RemovedConnections = [];
+    public List<NodeGroup> AddedGroups = [];
+    public List<NodeGroup> RemovedGroups = [];
+
+    public Func<Task>? OnMarkedDirty;
 
     public NodeGraph()
     {
@@ -53,19 +59,6 @@ public class NodeGraph : IVRCClientEventHandler
     public void Load()
     {
         Deserialise();
-
-        Groups.OnCollectionChanged((newGroups, _) =>
-        {
-            foreach (var group in newGroups)
-            {
-                group.Nodes.OnCollectionChanged((_, _) => Serialise());
-                group.Title.Subscribe(_ => Serialise());
-            }
-        }, true);
-
-        Nodes.OnCollectionChanged((_, _) => Serialise());
-        Connections.OnCollectionChanged((_, _) => Serialise());
-        Groups.OnCollectionChanged((_, _) => Serialise());
     }
 
     public void Serialise()
@@ -117,6 +110,186 @@ public class NodeGraph : IVRCClientEventHandler
         Variables.Clear();
         running = false;
     }
+
+    #region Management
+
+    public async void MarkDirty()
+    {
+        if (OnMarkedDirty is not null)
+            await OnMarkedDirty.Invoke();
+
+        AddedNodes.Clear();
+        RemovedNodes.Clear();
+        AddedConnections.Clear();
+        RemovedConnections.Clear();
+        AddedGroups.Clear();
+        RemovedGroups.Clear();
+
+        Serialise();
+    }
+
+    public Node AddNode(Type nodeType, Point initialPosition, Guid? id = null)
+    {
+        var node = (Node)Activator.CreateInstance(nodeType)!;
+        node.NodePosition = initialPosition;
+
+        if (id.HasValue)
+            node.Id = id.Value;
+
+        NodeMetadata metadata;
+
+        if (Metadata.TryGetValue(nodeType, out var foundMetadata))
+        {
+            metadata = foundMetadata;
+        }
+        else
+        {
+            metadata = NodeMetadataBuilder.BuildFrom(node);
+            Metadata.Add(nodeType, metadata);
+        }
+
+        if (metadata.ValueInputHasVariableSize || metadata.ValueOutputHasVariableSize)
+            VariableSizes.TryAdd(node.Id, new NodeVariableSize());
+
+        node.NodeGraph = this;
+
+        Nodes.TryAdd(node.Id, node);
+        AddedNodes.Add(node);
+
+        return node;
+    }
+
+    public void DeleteNode(Guid nodeId)
+    {
+        var node = Nodes[nodeId];
+
+        foreach (var connection in Connections.Where(connection => connection.OutputNodeId == nodeId || connection.InputNodeId == nodeId).ToList())
+        {
+            Connections.Remove(connection);
+            RemovedConnections.Add(connection);
+        }
+
+        var group = Groups.Values.SingleOrDefault(group => group.Nodes.Contains(nodeId));
+        group?.Nodes.Remove(nodeId);
+
+        Nodes.TryRemove(nodeId, out _);
+        RemovedNodes.Add(node);
+
+        // TODO: When a ValueRelayNode is removed, bridge connections
+    }
+
+    public void CreateFlowConnection(Guid outputNodeId, int outputFlowSlot, Guid inputNodeId)
+    {
+        if (outputNodeId == inputNodeId) return;
+
+        var outputAlreadyHasConnection =
+            Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.OutputNodeId == outputNodeId && connection.OutputSlot == outputFlowSlot);
+
+        var newConnection = new NodeConnection(ConnectionType.Flow, outputNodeId, outputFlowSlot, null, inputNodeId, 0, null);
+        Connections.Add(newConnection);
+        AddedConnections.Add(newConnection);
+
+        if (outputAlreadyHasConnection is not null)
+        {
+            RemoveConnection(outputAlreadyHasConnection);
+        }
+    }
+
+    public void CreateValueConnection(Guid outputNodeId, int outputValueSlot, Guid inputNodeId, int inputValueSlot)
+    {
+        if (outputNodeId == inputNodeId) return;
+
+        var outputNode = Nodes[outputNodeId];
+        var inputNode = Nodes[inputNodeId];
+
+        var outputType = outputNode.GetTypeOfOutputSlot(outputValueSlot);
+        var inputType = inputNode.GetTypeOfInputSlot(inputValueSlot);
+        var existingConnection = Connections.FirstOrDefault(con => con.ConnectionType == ConnectionType.Value && con.InputNodeId == inputNodeId && con.InputSlot == inputValueSlot);
+
+        NodeConnection? newConnection = null;
+        var newConnectionMade = false;
+
+        if (outputType.IsAssignableTo(inputType))
+        {
+            newConnection = new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, outputType, inputNodeId, inputValueSlot, inputType);
+            newConnectionMade = true;
+        }
+        else
+        {
+            var group = Groups.Values.SingleOrDefault(group => group.Nodes.Contains(outputNodeId) && group.Nodes.Contains(inputNodeId));
+
+            if (ConversionHelper.HasImplicitConversion(outputType, inputType))
+            {
+                var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
+                CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
+                CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
+                group?.Nodes.Add(castNode.Id);
+                newConnectionMade = true;
+            }
+
+            if (outputType.IsEnum && inputType == typeof(int))
+            {
+                var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
+                CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
+                CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
+                group?.Nodes.Add(castNode.Id);
+                newConnectionMade = true;
+            }
+
+            if (inputType == typeof(string))
+            {
+                var toStringNode = AddNode(typeof(ToStringNode<>).MakeGenericType(outputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
+                CreateValueConnection(outputNodeId, outputValueSlot, toStringNode.Id, 0);
+                CreateValueConnection(toStringNode.Id, 0, inputNodeId, inputValueSlot);
+                group?.Nodes.Add(toStringNode.Id);
+                newConnectionMade = true;
+            }
+        }
+
+        // if the input already had a connection, disconnect it
+        if (newConnectionMade && existingConnection is not null)
+        {
+            RemoveConnection(existingConnection);
+        }
+
+        if (newConnection is not null)
+        {
+            Connections.Add(newConnection);
+            AddedConnections.Add(newConnection);
+        }
+    }
+
+    public void RemoveConnection(NodeConnection connection)
+    {
+        Connections.Remove(connection);
+        RemovedConnections.Add(connection);
+
+        // update all the trigger nodes when we remove a connection
+        var nodes = Nodes.Values.Where(node => connection.InputNodeId == node.Id && node.Metadata.IsTrigger);
+
+        foreach (var node in nodes)
+        {
+            StartFlow(node);
+        }
+    }
+
+    public NodeGroup AddGroup(IEnumerable<Guid> initialNodes, Guid? id = null)
+    {
+        var nodeGroup = new NodeGroup();
+        nodeGroup.Nodes.AddRange(initialNodes);
+        if (id.HasValue) nodeGroup.Id = id.Value;
+        Groups.TryAdd(nodeGroup.Id, nodeGroup);
+        AddedGroups.Add(nodeGroup);
+        return nodeGroup;
+    }
+
+    public void DeleteGroup(Guid id)
+    {
+        Groups.TryRemove(id, out var group);
+        RemovedGroups.Add(group!);
+    }
+
+    #endregion
 
     private void walkForwardAllValueNodes()
     {
@@ -248,148 +421,6 @@ public class NodeGraph : IVRCClientEventHandler
             PersistentVariables[name] = new Ref<T>(value);
             Serialise();
         }
-    }
-
-    public void RemoveConnection(NodeConnection connection)
-    {
-        Connections.Remove(connection);
-
-        // update all the trigger nodes when we remove a connection
-        var nodes = Nodes.Values.Where(node => connection.InputNodeId == node.Id && node.Metadata.IsTrigger);
-
-        foreach (var node in nodes)
-        {
-            StartFlow(node);
-        }
-    }
-
-    public void CreateFlowConnection(Guid outputNodeId, int outputFlowSlot, Guid inputNodeId)
-    {
-        if (outputNodeId == inputNodeId) return;
-
-        var outputAlreadyHasConnection =
-            Connections.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.OutputNodeId == outputNodeId && connection.OutputSlot == outputFlowSlot);
-
-        Connections.Add(new NodeConnection(ConnectionType.Flow, outputNodeId, outputFlowSlot, null, inputNodeId, 0, null));
-
-        if (outputAlreadyHasConnection is not null)
-        {
-            RemoveConnection(outputAlreadyHasConnection);
-        }
-    }
-
-    public void CreateValueConnection(Guid outputNodeId, int outputValueSlot, Guid inputNodeId, int inputValueSlot)
-    {
-        if (outputNodeId == inputNodeId) return;
-
-        var outputNode = Nodes[outputNodeId];
-        var inputNode = Nodes[inputNodeId];
-
-        var outputType = outputNode.GetTypeOfOutputSlot(outputValueSlot);
-        var inputType = inputNode.GetTypeOfInputSlot(inputValueSlot);
-        var existingConnection = Connections.FirstOrDefault(con => con.ConnectionType == ConnectionType.Value && con.InputNodeId == inputNodeId && con.InputSlot == inputValueSlot);
-
-        NodeConnection? newConnection = null;
-        var newConnectionMade = false;
-
-        if (outputType.IsAssignableTo(inputType))
-        {
-            newConnection = new NodeConnection(ConnectionType.Value, outputNodeId, outputValueSlot, outputType, inputNodeId, inputValueSlot, inputType);
-            newConnectionMade = true;
-        }
-        else
-        {
-            var group = Groups.SingleOrDefault(group => group.Nodes.Contains(outputNodeId) && group.Nodes.Contains(inputNodeId));
-
-            if (ConversionHelper.HasImplicitConversion(outputType, inputType))
-            {
-                var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
-                CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
-                CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
-                group?.Nodes.Add(castNode.Id);
-                newConnectionMade = true;
-            }
-
-            if (outputType.IsEnum && inputType == typeof(int))
-            {
-                var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
-                CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
-                CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
-                group?.Nodes.Add(castNode.Id);
-                newConnectionMade = true;
-            }
-
-            if (inputType == typeof(string))
-            {
-                var toStringNode = AddNode(typeof(ToStringNode<>).MakeGenericType(outputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
-                CreateValueConnection(outputNodeId, outputValueSlot, toStringNode.Id, 0);
-                CreateValueConnection(toStringNode.Id, 0, inputNodeId, inputValueSlot);
-                group?.Nodes.Add(toStringNode.Id);
-                newConnectionMade = true;
-            }
-        }
-
-        // if the input already had a connection, disconnect it
-        if (newConnectionMade && existingConnection is not null)
-        {
-            RemoveConnection(existingConnection);
-        }
-
-        if (newConnection is not null)
-        {
-            Connections.Add(newConnection);
-        }
-    }
-
-    public void DeleteNode(Guid nodeId)
-    {
-        Connections.RemoveIf(connection => connection.OutputNodeId == nodeId || connection.InputNodeId == nodeId);
-        Groups.ForEach(group => group.Nodes.Remove(nodeId));
-        Nodes.Remove(nodeId);
-
-        Groups.RemoveIf(group => group.Nodes.Count == 0);
-
-        // TODO: When a ValueRelayNode is removed, bridge connections
-    }
-
-    public Node AddNode(Guid id, Type nodeType, Point initialPosition)
-    {
-        var node = (Node)Activator.CreateInstance(nodeType)!;
-        node.Id = id;
-        node.NodePosition = initialPosition;
-        addNode(node);
-        return node;
-    }
-
-    public Node AddNode(Type nodeType, Point initialPosition)
-    {
-        var node = (Node)Activator.CreateInstance(nodeType)!;
-        node.NodePosition = initialPosition;
-        addNode(node);
-        return node;
-    }
-
-    private void addNode(Node node)
-    {
-        NodeMetadata metadata;
-
-        if (Metadata.TryGetValue(node.GetType(), out var foundMetadata))
-        {
-            metadata = foundMetadata;
-        }
-        else
-        {
-            metadata = NodeMetadataBuilder.BuildFrom(node);
-            Metadata.Add(node.GetType(), metadata);
-        }
-
-        if (metadata.ValueInputHasVariableSize || metadata.ValueOutputHasVariableSize)
-        {
-            VariableSizes.Add(node.Id, new NodeVariableSize());
-        }
-
-        node.NodeGraph = this;
-        Nodes.Add(node.Id, node);
     }
 
     private record FlowTask(Task Task, PulseContext Context);
@@ -616,14 +647,6 @@ public class NodeGraph : IVRCClientEventHandler
                 walkForward(results, inputNode, i);
             }
         }
-    }
-
-    public NodeGroup AddGroup(Guid? id = null)
-    {
-        var nodeGroup = new NodeGroup();
-        if (id.HasValue) nodeGroup.Id = id.Value;
-        Groups.Add(nodeGroup);
-        return nodeGroup;
     }
 
     public async Task TriggerImpulse(ImpulseDefinition definition, PulseContext c)

@@ -26,14 +26,14 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
     {
         Reference.Name.Value = data.Name;
 
-        data.Nodes.ForEach(sN =>
+        foreach (var sN in data.Nodes)
         {
             try
             {
                 var nodeType = TypeResolver.Construct(sN.Type);
-                if (nodeType is null) return;
+                if (nodeType is null) continue;
 
-                var node = Reference.AddNode(sN.Id, nodeType, new Point(sN.Position.X, sN.Position.Y));
+                var node = Reference.AddNode(nodeType, new Point(sN.Position.X, sN.Position.Y), sN.Id);
 
                 if (sN.Properties is not null)
                 {
@@ -61,13 +61,18 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
                     };
                 }
             }
-            catch
+            catch (Exception e)
             {
+                ExceptionHandler.Handle(e);
             }
-        });
+        }
 
-        data.Connections.ForEach(sC =>
+        var nodeIds = data.Nodes.Select(sN => sN.Id).ToList();
+
+        foreach (var sC in data.Connections)
         {
+            if (!nodeIds.Contains(sC.InputNodeId) || !nodeIds.Contains(sC.OutputNodeId)) continue;
+
             try
             {
                 if (sC.Type == ConnectionType.Flow)
@@ -76,30 +81,32 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
                 if (sC.Type == ConnectionType.Value)
                     Reference.CreateValueConnection(sC.OutputNodeId, sC.OutputNodeSlot, sC.InputNodeId, sC.InputNodeSlot);
             }
-            catch
+            catch (Exception e)
             {
+                ExceptionHandler.Handle(e);
             }
-        });
+        }
 
-        data.Groups.ForEach(sG =>
+        foreach (var sG in data.Groups)
         {
             try
             {
-                var group = Reference.AddGroup(sG.Id);
+                var group = Reference.AddGroup(sG.Nodes, sG.Id);
                 group.Title.Value = sG.Title;
-                group.Nodes.AddRange(sG.Nodes);
+                group.Nodes.RemoveIf(nodeId => !nodeIds.Contains(nodeId));
             }
-            catch
+            catch (Exception e)
             {
+                ExceptionHandler.Handle(e);
             }
-        });
+        }
 
-        data.Variables.ForEach(sV =>
+        foreach (var sV in data.Variables)
         {
             try
             {
                 var resolvedType = TypeResolver.Construct(sV.Type);
-                if (resolvedType is null) return;
+                if (resolvedType is null) continue;
 
                 if (resolvedType == typeof(float)) sV.Value = (float)Convert.ChangeType(sV.Value!, typeof(float));
                 if (resolvedType == typeof(int)) sV.Value = (int)Convert.ChangeType(sV.Value!, typeof(int));
@@ -107,10 +114,11 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
                 var valueRef = (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(resolvedType), sV.Value)!;
                 Reference.PersistentVariables.Add(sV.Key, valueRef);
             }
-            catch
+            catch (Exception e)
             {
+                ExceptionHandler.Handle(e);
             }
-        });
+        }
 
         return false;
     }
