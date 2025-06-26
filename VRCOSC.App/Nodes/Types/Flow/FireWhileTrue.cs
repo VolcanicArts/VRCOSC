@@ -30,10 +30,10 @@ public sealed class FireWhileTrueNode : Node
 
         while (!c.IsCancelled)
         {
-            IsTrue.Execute(c);
+            await IsTrue.Execute(c);
             if (c.IsCancelled) break;
 
-            Task.Delay(delay, c.Token).Wait(c.Token);
+            await Task.Delay(delay, c.Token);
             if (c.IsCancelled) break;
         }
     }
