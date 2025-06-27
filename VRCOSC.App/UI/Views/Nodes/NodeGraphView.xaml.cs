@@ -909,7 +909,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         drawNodeConnections(selection.Connections);
 
-        foreach (var nodeGroupGraphItem in GraphItems.OfType<NodeGroupGraphItem>())
+        foreach (var nodeGroupGraphItem in GraphItems.OfType<NodeGroupGraphItem>().ToList())
         {
             updateNodeGroupGraphItem(nodeGroupGraphItem);
         }
