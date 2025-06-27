@@ -1102,6 +1102,19 @@
                 </Grid>
             </Grid>
         </Grid>
+        <Border VerticalAlignment="Top" HorizontalAlignment="Center" Height="35" CornerRadius="0 0 10 10" Background="{DynamicResource CBackground7}">
+            <Grid Margin="10 5" VerticalAlignment="Center">
+                <Grid MouseDown="NodeGraphTitle_MouseDown" Margin="0 2 0 0" Tag="{Binding}" Visibility="{Binding GraphTitleEditing, Converter={StaticResource BoolToVisibilityConverterInverted}}">
+                    <TextBlock Text="{Binding Graph.Name.Value, Mode=OneWay}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource CForeground2}"/>
+                </Grid>
+                <Grid Visibility="{Binding GraphTitleEditing, Converter={StaticResource BoolToVisibilityConverter}}" Background="Transparent" MouseUp="NodeGraphTitleTextBoxContainer_OnMouseUp">
+                    <TextBox Name="NodeGraphTitleTextBox" Text="{Binding Graph.Name.Value}" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0 -3 0 0"
+                             TextAlignment="Center" Foreground="{DynamicResource CForeground1}" LostFocus="NodeGraphTitleTextBox_LostFocus" Tag="{Binding}" KeyDown="NodeGraphTitleTextBox_KeyDown"/>
+                </Grid>
+            </Grid>
+        </Border>
         <Grid x:Name="LoadingOverlay">
             <Border Background="Black"/>
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"

@@ -27,7 +27,7 @@ using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
-using Panel = System.Windows.Controls.Panel;
+using TextBox = System.Windows.Controls.TextBox;
 using Vector = System.Windows.Vector;
 
 // ReSharper disable CollectionNeverQueried.Global
@@ -1394,20 +1394,100 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
     #endregion
 
+    #region NodeGraph Title
+
+    private bool graphTitleEditing;
+
+    public bool GraphTitleEditing
+    {
+        get => graphTitleEditing;
+        set
+        {
+            if (value == graphTitleEditing) return;
+
+            graphTitleEditing = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private void NodeGraphTitle_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount != 2) return;
+
+        e.Handled = true;
+        GraphTitleEditing = true;
+        NodeGraphTitleTextBox.Focus();
+    }
+
+    private void NodeGraphTitleTextBoxContainer_OnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+    }
+
+    private void NodeGraphTitleTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+
+        GraphTitleEditing = false;
+
+        if (string.IsNullOrEmpty(NodeGraphTitleTextBox.Text))
+        {
+            Graph.Name.Value = "New Graph";
+            return;
+        }
+
+        Graph.Name.Value = NodeGraphTitleTextBox.Text;
+        Graph.Serialise();
+    }
+
+    private void NodeGraphTitleTextBox_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter)
+        {
+            e.Handled = true;
+            Focus();
+        }
+    }
+
+    #endregion
+
     private void GroupTitle_MouseDown(object sender, MouseButtonEventArgs e)
     {
+        if (e.ClickCount != 2) return;
+
+        e.Handled = true;
+
+        var element = (FrameworkElement)sender;
+        var nodeGroupGraphItem = (NodeGroupGraphItem)element.Tag;
+
+        nodeGroupGraphItem.Editing = true;
+
+        element.Parent.FindVisualChild<TextBox>("GroupTitleTextBox")!.Focus();
     }
 
     private void GroupTitleTextBoxContainer_OnMouseUp(object sender, MouseButtonEventArgs e)
     {
+        e.Handled = true;
     }
 
     private void GroupTitleTextBox_LostFocus(object sender, RoutedEventArgs e)
     {
+        e.Handled = true;
+
+        var element = (FrameworkElement)sender;
+        var nodeGroupGraphItem = (NodeGroupGraphItem)element.Tag;
+
+        nodeGroupGraphItem.Editing = false;
+        Graph.Serialise();
     }
 
     private void GroupTitleTextBox_KeyDown(object sender, KeyEventArgs e)
     {
+        if (e.Key == Key.Enter)
+        {
+            e.Handled = true;
+            Focus();
+        }
     }
 
     private void ButtonNode_OnClick(object sender, RoutedEventArgs e)
@@ -1623,7 +1703,19 @@ public record NodeGroupGraphItem : GraphItem
 {
     public NodeGroup Group { get; }
 
-    public bool Editing { get; set; }
+    private bool editing;
+
+    public bool Editing
+    {
+        get => editing;
+        set
+        {
+            if (value == editing) return;
+
+            editing = value;
+            OnPropertyChanged();
+        }
+    }
 
     private double width;
 
