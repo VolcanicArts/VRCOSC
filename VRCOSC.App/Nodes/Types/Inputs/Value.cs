@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Inputs;
 
 [Node("Value", "")]
-public sealed class ValueNode<T> : Node
+public class ValueNode<T> : Node
 {
     private T value = default!;
 

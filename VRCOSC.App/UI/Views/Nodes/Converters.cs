@@ -183,6 +183,7 @@ public class GraphItemsDataTemplateSelector : DataTemplateSelector
 {
     public required DataTemplate? NodeTemplate { get; set; }
     public required DataTemplate? RelayNodeTemplate { get; set; }
+    public required DataTemplate? RichTextBoxNodeTemplate { get; set; }
     public required DataTemplate? TextBoxValueOutputOnlyNodeTemplate { get; set; }
     public required DataTemplate? ToggleValueOutputOnlyNodeTemplate { get; set; }
     public required DataTemplate? EnumValueOutputOnlyNodeTemplate { get; set; }
@@ -210,6 +211,9 @@ public class GraphItemsDataTemplateSelector : DataTemplateSelector
             var type = node.GetType();
 
             var metadata = node.Metadata;
+
+            if (node is ButtonNode) return ButtonNodeTemplate;
+            if (node is RichTextNode) return RichTextBoxNodeTemplate;
 
             if (type.IsGenericType)
             {
@@ -239,8 +243,6 @@ public class GraphItemsDataTemplateSelector : DataTemplateSelector
 
                 return NodeWithTextBoxTemplate;
             }
-
-            if (node is ButtonNode) return ButtonNodeTemplate;
 
             if (type.HasCustomAttribute<NodeCollapsedAttribute>() || metadata.Icon != EFontAwesomeIcon.None)
             {
