@@ -54,7 +54,6 @@ public partial class NodeGraphView : INotifyPropertyChanged
     private WindowManager presetCreatorWindowManager = null!;
 
     private bool hasLoaded;
-    private int zIndex;
     private Point graphContextMenuPosition;
 
     private GraphDrag? graphDrag;
@@ -163,7 +162,6 @@ public partial class NodeGraphView : INotifyPropertyChanged
                 var nodeGroupGraphItem = addedGroups[i];
                 var itemContainer = (FrameworkElement)GraphItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + addedNodes.Count + i);
                 var groupContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
-                Panel.SetZIndex(itemContainer, -1);
 
                 nodeGroupGraphItem.Element = groupContainer;
                 updateNodeGroupGraphItem(nodeGroupGraphItem);
@@ -493,7 +491,16 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
     private void updateNodeGroupGraphItem(NodeGroupGraphItem item)
     {
-        var nodeGraphItems = GraphItems.OfType<NodeGraphItem>().Where(nodeGraphItem => item.Group.Nodes.Contains(nodeGraphItem.Node.Id));
+        var groupIndex = GraphItems.IndexOf(item);
+        GraphItems.Move(groupIndex, GraphItems.Count - 1);
+
+        var nodeGraphItems = GraphItems.OfType<NodeGraphItem>().Where(nodeGraphItem => item.Group.Nodes.Contains(nodeGraphItem.Node.Id)).ToList();
+
+        foreach (var nodeGraphItem in nodeGraphItems)
+        {
+            var index = GraphItems.IndexOf(nodeGraphItem);
+            GraphItems.Move(index, GraphItems.Count - 1);
+        }
 
         var topLeft = new Point(GraphContainer.Width, GraphContainer.Height);
         var bottomRight = new Point(0, 0);
@@ -1030,7 +1037,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         Focus();
 
         var element = (FrameworkElement)sender;
-        var graphItem = (GraphItem)element.Tag;
+        var graphItem = (NodeGraphItem)element.Tag;
 
         if (e.ChangedButton == GRAPH_ITEM_DRAG_BUTTON)
         {
@@ -1040,10 +1047,13 @@ public partial class NodeGraphView : INotifyPropertyChanged
             var nodePos = new Point(graphItem.PosX, graphItem.PosY);
             var offset = mousePos - nodePos;
 
-            var container = (FrameworkElement)GraphItemsControl.ItemContainerGenerator.ContainerFromItem(graphItem);
-            Panel.SetZIndex(container, zIndex++);
+            var groupItem = GraphItems.OfType<NodeGroupGraphItem>().SingleOrDefault(groupItem => groupItem.Group.Nodes.Contains(graphItem.Node.Id));
 
-            // TODO: Move node to end of Graph.Nodes to simulate Z index
+            if (groupItem is not null)
+                updateNodeGroupGraphItem(groupItem);
+
+            var index = GraphItems.IndexOf(graphItem);
+            GraphItems.Move(index, GraphItems.Count - 1);
 
             graphItemDrag = new GraphItemDrag(offset, graphItem);
             OuterContainer.CaptureMouse();
@@ -1077,6 +1087,15 @@ public partial class NodeGraphView : INotifyPropertyChanged
                                             .Distinct();
 
             var offsetFromGrid = new Vector(groupPos.X % SNAP_DISTANCE, groupPos.Y % SNAP_DISTANCE);
+
+            var groupGraphItemIndex = GraphItems.IndexOf(nodeGroupGraphItem);
+            GraphItems.Move(groupGraphItemIndex, GraphItems.Count - 1);
+
+            foreach (var nodeGraphItem in nodeGraphItems)
+            {
+                var index = GraphItems.IndexOf(nodeGraphItem);
+                GraphItems.Move(index, GraphItems.Count - 1);
+            }
 
             nodeGroupGraphItemGrab = new NodeGroupGraphItemDrag(offset, offsetFromGrid, nodeGroupGraphItem, nodeGraphItems, connections);
             OuterContainer.CaptureMouse();
