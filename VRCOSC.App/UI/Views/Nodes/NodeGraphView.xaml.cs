@@ -1538,7 +1538,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         if (nodeGraphItem.Node.VariableSize.ValueInputSize == 1) return;
 
-        var inputSlot = nodeGraphItem.Node.Metadata.InputsCount + nodeGraphItem.Node.VariableSize.ValueInputSize - 1;
+        var inputSlot = nodeGraphItem.Node.Metadata.InputsCount - 1 + (nodeGraphItem.Node.VariableSize.ValueInputSize - 1);
         var connectionToRemove = Graph.Connections.Values.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == inputSlot);
 
         if (connectionToRemove is not null)
@@ -1579,8 +1579,8 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         if (nodeGraphItem.Node.VariableSize.ValueOutputSize == 1) return;
 
-        var inputSlot = nodeGraphItem.Node.Metadata.OutputsCount + nodeGraphItem.Node.VariableSize.ValueOutputSize - 1;
-        var connectionToRemove = Graph.Connections.Values.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == inputSlot);
+        var outputSLot = nodeGraphItem.Node.Metadata.OutputsCount - 1 + (nodeGraphItem.Node.VariableSize.ValueOutputSize - 1);
+        var connectionToRemove = Graph.Connections.Values.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.OutputNodeId == nodeGraphItem.Node.Id && c.OutputSlot == outputSLot);
 
         if (connectionToRemove is not null)
         {
