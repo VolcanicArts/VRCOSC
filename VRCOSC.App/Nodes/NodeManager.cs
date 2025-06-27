@@ -54,10 +54,23 @@ public class NodeManager
         Graphs.OnCollectionChanged(FieldsOnCollectionChanged);
     }
 
-    private void FieldsOnCollectionChanged(IEnumerable<NodeGraph> newGraphs, IEnumerable<NodeGraph> oldGraphs)
+    private async void FieldsOnCollectionChanged(IEnumerable<NodeGraph> newGraphs, IEnumerable<NodeGraph> oldGraphs)
     {
+        foreach (var newGraph in newGraphs)
+        {
+            if (AppManager.GetInstance().State.Value == AppManagerState.Started)
+            {
+                await newGraph.Start();
+            }
+        }
+
         foreach (var oldGraph in oldGraphs)
         {
+            if (AppManager.GetInstance().State.Value == AppManagerState.Started)
+            {
+                await oldGraph.Stop();
+            }
+
             try
             {
                 File.Delete(Path.Join(graphsPath, $"{oldGraph.Id}.json"));
