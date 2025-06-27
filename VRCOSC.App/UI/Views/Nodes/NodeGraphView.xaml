@@ -191,8 +191,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="FlowInputWithTitleTemplate">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="25" VerticalAlignment="Center"
-                                   Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="25" VerticalAlignment="Center">
                 <ContentPresenter ContentTemplate="{StaticResource FlowInputTemplate}"/>
                 <fa6:FontAwesome Icon="Solid_ChevronRight" VerticalAlignment="Center"
                                  Margin="4 0 0 0"
@@ -201,8 +200,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="FlowOutputWithTitleTemplate">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25" VerticalAlignment="Center"
-                                   Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25" VerticalAlignment="Center">
                 <TextBlock Text="{Binding Title}" FontSize="13" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}" Margin="0 -1 5 0"/>
                 <fa6:FontAwesome Icon="Solid_ChevronRight" VerticalAlignment="Center"
                                  Margin="0 0 4 0"
@@ -212,24 +210,21 @@
         </DataTemplate>
 
         <DataTemplate x:Key="ValueInputWithTitleTemplate">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="25" VerticalAlignment="Center"
-                                                Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Height="25" VerticalAlignment="Center">
                 <ContentPresenter ContentTemplate="{StaticResource ValueInputTemplate}"/>
                 <TextBlock Text="{Binding Title}" FontSize="13" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}" Margin="5 -1 0 0"/>
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="ValueOutputWithTitleTemplate">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25" VerticalAlignment="Center"
-                        Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Height="25" VerticalAlignment="Center">
                 <TextBlock Text="{Binding Title}" FontSize="13" VerticalAlignment="Center" Foreground="{DynamicResource CForeground2}" Margin="0 -1 5 0"/>
                 <ContentPresenter ContentTemplate="{StaticResource ValueOutputTemplate}"/>
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="InputVariableSizeControlTemplate">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Height="25"
-                        Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Left" Height="25">
                 <core:IconButton Icon="Solid_Plus" Width="20" Height="20" ButtonColour="Green" Tag="{Binding}" Click="InputVariableSize_IncreaseOnClick"
                                  Margin="0 0 5 0"/>
                 <core:IconButton Icon="Solid_Minus" Width="20" Height="20" ButtonColour="Red" Tag="{Binding}" Click="InputVariableSize_DecreaseOnClick"/>
@@ -237,8 +232,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="OutputVariableSizeControlTemplate">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Height="25"
-                        Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right" Height="25">
                 <core:IconButton Icon="Solid_Plus" Width="20" Height="20" ButtonColour="Green" Tag="{Binding}" Click="OutputVariableSize_IncreaseOnClick"/>
                 <core:IconButton Icon="Solid_Minus" Width="20" Height="20" ButtonColour="Red" Tag="{Binding}" Click="OutputVariableSize_DecreaseOnClick"
                                  Margin="5 0 0 0"/>
@@ -267,15 +261,15 @@
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <StackPanel VerticalAlignment="Top" Margin="0 0 0 7">
                         <ContentPresenter ContentTemplate="{StaticResource HeaderTemplate}"/>
-                        <Grid VerticalAlignment="Center" Margin="0 3 0 0">
+                        <Grid VerticalAlignment="Center" Margin="0 3 0 0"
+                              Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBox HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                      VerticalContentAlignment="Center" FontSize="15" Text="{Binding Node.Text, UpdateSourceTrigger=PropertyChanged}"
-                                     Margin="7 0 0 0"
-                                     Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
+                                     Margin="7 0 0 0"/>
                             <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                           VerticalAlignment="Center" HorizontalAlignment="Right"
                                           Name="ValueOutputItemsControl"
@@ -309,7 +303,8 @@
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <StackPanel VerticalAlignment="Top" Margin="0 0 0 7">
                         <ContentPresenter ContentTemplate="{StaticResource HeaderTemplate}"/>
-                        <Grid VerticalAlignment="Center" Margin="0 3 0 0">
+                        <Grid VerticalAlignment="Center" Margin="0 3 0 0"
+                              Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -325,8 +320,7 @@
                             </ItemsControl>
                             <TextBox Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                      VerticalContentAlignment="Center" FontSize="15" Text="{Binding Node.Text, UpdateSourceTrigger=PropertyChanged}"
-                                     Margin="0 0 7 0"
-                                     Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
+                                     Margin="0 0 7 0"/>
                         </Grid>
                     </StackPanel>
                 </Grid>
@@ -349,14 +343,14 @@
                 </Border.RenderTransform>
                 <Grid>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
-                    <Grid VerticalAlignment="Center">
+                    <Grid VerticalAlignment="Center"
+                          Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <core:TextButton Grid.Column="0" Text="Call" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ButtonColour="Gray" FontSize="17"
-                                         Margin="5 5 0 5" CornerRadius="2" Tag="{Binding}" Cursor="Arrow" Click="ButtonNode_OnClick"
-                                         Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
+                                         Margin="5 5 0 5" CornerRadius="2" Tag="{Binding}" Cursor="Arrow" Click="ButtonNode_OnClick"/>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
                                       Name="FlowOutputItemsControl"
@@ -387,15 +381,15 @@
                 </Border.RenderTransform>
                 <Grid>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
-                    <Grid VerticalAlignment="Center">
+                    <Grid VerticalAlignment="Center"
+                          Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                  VerticalContentAlignment="Center" FontSize="16" Text="{Binding Node.Value}"
-                                 Margin="5 5 0 5"
-                                 Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
+                                 Margin="5 5 0 5"/>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
                                       Name="ValueOutputItemsControl"
@@ -426,7 +420,8 @@
                 </Border.RenderTransform>
                 <Grid>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
-                    <Grid VerticalAlignment="Top">
+                    <Grid VerticalAlignment="Top"
+                          Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -435,8 +430,7 @@
                                   VerticalContentAlignment="Center" Margin="5 5 0 5"
                                   ItemsSource="{Binding Node.Value, Converter={StaticResource EnumItemSourceConverter}, Mode=OneTime}"
                                   Tag="{Binding}"
-                                  SelectionChanged="EnumValueNode_OnSelectionChanged"
-                                  Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
+                                  SelectionChanged="EnumValueNode_OnSelectionChanged"/>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
                                       Name="ValueOutputItemsControl"
@@ -467,7 +461,8 @@
                 </Border.RenderTransform>
                 <Grid>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
-                    <Grid VerticalAlignment="Top">
+                    <Grid VerticalAlignment="Top"
+                          Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -475,8 +470,7 @@
                         <core:KeybindPicker Grid.Column="0"
                                             Keybind="{Binding Node.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             FontSize="16" Margin="5 5 0 5"
-                                            Background="{StaticResource CBackground6}"
-                                            Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
+                                            Background="{StaticResource CBackground6}"/>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
                                       Name="ValueOutputItemsControl"
@@ -506,14 +500,14 @@
                 </Border.RenderTransform>
                 <Grid>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
-                    <Grid VerticalAlignment="Center">
+                    <Grid VerticalAlignment="Center"
+                          Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <core:VRCOSCCheckBox Grid.Column="0" Width="27" Height="27" IsChecked="{Binding Node.Value}"
-                                             CornerRadius="2" BorderThickness="2" Cursor="Arrow" Margin="5 5 0 5"
-                                             Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
+                                             CornerRadius="2" BorderThickness="2" Cursor="Arrow" Margin="5 5 0 5"/>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
                                       Name="ValueOutputItemsControl"
@@ -544,7 +538,8 @@
                 </Border.RenderTransform>
                 <Grid>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
-                    <Grid VerticalAlignment="Top" Margin="0 5">
+                    <Grid VerticalAlignment="Top" Margin="0 5"
+                          Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                         <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterLeft}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Left"
                                       Name="ValueInputItemsControl"
@@ -583,7 +578,8 @@
                 </Border.RenderTransform>
                 <Grid>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
-                    <Grid VerticalAlignment="Top" Margin="0 5">
+                    <Grid VerticalAlignment="Top" Margin="0 5"
+                          Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
@@ -606,8 +602,7 @@
                                    TextWrapping="WrapWithOverflow"
                                    MaxWidth="300"
                                    Margin="0 -2 10 0"
-                                   FontWeight="SemiBold"
-                                   Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
+                                   FontWeight="SemiBold"/>
                     </Grid>
                 </Grid>
             </Border>
@@ -629,7 +624,8 @@
                 </Border.RenderTransform>
                 <Grid>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
-                    <Grid VerticalAlignment="Top" Margin="0 5">
+                    <Grid VerticalAlignment="Top" Margin="0 5"
+                          Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -643,8 +639,7 @@
                                    TextWrapping="Wrap"
                                    AcceptsReturn="True"
                                    AcceptsTab="True"
-                                   Margin="5 0 0 0"
-                                   Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
+                                   Margin="5 0 0 0"/>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Top" HorizontalAlignment="Right"
                                       Name="ValueOutputItemsControl"
@@ -675,7 +670,8 @@
                 </Border.RenderTransform>
                 <Grid>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
-                    <Grid VerticalAlignment="Top" Margin="0 5">
+                    <Grid VerticalAlignment="Top" Margin="0 5"
+                          Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
@@ -698,8 +694,7 @@
                                    TextAlignment="Center"
                                    TextWrapping="Wrap"
                                    Margin="0 -2 10 0"
-                                   FontWeight="SemiBold"
-                                   Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"/>
+                                   FontWeight="SemiBold"/>
                         <ItemsControl Grid.Column="2" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Top" HorizontalAlignment="Right"
                                       Name="ValueOutputItemsControl"
@@ -729,7 +724,8 @@
                 </Border.RenderTransform>
                 <Grid>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
-                    <Grid VerticalAlignment="Top">
+                    <Grid VerticalAlignment="Top"
+                          Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
@@ -744,8 +740,7 @@
                                 <TranslateTransform X="-6"/>
                             </ItemsControl.RenderTransform>
                         </ItemsControl>
-                        <Grid Grid.Column="1" VerticalAlignment="Center"
-                              Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+                        <Grid Grid.Column="1" VerticalAlignment="Center">
                             <Viewbox Stretch="Uniform" Margin="0 -1 0 0">
                                 <TextBlock Foreground="{DynamicResource CForeground2}"
                                            Text="{Binding Node.Metadata.Title}" FontSize="15"
@@ -791,13 +786,13 @@
                 </Border.RenderTransform>
                 <Grid>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
-                    <Grid VerticalAlignment="Top">
+                    <Grid VerticalAlignment="Top"
+                          Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Grid Grid.Column="0" VerticalAlignment="Center"
-                              Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+                        <Grid Grid.Column="0" VerticalAlignment="Center">
                             <Viewbox Stretch="Uniform" Margin="6 -1 0 0">
                                 <TextBlock Foreground="{DynamicResource CForeground2}"
                                            Text="{Binding Node.Metadata.Title}" FontSize="15"
@@ -846,71 +841,73 @@
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <StackPanel VerticalAlignment="Top" Margin="0 0 0 5">
                         <ContentPresenter ContentTemplate="{StaticResource HeaderTemplate}"/>
-                        <Border VerticalAlignment="Top" Height="25" Margin="6 0"
-                                Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                            <TextBox HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                     VerticalContentAlignment="Center" FontSize="15" Text="{Binding Node.Text, UpdateSourceTrigger=PropertyChanged}"/>
-                        </Border>
-                        <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource FlowConnectionAreaVisibilityConverter}}">
-                            <Border Name="FlowInputContainer" VerticalAlignment="Top" HorizontalAlignment="Left">
-                                <Border.RenderTransform>
-                                    <TranslateTransform X="-6"/>
-                                </Border.RenderTransform>
-                                <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterLeft}}"
-                                              VerticalAlignment="Top" HorizontalAlignment="Left"
-                                              Name="FlowInputItemsControl"
-                                              ItemsPanel="{StaticResource ItemsPanelTemplate}"
-                                              ItemTemplate="{StaticResource FlowInputWithTitleTemplate}">
-                                </ItemsControl>
+                        <StackPanel
+                            Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+                            <Border VerticalAlignment="Top" Height="25" Margin="6 0">
+                                <TextBox HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                         VerticalContentAlignment="Center" FontSize="15" Text="{Binding Node.Text, UpdateSourceTrigger=PropertyChanged}"/>
                             </Border>
-                            <Border Name="FlowOutputContainer" VerticalAlignment="Top" HorizontalAlignment="Right">
-                                <Border.RenderTransform>
-                                    <TranslateTransform X="6"/>
-                                </Border.RenderTransform>
-                                <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
-                                              VerticalAlignment="Top" HorizontalAlignment="Right"
-                                              Name="FlowOutputItemsControl"
-                                              ItemsPanel="{StaticResource ItemsPanelTemplate}"
-                                              ItemTemplate="{StaticResource FlowOutputWithTitleTemplate}">
-                                </ItemsControl>
-                            </Border>
-                        </Grid>
-                        <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource ValueConnectionAreaVisibilityConverter}}">
-                            <StackPanel Name="ValueInputContainer" VerticalAlignment="Top" HorizontalAlignment="Left">
-                                <StackPanel.RenderTransform>
-                                    <TranslateTransform X="-6"/>
-                                </StackPanel.RenderTransform>
-                                <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterLeft}}"
-                                              VerticalAlignment="Top" HorizontalAlignment="Left"
-                                              Name="ValueInputItemsControl"
-                                              ItemsPanel="{StaticResource ItemsPanelTemplate}"
-                                              ItemTemplate="{StaticResource ValueInputWithTitleTemplate}">
-                                </ItemsControl>
-                                <Border Visibility="{Binding Converter={StaticResource InputValueVariableSizeControlVisibilityConverter}}">
+                            <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource FlowConnectionAreaVisibilityConverter}}">
+                                <Border Name="FlowInputContainer" VerticalAlignment="Top" HorizontalAlignment="Left">
                                     <Border.RenderTransform>
-                                        <TranslateTransform X="14"/>
+                                        <TranslateTransform X="-6"/>
                                     </Border.RenderTransform>
-                                    <ContentPresenter ContentTemplate="{StaticResource InputVariableSizeControlTemplate}"/>
+                                    <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterLeft}}"
+                                                  VerticalAlignment="Top" HorizontalAlignment="Left"
+                                                  Name="FlowInputItemsControl"
+                                                  ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                                  ItemTemplate="{StaticResource FlowInputWithTitleTemplate}">
+                                    </ItemsControl>
                                 </Border>
-                            </StackPanel>
-                            <StackPanel Name="ValueOutputContainer" VerticalAlignment="Top" HorizontalAlignment="Right">
-                                <StackPanel.RenderTransform>
-                                    <TranslateTransform X="6"/>
-                                </StackPanel.RenderTransform>
-                                <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
-                                              VerticalAlignment="Top" HorizontalAlignment="Right"
-                                              Name="ValueOutputItemsControl"
-                                              ItemsPanel="{StaticResource ItemsPanelTemplate}"
-                                              ItemTemplate="{StaticResource ValueOutputWithTitleTemplate}">
-                                </ItemsControl>
-                                <Border Visibility="{Binding Converter={StaticResource OutputValueVariableSizeControlVisibilityConverter}}">
+                                <Border Name="FlowOutputContainer" VerticalAlignment="Top" HorizontalAlignment="Right">
                                     <Border.RenderTransform>
-                                        <TranslateTransform X="-14"/>
+                                        <TranslateTransform X="6"/>
                                     </Border.RenderTransform>
-                                    <ContentPresenter ContentTemplate="{StaticResource OutputVariableSizeControlTemplate}"/>
+                                    <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
+                                                  VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                  Name="FlowOutputItemsControl"
+                                                  ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                                  ItemTemplate="{StaticResource FlowOutputWithTitleTemplate}">
+                                    </ItemsControl>
                                 </Border>
-                            </StackPanel>
-                        </Grid>
+                            </Grid>
+                            <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource ValueConnectionAreaVisibilityConverter}}">
+                                <StackPanel Name="ValueInputContainer" VerticalAlignment="Top" HorizontalAlignment="Left">
+                                    <StackPanel.RenderTransform>
+                                        <TranslateTransform X="-6"/>
+                                    </StackPanel.RenderTransform>
+                                    <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterLeft}}"
+                                                  VerticalAlignment="Top" HorizontalAlignment="Left"
+                                                  Name="ValueInputItemsControl"
+                                                  ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                                  ItemTemplate="{StaticResource ValueInputWithTitleTemplate}">
+                                    </ItemsControl>
+                                    <Border Visibility="{Binding Converter={StaticResource InputValueVariableSizeControlVisibilityConverter}}">
+                                        <Border.RenderTransform>
+                                            <TranslateTransform X="14"/>
+                                        </Border.RenderTransform>
+                                        <ContentPresenter ContentTemplate="{StaticResource InputVariableSizeControlTemplate}"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Name="ValueOutputContainer" VerticalAlignment="Top" HorizontalAlignment="Right">
+                                    <StackPanel.RenderTransform>
+                                        <TranslateTransform X="6"/>
+                                    </StackPanel.RenderTransform>
+                                    <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
+                                                  VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                  Name="ValueOutputItemsControl"
+                                                  ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                                  ItemTemplate="{StaticResource ValueOutputWithTitleTemplate}">
+                                    </ItemsControl>
+                                    <Border Visibility="{Binding Converter={StaticResource OutputValueVariableSizeControlVisibilityConverter}}">
+                                        <Border.RenderTransform>
+                                            <TranslateTransform X="-14"/>
+                                        </Border.RenderTransform>
+                                        <ContentPresenter ContentTemplate="{StaticResource OutputVariableSizeControlTemplate}"/>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -934,66 +931,69 @@
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
                     <StackPanel VerticalAlignment="Top" Margin="0 0 0 5">
                         <ContentPresenter ContentTemplate="{StaticResource HeaderTemplate}"/>
-                        <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource FlowConnectionAreaVisibilityConverter}}">
-                            <Border Name="FlowInputContainer" VerticalAlignment="Top" HorizontalAlignment="Left">
-                                <Border.RenderTransform>
-                                    <TranslateTransform X="-6"/>
-                                </Border.RenderTransform>
-                                <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterLeft}}"
-                                              VerticalAlignment="Top" HorizontalAlignment="Left"
-                                              Name="FlowInputItemsControl"
-                                              ItemsPanel="{StaticResource ItemsPanelTemplate}"
-                                              ItemTemplate="{StaticResource FlowInputWithTitleTemplate}">
-                                </ItemsControl>
-                            </Border>
-                            <Border Name="FlowOutputContainer" VerticalAlignment="Top" HorizontalAlignment="Right">
-                                <Border.RenderTransform>
-                                    <TranslateTransform X="6"/>
-                                </Border.RenderTransform>
-                                <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
-                                              VerticalAlignment="Top" HorizontalAlignment="Right"
-                                              Name="FlowOutputItemsControl"
-                                              ItemsPanel="{StaticResource ItemsPanelTemplate}"
-                                              ItemTemplate="{StaticResource FlowOutputWithTitleTemplate}">
-                                </ItemsControl>
-                            </Border>
-                        </Grid>
-                        <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource ValueConnectionAreaVisibilityConverter}}">
-                            <StackPanel Name="ValueInputContainer" VerticalAlignment="Top" HorizontalAlignment="Left">
-                                <StackPanel.RenderTransform>
-                                    <TranslateTransform X="-6"/>
-                                </StackPanel.RenderTransform>
-                                <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterLeft}}"
-                                              VerticalAlignment="Top" HorizontalAlignment="Left"
-                                              Name="ValueInputItemsControl"
-                                              ItemsPanel="{StaticResource ItemsPanelTemplate}"
-                                              ItemTemplate="{StaticResource ValueInputWithTitleTemplate}">
-                                </ItemsControl>
-                                <Border Visibility="{Binding Converter={StaticResource InputValueVariableSizeControlVisibilityConverter}}">
+                        <StackPanel
+                            Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+                            <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource FlowConnectionAreaVisibilityConverter}}">
+                                <Border Name="FlowInputContainer" VerticalAlignment="Top" HorizontalAlignment="Left">
                                     <Border.RenderTransform>
-                                        <TranslateTransform X="14"/>
+                                        <TranslateTransform X="-6"/>
                                     </Border.RenderTransform>
-                                    <ContentPresenter ContentTemplate="{StaticResource InputVariableSizeControlTemplate}"/>
+                                    <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterLeft}}"
+                                                  VerticalAlignment="Top" HorizontalAlignment="Left"
+                                                  Name="FlowInputItemsControl"
+                                                  ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                                  ItemTemplate="{StaticResource FlowInputWithTitleTemplate}">
+                                    </ItemsControl>
                                 </Border>
-                            </StackPanel>
-                            <StackPanel Name="ValueOutputContainer" VerticalAlignment="Top" HorizontalAlignment="Right">
-                                <StackPanel.RenderTransform>
-                                    <TranslateTransform X="6"/>
-                                </StackPanel.RenderTransform>
-                                <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
-                                              VerticalAlignment="Top" HorizontalAlignment="Right"
-                                              Name="ValueOutputItemsControl"
-                                              ItemsPanel="{StaticResource ItemsPanelTemplate}"
-                                              ItemTemplate="{StaticResource ValueOutputWithTitleTemplate}">
-                                </ItemsControl>
-                                <Border Visibility="{Binding Converter={StaticResource OutputValueVariableSizeControlVisibilityConverter}}">
+                                <Border Name="FlowOutputContainer" VerticalAlignment="Top" HorizontalAlignment="Right">
                                     <Border.RenderTransform>
-                                        <TranslateTransform X="-14"/>
+                                        <TranslateTransform X="6"/>
                                     </Border.RenderTransform>
-                                    <ContentPresenter ContentTemplate="{StaticResource OutputVariableSizeControlTemplate}"/>
+                                    <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
+                                                  VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                  Name="FlowOutputItemsControl"
+                                                  ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                                  ItemTemplate="{StaticResource FlowOutputWithTitleTemplate}">
+                                    </ItemsControl>
                                 </Border>
-                            </StackPanel>
-                        </Grid>
+                            </Grid>
+                            <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource ValueConnectionAreaVisibilityConverter}}">
+                                <StackPanel Name="ValueInputContainer" VerticalAlignment="Top" HorizontalAlignment="Left">
+                                    <StackPanel.RenderTransform>
+                                        <TranslateTransform X="-6"/>
+                                    </StackPanel.RenderTransform>
+                                    <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterLeft}}"
+                                                  VerticalAlignment="Top" HorizontalAlignment="Left"
+                                                  Name="ValueInputItemsControl"
+                                                  ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                                  ItemTemplate="{StaticResource ValueInputWithTitleTemplate}">
+                                    </ItemsControl>
+                                    <Border Visibility="{Binding Converter={StaticResource InputValueVariableSizeControlVisibilityConverter}}">
+                                        <Border.RenderTransform>
+                                            <TranslateTransform X="14"/>
+                                        </Border.RenderTransform>
+                                        <ContentPresenter ContentTemplate="{StaticResource InputVariableSizeControlTemplate}"/>
+                                    </Border>
+                                </StackPanel>
+                                <StackPanel Name="ValueOutputContainer" VerticalAlignment="Top" HorizontalAlignment="Right">
+                                    <StackPanel.RenderTransform>
+                                        <TranslateTransform X="6"/>
+                                    </StackPanel.RenderTransform>
+                                    <ItemsControl ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
+                                                  VerticalAlignment="Top" HorizontalAlignment="Right"
+                                                  Name="ValueOutputItemsControl"
+                                                  ItemsPanel="{StaticResource ItemsPanelTemplate}"
+                                                  ItemTemplate="{StaticResource ValueOutputWithTitleTemplate}">
+                                    </ItemsControl>
+                                    <Border Visibility="{Binding Converter={StaticResource OutputValueVariableSizeControlVisibilityConverter}}">
+                                        <Border.RenderTransform>
+                                            <TranslateTransform X="-14"/>
+                                        </Border.RenderTransform>
+                                        <ContentPresenter ContentTemplate="{StaticResource OutputVariableSizeControlTemplate}"/>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
             </Border>
