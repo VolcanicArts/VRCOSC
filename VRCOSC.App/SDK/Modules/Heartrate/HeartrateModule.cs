@@ -15,8 +15,8 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 {
     protected T? HeartrateProvider;
 
-    public float CurrentValue { get; private set; }
-    private int targetValue;
+    private float currentValue;
+    public int TargetValue { get; private set; }
 
     private float currentAverage;
     private int targetAverage;
@@ -78,8 +78,8 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 
     protected override async Task<bool> OnModuleStart()
     {
-        CurrentValue = 0;
-        targetValue = 0;
+        currentValue = 0;
+        TargetValue = 0;
         currentAverage = 0;
         targetAverage = 0;
         beatParameterValue = false;
@@ -95,7 +95,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         HeartrateProvider.OnHeartrateUpdate += newHeartrate =>
         {
             ChangeState(HeartrateState.Connected);
-            targetValue = newHeartrate;
+            TargetValue = newHeartrate;
 
             lock (valuesLock)
             {
@@ -153,13 +153,13 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     {
         while (!beatParameterSource!.IsCancellationRequested)
         {
-            if (targetValue == 0f)
+            if (TargetValue == 0f)
             {
                 await Task.Delay(TimeSpan.FromSeconds(1));
                 continue;
             }
 
-            var delay = (int)MathF.Round(60f * 1000f / targetValue);
+            var delay = (int)MathF.Round(60f * 1000f / TargetValue);
             await Task.Delay(delay);
 
             if (GetSettingValue<bool>(HeartrateSetting.BeatMode))
@@ -196,7 +196,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     {
         if (isReceiving)
         {
-            SetVariableValue(HeartrateVariable.Current, (int)CurrentValue);
+            SetVariableValue(HeartrateVariable.Current, (int)currentValue);
             SetVariableValue(HeartrateVariable.Average, (int)currentAverage);
             ChangeState(HeartrateState.Connected);
         }
@@ -213,11 +213,11 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     {
         if (GetSettingValue<bool>(HeartrateSetting.SmoothValue))
         {
-            CurrentValue = (float)Interpolation.DampContinuously(CurrentValue, targetValue, GetSettingValue<int>(HeartrateSetting.SmoothValueLength) / 2f, 50f);
+            currentValue = (float)Interpolation.DampContinuously(currentValue, TargetValue, GetSettingValue<int>(HeartrateSetting.SmoothValueLength) / 2f, 50f);
         }
         else
         {
-            CurrentValue = targetValue;
+            currentValue = TargetValue;
         }
     }
 
@@ -257,10 +257,10 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 
         if (isReceiving)
         {
-            var normalisedHeartRate = (float)Interpolation.Map(CurrentValue, GetSettingValue<int>(HeartrateSetting.NormalisedLowerbound), GetSettingValue<int>(HeartrateSetting.NormalisedUpperbound), 0, 1);
+            var normalisedHeartRate = (float)Interpolation.Map(currentValue, GetSettingValue<int>(HeartrateSetting.NormalisedLowerbound), GetSettingValue<int>(HeartrateSetting.NormalisedUpperbound), 0, 1);
 
             SendParameter(HeartrateParameter.Normalised, normalisedHeartRate);
-            SendParameter(HeartrateParameter.Value, (int)MathF.Round(CurrentValue));
+            SendParameter(HeartrateParameter.Value, (int)MathF.Round(currentValue));
             SendParameter(HeartrateParameter.Average, (int)MathF.Round(currentAverage));
         }
         else
@@ -278,7 +278,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 
         if (isReceiving)
         {
-            var individualValues = toDigitArray((int)Math.Round(CurrentValue), 3);
+            var individualValues = toDigitArray((int)Math.Round(currentValue), 3);
 
             SendParameter(HeartrateParameter.LegacyUnits, individualValues[2] / 10f);
             SendParameter(HeartrateParameter.LegacyTens, individualValues[1] / 10f);
