@@ -86,7 +86,7 @@ public sealed class PlayerMoveVerticalNode : Node, IFlowInput
     protected override async Task Process(PulseContext c)
     {
         var percentage = Percentage.Read(c);
-        percentage = float.Clamp(percentage, 0f, 1f);
+        percentage = float.Clamp(percentage, -1f, 1f);
 
         c.GetPlayer().MoveVertical(percentage);
         await Next.Execute(c);
@@ -103,7 +103,7 @@ public sealed class PlayerMoveHorizontalNode : Node, IFlowInput
     protected override async Task Process(PulseContext c)
     {
         var percentage = Percentage.Read(c);
-        percentage = float.Clamp(percentage, 0f, 1f);
+        percentage = float.Clamp(percentage, -1f, 1f);
 
         c.GetPlayer().MoveHorizontal(percentage);
         await Next.Execute(c);
