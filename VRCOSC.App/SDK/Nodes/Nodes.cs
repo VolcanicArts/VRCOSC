@@ -11,5 +11,5 @@ namespace VRCOSC.App.SDK.Nodes;
 public abstract class ModuleNode<T> : Node where T : Module
 {
     public T Module => (T)ModuleManager.GetInstance().GetModuleInstanceFromType(typeof(T));
-    protected override bool ShouldProcess(PulseContext c) => ModuleManager.GetInstance().IsModuleRunning(Module.ID);
+    protected override bool ShouldProcess(PulseContext c) => ModuleManager.GetInstance().IsModuleRunning(Module.FullID);
 }
