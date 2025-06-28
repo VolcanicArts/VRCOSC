@@ -67,11 +67,9 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
             }
         }
 
-        var nodeIds = data.Nodes.Select(sN => sN.Id).ToList();
-
         foreach (var sC in data.Connections)
         {
-            if (!nodeIds.Contains(sC.InputNodeId) || !nodeIds.Contains(sC.OutputNodeId)) continue;
+            if (!Reference.Nodes.ContainsKey(sC.InputNodeId) || !Reference.Nodes.ContainsKey(sC.OutputNodeId)) continue;
 
             try
             {
@@ -93,7 +91,7 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
             {
                 var group = Reference.AddGroup(sG.Nodes, sG.Id);
                 group.Title.Value = sG.Title;
-                group.Nodes.RemoveIf(nodeId => !nodeIds.Contains(nodeId));
+                group.Nodes.RemoveIf(nodeId => !Reference.Nodes.ContainsKey(nodeId));
             }
             catch (Exception e)
             {
