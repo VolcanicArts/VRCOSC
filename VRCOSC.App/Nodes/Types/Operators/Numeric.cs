@@ -174,3 +174,45 @@ public sealed class DecrementNode<T> : Node where T : INumber<T>
         return Task.CompletedTask;
     }
 }
+
+[Node("Round", "Operators/Numeric")]
+[NodeCollapsed]
+public sealed class RoundNode<T> : Node where T : IFloatingPoint<T>
+{
+    public ValueInput<T> Input = new();
+    public ValueOutput<T> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        Output.Write(T.Round(Input.Read(c)), c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Ceil", "Operators/Numeric")]
+[NodeCollapsed]
+public sealed class CeilingNode<T> : Node where T : IFloatingPoint<T>
+{
+    public ValueInput<T> Input = new();
+    public ValueOutput<T> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        Output.Write(T.Ceiling(Input.Read(c)), c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Floor", "Operators/Numeric")]
+[NodeCollapsed]
+public sealed class FloorNode<T> : Node where T : IFloatingPoint<T>
+{
+    public ValueInput<T> Input = new();
+    public ValueOutput<T> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        Output.Write(T.Floor(Input.Read(c)), c);
+        return Task.CompletedTask;
+    }
+}
