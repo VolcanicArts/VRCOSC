@@ -63,7 +63,7 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
             }
             catch (Exception e)
             {
-                ExceptionHandler.Handle(e);
+                Logger.Error(e, "Error creating nodes when deserialising");
             }
         }
 
@@ -81,7 +81,7 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
             }
             catch (Exception e)
             {
-                ExceptionHandler.Handle(e);
+                Logger.Error(e, "Error creating connection when deserialising");
             }
         }
 
@@ -95,7 +95,7 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
             }
             catch (Exception e)
             {
-                ExceptionHandler.Handle(e);
+                Logger.Error(e, "Error creating groups when deserialising");
             }
         }
 
@@ -114,7 +114,7 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
             }
             catch (Exception e)
             {
-                ExceptionHandler.Handle(e);
+                Logger.Error(e, "Error creating variables when deserialising");
             }
         }
 
