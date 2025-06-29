@@ -65,6 +65,8 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public Clip? CurrentClip { get; private set; }
     public string LiveText { get; set; } = string.Empty;
+    public string? PulseText { get; set; }
+    public bool PulseMinimalBackground { get; set; }
 
     private ChatBoxManager()
     {
@@ -259,6 +261,23 @@ public class ChatBoxManager : INotifyPropertyChanged
             CurrentClip = null;
             currentText = LiveText;
             SendText(LiveText);
+            setTyping(false);
+            return;
+        }
+
+        if (PulseText is not null)
+        {
+            CurrentClip = null;
+            var text = PulseText;
+
+            if (PulseMinimalBackground)
+            {
+                if (text.Length >= 144) text = text[..142];
+                text += "\u0003\u001f";
+            }
+
+            currentText = text;
+            SendText(text);
             setTyping(false);
             return;
         }

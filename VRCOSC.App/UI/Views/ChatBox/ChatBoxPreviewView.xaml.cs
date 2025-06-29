@@ -29,7 +29,7 @@ public partial class ChatBoxPreviewView
         if (!message.IsChatboxInput) return;
 
         var currentClip = ChatBoxManager.GetInstance().CurrentClip;
-        UseMinimalBackground.Value = currentClip?.ShouldUseMinimalBackground() ?? false;
+        UseMinimalBackground.Value = (currentClip?.ShouldUseMinimalBackground() ?? false) || (ChatBoxManager.GetInstance().PulseText is not null && ChatBoxManager.GetInstance().PulseMinimalBackground);
 
         var text = (string)message.ParameterValue;
 
