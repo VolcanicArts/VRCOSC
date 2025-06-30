@@ -11,6 +11,9 @@ public class OpenVRPaths
 {
     [JsonProperty("config")]
     public List<string> Config = [];
+
+    [JsonProperty("runtime")]
+    public List<string> Runtime = [];
 }
 
 [JsonObject(MemberSerialization.OptIn)]

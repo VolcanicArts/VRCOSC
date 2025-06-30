@@ -17,6 +17,11 @@ public record TrackedDevice
     public string SerialNumber { get; }
 
     /// <summary>
+    /// The ID of the dongle that this device is connected through
+    /// </summary>
+    public string DongleId { get; internal set; }
+
+    /// <summary>
     /// The index of the device. This changes between sessions. Do not user this as a reference between sessions
     /// </summary>
     public uint Index { get; internal set; } = OpenVR.k_unTrackedDeviceIndexInvalid;

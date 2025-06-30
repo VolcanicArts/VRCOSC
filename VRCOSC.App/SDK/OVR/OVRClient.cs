@@ -119,6 +119,23 @@ public class OVRClient
         OVRHelper.TriggerHaptic(Input.GetHapticActionHandle(trackedDevice.Role), trackedDevice.Index, durationSeconds, frequency, amplitude);
     }
 
+    public void ShutdownDevice(TrackedDevice device)
+    {
+        if (!HasInitialised) return;
+
+        var lighthouseConsole = OVRDeviceManager.GetInstance().LighthouseConsole;
+        if (lighthouseConsole is null) return;
+
+        var startInfo = new ProcessStartInfo(lighthouseConsole)
+        {
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            Arguments = $"/serial {device.DongleId} poweroff"
+        };
+
+        Process.Start(startInfo);
+    }
+
     /// <summary>
     ///     Checks to see if the user is wearing their headset
     /// </summary>

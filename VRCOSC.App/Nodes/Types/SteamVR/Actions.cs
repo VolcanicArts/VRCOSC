@@ -35,3 +35,20 @@ public sealed class SteamVRTriggerHaptic : Node, IFlowInput
         await Next.Execute(c);
     }
 }
+
+[Node("Shutdown Device", "SteamVR")]
+public sealed class SteamVRShutdownDevice : Node, IFlowInput
+{
+    public FlowContinuation Next = new();
+
+    public ValueInput<TrackedDevice> Device = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        var device = Device.Read(c);
+        if (device is null) return;
+
+        AppManager.GetInstance().OVRClient.ShutdownDevice(device);
+        await Next.Execute(c);
+    }
+}

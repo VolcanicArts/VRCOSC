@@ -26,6 +26,9 @@ public class OVRDeviceManager
     // serial number : tracked device
     internal ConcurrentDictionary<string, TrackedDevice> TrackedDevices { get; } = new();
 
+    public string? RuntimePath { get; private set; }
+    public string? LighthouseConsole => Path.Join(RuntimePath, "tools", "lighthouse", "bin", "win64", "lighthouse_console.exe");
+
     private readonly object deviceRolesLock = new();
 
     public TrackedDevice? GetTrackedDevice(string serialNumber)
@@ -58,12 +61,15 @@ public class OVRDeviceManager
             Logger.Log($"Adding {serialNumber} as role {deviceRole}");
         }
 
+        var dongleId = OVRHelper.GetStringTrackedDeviceProperty(index, ETrackedDeviceProperty.Prop_ConnectedWirelessDongle_String);
+
         switch (deviceRole)
         {
             case DeviceRole.Head:
                 TrackedDevices[serialNumber] = new HMD(serialNumber)
                 {
                     Index = index,
+                    DongleId = dongleId,
                     Role = deviceRole
                 };
                 return;
@@ -72,6 +78,7 @@ public class OVRDeviceManager
                 TrackedDevices[serialNumber] = new Controller(serialNumber)
                 {
                     Index = index,
+                    DongleId = dongleId,
                     Role = deviceRole
                 };
                 return;
@@ -80,6 +87,7 @@ public class OVRDeviceManager
                 TrackedDevices[serialNumber] = new TrackedDevice(serialNumber)
                 {
                     Index = index,
+                    DongleId = dongleId,
                     Role = deviceRole
                 };
                 break;
@@ -103,6 +111,8 @@ public class OVRDeviceManager
 
         var openVRPaths = JsonConvert.DeserializeObject<OpenVRPaths>(File.ReadAllText(openvrpathsfilelocation));
         if (openVRPaths is null) return;
+
+        RuntimePath = openVRPaths.Runtime[0];
 
         var steamVRSettingsFilePath = Path.Join(openVRPaths.Config[0], "steamvr.vrsettings");
         if (!File.Exists(steamVRSettingsFilePath)) return;
