@@ -35,3 +35,18 @@ public class DateNowSourceNode : UpdateNode<DateTime>
 
     protected override DateTime GetValue(PulseContext c) => DateTime.Today;
 }
+
+[Node("UTC Now", "DateTime")]
+[NodeCollapsed]
+public class UTCNowSourceNode : UpdateNode<DateTime>
+{
+    public ValueOutput<DateTime> UTCNow = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        UTCNow.Write(DateTime.UtcNow, c);
+        return Task.CompletedTask;
+    }
+
+    protected override DateTime GetValue(PulseContext c) => DateTime.UtcNow;
+}
