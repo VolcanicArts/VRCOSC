@@ -20,7 +20,7 @@ public class PiShockProvider : IDisposable
     private const string broker_endpoint = "wss://broker.pishock.com/v2";
 
     private readonly HttpClient httpClient = new();
-    private WebSocketClient webSocket = null!;
+    private WebSocketClient? webSocket;
     private readonly string username;
     private readonly string apiKey;
 
@@ -127,7 +127,9 @@ public class PiShockProvider : IDisposable
 
     public async Task Teardown()
     {
-        await webSocket.DisconnectAsync();
+        if (webSocket is not null)
+            await webSocket.DisconnectAsync();
+
         userId = -1;
     }
 
@@ -227,7 +229,7 @@ public class PiShockProvider : IDisposable
             }).ToList()
         });
 
-        await webSocket.SendAsync(content);
+        await webSocket!.SendAsync(content);
     }
 
     private async Task<PiShockResult> claimShareCode(string shareCode)
@@ -299,7 +301,7 @@ public class PiShockProvider : IDisposable
     {
         GC.SuppressFinalize(this);
         httpClient.Dispose();
-        webSocket.Dispose();
+        webSocket?.Dispose();
     }
 
     private string modeToCode(PiShockMode mode)
