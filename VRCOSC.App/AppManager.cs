@@ -65,8 +65,8 @@ internal class AppManager
     public VRChatClient VRChatClient = null!;
     public OVRClient OVRClient = null!;
     public ChatBoxWorldBlacklist ChatBoxWorldBlacklist = null!;
-
     public WhisperSpeechEngine SpeechEngine = null!;
+    public GlobalKeyboardHook GlobalKeyboardHook { get; } = new();
 
     private Repeater vrchatCheckTask = null!;
     private Repeater openvrCheckTask = null!;
@@ -505,6 +505,12 @@ internal class AppManager
         VRChatOscClient.OnVRChatOSCMessageReceived += onVRChatOSCMessageReceived;
         VRChatOscClient.EnableReceive();
 
+        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.GlobalKeyboardHook))
+        {
+            Logger.Log("Global keyboard hook has been enabled!");
+            GlobalKeyboardHook.Enable();
+        }
+
         State.Value = AppManagerState.Started;
 
         sendMetadataParameters();
@@ -564,6 +570,12 @@ internal class AppManager
         if (State.Value is AppManagerState.Stopping or AppManagerState.Stopped) return;
 
         State.Value = AppManagerState.Stopping;
+
+        if (GlobalKeyboardHook.IsEnabled)
+        {
+            GlobalKeyboardHook.Disable();
+            Logger.Log("Global keyboard hook is disabled!");
+        }
 
         await SpeechEngine.Teardown();
 

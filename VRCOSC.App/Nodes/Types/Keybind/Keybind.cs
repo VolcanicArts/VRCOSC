@@ -4,14 +4,14 @@
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Utils;
 
-namespace VRCOSC.App.Nodes.Types.Actions;
+namespace VRCOSC.App.Nodes.Types.Keybind;
 
 [Node("Press Keybind", "Keybind")]
 public class KeybindPressNode : Node, IFlowInput
 {
     public FlowContinuation Next = new();
 
-    public ValueInput<Keybind> Keybind = new();
+    public ValueInput<SDK.Utils.Keybind> Keybind = new();
     public ValueInput<int> DurationMilliseconds = new("Duration Milliseconds");
 
     protected override async Task Process(PulseContext c)
@@ -31,7 +31,7 @@ public class KeybindHoldReleaseNode : Node, IFlowInput
 
     public FlowContinuation Next = new("Next");
 
-    public ValueInput<Keybind> Keybind = new();
+    public ValueInput<SDK.Utils.Keybind> Keybind = new();
     public ValueInput<bool> Condition = new();
 
     protected override async Task Process(PulseContext c)
@@ -56,5 +56,44 @@ public class KeybindHoldReleaseNode : Node, IFlowInput
             await Next.Execute(c);
             return;
         }
+    }
+}
+
+[Node("On Keybind Pressed", "Keybind")]
+public sealed class OnKeybindPressedNode : Node, IUpdateNode
+{
+    public GlobalStore<bool> Pressed = new();
+
+    public FlowContinuation OnPressed = new("On Pressed");
+
+    public ValueInput<SDK.Utils.Keybind> Keybind = new();
+    public ValueInput<bool> AllowHold = new("Allow Hold");
+
+    protected override async Task Process(PulseContext c)
+    {
+        await OnPressed.Execute(c);
+    }
+
+    public bool OnUpdate(PulseContext c)
+    {
+        var keybind = Keybind.Read(c);
+
+        var result = keybind.Keys.TrueForAll(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key)) &&
+                     keybind.Modifiers.TrueForAll(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key));
+
+        if (AllowHold.Read(c))
+        {
+            Pressed.Write(result, c);
+            return result;
+        }
+
+        if (result && !Pressed.Read(c))
+        {
+            Pressed.Write(result, c);
+            return true;
+        }
+
+        Pressed.Write(result, c);
+        return false;
     }
 }
