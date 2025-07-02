@@ -213,6 +213,16 @@ public class PiShockProvider
                             serial = null;
                         }
                     }
+                    catch (UnauthorizedAccessException)
+                    {
+                        if (serial!.IsOpen)
+                            serial.Close();
+
+                        Logger.Log($"{nameof(UnauthorizedAccessException)} for port {port}");
+
+                        serialPort = null;
+                        serialInfo = null;
+                    }
                     catch (Exception e)
                     {
                         ExceptionHandler.Handle(e);
