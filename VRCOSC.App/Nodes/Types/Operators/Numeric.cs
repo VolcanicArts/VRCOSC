@@ -216,3 +216,20 @@ public sealed class FloorNode<T> : Node where T : IFloatingPoint<T>
         return Task.CompletedTask;
     }
 }
+
+[Node("Floating Point To Number", "Operators/Numeric")]
+[NodeCollapsed]
+public sealed class FloatingPointToNumberNode<Tfp, Tn> : Node where Tfp : IFloatingPoint<Tfp> where Tn : INumber<Tn>
+{
+    public ValueInput<Tfp> Input = new();
+    public ValueOutput<Tn> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var input = Input.Read(c);
+        var inputRounded = Tfp.Round(input);
+        var output = Tn.CreateChecked(inputRounded);
+        Output.Write(output, c);
+        return Task.CompletedTask;
+    }
+}
