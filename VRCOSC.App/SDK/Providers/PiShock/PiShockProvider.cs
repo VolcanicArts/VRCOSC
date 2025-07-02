@@ -3,17 +3,22 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO.Ports;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.Utils;
 
+// ReSharper disable UnusedMember.Global
+
 namespace VRCOSC.App.SDK.Providers.PiShock;
 
-public class PiShockProvider : IDisposable
+public class PiShockProvider
 {
     private const string auth_endpoint = "https://auth.pishock.com/Auth";
     private const string api_endpoint = "https://ps.pishock.com/PiShock";
@@ -21,14 +26,21 @@ public class PiShockProvider : IDisposable
 
     private readonly HttpClient httpClient = new();
     private WebSocketClient? webSocket;
+    private CancellationTokenSource? serialConnectionSource;
+    private Task? serialConnectionTask;
     private readonly string username;
     private readonly string apiKey;
 
     private int userId = -1;
+    private string? serialPort;
+    private PiShockSerialTerminalInfoResponse? serialInfo;
+    private SerialPort? serial;
 
     // client (hub) IDs - [sharecodes]
     private Dictionary<int, List<PiShockSharedShocker>> hubSharecodes { get; } = [];
     private int ownedHubId = -1;
+
+    private bool initialised;
 
     public PiShockProvider(string username, string apiKey)
     {
@@ -44,7 +56,7 @@ public class PiShockProvider : IDisposable
         userId = JsonConvert.DeserializeObject<PiShockAuthenticationResponse>(await response.Content.ReadAsStringAsync())?.UserId ?? -1;
     }
 
-    public async Task GetOwnedShockersAsync()
+    private async Task getOwnedShockersAsync()
     {
         try
         {
@@ -63,7 +75,7 @@ public class PiShockProvider : IDisposable
         }
     }
 
-    public async Task GetSharedShockersAsync()
+    private async Task getSharedShockersAsync()
     {
         hubSharecodes.Clear();
 
@@ -94,7 +106,7 @@ public class PiShockProvider : IDisposable
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"{nameof(PiShockProvider)} has experienced an error when receiving shockers");
+            ExceptionHandler.Handle(e, $"{nameof(PiShockProvider)} has experienced an error when receiving shockers");
         }
     }
 
@@ -112,30 +124,197 @@ public class PiShockProvider : IDisposable
 
     public async Task<bool> Initialise()
     {
-        await authenticate();
-        if (userId == -1) return false;
+        try
+        {
+            await authenticate();
 
-        await GetOwnedShockersAsync();
-        await GetSharedShockersAsync();
+            if (userId == -1)
+            {
+                initialised = false;
+                return false;
+            }
 
-        webSocket = new WebSocketClient($"{broker_endpoint}?Username={username}&ApiKey={apiKey}", 2000, 3);
+            await getOwnedShockersAsync();
+            await getSharedShockersAsync();
 
-        await webSocket.ConnectAsync();
+            webSocket = new WebSocketClient($"{broker_endpoint}?Username={username}&ApiKey={apiKey}", 2000, 3);
+            await webSocket.ConnectAsync();
 
-        return true;
+            serialConnectionSource = new CancellationTokenSource();
+            serialConnectionTask = Task.Run(findSerialConnection, serialConnectionSource.Token);
+
+            initialised = true;
+            return true;
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, $"{nameof(PiShockProvider)} Initialise");
+            return false;
+        }
+    }
+
+    private async Task findSerialConnection()
+    {
+        Debug.Assert(serialConnectionSource is not null);
+
+        try
+        {
+            while (!serialConnectionSource.IsCancellationRequested)
+            {
+                if (serialPort is not null && serialInfo is not null) continue;
+
+                var ports = SerialPort.GetPortNames();
+
+                foreach (var port in ports)
+                {
+                    serial = new SerialPort(port, 115200);
+                    serial.WriteTimeout = 2000;
+                    serial.ReadTimeout = 2000;
+                    serial.WriteBufferSize = 4096;
+                    serial.ReadBufferSize = 4096;
+
+                    try
+                    {
+                        serial.Open();
+
+                        var command = JsonConvert.SerializeObject(new PiShockSerialCommand
+                        {
+                            Command = "info"
+                        }, Formatting.None, new JsonSerializerSettings
+                        {
+                            NullValueHandling = NullValueHandling.Ignore
+                        });
+
+                        serial.Write($"{command}\n");
+                        await serial.BaseStream.FlushAsync();
+                        await Task.Delay(200);
+
+                        var serialBuffer = new byte[serial.ReadBufferSize];
+                        serial.Read(serialBuffer, 0, serialBuffer.Length);
+
+                        var response = Encoding.UTF8.GetString(serialBuffer);
+                        Array.Clear(serialBuffer);
+
+                        var lines = response.Split('\n');
+
+                        foreach (var line in lines)
+                        {
+                            if (!line.StartsWith("TERMINALINFO:")) continue;
+
+                            serialPort = port;
+                            var terminalInfo = line["TERMINALINFO:".Length..];
+
+                            serialInfo = JsonConvert.DeserializeObject<PiShockSerialTerminalInfoResponse>(terminalInfo);
+                        }
+
+                        if (serialPort is null || serialInfo is null)
+                        {
+                            serial.Close();
+                            serial = null;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        ExceptionHandler.Handle(e);
+                        serialPort = null;
+                        serialInfo = null;
+                    }
+                }
+
+                await Task.Delay(5000);
+            }
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e);
+        }
     }
 
     public async Task Teardown()
     {
+        initialised = false;
+
         if (webSocket is not null)
             await webSocket.DisconnectAsync();
 
+        if (serialConnectionSource is not null)
+            await serialConnectionSource.CancelAsync();
+
+        if (serialConnectionTask is not null)
+            await serialConnectionTask;
+
         userId = -1;
+        serialPort = null;
+        serialInfo = null;
+        serial?.Close();
+        serial = null;
+
+        serialConnectionSource = null;
+        serialConnectionTask = null;
+
+        webSocket?.Dispose();
+    }
+
+    public async Task<PiShockResult> ExecuteSerialAsync(PiShockMode mode, int intensity, int duration, int? shockerId)
+    {
+        if (!initialised) return new PiShockResult(false, "Provider not initialised");
+        if (serialPort is null || serialInfo is null) return new PiShockResult(false, "Serial has not initialised");
+
+        Debug.Assert(serial is not null);
+
+        try
+        {
+            var commands = new List<string>();
+
+            if (shockerId.HasValue)
+            {
+                commands.Add(JsonConvert.SerializeObject(new PiShockSerialCommand
+                    {
+                        Command = "operate",
+                        Body = new PiShockSerialBody
+                        {
+                            ShockerId = shockerId.Value,
+                            Op = mode.ToString().ToLowerInvariant(),
+                            Duration = duration,
+                            Intensity = intensity
+                        }
+                    }
+                ));
+            }
+            else
+            {
+                commands.AddRange(serialInfo.Shockers.Select(shocker => JsonConvert.SerializeObject(new PiShockSerialCommand
+                {
+                    Command = "operate",
+                    Body = new PiShockSerialBody
+                    {
+                        ShockerId = shocker.ShockerId,
+                        Op = mode.ToString().ToLowerInvariant(),
+                        Duration = duration,
+                        Intensity = intensity
+                    }
+                })));
+            }
+
+            foreach (var command in commands)
+            {
+                serial.Write($"{command}\n");
+            }
+
+            await serial.BaseStream.FlushAsync();
+
+            return new PiShockResult(true, "Success");
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "PiShock Provider Serial");
+            return new PiShockResult(false, "An error has occured writing to serial");
+        }
     }
 
     public async Task<PiShockResult> ExecuteAsync(int shockerId, PiShockMode mode, int intensity, int duration)
     {
-        if (userId == -1) return new PiShockResult(false, "Not initialised");
+        if (!initialised) return new PiShockResult(false, "Provider not initialised");
 
         var clientId = ownedHubId;
         var channel = $"c{clientId}-ops";
@@ -146,7 +325,7 @@ public class PiShockProvider : IDisposable
 
     public async Task<PiShockResult> ExecuteAsync(IEnumerable<string> shareCodes, PiShockMode mode, int intensity, int duration)
     {
-        if (userId == -1) return new PiShockResult(false, "Not initialised");
+        if (!initialised) return new PiShockResult(false, "Provider not initialised");
 
         var shareCodeList = shareCodes.ToList();
         var missingShareCodes = new List<string>();
@@ -168,7 +347,7 @@ public class PiShockProvider : IDisposable
         }
 
         if (missingShareCodes.Count != 0)
-            await GetSharedShockersAsync();
+            await getSharedShockersAsync();
 
         foreach (var code in shareCodeList)
         {
@@ -239,13 +418,19 @@ public class PiShockProvider : IDisposable
             var shocker = await legacyRetrieveShockerInfo(shareCode);
             if (shocker is null) return new PiShockResult(false, $"Shocker for sharecode {shareCode} does not exist");
 
-            var request = getLegacyRequestForMode(PiShockMode.Vibrate, 1, 1);
-            request.AppName = AppManager.APP_NAME;
-            request.Username = username;
-            request.APIKey = apiKey;
-            request.ShareCode = shareCode;
+            var request = new VibratePiShockRequest
+            {
+                Duration = "1",
+                Intensity = "1",
+                AppName = $"{AppManager.APP_NAME}-{username}",
+                Username = username,
+                APIKey = apiKey,
+                ShareCode = shareCode
+            };
 
             var response = await httpClient.PostAsync("https://ps.pishock.com/pishock/operate", new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+            response.EnsureSuccessStatusCode();
+
             var responseString = await response.Content.ReadAsStringAsync();
             return new PiShockResult(responseString.Contains("Succeeded") || responseString.Contains("Attempted"), responseString);
         }
@@ -268,6 +453,8 @@ public class PiShockProvider : IDisposable
             };
 
             var response = await httpClient.PostAsync("https://do.pishock.com/api/GetShockerInfo", new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
+            response.EnsureSuccessStatusCode();
+
             var responseString = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<PiShockShocker>(responseString);
         }
@@ -276,32 +463,6 @@ public class PiShockProvider : IDisposable
             Logger.Error(e, $"{nameof(PiShockProvider)} has experienced an exception");
             return null;
         }
-    }
-
-    private static ActionPiShockRequest getLegacyRequestForMode(PiShockMode mode, int duration, int intensity) => mode switch
-    {
-        PiShockMode.Shock => new ShockPiShockRequest
-        {
-            Duration = duration.ToString(),
-            Intensity = intensity.ToString()
-        },
-        PiShockMode.Vibrate => new VibratePiShockRequest
-        {
-            Duration = duration.ToString(),
-            Intensity = intensity.ToString()
-        },
-        PiShockMode.Beep => new BeepPiShockRequest
-        {
-            Duration = duration.ToString()
-        },
-        _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
-    };
-
-    public void Dispose()
-    {
-        GC.SuppressFinalize(this);
-        httpClient.Dispose();
-        webSocket?.Dispose();
     }
 
     private string modeToCode(PiShockMode mode)

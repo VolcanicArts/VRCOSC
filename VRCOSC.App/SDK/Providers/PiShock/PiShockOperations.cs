@@ -82,3 +82,43 @@ internal record PiShockPublishCommandLogData
     [JsonProperty("o")]
     public required string Origin;
 }
+
+[JsonObject(MemberSerialization.OptIn)]
+internal record PiShockSerialCommand
+{
+    [JsonProperty("cmd")]
+    public required string Command;
+
+    [JsonProperty("value")]
+    public PiShockSerialBody? Body;
+}
+
+[JsonObject(MemberSerialization.OptIn)]
+internal record PiShockSerialBody
+{
+    [JsonProperty("id")]
+    public required int ShockerId;
+
+    [JsonProperty("op")]
+    public required string Op;
+
+    [JsonProperty("duration")]
+    public required int Duration;
+
+    [JsonProperty("intensity")]
+    public required int Intensity;
+}
+
+[JsonObject(MemberSerialization.OptIn)]
+internal record PiShockSerialTerminalInfoResponse
+{
+    [JsonProperty("shockers")]
+    public List<PiShockSerialTerminalInfoShocker> Shockers = [];
+}
+
+[JsonObject(MemberSerialization.OptIn)]
+internal record PiShockSerialTerminalInfoShocker
+{
+    [JsonProperty("id")]
+    public int ShockerId;
+}

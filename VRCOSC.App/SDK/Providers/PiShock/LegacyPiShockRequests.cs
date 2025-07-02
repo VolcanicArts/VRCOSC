@@ -36,14 +36,6 @@ public class ShockerInfoPiShockRequest : BasePiShockRequest
 {
 }
 
-public class ShockPiShockRequest : ActionPiShockRequest
-{
-    protected override PiShockMode Mode => PiShockMode.Shock;
-
-    [JsonProperty("Intensity")]
-    public string Intensity = null!;
-}
-
 public class VibratePiShockRequest : ActionPiShockRequest
 {
     protected override PiShockMode Mode => PiShockMode.Vibrate;
@@ -51,10 +43,3 @@ public class VibratePiShockRequest : ActionPiShockRequest
     [JsonProperty("Intensity")]
     public string Intensity = null!;
 }
-
-public class BeepPiShockRequest : ActionPiShockRequest
-{
-    protected override PiShockMode Mode => PiShockMode.Beep;
-}
-
-public record LegacyPiShockResponse(bool Success, string Message, int FinalDuration = -1, int FinalIntensity = -1);
