@@ -438,7 +438,7 @@ public class NodeGraph : IVRCClientEventHandler
             var handler = (INodeEventHandler)node;
             if (!handler.HandleNodeStart(c)) continue;
 
-            startTasks.Add(ProcessNode(node, c));
+            startTasks.Add(processNode(node, c));
         }
 
         await Task.WhenAll(startTasks);
@@ -455,7 +455,7 @@ public class NodeGraph : IVRCClientEventHandler
             var handler = (INodeEventHandler)node;
             if (!handler.HandleNodeStop(c)) continue;
 
-            stopTasks.Add(ProcessNode(node, c));
+            stopTasks.Add(processNode(node, c));
         }
 
         await Task.WhenAll(stopTasks);
@@ -536,25 +536,25 @@ public class NodeGraph : IVRCClientEventHandler
         // display node, parameter driver, we don't need a task for them so just process and let them go
         if (!node.Metadata.IsFlow && node.Metadata.IsValueInput && !node.Metadata.IsValueOutput)
         {
-            _ = ProcessNode(node, c);
+            _ = processNode(node, c);
             return;
         }
 
         var newTask = Task.Run(async () =>
         {
-            await ProcessNode(node, c);
+            await processNode(node, c);
             tasks.TryRemove(node, out _);
         });
 
         tasks.TryAdd(node, new FlowTask(newTask, c));
     }
 
-    public Task ProcessNode(Guid nodeId, PulseContext c) => ProcessNode(Nodes[nodeId], c);
+    public Task ProcessNode(Guid nodeId, PulseContext c) => processNode(Nodes[nodeId], c);
 
-    public async Task ProcessNode(Node node, PulseContext c, Action? onPreProcess = null)
+    private async Task processNode(Node node, PulseContext c, Action? onPreProcess = null)
     {
         if (c.IsCancelled) return;
-        if (c.HasRan(node.Id) && !node.Metadata.ForceReprocess) return;
+        if (c.HasMemory(node.Id) && !node.Metadata.ForceReprocess) return;
 
         await backtrackNode(node, c);
         if (c.IsCancelled) return;
@@ -563,7 +563,6 @@ public class NodeGraph : IVRCClientEventHandler
         c.CurrentNode = node;
 
         c.CreateMemory(node);
-        c.MarkRan(node.Id);
         if (c.IsCancelled) return;
 
         if (!node.InternalShouldProcess(c)) return;
@@ -590,13 +589,13 @@ public class NodeGraph : IVRCClientEventHandler
             if (outputNode.Metadata.IsFlow)
             {
                 // we want to create default memory so that backtracking the outputs exists
-                if (!c.HasRan(outputNode.Id))
+                if (!c.HasMemory(outputNode.Id))
                     c.CreateMemory(outputNode);
 
                 continue;
             }
 
-            await ProcessNode(outputNode, c);
+            await processNode(outputNode, c);
         }
     }
 
@@ -667,7 +666,7 @@ public class NodeGraph : IVRCClientEventHandler
                 if (!type.GenericTypeArguments.SequenceEqual(definition.Values.Select(o => o.GetType()))) continue;
             }
 
-            await ProcessNode(node, c, () => impulseNode.WriteOutputs(definition.Values, c));
+            await processNode(node, c, () => impulseNode.WriteOutputs(definition.Values, c));
         }
     }
 }

@@ -24,12 +24,9 @@ public class PulseContext
     internal readonly NodeGraph Graph;
     internal Node? CurrentNode { get; set; }
 
-    internal Stack<Dictionary<Guid, IRef[]>> Memory { get; } = [];
-    internal Dictionary<Guid, Dictionary<IStore, IRef>> Stores { get; } = [];
-    internal List<List<Guid>> RanNodes { get; } = [];
-    internal List<Dictionary<ParameterDefinition, VRChatParameter>> ParameterCache { get; } = [];
-
-    public int ScopePointer;
+    private Stack<Dictionary<Guid, IRef[]>> memory { get; } = [];
+    private List<Guid> hasMemory { get; } = [];
+    private Dictionary<Guid, Dictionary<IStore, IRef>> stores { get; } = [];
 
     internal PulseContext(NodeGraph graph)
     {
@@ -38,42 +35,16 @@ public class PulseContext
         Source = new CancellationTokenSource();
         Token = Source.Token;
 
-        Memory.Push(new Dictionary<Guid, IRef[]>());
-        RanNodes.Add(new List<Guid>());
-        ParameterCache.Add(new Dictionary<ParameterDefinition, VRChatParameter>());
+        memory.Push(new Dictionary<Guid, IRef[]>());
     }
 
-    internal bool HasRan(Guid nodeId)
-    {
-        // TODO: Allow value output only nodes (user input) to bypass the scope checking?
-        // return RanNodes[ScopePointer].Contains(nodeId);
-
-        for (var i = ScopePointer; i >= 0; i--)
-        {
-            if (RanNodes[i].Contains(nodeId)) return true;
-        }
-
-        return false;
-    }
-
-    internal void MarkRan(Guid nodeId)
-    {
-        RanNodes[ScopePointer].Add(nodeId);
-    }
+    internal bool HasMemory(Guid nodeId) => hasMemory.Contains(nodeId);
 
     internal async Task Execute(FlowCall call)
     {
-        Memory.Push(new Dictionary<Guid, IRef[]>());
-        RanNodes.Add(new List<Guid>());
-        ParameterCache.Add(new Dictionary<ParameterDefinition, VRChatParameter>());
-        ScopePointer++;
-
+        memory.Push(new Dictionary<Guid, IRef[]>());
         await processNext(call);
-
-        Memory.Pop();
-        RanNodes.Remove(RanNodes.Last());
-        ParameterCache.Remove(ParameterCache.Last());
-        ScopePointer--;
+        memory.Pop();
     }
 
     internal Task Execute(FlowContinuation continuation)
@@ -81,25 +52,14 @@ public class PulseContext
         return processNext(continuation);
     }
 
-    internal AvatarConfig? FindCurrentAvatar()
-    {
-        return AppManager.GetInstance().CurrentAvatarConfig;
-    }
+    internal Task<AvatarConfig?> GetCurrentAvatar() => AppManager.GetInstance().FindCurrentAvatar(Token);
 
     internal Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
 
     internal async Task<VRChatParameter?> GetParameter<T>(string name)
     {
         var parameterDefinition = new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>());
-
-        // we use a local cache here to make sure that a parameter's value doesn't change while a flow is occurring as a single source could be connected to multiple nodes
-        for (var i = ScopePointer; i >= 0; i--)
-        {
-            if (ParameterCache[i].TryGetValue(parameterDefinition, out var scopedParameter)) return scopedParameter;
-        }
-
         var parameter = await AppManager.GetInstance().FindParameter(parameterDefinition, Token);
-        if (parameter is not null) ParameterCache[ScopePointer][parameterDefinition] = parameter;
 
         return parameter;
     }
@@ -118,9 +78,9 @@ public class PulseContext
         var metadata = Graph.Nodes[nodeId].Metadata;
         var hasVariableSize = metadata.ValueOutputHasVariableSize;
 
-        for (var i = 0; i < Memory.Count; i++)
+        for (var i = 0; i < memory.Count; i++)
         {
-            var innerMemory = Memory.ElementAt(i);
+            var innerMemory = memory.ElementAt(i);
             if (!innerMemory.TryGetValue(nodeId, out var refs)) continue;
 
             if (hasVariableSize && index >= metadata.OutputsCount - 1)
@@ -138,12 +98,12 @@ public class PulseContext
 
     private void writeValue<T>(Guid nodeId, int index, T value)
     {
-        ((Ref<T>)Memory.Peek()[nodeId][index]).Value = value;
+        ((Ref<T>)memory.Peek()[nodeId][index]).Value = value;
     }
 
     private void writeValueList<T>(Guid nodeId, int index, int listIndex, T value)
     {
-        ((Ref<T[]>)Memory.Peek()[nodeId][index]).Value[listIndex] = value;
+        ((Ref<T[]>)memory.Peek()[nodeId][index]).Value[listIndex] = value;
     }
 
     internal T Read<T>(ValueInput<T> valueInput)
@@ -192,7 +152,7 @@ public class PulseContext
     {
         Debug.Assert(CurrentNode is not null);
 
-        if (!Stores.TryGetValue(CurrentNode.Id, out var refStore))
+        if (!stores.TryGetValue(CurrentNode.Id, out var refStore))
         {
             return default!;
         }
@@ -204,8 +164,8 @@ public class PulseContext
     {
         Debug.Assert(CurrentNode is not null);
 
-        Stores.TryAdd(CurrentNode.Id, new Dictionary<IStore, IRef>());
-        Stores[CurrentNode.Id][contextStore] = new Ref<T>(value);
+        stores.TryAdd(CurrentNode.Id, new Dictionary<IStore, IRef>());
+        stores[CurrentNode.Id][contextStore] = new Ref<T>(value);
     }
 
     internal void CreateMemory(Node node)
@@ -239,7 +199,10 @@ public class PulseContext
             }
         }
 
-        Memory.Peek()[node.Id] = valueOutputRefs;
+        memory.Peek()[node.Id] = valueOutputRefs;
+
+        if (!hasMemory.Contains(node.Id))
+            hasMemory.Add(node.Id);
     }
 }
 
