@@ -73,7 +73,7 @@ internal class AppManager
     private Repeater openvrUpdateTask = null!;
 
     private ConcurrentDictionary<ParameterDefinition, VRChatParameter> parameterCache { get; } = [];
-    public AvatarConfig? CurrentAvatarConfig { get; private set; }
+    private AvatarConfig? currentAvatarConfig { get; set; }
 
     public AppManager()
     {
@@ -189,6 +189,17 @@ internal class AppManager
         return null;
     }
 
+    public async Task<AvatarConfig?> FindCurrentAvatar(CancellationToken token)
+    {
+        if (currentAvatarConfig is not null) return currentAvatarConfig;
+
+        var avatarId = await VRChatOscClient.FindCurrentAvatar(token);
+        if (avatarId is null) return null;
+
+        currentAvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
+        return currentAvatarConfig;
+    }
+
     public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
     private void updateOVRClient()
@@ -228,19 +239,11 @@ internal class AppManager
             parameterCache.Clear();
 
             var avatarId = (string)message.ParameterValue;
-
-            AvatarConfig? avatarConfig = null;
-
-            if (!avatarId.StartsWith("local"))
-            {
-                avatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
-            }
-
-            CurrentAvatarConfig = avatarConfig;
+            currentAvatarConfig = avatarId.StartsWith("local") ? null : AvatarConfigLoader.LoadConfigFor(avatarId);
 
             VRChatClient.HandleAvatarChange();
-            ModuleManager.GetInstance().AvatarChange(avatarConfig);
-            NodeManager.GetInstance().OnAvatarChange(avatarConfig);
+            ModuleManager.GetInstance().AvatarChange(currentAvatarConfig);
+            NodeManager.GetInstance().OnAvatarChange(currentAvatarConfig);
 
             if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) return;
 
