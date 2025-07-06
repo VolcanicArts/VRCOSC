@@ -98,6 +98,10 @@ public class VRChatOSCClient
 
             return node is null || node.Access == OSCQueryNodeAccess.NoValue ? null : node;
         }
+        catch (TaskCanceledException)
+        {
+            return null;
+        }
         catch (Exception e)
         {
             Logger.Error(e, $"Exception when trying to find parameter: {url}");
