@@ -8,6 +8,7 @@ using VRCOSC.App.Utils;
 namespace VRCOSC.App.Nodes.Types.Math.Utility;
 
 [Node("Quaternion To Euler", "Math/Utility")]
+[NodeCollapsed]
 public class QuaternionToEulerNode : Node
 {
     public ValueInput<Quaternion> Quaternion = new();
@@ -21,6 +22,7 @@ public class QuaternionToEulerNode : Node
 }
 
 [Node("Euler To Quaternion", "Math/Utility")]
+[NodeCollapsed]
 public class EulerToQuaternionNode : Node
 {
     public ValueInput<Vector3> Euler = new();

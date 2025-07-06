@@ -82,7 +82,7 @@ public class NodePreset
             }
             catch (Exception e)
             {
-                ExceptionHandler.Handle(e);
+                Logger.Error(e, "Error creating nodes when deserialising preset");
             }
         }
 
@@ -102,7 +102,7 @@ public class NodePreset
             }
             catch (Exception e)
             {
-                ExceptionHandler.Handle(e);
+                Logger.Error(e, "Error creating connection when deserialising preset");
             }
         }
     }

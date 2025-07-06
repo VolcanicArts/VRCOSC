@@ -25,7 +25,7 @@ public static class AvatarConfigLoader
 
         var oscFolderContents = Directory.GetDirectories(vr_chat_osc_folder_path);
 
-        if (!oscFolderContents.Any())
+        if (oscFolderContents.Length == 0)
         {
             Logger.Log("User folder unavailable");
             return null;
@@ -43,7 +43,7 @@ public static class AvatarConfigLoader
 
         var avatarFiles = Directory.GetFiles(avatarFolderPath);
 
-        if (!avatarFiles.Any())
+        if (avatarFiles.Length == 0)
         {
             Logger.Log("No configs present");
             return null;
@@ -51,7 +51,7 @@ public static class AvatarConfigLoader
 
         var avatarIdFiles = avatarFiles.Where(filePath => filePath.Contains(avatarId)).ToArray();
 
-        if (!avatarIdFiles.Any())
+        if (avatarIdFiles.Length == 0)
         {
             Logger.Log("No config available for specified Id");
             return null;
