@@ -277,6 +277,7 @@ public class ChatBoxManager : INotifyPropertyChanged
             }
 
             currentText = text;
+            isClear = false;
             SendText(text);
             setTyping(false);
             return;
