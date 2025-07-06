@@ -49,7 +49,8 @@ internal class AudioProcessor
 
         try
         {
-            var builder = WhisperFactory.FromPath(modelFilePath).CreateBuilder();
+            var options = WhisperFactoryOptions.Default with { GpuDevice = SettingsManager.GetInstance().GetValue<int>(VRCOSCSetting.SpeechGPU) };
+            var builder = WhisperFactory.FromPath(modelFilePath, options).CreateBuilder();
 
             builder = builder.WithProbabilities()
                              .WithThreads(8)

@@ -141,6 +141,7 @@ public partial class SpeechView
     public Observable<bool> SpeechTranslate => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechTranslate);
     public Observable<float> ActivationThreshold => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechNoiseCutoff);
     public Observable<SpeechModel> SpeechModel => SettingsManager.GetInstance().GetObservable<SpeechModel>(VRCOSCSetting.SpeechModel);
+    public Observable<int> GPUSelect => SettingsManager.GetInstance().GetObservable<int>(VRCOSCSetting.SpeechGPU);
 
     public int ConfidenceSliderValue
     {

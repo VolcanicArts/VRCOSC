@@ -76,6 +76,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.SpeechNoiseCutoff, 0.14f);
         setDefault(VRCOSCSetting.SpeechMicVolumeAdjustment, 1f);
         setDefault(VRCOSCSetting.SpeechTranslate, false);
+        setDefault(VRCOSCSetting.SpeechGPU, 0);
         setDefault(VRCOSCSetting.GlobalKeyboardHook, false);
 
         setDefault(VRCOSCMetadata.InstalledVersion, string.Empty);
@@ -147,6 +148,7 @@ public enum VRCOSCSetting
     SpeechNoiseCutoff,
     SpeechMicVolumeAdjustment,
     SpeechTranslate,
+    SpeechGPU,
     GlobalKeyboardHook
 }
 
