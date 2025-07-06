@@ -399,16 +399,12 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var startPoint = getConnectionPointRelativeToGraph(getOutputSlotElementForConnection(connection));
         var endPoint = getConnectionPointRelativeToGraph(getInputSlotElementForConnection(connection));
 
-        var (controlPoint1, controlPoint2) = getBezierControlPoints(startPoint, endPoint);
-
         var pathGeometry = (PathGeometry)path.Data;
         var pathFigure = pathGeometry.Figures[0];
-        var bezierSegment = (BezierSegment)pathFigure.Segments[0];
+        var lineSegment = (LineSegment)pathFigure.Segments[0];
 
         pathFigure.StartPoint = startPoint;
-        bezierSegment.Point1 = controlPoint1;
-        bezierSegment.Point2 = controlPoint2;
-        bezierSegment.Point3 = endPoint;
+        lineSegment.Point = endPoint;
 
         if (connection.ConnectionType == ConnectionType.Value)
         {
@@ -423,12 +419,10 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var startPoint = getConnectionPointRelativeToGraph(getOutputSlotElementForConnection(connection));
         var endPoint = getConnectionPointRelativeToGraph(getInputSlotElementForConnection(connection));
 
-        var (controlPoint1, controlPoint2) = getBezierControlPoints(startPoint, endPoint);
-
         var pathFigure = new PathFigure
         {
             StartPoint = startPoint,
-            Segments = { new BezierSegment(controlPoint1, controlPoint2, endPoint, true) }
+            Segments = { new LineSegment(endPoint, true) }
         };
 
         var path = new Path
@@ -455,14 +449,6 @@ public partial class NodeGraphView : INotifyPropertyChanged
     {
         var centerOffset = new Vector(element.Width / 2d, element.Height / 2d);
         return element.TranslatePoint(new Point(0, 0), GraphContainer) + centerOffset;
-    }
-
-    private (Point cp1, Point cp2) getBezierControlPoints(Point startPoint, Point endPoint)
-    {
-        var minDelta = Math.Min(Math.Abs(endPoint.Y - startPoint.Y) / 2d, 50d);
-        var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.5d, minDelta);
-
-        return (Point.Add(startPoint, new Vector(delta, 0)), Point.Add(endPoint, new Vector(-delta, 0)));
     }
 
     private LinearGradientBrush createGradientBrush(Point startPoint, Point endPoint, Color startColor, Color endColor)
