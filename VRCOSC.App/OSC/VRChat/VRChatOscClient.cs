@@ -91,7 +91,7 @@ public class VRChatOSCClient
         try
         {
             var response = await client.GetAsync(new Uri(url), token);
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode) return null;
 
             var content = await response.Content.ReadAsStringAsync(token);
             var node = JsonConvert.DeserializeObject<OSCQueryNode>(content);

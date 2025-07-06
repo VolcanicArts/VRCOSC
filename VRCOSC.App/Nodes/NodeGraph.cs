@@ -331,7 +331,8 @@ public class NodeGraph : IVRCClientEventHandler
                 {
                     foreach (var node in updateNodes)
                     {
-                        var c = new PulseContext(this) { CurrentNode = node };
+                        var c = new PulseContext(this);
+                        c.Push(node);
 
                         await backtrackNode(node, c);
 
@@ -383,8 +384,7 @@ public class NodeGraph : IVRCClientEventHandler
 
     public void WriteStore<T>(GlobalStore<T> globalStore, T value, PulseContext c)
     {
-        var currentNode = c.CurrentNode;
-        Debug.Assert(currentNode is not null);
+        var currentNode = c.Peek();
 
         if (!GlobalStores.ContainsKey(currentNode.Id))
             GlobalStores.TryAdd(currentNode.Id, new Dictionary<IStore, IRef>());
@@ -394,8 +394,7 @@ public class NodeGraph : IVRCClientEventHandler
 
     public T ReadStore<T>(GlobalStore<T> globalStore, PulseContext c)
     {
-        var currentNode = c.CurrentNode;
-        Debug.Assert(currentNode is not null);
+        var currentNode = c.Peek();
 
         if (!GlobalStores.TryGetValue(currentNode.Id, out var nodeStore))
         {
@@ -433,11 +432,13 @@ public class NodeGraph : IVRCClientEventHandler
 
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
         {
-            var c = new PulseContext(this) { CurrentNode = node };
+            var c = new PulseContext(this);
+            c.Push(node);
 
             var handler = (INodeEventHandler)node;
             if (!handler.HandleNodeStart(c)) continue;
 
+            c.Pop();
             startTasks.Add(processNode(node, c));
         }
 
@@ -450,11 +451,13 @@ public class NodeGraph : IVRCClientEventHandler
 
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
         {
-            var c = new PulseContext(this) { CurrentNode = node };
+            var c = new PulseContext(this);
+            c.Push(node);
 
             var handler = (INodeEventHandler)node;
             if (!handler.HandleNodeStop(c)) continue;
 
+            c.Pop();
             stopTasks.Add(processNode(node, c));
         }
 
@@ -467,10 +470,12 @@ public class NodeGraph : IVRCClientEventHandler
 
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
         {
-            var c = new PulseContext(this) { CurrentNode = node };
+            var c = new PulseContext(this);
+            c.Push(node);
 
             if (!shouldHandleEvent.Invoke(c, (INodeEventHandler)node)) continue;
 
+            c.Pop();
             TriggerTree(node);
         }
     }
@@ -531,6 +536,7 @@ public class NodeGraph : IVRCClientEventHandler
             tasks.TryRemove(node, out _);
         }
 
+        // TODO: Accept optional existing context, but if context is not null make a deep copy
         var c = new PulseContext(this);
 
         // display node, parameter driver, we don't need a task for them so just process and let them go
@@ -559,13 +565,16 @@ public class NodeGraph : IVRCClientEventHandler
         await backtrackNode(node, c);
         if (c.IsCancelled) return;
 
-        var currentBefore = c.CurrentNode;
-        c.CurrentNode = node;
-
+        c.Push(node);
         c.CreateMemory(node);
         if (c.IsCancelled) return;
 
-        if (!node.InternalShouldProcess(c)) return;
+        if (!node.InternalShouldProcess(c))
+        {
+            c.Pop();
+            return;
+        }
+
         if (c.IsCancelled) return;
 
         onPreProcess?.Invoke();
@@ -574,7 +583,7 @@ public class NodeGraph : IVRCClientEventHandler
         await node.InternalProcess(c);
         if (c.IsCancelled) return;
 
-        c.CurrentNode = currentBefore;
+        c.Pop();
     }
 
     private async Task backtrackNode(Node node, PulseContext c)

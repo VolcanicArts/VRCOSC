@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using FontAwesome6;
 using VRCOSC.App.Nodes.Types;
@@ -205,10 +204,7 @@ public class ValueOutputList<T> : IValueOutput
 
     public int Length(PulseContext c)
     {
-        // TODO: Decouple this from the context as these won't change during running
-        Debug.Assert(c.CurrentNode is not null);
-
-        return c.CurrentNode.VariableSize.ValueOutputSize;
+        return c.Peek().VariableSize.ValueOutputSize;
     }
 
     public void Write(int index, T value, PulseContext c)

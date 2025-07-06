@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,11 +21,9 @@ public class PulseContext
     public bool IsCancelled => Token.IsCancellationRequested;
 
     internal readonly NodeGraph Graph;
-    internal Node? CurrentNode { get; set; }
-
     private Stack<Dictionary<Guid, IRef[]>> memory { get; } = [];
-    private List<Guid> hasMemory { get; } = [];
     private Dictionary<Guid, Dictionary<IStore, IRef>> stores { get; } = [];
+    private Stack<Node> nodes { get; } = [];
 
     internal PulseContext(NodeGraph graph)
     {
@@ -38,7 +35,13 @@ public class PulseContext
         memory.Push(new Dictionary<Guid, IRef[]>());
     }
 
-    internal bool HasMemory(Guid nodeId) => hasMemory.Contains(nodeId);
+    internal void Push(Node node) => nodes.Push(node);
+
+    internal void Pop() => nodes.Pop();
+
+    internal Node Peek() => nodes.Peek();
+
+    internal bool HasMemory(Guid nodeId) => memory.Any(dict => dict.ContainsKey(nodeId));
 
     internal async Task Execute(FlowCall call)
     {
@@ -66,10 +69,10 @@ public class PulseContext
 
     private Task processNext(IFlow next)
     {
-        Debug.Assert(CurrentNode is not null);
+        var current = Peek();
 
         var outputIndex = next.Index;
-        var connection = Graph.FindConnectionFromFlowOutput(CurrentNode.Id, outputIndex);
+        var connection = Graph.FindConnectionFromFlowOutput(current.Id, outputIndex);
         return connection is null ? Task.CompletedTask : Graph.ProcessNode(connection.InputNodeId, this);
     }
 
@@ -108,24 +111,24 @@ public class PulseContext
 
     internal T Read<T>(ValueInput<T> valueInput)
     {
-        Debug.Assert(CurrentNode is not null);
+        var current = Peek();
 
         var inputIndex = valueInput.Index;
-        var connection = Graph.FindConnectionFromValueInput(CurrentNode.Id, inputIndex);
+        var connection = Graph.FindConnectionFromValueInput(current.Id, inputIndex);
         return connection is null ? valueInput.DefaultValue : readValue<T>(connection.OutputNodeId, connection.OutputSlot);
     }
 
     internal List<T> Read<T>(ValueInputList<T> valueInputList)
     {
-        Debug.Assert(CurrentNode is not null);
+        var current = Peek();
 
         var inputIndex = valueInputList.Index;
 
         var list = new List<T>();
 
-        for (var i = inputIndex; i < CurrentNode.VirtualValueInputCount(); i++)
+        for (var i = inputIndex; i < current.VirtualValueInputCount(); i++)
         {
-            var connection = Graph.FindConnectionFromValueInput(CurrentNode.Id, i);
+            var connection = Graph.FindConnectionFromValueInput(current.Id, i);
             list.Add(connection is null ? default! : readValue<T>(connection.OutputNodeId, connection.OutputSlot));
         }
 
@@ -134,25 +137,25 @@ public class PulseContext
 
     internal void Write<T>(ValueOutput<T> valueOutput, T value)
     {
-        Debug.Assert(CurrentNode is not null);
+        var current = Peek();
 
         var outputIndex = valueOutput.Index;
-        writeValue(CurrentNode.Id, outputIndex, value);
+        writeValue(current.Id, outputIndex, value);
     }
 
     internal void Write<T>(ValueOutputList<T> valueOutputList, int listIndex, T value)
     {
-        Debug.Assert(CurrentNode is not null);
+        var current = Peek();
 
         var outputIndex = valueOutputList.Index;
-        writeValueList(CurrentNode.Id, outputIndex, listIndex, value);
+        writeValueList(current.Id, outputIndex, listIndex, value);
     }
 
     internal T ReadStore<T>(ContextStore<T> contextStore)
     {
-        Debug.Assert(CurrentNode is not null);
+        var current = Peek();
 
-        if (!stores.TryGetValue(CurrentNode.Id, out var refStore))
+        if (!stores.TryGetValue(current.Id, out var refStore))
         {
             return default!;
         }
@@ -162,10 +165,10 @@ public class PulseContext
 
     internal void WriteStore<T>(ContextStore<T> contextStore, T value)
     {
-        Debug.Assert(CurrentNode is not null);
+        var current = Peek();
 
-        stores.TryAdd(CurrentNode.Id, new Dictionary<IStore, IRef>());
-        stores[CurrentNode.Id][contextStore] = new Ref<T>(value);
+        stores.TryAdd(current.Id, new Dictionary<IStore, IRef>());
+        stores[current.Id][contextStore] = new Ref<T>(value);
     }
 
     internal void CreateMemory(Node node)
@@ -200,9 +203,6 @@ public class PulseContext
         }
 
         memory.Peek()[node.Id] = valueOutputRefs;
-
-        if (!hasMemory.Contains(node.Id))
-            hasMemory.Add(node.Id);
     }
 }
 
