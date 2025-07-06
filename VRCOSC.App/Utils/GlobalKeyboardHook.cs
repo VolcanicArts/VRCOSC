@@ -2,10 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -18,7 +18,7 @@ internal class GlobalKeyboardHook : IDisposable
     private readonly HOOKPROC hookProc;
     private HHOOK hookId;
 
-    private readonly ConcurrentDictionary<Key, bool> keyStates = [];
+    private readonly Dictionary<Key, bool> keyStates = [];
     public bool IsEnabled { get; private set; }
 
     public GlobalKeyboardHook()
@@ -56,19 +56,20 @@ internal class GlobalKeyboardHook : IDisposable
 
     private LRESULT hookCallback(int nCode, WPARAM wParam, LPARAM lParam)
     {
-        if (nCode < 0) return PInvoke.CallNextHookEx(hookId, nCode, wParam, lParam);
+        Task.Run(() =>
+        {
+            if (nCode < 0) return;
 
-        var msg = (uint)wParam.Value;
+            var msg = (uint)wParam.Value;
 
-        if (msg is not (wm_keydown or wm_syskeydown or wm_keyup or wm_syskeyup)) return PInvoke.CallNextHookEx(hookId, nCode, wParam, lParam);
+            if (msg is not (wm_keydown or wm_syskeydown or wm_keyup or wm_syskeyup)) return;
 
-        var info = Marshal.PtrToStructure<KBDLLHOOKSTRUCT>(lParam.Value);
-        var virtualKey = info.vkCode;
+            var info = Marshal.PtrToStructure<KBDLLHOOKSTRUCT>(lParam.Value);
+            var key = KeyInterop.KeyFromVirtualKey((int)info.vkCode);
+            var isKeyDown = msg is wm_keydown or wm_syskeydown;
 
-        var key = KeyInterop.KeyFromVirtualKey((int)virtualKey);
-        var isKeyDown = msg is wm_keydown or wm_syskeydown;
-
-        keyStates[key] = isKeyDown;
+            keyStates[key] = isKeyDown;
+        });
 
         return PInvoke.CallNextHookEx(hookId, nCode, wParam, lParam);
     }
