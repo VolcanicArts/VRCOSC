@@ -10,11 +10,29 @@ namespace VRCOSC.App.Utils;
 /// <summary>
 /// Pairs a <see cref="CancellationTokenSource"/> and <see cref="Task"/>
 /// </summary>
-public record TokenSourceTask(CancellationTokenSource Source, Task Task)
+public record TokenSourceTask
 {
+    public CancellationTokenSource Source { get; }
+    public Task? Task { get; private set; }
+
+    public TokenSourceTask(CancellationTokenSource source, Task task)
+    {
+        Source = source;
+        Task = task;
+    }
+
+    public TokenSourceTask(CancellationTokenSource source)
+    {
+        Source = source;
+    }
+
+    public void SetTask(Task task) => Task = task;
+
     public async Task CancelAndWaitAsync()
     {
         await Source.CancelAsync();
+
+        if (Task is null) return;
 
         try
         {

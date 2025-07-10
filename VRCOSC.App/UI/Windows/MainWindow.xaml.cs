@@ -4,14 +4,12 @@
 using System;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 using Semver;
 using VRCOSC.App.Actions;
 using VRCOSC.App.ChatBox;
@@ -21,7 +19,6 @@ using VRCOSC.App.Nodes;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
-using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Startup;
 using VRCOSC.App.UI.Core;
@@ -155,7 +152,6 @@ public partial class MainWindow
 
         createBackupIfUpdated();
         setupTrayIcon();
-        copyOpenVrFiles();
 
         AppManager.GetInstance().Initialise();
 
@@ -351,53 +347,6 @@ public partial class MainWindow
 
             storage.GetStorageForDirectory(dirName).CopyTo(Path.Combine(destDir, dirName));
         }
-    }
-
-    private void copyOpenVrFiles()
-    {
-        var runtimeOVRStorage = storage.GetStorageForDirectory("runtime/openvr");
-        var runtimeOVRPath = runtimeOVRStorage.GetFullPath(string.Empty);
-
-        var ovrFiles = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(file => file.Contains("OpenVR"));
-
-        foreach (var file in ovrFiles)
-        {
-            File.WriteAllBytes(Path.Combine(runtimeOVRPath, getOriginalFileName(file)), getResourceBytes(file));
-        }
-
-        var manifest = new OVRManifest();
-#if DEBUG
-        manifest.Applications[0].BinaryPathWindows = Environment.ProcessPath!;
-#else
-        manifest.Applications[0].BinaryPathWindows = Path.Join(VelopackLocator.CreateDefaultForPlatform().RootAppDir, "current", "VRCOSC.exe");
-#endif
-        manifest.Applications[0].ActionManifestPath = runtimeOVRStorage.GetFullPath("action_manifest.json");
-        manifest.Applications[0].ImagePath = runtimeOVRStorage.GetFullPath("SteamImage.png");
-
-        File.WriteAllText(Path.Join(runtimeOVRPath, "app.vrmanifest"), JsonConvert.SerializeObject(manifest, Formatting.Indented));
-    }
-
-    private static string getOriginalFileName(string fullResourceName)
-    {
-        var parts = fullResourceName.Split('.');
-        return parts[^2] + "." + parts[^1];
-    }
-
-    private static byte[] getResourceBytes(string resourceName)
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-
-        using var stream = assembly.GetManifestResourceStream(resourceName);
-
-        if (stream == null)
-        {
-            throw new InvalidOperationException($"{resourceName} does not exist");
-        }
-
-        using var memoryStream = new MemoryStream();
-
-        stream.CopyTo(memoryStream);
-        return memoryStream.ToArray();
     }
 
     #region Tray

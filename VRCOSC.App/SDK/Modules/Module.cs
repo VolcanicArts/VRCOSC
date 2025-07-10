@@ -17,16 +17,17 @@ using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.Modules;
+using VRCOSC.App.OpenVR;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.SDK.Modules.Attributes.Types;
-using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Parameters.Queryable;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
+using VRCOSC.App.SteamVR;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Views.Modules.Settings;
 using VRCOSC.App.Utils;
@@ -324,9 +325,14 @@ public abstract class Module
     public Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
 
     /// <summary>
-    /// Allows you to access the current state of SteamVR (or any OpenVR runtime)
+    /// Allows you to access the current state of the current OpenVR runtime
     /// </summary>
-    public OVRClient GetOVRClient() => AppManager.GetInstance().OVRClient;
+    public OpenVRManager GetOpenVRManager() => AppManager.GetInstance().OpenVRManager;
+
+    /// <summary>
+    /// Allows you to access the current state of SteamVR
+    /// </summary>
+    public SteamVRManager GetSteamVRManager() => AppManager.GetInstance().SteamVRManager;
 
     #region Callbacks
 

@@ -3,7 +3,7 @@
 
 using Newtonsoft.Json;
 
-namespace VRCOSC.App.SDK.OVR.Metadata;
+namespace VRCOSC.App.OpenVR.Metadata;
 
 internal class OVRManifest
 {

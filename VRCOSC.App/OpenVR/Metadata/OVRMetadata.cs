@@ -3,7 +3,7 @@
 
 using Valve.VR;
 
-namespace VRCOSC.App.SDK.OVR.Metadata;
+namespace VRCOSC.App.OpenVR.Metadata;
 
 internal class OVRMetadata
 {

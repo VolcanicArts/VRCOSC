@@ -11,7 +11,8 @@ namespace VRCOSC.App.Utils;
 public class Repeater
 {
     private readonly string name;
-    private readonly Action action;
+    private readonly Action? action;
+    private readonly Func<Task>? actionTask;
     private CancellationTokenSource? cancellationTokenSource;
     private Task? updateTask;
 
@@ -19,6 +20,12 @@ public class Repeater
     {
         this.name = name;
         this.action = action;
+    }
+
+    public Repeater(string name, Func<Task> actionTask)
+    {
+        this.name = name;
+        this.actionTask = actionTask;
     }
 
     public void Start(TimeSpan interval, bool runOnceImmediately = false)
@@ -44,7 +51,8 @@ public class Repeater
         {
             try
             {
-                action.Invoke();
+                action?.Invoke();
+                await (actionTask?.Invoke() ?? Task.CompletedTask);
             }
             catch (Exception e)
             {
@@ -57,7 +65,8 @@ public class Repeater
             try
             {
                 await Task.Delay(interval, cancellationTokenSource.Token);
-                action.Invoke();
+                action?.Invoke();
+                await (actionTask?.Invoke() ?? Task.CompletedTask);
             }
             catch (OperationCanceledException)
             {

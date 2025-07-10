@@ -3,7 +3,7 @@
 
 using System.Numerics;
 
-namespace VRCOSC.App.SDK.OVR.Device;
+namespace VRCOSC.App.OpenVR.Device;
 
 public struct InputState
 {

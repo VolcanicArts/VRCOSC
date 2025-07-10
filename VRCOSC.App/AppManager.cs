@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using FastOSC;
 using org.mariuszgromada.math.mxparser;
-using Valve.VR;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Audio;
 using VRCOSC.App.Audio.Whisper;
@@ -22,18 +21,17 @@ using VRCOSC.App.ChatBox;
 using VRCOSC.App.Dolly;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Nodes;
+using VRCOSC.App.OpenVR;
 using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
-using VRCOSC.App.OVR;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
 using VRCOSC.App.SDK.Handlers;
-using VRCOSC.App.SDK.OVR;
-using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Startup;
+using VRCOSC.App.SteamVR;
 using VRCOSC.App.UI.Themes;
 using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
@@ -63,14 +61,13 @@ internal class AppManager
     public ConnectionManager ConnectionManager = null!;
     public VRChatOSCClient VRChatOscClient = null!;
     public VRChatClient VRChatClient = null!;
-    public OVRClient OVRClient = null!;
     public ChatBoxWorldBlacklist ChatBoxWorldBlacklist = null!;
     public WhisperSpeechEngine SpeechEngine = null!;
     public GlobalKeyboardHook GlobalKeyboardHook { get; } = new();
+    public OpenVRManager OpenVRManager { get; private set; }
+    public SteamVRManager SteamVRManager { get; private set; }
 
     private Repeater vrchatCheckTask = null!;
-    private Repeater openvrCheckTask = null!;
-    private Repeater openvrUpdateTask = null!;
 
     private ConcurrentDictionary<ParameterDefinition, VRChatParameter> parameterCache { get; } = [];
     private AvatarConfig? currentAvatarConfig { get; set; }
@@ -92,7 +89,6 @@ internal class AppManager
         ConnectionManager = new ConnectionManager();
         VRChatOscClient = new VRChatOSCClient();
         VRChatClient = new VRChatClient(VRChatOscClient);
-        OVRClient = new OVRClient();
         ChatBoxWorldBlacklist = new ChatBoxWorldBlacklist();
 
         SpeechEngine = new WhisperSpeechEngine();
@@ -137,15 +133,6 @@ internal class AppManager
         {
             chosenInputDeviceSetting.Value = string.Empty;
         }
-
-        OVRClient.SetMetadata(new OVRMetadata
-        {
-            ApplicationType = EVRApplicationType.VRApplication_Background,
-            ApplicationManifest = Storage.GetFullPath("runtime/openvr/app.vrmanifest"),
-            ActionManifest = Storage.GetFullPath("runtime/openvr/action_manifest.json")
-        });
-
-        OVRHelper.OnError += m => Logger.Log($"[OpenVR] {m}");
     }
 
     public void InitialLoadComplete()
@@ -154,12 +141,6 @@ internal class AppManager
 
         vrchatCheckTask = new Repeater($"{nameof(AppManager)}-{nameof(checkForVRChatAutoStart)}", checkForVRChatAutoStart);
         vrchatCheckTask.Start(TimeSpan.FromSeconds(2));
-
-        openvrCheckTask = new Repeater($"{nameof(AppManager)}-{nameof(checkForOpenVR)}", checkForOpenVR);
-        openvrCheckTask.Start(TimeSpan.FromSeconds(2));
-
-        openvrUpdateTask = new Repeater($"{nameof(AppManager)}-{nameof(updateOVRClient)}", updateOVRClient);
-        openvrUpdateTask.Start(TimeSpan.FromSeconds(1d / 60d));
 
         SettingsManager.GetInstance().GetObservable<ConnectionMode>(VRCOSCSetting.ConnectionMode).Subscribe(async _ =>
         {
@@ -172,6 +153,9 @@ internal class AppManager
             await ConnectionManager.Stop();
             await StopAsync();
         });
+
+        OpenVRManager = new OpenVRManager();
+        SteamVRManager = new SteamVRManager();
     }
 
     public async Task<VRChatParameter?> FindParameter(ParameterDefinition parameterDefinition, CancellationToken token)
@@ -201,22 +185,6 @@ internal class AppManager
     }
 
     public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
-
-    private void updateOVRClient()
-    {
-        if (State.Value == AppManagerState.Started)
-            OVRClient.Update();
-    }
-
-    private void checkForOpenVR() => Task.Run(() =>
-    {
-        OVRClient.Init();
-        OVRClient.SetAutoLaunch(SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.OVRAutoOpen));
-
-        OVRDeviceManager.GetInstance().Update();
-
-        //RenderOptions.ProcessRenderMode = OVRClient.HasInitialised ? RenderMode.SoftwareOnly : RenderMode.Default;
-    });
 
     private async void checkForVRChatAutoStart()
     {

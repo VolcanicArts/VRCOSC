@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Threading.Tasks;
-using VRCOSC.App.SDK.OVR.Device;
+using VRCOSC.App.OpenVR.Device;
 
 namespace VRCOSC.App.Nodes.Types.SteamVR;
 
@@ -31,7 +31,7 @@ public sealed class SteamVRTriggerHaptic : Node, IFlowInput
         var amplitude = Amplitude.Read(c);
         amplitude = float.Clamp(amplitude, 0f, 1f);
 
-        AppManager.GetInstance().OVRClient.TriggerHaptic(device, duration, frequency, amplitude);
+        AppManager.GetInstance().OpenVRManager.TriggerHaptic(device, duration, frequency, amplitude);
         await Next.Execute(c);
     }
 }
@@ -48,7 +48,7 @@ public sealed class SteamVRShutdownDevice : Node, IFlowInput
         var device = Device.Read(c);
         if (device is null) return;
 
-        AppManager.GetInstance().OVRClient.ShutdownDevice(device);
+        AppManager.GetInstance().SteamVRManager.ShutdownDevice(device);
         await Next.Execute(c);
     }
 }

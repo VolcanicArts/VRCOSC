@@ -3,7 +3,7 @@
 
 using System.Numerics;
 using System.Threading.Tasks;
-using VRCOSC.App.SDK.OVR.Device;
+using VRCOSC.App.OpenVR.Device;
 using VRCOSC.App.Utils;
 
 // ReSharper disable InconsistentNaming
@@ -18,7 +18,7 @@ public sealed class SteamVRIsDashboardVisibleNode : Node, IUpdateNode
 
     protected override Task Process(PulseContext c)
     {
-        IsVisible.Write(AppManager.GetInstance().OVRClient.IsDashboardVisible(), c);
+        IsVisible.Write(AppManager.GetInstance().OpenVRManager.IsDashboardVisible, c);
         return Task.CompletedTask;
     }
 
@@ -33,7 +33,7 @@ public sealed class SteamVRIsUserPresentNode : Node, IUpdateNode
 
     protected override Task Process(PulseContext c)
     {
-        IsPresent.Write(AppManager.GetInstance().OVRClient.IsUserPresent(), c);
+        IsPresent.Write(AppManager.GetInstance().OpenVRManager.IsUserPresent, c);
         return Task.CompletedTask;
     }
 
@@ -48,7 +48,7 @@ public sealed class SteamVRFPSNode : Node, IUpdateNode
 
     protected override Task Process(PulseContext c)
     {
-        FPS.Write(AppManager.GetInstance().OVRClient.FPS, c);
+        FPS.Write(AppManager.GetInstance().OpenVRManager.FPS, c);
         return Task.CompletedTask;
     }
 
