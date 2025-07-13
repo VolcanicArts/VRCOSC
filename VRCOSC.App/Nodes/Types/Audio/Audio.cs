@@ -3,7 +3,8 @@
 
 using System.IO;
 using System.Threading.Tasks;
-using NAudio.Wave;
+using SoundFlow.Components;
+using SoundFlow.Providers;
 
 namespace VRCOSC.App.Nodes.Types.Audio;
 
@@ -20,15 +21,22 @@ public sealed class AudioPlayOnce : Node, IFlowInput
         var filePath = FilePath.Read(c);
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath)) return;
 
-        using var audioFile = new AudioFileReader(filePath);
-        audioFile.Volume = Volume.Read(c);
+        var player = new SoundPlayer(new StreamDataProvider(File.OpenRead(filePath)))
+        {
+            Volume = Volume.Read(c),
+        };
 
-        using var outputDevice = new WaveOutEvent();
+        Mixer.Master.AddComponent(player);
+        player.Play();
 
-        outputDevice.Init(audioFile);
-        outputDevice.Play();
+        while (player.Time < player.Duration)
+        {
+            if (c.IsCancelled) break;
+        }
 
-        await Task.Delay(audioFile.TotalTime, c.Token);
+        player.Stop();
+        Mixer.Master.RemoveComponent(player);
+
         await OnFinished.Execute(c);
     }
 }
