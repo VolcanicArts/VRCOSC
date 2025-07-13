@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -39,6 +40,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
 {
     public const int SNAP_DISTANCE = 25;
     public const int SIGNIFICANT_SNAP_STEP = 20;
+    public static readonly Vector CONNECTION_OFFSET = new(SNAP_DISTANCE / 2d, 0);
     public Padding GroupPadding { get; } = new(30, 55, 30, 30);
     public Padding SelectionPadding { get; } = new((int)(SNAP_DISTANCE * 0.75), (int)(SNAP_DISTANCE * 0.75), (int)(SNAP_DISTANCE * 0.75), (int)(SNAP_DISTANCE * 0.75));
 
@@ -401,10 +403,21 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         var pathGeometry = (PathGeometry)path.Data;
         var pathFigure = pathGeometry.Figures[0];
-        var lineSegment = (LineSegment)pathFigure.Segments[0];
+        var startPointOffsetSegment = (LineSegment)pathFigure.Segments[0];
+        var endPointOffsetSegment = (LineSegment)pathFigure.Segments[1];
+        var endPointSegment = (LineSegment)pathFigure.Segments[2];
+
+        var offset = CONNECTION_OFFSET;
+
+        if (Vector2.Distance(new Vector2((float)startPoint.X, (float)startPoint.Y), new Vector2((float)endPoint.X, (float)endPoint.Y)) <= SNAP_DISTANCE * 1.75f)
+        {
+            offset = new Vector(0, 0);
+        }
 
         pathFigure.StartPoint = startPoint;
-        lineSegment.Point = endPoint;
+        startPointOffsetSegment.Point = startPoint + offset;
+        endPointOffsetSegment.Point = endPoint - offset;
+        endPointSegment.Point = endPoint;
 
         if (connection.ConnectionType == ConnectionType.Value)
         {
@@ -419,10 +432,17 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var startPoint = getConnectionPointRelativeToGraph(getOutputSlotElementForConnection(connection));
         var endPoint = getConnectionPointRelativeToGraph(getInputSlotElementForConnection(connection));
 
+        var offset = CONNECTION_OFFSET;
+
+        if (Vector2.Distance(new Vector2((float)startPoint.X, (float)startPoint.Y), new Vector2((float)endPoint.X, (float)endPoint.Y)) <= SNAP_DISTANCE * 1.75f)
+        {
+            offset = new Vector(0, 0);
+        }
+
         var pathFigure = new PathFigure
         {
             StartPoint = startPoint,
-            Segments = { new LineSegment(endPoint, true) }
+            Segments = { new LineSegment(startPoint + offset, true), new LineSegment(endPoint - offset, true), new LineSegment(endPoint, true) }
         };
 
         var path = new Path
@@ -823,25 +843,27 @@ public partial class NodeGraphView : INotifyPropertyChanged
         if (connectionDrag is null) return;
 
         var element = connectionDrag.OriginElement;
-        var offset = new Vector(element.Width / 2d, element.Height / 2d);
 
-        var isReversed = connectionDrag.Origin is ConnectionDragOrigin.FlowInput or ConnectionDragOrigin.ValueInput;
-
-        var startPoint = element.TranslatePoint(new Point(0, 0), GraphContainer) + offset;
+        var startPoint = element.TranslatePoint(new Point(0, 0), GraphContainer) + new Vector(element.Width / 2d, element.Height / 2d);
         var endPoint = Mouse.GetPosition(GraphContainer);
-        var minDelta = Math.Min(Math.Abs(endPoint.Y - startPoint.Y) / 2d, 50d);
-        var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.5d, minDelta);
-        var controlPoint1 = Point.Add(startPoint, new Vector(isReversed ? -delta : delta, 0));
-        var controlPoint2 = Point.Add(endPoint, new Vector(isReversed ? delta : -delta, 0));
 
         var pathGeometry = (PathGeometry)ConnectionDragPath.Data;
         var pathFigure = pathGeometry.Figures[0];
-        var curve = (BezierSegment)pathFigure.Segments[0];
+        var startPointOffsetSegment = (LineSegment)pathFigure.Segments[0];
+        var endPointOffsetSegment = (LineSegment)pathFigure.Segments[1];
+        var endPointSegment = (LineSegment)pathFigure.Segments[2];
+
+        var offset = CONNECTION_OFFSET;
+
+        if (Vector2.Distance(new Vector2((float)startPoint.X, (float)startPoint.Y), new Vector2((float)endPoint.X, (float)endPoint.Y)) <= SNAP_DISTANCE * 1.75f)
+        {
+            offset = new Vector(0, 0);
+        }
 
         pathFigure.StartPoint = startPoint;
-        curve.Point1 = controlPoint1;
-        curve.Point2 = controlPoint2;
-        curve.Point3 = endPoint;
+        startPointOffsetSegment.Point = startPoint + offset;
+        endPointOffsetSegment.Point = endPoint - offset;
+        endPointSegment.Point = endPoint;
     }
 
     private void updateSelectionCreate()
