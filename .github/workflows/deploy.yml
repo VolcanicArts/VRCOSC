@@ -38,7 +38,7 @@ jobs:
         dotnet restore
 
     - name: Publish desktop app
-      run: dotnet publish VRCOSC/VRCOSC.csproj --configuration Release -o ./publish --no-restore
+      run: dotnet publish VRCOSC/VRCOSC.csproj --configuration Release -o ./publish
       
     - name: Remove unused language folders
       run: |
