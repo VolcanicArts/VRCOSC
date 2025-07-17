@@ -55,11 +55,25 @@ jobs:
     - name: Publish desktop app
       run: dotnet publish VRCOSC/VRCOSC.csproj --configuration Release -o ./publish
 
+    - name: Remove language folders
+      run: |
+        Get-ChildItem -Path ./publish -Directory |
+          Where-Object { $_.Name -match '^[a-z]{2}(-[A-Z]{2})?$' } |
+          ForEach-Object { Remove-Item $_.FullName -Recurse -Force }
+
+    - name: List contents of publish folder
+      run: |
+        dir ./publish
+
     - name: Package with Velopack
       run: vpk pack -u "VRCOSC" --packAuthors "VolcanicArts" --packTitle "VRCOSC" -p "./publish" -e "VRCOSC.exe" -o "./releases" -i "./VRCOSC/app.ico" -s "./Logo.png" -c "${{ inputs.channel }}" -v "${{ inputs.version }}"
 
+    - name: List contents of releases folder
+      run: |
+        dir ./releases
+
     - name: Pack NuGet SDK
-      run: dotnet pack VRCOSC.App/VRCOSC.App.csproj --configuration Release -p:PackageVersion=${{ inputs.version }} -o ./nuget
+      run: dotnet pack VRCOSC.App/VRCOSC.App.csproj --configuration Release -p:PackageVersion=${{ inputs.version }} -p:NoWarn=true -o ./nuget
 
     - name: Generate GitHub release body
       id: release_body
@@ -80,17 +94,5 @@ jobs:
           $body = @("This is a beta release. Please download the latest live release if you do not intend on testing beta features.")
         }
     
-        $output = $body -join "`n"
-        echo "body<<EOF"
-        echo "$output"
-        echo "EOF"
-
-    - name: List contents of publish folder
-      run: |
-        echo "=== ./publish ==="
-        dir ./publish
-
-    - name: List contents of releases folder
-      run: |
-        echo "=== ./releases ==="
-        dir ./releases
+        $releasebody = $body -join "`n"
+        echo "$releasebody"
