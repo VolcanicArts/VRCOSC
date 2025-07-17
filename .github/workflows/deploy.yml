@@ -48,18 +48,12 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.x'
-
-    - name: Restore dependencies
-      run: dotnet restore
-
-    - name: Build desktop app
-      run: dotnet build VRCOSC/VRCOSC.csproj --configuration Release
+    
+    - name: Install Velopack CLI
+      run: dotnet tool install --global vpk
 
     - name: Publish desktop app
       run: dotnet publish VRCOSC/VRCOSC.csproj --configuration Release -o ./publish
-
-    - name: Install Velopack CLI
-      run: dotnet tool install --global vpk
 
     - name: Package with Velopack
       run: vpk pack -u "VRCOSC" --packAuthors "VolcanicArts" --packTitle "VRCOSC" -p "./publish" -e "VRCOSC.exe" -o "./releases" -i "./VRCOSC/app.ico" -s "./Logo.png" -c "${{ inputs.channel }}" -v "${{ inputs.version }}"
@@ -71,16 +65,29 @@ jobs:
       id: release_body
       run: |
         if ("${{ inputs.channel }}" -eq "live") {
-          $body = @"## Installation
+          $body = @"
+          ## Installation
           - Download and run [VRCOSCSetup.exe](https://github.com/VolcanicArts/VRCOSC/releases/latest/download/VRCOSCSetup.exe) (It may get blocked by your antivirus (including Windows Defender)). A shortcut will be made on your desktop and start menu.
           - Join the [Discord Server](https://vrcosc.com/discord) to get help or make suggestions.
           - If you have trouble with the software or prefabs check the [FAQ](https://vrcosc.com/docs/faq).
-          Changelog: https://vrcosc.com/changelog/${{ inputs.version }}"@
+          
+          Changelog: https://vrcosc.com/changelog/${{ inputs.version }}
+          "@
         } else {
           $body = "This is a beta release. Please download the latest live release if you do not intend on testing beta features."
         }
-
+    
         $body = $body -replace "`r`n", "`n"
         echo "body<<EOF" >> $env:GITHUB_OUTPUT
         echo "$body" >> $env:GITHUB_OUTPUT
         echo "EOF" >> $env:GITHUB_OUTPUT
+
+    - name: List contents of publish folder
+      run: |
+        echo "=== ./publish ==="
+        dir ./publish
+
+    - name: List contents of releases folder
+      run: |
+        echo "=== ./releases ==="
+        dir ./releases
