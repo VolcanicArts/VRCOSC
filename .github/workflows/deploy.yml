@@ -48,6 +48,17 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.x'
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    
+    - name: Restore dependencies
+      run: dotnet restore
     
     - name: Install Velopack CLI
       run: dotnet tool install --global vpk
