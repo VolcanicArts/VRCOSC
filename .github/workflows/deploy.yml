@@ -83,7 +83,7 @@ jobs:
         $output = $body -join "`n"
         echo "body<<EOF"
         echo "$output"
-        echo "EOF
+        echo "EOF"
 
     - name: List contents of publish folder
       run: |
