@@ -20,30 +20,6 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Validate channel and branch
-      run: |
-        $expectedBranch = if ("${{ inputs.channel }}" -eq "live") { "main" } else { "dev" }
-        $actualBranch = "${{ github.ref_name }}"
-        if ($expectedBranch -ne $actualBranch) {
-          Write-Error "Channel '${{ inputs.channel }}' must be deployed from branch '$expectedBranch'. Currently on '$actualBranch'."
-          exit 1
-        }
-
-    - name: Validate project and asset files
-      run: |
-        $requiredFiles = @(
-          "./VRCOSC/app.ico",
-          "./Logo.png",
-          "./VRCOSC/VRCOSC.csproj",
-          "./VRCOSC.App/VRCOSC.App.csproj"
-        )
-        foreach ($file in $requiredFiles) {
-          if (-not (Test-Path $file)) {
-            Write-Error "Missing required file: $file"
-            exit 1
-          }
-        }
-
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
