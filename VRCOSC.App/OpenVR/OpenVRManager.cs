@@ -19,6 +19,10 @@ using VRCOSC.App.OpenVR.Metadata;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
+#if !DEBUG
+using Velopack.Locators;
+#endif
+
 namespace VRCOSC.App.OpenVR;
 
 public class OpenVRManager
