@@ -1112,9 +1112,7 @@
                                 <Path.Data>
                                     <PathGeometry>
                                         <PathFigure>
-                                            <LineSegment/>
-                                            <LineSegment/>
-                                            <LineSegment/>
+                                            <BezierSegment/>
                                         </PathFigure>
                                     </PathGeometry>
                                 </Path.Data>
