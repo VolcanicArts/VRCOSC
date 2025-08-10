@@ -75,7 +75,7 @@ public class WhisperSpeechEngine : SpeechEngine
         repeater.Start(TimeSpan.FromSeconds(1.5f));
     }
 
-    private async void processResult()
+    private async Task processResult()
     {
         Debug.Assert(audioProcessor is not null);
 

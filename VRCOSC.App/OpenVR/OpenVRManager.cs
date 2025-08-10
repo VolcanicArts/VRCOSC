@@ -85,15 +85,16 @@ public class OpenVRManager
         OpenVRHelper.TriggerHaptic(input.GetHapticActionHandle(trackedDevice.Role), trackedDevice.Index, durationSeconds, frequency, amplitude);
     }
 
-    private void attemptInitialisation()
+    private Task attemptInitialisation()
     {
-        if (Initialised || !File.Exists(VRPATH_FILE)) return;
-
-        if (!OpenVRHelper.InitialiseOpenVR(metadata.ApplicationType)) return;
+        if (Initialised || !File.Exists(VRPATH_FILE)) return Task.CompletedTask;
+        if (!OpenVRHelper.InitialiseOpenVR(metadata.ApplicationType)) return Task.CompletedTask;
 
         manageManifests();
         input.Init();
         Initialised = true;
+
+        return Task.CompletedTask;
     }
 
     private void deinitialise()

@@ -186,14 +186,14 @@ internal class AppManager
 
     public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
-    private async void checkForVRChatAutoStart()
+    private async Task checkForVRChatAutoStart()
     {
         if (!VRChatClient.HasOpenStateChanged(out var clientOpenState)) return;
 
         await ConnectionManager.Stop();
 
         if (clientOpenState && State.Value == AppManagerState.Stopped && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStart)) RequestStart();
-        if (!clientOpenState && State.Value == AppManagerState.Started && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStop)) _ = StopAsync();
+        if (!clientOpenState && State.Value == AppManagerState.Started && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStop)) await StopAsync();
     }
 
     #region OSC

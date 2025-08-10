@@ -237,12 +237,13 @@ public class ChatBoxManager : INotifyPropertyChanged
         ClearText();
     }
 
-    private void update()
+    private Task update()
     {
         OnPropertyChanged(nameof(CurrentPercentage));
+        return Task.CompletedTask;
     }
 
-    private void chatBoxUpdate()
+    private Task chatBoxUpdate()
     {
         updateBuiltInVariables();
         ModuleManager.GetInstance().ChatBoxUpdate();
@@ -262,7 +263,7 @@ public class ChatBoxManager : INotifyPropertyChanged
             currentText = LiveText;
             SendText(LiveText);
             setTyping(false);
-            return;
+            return Task.CompletedTask;
         }
 
         if (PulseText is not null)
@@ -280,10 +281,11 @@ public class ChatBoxManager : INotifyPropertyChanged
             isClear = false;
             SendText(text);
             setTyping(false);
-            return;
+            return Task.CompletedTask;
         }
 
         evaluateClips();
+        return Task.CompletedTask;
     }
 
     private void updateBuiltInVariables()

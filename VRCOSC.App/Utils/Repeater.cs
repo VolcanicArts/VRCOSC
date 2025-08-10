@@ -1,108 +1,97 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
-// See the LICENSE file in the repository root for full license text.
-
-using System;
-using System.Diagnostics;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace VRCOSC.App.Utils;
 
-public class Repeater
+public sealed class Repeater : IAsyncDisposable
 {
     private readonly string name;
-    private readonly Action? action;
-    private readonly Func<Task>? actionTask;
-    private CancellationTokenSource? cancellationTokenSource;
-    private Task? updateTask;
+    private readonly Func<Task> actionTask;
 
-    public Repeater(string name, Action action)
-    {
-        this.name = name;
-        this.action = action;
-    }
+    private CancellationTokenSource? loopCts;
+    private Task? loopTask;
+    private readonly SemaphoreSlim gate = new(1, 1);
 
-    public Repeater(string name, Func<Task> actionTask)
+    public Repeater(
+        string name,
+        Func<Task> actionTask)
     {
-        this.name = name;
-        this.actionTask = actionTask;
+        this.name = name ?? throw new ArgumentNullException(nameof(name));
+        this.actionTask = actionTask ?? throw new ArgumentNullException(nameof(actionTask));
     }
 
     public void Start(TimeSpan interval, bool runOnceImmediately = false)
     {
-        if (cancellationTokenSource is not null && updateTask is not null) throw new InvalidOperationException($"{nameof(Repeater)}:{name} is already started");
+        if (loopTask is not null)
+            throw new InvalidOperationException($"{nameof(Repeater)} is already running.");
 
-        try
-        {
-            cancellationTokenSource = new CancellationTokenSource();
-            updateTask = Task.Run(() => update(interval, runOnceImmediately), cancellationTokenSource.Token);
-        }
-        catch (Exception e)
-        {
-            ExceptionHandler.Handle(e, $"{nameof(Repeater)}:{name} has experienced an exception");
-        }
-    }
-
-    private async Task update(TimeSpan interval, bool runOnceImmediately)
-    {
-        Debug.Assert(cancellationTokenSource is not null);
-
-        if (runOnceImmediately)
-        {
-            try
-            {
-                action?.Invoke();
-                await (actionTask?.Invoke() ?? Task.CompletedTask);
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e, $"{nameof(Repeater)}:{name} has experienced an exception");
-            }
-        }
-
-        while (!cancellationTokenSource.Token.IsCancellationRequested)
-        {
-            try
-            {
-                await Task.Delay(interval, cancellationTokenSource.Token);
-                action?.Invoke();
-                await (actionTask?.Invoke() ?? Task.CompletedTask);
-            }
-            catch (OperationCanceledException)
-            {
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e, $"{nameof(Repeater)}:{name} has experienced an exception");
-            }
-        }
+        loopCts = new CancellationTokenSource();
+        loopTask = Task.Run(() => loopAsync(interval, runOnceImmediately, loopCts.Token), loopCts.Token);
     }
 
     public async Task StopAsync()
     {
-        if (cancellationTokenSource is null || updateTask is null)
-            return;
+        if (loopCts is null) return;
 
-        await cancellationTokenSource.CancelAsync();
+        await loopCts.CancelAsync();
 
         try
         {
-            await updateTask;
+            if (loopTask is not null)
+                await loopTask;
         }
         catch (OperationCanceledException)
         {
         }
-        catch (Exception e)
+        finally
         {
-            ExceptionHandler.Handle(e, $"{nameof(Repeater)}:{name} has experienced an exception");
+            loopCts.Dispose();
+            loopCts = null;
+            loopTask = null;
+        }
+    }
+
+    public async ValueTask DisposeAsync() => await StopAsync();
+
+    private async Task loopAsync(TimeSpan interval, bool runOnceImmediately, CancellationToken loopToken)
+    {
+        using var timer = new PeriodicTimer(interval);
+
+        if (runOnceImmediately)
+            await SafelyInvokeOnceAsync();
+
+        try
+        {
+            while (await timer.WaitForNextTickAsync(loopToken))
+                await SafelyInvokeOnceAsync();
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private async Task SafelyInvokeOnceAsync()
+    {
+        await gate.WaitAsync();
+
+        try
+        {
+            try
+            {
+                await actionTask();
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+        catch (Exception ex)
+        {
+            ExceptionHandler.Handle(ex, $"{nameof(Repeater)}:{name} encountered an exception");
         }
         finally
         {
-            updateTask.Dispose();
-            updateTask = null;
-
-            cancellationTokenSource.Dispose();
-            cancellationTokenSource = null;
+            gate.Release();
         }
     }
 }

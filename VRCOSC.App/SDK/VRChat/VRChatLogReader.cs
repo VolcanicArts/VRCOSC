@@ -73,12 +73,12 @@ internal static class VRChatLogReader
         currentWorldId = null;
     }
 
-    private static void process()
+    private static Task process()
     {
         lock (process_lock)
         {
             readLinesFromFile();
-            if (line_buffer.Count == 0) return;
+            if (line_buffer.Count == 0) return Task.CompletedTask;
 
             foreach (var logLine in line_buffer)
             {
@@ -92,6 +92,8 @@ internal static class VRChatLogReader
 
             line_buffer.Clear();
         }
+
+        return Task.CompletedTask;
     }
 
     private static void readLinesFromFile()

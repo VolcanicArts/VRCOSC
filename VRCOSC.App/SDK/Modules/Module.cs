@@ -303,7 +303,7 @@ public abstract class Module
             });
     }
 
-    private void invokeMethod(MethodBase method)
+    private Task invokeMethod(MethodBase method)
     {
         try
         {
@@ -313,6 +313,8 @@ public abstract class Module
         {
             ExceptionHandler.Handle(e, $"{FullID} experienced an exception calling method {method.Name}");
         }
+
+        return Task.CompletedTask;
     }
 
     #endregion
@@ -1088,7 +1090,10 @@ public abstract class Module
 
     internal void InvokeChatBoxUpdate()
     {
-        chatBoxUpdateMethods.ForEach(invokeMethod);
+        foreach (var chatBoxUpdateMethod in chatBoxUpdateMethods)
+        {
+            invokeMethod(chatBoxUpdateMethod);
+        }
     }
 
     #endregion
