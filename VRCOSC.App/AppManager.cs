@@ -14,6 +14,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using FastOSC;
 using org.mariuszgromada.math.mxparser;
+using SoundFlow.Abstracts;
+using SoundFlow.Backends.MiniAudio;
+using SoundFlow.Enums;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Audio;
 using VRCOSC.App.Audio.Whisper;
@@ -67,6 +70,8 @@ internal class AppManager
     public OpenVRManager OpenVRManager { get; private set; }
     public SteamVRManager SteamVRManager { get; private set; }
 
+    private AudioEngine audioEngine = null!;
+
     private Repeater vrchatCheckTask = null!;
 
     private ConcurrentDictionary<ParameterDefinition, VRChatParameter> parameterCache { get; } = [];
@@ -81,6 +86,8 @@ internal class AppManager
 
     public void Initialise()
     {
+        audioEngine = new MiniAudioEngine(44100, Capability.Playback);
+
         OSCEncoder.SetEncoding(Encoding.UTF8);
         OSCDecoder.SetEncoding(Encoding.UTF8);
 
