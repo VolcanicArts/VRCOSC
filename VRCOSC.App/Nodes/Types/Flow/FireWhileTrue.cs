@@ -38,5 +38,5 @@ public sealed class FireWhileTrueNode : Node
         }
     }
 
-    protected override bool ShouldProcess(PulseContext c) => PrevCondition.Read(c) != Condition.Read(c) || PrevDelay.Read(c) != DelayMilliseconds.Read(c);
+    protected override bool ShouldProcess(PulseContext c) => true;
 }
