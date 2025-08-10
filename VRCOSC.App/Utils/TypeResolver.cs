@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Nodes;
 
 // ReSharper disable InconsistentNaming
 
@@ -27,7 +28,9 @@ public static partial class TypeResolver
         { "short", typeof(short) },
         { "ushort", typeof(ushort) },
         { "object", typeof(object) },
-        { "string", typeof(string) }
+        { "string", typeof(string) },
+        { "jsonarray", typeof(JsonArray) },
+        { "jsonnode", typeof(JsonNode) }
     };
 
     private static Lazy<Dictionary<string, Type>> typeIndex = new(buildTypeIndex, true);
@@ -134,7 +137,7 @@ public static partial class TypeResolver
 
             var resolved = Construct(name); // Recursively resolve nested generics
 
-            if (resolved == null || resolved.IsAbstract)
+            if (resolved == null)
             {
                 constructedType = null;
                 return false;
