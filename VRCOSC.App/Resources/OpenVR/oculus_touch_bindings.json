@@ -121,6 +121,21 @@
 				{
 					"inputs": {
 						"position": {
+							"output": "/actions/main/in/left_pad_position"
+						},
+						"touch": {
+							"output": "/actions/main/in/left_pad_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/left_pad_click"
+						}
+					},
+					"mode": "trackpad",
+					"path": "/user/hand/left/input/trackpad"
+				},
+				{
+					"inputs": {
+						"position": {
 							"output": "/actions/main/in/right_stick_position"
 						},
 						"touch": {
@@ -183,6 +198,21 @@
 					},
 					"mode": "trigger",
 					"path": "/user/hand/right/input/grip"
+				},
+				{
+					"inputs": {
+						"position": {
+							"output": "/actions/main/in/right_pad_position"
+						},
+						"touch": {
+							"output": "/actions/main/in/right_pad_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/right_pad_click"
+						}
+					},
+					"mode": "trackpad",
+					"path": "/user/hand/right/input/trackpad"
 				}
 			]
 		}
