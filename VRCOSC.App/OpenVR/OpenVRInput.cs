@@ -84,7 +84,7 @@ public class OpenVRInput
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/haptic/out/leftelbow", ref hapticActions[5]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/haptic/out/rightelbow", ref hapticActions[6]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/haptic/out/leftfoot", ref hapticActions[7]);
-        Valve.VR.OpenVR.Input.GetActionHandle("/actions/haptic/out/rightfood", ref hapticActions[8]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/haptic/out/rightfoot", ref hapticActions[8]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/haptic/out/leftknee", ref hapticActions[9]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/haptic/out/rightknee", ref hapticActions[10]);
 
