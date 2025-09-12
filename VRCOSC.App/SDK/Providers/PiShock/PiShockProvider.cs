@@ -101,12 +101,8 @@ public class PiShockProvider
 
     public async Task Teardown()
     {
-        if (!initialised) throw new InvalidOperationException("Cannot teardown whilst not initialised");
-
         try
         {
-            initialised = false;
-
             if (webSocket is not null)
             {
                 await webSocket.DisconnectAsync();
@@ -114,23 +110,22 @@ public class PiShockProvider
             }
 
             if (serialTask is not null)
-            {
                 await serialTask.CancelAndWaitAsync();
-                serialTask = null;
-            }
 
-            if (serialInstance is not null)
-            {
-                serialInstance.Serial.Close();
-                serialInstance = null;
-            }
-
-            userId = -1;
-            clientId = -1;
+            serialInstance?.Serial.Close();
         }
         catch (Exception e)
         {
             Logger.Error(e, $"{nameof(PiShockProvider)} has experienced an exception when tearing down");
+        }
+        finally
+        {
+            webSocket = null;
+            serialTask = null;
+            serialInstance = null;
+            userId = -1;
+            clientId = -1;
+            initialised = false;
         }
     }
 
@@ -201,8 +196,8 @@ public class PiShockProvider
             // owner's username - shockers
             var devices = JsonSerializer.Deserialize<Dictionary<string, List<int>>>(content);
 
-            if (devices is null)
-                return false;
+            // if we cannot get any shockers someone might be generating their first sharecode so return true
+            if (devices is null || devices.Count == 0) return true;
 
             sharedShockers.AddRange((await getShockersFromShareIds(devices.SelectMany(pair => pair.Value))).SelectMany(pair => pair.Value));
             return true;
