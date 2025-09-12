@@ -390,7 +390,9 @@
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                  VerticalContentAlignment="Center" FontSize="16" Text="{Binding Node.Value}"
-                                 Margin="5 5 0 5"/>
+                                 Margin="5 5 0 5"
+                                 LostKeyboardFocus="TextBoxValueOutputOnlyNodeTemplate_LostKeyboardFocus"
+                                 Tag="{Binding}"/>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
                                       Name="ValueOutputItemsControl"

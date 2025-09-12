@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -25,6 +26,7 @@ using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
+using Expression = org.mariuszgromada.math.mxparser.Expression;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using RichTextBox = Xceed.Wpf.Toolkit.RichTextBox;
@@ -1609,6 +1611,31 @@ public partial class NodeGraphView : INotifyPropertyChanged
         {
             e.Handled = true;
             richTextBox.CaretPosition.InsertTextInRun("\t");
+        }
+    }
+
+    private void TextBoxValueOutputOnlyNodeTemplate_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        var textBox = (TextBox)sender;
+        var nodeGraphItem = (NodeGraphItem)textBox.Tag;
+
+        var type = nodeGraphItem.Node.Metadata.Outputs[0].Type;
+
+        try
+        {
+            var iNumberType = typeof(INumber<>).MakeGenericType(type);
+            if (!iNumberType.IsAssignableFrom(type)) return;
+
+            var expression = new Expression(textBox.Text);
+            expression.disableImpliedMultiplicationMode();
+            var result = expression.calculate();
+
+            var convertedResult = Convert.ChangeType(result, type);
+            e.Handled = true;
+            textBox.Text = convertedResult.ToString()!;
+        }
+        catch
+        {
         }
     }
 
