@@ -198,6 +198,9 @@ internal static class VRChatLogReader
         var match = avatar_prechange_regex.Match(logLine.Line);
         if (!match.Success) return;
 
+        // we should never need to backfill prechanges as a module can grab the current avatar after starting
+        if (logLine.DateTime < DateTime.Now) return;
+
         handlers.ForEach(handler => handler.OnAvatarPreChange(new VRChatClientEventAvatarPreChange(logLine.DateTime)));
     }
 
