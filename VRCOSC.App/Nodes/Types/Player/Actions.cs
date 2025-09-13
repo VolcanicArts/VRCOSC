@@ -144,3 +144,29 @@ public sealed class PlayerChangeAvatarNode : Node, IFlowInput
         return Task.CompletedTask;
     }
 }
+
+[Node("Grab", "Player/Actions")]
+public sealed class PlayerGrabNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    protected override async Task Process(PulseContext c)
+    {
+        c.GetPlayer().GrabRight();
+
+        await Next.Execute(c);
+    }
+}
+
+[Node("Drop", "Player/Actions")]
+public sealed class PlayerDropNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    protected override async Task Process(PulseContext c)
+    {
+        c.GetPlayer().DropRight();
+
+        await Next.Execute(c);
+    }
+}
