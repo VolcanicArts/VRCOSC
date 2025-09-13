@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Net.Http;
@@ -275,6 +276,13 @@ public class PiShockProvider
                         }
                     }
                     catch (UnauthorizedAccessException)
+                    {
+                        if (serial!.IsOpen)
+                            serial.Close();
+
+                        serialInstance = null;
+                    }
+                    catch (IOException)
                     {
                         if (serial!.IsOpen)
                             serial.Close();
