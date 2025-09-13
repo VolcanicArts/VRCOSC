@@ -8,10 +8,7 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Fire While True", "Flow")]
 public sealed class FireWhileTrueNode : Node
 {
-    public GlobalStore<bool> PrevCondition = new();
-    public GlobalStore<int> PrevDelay = new();
-
-    public FlowCall IsTrue = new("Is True");
+    public FlowCall Next = new("Next");
 
     [NodeReactive]
     public ValueInput<int> DelayMilliseconds = new("Delay Milliseconds");
@@ -21,16 +18,13 @@ public sealed class FireWhileTrueNode : Node
 
     protected override async Task Process(PulseContext c)
     {
-        PrevCondition.Write(Condition.Read(c), c);
-        PrevDelay.Write(DelayMilliseconds.Read(c), c);
-
         var delay = DelayMilliseconds.Read(c);
 
         if (!Condition.Read(c) || delay <= 0) return;
 
         while (!c.IsCancelled)
         {
-            await IsTrue.Execute(c);
+            await Next.Execute(c);
             if (c.IsCancelled) break;
 
             await Task.Delay(delay, c.Token);
