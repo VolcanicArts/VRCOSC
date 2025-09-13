@@ -27,23 +27,37 @@ public class NodeManager
 
     public void Load()
     {
-        if (Directory.Exists(graphsPath))
+        try
         {
-            var loadedGraphs = Directory.EnumerateFiles(graphsPath);
-            Graphs.AddRange(loadedGraphs.Select(field => new NodeGraph { Id = Guid.Parse(Path.GetFileNameWithoutExtension(new FileInfo(field).Name)) }));
-        }
+            if (Directory.Exists(graphsPath))
+            {
+                var loadedGraphs = Directory.EnumerateFiles(graphsPath);
+                Graphs.AddRange(loadedGraphs.Select(field => new NodeGraph { Id = Guid.Parse(Path.GetFileNameWithoutExtension(new FileInfo(field).Name)) }));
+            }
 
-        if (Graphs.Count == 0) Graphs.Add(new NodeGraph());
+            if (Graphs.Count == 0) Graphs.Add(new NodeGraph());
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, "Unable to load graphs");
+        }
 
         foreach (var graph in Graphs)
         {
             graph.Load();
         }
 
-        if (Directory.Exists(presetsPath))
+        try
         {
-            var loadedPresets = Directory.EnumerateFiles(presetsPath);
-            Presets.AddRange(loadedPresets.Select(presets => new NodePreset { Id = Guid.Parse(Path.GetFileNameWithoutExtension(new FileInfo(presets).Name)) }));
+            if (Directory.Exists(presetsPath))
+            {
+                var loadedPresets = Directory.EnumerateFiles(presetsPath);
+                Presets.AddRange(loadedPresets.Select(presets => new NodePreset { Id = Guid.Parse(Path.GetFileNameWithoutExtension(new FileInfo(presets).Name)) }));
+            }
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, "Unable to load presets");
         }
 
         foreach (var nodePreset in Presets)
