@@ -116,32 +116,40 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
 
     private T? performDeserialisation<T>(string filePath) where T : class
     {
-        var bytes = File.ReadAllBytes(filePath);
-
-        if (bytes is [0xFF, 0xFE, ..])
+        try
         {
-            bytes = bytes[2..];
-            Logger.Log("Found BOM. Deserialising as UTF16");
-            return JsonConvert.DeserializeObject<T>(Encoding.Unicode.GetString(bytes));
+            var bytes = File.ReadAllBytes(filePath);
+
+            if (bytes is [0xFF, 0xFE, ..])
+            {
+                bytes = bytes[2..];
+                Logger.Log("Found BOM. Deserialising as UTF16");
+                return JsonConvert.DeserializeObject<T>(Encoding.Unicode.GetString(bytes));
+            }
+
+            var utf16Str = Encoding.Unicode.GetString(bytes);
+            var utf8Str = Encoding.UTF8.GetString(bytes);
+
+            if (utf16Str.StartsWith('{'))
+            {
+                Logger.Log($"Deserialising {filePath} as UTF16", LoggingTarget.Information);
+                return JsonConvert.DeserializeObject<T>(utf16Str);
+            }
+
+            if (utf8Str.StartsWith('{'))
+            {
+                Logger.Log($"Deserialising {filePath} as UTF8", LoggingTarget.Information);
+                return JsonConvert.DeserializeObject<T>(utf8Str);
+            }
+
+            Logger.Log($"'{filePath}' was unable to be deserialised");
+            return null;
         }
-
-        var utf16Str = Encoding.Unicode.GetString(bytes);
-        var utf8Str = Encoding.UTF8.GetString(bytes);
-
-        if (utf16Str.StartsWith('{'))
+        catch (Exception e)
         {
-            Logger.Log($"Deserialising {filePath} as UTF16", LoggingTarget.Information);
-            return JsonConvert.DeserializeObject<T>(utf16Str);
+            ExceptionHandler.Handle(e, $"'{filePath}' was unable to be deserialised");
+            return null;
         }
-
-        if (utf8Str.StartsWith('{'))
-        {
-            Logger.Log($"Deserialising {filePath} as UTF8", LoggingTarget.Information);
-            return JsonConvert.DeserializeObject<T>(utf8Str);
-        }
-
-        Logger.Log($"'{filePath}' was unable to be deserialised");
-        return null;
     }
 
     /// <summary>
