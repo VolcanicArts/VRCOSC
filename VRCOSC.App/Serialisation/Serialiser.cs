@@ -177,6 +177,10 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
                     outValue = token.ToObject(targetType)!;
                     return true;
 
+                case string strValue when targetType == typeof(Guid):
+                    outValue = Guid.Parse(strValue);
+                    return true;
+
                 case var subValue when targetType.IsAssignableTo(typeof(Enum)):
                     outValue = Enum.ToObject(targetType, subValue);
                     return true;
