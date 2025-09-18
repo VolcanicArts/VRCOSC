@@ -38,7 +38,7 @@ public class ObservableConverter : JsonConverter<IObservable>
     }
 }
 
-public sealed class Observable<T> : IObservable, INotifyPropertyChanged, IEquatable<Observable<T>> where T : notnull
+public sealed class Observable<T> : IObservable, INotifyPropertyChanged, IEquatable<Observable<T>>
 {
     private T value;
 

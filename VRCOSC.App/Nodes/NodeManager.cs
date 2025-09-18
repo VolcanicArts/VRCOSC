@@ -25,6 +25,8 @@ public class NodeManager
     public ObservableCollection<NodeGraph> Graphs { get; } = [];
     public ObservableCollection<NodePreset> Presets { get; } = [];
 
+    public Action? OnLoad;
+
     public void Load()
     {
         try
@@ -66,6 +68,18 @@ public class NodeManager
         }
 
         Graphs.OnCollectionChanged(FieldsOnCollectionChanged);
+        OnLoad?.Invoke();
+    }
+
+    public void Unload()
+    {
+        foreach (var nodeGraph in Graphs)
+        {
+            nodeGraph.Serialise();
+        }
+
+        Graphs.Clear();
+        Presets.Clear();
     }
 
     private async void FieldsOnCollectionChanged(IEnumerable<NodeGraph> newGraphs, IEnumerable<NodeGraph> oldGraphs)

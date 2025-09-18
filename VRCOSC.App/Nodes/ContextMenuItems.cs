@@ -104,7 +104,7 @@ public static class ContextMenuBuilder
         sortMenu(createNodeSubMenu.Items);
 
         var modulesMenu = new ContextMenuSubMenu("Modules");
-        var external = nodeTypes.Where(t => t.Assembly != executingAsm);
+        var external = nodeTypes.Where(t => ModuleManager.GetInstance().IsModuleAssembly(t.Assembly));
 
         var byModule = external
                        .Select(nodeType => new
@@ -116,6 +116,7 @@ public static class ContextMenuBuilder
                            x.ModuleType != null
                            && typeof(Module).IsAssignableFrom(x.ModuleType)
                            && !x.ModuleType!.IsAbstract
+                           && ModuleManager.GetInstance().ModuleTypeExists(x.ModuleType)
                        )
                        .GroupBy(
                            x => ModuleManager

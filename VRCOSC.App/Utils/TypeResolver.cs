@@ -204,9 +204,9 @@ public static partial class TypeResolver
             {
                 if (t.IsAbstract) continue;
 
-                if (t.FullName != null) dict.TryAdd(t.FullName, t);
+                if (t.FullName != null) dict[t.FullName] = t;
 
-                dict.TryAdd(t.Name, t);
+                dict[t.Name] = t;
             }
         }
 

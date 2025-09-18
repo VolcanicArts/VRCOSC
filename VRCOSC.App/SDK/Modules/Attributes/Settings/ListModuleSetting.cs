@@ -23,17 +23,19 @@ public abstract class ListModuleSetting : ModuleSetting
     public abstract void Remove(object item);
 }
 
-public abstract class ListModuleSetting<T> : ListModuleSetting where T : IEquatable<T>
+public abstract class ListModuleSetting<T> : ListModuleSetting, IDisposable where T : IEquatable<T>
 {
     protected readonly IEnumerable<T> DefaultValues;
     public ObservableCollection<T> Attribute { get; }
 
+    private readonly IDisposable settingChangedDisposable;
+
     protected ListModuleSetting(string title, string description, Type viewType, IEnumerable<T> defaultValues)
         : base(title, description, viewType)
     {
-        DefaultValues = defaultValues;
+        DefaultValues = defaultValues.ToList();
         Attribute = new ObservableCollection<T>(defaultValues);
-        Attribute.OnCollectionChanged((_, _) => OnSettingChange?.Invoke());
+        settingChangedDisposable = Attribute.OnCollectionChanged((_, _) => OnSettingChange?.Invoke());
     }
 
     protected override bool IsDefault() => Attribute.SequenceEqual(DefaultValues);
@@ -65,8 +67,14 @@ public abstract class ListModuleSetting<T> : ListModuleSetting where T : IEquata
         if (ingestValue is not JArray jArrayValue) return false;
 
         Attribute.Clear();
-        Attribute.AddRange(jArrayValue.Select(token => token.ToObject<T>()!));
+        Attribute.AddRange(jArrayValue.Select(token => (T)token.ToObject(typeof(T), Serializer)!));
         return true;
+    }
+
+    public void Dispose()
+    {
+        settingChangedDisposable.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
 

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Text;
@@ -13,11 +14,12 @@ using System.Threading.Tasks;
 using Windows.Win32;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Modules.Serialisation;
-using VRCOSC.App.SDK.Modules;
+using VRCOSC.App.Nodes;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
+using Module = VRCOSC.App.SDK.Modules.Module;
 
 namespace VRCOSC.App.Modules;
 
@@ -28,8 +30,8 @@ internal class ModuleManager : INotifyPropertyChanged
 
     private readonly Storage storage = AppManager.GetInstance().Storage;
 
-    private AssemblyLoadContext? localModulesContext;
-    private Dictionary<string, AssemblyLoadContext>? remoteModulesContexts;
+    private PackageLoadContext? localModulesContext;
+    private Dictionary<string, PackageLoadContext>? remoteModulesContexts;
 
     public ObservableDictionary<ModulePackage, List<Module>> Modules { get; } = new();
 
@@ -87,10 +89,12 @@ internal class ModuleManager : INotifyPropertyChanged
 
     #region Management
 
-    public Module GetModuleInstanceFromType(Type moduleType) => modules.Single(module => module.GetType() == moduleType);
+    public Module GetModuleInstanceFromType(Type moduleType) => modules.Single(module => module.GetType().AssemblyQualifiedName == moduleType.AssemblyQualifiedName);
     public IEnumerable<T> GetModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
     public IEnumerable<T> GetRunningModulesOfType<T>() => RunningModules.Where(module => module.GetType().IsAssignableTo(typeof(T))).Cast<T>();
     public IEnumerable<T> GetEnabledModulesOfType<T>() => modules.Where(module => module.GetType().IsAssignableTo(typeof(T)) && module.Enabled.Value).Cast<T>();
+    public bool ModuleTypeExists(Type moduleType) => modules.SingleOrDefault(module => module.GetType().AssemblyQualifiedName == moduleType.AssemblyQualifiedName) is not null;
+    public bool IsModuleAssembly(Assembly assembly) => (localModulesContext?.Assemblies.Contains(assembly) ?? false) || (remoteModulesContexts?.Any(pair => pair.Value.Assemblies.Contains(assembly)) ?? false);
 
     public Module GetModuleOfID(string moduleID) => modules.First(module => module.FullID == moduleID);
 
@@ -109,24 +113,48 @@ internal class ModuleManager : INotifyPropertyChanged
 
         await AppManager.GetInstance().StopAsync();
 
+        NodeManager.GetInstance().Unload();
         ChatBoxManager.GetInstance().Unload();
         UnloadAllModules();
         LoadAllModules(filePathOverrides);
         ChatBoxManager.GetInstance().Load();
+        NodeManager.GetInstance().Load();
     }
 
     public void UnloadAllModules()
     {
         Logger.Log("Unloading all modules");
 
+        TypeResolver.Reset();
+
         Modules.Clear();
         OnPropertyChanged(nameof(UIModules));
 
+        var alcWeakRefs = new List<WeakReference>();
+
         localModulesContext?.Unload();
-        remoteModulesContexts?.ForEach(remoteModuleContextPair => remoteModuleContextPair.Value.Unload());
+        alcWeakRefs.Add(new WeakReference(localModulesContext));
+
+        if (remoteModulesContexts is not null)
+        {
+            foreach (var ctx in remoteModulesContexts.Values)
+            {
+                ctx.Unload();
+                alcWeakRefs.Add(new WeakReference(ctx));
+            }
+
+            remoteModulesContexts.Clear();
+            remoteModulesContexts = null;
+        }
 
         localModulesContext = null;
         remoteModulesContexts = null;
+
+        for (int i = 0; alcWeakRefs.Any(wr => wr.IsAlive) && i < 10 * alcWeakRefs.Count; i++)
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
 
         Logger.Log("Unloading successful");
     }
@@ -274,7 +302,7 @@ internal class ModuleManager : INotifyPropertyChanged
         if (remoteModulesContexts is not null)
             throw new InvalidOperationException("Cannot load remote modules while remote modules are already loaded");
 
-        remoteModulesContexts = new Dictionary<string, AssemblyLoadContext>();
+        remoteModulesContexts = new Dictionary<string, PackageLoadContext>();
 
         var remoteModulesDirectory = storage.GetStorageForDirectory("packages/remote").GetFullPath(string.Empty, true);
 
@@ -282,11 +310,11 @@ internal class ModuleManager : INotifyPropertyChanged
         {
             var packageId = moduleDirectory.Split('\\').Last();
 
-            AssemblyLoadContext assemblyLoadContext;
+            PackageLoadContext packageLoadContext;
 
             try
             {
-                assemblyLoadContext = loadContextFromPath(moduleDirectory);
+                packageLoadContext = loadContextFromPath(moduleDirectory);
             }
             catch (Exception e)
             {
@@ -295,7 +323,7 @@ internal class ModuleManager : INotifyPropertyChanged
                 continue;
             }
 
-            remoteModulesContexts.Add(packageId, assemblyLoadContext);
+            remoteModulesContexts.Add(packageId, packageLoadContext);
         }
 
         Logger.Log($"Found {remoteModulesContexts.Values.Sum(remoteModuleContext => remoteModuleContext.Assemblies.Count())} assemblies");
@@ -362,19 +390,21 @@ internal class ModuleManager : INotifyPropertyChanged
         return moduleInstanceList;
     }
 
-    private AssemblyLoadContext loadContextFromPath(string path)
+    private PackageLoadContext loadContextFromPath(string path)
     {
-        var assemblyLoadContext = new AssemblyLoadContext(null, true);
+        var packageLoadContext = new PackageLoadContext(path);
         PInvoke.SetDllDirectory(path);
 
-        foreach (var dllPath in Directory.GetFiles(path, "*.dll")) loadAssemblyFromPath(assemblyLoadContext, dllPath);
-        return assemblyLoadContext;
+        foreach (var dllPath in Directory.GetFiles(path, "*.dll")) loadAssemblyFromPath(packageLoadContext, dllPath);
+        return packageLoadContext;
     }
 
-    private static void loadAssemblyFromPath(AssemblyLoadContext context, string path)
+    private static void loadAssemblyFromPath(PackageLoadContext context, string path)
     {
-        using var assemblyStream = new FileStream(path, FileMode.Open, FileAccess.Read);
+        using var assemblyStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
         context.LoadFromStream(assemblyStream);
+
+        //context.LoadFromAssemblyPath(path);
     }
 
     #endregion
