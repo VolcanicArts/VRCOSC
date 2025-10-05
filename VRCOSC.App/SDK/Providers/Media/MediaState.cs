@@ -51,5 +51,5 @@ public class MediaTimelineProperties
     /// <summary>
     /// The progress of the song as a normalised percentage
     /// </summary>
-    public float Progress => Math.Abs(End.Ticks) == 0 || Position >= End ? 1f : Position.Ticks / (float)End.Ticks;
+    public float Progress => End.Ticks == 0 || Position >= End ? 1f : Position.Ticks / (float)End.Ticks;
 }

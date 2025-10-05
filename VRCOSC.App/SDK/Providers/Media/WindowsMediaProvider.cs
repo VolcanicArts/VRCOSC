@@ -80,104 +80,129 @@ public class WindowsMediaProvider
 
     public void Terminate()
     {
-        if (sessionManager is not null)
-        {
-            foreach (var session in sessionManager.GetSessions().Where(session => Sessions.Contains(session.SourceAppUserModelId)))
-            {
-                session.MediaPropertiesChanged -= onAnyMediaPropertyChanged;
-                session.PlaybackInfoChanged -= onAnyPlaybackStateChanged;
-                session.TimelinePropertiesChanged -= onAnyTimelinePropertiesChanged;
-            }
+        if (sessionManager is null) return;
 
-            sessionManager.SessionsChanged -= sessionsChanged;
-            sessionManager.CurrentSessionChanged -= currentSessionChanged;
-            sessionManager = null;
+        foreach (var session in sessionManager.GetSessions().Where(session => Sessions.Contains(session.SourceAppUserModelId)))
+        {
+            session.MediaPropertiesChanged -= onAnyMediaPropertyChanged;
+            session.PlaybackInfoChanged -= onAnyPlaybackStateChanged;
+            session.TimelinePropertiesChanged -= onAnyTimelinePropertiesChanged;
+        }
+
+        sessionManager.SessionsChanged -= sessionsChanged;
+        sessionManager.CurrentSessionChanged -= currentSessionChanged;
+        sessionManager = null;
+    }
+
+    private void updatePlaybackInfo(GlobalSystemMediaTransportControlsSession? session)
+    {
+        if (session is null) return;
+
+        var state = States[session.SourceAppUserModelId];
+        var args = session.GetPlaybackInfo();
+
+        try
+        {
+            state.IsShuffle = args.IsShuffleActive ?? false;
+            state.RepeatMode = args.AutoRepeatMode ?? default;
+            state.Status = args.PlaybackStatus;
+        }
+        catch
+        {
+        }
+    }
+
+    private async Task updateMediaProperties(GlobalSystemMediaTransportControlsSession? session)
+    {
+        if (session is null) return;
+
+        var state = States[session.SourceAppUserModelId];
+
+        try
+        {
+            var args = await session.TryGetMediaPropertiesAsync();
+            state.Title = args.Title;
+            state.Subtitle = args.Subtitle;
+            state.Artist = args.Artist;
+            state.TrackNumber = args.TrackNumber;
+            state.AlbumTitle = args.AlbumTitle;
+            state.AlbumArtist = args.AlbumArtist;
+            state.AlbumTrackCount = args.AlbumTrackCount;
+            state.Genres = args.Genres.ToList();
+        }
+        catch
+        {
+        }
+    }
+
+    private void updateTimeline(GlobalSystemMediaTransportControlsSession? session)
+    {
+        if (session is null) return;
+
+        try
+        {
+            var state = States[session.SourceAppUserModelId];
+
+            var args = session.GetTimelineProperties();
+            state.Timeline.Position = args.Position;
+            state.Timeline.End = args.EndTime;
+            state.Timeline.Start = args.StartTime;
+        }
+        catch
+        {
         }
     }
 
     private void onAnyPlaybackStateChanged(GlobalSystemMediaTransportControlsSession? session, PlaybackInfoChangedEventArgs? _)
     {
-        try
-        {
-            if (session is not null)
-            {
-                var state = States[session.SourceAppUserModelId];
-                var args = session.GetPlaybackInfo();
+        Logger.Log($"Playback state change: {session?.SourceAppUserModelId}", LoggingTarget.Information);
 
-                state.IsShuffle = args.IsShuffleActive ?? default;
-                state.RepeatMode = args.AutoRepeatMode ?? default;
-                state.Status = args.PlaybackStatus;
-            }
-        }
-        catch (Exception)
-        {
-        }
-
+        updatePlaybackInfo(session);
         OnPlaybackStateChanged?.Invoke();
     }
 
     private async void onAnyMediaPropertyChanged(GlobalSystemMediaTransportControlsSession? session, MediaPropertiesChangedEventArgs? _)
     {
-        try
-        {
-            if (session is not null)
-            {
-                var state = States[session.SourceAppUserModelId];
-                var args = await session.TryGetMediaPropertiesAsync();
+        Logger.Log($"Media property change: {session?.SourceAppUserModelId}", LoggingTarget.Information);
 
-                state.Title = args.Title;
-                state.Subtitle = args.Subtitle;
-                state.Artist = args.Artist;
-                state.TrackNumber = args.TrackNumber;
-                state.AlbumTitle = args.AlbumTitle;
-                state.AlbumArtist = args.AlbumArtist;
-                state.AlbumTrackCount = args.AlbumTrackCount;
-                state.Genres = args.Genres.ToList();
-            }
-        }
-        catch (Exception)
-        {
-        }
-
+        await updateMediaProperties(session);
+        updateTimeline(session);
         OnTrackChanged?.Invoke();
+        OnPlaybackPositionChanged?.Invoke();
     }
 
     private void onAnyTimelinePropertiesChanged(GlobalSystemMediaTransportControlsSession? session, TimelinePropertiesChangedEventArgs? _)
     {
-        try
-        {
-            if (session is not null)
-            {
-                var state = States[session.SourceAppUserModelId];
-                var args = session.GetTimelineProperties();
+        Logger.Log($"Timeline property change: {session?.SourceAppUserModelId}", LoggingTarget.Information);
 
-                state.Timeline.Position = args.Position;
-                state.Timeline.End = args.EndTime;
-                state.Timeline.Start = args.StartTime;
-            }
-        }
-        catch (Exception)
-        {
-        }
-
+        updateTimeline(session);
         OnPlaybackPositionChanged?.Invoke();
     }
 
-    private void currentSessionChanged(GlobalSystemMediaTransportControlsSessionManager? sender, CurrentSessionChangedEventArgs? args)
+    private async Task updateCurrentSession()
     {
         var session = sessionManager?.GetCurrentSession();
+        Logger.Log($"Session changed: {session?.SourceAppUserModelId}", LoggingTarget.Information);
 
         currentSessionId = session?.SourceAppUserModelId;
-        onAnyPlaybackStateChanged(session, null);
-        onAnyMediaPropertyChanged(session, null);
-        onAnyTimelinePropertiesChanged(session, null);
+        await updateMediaProperties(session);
+        updateTimeline(session);
+        updatePlaybackInfo(session);
+        OnTrackChanged?.Invoke();
+        OnPlaybackPositionChanged?.Invoke();
+        OnPlaybackStateChanged?.Invoke();
+    }
+
+    private async void currentSessionChanged(GlobalSystemMediaTransportControlsSessionManager? sender, CurrentSessionChangedEventArgs? args)
+    {
+        await updateCurrentSession();
     }
 
     private void sessionsChanged(GlobalSystemMediaTransportControlsSessionManager? _, SessionsChangedEventArgs? _2)
     {
         cachedSessions = sessionManager?.GetSessions().ToList() ?? new List<GlobalSystemMediaTransportControlsSession>();
 
-        cachedSessions.Where(session => !Sessions.Contains(session.SourceAppUserModelId)).ForEach(session =>
+        foreach (var session in cachedSessions.Where(session => !Sessions.Contains(session.SourceAppUserModelId)))
         {
             session.PlaybackInfoChanged += onAnyPlaybackStateChanged;
             session.MediaPropertiesChanged += onAnyMediaPropertyChanged;
@@ -185,11 +210,13 @@ public class WindowsMediaProvider
 
             Sessions.Add(session.SourceAppUserModelId);
 
+            Logger.Log($"Adding new state for {session.SourceAppUserModelId}", LoggingTarget.Information);
+
             States[session.SourceAppUserModelId] = new MediaState
             {
                 ID = session.SourceAppUserModelId
             };
-        });
+        }
 
         Sessions.RemoveIf(session => !cachedSessions.Select(cachedSession => cachedSession.SourceAppUserModelId).Contains(session));
         States.RemoveIf(pair => !Sessions.Contains(pair.Key));
