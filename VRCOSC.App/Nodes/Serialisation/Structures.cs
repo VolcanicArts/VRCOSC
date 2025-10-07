@@ -220,6 +220,6 @@ public class SerialisableGraphVariable
         Type = variable.GetValueType().GetFriendlyName();
 
         if (Persistent)
-            Value = Persistent;
+            Value = variable.GetValue();
     }
 }

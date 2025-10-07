@@ -29,17 +29,24 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
 
         foreach (var sV in data.Variables)
         {
-            if (!TypeResolver.TryConstruct(sV.Type, out var variableType)) continue;
+            try
+            {
+                if (!TypeResolver.TryConstruct(sV.Type, out var variableType)) continue;
 
-            if (TryConvertToTargetType(sV.Value, variableType, out var variableValue))
-            {
-                var variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [sV.Id, sV.Name, sV.Persistent, variableValue])!;
-                Reference.GraphVariables.TryAdd(sV.Id, variable);
+                if (TryConvertToTargetType(sV.Value, variableType, out var variableValue))
+                {
+                    var variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [sV.Id, sV.Name, sV.Persistent, variableValue])!;
+                    Reference.GraphVariables.TryAdd(sV.Id, variable);
+                }
+                else
+                {
+                    var variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [sV.Id, sV.Name, sV.Persistent])!;
+                    Reference.GraphVariables.TryAdd(sV.Id, variable);
+                }
             }
-            else
+            catch (Exception e)
             {
-                var variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [sV.Id, sV.Name, sV.Persistent])!;
-                Reference.GraphVariables.TryAdd(sV.Id, variable);
+                Logger.Error(e, "Error creating a variable when deserialising");
             }
         }
 
@@ -79,7 +86,7 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
             }
             catch (Exception e)
             {
-                Logger.Error(e, "Error creating nodes when deserialising");
+                Logger.Error(e, "Error creating a node when deserialising");
             }
         }
 
@@ -97,7 +104,7 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
             }
             catch (Exception e)
             {
-                Logger.Error(e, "Error creating connection when deserialising");
+                Logger.Error(e, "Error creating a connection when deserialising");
             }
         }
 
@@ -111,7 +118,7 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
             }
             catch (Exception e)
             {
-                Logger.Error(e, "Error creating groups when deserialising");
+                Logger.Error(e, "Error creating a group when deserialising");
             }
         }
 
