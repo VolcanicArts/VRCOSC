@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Text.Json.Nodes;
 
 // ReSharper disable InconsistentNaming
@@ -191,7 +192,8 @@ public static partial class TypeResolver
     {
         var dict = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+        // prioritise the system libraries
+        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies().OrderBy(a => a.FullName!.StartsWith("System")))
         {
             if (asm.IsDynamic) continue;
 
