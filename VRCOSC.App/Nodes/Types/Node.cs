@@ -19,6 +19,8 @@ public abstract class Node : IEquatable<Node>
     internal Guid Id { get; set; } = Guid.NewGuid();
     internal Point NodePosition { get; set; } = new(5000, 5000);
 
+    public virtual string DisplayName => Metadata.Title;
+
     public NodeMetadata Metadata => NodeGraph.GetMetadata(this);
 
     protected Node()

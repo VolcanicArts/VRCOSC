@@ -229,6 +229,11 @@ public interface IImpulseReceiver : IImpulseNode, IHasTextProperty
     public void WriteOutputs(object[] values, PulseContext c);
 }
 
+public interface IHasVariableReference
+{
+    public Guid VariableId { get; set; }
+}
+
 public record ImpulseDefinition(string Name, object[] Values);
 
 internal interface INodeEventHandler

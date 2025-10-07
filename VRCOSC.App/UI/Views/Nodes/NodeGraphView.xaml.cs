@@ -12,6 +12,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -22,12 +23,15 @@ using VRCOSC.App.Nodes;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Inputs;
 using VRCOSC.App.Nodes.Types.Utility;
+using VRCOSC.App.Nodes.Variables;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
+using Xceed.Wpf.Toolkit;
 using Expression = org.mariuszgromada.math.mxparser.Expression;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
+using MessageBox = System.Windows.MessageBox;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using RichTextBox = Xceed.Wpf.Toolkit.RichTextBox;
 using TextBox = System.Windows.Controls.TextBox;
@@ -55,6 +59,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
     private WindowManager nodeCreatorWindowManager = null!;
     private WindowManager presetCreatorWindowManager = null!;
+    private WindowManager variableCreatorWindowManager = null!;
 
     private bool hasLoaded;
     private Point graphContextMenuPosition;
@@ -81,6 +86,8 @@ public partial class NodeGraphView : INotifyPropertyChanged
         }
     }
 
+    public ObservableCollection<IGraphVariable> GraphVariablesSource { get; } = new();
+
     public NodeGraphView(NodeGraph graph)
     {
         Graph = graph;
@@ -102,6 +109,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         nodeCreatorWindowManager = new WindowManager(this);
         presetCreatorWindowManager = new WindowManager(this);
+        variableCreatorWindowManager = new WindowManager(this);
 
         Task.Run(Graph.MarkDirty);
     }
@@ -143,6 +151,8 @@ public partial class NodeGraphView : INotifyPropertyChanged
                 drawGraphBackground();
 
             RefreshContextMenu();
+            GraphVariablesSource.RemoveIf(_ => true);
+            GraphVariablesSource.AddRange(Graph.GraphVariables.Values);
             GraphItems.AddRange(addedNodes);
             GraphItems.AddRange(addedGroups);
         });
@@ -1645,6 +1655,72 @@ public partial class NodeGraphView : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+
+    private void VariableAdd_OnClick(object sender, RoutedEventArgs e)
+    {
+        var window = new VariableCreatorWindow(Graph);
+
+        window.Closed += (_, _) =>
+        {
+            if (window.VariableType is null) return;
+
+            Graph.CreateVariable(window.VariableType, window.VariableName, window.VariablePersistent);
+            Graph.MarkDirty();
+        };
+
+        variableCreatorWindowManager.TrySpawnChild(window);
+    }
+
+    private void CreateVariableSource_OnClick(object sender, RoutedEventArgs e)
+    {
+        var item = (MenuItem)sender;
+        var graphVariable = (IGraphVariable)item.Tag;
+
+        var graphTransform = getGraphTransform();
+        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
+
+        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(VariableSourceNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
+        variableReference.VariableId = graphVariable.GetId();
+        Graph.MarkDirty();
+    }
+
+    private void CreateVariableReference_OnClick(object sender, RoutedEventArgs e)
+    {
+        var item = (MenuItem)sender;
+        var graphVariable = (IGraphVariable)item.Tag;
+
+        var graphTransform = getGraphTransform();
+        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
+
+        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(VariableReferenceNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
+        variableReference.VariableId = graphVariable.GetId();
+        Graph.MarkDirty();
+    }
+
+    private void CreateVariableWrite_OnClick(object sender, RoutedEventArgs e)
+    {
+        var item = (MenuItem)sender;
+        var graphVariable = (IGraphVariable)item.Tag;
+
+        var graphTransform = getGraphTransform();
+        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
+
+        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(DirectWriteVariableNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
+        variableReference.VariableId = graphVariable.GetId();
+        Graph.MarkDirty();
+    }
+
+    private void DeleteVariable_OnClick(object sender, RoutedEventArgs e)
+    {
+        var item = (MenuItem)sender;
+        var graphVariable = (IGraphVariable)item.Tag;
+
+        var result = MessageBox.Show("Are you sure you want to delete this variable?", "Variable Delete Warning", MessageBoxButton.YesNo);
+        if (result != MessageBoxResult.Yes) return;
+
+        Graph.DeleteVariable(graphVariable);
+        Graph.MarkDirty();
+    }
 }
 
 public enum ConnectionDragOrigin
@@ -1806,4 +1882,18 @@ public record ConnectionItem
     public virtual bool Equals(ConnectionItem? other) => Connection == other?.Connection;
 
     public override int GetHashCode() => Connection.GetHashCode();
+}
+
+public class RichPlainTextFormatter : ITextFormatter
+{
+    public string GetText(FlowDocument document)
+    {
+        var text = new TextRange(document.ContentStart, document.ContentEnd).Text;
+        return text.Remove(text.Length - Environment.NewLine.Length, Environment.NewLine.Length);
+    }
+
+    public void SetText(FlowDocument document, string text)
+    {
+        new TextRange(document.ContentStart, document.ContentEnd).Text = text;
+    }
 }

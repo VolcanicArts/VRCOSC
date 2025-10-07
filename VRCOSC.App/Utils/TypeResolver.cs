@@ -37,6 +37,12 @@ public static partial class TypeResolver
 
     public static void Reset() => typeIndex = new(buildTypeIndex, true);
 
+    public static bool TryConstruct(string friendlyName, [NotNullWhen(true)] out Type? constructedType)
+    {
+        constructedType = Construct(friendlyName);
+        return constructedType is not null;
+    }
+
     public static Type? Construct(string friendlyName)
     {
         var (className, generics) = extractTypeNameAndGenerics(friendlyName);

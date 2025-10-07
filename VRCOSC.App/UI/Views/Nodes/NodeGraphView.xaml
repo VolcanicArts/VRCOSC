@@ -115,7 +115,7 @@
                 <StackPanel Orientation="Vertical" Margin="5"
                             Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                     <TextBlock Foreground="{DynamicResource CForeground2}"
-                               Text="{Binding Node.Metadata.Title}" FontSize="14"
+                               Text="{Binding Node.DisplayName}" FontSize="14"
                                FontWeight="SemiBold"
                                VerticalAlignment="Top"
                                TextWrapping="WrapWithOverflow"
@@ -633,16 +633,9 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <xctk:RichTextBox Grid.Column="0"
-                                   Foreground="{DynamicResource CForeground2}"
-                                   Background="{DynamicResource CBackground2}"
-                                   Text="{Binding Node.Value, UpdateSourceTrigger=PropertyChanged}"
-                                   VerticalAlignment="Top"
-                                   AcceptsTab="True"
-                                   PreviewKeyDown="RichTextBox_PreviewKeyDown"
-                                   Margin="5 0 0 0">
+                        <xctk:RichTextBox PreviewKeyDown="RichTextBox_PreviewKeyDown" Text="{Binding Node.Value, UpdateSourceTrigger=PropertyChanged}" Margin="5 0 0 0" Background="{DynamicResource CBackground2}" Foreground="{DynamicResource CForeground1}">
                             <xctk:RichTextBox.TextFormatter>
-                                <xctk:PlainTextFormatter />
+                                <nodes:RichPlainTextFormatter />
                             </xctk:RichTextBox.TextFormatter>
                         </xctk:RichTextBox>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
@@ -748,7 +741,7 @@
                         <Grid Grid.Column="1" VerticalAlignment="Center">
                             <Viewbox Stretch="Uniform" Margin="0 -1 0 0">
                                 <TextBlock Foreground="{DynamicResource CForeground2}"
-                                           Text="{Binding Node.Metadata.Title}" FontSize="15"
+                                           Text="{Binding Node.DisplayName}" FontSize="15"
                                            VerticalAlignment="Center"
                                            HorizontalAlignment="Center"
                                            TextAlignment="Center"
@@ -800,7 +793,7 @@
                         <Grid Grid.Column="0" VerticalAlignment="Center">
                             <Viewbox Stretch="Uniform" Margin="6 -1 0 0">
                                 <TextBlock Foreground="{DynamicResource CForeground2}"
-                                           Text="{Binding Node.Metadata.Title}" FontSize="15"
+                                           Text="{Binding Node.DisplayName}" FontSize="15"
                                            VerticalAlignment="Center"
                                            HorizontalAlignment="Center"
                                            TextAlignment="Center"
@@ -1061,112 +1054,177 @@
 
     </UserControl.Resources>
     <Grid>
-        <Grid HorizontalAlignment="Center" VerticalAlignment="Center"
-              Width="{StaticResource PaddedWidth}" Height="{StaticResource PaddedHeight}">
-            <Grid x:Name="OuterContainer"
-                  HorizontalAlignment="Center" VerticalAlignment="Center"
-                  Background="Black"
-                  Width="{StaticResource PaddedWidth}" Height="{StaticResource PaddedHeight}"
-                  MouseDown="OuterContainer_OnMouseDown"
-                  MouseUp="OuterContainer_OnMouseUp"
-                  MouseMove="OuterContainer_OnMouseMove"
-                  MouseWheel="OuterContainer_OnMouseWheel">
-                <Grid.RenderTransform>
-                    <ScaleTransform CenterX="{StaticResource HalfPaddedWidth}" CenterY="{StaticResource HalfPaddedHeight}"/>
-                </Grid.RenderTransform>
-                <Grid x:Name="InnerContainer"
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                  Width="{StaticResource PaddedWidth}" Height="{StaticResource PaddedHeight}">
+                <Grid x:Name="OuterContainer"
                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                      Background="Transparent"
-                      Width="{StaticResource PaddedWidth}" Height="{StaticResource PaddedHeight}">
+                      Background="Black"
+                      Width="{StaticResource PaddedWidth}" Height="{StaticResource PaddedHeight}"
+                      MouseDown="OuterContainer_OnMouseDown"
+                      MouseUp="OuterContainer_OnMouseUp"
+                      MouseMove="OuterContainer_OnMouseMove"
+                      MouseWheel="OuterContainer_OnMouseWheel">
                     <Grid.RenderTransform>
-                        <TranslateTransform/>
+                        <ScaleTransform CenterX="{StaticResource HalfPaddedWidth}" CenterY="{StaticResource HalfPaddedHeight}"/>
                     </Grid.RenderTransform>
-                    <Grid x:Name="GraphContainer"
+                    <Grid x:Name="InnerContainer"
                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                          Background="{DynamicResource CBackground2}"
-                          Width="{StaticResource GraphWidth}" Height="{StaticResource GraphHeight}"
-                          ContextMenu="{StaticResource GraphContextMenu}"
-                          ContextMenuOpening="GraphContainer_OnContextMenuOpening">
-                        <Border x:Name="GraphBackground"/>
-                        <ItemsControl x:Name="ConnectionItemsControl"
-                                      Background="Transparent"
-                                      ItemsSource="{Binding ConnectionItems}"
-                                      ItemTemplate="{StaticResource ConnectionTemplate}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <Canvas/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
-                        <ItemsControl x:Name="GraphItemsControl"
-                                      Background="Transparent"
-                                      ItemsSource="{Binding GraphItems}"
-                                      ItemTemplateSelector="{StaticResource GraphItemsDataTemplateSelector}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <Canvas/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
-                        <Canvas IsHitTestVisible="False">
-                            <Path x:Name="ConnectionDragPath"
-                                  Stroke="LawnGreen"
-                                  StrokeThickness="4"
-                                  StrokeStartLineCap="Round"
-                                  StrokeEndLineCap="Round">
-                                <Path.Data>
-                                    <PathGeometry>
-                                        <PathFigure>
-                                            <BezierSegment/>
-                                        </PathFigure>
-                                    </PathGeometry>
-                                </Path.Data>
-                            </Path>
-                        </Canvas>
-                        <Border x:Name="SelectionVisual"
-                                HorizontalAlignment="Left" VerticalAlignment="Top"
-                                Background="Transparent"
-                                Focusable="True"
-                                CornerRadius="2" BorderThickness="2"
-                                BorderBrush="{DynamicResource CForeground3}"
-                                ContextMenu="{StaticResource SelectionContextMenu}"
-                                MouseDown="SelectionVisual_OnMouseDown">
-                            <Border.RenderTransform>
-                                <TranslateTransform/>
-                            </Border.RenderTransform>
-                            <Grid>
-                                <Border Background="{DynamicResource CBackground6}"
-                                        Opacity="0.25"
-                                        CornerRadius="2"/>
-                                <ItemsControl x:Name="SelectionItemsControl"
-                                              Background="Transparent"
-                                              ItemsSource="{Binding SelectionItems, Mode=OneWay}"
-                                              ItemTemplateSelector="{StaticResource GraphItemsDataTemplateSelector}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <Canvas/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                </ItemsControl>
-                            </Grid>
-                        </Border>
+                          Background="Transparent"
+                          Width="{StaticResource PaddedWidth}" Height="{StaticResource PaddedHeight}">
+                        <Grid.RenderTransform>
+                            <TranslateTransform/>
+                        </Grid.RenderTransform>
+                        <Grid x:Name="GraphContainer"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"
+                              Background="{DynamicResource CBackground2}"
+                              Width="{StaticResource GraphWidth}" Height="{StaticResource GraphHeight}"
+                              ContextMenu="{StaticResource GraphContextMenu}"
+                              ContextMenuOpening="GraphContainer_OnContextMenuOpening">
+                            <Border x:Name="GraphBackground"/>
+                            <ItemsControl x:Name="ConnectionItemsControl"
+                                          Background="Transparent"
+                                          ItemsSource="{Binding ConnectionItems}"
+                                          ItemTemplate="{StaticResource ConnectionTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Canvas/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                            <ItemsControl x:Name="GraphItemsControl"
+                                          Background="Transparent"
+                                          ItemsSource="{Binding GraphItems}"
+                                          ItemTemplateSelector="{StaticResource GraphItemsDataTemplateSelector}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <Canvas/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                            <Canvas IsHitTestVisible="False">
+                                <Path x:Name="ConnectionDragPath"
+                                      Stroke="LawnGreen"
+                                      StrokeThickness="4"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round">
+                                    <Path.Data>
+                                        <PathGeometry>
+                                            <PathFigure>
+                                                <BezierSegment/>
+                                            </PathFigure>
+                                        </PathGeometry>
+                                    </Path.Data>
+                                </Path>
+                            </Canvas>
+                            <Border x:Name="SelectionVisual"
+                                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                                    Background="Transparent"
+                                    Focusable="True"
+                                    CornerRadius="2" BorderThickness="2"
+                                    BorderBrush="{DynamicResource CForeground3}"
+                                    ContextMenu="{StaticResource SelectionContextMenu}"
+                                    MouseDown="SelectionVisual_OnMouseDown">
+                                <Border.RenderTransform>
+                                    <TranslateTransform/>
+                                </Border.RenderTransform>
+                                <Grid>
+                                    <Border Background="{DynamicResource CBackground6}"
+                                            Opacity="0.25"
+                                            CornerRadius="2"/>
+                                    <ItemsControl x:Name="SelectionItemsControl"
+                                                  Background="Transparent"
+                                                  ItemsSource="{Binding SelectionItems, Mode=OneWay}"
+                                                  ItemTemplateSelector="{StaticResource GraphItemsDataTemplateSelector}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                </Grid>
+                            </Border>
+                        </Grid>
                     </Grid>
                 </Grid>
             </Grid>
+            <Border Grid.Column="0" VerticalAlignment="Top" HorizontalAlignment="Center" Height="35" CornerRadius="0 0 10 10" Background="{DynamicResource CBackground7}">
+                <Grid Margin="10 5" VerticalAlignment="Center">
+                    <Grid MouseDown="NodeGraphTitle_MouseDown" Margin="0 2 0 0" Tag="{Binding}" Visibility="{Binding GraphTitleEditing, Converter={StaticResource BoolToVisibilityConverterInverted}}">
+                        <TextBlock Text="{Binding Graph.Name.Value, Mode=OneWay}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource CForeground2}"/>
+                    </Grid>
+                    <Grid Visibility="{Binding GraphTitleEditing, Converter={StaticResource BoolToVisibilityConverter}}" Background="Transparent" MouseUp="NodeGraphTitleTextBoxContainer_OnMouseUp">
+                        <TextBox Name="NodeGraphTitleTextBox" Text="{Binding Graph.Name.Value}" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0 -3 0 0"
+                                 TextAlignment="Center" Foreground="{DynamicResource CForeground1}" LostFocus="NodeGraphTitleTextBox_LostFocus" Tag="{Binding}" KeyDown="NodeGraphTitleTextBox_KeyDown"/>
+                    </Grid>
+                </Grid>
+            </Border>
+            <Border Grid.Column="1" Background="{DynamicResource CBackground3}">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="5"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Margin="0 2 0 0" Text="Variables" Foreground="{DynamicResource CForeground1}" FontSize="17" FontWeight="SemiBold" TextAlignment="Center" VerticalAlignment="Center"/>
+                    <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                        <core:SpacedStackPanel Spacing="5">
+                            <ItemsControl Background="Transparent" ItemsSource="{Binding GraphVariablesSource}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <core:SpacedStackPanel Spacing="5" Orientation="Vertical"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{DynamicResource CBackground4}" VerticalAlignment="Top" CornerRadius="5">
+                                            <Border.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Create Source" Tag="{Binding}" Click="CreateVariableSource_OnClick"/>
+                                                    <MenuItem Header="Create Reference" Tag="{Binding}" Click="CreateVariableReference_OnClick"/>
+                                                    <MenuItem Header="Create Write" Tag="{Binding}" Click="CreateVariableWrite_OnClick"/>
+                                                    <MenuItem Header="Delete" Tag="{Binding}" Click="DeleteVariable_OnClick"/>
+                                                </ContextMenu>
+                                            </Border.ContextMenu>
+                                            <StackPanel VerticalAlignment="Top" MaxHeight="400">
+                                                <Grid>
+                                                    <Border Background="{DynamicResource CBackground1}" VerticalAlignment="Top" Padding="0 2">
+                                                        <Border.Clip>
+                                                            <MultiBinding Converter="{StaticResource BorderClipConverter}">
+                                                                <Binding Path="ActualWidth" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
+                                                                <Binding Path="ActualHeight" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
+                                                                <Binding Path="CornerRadius" RelativeSource="{RelativeSource AncestorType={x:Type Border}, AncestorLevel=1}" />
+                                                            </MultiBinding>
+                                                        </Border.Clip>
+                                                        <StackPanel VerticalAlignment="Top">
+                                                            <TextBlock Text="{Binding Name.Value}" Foreground="{DynamicResource CForeground2}" FontSize="16" FontWeight="SemiBold" TextAlignment="Center"/>
+                                                            <TextBlock Text="{Binding ValueType, Converter={StaticResource TypeToFriendlyNameConverter}}" Foreground="{DynamicResource CForeground3}" FontSize="13" TextAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <fa6:ImageAwesome Visibility="{Binding Persistent.Value, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                      HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5" Icon="Solid_FloppyDisk"
+                                                                      PrimaryColor="{DynamicResource CBlue}" Width="17" Height="17" ToolTip="This variable is persistent"
+                                                                      ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                                                </Grid>
+                                                <TextBlock Margin="2" Text="{Binding Value.Value}" Foreground="{DynamicResource CForeground2}"
+                                                           TextTrimming="CharacterEllipsis" TextAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <core:IconButton ButtonColour="Green" Icon="Solid_Plus" VerticalAlignment="Top" Width="100" Height="20" Click="VariableAdd_OnClick"/>
+                        </core:SpacedStackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
         </Grid>
-        <Border VerticalAlignment="Top" HorizontalAlignment="Center" Height="35" CornerRadius="0 0 10 10" Background="{DynamicResource CBackground7}">
-            <Grid Margin="10 5" VerticalAlignment="Center">
-                <Grid MouseDown="NodeGraphTitle_MouseDown" Margin="0 2 0 0" Tag="{Binding}" Visibility="{Binding GraphTitleEditing, Converter={StaticResource BoolToVisibilityConverterInverted}}">
-                    <TextBlock Text="{Binding Graph.Name.Value, Mode=OneWay}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Top"
-                               TextTrimming="CharacterEllipsis"
-                               Foreground="{DynamicResource CForeground2}"/>
-                </Grid>
-                <Grid Visibility="{Binding GraphTitleEditing, Converter={StaticResource BoolToVisibilityConverter}}" Background="Transparent" MouseUp="NodeGraphTitleTextBoxContainer_OnMouseUp">
-                    <TextBox Name="NodeGraphTitleTextBox" Text="{Binding Graph.Name.Value}" FontSize="20" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0 -3 0 0"
-                             TextAlignment="Center" Foreground="{DynamicResource CForeground1}" LostFocus="NodeGraphTitleTextBox_LostFocus" Tag="{Binding}" KeyDown="NodeGraphTitleTextBox_KeyDown"/>
-                </Grid>
-            </Grid>
-        </Border>
         <Grid x:Name="LoadingOverlay">
             <Border Background="Black"/>
             <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"

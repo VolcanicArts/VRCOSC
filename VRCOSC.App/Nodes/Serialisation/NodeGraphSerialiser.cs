@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using Newtonsoft.Json;
+using VRCOSC.App.Nodes.Variables;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -26,12 +27,27 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
     {
         Reference.Name.Value = data.Name;
 
+        foreach (var sV in data.Variables)
+        {
+            if (!TypeResolver.TryConstruct(sV.Type, out var variableType)) continue;
+
+            if (TryConvertToTargetType(sV.Value, variableType, out var variableValue))
+            {
+                var variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [sV.Id, sV.Name, sV.Persistent, variableValue])!;
+                Reference.GraphVariables.TryAdd(sV.Id, variable);
+            }
+            else
+            {
+                var variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [sV.Id, sV.Name, sV.Persistent])!;
+                Reference.GraphVariables.TryAdd(sV.Id, variable);
+            }
+        }
+
         foreach (var sN in data.Nodes)
         {
             try
             {
-                var nodeType = TypeResolver.Construct(sN.Type);
-                if (nodeType is null) continue;
+                if (!TypeResolver.TryConstruct(sN.Type, out var nodeType)) continue;
 
                 var node = Reference.AddNode(nodeType, new Point(sN.Position.X, sN.Position.Y), sN.Id);
 
@@ -96,25 +112,6 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
             catch (Exception e)
             {
                 Logger.Error(e, "Error creating groups when deserialising");
-            }
-        }
-
-        foreach (var sV in data.Variables)
-        {
-            try
-            {
-                var resolvedType = TypeResolver.Construct(sV.Type);
-                if (resolvedType is null) continue;
-
-                if (resolvedType == typeof(float)) sV.Value = (float)Convert.ChangeType(sV.Value!, typeof(float));
-                if (resolvedType == typeof(int)) sV.Value = (int)Convert.ChangeType(sV.Value!, typeof(int));
-
-                var valueRef = (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(resolvedType), sV.Value)!;
-                Reference.PersistentVariables.Add(sV.Key, valueRef);
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Error creating variables when deserialising");
             }
         }
 

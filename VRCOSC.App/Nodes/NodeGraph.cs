@@ -13,6 +13,8 @@ using System.Windows;
 using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Strings;
+using VRCOSC.App.Nodes.Types.Utility;
+using VRCOSC.App.Nodes.Variables;
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
@@ -33,10 +35,9 @@ public class NodeGraph : IVRCClientEventHandler
     public ConcurrentDictionary<Guid, NodeConnection> Connections { get; } = [];
     public ConcurrentDictionary<Guid, NodeGroup> Groups { get; } = [];
     public ConcurrentDictionary<Guid, NodeVariableSize> VariableSizes = [];
+    public ConcurrentDictionary<Guid, IGraphVariable> GraphVariables { get; } = [];
 
     public readonly Dictionary<Type, NodeMetadata> Metadata = [];
-    public readonly Dictionary<string, IRef> Variables = [];
-    public readonly Dictionary<string, IRef> PersistentVariables = [];
     public readonly ConcurrentDictionary<Guid, Dictionary<IStore, IRef>> GlobalStores = [];
 
     private bool running;
@@ -73,11 +74,6 @@ public class NodeGraph : IVRCClientEventHandler
 
     public async Task Start()
     {
-        foreach (var (key, value) in PersistentVariables)
-        {
-            Variables.Add(key, value);
-        }
-
         running = true;
         await triggerOnStartNodes();
         walkForwardAllValueNodes();
@@ -107,8 +103,10 @@ public class NodeGraph : IVRCClientEventHandler
 
         tasks.Clear();
         GlobalStores.Clear();
-        Variables.Clear();
+        GraphVariables.ForEach(v => v.Value.Reset());
         running = false;
+
+        Serialise();
     }
 
     #region Management
@@ -291,6 +289,29 @@ public class NodeGraph : IVRCClientEventHandler
 
     #endregion
 
+    public void CreateVariable(Type variableType, string name, bool persistent)
+    {
+        var variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [name, persistent])!;
+        GraphVariables.TryAdd(variable.GetId(), variable);
+
+        Serialise();
+    }
+
+    public void DeleteVariable(IGraphVariable variable)
+    {
+        foreach (var (_, node) in Nodes)
+        {
+            if (node is IHasVariableReference variableReferenceNode && variableReferenceNode.VariableId == variable.GetId())
+            {
+                DeleteNode(node.Id);
+            }
+        }
+
+        GraphVariables.Remove(variable.GetId(), out _);
+
+        Serialise();
+    }
+
     private void walkForwardAllValueNodes()
     {
         var triggerNodes = new List<Node>();
@@ -411,14 +432,25 @@ public class NodeGraph : IVRCClientEventHandler
         return (T)iRef.GetValue()!;
     }
 
-    public void WriteVariable<T>(string name, T value, bool persistent)
+    public void WriteVariable<T>(Guid variableId, T value)
     {
-        Variables[name] = new Ref<T>(value);
+        var variable = (GraphVariable<T>)GraphVariables[variableId];
+        WriteVariable(variable, value);
+    }
 
-        if (persistent)
+    public void WriteVariable<T>(GraphVariable<T> variable, T value)
+    {
+        var valueBefore = variable.Value.Value;
+        variable.Value.Value = value;
+
+        if (EqualityComparer<T>.Default.Equals(valueBefore, value)) return;
+
+        foreach (var (_, node) in Nodes)
         {
-            PersistentVariables[name] = new Ref<T>(value);
-            Serialise();
+            if (node is VariableSourceNode<T> variableSourceNode)
+            {
+                TriggerTree(variableSourceNode);
+            }
         }
     }
 

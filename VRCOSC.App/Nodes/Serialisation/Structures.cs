@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Reflection;
 using Newtonsoft.Json;
 using VRCOSC.App.Nodes.Types;
+using VRCOSC.App.Nodes.Variables;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -63,7 +64,7 @@ public class SerialisableNodeGraph : SerialisableVersion
     public List<SerialisableNodeGroup> Groups { get; set; } = [];
 
     [JsonProperty("variables")]
-    public List<SerialisableVariable> Variables { get; } = [];
+    public List<SerialisableGraphVariable> Variables { get; set; } = [];
 
     [JsonConstructor]
     public SerialisableNodeGraph()
@@ -79,7 +80,7 @@ public class SerialisableNodeGraph : SerialisableVersion
         Nodes = nodeGraph.Nodes.Values.Select(node => new SerialisableNode(node)).ToList();
         Connections = nodeGraph.Connections.Values.Select(connection => new SerialisableConnection(connection)).ToList();
         Groups = nodeGraph.Groups.Values.Select(group => new SerialisableNodeGroup(group)).ToList();
-        Variables = nodeGraph.PersistentVariables.Select(variable => new SerialisableVariable(variable)).ToList();
+        Variables = nodeGraph.GraphVariables.Values.Select(variable => new SerialisableGraphVariable(variable)).ToList();
     }
 }
 
@@ -189,26 +190,36 @@ public class SerialisableNodeGroup
     }
 }
 
-public class SerialisableVariable
+public class SerialisableGraphVariable
 {
-    [JsonProperty("key")]
-    public string Key { get; set; } = null!;
+    [JsonProperty("id")]
+    public Guid Id { get; set; }
 
-    [JsonProperty("value")]
-    public object? Value { get; set; }
+    [JsonProperty("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonProperty("persistent")]
+    public bool Persistent { get; set; }
 
     [JsonProperty("type")]
-    public string Type { get; set; } = null!;
+    public string Type { get; set; } = string.Empty;
+
+    [JsonProperty("value")]
+    public object Value { get; set; } = null!;
 
     [JsonConstructor]
-    public SerialisableVariable()
+    public SerialisableGraphVariable()
     {
     }
 
-    public SerialisableVariable(KeyValuePair<string, IRef> pair)
+    public SerialisableGraphVariable(IGraphVariable variable)
     {
-        Key = pair.Key;
-        Value = pair.Value.GetValue();
-        Type = pair.Value.GetValueType().GetFriendlyName();
+        Id = variable.GetId();
+        Name = variable.GetName();
+        Persistent = variable.IsPersistent();
+        Type = variable.GetValueType().GetFriendlyName();
+
+        if (Persistent)
+            Value = Persistent;
     }
 }
