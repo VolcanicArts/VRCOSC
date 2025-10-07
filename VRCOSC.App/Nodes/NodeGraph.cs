@@ -264,6 +264,9 @@ public class NodeGraph : IVRCClientEventHandler
             Connections.TryAdd(newConnection.Id, newConnection);
             AddedConnections.Add(newConnection);
         }
+
+        if (newConnectionMade)
+            TriggerTree(inputNode);
     }
 
     public void RemoveConnection(NodeConnection connection)
