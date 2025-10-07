@@ -151,8 +151,10 @@ public partial class NodeGraphView : INotifyPropertyChanged
                 drawGraphBackground();
 
             RefreshContextMenu();
-            GraphVariablesSource.RemoveIf(_ => true);
-            GraphVariablesSource.AddRange(Graph.GraphVariables.Values);
+
+            GraphVariablesSource.Clear();
+            GraphVariablesSource.AddRange(Graph.GraphVariables.Values.OrderBy(v => v.GetName()).ThenBy(v => v.GetValueType().GetFriendlyName()));
+
             GraphItems.AddRange(addedNodes);
             GraphItems.AddRange(addedGroups);
         });
@@ -1715,7 +1717,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
 
-        var result = MessageBox.Show("Are you sure you want to delete this variable?", "Variable Delete Warning", MessageBoxButton.YesNo);
+        var result = MessageBox.Show("Are you sure you want to delete this variable?\n\nThis will remove all nodes that reference this variable", "Variable Delete Warning", MessageBoxButton.YesNo);
         if (result != MessageBoxResult.Yes) return;
 
         Graph.DeleteVariable(graphVariable);

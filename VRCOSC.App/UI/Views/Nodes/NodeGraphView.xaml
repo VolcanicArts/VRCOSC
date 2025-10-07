@@ -1212,7 +1212,7 @@
                                                                       PrimaryColor="{DynamicResource CBlue}" Width="17" Height="17" ToolTip="This variable is persistent"
                                                                       ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                                                 </Grid>
-                                                <TextBlock Margin="2" Text="{Binding Value.Value}" Foreground="{DynamicResource CForeground2}"
+                                                <TextBlock Margin="2" Text="{Binding Value.Value, Converter={StaticResource ObjectToStringConverter}}" Foreground="{DynamicResource CForeground2}"
                                                            TextTrimming="CharacterEllipsis" TextAlignment="Center" TextWrapping="Wrap"/>
                                             </StackPanel>
                                         </Border>
