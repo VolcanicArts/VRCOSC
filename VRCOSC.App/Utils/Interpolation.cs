@@ -1,19 +1,17 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
+using System.Numerics;
 
 namespace VRCOSC.App.Utils;
 
 public static class Interpolation
 {
-    public static double Lerp(double start, double final, double amount) => start + (final - start) * amount;
-
-    public static double DampContinuously(double current, double target, float halfTimeMilli, float elapsedTimeMilli)
+    public static T DampContinuously<T>(T current, T target, double halfTimeMilli, double elapsedTimeMilli) where T : IFloatingPointIeee754<T>
     {
-        var exponent = elapsedTimeMilli / halfTimeMilli;
-        return Lerp(current, target, 1 - MathF.Pow(0.5f, exponent));
+        var exponent = T.CreateSaturating(elapsedTimeMilli / halfTimeMilli);
+        return T.Lerp(current, target, T.One - T.Pow(T.CreateChecked(0.5), exponent));
     }
 
-    public static double Map(double source, double sMin, double sMax, double dMin, double dMax) => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
+    public static T Map<T>(T source, T sMin, T sMax, T dMin, T dMax) where T : INumber<T> => dMin + (dMax - dMin) * ((source - sMin) / (sMax - sMin));
 }

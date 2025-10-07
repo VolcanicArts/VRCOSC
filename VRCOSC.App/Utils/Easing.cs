@@ -1,234 +1,225 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
+using System.Numerics;
 
 namespace VRCOSC.App.Utils;
 
 public static class Easing
 {
-    public static float Linear(float k)
-    {
-        return k;
-    }
-
     public static class Quadratic
     {
-        public static float In(float k)
+        public static T In<T>(T k) where T : IFloatingPointIeee754<T>
         {
             return k * k;
         }
 
-        public static float Out(float k)
+        public static T Out<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return k * (2f - k);
+            return k * (T.CreateChecked(2) - k);
         }
 
-        public static float InOut(float k)
+        public static T InOut<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            if ((k *= 2f) < 1f) return 0.5f * k * k;
+            if ((k *= T.CreateChecked(2)) < T.One) return T.CreateChecked(0.5) * k * k;
 
-            return -0.5f * ((k -= 1f) * (k - 2f) - 1f);
-        }
-
-        public static float Bezier(float k, float c)
-        {
-            return c * 2 * k * (1 - k) + k * k;
+            return T.CreateChecked(-0.5) * ((k -= T.One) * (k - T.CreateChecked(2)) - T.One);
         }
     };
 
     public static class Cubic
     {
-        public static float In(float k)
+        public static T In<T>(T k) where T : IFloatingPointIeee754<T>
         {
             return k * k * k;
         }
 
-        public static float Out(float k)
+        public static T Out<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return 1f + (k -= 1f) * k * k;
+            return T.One + (k -= T.One) * k * k;
         }
 
-        public static float InOut(float k)
+        public static T InOut<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            if ((k *= 2f) < 1f) return 0.5f * k * k * k;
+            if ((k *= T.CreateChecked(2)) < T.One) return T.CreateChecked(0.5) * k * k * k;
 
-            return 0.5f * ((k -= 2f) * k * k + 2f);
+            return T.CreateChecked(0.5) * ((k -= T.CreateChecked(2)) * k * k + T.CreateChecked(2));
         }
     };
 
     public static class Quartic
     {
-        public static float In(float k)
+        public static T In<T>(T k) where T : IFloatingPointIeee754<T>
         {
             return k * k * k * k;
         }
 
-        public static float Out(float k)
+        public static T Out<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return 1f - (k -= 1f) * k * k * k;
+            return T.One - (k -= T.One) * k * k * k;
         }
 
-        public static float InOut(float k)
+        public static T InOut<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            if ((k *= 2f) < 1f) return 0.5f * k * k * k * k;
+            if ((k *= T.CreateChecked(2)) < T.One) return T.CreateChecked(0.5) * k * k * k * k;
 
-            return -0.5f * ((k -= 2f) * k * k * k - 2f);
+            return T.CreateChecked(-0.5f) * ((k -= T.CreateChecked(2)) * k * k * k - T.CreateChecked(2));
         }
     };
 
     public static class Quintic
     {
-        public static float In(float k)
+        public static T In<T>(T k) where T : IFloatingPointIeee754<T>
         {
             return k * k * k * k * k;
         }
 
-        public static float Out(float k)
+        public static T Out<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return 1f + (k -= 1f) * k * k * k * k;
+            return T.One + (k -= T.One) * k * k * k * k;
         }
 
-        public static float InOut(float k)
+        public static T InOut<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            if ((k *= 2f) < 1f) return 0.5f * k * k * k * k * k;
+            if ((k *= T.CreateChecked(2)) < T.One) return T.CreateChecked(0.5) * k * k * k * k * k;
 
-            return 0.5f * ((k -= 2f) * k * k * k * k + 2f);
+            return T.CreateChecked(0.5) * ((k -= T.CreateChecked(2)) * k * k * k * k + T.CreateChecked(2));
         }
     };
 
     public static class Sinusoidal
     {
-        public static float In(float k)
+        public static T In<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return 1f - MathF.Cos(k * MathF.PI / 2f);
+            return T.One - T.CosPi(k / T.CreateChecked(2));
         }
 
-        public static float Out(float k)
+        public static T Out<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return MathF.Sin(k * MathF.PI / 2f);
+            return T.SinPi(k / T.CreateChecked(2));
         }
 
-        public static float InOut(float k)
+        public static T InOut<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return 0.5f * (1f - MathF.Cos(MathF.PI * k));
+            return T.CreateChecked(0.5) * (T.One - T.CosPi(k));
         }
     };
 
     public static class Exponential
     {
-        public static float In(float k)
+        public static T In<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return k == 0f ? 0f : MathF.Pow(1024f, k - 1f);
+            return k == T.Zero ? T.Zero : T.Pow(T.CreateChecked(1024), k - T.One);
         }
 
-        public static float Out(float k)
+        public static T Out<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return Math.Abs(k - 1f) < float.Epsilon ? 1f : 1f - MathF.Pow(2f, -10f * k);
+            return T.Abs(k - T.One) < T.Epsilon ? T.One : T.One - T.Pow(T.CreateChecked(2), T.CreateChecked(-10) * k);
         }
 
-        public static float InOut(float k)
+        public static T InOut<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            if (k == 0f) return 0f;
-            if (Math.Abs(k - 1f) < float.Epsilon) return 1f;
-            if ((k *= 2f) < 1f) return 0.5f * MathF.Pow(1024f, k - 1f);
+            if (k == T.Zero) return T.Zero;
+            if (T.Abs(k - T.One) < T.Epsilon) return T.One;
+            if ((k *= T.CreateChecked(2)) < T.One) return T.CreateChecked(0.5) * T.Pow(T.CreateChecked(1024), k - T.One);
 
-            return 0.5f * (-MathF.Pow(2f, -10f * (k - 1f)) + 2f);
+            return T.CreateChecked(0.5) * (-T.Pow(T.CreateChecked(2), T.CreateChecked(-10) * (k - T.One)) + T.CreateChecked(2));
         }
     };
 
     public static class Circular
     {
-        public static float In(float k)
+        public static T In<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return 1f - MathF.Sqrt(1f - k * k);
+            return T.One - T.Sqrt(T.One - k * k);
         }
 
-        public static float Out(float k)
+        public static T Out<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return MathF.Sqrt(1f - (k -= 1f) * k);
+            return T.Sqrt(T.One - (k -= T.One) * k);
         }
 
-        public static float InOut(float k)
+        public static T InOut<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            if ((k *= 2f) < 1f) return -0.5f * (MathF.Sqrt(1f - k * k) - 1);
+            if ((k *= T.CreateChecked(2)) < T.One) return T.CreateChecked(-0.5) * (T.Sqrt(T.One - k * k) - T.One);
 
-            return 0.5f * (MathF.Sqrt(1f - (k -= 2f) * k) + 1f);
+            return T.CreateChecked(0.5) * (T.Sqrt(T.One - (k -= T.CreateChecked(2)) * k) + T.One);
         }
     };
 
     public static class Elastic
     {
-        public static float In(float k)
+        public static T In<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            if (k == 0) return 0;
-            if (Math.Abs(k - 1) < float.Epsilon) return 1;
+            if (k == T.Zero) return T.Zero;
+            if (T.Abs(k - T.One) < T.Epsilon) return T.One;
 
-            return -MathF.Pow(2f, 10f * (k -= 1f)) * MathF.Sin((k - 0.1f) * (2f * MathF.PI) / 0.4f);
+            return -T.Pow(T.CreateChecked(2), T.CreateChecked(10) * (k -= T.One)) * T.Sin((k - T.CreateChecked(0.1)) * (T.CreateChecked(2) * T.Pi) / T.CreateChecked(0.4));
         }
 
-        public static float Out(float k)
+        public static T Out<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            if (k == 0) return 0;
-            if (Math.Abs(k - 1) < float.Epsilon) return 1;
+            if (k == T.Zero) return T.Zero;
+            if (T.Abs(k - T.One) < T.Epsilon) return T.One;
 
-            return MathF.Pow(2f, -10f * k) * MathF.Sin((k - 0.1f) * (2f * MathF.PI) / 0.4f) + 1f;
+            return T.Pow(T.CreateChecked(2), T.CreateChecked(-10) * k) * T.Sin((k - T.CreateChecked(0.1)) * (T.CreateChecked(2) * T.Pi) / T.CreateChecked(0.4)) + T.One;
         }
 
-        public static float InOut(float k)
+        public static T InOut<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            if ((k *= 2f) < 1f) return -0.5f * MathF.Pow(2f, 10f * (k -= 1f)) * MathF.Sin((k - 0.1f) * (2f * MathF.PI) / 0.4f);
+            if ((k *= T.CreateChecked(2)) < T.One) return T.CreateChecked(-0.5) * T.Pow(T.CreateChecked(2), T.CreateChecked(10) * (k -= T.One)) * T.Sin((k - T.CreateChecked(0.1)) * (T.CreateChecked(2) * T.Pi) / T.CreateChecked(0.4));
 
-            return MathF.Pow(2f, -10f * (k -= 1f)) * MathF.Sin((k - 0.1f) * (2f * MathF.PI) / 0.4f) * 0.5f + 1f;
+            return T.Pow(T.CreateChecked(2), T.CreateChecked(-10) * (k -= T.One)) * T.Sin((k - T.CreateChecked(0.1)) * (T.CreateChecked(2) * T.Pi) / T.CreateChecked(0.4)) * T.CreateChecked(0.5) + T.One;
         }
     };
 
     public static class Back
     {
-        private const float s = 1.70158f;
-        private const float s2 = 2.5949095f;
-
-        public static float In(float k)
+        public static T In<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return k * k * ((s + 1f) * k - s);
+            var s = T.CreateChecked(1.70158);
+            return k * k * ((s + T.One) * k - s);
         }
 
-        public static float Out(float k)
+        public static T Out<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return (k -= 1f) * k * ((s + 1f) * k + s) + 1f;
+            var s = T.CreateChecked(1.70158);
+            return (k -= T.One) * k * ((s + T.One) * k + s) + T.One;
         }
 
-        public static float InOut(float k)
+        public static T InOut<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            if ((k *= 2f) < 1f) return 0.5f * (k * k * ((s2 + 1f) * k - s2));
+            var s = T.CreateChecked(2.5949095);
 
-            return 0.5f * ((k -= 2f) * k * ((s2 + 1f) * k + s2) + 2f);
+            if ((k *= T.CreateChecked(2)) < T.One) return T.CreateChecked(0.5) * (k * k * ((s + T.One) * k - s));
+
+            return T.CreateChecked(0.5) * ((k -= T.CreateChecked(2)) * k * ((s + T.One) * k + s) + T.CreateChecked(2));
         }
     };
 
     public static class Bounce
     {
-        public static float In(float k)
+        public static T In<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return 1f - Out(1f - k);
+            return T.One - Out(T.One - k);
         }
 
-        public static float Out(float k)
+        public static T Out<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            return k switch
-            {
-                < 1f / 2.75f => 7.5625f * k * k,
-                < 2f / 2.75f => 7.5625f * (k -= 1.5f / 2.75f) * k + 0.75f,
-                < 2.5f / 2.75f => 7.5625f * (k -= 2.25f / 2.75f) * k + 0.9375f,
-                _ => 7.5625f * (k -= 2.625f / 2.75f) * k + 0.984375f
-            };
+            if (k < T.One / T.CreateChecked(2.75)) return T.CreateChecked(7.5625) * k * k;
+
+            if (k < T.CreateChecked(2) / T.CreateChecked(2.75)) return T.CreateChecked(7.5625) * (k -= T.CreateChecked(1.5) / T.CreateChecked(2.75)) * k + T.CreateChecked(0.75);
+
+            if (k < T.CreateChecked(2.5) / T.CreateChecked(2.75)) return T.CreateChecked(7.5625) * (k -= T.CreateChecked(2.25) / T.CreateChecked(2.75)) * k + T.CreateChecked(0.9375);
+
+            return T.CreateChecked(7.5625) * (k -= T.CreateChecked(2.625) / T.CreateChecked(2.75)) * k + T.CreateChecked(0.984375);
         }
 
-        public static float InOut(float k)
+        public static T InOut<T>(T k) where T : IFloatingPointIeee754<T>
         {
-            if (k < 0.5f) return In(k * 2f) * 0.5f;
+            if (k < T.CreateChecked(0.5)) return In(k * T.CreateChecked(2)) * T.CreateChecked(0.5);
 
-            return Out(k * 2f - 1f) * 0.5f + 0.5f;
+            return Out(k * T.CreateChecked(2) - T.One) * T.CreateChecked(0.5) + T.CreateChecked(0.5);
         }
     };
 }

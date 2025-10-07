@@ -15,7 +15,7 @@ public class ExponentialNode<T> : Node where T : INumber<T>
 
     protected override Task Process(PulseContext c)
     {
-        Output.Write(T.CreateChecked(System.Math.Exp(double.CreateChecked(Input.Read(c)))), c);
+        Output.Write(T.CreateSaturating(System.Math.Exp(double.CreateSaturating(Input.Read(c)))), c);
         return Task.CompletedTask;
     }
 }

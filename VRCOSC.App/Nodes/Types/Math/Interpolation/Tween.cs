@@ -30,11 +30,11 @@ public sealed class TweenNode<T> : Node, IFlowInput where T : INumber<T>
         {
             t = double.Clamp((DateTime.Now - startTime) / (endTime - startTime), 0d, 1d);
 
-            var fromDouble = double.CreateChecked(From.Read(c));
-            var toDouble = double.CreateChecked(To.Read(c));
+            var fromDouble = double.CreateSaturating(From.Read(c));
+            var toDouble = double.CreateSaturating(To.Read(c));
             var valueDouble = fromDouble + (toDouble - fromDouble) * t;
 
-            var value = T.CreateChecked(valueDouble);
+            var value = T.CreateSaturating(valueDouble);
             Value.Write(value, c);
 
             await OnUpdate.Execute(c);

@@ -17,9 +17,9 @@ public class FactorialNode<T> : Node where T : INumber<T>
     {
         var result = T.One;
 
-        for (int i = 1; i <= Input.Read(c); i++)
+        for (var i = 1; i <= Input.Read(c); i++)
         {
-            result *= T.CreateChecked(i);
+            result *= T.CreateSaturating(i);
         }
 
         Output.Write(result, c);

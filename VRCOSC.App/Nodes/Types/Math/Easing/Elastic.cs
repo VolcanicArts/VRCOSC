@@ -6,44 +6,44 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Math.Easing;
 
-[Node("Sine In", "Math/Easing")]
+[Node("Elastic In", "Math/Easing")]
 [NodeCollapsed]
-public sealed class SineInNode<T> : Node where T : IFloatingPointIeee754<T>
+public sealed class ElasticInNode<T> : Node where T : IFloatingPointIeee754<T>
 {
     public ValueInput<T> In = new();
     public ValueOutput<T> Out = new();
 
     protected override Task Process(PulseContext c)
     {
-        Out.Write(Utils.Easing.Sinusoidal.In(In.Read(c)), c);
+        Out.Write(Utils.Easing.Elastic.In(In.Read(c)), c);
         return Task.CompletedTask;
     }
 }
 
-[Node("Sine Out", "Math/Easing")]
+[Node("Elastic Out", "Math/Easing")]
 [NodeCollapsed]
-public sealed class SineOutNode<T> : Node where T : IFloatingPointIeee754<T>
+public sealed class ElasticOutNode<T> : Node where T : IFloatingPointIeee754<T>
 {
     public ValueInput<T> In = new();
     public ValueOutput<T> Out = new();
 
     protected override Task Process(PulseContext c)
     {
-        Out.Write(Utils.Easing.Sinusoidal.Out(In.Read(c)), c);
+        Out.Write(Utils.Easing.Elastic.Out(In.Read(c)), c);
         return Task.CompletedTask;
     }
 }
 
-[Node("Sine InOut", "Math/Easing")]
+[Node("Elastic InOut", "Math/Easing")]
 [NodeCollapsed]
-public sealed class SineInOutNode<T> : Node where T : IFloatingPointIeee754<T>
+public sealed class ElasticInOutNode<T> : Node where T : IFloatingPointIeee754<T>
 {
     public ValueInput<T> In = new();
     public ValueOutput<T> Out = new();
 
     protected override Task Process(PulseContext c)
     {
-        Out.Write(Utils.Easing.Sinusoidal.InOut(In.Read(c)), c);
+        Out.Write(Utils.Easing.Elastic.InOut(In.Read(c)), c);
         return Task.CompletedTask;
     }
 }

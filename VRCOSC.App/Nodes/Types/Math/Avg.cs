@@ -17,7 +17,7 @@ public class AverageNode<T> : Node where T : INumber<T>
     {
         var inputs = Inputs.Read(c);
         var value = inputs.Aggregate(T.Zero, (current, number) => current + number);
-        Output.Write(value / T.CreateChecked(inputs.Count), c);
+        Output.Write(value / T.CreateSaturating(inputs.Count), c);
         return Task.CompletedTask;
     }
 }

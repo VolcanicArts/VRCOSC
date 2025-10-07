@@ -242,6 +242,15 @@ public class NodeGraph : IVRCClientEventHandler
                 group?.Nodes.Add(toStringNode.Id);
                 newConnectionMade = true;
             }
+
+            if (outputType == typeof(double) && inputType == typeof(float))
+            {
+                var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
+                CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
+                CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
+                group?.Nodes.Add(castNode.Id);
+                newConnectionMade = true;
+            }
         }
 
         // if the input already had a connection, disconnect it

@@ -227,8 +227,7 @@ public sealed class FloatingPointToNumberNode<Tfp, Tn> : Node where Tfp : IFloat
     protected override Task Process(PulseContext c)
     {
         var input = Input.Read(c);
-        var inputRounded = Tfp.Round(input);
-        var output = Tn.CreateChecked(inputRounded);
+        var output = Tn.CreateSaturating(input);
         Output.Write(output, c);
         return Task.CompletedTask;
     }

@@ -18,12 +18,12 @@ public sealed class RandomNode<T> : Node where T : INumber<T>
 
     protected override Task Process(PulseContext c)
     {
-        var minDouble = double.CreateChecked(Min.Read(c));
-        var maxDouble = double.CreateChecked(Max.Read(c));
+        var minDouble = double.CreateSaturating(Min.Read(c));
+        var maxDouble = double.CreateSaturating(Max.Read(c));
 
         var valueDouble = minDouble + (maxDouble - minDouble) * random.NextDouble();
 
-        var value = T.CreateChecked(valueDouble);
+        var value = T.CreateSaturating(valueDouble);
         Result.Write(value, c);
         return Task.CompletedTask;
     }

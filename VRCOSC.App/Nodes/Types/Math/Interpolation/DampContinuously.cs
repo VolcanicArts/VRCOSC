@@ -7,25 +7,20 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Math.Interpolation;
 
 [Node("Damp Continuously", "Math/Interpolation")]
-public sealed class DampContinuouslyNode<T> : Node, IUpdateNode where T : INumber<T>
+public sealed class DampContinuouslyNode<T> : Node, IUpdateNode where T : IFloatingPointIeee754<T>
 {
     public GlobalStore<T> Current = new();
 
     public ValueInput<T> Target = new();
-    public ValueInput<float> TimeToTargetMilli = new("Time To Target Milli");
+    public ValueInput<double> TimeToTargetMilli = new("Time To Target Milli");
     public ValueOutput<T> Result = new();
 
     protected override Task Process(PulseContext c)
     {
-        var current = double.CreateChecked(Current.Read(c));
-        var target = double.CreateChecked(Target.Read(c));
-        var length = TimeToTargetMilli.Read(c);
+        var result = Utils.Interpolation.DampContinuously(Current.Read(c), Target.Read(c), TimeToTargetMilli.Read(c) / 2d, 1d / 60d * 1000d);
 
-        var result = Utils.Interpolation.DampContinuously(current, target, length / 2f, (1f / 60f) * 1000f);
-        var tResult = T.CreateChecked(result);
-
-        Result.Write(tResult, c);
-        Current.Write(tResult, c);
+        Result.Write(result, c);
+        Current.Write(result, c);
 
         return Task.CompletedTask;
     }
