@@ -4,9 +4,9 @@
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.VRChat;
 
-namespace VRCOSC.App.Nodes.Types.Sources;
+namespace VRCOSC.App.Nodes.Types.Player;
 
-[Node("Avatar Source", "Sources")]
+[Node("Avatar Source", "Player/Info")]
 public sealed class AvatarSourceNode : Node, INodeEventHandler
 {
     public ValueOutput<string> AvatarId = new("Id");

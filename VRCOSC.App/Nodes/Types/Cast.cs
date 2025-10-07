@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types;
 
-[Node("Cast", "")]
+[Node("Cast")]
 public sealed class CastNode<TFrom, TTo> : Node
 {
     public ValueInput<TFrom> Input = new();

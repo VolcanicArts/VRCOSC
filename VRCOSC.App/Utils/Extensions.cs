@@ -402,31 +402,6 @@ public static class TypeExtensions
             return parameters.Length == parameterTypes.Length && !parameters.Where((parameterInfo, i) => !parameterInfo.ParameterType.IsAssignableTo(parameterTypes[i])).Any();
         });
     }
-
-    public static bool IsTuple(this Type type)
-    {
-        if (!type.IsGenericType)
-            return false;
-
-        var genericType = type.GetGenericTypeDefinition();
-
-        return genericType == typeof(Tuple<>) ||
-               genericType == typeof(Tuple<,>) ||
-               genericType == typeof(Tuple<,,>) ||
-               genericType == typeof(Tuple<,,,>) ||
-               genericType == typeof(Tuple<,,,,>) ||
-               genericType == typeof(Tuple<,,,,,>) ||
-               genericType == typeof(Tuple<,,,,,,>) ||
-               genericType == typeof(Tuple<,,,,,,,>) ||
-               genericType == typeof(ValueTuple<>) ||
-               genericType == typeof(ValueTuple<,>) ||
-               genericType == typeof(ValueTuple<,,>) ||
-               genericType == typeof(ValueTuple<,,,>) ||
-               genericType == typeof(ValueTuple<,,,,>) ||
-               genericType == typeof(ValueTuple<,,,,,>) ||
-               genericType == typeof(ValueTuple<,,,,,,>) ||
-               genericType == typeof(ValueTuple<,,,,,,,>);
-    }
 }
 
 public static class ProcessExtensions

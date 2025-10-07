@@ -17,6 +17,7 @@ public class ImpulseSendNode : Node, IImpulseSender, IFlowInput, IHasTextPropert
     protected override async Task Process(PulseContext c)
     {
         await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, []), c);
+        await Next.Execute(c);
     }
 }
 
@@ -33,6 +34,7 @@ public class ImpulseSendNode<T1> : Node, IImpulseSender, IFlowInput, IHasTextPro
     protected override async Task Process(PulseContext c)
     {
         await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!]), c);
+        await Next.Execute(c);
     }
 }
 
@@ -50,6 +52,7 @@ public class ImpulseSendNode<T1, T2> : Node, IImpulseSender, IFlowInput, IHasTex
     protected override async Task Process(PulseContext c)
     {
         await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!]), c);
+        await Next.Execute(c);
     }
 }
 
@@ -68,6 +71,7 @@ public class ImpulseSendNode<T1, T2, T3> : Node, IImpulseSender, IFlowInput, IHa
     protected override async Task Process(PulseContext c)
     {
         await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!, Third.Read(c)!]), c);
+        await Next.Execute(c);
     }
 }
 
@@ -87,5 +91,6 @@ public class ImpulseSendNode<T1, T2, T3, T4> : Node, IImpulseSender, IFlowInput,
     protected override async Task Process(PulseContext c)
     {
         await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!, Third.Read(c)!, Fourth.Read(c)!]), c);
+        await Next.Execute(c);
     }
 }

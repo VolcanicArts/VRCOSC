@@ -29,7 +29,7 @@ public class IndirectSendParameterNode<T> : Node, IFlowInput where T : unmanaged
 
 [Node("Direct Send Parameter", "Parameters/Send")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public class DirectSendParameterNode<T> : Node, IFlowInput, IHasTextProperty where T : unmanaged
+public class DirectSendParameterNode<T> : Node, IFlowInput, IHasTextProperty
 {
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;

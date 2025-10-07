@@ -57,9 +57,9 @@ public sealed class StringFormatNode : Node
         {
             Result.Write(string.Format(Format.Read(c) ?? string.Empty, Values.Read(c).ToArray()), c);
         }
-        catch
+        catch (Exception e)
         {
-            Result.Write("INVALID FORMAT", c);
+            Result.Write(e.Message, c);
         }
 
         return Task.CompletedTask;

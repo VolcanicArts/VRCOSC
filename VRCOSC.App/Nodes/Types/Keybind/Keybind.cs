@@ -77,6 +77,7 @@ public sealed class OnKeybindPressedNode : Node, IUpdateNode
     public bool OnUpdate(PulseContext c)
     {
         var keybind = Keybind.Read(c);
+        if (keybind is null) return false;
 
         var result = keybind.Keys.TrueForAll(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key)) &&
                      keybind.Modifiers.TrueForAll(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key));

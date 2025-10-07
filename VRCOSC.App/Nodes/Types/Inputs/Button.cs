@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Inputs;
 
-[Node("Call", "")]
+[Node("Call")]
 public sealed class ButtonNode : Node
 {
     public FlowContinuation Next = new();

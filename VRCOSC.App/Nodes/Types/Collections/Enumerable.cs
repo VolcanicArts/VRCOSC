@@ -53,10 +53,10 @@ public class EnumerableElementInsertNode<T> : Node, IFlowInput
     public ValueInput<T> Element = new();
     public ValueOutput<IEnumerable<T>> Result = new();
 
-    protected override Task Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
-        if (enumerable is null) return Task.CompletedTask;
+        if (enumerable is null) return;
 
         var index = Index.Read(c);
         var element = Element.Read(c);
@@ -65,8 +65,7 @@ public class EnumerableElementInsertNode<T> : Node, IFlowInput
         list.Insert(index, element);
         Result.Write(list, c);
 
-        Next.Execute(c);
-        return Task.CompletedTask;
+        await Next.Execute(c);
     }
 }
 
@@ -79,10 +78,10 @@ public sealed class EnumerableElementAddNode<T> : Node, IFlowInput
     public ValueInput<T> Element = new();
     public ValueOutput<IEnumerable<T>> Result = new();
 
-    protected override Task Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
-        if (enumerable is null) return Task.CompletedTask;
+        if (enumerable is null) return;
 
         var element = Element.Read(c);
 
@@ -90,8 +89,7 @@ public sealed class EnumerableElementAddNode<T> : Node, IFlowInput
         list.Add(element);
         Result.Write(list, c);
 
-        Next.Execute(c);
-        return Task.CompletedTask;
+        await Next.Execute(c);
     }
 }
 
@@ -104,10 +102,10 @@ public sealed class EnumerableElementRemoveNode<T> : Node, IFlowInput
     public ValueInput<T> Element = new();
     public ValueOutput<IEnumerable<T>> Result = new();
 
-    protected override Task Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
-        if (enumerable is null) return Task.CompletedTask;
+        if (enumerable is null) return;
 
         var element = Element.Read(c);
 
@@ -115,8 +113,7 @@ public sealed class EnumerableElementRemoveNode<T> : Node, IFlowInput
         list.Remove(element);
         Result.Write(list, c);
 
-        Next.Execute(c);
-        return Task.CompletedTask;
+        await Next.Execute(c);
     }
 }
 
@@ -129,10 +126,10 @@ public sealed class EnumerableIndexRemoveNode<T> : Node, IFlowInput
     public ValueInput<int> Index = new();
     public ValueOutput<IEnumerable<T>> Result = new();
 
-    protected override Task Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
-        if (enumerable is null) return Task.CompletedTask;
+        if (enumerable is null) return;
 
         var index = Index.Read(c);
 
@@ -140,7 +137,6 @@ public sealed class EnumerableIndexRemoveNode<T> : Node, IFlowInput
         list.RemoveAt(index);
         Result.Write(list, c);
 
-        Next.Execute(c);
-        return Task.CompletedTask;
+        await Next.Execute(c);
     }
 }

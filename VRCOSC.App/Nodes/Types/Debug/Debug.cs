@@ -2,8 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 #if DEBUG
-using System;
 using System.Threading.Tasks;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Debug;
 
@@ -19,7 +19,7 @@ public sealed class LogNode : Node, IFlowInput
         var text = Text.Read(c);
 
         if (text is not null)
-            Console.WriteLine(text);
+            Logger.Log(text, LoggingTarget.Information);
 
         await Next.Execute(c);
     }

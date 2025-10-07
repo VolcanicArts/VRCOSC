@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Inputs;
 
-[Node("Value", "")]
+[Node("Value")]
 public class ValueNode<T> : Node
 {
     private T value = default!;
