@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Player;
 
@@ -81,11 +82,11 @@ public sealed class PlayerMoveVerticalNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
 
-    public ValueInput<float> Percentage = new();
+    public ValueInput<float> Amount = new();
 
     protected override async Task Process(PulseContext c)
     {
-        var percentage = Percentage.Read(c);
+        var percentage = Amount.Read(c);
         percentage = float.Clamp(percentage, -1f, 1f);
 
         c.GetPlayer().MoveVertical(percentage);
@@ -98,11 +99,11 @@ public sealed class PlayerMoveHorizontalNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
 
-    public ValueInput<float> Percentage = new();
+    public ValueInput<float> Amount = new();
 
     protected override async Task Process(PulseContext c)
     {
-        var percentage = Percentage.Read(c);
+        var percentage = Amount.Read(c);
         percentage = float.Clamp(percentage, -1f, 1f);
 
         c.GetPlayer().MoveHorizontal(percentage);
@@ -135,13 +136,16 @@ public sealed class PlayerChangeAvatarNode : Node, IFlowInput
 
     public ValueInput<string> AvatarId = new("Avatar Id");
 
-    protected override Task Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var avatarId = AvatarId.Read(c);
-        if (string.IsNullOrEmpty(avatarId)) return Task.CompletedTask;
 
-        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_CHANGE}", avatarId);
-        return Task.CompletedTask;
+        if (!string.IsNullOrEmpty(avatarId))
+        {
+            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_CHANGE}", avatarId);
+        }
+
+        await Next.Execute(c);
     }
 }
 
@@ -150,9 +154,14 @@ public sealed class PlayerGrabNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
 
+    public ValueInput<Chirality> Chirality = new();
+
     protected override async Task Process(PulseContext c)
     {
-        c.GetPlayer().GrabRight();
+        if (Chirality.Read(c) == Utils.Chirality.Left)
+            c.GetPlayer().GrabLeft();
+        else
+            c.GetPlayer().GrabRight();
 
         await Next.Execute(c);
     }
@@ -163,9 +172,63 @@ public sealed class PlayerDropNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
 
+    public ValueInput<Chirality> Chirality = new();
+
     protected override async Task Process(PulseContext c)
     {
-        c.GetPlayer().DropRight();
+        if (Chirality.Read(c) == Utils.Chirality.Left)
+            c.GetPlayer().DropLeft();
+        else
+            c.GetPlayer().DropRight();
+
+        await Next.Execute(c);
+    }
+}
+
+[Node("Use", "Player/Actions")]
+public sealed class PlayerUseNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<Chirality> Chirality = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        if (Chirality.Read(c) == Utils.Chirality.Left)
+            c.GetPlayer().UseLeft();
+        else
+            c.GetPlayer().UseRight();
+
+        await Next.Execute(c);
+    }
+}
+
+[Node("Enter Safe Mode", "Player/Actions")]
+public sealed class PlayerEnterSafeModeNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    protected override async Task Process(PulseContext c)
+    {
+        c.GetPlayer().EnableSafeMode();
+
+        await Next.Execute(c);
+    }
+}
+
+[Node("Toggle Quick Menu", "Player/Actions")]
+public sealed class PlayerToggleQuickMenuNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<Chirality> Chirality = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        if (Chirality.Read(c) == Utils.Chirality.Left)
+            c.GetPlayer().ToggleLeftQuickMenu();
+        else
+            c.GetPlayer().ToggleRightQuickMenu();
 
         await Next.Execute(c);
     }
