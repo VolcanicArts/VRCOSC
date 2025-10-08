@@ -23,10 +23,7 @@ public sealed class DirectWriteVariableNode<T> : Node, IFlowInput, IHasVariableR
 
     protected override async Task Process(PulseContext c)
     {
-        if (!NodeGraph.GraphVariables.TryGetValue(VariableId, out var variable))
-            return;
-
-        NodeGraph.WriteVariable((GraphVariable<T>)variable, Value.Read(c));
+        NodeGraph.WriteVariable(graphVariable, Value.Read(c));
         await OnWrite.Execute(c);
     }
 }
@@ -63,10 +60,7 @@ public sealed class VariableReferenceNode<T> : Node, IHasVariableReference
 
     protected override Task Process(PulseContext c)
     {
-        if (!NodeGraph.GraphVariables.TryGetValue(VariableId, out var variable))
-            return Task.CompletedTask;
-
-        Reference.Write((GraphVariable<T>)variable, c);
+        Reference.Write(graphVariable, c);
         return Task.CompletedTask;
     }
 }
@@ -86,10 +80,7 @@ public sealed class VariableSourceNode<T> : Node, IHasVariableReference
 
     protected override Task Process(PulseContext c)
     {
-        if (!NodeGraph.GraphVariables.TryGetValue(VariableId, out var variable))
-            return Task.CompletedTask;
-
-        Value.Write(((GraphVariable<T>)variable).Value.Value, c);
+        Value.Write(graphVariable.Value.Value, c);
         return Task.CompletedTask;
     }
 }

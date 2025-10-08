@@ -444,18 +444,11 @@ public class NodeGraph : IVRCClientEventHandler
         return (T)iRef.GetValue()!;
     }
 
-    public void WriteVariable<T>(Guid variableId, T value)
+    public void WriteVariable<T>(GraphVariable<T> variable, T newValue)
     {
-        var variable = (GraphVariable<T>)GraphVariables[variableId];
-        WriteVariable(variable, value);
-    }
+        if (EqualityComparer<T>.Default.Equals(variable.Value.Value, newValue)) return;
 
-    public void WriteVariable<T>(GraphVariable<T> variable, T value)
-    {
-        var valueBefore = variable.Value.Value;
-        variable.Value.Value = value;
-
-        if (EqualityComparer<T>.Default.Equals(valueBefore, value)) return;
+        variable.Value.Value = newValue;
 
         foreach (var (_, node) in Nodes)
         {
