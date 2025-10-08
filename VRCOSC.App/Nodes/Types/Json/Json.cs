@@ -136,8 +136,16 @@ public sealed class JsonArrayToEnumerableNode<T> : Node
 
         try
         {
-            var enumerable = input.GetValues<T>();
-            Output.Write(enumerable, c);
+            if (typeof(T) == typeof(JsonArray))
+            {
+                var enumerable = input.OfType<T>();
+                Output.Write(enumerable, c);
+            }
+            else
+            {
+                var enumerable = input.GetValues<T>();
+                Output.Write(enumerable, c);
+            }
         }
         catch
         {
