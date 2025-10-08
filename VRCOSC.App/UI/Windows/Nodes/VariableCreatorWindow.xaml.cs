@@ -40,7 +40,7 @@ public partial class VariableCreatorWindow : IManagedWindow
 
     private void updateText(string text)
     {
-        if (!string.IsNullOrWhiteSpace(text) && TypeResolver.TryConstruct(text, out var constructedType))
+        if (!string.IsNullOrWhiteSpace(text) && TypeResolver.TryConstruct(text, out var constructedType) && !constructedType.IsClass)
         {
             FormedTypeText.Text = constructedType.GetFriendlyName();
             FormedTypeText.FontStyle = FontStyles.Normal;
