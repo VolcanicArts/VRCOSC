@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Numerics;
 using System.Threading.Tasks;
 using FontAwesome6;
@@ -184,7 +185,7 @@ public sealed class RoundNode<T> : Node where T : IFloatingPoint<T>
 
     protected override Task Process(PulseContext c)
     {
-        Output.Write(T.Round(Input.Read(c)), c);
+        Output.Write(T.Round(Input.Read(c), MidpointRounding.AwayFromZero), c);
         return Task.CompletedTask;
     }
 }
