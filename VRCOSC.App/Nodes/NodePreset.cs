@@ -39,7 +39,7 @@ public class NodePreset
         serialiser.Serialise();
     }
 
-    public void SpawnTo(NodeGraph targetGraph, Point pos)
+    public IEnumerable<Guid> SpawnTo(NodeGraph targetGraph, Point pos)
     {
         var nodeIdMapping = new Dictionary<Guid, Guid>();
 
@@ -105,6 +105,8 @@ public class NodePreset
                 Logger.Error(e, "Error creating connection when deserialising preset");
             }
         }
+
+        return nodeIdMapping.Values;
     }
 
     private bool tryConvertToTargetType(object? value, Type targetType, out object? outValue)

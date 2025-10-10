@@ -111,7 +111,9 @@ public class NodeGraph : IVRCClientEventHandler
 
     #region Management
 
-    public async void MarkDirty()
+    public async void MarkDirty() => await MarkDirtyAsync();
+
+    public async Task MarkDirtyAsync()
     {
         if (OnMarkedDirty is not null)
             await OnMarkedDirty.Invoke();

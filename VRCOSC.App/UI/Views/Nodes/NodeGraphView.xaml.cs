@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -930,7 +930,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         }
     }
 
-    private void shrinkWrapSelection()
+    private void shrinkWrapSelection(IEnumerable<Guid>? forceToNodes = null)
     {
         var bounds = new Rect(0, 0, SelectionVisual.ActualWidth, SelectionVisual.ActualHeight);
 
@@ -947,13 +947,27 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
             var nodeContainerPosition = (TranslateTransform)element.RenderTransform;
 
-            if (bounds.Contains(startPoint) && bounds.Contains(endPoint))
+            if (forceToNodes is null)
             {
-                topLeft.X = Math.Min(topLeft.X, nodeContainerPosition.X);
-                topLeft.Y = Math.Min(topLeft.Y, nodeContainerPosition.Y);
-                bottomRight.X = Math.Max(bottomRight.X, nodeContainerPosition.X + element.ActualWidth);
-                bottomRight.Y = Math.Max(bottomRight.Y, nodeContainerPosition.Y + element.ActualHeight);
-                items.Add(graphItem);
+                if (bounds.Contains(startPoint) && bounds.Contains(endPoint))
+                {
+                    topLeft.X = Math.Min(topLeft.X, nodeContainerPosition.X);
+                    topLeft.Y = Math.Min(topLeft.Y, nodeContainerPosition.Y);
+                    bottomRight.X = Math.Max(bottomRight.X, nodeContainerPosition.X + element.ActualWidth);
+                    bottomRight.Y = Math.Max(bottomRight.Y, nodeContainerPosition.Y + element.ActualHeight);
+                    items.Add(graphItem);
+                }
+            }
+            else
+            {
+                if (forceToNodes.Contains(graphItem.Node.Id))
+                {
+                    topLeft.X = Math.Min(topLeft.X, nodeContainerPosition.X);
+                    topLeft.Y = Math.Min(topLeft.Y, nodeContainerPosition.Y);
+                    bottomRight.X = Math.Max(bottomRight.X, nodeContainerPosition.X + element.ActualWidth);
+                    bottomRight.Y = Math.Max(bottomRight.Y, nodeContainerPosition.Y + element.ActualHeight);
+                    items.Add(graphItem);
+                }
             }
         }
 
@@ -982,6 +996,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
                                .Distinct();
 
         selection = new GraphItemSelection(offsetFromGrid, items.ToArray(), connections.ToArray());
+        SelectionVisual.Visibility = Visibility.Visible;
     }
 
     #endregion
@@ -1171,13 +1186,14 @@ public partial class NodeGraphView : INotifyPropertyChanged
         }
     }
 
-    private void GraphContextMenu_PresetItemClick(object sender, RoutedEventArgs e)
+    private async void GraphContextMenu_PresetItemClick(object sender, RoutedEventArgs e)
     {
         var element = (FrameworkElement)sender;
         var preset = (NodePreset)element.Tag;
 
-        preset.SpawnTo(Graph, graphContextMenuPosition);
-        Graph.MarkDirty();
+        var newNodes = preset.SpawnTo(Graph, graphContextMenuPosition);
+        await Graph.MarkDirtyAsync();
+        shrinkWrapSelection(newNodes);
     }
 
     private void NodeContextMenu_DeleteClick(object sender, RoutedEventArgs e)
