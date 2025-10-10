@@ -22,6 +22,7 @@ public sealed class ForNode : Node, IFlowInput
             await OnIteration.Execute(c);
         }
 
+        Index.Write(0, c);
         await OnEnd.Execute(c);
     }
 }

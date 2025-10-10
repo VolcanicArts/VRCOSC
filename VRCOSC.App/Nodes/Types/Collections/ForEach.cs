@@ -30,6 +30,7 @@ public sealed class ForEachNode<T> : Node, IFlowInput
 
         if (c.IsCancelled) return;
 
+        Element.Write(default!, c);
         await OnEnd.Execute(c);
     }
 }
