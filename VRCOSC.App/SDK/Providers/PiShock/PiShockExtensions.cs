@@ -12,6 +12,7 @@ public static class PiShockExtensions
         PiShockMode.Shock => "s",
         PiShockMode.Vibrate => "v",
         PiShockMode.Beep => "b",
+        PiShockMode.End => "e",
         _ => throw new ArgumentOutOfRangeException()
     };
 }

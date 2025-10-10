@@ -314,6 +314,17 @@ public class PiShockProvider
         if (!initialised) return Task.FromResult(new PiShockResult(false, "Provider not initialised"));
         if (serialInstance is null) return Task.FromResult(new PiShockResult(false, "Serial has not initialised"));
 
+        if (mode == PiShockMode.End)
+        {
+            intensity = 0;
+            duration = 0;
+        }
+
+        if (mode == PiShockMode.Beep)
+        {
+            intensity = 0;
+        }
+
         try
         {
             var commands = new List<string>();
@@ -416,6 +427,17 @@ public class PiShockProvider
 
     private async Task executeAsync(string channel, IEnumerable<int> shockerIds, PiShockMode mode, int intensity, int duration)
     {
+        if (mode == PiShockMode.End)
+        {
+            intensity = 0;
+            duration = 0;
+        }
+
+        if (mode == PiShockMode.Beep)
+        {
+            intensity = 0;
+        }
+
         var content = JsonSerializer.Serialize(new PiShockPublishOperation
         {
             Commands = shockerIds.Select(shockerId => new PiShockPublishCommand

@@ -41,5 +41,6 @@ public enum PiShockMode
 {
     Shock,
     Vibrate,
-    Beep
+    Beep,
+    End
 }
