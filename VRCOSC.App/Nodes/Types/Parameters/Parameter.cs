@@ -113,6 +113,72 @@ public class ReadParameterNode<T> : Node, IFlowInput
     }
 }
 
+[Node("Physbone Parameter Source", "Parameters/Receive")]
+public sealed class PhysboneParameterSourceNode : Node, INodeEventHandler, IHasTextProperty
+{
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
+
+    public GlobalStore<bool> GrabbedStore = new();
+    public GlobalStore<bool> PosedStore = new();
+    public GlobalStore<float> AngleStore = new();
+    public GlobalStore<float> StretchStore = new();
+    public GlobalStore<float> SquishStore = new();
+
+    public ValueOutput<bool> Grabbed = new();
+    public ValueOutput<bool> Posed = new();
+    public ValueOutput<float> Angle = new();
+    public ValueOutput<float> Stretch = new();
+    public ValueOutput<float> Squish = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        Grabbed.Write(GrabbedStore.Read(c), c);
+        Posed.Write(PosedStore.Read(c), c);
+        Angle.Write(AngleStore.Read(c), c);
+        Stretch.Write(StretchStore.Read(c), c);
+        Squish.Write(SquishStore.Read(c), c);
+        return Task.CompletedTask;
+    }
+
+    public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter)
+    {
+        if (string.IsNullOrWhiteSpace(Text)) return false;
+
+        if (parameter.Name == $"{Text}_IsGrabbed" && parameter.Type == ParameterType.Bool)
+        {
+            GrabbedStore.Write(parameter.GetValue<bool>(), c);
+            return true;
+        }
+
+        if (parameter.Name == $"{Text}_IsPosed" && parameter.Type == ParameterType.Bool)
+        {
+            PosedStore.Write(parameter.GetValue<bool>(), c);
+            return true;
+        }
+
+        if (parameter.Name == $"{Text}_Angle" && parameter.Type == ParameterType.Float)
+        {
+            AngleStore.Write(parameter.GetValue<float>(), c);
+            return true;
+        }
+
+        if (parameter.Name == $"{Text}_Stretch" && parameter.Type == ParameterType.Float)
+        {
+            StretchStore.Write(parameter.GetValue<float>(), c);
+            return true;
+        }
+
+        if (parameter.Name == $"{Text}_Squish" && parameter.Type == ParameterType.Float)
+        {
+            SquishStore.Write(parameter.GetValue<float>(), c);
+            return true;
+        }
+
+        return false;
+    }
+}
+
 [Node("Wildcard Parameter Source", "Parameters/Receive/Wildcard")]
 public sealed class WildcardParameterSourceNode<T, W0> : Node, INodeEventHandler, IHasTextProperty
 {
