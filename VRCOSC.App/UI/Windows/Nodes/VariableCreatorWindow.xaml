@@ -24,7 +24,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Text="Persistent:" FontWeight="SemiBold" Foreground="{DynamicResource CForeground1}" FontSize="20"/>
-                <core:VRCOSCCheckBox Grid.Column="1" IsChecked="{Binding VariablePersistent}" Height="25" Width="25"/>
+                <core:VRCOSCCheckBox Grid.Column="1" IsChecked="{Binding VariablePersistent}" Checked="ToggleButton_OnChanged" Unchecked="ToggleButton_OnChanged" Height="25" Width="25"/>
             </Grid>
             <Grid>
                 <Grid.ColumnDefinitions>

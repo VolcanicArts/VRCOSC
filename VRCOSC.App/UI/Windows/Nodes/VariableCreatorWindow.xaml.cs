@@ -16,7 +16,7 @@ public partial class VariableCreatorWindow : IManagedWindow
     public NodeGraph NodeGraph { get; }
 
     public Type? VariableType { get; set; }
-    public string VariableName { get; set; } = string.Empty;
+    public string VariableName { get; set; } = "New Variable";
     public bool VariablePersistent { get; set; }
 
     public VariableCreatorWindow(NodeGraph nodeGraph)
@@ -40,7 +40,7 @@ public partial class VariableCreatorWindow : IManagedWindow
 
     private void updateText(string text)
     {
-        if (!string.IsNullOrWhiteSpace(text) && TypeResolver.TryConstruct(text, out var constructedType) && !constructedType.IsClass)
+        if (!string.IsNullOrWhiteSpace(text) && TypeResolver.TryConstruct(text, out var constructedType) && (!(VariablePersistent && constructedType.IsClass) || constructedType == typeof(string)))
         {
             FormedTypeText.Text = constructedType.GetFriendlyName();
             FormedTypeText.FontStyle = FontStyles.Normal;
@@ -64,5 +64,11 @@ public partial class VariableCreatorWindow : IManagedWindow
     private void GenericArgumentText_OnKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter && VariableType is not null) Close();
+    }
+
+    private void ToggleButton_OnChanged(object sender, RoutedEventArgs e)
+    {
+        var text = GenericArgumentText.Text;
+        updateText(text);
     }
 }
