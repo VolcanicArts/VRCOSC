@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.IO;
+using Newtonsoft.Json;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -11,6 +12,7 @@ public class NodePresetSerialiser : ProfiledSerialiser<NodePreset, SerialisableN
 {
     protected override string Directory => Path.Join(base.Directory, "nodes", "presets");
     protected override string FileName => $"{Reference.Id}.json";
+    protected override Formatting Format => Formatting.None;
 
     public NodePresetSerialiser(Storage storage, NodePreset reference)
         : base(storage, reference)
