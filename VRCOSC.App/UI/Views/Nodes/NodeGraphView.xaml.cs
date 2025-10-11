@@ -190,6 +190,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
             Dispatcher.Invoke(() =>
             {
                 hasLoaded = true;
+                Graph.UILoaded = true;
                 LoadingOverlay.FadeOut(250);
             });
         }

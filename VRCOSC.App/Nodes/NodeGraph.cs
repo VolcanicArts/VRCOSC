@@ -50,6 +50,7 @@ public class NodeGraph : IVRCClientEventHandler
     public List<NodeGroup> RemovedGroups = [];
 
     public Func<Task>? OnMarkedDirty;
+    public bool UILoaded { get; set; }
 
     public NodeGraph()
     {

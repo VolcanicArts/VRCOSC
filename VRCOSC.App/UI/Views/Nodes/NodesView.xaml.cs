@@ -156,7 +156,7 @@ public partial class NodesView
         NodeManager.GetInstance().ImportPreset(filePath);
 
         // we need to refresh the context menu to add the imported preset
-        foreach (var nodeGraph in GraphsSource)
+        foreach (var nodeGraph in GraphsSource.Where(g => g.UILoaded))
         {
             nodeGraph.MarkDirty();
         }
@@ -185,7 +185,7 @@ public partial class NodesView
         NodeManager.GetInstance().Presets.Remove(preset);
 
         // we need to refresh the context menu to remove the deleted preset
-        foreach (var nodeGraph in GraphsSource)
+        foreach (var nodeGraph in GraphsSource.Where(g => g.UILoaded))
         {
             nodeGraph.MarkDirty();
         }
