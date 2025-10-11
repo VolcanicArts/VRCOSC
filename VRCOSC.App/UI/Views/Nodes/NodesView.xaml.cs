@@ -20,6 +20,8 @@ public partial class NodesView
     public ObservableCollection<NodePreset> PresetsSource => NodeManager.GetInstance().Presets;
     private Dictionary<Guid, NodeGraphView> viewCache { get; } = [];
 
+    public Observable<bool> NodesLoaded => NodeManager.GetInstance().Loaded;
+
     private NodeGraph? selectedGraph;
 
     public NodesView()
@@ -27,7 +29,12 @@ public partial class NodesView
         InitializeComponent();
         DataContext = this;
         Loaded += OnLoaded;
-        NodeManager.GetInstance().OnLoad += () => viewCache.Clear();
+
+        NodeManager.GetInstance().OnLoading += () =>
+        {
+            viewCache.Clear();
+            selectedGraph = null;
+        };
     }
 
     private void setActiveTab(bool presetTab)
@@ -50,6 +57,8 @@ public partial class NodesView
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        if (!NodesLoaded.Value) return;
+
         setActiveTab(false);
         showNodeGraph(selectedGraph ?? GraphsSource.First());
     }

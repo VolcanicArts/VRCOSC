@@ -7,6 +7,9 @@
              mc:Ignorable="d"
              d:DataContext="{d:DesignData Source=/UI/Views/Nodes/NodesView.xaml}"
              d:DesignHeight="1920" d:DesignWidth="1080">
+    <UserControl.Resources>
+        <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterInverted" True="Collapsed" False="Visible"/>
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="175"/>
@@ -140,5 +143,13 @@
             </Grid>
         </Grid>
         <ContentPresenter Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" x:Name="ActiveField"/>
+        <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Background="{DynamicResource CBackground2}"
+                Visibility="{Binding NodesLoaded.Value, Converter={StaticResource BoolToVisibilityConverterInverted}}">
+            <core:SpacedStackPanel Orientation="Vertical" Spacing="20" VerticalAlignment="Center">
+                <TextBlock MaxWidth="400" FontSize="25" TextAlignment="Center"
+                           HorizontalAlignment="Center" TextWrapping="Wrap" Foreground="{DynamicResource CForeground1}"
+                           Text="Pulse editing is disabled due to module errors" />
+            </core:SpacedStackPanel>
+        </Border>
     </Grid>
 </UserControl>

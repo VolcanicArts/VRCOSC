@@ -53,6 +53,8 @@ internal class ModuleManager : INotifyPropertyChanged
     private readonly List<string> failedModuleImports = new();
     private readonly List<string> failedModuleLoads = new();
 
+    public Observable<bool> ErrorsInLastLoad { get; } = new();
+
     #region Runtime
 
     public Task StartAsync()
@@ -213,7 +215,13 @@ internal class ModuleManager : INotifyPropertyChanged
 
     private void buildErrorMessageBox()
     {
-        if (failedPackageImports.Count == 0 && failedModuleImports.Count == 0 && failedModuleLoads.Count == 0) return;
+        if (failedPackageImports.Count == 0 && failedModuleImports.Count == 0 && failedModuleLoads.Count == 0)
+        {
+            ErrorsInLastLoad.Value = false;
+            return;
+        }
+
+        ErrorsInLastLoad.Value = true;
 
         var errorBuilder = new StringBuilder();
 

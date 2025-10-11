@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using VRCOSC.App.Modules;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
@@ -25,10 +26,21 @@ public class NodeManager
     public ObservableCollection<NodeGraph> Graphs { get; } = [];
     public ObservableCollection<NodePreset> Presets { get; } = [];
 
-    public Action? OnLoad;
+    public Action? OnLoading;
+    public Observable<bool> Loaded { get; } = new();
 
     public void Load()
     {
+        OnLoading?.Invoke();
+
+        if (ModuleManager.GetInstance().ErrorsInLastLoad.Value)
+        {
+            Loaded.Value = false;
+            Graphs.Clear();
+            Presets.Clear();
+            return;
+        }
+
         try
         {
             if (Directory.Exists(graphsPath))
@@ -75,7 +87,7 @@ public class NodeManager
 
         Graphs.OnCollectionChanged(OnGraphsCollectionChanged);
         Presets.OnCollectionChanged(OnPresetsCollectionChanged);
-        OnLoad?.Invoke();
+        Loaded.Value = true;
     }
 
     public void ImportGraph(string filePath)
@@ -104,6 +116,8 @@ public class NodeManager
 
     public void Unload()
     {
+        if (!Loaded.Value) return;
+
         foreach (var nodeGraph in Graphs)
         {
             nodeGraph.Serialise();
@@ -156,6 +170,8 @@ public class NodeManager
 
     public async Task Start()
     {
+        if (!Loaded.Value) return;
+
         foreach (var graph in Graphs)
         {
             await graph.Start();
@@ -164,6 +180,8 @@ public class NodeManager
 
     public async Task Stop()
     {
+        if (!Loaded.Value) return;
+
         foreach (var graph in Graphs)
         {
             await graph.Stop();
@@ -172,6 +190,8 @@ public class NodeManager
 
     public void OnParameterReceived(VRChatParameter parameter)
     {
+        if (!Loaded.Value) return;
+
         foreach (var graph in Graphs)
         {
             graph.OnParameterReceived(parameter);
@@ -180,6 +200,8 @@ public class NodeManager
 
     public void OnAvatarChange(AvatarConfig? config)
     {
+        if (!Loaded.Value) return;
+
         foreach (var graph in Graphs)
         {
             graph.OnAvatarChange(config);
@@ -188,6 +210,8 @@ public class NodeManager
 
     public void OnPartialSpeechResult(string result)
     {
+        if (!Loaded.Value) return;
+
         foreach (var graph in Graphs)
         {
             graph.OnPartialSpeechResult(result);
@@ -196,6 +220,8 @@ public class NodeManager
 
     public void OnFinalSpeechResult(string result)
     {
+        if (!Loaded.Value) return;
+
         foreach (var graph in Graphs)
         {
             graph.OnFinalSpeechResult(result);
