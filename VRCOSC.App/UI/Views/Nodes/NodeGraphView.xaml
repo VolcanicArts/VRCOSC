@@ -1194,6 +1194,7 @@
                                                     <MenuItem Header="Create Source" Tag="{Binding}" Click="CreateVariableSource_OnClick"/>
                                                     <MenuItem Header="Create Reference" Tag="{Binding}" Click="CreateVariableReference_OnClick"/>
                                                     <MenuItem Header="Create Write" Tag="{Binding}" Click="CreateVariableWrite_OnClick"/>
+                                                    <MenuItem Header="Create Drive" Tag="{Binding}" Click="CreateVariableDrive_OnClick"/>
                                                     <MenuItem Header="Delete" Tag="{Binding}" Click="DeleteVariable_OnClick"/>
                                                 </ContextMenu>
                                             </Border.ContextMenu>

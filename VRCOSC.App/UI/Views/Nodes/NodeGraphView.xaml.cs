@@ -1739,6 +1739,19 @@ public partial class NodeGraphView : INotifyPropertyChanged
         Graph.MarkDirty();
     }
 
+    private void CreateVariableDrive_OnClick(object sender, RoutedEventArgs e)
+    {
+        var item = (MenuItem)sender;
+        var graphVariable = (IGraphVariable)item.Tag;
+
+        var graphTransform = getGraphTransform();
+        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
+
+        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(DriveVariableNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
+        variableReference.VariableId = graphVariable.GetId();
+        Graph.MarkDirty();
+    }
+
     private void DeleteVariable_OnClick(object sender, RoutedEventArgs e)
     {
         var item = (MenuItem)sender;

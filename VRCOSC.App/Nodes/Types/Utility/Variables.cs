@@ -6,6 +6,27 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Utility;
 
+[Node("Drive Variable")]
+public sealed class DriveVariableNode<T> : UpdateNode<T>, IHasVariableReference
+{
+    public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
+
+    private GraphVariable<T> graphVariable => (GraphVariable<T>)NodeGraph.GraphVariables[VariableId];
+
+    [NodeProperty("variable_id")]
+    public Guid VariableId { get; set; }
+
+    public ValueInput<T> Value = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        NodeGraph.WriteVariable(graphVariable, Value.Read(c));
+        return Task.CompletedTask;
+    }
+
+    protected override T GetValue(PulseContext c) => Value.Read(c);
+}
+
 [Node("Direct Write Variable")]
 public sealed class DirectWriteVariableNode<T> : Node, IFlowInput, IHasVariableReference
 {
