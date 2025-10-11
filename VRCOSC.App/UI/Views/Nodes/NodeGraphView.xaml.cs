@@ -717,12 +717,10 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         foreach (var groupItem in GraphItems.OfType<NodeGroupGraphItem>())
         {
-            var groupContainer = groupItem.Element;
+            var mousePos = Mouse.GetPosition(GraphContainer);
+            var bounds = new Rect(groupItem.PosX, groupItem.PosY, groupItem.Width, groupItem.Height);
 
-            var mouseRelativeToGraph = Mouse.GetPosition(GraphContainer);
-            var bounds = new Rect(groupItem.PosX, groupItem.PosY, groupItem.PosX + groupContainer.ActualWidth, groupItem.PosY + groupContainer.ActualHeight);
-
-            if (!bounds.Contains(mouseRelativeToGraph)) continue;
+            if (!bounds.Contains(mousePos)) continue;
 
             groupToUpdate = groupItem;
         }
