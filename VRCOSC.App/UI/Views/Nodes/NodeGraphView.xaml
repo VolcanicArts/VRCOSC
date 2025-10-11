@@ -96,15 +96,6 @@
             <Setter Property="FontFamily" Value="pack://application:,,,/VRCOSC.App;component/Fonts/#Iosevka"/>
         </Style>
 
-        <Style TargetType="ToolTip">
-            <Setter Property = "HorizontalOffset" Value="10"/>
-            <Setter Property = "VerticalOffset" Value="10"/>
-            <Setter Property = "Background" Value="{StaticResource CBackground2}"/>
-            <Setter Property = "Foreground" Value="{StaticResource CForeground1}"/>
-            <Setter Property = "FontSize" Value="14"/>
-            <Setter Property = "FontWeight" Value="SemiBold"/>
-        </Style>
-
         <DataTemplate x:Key="BackgroundTemplate">
             <Border Background="{DynamicResource CBackground4}" Opacity="0.85">
                 <Border.Clip>
@@ -1217,8 +1208,8 @@
                                                             </MultiBinding>
                                                         </Border.Clip>
                                                         <StackPanel VerticalAlignment="Top">
-                                                            <TextBlock Text="{Binding Name.Value}" Foreground="{DynamicResource CForeground2}" FontSize="16" FontWeight="SemiBold" TextAlignment="Center"/>
-                                                            <TextBlock Text="{Binding ValueType, Converter={StaticResource TypeToFriendlyNameConverter}}" Foreground="{DynamicResource CForeground3}" FontSize="13" TextAlignment="Center"/>
+                                                            <TextBlock Text="{Binding Name.Value}" Foreground="{DynamicResource CForeground2}" FontSize="14" FontWeight="SemiBold" TextAlignment="Center"/>
+                                                            <TextBlock Text="{Binding ValueType, Converter={StaticResource TypeToFriendlyNameConverter}}" Foreground="{DynamicResource CForeground3}" FontSize="12" TextAlignment="Center"/>
                                                         </StackPanel>
                                                     </Border>
                                                     <fa6:ImageAwesome Visibility="{Binding Persistent.Value, Converter={StaticResource BoolToVisibilityConverter}}"

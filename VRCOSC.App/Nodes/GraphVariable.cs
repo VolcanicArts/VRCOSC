@@ -4,7 +4,7 @@
 using System;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Nodes.Variables;
+namespace VRCOSC.App.Nodes;
 
 public interface IGraphVariable
 {

@@ -48,7 +48,9 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border CornerRadius="5" MouseDown="GraphTab_OnClick" Tag="{Binding}">
+                                    <Border CornerRadius="5" MouseDown="GraphTab_OnClick" Tag="{Binding}"
+                                            ToolTip="{Binding Name.Value}"
+                                            ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Setter Property="Background" Value="{DynamicResource CBackground3}"/>
@@ -78,9 +80,7 @@
                                                    VerticalAlignment="Center"
                                                    FontSize="15"
                                                    Text="{Binding Name.Value}"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   ToolTip="{Binding Name.Value}"
-                                                   ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                                                   TextTrimming="CharacterEllipsis"/>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -106,7 +106,9 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border CornerRadius="5" Tag="{Binding}">
+                                <Border CornerRadius="5" Tag="{Binding}"
+                                        ToolTip="{Binding Name.Value}"
+                                        ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Setter Property="Background" Value="{DynamicResource CBackground3}"/>
@@ -129,9 +131,7 @@
                                                VerticalAlignment="Center"
                                                FontSize="15"
                                                Text="{Binding Name.Value}"
-                                               TextTrimming="CharacterEllipsis"
-                                               ToolTip="{Binding Name.Value}"
-                                               ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                                               TextTrimming="CharacterEllipsis"/>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

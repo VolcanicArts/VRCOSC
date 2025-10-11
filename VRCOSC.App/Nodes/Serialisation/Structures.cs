@@ -8,7 +8,6 @@ using System.Numerics;
 using System.Reflection;
 using Newtonsoft.Json;
 using VRCOSC.App.Nodes.Types;
-using VRCOSC.App.Nodes.Variables;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 

@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using Newtonsoft.Json;
-using VRCOSC.App.Nodes.Variables;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 

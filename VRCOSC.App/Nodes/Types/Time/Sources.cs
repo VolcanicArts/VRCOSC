@@ -38,7 +38,7 @@ public sealed class DateNowSourceNode : UpdateNode<DateTime>
 
 [Node("UTC Now", "Date & Time")]
 [NodeCollapsed]
-public sealed class UTCNowSourceNode : UpdateNode<DateTime>
+public sealed class UtcNowSourceNode : UpdateNode<DateTime>
 {
     public ValueOutput<DateTime> UTCNow = new();
 

@@ -10,6 +10,14 @@
         <Style TargetType="fa6:ImageAwesome">
             <Setter Property="PrimaryColor" Value="{DynamicResource CForeground1}" />
         </Style>
+        <Style TargetType="ToolTip">
+            <Setter Property="HorizontalOffset" Value="10"/>
+            <Setter Property="VerticalOffset" Value="5"/>
+            <Setter Property="Background" Value="{StaticResource CBackground2}"/>
+            <Setter Property="Foreground" Value="{StaticResource CForeground1}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
         <Style TargetType="RadioButton">
             <Setter Property="OverridesDefaultStyle" Value="True" />
             <Setter Property="Height" Value="70" />

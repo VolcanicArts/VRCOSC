@@ -24,7 +24,6 @@ using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Inputs;
 using VRCOSC.App.Nodes.Types.Utility;
-using VRCOSC.App.Nodes.Variables;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows.Nodes;

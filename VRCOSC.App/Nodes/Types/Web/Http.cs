@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Web;
 
 [Node("HTTP GET", "Web")]
-public sealed class HTTPGETNode : Node, IFlowInput
+public sealed class HttpGetNode : Node, IFlowInput
 {
     private readonly HttpClient client = new();
 
@@ -61,7 +61,7 @@ public sealed class HTTPGETNode : Node, IFlowInput
 }
 
 [Node("HTTP POST", "Web")]
-public sealed class HTTPPOSTNode : Node, IFlowInput
+public sealed class HttpPostNode : Node, IFlowInput
 {
     private readonly HttpClient client = new();
 

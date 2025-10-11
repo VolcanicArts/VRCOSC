@@ -14,7 +14,6 @@ using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Strings;
 using VRCOSC.App.Nodes.Types.Utility;
-using VRCOSC.App.Nodes.Variables;
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;

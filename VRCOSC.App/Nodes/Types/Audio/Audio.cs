@@ -12,6 +12,7 @@ namespace VRCOSC.App.Nodes.Types.Audio;
 public sealed class AudioPlayOnceNode : Node, IFlowInput
 {
     public FlowContinuation OnFinished = new("On Finished");
+    public FlowContinuation OnFailed = new("On Failed");
 
     public ValueInput<string> FilePath = new("File Path");
     public ValueInput<float> Volume = new("Volume", 1f);
@@ -19,7 +20,12 @@ public sealed class AudioPlayOnceNode : Node, IFlowInput
     protected override async Task Process(PulseContext c)
     {
         var filePath = FilePath.Read(c);
-        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath)) return;
+
+        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+        {
+            await OnFailed.Execute(c);
+            return;
+        }
 
         var player = new SoundPlayer(new StreamDataProvider(File.OpenRead(filePath)))
         {

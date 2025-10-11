@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using VRCOSC.App.Nodes.Variables;
 
 namespace VRCOSC.App.Nodes.Types.Utility;
 
@@ -61,6 +60,24 @@ public sealed class VariableReferenceNode<T> : Node, IHasVariableReference
     protected override Task Process(PulseContext c)
     {
         Reference.Write(graphVariable, c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Variable Reference To Value", "Variables")]
+[NodeForceReprocess]
+public sealed class VariableReferenceToValueNode<T> : Node
+{
+    public ValueInput<GraphVariable<T>> Reference = new();
+
+    public ValueOutput<T> Value = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var reference = Reference.Read(c);
+        if (reference is null) return Task.CompletedTask;
+
+        Value.Write(reference.Value.Value, c);
         return Task.CompletedTask;
     }
 }
