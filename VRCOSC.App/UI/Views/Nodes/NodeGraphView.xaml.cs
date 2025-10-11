@@ -1129,6 +1129,8 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
             nodeGroupGraphItemGrab = new NodeGroupGraphItemDrag(offset, offsetFromGrid, nodeGroupGraphItem, nodeGraphItems, connections);
             OuterContainer.CaptureMouse();
+
+            deselectGraphItems();
         }
     }
 
