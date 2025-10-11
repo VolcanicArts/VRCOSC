@@ -61,8 +61,6 @@ public partial class NodesView
             viewCache[nodeGraph.Id] = view;
         }
 
-        Logger.Log($"Showing node graph {nodeGraph.Id.ToString()}", LoggingTarget.Information);
-
         ActiveField.Content = view;
         await Dispatcher.Yield(DispatcherPriority.Loaded);
 
@@ -133,5 +131,15 @@ public partial class NodesView
 
         if (e.ChangedButton == MouseButton.Left)
             setActiveTab(true);
+    }
+
+    private void ExportGraph_OnClick(object sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+
+        var element = (FrameworkElement)sender;
+        var graph = (NodeGraph)element.Tag;
+
+        NodeManager.GetInstance().ShowExternally(graph);
     }
 }

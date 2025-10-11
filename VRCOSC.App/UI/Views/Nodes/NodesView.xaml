@@ -46,6 +46,11 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Background="{DynamicResource CBackground3}" CornerRadius="5">
+                                        <Border.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Header="Export" Click="ExportGraph_OnClick" Tag="{Binding}"/>
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
                                         <Grid MouseDown="GraphTab_OnClick" Tag="{Binding}">
                                             <TextBlock Grid.Row="0" Grid.Column="0"
                                                        Foreground="{DynamicResource CForeground2}"

@@ -84,6 +84,11 @@ public class NodeManager
         Graphs.Add(graph);
     }
 
+    public void ShowExternally(NodeGraph graph)
+    {
+        Platform.PresentFile(Path.Join(graphsPath, $"{graph.Id}.json"));
+    }
+
     public void Unload()
     {
         foreach (var nodeGraph in Graphs)
