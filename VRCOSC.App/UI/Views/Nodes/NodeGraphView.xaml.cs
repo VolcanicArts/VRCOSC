@@ -20,6 +20,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using VRCOSC.App.Nodes;
+using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Inputs;
 using VRCOSC.App.Nodes.Types.Utility;
@@ -72,6 +73,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
     private SelectionDrag? selectionDrag;
 
     private GraphItemSelection? selection;
+    private NodePreset? copyPasteHolder;
     private bool contentVisible = true;
 
     public bool ContentVisible
@@ -1739,6 +1741,49 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         Graph.DeleteVariable(graphVariable);
         Graph.MarkDirty();
+    }
+
+    private void OnCopyCanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = selection is not null;
+        e.Handled = true;
+    }
+
+    private void OnCopyExecuted(object sender, ExecutedRoutedEventArgs e)
+    {
+        Debug.Assert(selection is not null);
+
+        var position = (TranslateTransform)SelectionVisual.RenderTransform;
+
+        copyPasteHolder = new NodePreset
+        {
+            Nodes = selection.Items.OfType<NodeGraphItem>().Select(nodeGraphItem => new SerialisableNode(nodeGraphItem.Node)).ToList(),
+            Connections = selection.Connections.Select(connection => new SerialisableConnection(connection)).ToList()
+        };
+
+        foreach (var node in copyPasteHolder.Nodes)
+        {
+            node.Position = new Vector2(node.Position.X - (float)position.X, node.Position.Y - (float)position.Y);
+        }
+
+        e.Handled = true;
+    }
+
+    private void OnPasteCanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = copyPasteHolder is not null;
+        e.Handled = true;
+    }
+
+    private async void OnPasteExecuted(object sender, ExecutedRoutedEventArgs e)
+    {
+        Debug.Assert(copyPasteHolder is not null);
+
+        var graphTransform = getGraphTransform();
+        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
+        var newNodes = copyPasteHolder.SpawnTo(Graph, offset);
+        await Graph.MarkDirtyAsync();
+        shrinkWrapSelection(newNodes);
     }
 }
 

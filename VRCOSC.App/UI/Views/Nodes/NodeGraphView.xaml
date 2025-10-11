@@ -12,6 +12,20 @@
              mc:Ignorable="d"
              d:DesignHeight="1920" d:DesignWidth="1080"
              Focusable="True">
+    <UserControl.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Copy"
+                        CanExecute="OnCopyCanExecute"
+                        Executed="OnCopyExecuted"/>
+        <CommandBinding Command="ApplicationCommands.Paste"
+                        CanExecute="OnPasteCanExecute"
+                        Executed="OnPasteExecuted"/>
+    </UserControl.CommandBindings>
+    <UserControl.InputBindings>
+        <KeyBinding Command="ApplicationCommands.Copy"
+                    Modifiers="Control" Key="C"/>
+        <KeyBinding Command="ApplicationCommands.Paste"
+                    Modifiers="Control" Key="V"/>
+    </UserControl.InputBindings>
     <UserControl.Resources>
         <core:ObjectToStringConverter x:Key="ObjectToStringConverter"/>
         <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
