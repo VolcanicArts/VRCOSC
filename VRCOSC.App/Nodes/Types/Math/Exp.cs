@@ -8,7 +8,7 @@ namespace VRCOSC.App.Nodes.Types.Math;
 
 [Node("Exp", "Math")]
 [NodeCollapsed]
-public class ExponentialNode<T> : Node where T : INumber<T>
+public sealed class ExponentialNode<T> : Node where T : INumber<T>
 {
     public ValueInput<T> Input = new();
     public ValueOutput<T> Output = new();

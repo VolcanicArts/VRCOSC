@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Time;
 
-[Node("DateTime Now", "DateTime")]
+[Node("DateTime Now", "Date & Time")]
 [NodeCollapsed]
-public class DateTimeNowSourceNode : UpdateNode<DateTime>
+public sealed class DateTimeNowSourceNode : UpdateNode<DateTime>
 {
     public ValueOutput<DateTime> DateTime = new();
 
@@ -21,9 +21,9 @@ public class DateTimeNowSourceNode : UpdateNode<DateTime>
     protected override DateTime GetValue(PulseContext c) => System.DateTime.Now;
 }
 
-[Node("Date Now", "DateTime")]
+[Node("Date Now", "Date & Time")]
 [NodeCollapsed]
-public class DateNowSourceNode : UpdateNode<DateTime>
+public sealed class DateNowSourceNode : UpdateNode<DateTime>
 {
     public ValueOutput<DateTime> Date = new();
 
@@ -36,9 +36,9 @@ public class DateNowSourceNode : UpdateNode<DateTime>
     protected override DateTime GetValue(PulseContext c) => DateTime.Today;
 }
 
-[Node("UTC Now", "DateTime")]
+[Node("UTC Now", "Date & Time")]
 [NodeCollapsed]
-public class UTCNowSourceNode : UpdateNode<DateTime>
+public sealed class UTCNowSourceNode : UpdateNode<DateTime>
 {
     public ValueOutput<DateTime> UTCNow = new();
 

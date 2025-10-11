@@ -8,7 +8,7 @@ namespace VRCOSC.App.Nodes.Types.Math;
 
 [Node("Floor", "Math")]
 [NodeCollapsed]
-public class FloorNode<T> : Node where T : IFloatingPoint<T>
+public sealed class FloorNode<T> : Node where T : IFloatingPoint<T>
 {
     public ValueInput<T> Input = new();
     public ValueOutput<T> Output = new();

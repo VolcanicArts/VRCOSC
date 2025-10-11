@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Collections;
 
 [Node("Enumerable Count", "Collections")]
-public class EnumerableCountNode<T> : Node
+public sealed class EnumerableCountNode<T> : Node
 {
     public ValueInput<IEnumerable<T>> Enumerable = new();
     public ValueOutput<int> Count = new();
@@ -44,7 +44,7 @@ public sealed class EnumerableElementAtNode<T> : Node
 }
 
 [Node("Enumerable Insert Element", "Collections")]
-public class EnumerableElementInsertNode<T> : Node, IFlowInput
+public sealed class EnumerableElementInsertNode<T> : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
 

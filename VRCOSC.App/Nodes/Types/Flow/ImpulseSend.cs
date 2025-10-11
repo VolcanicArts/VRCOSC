@@ -7,7 +7,7 @@ using VRCOSC.App.Utils;
 namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Impulse Send", "Flow/Impulse Send")]
-public class ImpulseSendNode : Node, IImpulseSender, IFlowInput, IHasTextProperty
+public sealed class ImpulseSendNode : Node, IImpulseSender, IFlowInput, IHasTextProperty
 {
     public FlowContinuation Next = new("Next");
 
@@ -22,7 +22,7 @@ public class ImpulseSendNode : Node, IImpulseSender, IFlowInput, IHasTextPropert
 }
 
 [Node("Impulse Send With Data", "Flow/Impulse Send")]
-public class ImpulseSendNode<T1> : Node, IImpulseSender, IFlowInput, IHasTextProperty
+public sealed class ImpulseSendNode<T1> : Node, IImpulseSender, IFlowInput, IHasTextProperty
 {
     public FlowContinuation Next = new("Next");
 
@@ -39,7 +39,7 @@ public class ImpulseSendNode<T1> : Node, IImpulseSender, IFlowInput, IHasTextPro
 }
 
 [Node("Impulse Send With Data 2", "Flow/Impulse Send")]
-public class ImpulseSendNode<T1, T2> : Node, IImpulseSender, IFlowInput, IHasTextProperty
+public sealed class ImpulseSendNode<T1, T2> : Node, IImpulseSender, IFlowInput, IHasTextProperty
 {
     public FlowContinuation Next = new("Next");
 
@@ -57,7 +57,7 @@ public class ImpulseSendNode<T1, T2> : Node, IImpulseSender, IFlowInput, IHasTex
 }
 
 [Node("Impulse Send With Data 3", "Flow/Impulse Send")]
-public class ImpulseSendNode<T1, T2, T3> : Node, IImpulseSender, IFlowInput, IHasTextProperty
+public sealed class ImpulseSendNode<T1, T2, T3> : Node, IImpulseSender, IFlowInput, IHasTextProperty
 {
     public FlowContinuation Next = new("Next");
 
@@ -76,7 +76,7 @@ public class ImpulseSendNode<T1, T2, T3> : Node, IImpulseSender, IFlowInput, IHa
 }
 
 [Node("Impulse Send With Data 4", "Flow/Impulse Send")]
-public class ImpulseSendNode<T1, T2, T3, T4> : Node, IImpulseSender, IFlowInput, IHasTextProperty
+public sealed class ImpulseSendNode<T1, T2, T3, T4> : Node, IImpulseSender, IFlowInput, IHasTextProperty
 {
     public FlowContinuation Next = new("Next");
 

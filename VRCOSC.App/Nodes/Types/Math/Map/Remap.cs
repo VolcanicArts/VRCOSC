@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Math.Map;
 
 [Node("Remap", "Math/Map")]
-public class RemapNode<TFrom, TTo> : Node where TFrom : INumber<TFrom> where TTo : INumber<TTo>
+public sealed class RemapNode<TFrom, TTo> : Node where TFrom : INumber<TFrom> where TTo : INumber<TTo>
 {
     public ValueInput<TFrom> Value = new();
     public ValueInput<TFrom> FromMin = new("From Min");
@@ -31,7 +31,7 @@ public class RemapNode<TFrom, TTo> : Node where TFrom : INumber<TFrom> where TTo
 
 [Node("Remap 0,1 To -1,1", "Math/Map")]
 [NodeCollapsed]
-public class Remap0111Node<T> : Node where T : IFloatingPoint<T>
+public sealed class Remap0111Node<T> : Node where T : IFloatingPoint<T>
 {
     public ValueInput<T> Value = new();
     public ValueOutput<T> Result = new();
@@ -46,7 +46,7 @@ public class Remap0111Node<T> : Node where T : IFloatingPoint<T>
 
 [Node("Remap -1,1 To 0,1", "Math/Map")]
 [NodeCollapsed]
-public class Remap1101Node<T> : Node where T : IFloatingPoint<T>
+public sealed class Remap1101Node<T> : Node where T : IFloatingPoint<T>
 {
     public ValueInput<T> Value = new();
     public ValueOutput<T> Result = new();

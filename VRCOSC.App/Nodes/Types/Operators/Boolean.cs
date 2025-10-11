@@ -7,7 +7,7 @@ namespace VRCOSC.App.Nodes.Types.Operators;
 
 [Node("AND", "Operators/Boolean")]
 [NodeCollapsed]
-public class BooleanAndNode : Node
+public sealed class BooleanAndNode : Node
 {
     public ValueInput<bool> A = new();
     public ValueInput<bool> B = new();
@@ -22,7 +22,7 @@ public class BooleanAndNode : Node
 
 [Node("OR", "Operators/Boolean")]
 [NodeCollapsed]
-public class BooleanOrNode : Node
+public sealed class BooleanOrNode : Node
 {
     public ValueInput<bool> A = new();
     public ValueInput<bool> B = new();
@@ -37,7 +37,7 @@ public class BooleanOrNode : Node
 
 [Node("NOT", "Operators/Boolean")]
 [NodeCollapsed]
-public class BooleanNotNode : Node
+public sealed class BooleanNotNode : Node
 {
     public ValueInput<bool> Input = new();
     public ValueOutput<bool> Result = new();
@@ -51,7 +51,7 @@ public class BooleanNotNode : Node
 
 [Node("NAND", "Operators/Boolean")]
 [NodeCollapsed]
-public class BooleanNandNode : Node
+public sealed class BooleanNandNode : Node
 {
     public ValueInput<bool> A = new();
     public ValueInput<bool> B = new();
@@ -66,7 +66,7 @@ public class BooleanNandNode : Node
 
 [Node("NOR", "Operators/Boolean")]
 [NodeCollapsed]
-public class BooleanNorNode : Node
+public sealed class BooleanNorNode : Node
 {
     public ValueInput<bool> A = new();
     public ValueInput<bool> B = new();
@@ -81,7 +81,7 @@ public class BooleanNorNode : Node
 
 [Node("XOR", "Operators/Boolean")]
 [NodeCollapsed]
-public class BooleanXorNode : Node
+public sealed class BooleanXorNode : Node
 {
     public ValueInput<bool> A = new();
     public ValueInput<bool> B = new();
@@ -96,7 +96,7 @@ public class BooleanXorNode : Node
 
 [Node("XNOR", "Operators/Boolean")]
 [NodeCollapsed]
-public class BooleanXnorNode : Node
+public sealed class BooleanXnorNode : Node
 {
     public ValueInput<bool> A = new();
     public ValueInput<bool> B = new();

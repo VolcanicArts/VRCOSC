@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Math;
 
 [Node("Average", "Math")]
-public class AverageNode<T> : Node where T : INumber<T>
+public sealed class AverageNode<T> : Node where T : INumber<T>
 {
     public ValueInputList<T> Inputs = new();
     public ValueOutput<T> Output = new();

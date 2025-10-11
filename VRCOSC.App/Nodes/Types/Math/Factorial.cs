@@ -8,7 +8,7 @@ namespace VRCOSC.App.Nodes.Types.Math;
 
 [Node("Factorial", "Math")]
 [NodeCollapsed]
-public class FactorialNode<T> : Node where T : INumber<T>
+public sealed class FactorialNode<T> : Node where T : INumber<T>
 {
     public ValueInput<int> Input = new();
     public ValueOutput<T> Output = new();

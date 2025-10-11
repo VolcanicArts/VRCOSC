@@ -10,7 +10,7 @@ namespace VRCOSC.App.Nodes.Types.Parameters;
 
 [Node("Indirect Send Parameter", "Parameters/Send")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public class IndirectSendParameterNode<T> : Node, IFlowInput where T : unmanaged
+public sealed class IndirectSendParameterNode<T> : Node, IFlowInput where T : unmanaged
 {
     public FlowContinuation Next = new("Next");
 
@@ -29,7 +29,7 @@ public class IndirectSendParameterNode<T> : Node, IFlowInput where T : unmanaged
 
 [Node("Direct Send Parameter", "Parameters/Send")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public class DirectSendParameterNode<T> : Node, IFlowInput, IHasTextProperty
+public sealed class DirectSendParameterNode<T> : Node, IFlowInput, IHasTextProperty
 {
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
@@ -49,7 +49,7 @@ public class DirectSendParameterNode<T> : Node, IFlowInput, IHasTextProperty
 
 [Node("Drive Parameter", "Parameters/Send")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public class DriveParameterNode<T> : UpdateNode<T>, IHasTextProperty
+public sealed class DriveParameterNode<T> : UpdateNode<T>, IHasTextProperty
 {
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
@@ -69,7 +69,7 @@ public class DriveParameterNode<T> : UpdateNode<T>, IHasTextProperty
 
 [Node("Parameter Source", "Parameters/Receive")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public class ParameterSourceNode<T> : Node, INodeEventHandler, IHasTextProperty
+public sealed class ParameterSourceNode<T> : Node, INodeEventHandler, IHasTextProperty
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
@@ -94,7 +94,7 @@ public class ParameterSourceNode<T> : Node, INodeEventHandler, IHasTextProperty
 
 [Node("Read Parameter", "Parameters/Receive")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public class ReadParameterNode<T> : Node, IFlowInput
+public sealed class ReadParameterNode<T> : Node, IFlowInput
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 

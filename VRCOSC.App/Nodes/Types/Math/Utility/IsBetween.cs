@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Math.Utility;
 
 [Node("Is Between", "Math/Utility")]
-public class IsBetweenNode<T> : Node where T : INumber<T>
+public sealed class IsBetweenNode<T> : Node where T : INumber<T>
 {
     public ValueInput<T> Value = new();
     public ValueInput<T> Min = new();

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Collections;
 
 [Node("Dictionary Count", "Collections")]
-public class DictionaryCountNode<TKey, TValue> : Node where TKey : notnull
+public sealed class DictionaryCountNode<TKey, TValue> : Node where TKey : notnull
 {
     public ValueInput<Dictionary<TKey, TValue>> Dictionary = new();
     public ValueOutput<int> Count = new();

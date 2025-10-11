@@ -7,7 +7,7 @@ using VRCOSC.App.Utils;
 namespace VRCOSC.App.Nodes.Types.Math.Noise;
 
 [Node("Perlin Noise 1D", "Math/Noise")]
-public class PerlinNoise1DNode : Node
+public sealed class PerlinNoise1DNode : Node
 {
     public ValueInput<float> Value = new();
     public ValueInput<int?> Seed = new();

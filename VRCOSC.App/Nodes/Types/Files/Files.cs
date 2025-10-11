@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Files;
 
 [Node("Write Text To File", "Files")]
-public class WriteTextToFileNode : Node, IFlowInput
+public sealed class WriteTextToFileNode : Node, IFlowInput
 {
     public FlowContinuation OnSuccess = new("On Finished");
     public FlowContinuation OnFailed = new("On Failed");
@@ -21,9 +21,7 @@ public class WriteTextToFileNode : Node, IFlowInput
         var text = Text.Read(c);
         var filePath = FilePath.Read(c);
 
-        if (string.IsNullOrEmpty(filePath)) return;
-
-        if (!File.Exists(filePath))
+        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
         {
             await OnFailed.Execute(c);
             return;
@@ -42,7 +40,7 @@ public class WriteTextToFileNode : Node, IFlowInput
 }
 
 [Node("Read Text From File", "Files")]
-public class ReadTextFromFileNode : Node, IFlowInput
+public sealed class ReadTextFromFileNode : Node, IFlowInput
 {
     public FlowContinuation OnSuccess = new("On Success");
     public FlowContinuation OnFailed = new("On Failed");
@@ -54,9 +52,7 @@ public class ReadTextFromFileNode : Node, IFlowInput
     {
         var filePath = FilePath.Read(c);
 
-        if (string.IsNullOrEmpty(filePath)) return;
-
-        if (!File.Exists(filePath))
+        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
         {
             await OnFailed.Execute(c);
             return;

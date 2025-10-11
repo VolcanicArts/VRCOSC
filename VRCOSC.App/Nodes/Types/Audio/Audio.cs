@@ -9,7 +9,7 @@ using SoundFlow.Providers;
 namespace VRCOSC.App.Nodes.Types.Audio;
 
 [Node("Audio Play Once", "Audio")]
-public sealed class AudioPlayOnce : Node, IFlowInput
+public sealed class AudioPlayOnceNode : Node, IFlowInput
 {
     public FlowContinuation OnFinished = new("On Finished");
 

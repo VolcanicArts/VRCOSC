@@ -8,7 +8,7 @@ namespace VRCOSC.App.Nodes.Types.Math;
 
 [Node("Abs", "Math")]
 [NodeCollapsed]
-public class AbsoluteNode<T> : Node where T : INumber<T>
+public sealed class AbsoluteNode<T> : Node where T : INumber<T>
 {
     public ValueInput<T> Input = new();
     public ValueOutput<T> Output = new();

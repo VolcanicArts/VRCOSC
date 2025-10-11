@@ -6,7 +6,33 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Time;
 
-[Node("TimeSpan Extract", "DateTime")]
+[Node("TimeSpan Construct", "Date & Time")]
+public sealed class TimeSpanConstructNode : Node
+{
+    public ValueInput<float> Days = new();
+    public ValueInput<float> Hours = new();
+    public ValueInput<float> Minutes = new();
+    public ValueInput<float> Seconds = new();
+    public ValueInput<float> Milliseconds = new();
+    public ValueInput<float> Microseconds = new();
+
+    public ValueOutput<TimeSpan> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var timeSpan = TimeSpan.Zero;
+        timeSpan += TimeSpan.FromDays(Days.Read(c));
+        timeSpan += TimeSpan.FromHours(Hours.Read(c));
+        timeSpan += TimeSpan.FromMinutes(Minutes.Read(c));
+        timeSpan += TimeSpan.FromSeconds(Seconds.Read(c));
+        timeSpan += TimeSpan.FromMilliseconds(Milliseconds.Read(c));
+        timeSpan += TimeSpan.FromMicroseconds(Microseconds.Read(c));
+        Output.Write(timeSpan, c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("TimeSpan Extract", "Date & Time")]
 public sealed class TimeSpanExtractNode : Node
 {
     public ValueInput<TimeSpan> TimeSpan = new();
@@ -35,7 +61,7 @@ public sealed class TimeSpanExtractNode : Node
     }
 }
 
-[Node("TimeSpan Extract Total", "DateTime")]
+[Node("TimeSpan Extract Total", "Date & Time")]
 public sealed class TimeSpanExtractTotalNode : Node
 {
     public ValueInput<TimeSpan> TimeSpan = new();
@@ -64,7 +90,33 @@ public sealed class TimeSpanExtractTotalNode : Node
     }
 }
 
-[Node("DateTime Extract", "DateTime")]
+[Node("DateTime Construct", "Date & Time")]
+public sealed class DateTimeConstructNode : Node
+{
+    public ValueInput<float> Days = new();
+    public ValueInput<float> Hours = new();
+    public ValueInput<float> Minutes = new();
+    public ValueInput<float> Seconds = new();
+    public ValueInput<float> Milliseconds = new();
+    public ValueInput<float> Microseconds = new();
+
+    public ValueOutput<DateTime> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var dateTime = DateTime.UnixEpoch;
+        dateTime += TimeSpan.FromDays(Days.Read(c));
+        dateTime += TimeSpan.FromHours(Hours.Read(c));
+        dateTime += TimeSpan.FromMinutes(Minutes.Read(c));
+        dateTime += TimeSpan.FromSeconds(Seconds.Read(c));
+        dateTime += TimeSpan.FromMilliseconds(Milliseconds.Read(c));
+        dateTime += TimeSpan.FromMicroseconds(Microseconds.Read(c));
+        Output.Write(dateTime, c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("DateTime Extract", "Date & Time")]
 public sealed class DateTimeExtractNode : Node
 {
     public ValueInput<DateTime> DateTime = new();

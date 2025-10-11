@@ -7,7 +7,7 @@ using VRCOSC.App.SDK.VRChat;
 namespace VRCOSC.App.Nodes.Types.Events;
 
 [Node("On Start", "Events")]
-public class OnStartNode : Node, INodeEventHandler
+public sealed class OnStartNode : Node, INodeEventHandler
 {
     public FlowCall OnStart = new("On Start");
 
@@ -20,7 +20,7 @@ public class OnStartNode : Node, INodeEventHandler
 }
 
 [Node("On Stop", "Events")]
-public class OnStopNode : Node, INodeEventHandler
+public sealed class OnStopNode : Node, INodeEventHandler
 {
     public FlowCall OnStop = new("On Stop");
 
@@ -33,7 +33,7 @@ public class OnStopNode : Node, INodeEventHandler
 }
 
 [Node("On Instance Joined", "Events")]
-public class OnInstanceJoinedNode : Node, INodeEventHandler
+public sealed class OnInstanceJoinedNode : Node, INodeEventHandler
 {
     public FlowCall OnInstanceJoined = new();
 
@@ -46,7 +46,7 @@ public class OnInstanceJoinedNode : Node, INodeEventHandler
 }
 
 [Node("On Instance Left", "Events")]
-public class OnInstanceLeftNode : Node, INodeEventHandler
+public sealed class OnInstanceLeftNode : Node, INodeEventHandler
 {
     public FlowCall OnInstanceLeft = new();
 
@@ -59,7 +59,7 @@ public class OnInstanceLeftNode : Node, INodeEventHandler
 }
 
 [Node("On User Joined", "Events")]
-public class OnUserJoinedNode : Node, INodeEventHandler
+public sealed class OnUserJoinedNode : Node, INodeEventHandler
 {
     public FlowCall OnUserJoined = new();
 
@@ -72,7 +72,7 @@ public class OnUserJoinedNode : Node, INodeEventHandler
 }
 
 [Node("On User Left", "Events")]
-public class OnUserLeftNode : Node, INodeEventHandler
+public sealed class OnUserLeftNode : Node, INodeEventHandler
 {
     public FlowCall OnUserLeft = new();
 
@@ -85,7 +85,7 @@ public class OnUserLeftNode : Node, INodeEventHandler
 }
 
 [Node("On Avatar PreChange", "Events")]
-public class OnAvatarPreChangeNode : Node, INodeEventHandler
+public sealed class OnAvatarPreChangeNode : Node, INodeEventHandler
 {
     public FlowCall OnAvatarPreChange = new();
 

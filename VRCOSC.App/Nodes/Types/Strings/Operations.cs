@@ -22,7 +22,7 @@ public sealed class StringCompareNode : Node
 }
 
 [Node("Join", "Strings")]
-public class StringJoinNode : Node
+public sealed class StringJoinNode : Node
 {
     public ValueInput<string> Separator = new(defaultValue: string.Empty);
     public ValueInputList<string> Inputs = new();
@@ -36,7 +36,7 @@ public class StringJoinNode : Node
 }
 
 [Node("Contains", "Strings")]
-public class StringContainsNode : Node
+public sealed class StringContainsNode : Node
 {
     public ValueInput<string> Input = new(defaultValue: string.Empty);
     public ValueInput<string> Value = new(defaultValue: string.Empty);
@@ -57,7 +57,7 @@ public class StringContainsNode : Node
 
 [Node("To Upper", "Strings")]
 [NodeCollapsed]
-public class StringToUpperNode : Node
+public sealed class StringToUpperNode : Node
 {
     public ValueInput<string> Input = new(defaultValue: string.Empty);
     public ValueOutput<string> Result = new();
@@ -71,7 +71,7 @@ public class StringToUpperNode : Node
 
 [Node("To Lower", "Strings")]
 [NodeCollapsed]
-public class StringToLowerNode : Node
+public sealed class StringToLowerNode : Node
 {
     public ValueInput<string> Input = new(defaultValue: string.Empty);
     public ValueOutput<string> Result = new();
@@ -93,6 +93,20 @@ public sealed class StringIsNullOrEmptyNode : Node
     protected override Task Process(PulseContext c)
     {
         Result.Write(string.IsNullOrEmpty(Input.Read(c)), c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Is Null Or WhiteSpace", "Strings")]
+[NodeCollapsed]
+public sealed class StringIsNullOrWhiteSpaceNode : Node
+{
+    public ValueInput<string> Input = new(defaultValue: string.Empty);
+    public ValueOutput<bool> Result = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        Result.Write(string.IsNullOrWhiteSpace(Input.Read(c)), c);
         return Task.CompletedTask;
     }
 }

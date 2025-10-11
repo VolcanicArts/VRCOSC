@@ -8,7 +8,7 @@ namespace VRCOSC.App.Nodes.Types.Math;
 
 [Node("Delta", "Math")]
 [NodeCollapsed]
-public class DeltaNode<T> : Node where T : INumber<T>
+public sealed class DeltaNode<T> : Node where T : INumber<T>
 {
     public GlobalStore<T> PrevValue = new();
 

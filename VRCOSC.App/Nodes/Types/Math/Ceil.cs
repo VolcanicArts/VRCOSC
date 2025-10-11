@@ -8,7 +8,7 @@ namespace VRCOSC.App.Nodes.Types.Math;
 
 [Node("Ceil", "Math")]
 [NodeCollapsed]
-public class CeilNode<T> : Node where T : IFloatingPoint<T>
+public sealed class CeilNode<T> : Node where T : IFloatingPoint<T>
 {
     public ValueInput<T> Input = new();
     public ValueOutput<T> Output = new();

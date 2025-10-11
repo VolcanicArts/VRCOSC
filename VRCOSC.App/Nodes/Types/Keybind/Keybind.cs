@@ -7,7 +7,7 @@ using VRCOSC.App.SDK.Utils;
 namespace VRCOSC.App.Nodes.Types.Keybind;
 
 [Node("Press Keybind", "Keybind")]
-public class KeybindPressNode : Node, IFlowInput
+public sealed class KeybindPressNode : Node, IFlowInput
 {
     public FlowContinuation Next = new();
 
@@ -25,7 +25,7 @@ public class KeybindPressNode : Node, IFlowInput
 }
 
 [Node("Hold/Release Keybind", "Keybind")]
-public class KeybindHoldReleaseNode : Node, IFlowInput
+public sealed class KeybindHoldReleaseNode : Node, IFlowInput
 {
     public GlobalStore<bool> PrevCondition = new();
 

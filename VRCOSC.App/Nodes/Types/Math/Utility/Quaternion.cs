@@ -9,7 +9,7 @@ namespace VRCOSC.App.Nodes.Types.Math.Utility;
 
 [Node("Quaternion To Euler", "Math/Utility")]
 [NodeCollapsed]
-public class QuaternionToEulerNode : Node
+public sealed class QuaternionToEulerNode : Node
 {
     public ValueInput<Quaternion> Quaternion = new();
     public ValueOutput<Vector3> Euler = new();
@@ -23,7 +23,7 @@ public class QuaternionToEulerNode : Node
 
 [Node("Euler To Quaternion", "Math/Utility")]
 [NodeCollapsed]
-public class EulerToQuaternionNode : Node
+public sealed class EulerToQuaternionNode : Node
 {
     public ValueInput<Vector3> Euler = new();
     public ValueOutput<Quaternion> Quaternion = new();
@@ -36,7 +36,7 @@ public class EulerToQuaternionNode : Node
 }
 
 [Node("Quaternion From Angles", "Math/Utility")]
-public class QuaternionFromAnglesNode : Node
+public sealed class QuaternionFromAnglesNode : Node
 {
     public ValueInput<float> X = new();
     public ValueInput<float> Y = new();

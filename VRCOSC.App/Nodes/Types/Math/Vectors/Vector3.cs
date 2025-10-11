@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Math.Vectors;
 
 [Node("Pack Vector3", "Math/Vector3")]
-public class PackVector3Node : Node
+public sealed class PackVector3Node : Node
 {
     public ValueInput<float> X = new();
     public ValueInput<float> Y = new();

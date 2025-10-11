@@ -7,7 +7,7 @@ using VRCOSC.App.OpenVR.Device;
 namespace VRCOSC.App.Nodes.Types.SteamVR;
 
 [Node("Trigger Haptic", "SteamVR")]
-public sealed class SteamVRTriggerHaptic : Node, IFlowInput
+public sealed class SteamVRTriggerHapticNode : Node, IFlowInput
 {
     public FlowContinuation Next = new();
 
@@ -37,7 +37,7 @@ public sealed class SteamVRTriggerHaptic : Node, IFlowInput
 }
 
 [Node("Shutdown Device", "SteamVR")]
-public sealed class SteamVRShutdownDevice : Node, IFlowInput
+public sealed class SteamVRShutdownDeviceNode : Node, IFlowInput
 {
     public FlowContinuation Next = new();
 

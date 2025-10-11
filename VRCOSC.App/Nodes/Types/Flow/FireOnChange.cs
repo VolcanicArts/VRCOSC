@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Fire On Change", "Flow")]
-public class FireOnChangeNode<T> : Node
+public sealed class FireOnChangeNode<T> : Node
 {
     public FlowCall Next = new("Next");
 
@@ -30,7 +30,7 @@ public class FireOnChangeNode<T> : Node
 }
 
 [Node("Fire On Change Multi", "Flow")]
-public class FireOnChangeMultiNode<T> : Node
+public sealed class FireOnChangeMultiNode<T> : Node
 {
     public FlowCall Next = new("Next");
 

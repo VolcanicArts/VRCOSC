@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Math;
 
 [Node("Clamp", "Math")]
-public class ClampNode<T> : Node where T : INumber<T>
+public sealed class ClampNode<T> : Node where T : INumber<T>
 {
     public ValueInput<T> Value = new();
     public ValueInput<T> Min = new();
