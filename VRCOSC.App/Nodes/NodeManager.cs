@@ -73,7 +73,8 @@ public class NodeManager
             nodePreset.Load();
         }
 
-        Graphs.OnCollectionChanged(FieldsOnCollectionChanged);
+        Graphs.OnCollectionChanged(OnGraphsCollectionChanged);
+        Presets.OnCollectionChanged(OnPresetsCollectionChanged);
         OnLoad?.Invoke();
     }
 
@@ -84,9 +85,21 @@ public class NodeManager
         Graphs.Add(graph);
     }
 
+    public void ImportPreset(string filePath)
+    {
+        var preset = new NodePreset();
+        preset.Load(filePath);
+        Presets.Add(preset);
+    }
+
     public void ShowExternally(NodeGraph graph)
     {
         Platform.PresentFile(Path.Join(graphsPath, $"{graph.Id}.json"));
+    }
+
+    public void ShowExternally(NodePreset preset)
+    {
+        Platform.PresentFile(Path.Join(presetsPath, $"{preset.Id}.json"));
     }
 
     public void Unload()
@@ -100,7 +113,7 @@ public class NodeManager
         Presets.Clear();
     }
 
-    private async void FieldsOnCollectionChanged(IEnumerable<NodeGraph> newGraphs, IEnumerable<NodeGraph> oldGraphs)
+    private async void OnGraphsCollectionChanged(IEnumerable<NodeGraph> newGraphs, IEnumerable<NodeGraph> oldGraphs)
     {
         foreach (var newGraph in newGraphs)
         {
@@ -120,6 +133,20 @@ public class NodeManager
             try
             {
                 File.Delete(Path.Join(graphsPath, $"{oldGraph.Id}.json"));
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    private void OnPresetsCollectionChanged(IEnumerable<NodePreset> newPresets, IEnumerable<NodePreset> oldPresets)
+    {
+        foreach (var oldPreset in oldPresets)
+        {
+            try
+            {
+                File.Delete(Path.Join(presetsPath, $"{oldPreset.Id}.json"));
             }
             catch
             {

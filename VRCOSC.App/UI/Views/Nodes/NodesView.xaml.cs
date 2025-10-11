@@ -16,7 +16,8 @@ namespace VRCOSC.App.UI.Views.Nodes;
 
 public partial class NodesView
 {
-    public ObservableCollection<NodeGraph> NodeGraphsSource => NodeManager.GetInstance().Graphs;
+    public ObservableCollection<NodeGraph> GraphsSource => NodeManager.GetInstance().Graphs;
+    public ObservableCollection<NodePreset> PresetsSource => NodeManager.GetInstance().Presets;
     private Dictionary<Guid, NodeGraphView> viewCache { get; } = [];
 
     private NodeGraph? selectedGraph;
@@ -50,7 +51,7 @@ public partial class NodesView
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         setActiveTab(false);
-        showNodeGraph(selectedGraph ?? NodeGraphsSource.First());
+        showNodeGraph(selectedGraph ?? GraphsSource.First());
     }
 
     private async void showNodeGraph(NodeGraph nodeGraph)
@@ -145,5 +146,48 @@ public partial class NodesView
         var graph = (NodeGraph)element.Tag;
 
         NodeManager.GetInstance().ShowExternally(graph);
+    }
+
+    private async void ImportPreset_OnClick(object sender, RoutedEventArgs e)
+    {
+        var filePath = await Platform.PickFileAsync(".json");
+        if (filePath is null) return;
+
+        NodeManager.GetInstance().ImportPreset(filePath);
+
+        // we need to refresh the context menu to add the imported preset
+        foreach (var nodeGraph in GraphsSource)
+        {
+            nodeGraph.MarkDirty();
+        }
+    }
+
+    private void ExportPreset_OnClick(object sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+
+        var element = (FrameworkElement)sender;
+        var preset = (NodePreset)element.Tag;
+
+        NodeManager.GetInstance().ShowExternally(preset);
+    }
+
+    private void DeletePreset_OnClick(object sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+
+        var element = (FrameworkElement)sender;
+        var preset = (NodePreset)element.Tag;
+
+        var result = MessageBox.Show("Are you sure you want to delete this preset?", "Preset Delete Warning", MessageBoxButton.YesNo);
+        if (result != MessageBoxResult.Yes) return;
+
+        NodeManager.GetInstance().Presets.Remove(preset);
+
+        // we need to refresh the context menu to remove the deleted preset
+        foreach (var nodeGraph in GraphsSource)
+        {
+            nodeGraph.MarkDirty();
+        }
     }
 }

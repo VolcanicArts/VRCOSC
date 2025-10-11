@@ -37,7 +37,7 @@
                 </Grid.RowDefinitions>
                 <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
                     <core:SpacedStackPanel Orientation="Vertical" Spacing="5" Margin="5">
-                        <ItemsControl ItemsSource="{Binding NodeGraphsSource, Mode=OneWay}" Background="Transparent">
+                        <ItemsControl ItemsSource="{Binding GraphsSource, Mode=OneWay}" Background="Transparent">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <core:SpacedStackPanel Spacing="5" Orientation="Vertical"/>
@@ -51,7 +51,7 @@
                                                 <Setter Property="Background" Value="{DynamicResource CBackground3}"/>
                                                 <Style.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="{DynamicResource CBackground4}"/>
+                                                        <Setter Property="Background" Value="{DynamicResource CBackground8}"/>
                                                     </Trigger>
                                                     <MultiDataTrigger>
                                                         <MultiDataTrigger.Conditions>
@@ -89,8 +89,55 @@
                                  ToolTip="Import Graph"
                                  ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
             </Grid>
-            <core:SpacedStackPanel x:Name="PresetsPanel">
-            </core:SpacedStackPanel>
+            <Grid x:Name="PresetsPanel">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding PresetsSource, Mode=OneWay}" Background="Transparent" Margin="5">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <core:SpacedStackPanel Spacing="5" Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="5" Tag="{Binding}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{DynamicResource CBackground3}"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource CBackground8}"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Border.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Export" Click="ExportPreset_OnClick" Tag="{Binding}"/>
+                                            <MenuItem Header="Delete" Click="DeletePreset_OnClick" Tag="{Binding}"/>
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
+                                    <TextBlock Grid.Row="0" Grid.Column="0"
+                                               Foreground="{DynamicResource CForeground2}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               FontSize="15"
+                                               Text="{Binding Name.Value}"
+                                               TextTrimming="CharacterEllipsis"
+                                               ToolTip="{Binding Name.Value}"
+                                               ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <core:IconButton Grid.Row="1" ButtonColour="Blue" Icon="Solid_Download" VerticalAlignment="Bottom" Margin="0 10" Width="100" Height="25" Click="ImportPreset_OnClick"
+                                 ToolTip="Import Preset"
+                                 ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+            </Grid>
         </Grid>
         <ContentPresenter Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" x:Name="ActiveField"/>
     </Grid>

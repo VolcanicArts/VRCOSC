@@ -15,7 +15,7 @@ namespace VRCOSC.App.Nodes;
 public class NodePreset
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public Observable<string> Name { get; } = new("My New Preset");
+    public Observable<string> Name { get; } = new("New Preset");
     public List<SerialisableNode> Nodes { get; set; } = [];
     public List<SerialisableConnection> Connections { get; set; } = [];
 
@@ -27,9 +27,12 @@ public class NodePreset
         serialiser.RegisterSerialiser(1, new NodePresetSerialiser(AppManager.GetInstance().Storage, this));
     }
 
-    public void Load()
+    public void Load(string importPath = "")
     {
-        serialiser.Deserialise();
+        if (string.IsNullOrEmpty(importPath))
+            serialiser.Deserialise();
+        else
+            serialiser.Deserialise(false, importPath);
 
         Name.Subscribe(_ => serialiser.Serialise());
     }
