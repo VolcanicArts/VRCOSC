@@ -597,6 +597,7 @@ internal class AppManager
             await StopAsync();
         }
 
+        NodeManager.GetInstance().Unload();
         ChatBoxManager.GetInstance().Unload();
         ModuleManager.GetInstance().UnloadAllModules();
         DollyManager.GetInstance().Unload();
@@ -606,6 +607,7 @@ internal class AppManager
         DollyManager.GetInstance().Load();
         ModuleManager.GetInstance().LoadAllModules();
         ChatBoxManager.GetInstance().Load();
+        NodeManager.GetInstance().Load();
         RouterManager.GetInstance().Load();
 
         if (beforeState == AppManagerState.Started)
