@@ -64,6 +64,10 @@ public partial class NodesView
         ActiveField.Content = view;
         await Dispatcher.Yield(DispatcherPriority.Loaded);
 
+        if (selectedGraph is not null)
+            selectedGraph.Selected.Value = false;
+
+        nodeGraph.Selected.Value = true;
         selectedGraph = nodeGraph;
     }
 

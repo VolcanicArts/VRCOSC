@@ -45,23 +45,39 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="{DynamicResource CBackground3}" CornerRadius="5">
+                                    <Border CornerRadius="5" MouseDown="GraphTab_OnClick" Tag="{Binding}">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource CBackground3}"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource CBackground4}"/>
+                                                    </Trigger>
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding Selected.Value}" Value="True"/>
+                                                            <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="False"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Background" Value="{DynamicResource CBackground6}"/>
+                                                    </MultiDataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
                                         <Border.ContextMenu>
                                             <ContextMenu>
                                                 <MenuItem Header="Export" Click="ExportGraph_OnClick" Tag="{Binding}"/>
+                                                <MenuItem Header="Delete" Click="DeleteGraph_OnClick" Tag="{Binding}"/>
                                             </ContextMenu>
                                         </Border.ContextMenu>
-                                        <Grid MouseDown="GraphTab_OnClick" Tag="{Binding}">
-                                            <TextBlock Grid.Row="0" Grid.Column="0"
-                                                       Foreground="{DynamicResource CForeground2}"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       FontSize="15"
-                                                       Text="{Binding Name.Value}"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       ToolTip="{Binding Name.Value}"
-                                                       ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
-                                        </Grid>
+                                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                                   Foreground="{DynamicResource CForeground2}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   FontSize="15"
+                                                   Text="{Binding Name.Value}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding Name.Value}"
+                                                   ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                                     </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
