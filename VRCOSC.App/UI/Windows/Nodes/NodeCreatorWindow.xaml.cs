@@ -31,6 +31,7 @@ public partial class NodeCreatorWindow : IManagedWindow
         DataContext = this;
 
         Title = $"Creating {nodeType.GetFriendlyName()}";
+        TitleText.Text = nodeType.GetGenericArguments().Length > 1 ? "Types:" : "Type:";
         updateText(string.Empty);
         GenericArgumentText.Focus();
     }
