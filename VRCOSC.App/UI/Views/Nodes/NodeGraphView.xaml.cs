@@ -715,15 +715,16 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         NodeGroupGraphItem? groupToUpdate = null;
 
-        foreach (var nodeGroupGraphItem in GraphItems.OfType<NodeGroupGraphItem>().Reverse())
+        foreach (var groupItem in GraphItems.OfType<NodeGroupGraphItem>())
         {
-            var groupContainer = nodeGroupGraphItem.Element;
+            var groupContainer = groupItem.Element;
 
-            var mousePosRelativeToGroupContainer = Mouse.GetPosition(groupContainer);
-            var bounds = new Rect(0, 0, groupContainer.ActualWidth, groupContainer.ActualHeight);
-            if (!bounds.Contains(mousePosRelativeToGroupContainer)) continue;
+            var mouseRelativeToGraph = Mouse.GetPosition(GraphContainer);
+            var bounds = new Rect(groupItem.PosX, groupItem.PosY, groupItem.PosX + groupContainer.ActualWidth, groupItem.PosY + groupContainer.ActualHeight);
 
-            groupToUpdate = nodeGroupGraphItem;
+            if (!bounds.Contains(mouseRelativeToGraph)) continue;
+
+            groupToUpdate = groupItem;
         }
 
         if (groupToUpdate is not null)
