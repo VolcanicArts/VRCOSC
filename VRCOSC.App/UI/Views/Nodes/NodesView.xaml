@@ -8,160 +8,69 @@
              d:DataContext="{d:DesignData Source=/UI/Views/Nodes/NodesView.xaml}"
              d:DesignHeight="1920" d:DesignWidth="1080">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="175"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
-            <Border Background="{DynamicResource CBackground3}"/>
-            <core:SpacedStackPanel Orientation="Horizontal" Spacing="5">
-                <ItemsControl ItemsSource="{Binding NodeGraphsSource, Mode=OneWay}" Background="Transparent">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid x:Name="RootGrid" MouseDown="GraphTab_OnClick" Tag="{Binding}">
-                                <Grid.Resources>
-                                    <Storyboard x:Key="ShowCloseIcon">
-                                        <DoubleAnimation
-                                            Storyboard.TargetName="CloseIcon"
-                                            Storyboard.TargetProperty="Opacity"
-                                            To="1" Duration="0:0:0.15"/>
-                                    </Storyboard>
-                                    <Storyboard x:Key="HideCloseIcon">
-                                        <DoubleAnimation
-                                            Storyboard.TargetName="CloseIcon"
-                                            Storyboard.TargetProperty="Opacity"
-                                            To="0" Duration="0:0:0.15"/>
-                                    </Storyboard>
-                                </Grid.Resources>
-
-                                <Grid.Style>
-                                    <Style TargetType="Grid">
-                                        <Setter Property="Tag" Value="{Binding}"/>
-                                        <Setter Property="Background" Value="{DynamicResource CBackground3}"/>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="{DynamicResource CBackground7}"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Grid.Style>
-
-                                <Border Background="{Binding Background, ElementName=RootGrid}"/>
-
-                                <Grid Margin="10 0">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="2"/>
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <TextBlock Grid.Row="0" Grid.Column="0"
-                                               Foreground="{DynamicResource CForeground2}"
-                                               VerticalAlignment="Center"
-                                               Margin="0 0 0 -1"
-                                               FontSize="15"
-                                               Text="{Binding Name.Value}"/>
-
-                                    <Border Grid.Row="0" Grid.Column="1"
-                                            x:Name="CloseIconBorder"
-                                            Width="20" Height="20"
-                                            CornerRadius="10"
-                                            Background="Transparent"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Center"
-                                            Margin="10 0 0 0"
-                                            IsHitTestVisible="True"
-                                            MouseDown="DeleteGraph_OnClick"
-                                            Tag="{Binding}">
-
-                                        <TextBlock x:Name="CloseIcon"
-                                                   Text="✕"
-                                                   Opacity="0"
-                                                   Foreground="{DynamicResource CForeground2}"
-                                                   Background="Transparent"
-                                                   Padding="4"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   FontWeight="Bold"/>
-                                    </Border>
-
-                                    <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                                            Height="2"
-                                            Background="{DynamicResource CBlue}"
-                                            Visibility="Collapsed">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Selected.Value}" Value="True">
-                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                    </Border>
-                                </Grid>
-
-                                <Grid.Triggers>
-                                    <EventTrigger RoutedEvent="MouseEnter">
-                                        <BeginStoryboard Storyboard="{StaticResource ShowCloseIcon}"/>
-                                    </EventTrigger>
-                                    <EventTrigger RoutedEvent="MouseLeave">
-                                        <BeginStoryboard Storyboard="{StaticResource HideCloseIcon}"/>
-                                    </EventTrigger>
-                                </Grid.Triggers>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                <Button Width="20" Height="20"
-                        Margin="5"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Click="CreateGraph_OnClick"
-                        Background="Transparent"
-                        BorderThickness="0">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border x:Name="Border"
-                                                Background="Transparent"
-                                                CornerRadius="10"
-                                                Padding="0"
-                                                SnapsToDevicePixels="True">
-                                            <TextBlock Text="＋"
-                                                       FontSize="16"
-                                                       FontWeight="SemiBold"
-                                                       Margin="0 -1 0 0"
+        <Border Grid.RowSpan="2" Background="{DynamicResource CBackground3}"/>
+        <Grid Grid.Column="0" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid x:Name="GraphsTab" MouseDown="GraphsTab_OnMouseDown">
+                <TextBlock Text="Graphs" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource CForeground1}"/>
+            </Grid>
+            <Grid x:Name="PresetsTab" MouseDown="PresetsTab_OnMouseDown" Grid.Column="1">
+                <TextBlock Text="Presets" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource CForeground1}"/>
+            </Grid>
+        </Grid>
+        <Grid Grid.Column="0" Grid.Row="1">
+            <Grid x:Name="GraphsPanel">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                    <core:SpacedStackPanel Orientation="Vertical" Spacing="5" Margin="5">
+                        <ItemsControl ItemsSource="{Binding NodeGraphsSource, Mode=OneWay}" Background="Transparent">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <core:SpacedStackPanel Spacing="5" Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource CBackground3}" CornerRadius="5">
+                                        <Grid MouseDown="GraphTab_OnClick" Tag="{Binding}">
+                                            <TextBlock Grid.Row="0" Grid.Column="0"
                                                        Foreground="{DynamicResource CForeground2}"
                                                        HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource CBackground8}"/>
-                                            </Trigger>
-                                            <Trigger Property="IsPressed" Value="True">
-                                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource CBackground4}"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </Button.Style>
-                </Button>
+                                                       VerticalAlignment="Center"
+                                                       FontSize="15"
+                                                       Text="{Binding Name.Value}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTip="{Binding Name.Value}"
+                                                       ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <core:IconButton ButtonColour="Green" Icon="Solid_Plus" VerticalAlignment="Top" Width="100" Height="20" Click="CreateGraph_OnClick"/>
+                    </core:SpacedStackPanel>
+                </ScrollViewer>
+                <core:IconButton Grid.Row="1" ButtonColour="Blue" Icon="Solid_Download" VerticalAlignment="Bottom" Margin="0 10" Width="100" Height="25" Click="ImportGraph_OnClick"
+                                 ToolTip="Import Graph"
+                                 ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+            </Grid>
+            <core:SpacedStackPanel x:Name="PresetsPanel">
             </core:SpacedStackPanel>
         </Grid>
-        <ContentPresenter Grid.Row="1" x:Name="ActiveField"/>
+        <ContentPresenter Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" x:Name="ActiveField"/>
     </Grid>
 </UserControl>

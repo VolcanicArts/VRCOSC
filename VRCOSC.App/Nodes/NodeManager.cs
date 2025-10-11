@@ -34,10 +34,16 @@ public class NodeManager
             if (Directory.Exists(graphsPath))
             {
                 var loadedGraphs = Directory.EnumerateFiles(graphsPath);
-                Graphs.AddRange(loadedGraphs.Select(field => new NodeGraph { Id = Guid.Parse(Path.GetFileNameWithoutExtension(new FileInfo(field).Name)) }));
+                Graphs.AddRange(loadedGraphs.Select(field => new NodeGraph { Id = Guid.Parse(Path.GetFileNameWithoutExtension(new FileInfo(field).Name)) }).OrderBy(g => g.Name.Value));
             }
 
-            if (Graphs.Count == 0) Graphs.Add(new NodeGraph());
+            if (Graphs.Count == 0)
+            {
+                Graphs.Add(new NodeGraph
+                {
+                    Name = { Value = "Default" }
+                });
+            }
         }
         catch (Exception e)
         {
@@ -54,7 +60,7 @@ public class NodeManager
             if (Directory.Exists(presetsPath))
             {
                 var loadedPresets = Directory.EnumerateFiles(presetsPath);
-                Presets.AddRange(loadedPresets.Select(presets => new NodePreset { Id = Guid.Parse(Path.GetFileNameWithoutExtension(new FileInfo(presets).Name)) }));
+                Presets.AddRange(loadedPresets.Select(presets => new NodePreset { Id = Guid.Parse(Path.GetFileNameWithoutExtension(new FileInfo(presets).Name)) }).OrderBy(p => p.Name.Value));
             }
         }
         catch (Exception e)
@@ -69,6 +75,13 @@ public class NodeManager
 
         Graphs.OnCollectionChanged(FieldsOnCollectionChanged);
         OnLoad?.Invoke();
+    }
+
+    public void ImportGraph(string filePath)
+    {
+        var graph = new NodeGraph();
+        graph.Load(filePath);
+        Graphs.Add(graph);
     }
 
     public void Unload()

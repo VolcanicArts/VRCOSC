@@ -7,8 +7,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using VRCOSC.App.Nodes;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.Nodes;
 
@@ -24,11 +26,31 @@ public partial class NodesView
         InitializeComponent();
         DataContext = this;
         Loaded += OnLoaded;
+        NodeManager.GetInstance().OnLoad += () => viewCache.Clear();
+    }
+
+    private void setActiveTab(bool presetTab)
+    {
+        if (presetTab)
+        {
+            PresetsTab.Background = (Brush)FindResource("CBackground3");
+            GraphsTab.Background = (Brush)FindResource("CBackground2");
+            PresetsPanel.Visibility = Visibility.Visible;
+            GraphsPanel.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            GraphsTab.Background = (Brush)FindResource("CBackground3");
+            PresetsTab.Background = (Brush)FindResource("CBackground2");
+            GraphsPanel.Visibility = Visibility.Visible;
+            PresetsPanel.Visibility = Visibility.Collapsed;
+        }
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        showNodeGraph(NodeGraphsSource.First());
+        setActiveTab(false);
+        showNodeGraph(selectedGraph ?? NodeGraphsSource.First());
     }
 
     private async void showNodeGraph(NodeGraph nodeGraph)
@@ -38,6 +60,8 @@ public partial class NodesView
             view = new NodeGraphView(nodeGraph);
             viewCache[nodeGraph.Id] = view;
         }
+
+        Logger.Log($"Showing node graph {nodeGraph.Id.ToString()}", LoggingTarget.Information);
 
         ActiveField.Content = view;
         await Dispatcher.Yield(DispatcherPriority.Loaded);
@@ -54,6 +78,14 @@ public partial class NodesView
         showNodeGraph(newGraph);
     }
 
+    private async void ImportGraph_OnClick(object sender, RoutedEventArgs e)
+    {
+        var filePath = await Platform.PickFileAsync(".json");
+        if (filePath is null) return;
+
+        NodeManager.GetInstance().ImportGraph(filePath);
+    }
+
     private void GraphTab_OnClick(object sender, MouseButtonEventArgs e)
     {
         e.Handled = true;
@@ -61,7 +93,8 @@ public partial class NodesView
         var element = (FrameworkElement)sender;
         var graph = (NodeGraph)element.Tag;
 
-        showNodeGraph(graph);
+        if (e.ChangedButton == MouseButton.Left)
+            showNodeGraph(graph);
     }
 
     private void DeleteGraph_OnClick(object sender, RoutedEventArgs e)
@@ -84,5 +117,21 @@ public partial class NodesView
         {
             showNodeGraph(NodeManager.GetInstance().Graphs[index]);
         }
+    }
+
+    private void GraphsTab_OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+
+        if (e.ChangedButton == MouseButton.Left)
+            setActiveTab(false);
+    }
+
+    private void PresetsTab_OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+
+        if (e.ChangedButton == MouseButton.Left)
+            setActiveTab(true);
     }
 }

@@ -26,8 +26,8 @@ namespace VRCOSC.App.Nodes;
 public class NodeGraph : IVRCClientEventHandler
 {
     public Guid Id { get; set; } = Guid.NewGuid();
-    public Observable<string> Name { get; } = new("Default");
-    public Observable<bool> Selected { get; set; } = new(true);
+    public Observable<string> Name { get; } = new("New Graph");
+    public Observable<bool> Selected { get; set; } = new();
 
     private readonly SerialisationManager serialiser;
 
@@ -57,19 +57,17 @@ public class NodeGraph : IVRCClientEventHandler
         serialiser.RegisterSerialiser(1, new NodeGraphSerialiser(AppManager.GetInstance().Storage, this));
     }
 
-    public void Load()
+    public void Load(string importPath = "")
     {
-        Deserialise();
+        if (string.IsNullOrEmpty(importPath))
+            serialiser.Deserialise();
+        else
+            serialiser.Deserialise(false, importPath);
     }
 
     public void Serialise()
     {
         serialiser.Serialise();
-    }
-
-    public void Deserialise(string importPath = "")
-    {
-        serialiser.Deserialise(true, importPath);
     }
 
     public async Task Start()
