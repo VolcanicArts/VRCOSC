@@ -169,7 +169,12 @@ public class NodeGraph : IVRCClientEventHandler
         }
 
         var group = Groups.Values.SingleOrDefault(group => group.Nodes.Contains(nodeId));
-        group?.Nodes.Remove(nodeId);
+
+        if (group is not null)
+        {
+            group.Nodes.Remove(nodeId);
+            if (group.Nodes.Count == 0) DeleteGroup(group.Id);
+        }
 
         Nodes.TryRemove(nodeId, out _);
         RemovedNodes.Add(node);

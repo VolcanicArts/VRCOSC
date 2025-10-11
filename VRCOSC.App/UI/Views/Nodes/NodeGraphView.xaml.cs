@@ -509,9 +509,6 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
     private void updateNodeGroupGraphItem(NodeGroupGraphItem item)
     {
-        var groupIndex = GraphItems.IndexOf(item);
-        GraphItems.Move(groupIndex, GraphItems.Count - 1);
-
         var nodeGraphItems = GraphItems.OfType<NodeGraphItem>().Where(nodeGraphItem => item.Group.Nodes.Contains(nodeGraphItem.Node.Id)).ToList();
 
         foreach (var nodeGraphItem in nodeGraphItems)
@@ -1269,19 +1266,30 @@ public partial class NodeGraphView : INotifyPropertyChanged
         deselectGraphItems();
     }
 
-    private void SelectionContextMenu_DeleteAllClick(object sender, RoutedEventArgs e)
+    private async void SelectionContextMenu_DeleteAllClick(object sender, RoutedEventArgs e)
     {
         Debug.Assert(selection is not null);
+
+        var groupsToUpdate = new List<NodeGroupGraphItem>();
 
         foreach (var item in selection.Items)
         {
             if (item is NodeGraphItem nodeGraphItem)
             {
+                var groupItem = GraphItems.OfType<NodeGroupGraphItem>().SingleOrDefault(groupItem => groupItem.Group.Nodes.Contains(nodeGraphItem.Node.Id));
+                if (groupItem is not null && !groupsToUpdate.Contains(groupItem)) groupsToUpdate.Add(groupItem);
+
                 Graph.DeleteNode(nodeGraphItem.Node.Id);
             }
         }
 
-        Graph.MarkDirty();
+        await Graph.MarkDirtyAsync();
+
+        foreach (var nodeGroupGraphItem in groupsToUpdate)
+        {
+            updateNodeGroupGraphItem(nodeGroupGraphItem);
+        }
+
         deselectGraphItems();
     }
 
