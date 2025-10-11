@@ -29,6 +29,9 @@ public class SerialisableNodePreset : SerialisableVersion
     [JsonProperty("connections")]
     public List<SerialisableConnection> Connections { get; set; } = [];
 
+    [JsonProperty("groups")]
+    public List<SerialisableNodeGroup> Groups { get; set; } = [];
+
     [JsonConstructor]
     public SerialisableNodePreset()
     {
@@ -42,6 +45,7 @@ public class SerialisableNodePreset : SerialisableVersion
         Name = nodePreset.Name.Value;
         Nodes = nodePreset.Nodes;
         Connections = nodePreset.Connections;
+        Groups = nodePreset.Groups;
     }
 }
 

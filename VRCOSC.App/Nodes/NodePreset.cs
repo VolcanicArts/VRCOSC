@@ -18,6 +18,7 @@ public class NodePreset
     public Observable<string> Name { get; } = new("New Preset");
     public List<SerialisableNode> Nodes { get; set; } = [];
     public List<SerialisableConnection> Connections { get; set; } = [];
+    public List<SerialisableNodeGroup> Groups { get; set; } = [];
 
     private readonly SerialisationManager serialiser;
 
@@ -109,6 +110,20 @@ public class NodePreset
             }
         }
 
+        foreach (var sG in Groups)
+        {
+            try
+            {
+                var group = targetGraph.AddGroup(sG.Nodes.Select(nodeId => nodeIdMapping[nodeId]));
+                group.Title.Value = sG.Title;
+                group.Nodes.RemoveIf(nodeId => !targetGraph.Nodes.ContainsKey(nodeId));
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Error creating a group when deserialising preset");
+            }
+        }
+
         return nodeIdMapping.Values;
     }
 
@@ -122,6 +137,10 @@ public class NodePreset
 
             case JToken token:
                 outValue = token.ToObject(targetType)!;
+                return true;
+
+            case string strValue when targetType == typeof(Guid):
+                outValue = Guid.Parse(strValue);
                 return true;
 
             case var subValue when targetType.IsAssignableTo(typeof(Enum)):
