@@ -31,7 +31,8 @@ public static partial class TypeResolver
         { "object", typeof(object) },
         { "string", typeof(string) },
         { "jsonarray", typeof(JsonArray) },
-        { "jsonnode", typeof(JsonNode) }
+        { "jsonnode", typeof(JsonNode) },
+        { "jsonobject", typeof(JsonObject) }
     };
 
     private static Lazy<Dictionary<string, Type>> typeIndex = new(buildTypeIndex, true);
