@@ -96,13 +96,11 @@ public class WindowsMediaProvider
 
     private void updatePlaybackInfo(GlobalSystemMediaTransportControlsSession? session)
     {
-        if (session is null) return;
-
-        var state = States[session.SourceAppUserModelId];
-        var args = session.GetPlaybackInfo();
+        if (session is null || !States.TryGetValue(session.SourceAppUserModelId, out var state)) return;
 
         try
         {
+            var args = session.GetPlaybackInfo();
             state.IsShuffle = args.IsShuffleActive ?? false;
             state.RepeatMode = args.AutoRepeatMode ?? default;
             state.Status = args.PlaybackStatus;
@@ -114,9 +112,7 @@ public class WindowsMediaProvider
 
     private async Task updateMediaProperties(GlobalSystemMediaTransportControlsSession? session)
     {
-        if (session is null) return;
-
-        var state = States[session.SourceAppUserModelId];
+        if (session is null || !States.TryGetValue(session.SourceAppUserModelId, out var state)) return;
 
         try
         {
@@ -137,12 +133,10 @@ public class WindowsMediaProvider
 
     private void updateTimeline(GlobalSystemMediaTransportControlsSession? session)
     {
-        if (session is null) return;
+        if (session is null || !States.TryGetValue(session.SourceAppUserModelId, out var state)) return;
 
         try
         {
-            var state = States[session.SourceAppUserModelId];
-
             var args = session.GetTimelineProperties();
             state.Timeline.Position = args.Position;
             state.Timeline.End = args.EndTime;
