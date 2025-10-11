@@ -59,6 +59,8 @@ public sealed class DivideNode<T> : Node where T : INumber<T>
 
     protected override Task Process(PulseContext c)
     {
+        if (B.Read(c) == T.Zero) return Task.CompletedTask;
+
         Result.Write(A.Read(c) / B.Read(c), c);
         return Task.CompletedTask;
     }
@@ -73,6 +75,8 @@ public sealed class ModuloNode<T> : Node where T : INumber<T>
 
     protected override Task Process(PulseContext c)
     {
+        if (B.Read(c) == T.Zero) return Task.CompletedTask;
+
         Result.Write(A.Read(c) % B.Read(c), c);
         return Task.CompletedTask;
     }
