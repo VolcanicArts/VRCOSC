@@ -270,7 +270,7 @@ public class NodeGraph : IVRCClientEventHandler
             AddedConnections.Add(newConnection);
         }
 
-        if (newConnectionMade)
+        if (newConnectionMade && inputNode.Metadata.IsTrigger)
             TriggerTree(inputNode);
     }
 
