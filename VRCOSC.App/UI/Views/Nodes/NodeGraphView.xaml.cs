@@ -1768,7 +1768,8 @@ public partial class NodeGraphView : INotifyPropertyChanged
         copyPasteHolder = new NodePreset
         {
             Nodes = selection.Items.OfType<NodeGraphItem>().Select(nodeGraphItem => new SerialisableNode(nodeGraphItem.Node)).ToList(),
-            Connections = selection.Connections.Select(connection => new SerialisableConnection(connection)).ToList()
+            Connections = selection.Connections.Select(connection => new SerialisableConnection(connection)).ToList(),
+            Groups = Graph.Groups.Values.Where(g => g.Nodes.All(nodeId => selection.Items.OfType<NodeGraphItem>().Select(item => item.Node.Id).Contains(nodeId))).Select(group => new SerialisableNodeGroup(group)).ToList()
         };
 
         foreach (var node in copyPasteHolder.Nodes)
