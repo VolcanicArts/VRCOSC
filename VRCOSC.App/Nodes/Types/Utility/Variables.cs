@@ -20,7 +20,7 @@ public sealed class DriveVariableNode<T> : UpdateNode<T>, IHasVariableReference
 
     protected override Task Process(PulseContext c)
     {
-        NodeGraph.WriteVariable(graphVariable, Value.Read(c));
+        graphVariable.Write(Value.Read(c));
         return Task.CompletedTask;
     }
 
@@ -43,7 +43,7 @@ public sealed class DirectWriteVariableNode<T> : Node, IFlowInput, IHasVariableR
 
     protected override async Task Process(PulseContext c)
     {
-        NodeGraph.WriteVariable(graphVariable, Value.Read(c));
+        graphVariable.Write(Value.Read(c));
         await OnWrite.Execute(c);
     }
 }
@@ -61,7 +61,7 @@ public sealed class IndirectWriteVariableNode<T> : Node, IFlowInput
         var reference = Reference.Read(c);
         if (reference is null) return;
 
-        NodeGraph.WriteVariable(reference, Value.Read(c));
+        reference.Write(Value.Read(c));
         await OnWrite.Execute(c);
     }
 }
@@ -87,7 +87,7 @@ public sealed class VariableReferenceNode<T> : Node, IHasVariableReference
 
 [Node("Variable Reference To Value", "Variables")]
 [NodeForceReprocess]
-public sealed class VariableReferenceToValueNode<T> : Node, IUpdateNode
+public sealed class VariableReferenceToValueNode<T> : UpdateNode<T>
 {
     public ValueInput<GraphVariable<T>> Reference = new();
 
@@ -102,12 +102,12 @@ public sealed class VariableReferenceToValueNode<T> : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override T GetValue(PulseContext c) => Reference.Read(c).Value.Value;
 }
 
 [Node("Variable Source")]
 [NodeForceReprocess]
-public sealed class VariableSourceNode<T> : Node, IHasVariableReference
+public sealed class VariableSourceNode<T> : UpdateNode<T>, IHasVariableReference
 {
     public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
 
@@ -123,4 +123,6 @@ public sealed class VariableSourceNode<T> : Node, IHasVariableReference
         Value.Write(graphVariable.Value.Value, c);
         return Task.CompletedTask;
     }
+
+    protected override T GetValue(PulseContext c) => graphVariable.Value.Value;
 }

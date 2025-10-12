@@ -13,7 +13,6 @@ using System.Windows;
 using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Strings;
-using VRCOSC.App.Nodes.Types.Utility;
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
@@ -441,21 +440,6 @@ public class NodeGraph : IVRCClientEventHandler
         }
 
         return (T)iRef.GetValue()!;
-    }
-
-    public void WriteVariable<T>(GraphVariable<T> variable, T newValue)
-    {
-        if (EqualityComparer<T>.Default.Equals(variable.Value.Value, newValue)) return;
-
-        variable.Value.Value = newValue;
-
-        foreach (var (_, node) in Nodes)
-        {
-            if (node is VariableSourceNode<T> variableSourceNode)
-            {
-                TriggerTree(variableSourceNode);
-            }
-        }
     }
 
     private record FlowTask(Task Task, PulseContext Context);

@@ -61,4 +61,9 @@ public class GraphVariable<T> : IGraphVariable
     public Type GetValueType() => typeof(T);
 
     public object GetValue() => Value.Value!;
+
+    public void Write(T newValue)
+    {
+        Value.Value = newValue;
+    }
 }
