@@ -278,12 +278,8 @@ public class NodeGraph : IVRCClientEventHandler
         Connections.TryRemove(connection.Id, out _);
         RemovedConnections.Add(connection);
 
-        var nodes = Nodes.Values.Where(node => connection.InputNodeId == node.Id);
-
-        foreach (var node in nodes)
-        {
-            TriggerTree(node);
-        }
+        var affectedNode = Nodes[connection.InputNodeId];
+        TriggerTree(affectedNode);
     }
 
     public NodeGroup AddGroup(IEnumerable<Guid> initialNodes, Guid? id = null)
