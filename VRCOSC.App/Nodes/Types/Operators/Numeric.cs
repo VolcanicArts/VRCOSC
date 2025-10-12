@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Numerics;
 using System.Threading.Tasks;
 using FontAwesome6;
@@ -176,48 +175,6 @@ public sealed class DecrementNode<T> : Node where T : INumber<T>
     protected override Task Process(PulseContext c)
     {
         Output.Write(Input.Read(c) - T.One, c);
-        return Task.CompletedTask;
-    }
-}
-
-[Node("Round", "Operators/Numeric")]
-[NodeCollapsed]
-public sealed class RoundNode<T> : Node where T : IFloatingPoint<T>
-{
-    public ValueInput<T> Input = new();
-    public ValueOutput<T> Output = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Output.Write(T.Round(Input.Read(c), MidpointRounding.AwayFromZero), c);
-        return Task.CompletedTask;
-    }
-}
-
-[Node("Ceil", "Operators/Numeric")]
-[NodeCollapsed]
-public sealed class CeilingNode<T> : Node where T : IFloatingPoint<T>
-{
-    public ValueInput<T> Input = new();
-    public ValueOutput<T> Output = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Output.Write(T.Ceiling(Input.Read(c)), c);
-        return Task.CompletedTask;
-    }
-}
-
-[Node("Floor", "Operators/Numeric")]
-[NodeCollapsed]
-public sealed class FloorNode<T> : Node where T : IFloatingPoint<T>
-{
-    public ValueInput<T> Input = new();
-    public ValueOutput<T> Output = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Output.Write(T.Floor(Input.Read(c)), c);
         return Task.CompletedTask;
     }
 }
