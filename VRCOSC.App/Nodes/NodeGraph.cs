@@ -369,14 +369,8 @@ public class NodeGraph : IVRCClientEventHandler
                     foreach (var node in updateNodes)
                     {
                         var c = new PulseContext(this);
-                        c.Push(node);
-
-                        await backtrackNode(node, c);
-
-                        if (!node.InternalShouldProcess(c)) continue;
-                        if (!((IUpdateNode)node).OnUpdate(c)) continue;
-
-                        TriggerTree(node);
+                        await processNode(node, c, () => ((IUpdateNode)node).OnUpdate(c));
+                        TriggerTree(node, c);
                     }
 
                     await Task.Delay(TimeSpan.FromSeconds(1d / 60d));
@@ -567,7 +561,7 @@ public class NodeGraph : IVRCClientEventHandler
         Task.Run(() => handleNodeEvent((c, node) => node.HandleOnAvatarPreChange(c, eventArgs)));
     }
 
-    public void StartFlow(Node node)
+    public void StartFlow(Node node, PulseContext? baseContext = null)
     {
         if (!running) return;
 
@@ -578,8 +572,7 @@ public class NodeGraph : IVRCClientEventHandler
             tasks.TryRemove(node, out _);
         }
 
-        // TODO: Accept optional existing context, but if context is not null make a deep copy
-        var c = new PulseContext(this);
+        var c = baseContext is null ? new PulseContext(this) : baseContext.DeepCopy();
 
         // display node, drive node, etc... Don't bother making a FlowTask
         if (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput && !node.Metadata.IsFlow)
@@ -599,7 +592,7 @@ public class NodeGraph : IVRCClientEventHandler
 
     public Task ProcessNode(Guid nodeId, PulseContext c) => processNode(Nodes[nodeId], c);
 
-    private async Task processNode(Node node, PulseContext c, Action? onPreProcess = null)
+    private async Task processNode(Node node, PulseContext c, Func<bool>? onPreProcess = null)
     {
         if (c.IsCancelled) return;
         if (c.HasMemory(node.Id) && !node.Metadata.ForceReprocess) return;
@@ -619,7 +612,12 @@ public class NodeGraph : IVRCClientEventHandler
 
         if (c.IsCancelled) return;
 
-        onPreProcess?.Invoke();
+        if (onPreProcess is not null && !onPreProcess.Invoke())
+        {
+            c.Pop();
+            return;
+        }
+
         if (c.IsCancelled) return;
 
         await node.InternalProcess(c);
@@ -652,7 +650,7 @@ public class NodeGraph : IVRCClientEventHandler
 
     private readonly Func<Node, bool> triggerCriteria = node => node.Metadata.IsTrigger || (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput && !node.Metadata.IsFlow);
 
-    public void TriggerTree(Node sourceNode)
+    public void TriggerTree(Node sourceNode, PulseContext? c = null)
     {
         if (!running) return;
 
@@ -661,7 +659,7 @@ public class NodeGraph : IVRCClientEventHandler
         // display node, drive node, etc...
         if (triggerCriteria(sourceNode))
         {
-            StartFlow(sourceNode);
+            StartFlow(sourceNode, c);
             return;
         }
 
@@ -672,7 +670,7 @@ public class NodeGraph : IVRCClientEventHandler
 
         foreach (var node in triggerNodes.DistinctBy(node => node.Id))
         {
-            StartFlow(node);
+            StartFlow(node, c);
         }
     }
 
@@ -720,7 +718,11 @@ public class NodeGraph : IVRCClientEventHandler
                 if (!type.GenericTypeArguments.SequenceEqual(definition.Values.Select(o => o.GetType()))) continue;
             }
 
-            await processNode(node, c, () => impulseNode.WriteOutputs(definition.Values, c));
+            await processNode(node, c, () =>
+            {
+                impulseNode.WriteOutputs(definition.Values, c);
+                return true;
+            });
         }
 
         c.PopMemory();

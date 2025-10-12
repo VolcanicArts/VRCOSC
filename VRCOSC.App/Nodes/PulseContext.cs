@@ -21,8 +21,8 @@ public class PulseContext
     public bool IsCancelled => Token.IsCancellationRequested;
 
     internal readonly NodeGraph Graph;
-    private Stack<Dictionary<Guid, IRef[]>> memory { get; } = [];
-    private Dictionary<Guid, Dictionary<IStore, IRef>> stores { get; } = [];
+    private Stack<Dictionary<Guid, IRef[]>> memory { get; init; } = [];
+    private Dictionary<Guid, Dictionary<IStore, IRef>> stores { get; init; } = [];
     private Stack<Node> nodes { get; } = [];
 
     internal PulseContext(NodeGraph graph)
@@ -34,6 +34,87 @@ public class PulseContext
 
         memory.Push(new Dictionary<Guid, IRef[]>());
     }
+
+    #region DeepCopy
+
+    internal PulseContext DeepCopy()
+    {
+        var c = new PulseContext(Graph)
+        {
+            memory = cloneMemory(memory),
+            stores = cloneStores(stores)
+        };
+
+        foreach (var node in nodes)
+        {
+            c.Push(node);
+        }
+
+        return c;
+    }
+
+    private static Stack<Dictionary<Guid, IRef[]>> cloneMemory(Stack<Dictionary<Guid, IRef[]>> memory)
+    {
+        // Stack<T>.ToArray() returns top->bottom
+        var layers = memory.ToArray();
+        var clone = new Stack<Dictionary<Guid, IRef[]>>(layers.Length);
+
+        for (int i = layers.Length - 1; i >= 0; i--) // push bottom->top to keep same order/top
+            clone.Push(cloneGuidRefArrayMap(layers[i]));
+
+        return clone;
+    }
+
+    private static Dictionary<Guid, Dictionary<IStore, IRef>> cloneStores(
+        Dictionary<Guid, Dictionary<IStore, IRef>> stores)
+    {
+        var outer = new Dictionary<Guid, Dictionary<IStore, IRef>>(stores.Count, stores.Comparer);
+
+        foreach (var (guid, inner) in stores)
+            outer[guid] = cloneStoreMap(inner);
+
+        return outer;
+    }
+
+    private static Dictionary<Guid, IRef[]> cloneGuidRefArrayMap(Dictionary<Guid, IRef[]> src)
+    {
+        var dst = new Dictionary<Guid, IRef[]>(src.Count, src.Comparer);
+
+        foreach (var (id, refs) in src)
+            dst[id] = cloneRefArray(refs);
+        return dst;
+    }
+
+    private static Dictionary<IStore, IRef> cloneStoreMap(Dictionary<IStore, IRef> src)
+    {
+        var dst = new Dictionary<IStore, IRef>(src.Count, src.Comparer);
+
+        foreach (var (store, aref) in src)
+            dst[store] = cloneRef(aref);
+        return dst;
+    }
+
+    private static IRef[] cloneRefArray(IRef[] src)
+    {
+        if (src is null) return Array.Empty<IRef>();
+
+        var dst = new IRef[src.Length];
+
+        for (int i = 0; i < src.Length; i++)
+            dst[i] = cloneRef(src[i]);
+        return dst;
+    }
+
+    private static IRef cloneRef(IRef source)
+    {
+        var valueType = source.GetValueType();
+        var value = source.GetValue();
+
+        var concrete = typeof(Ref<>).MakeGenericType(valueType);
+        return (IRef)Activator.CreateInstance(concrete, value)!;
+    }
+
+    #endregion
 
     internal void Push(Node node) => nodes.Push(node);
 
