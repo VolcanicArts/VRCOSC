@@ -87,7 +87,7 @@ public sealed class VariableReferenceNode<T> : Node, IHasVariableReference
 
 [Node("Variable Reference To Value", "Variables")]
 [NodeForceReprocess]
-public sealed class VariableReferenceToValueNode<T> : Node
+public sealed class VariableReferenceToValueNode<T> : Node, IUpdateNode
 {
     public ValueInput<GraphVariable<T>> Reference = new();
 
@@ -101,6 +101,8 @@ public sealed class VariableReferenceToValueNode<T> : Node
         Value.Write(reference.Value.Value, c);
         return Task.CompletedTask;
     }
+
+    public bool OnUpdate(PulseContext c) => true;
 }
 
 [Node("Variable Source")]
