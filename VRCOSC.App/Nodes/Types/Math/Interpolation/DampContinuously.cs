@@ -17,13 +17,15 @@ public sealed class DampContinuouslyNode<T> : Node, IUpdateNode where T : IFloat
 
     protected override Task Process(PulseContext c)
     {
-        var result = Utils.Interpolation.DampContinuously(Current.Read(c), Target.Read(c), HalfTimeMilli.Read(c), 1d / 60d * 1000d);
-
-        Result.Write(result, c);
-        Current.Write(result, c);
-
+        Result.Write(Current.Read(c), c);
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    public bool OnUpdate(PulseContext c)
+    {
+        var current = Current.Read(c);
+        var result = Utils.Interpolation.DampContinuously(current, Target.Read(c), HalfTimeMilli.Read(c) / 2d, 1d / 60d * 1000d);
+        Current.Write(result, c);
+        return true;
+    }
 }
