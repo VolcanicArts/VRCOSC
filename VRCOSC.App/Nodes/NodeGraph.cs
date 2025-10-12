@@ -475,19 +475,20 @@ public class NodeGraph : IVRCClientEventHandler
         await Task.WhenAll(stopTasks);
     }
 
-    private void handleNodeEvent(Func<PulseContext, INodeEventHandler, bool> shouldHandleEvent)
+    private async void handleNodeEvent(Func<PulseContext, INodeEventHandler, bool> shouldHandleEvent)
     {
         Debug.Assert(running);
 
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
         {
             var c = new PulseContext(this);
-            c.Push(node);
+            bool hasUpdated = false;
+            await processNode(node, c, () => hasUpdated = shouldHandleEvent.Invoke(c, (INodeEventHandler)node));
 
-            if (!shouldHandleEvent.Invoke(c, (INodeEventHandler)node)) continue;
+            if (!hasUpdated) continue;
 
-            c.Pop();
-            TriggerTree(node);
+            if (!node.Metadata.IsFlowOutput)
+                TriggerTree(node, c);
         }
     }
 
