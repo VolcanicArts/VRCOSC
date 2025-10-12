@@ -74,7 +74,7 @@ public class NodeGraph : IVRCClientEventHandler
     {
         running = true;
         await triggerOnStartNodes();
-        walkForwardAllValueNodes();
+        await walkForwardAllValueNodes();
         startUpdate();
         VRChatLogReader.Register(this);
     }
@@ -328,7 +328,7 @@ public class NodeGraph : IVRCClientEventHandler
         Serialise();
     }
 
-    private void walkForwardAllValueNodes()
+    private async Task walkForwardAllValueNodes()
     {
         var triggerNodes = new List<Node>();
 
@@ -339,7 +339,7 @@ public class NodeGraph : IVRCClientEventHandler
 
         foreach (var triggerNode in triggerNodes.DistinctBy(node => node.Id))
         {
-            StartFlow(triggerNode);
+            await startFlow(triggerNode);
         }
     }
 
@@ -561,13 +561,13 @@ public class NodeGraph : IVRCClientEventHandler
         Task.Run(() => handleNodeEvent((c, node) => node.HandleOnAvatarPreChange(c, eventArgs)));
     }
 
-    public void StartFlow(Node node, PulseContext? baseContext = null)
+    private async Task startFlow(Node node, PulseContext? baseContext = null)
     {
         if (!running) return;
 
         if (tasks.TryGetValue(node, out var existingTask))
         {
-            existingTask.Context.Source.Cancel();
+            await existingTask.Context.Source.CancelAsync();
             existingTask.Task.Wait();
             tasks.TryRemove(node, out _);
         }
@@ -577,7 +577,7 @@ public class NodeGraph : IVRCClientEventHandler
         // display node, drive node, etc... Don't bother making a FlowTask
         if (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput && !node.Metadata.IsFlow)
         {
-            _ = processNode(node, c);
+            await processNode(node, c);
             return;
         }
 
@@ -650,18 +650,21 @@ public class NodeGraph : IVRCClientEventHandler
 
     private readonly Func<Node, bool> triggerCriteria = node => node.Metadata.IsTrigger || (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput && !node.Metadata.IsFlow);
 
-    public void TriggerTree(Node sourceNode, PulseContext? c = null)
+    /// <summary>
+    /// Triggers the source node immediately if <see cref="triggerCriteria"/> applies, otherwise walks forward to get all the nodes that <see cref="triggerCriteria"/> applies to and triggers those
+    /// </summary>
+    public async void TriggerTree(Node sourceNode, PulseContext? c = null)
     {
         if (!running) return;
-
-        var triggerNodes = new List<Node>();
 
         // display node, drive node, etc...
         if (triggerCriteria(sourceNode))
         {
-            StartFlow(sourceNode, c);
+            await startFlow(sourceNode, c);
             return;
         }
+
+        var triggerNodes = new List<Node>();
 
         for (var i = 0; i < sourceNode.VirtualValueOutputCount(); i++)
         {
@@ -670,7 +673,7 @@ public class NodeGraph : IVRCClientEventHandler
 
         foreach (var node in triggerNodes.DistinctBy(node => node.Id))
         {
-            StartFlow(node, c);
+            await startFlow(node, c);
         }
     }
 

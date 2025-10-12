@@ -1537,7 +1537,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var nodeGraphItem = (NodeGraphItem)element.Tag;
 
-        Graph.StartFlow(nodeGraphItem.Node);
+        Graph.TriggerTree(nodeGraphItem.Node);
     }
 
     private async void EnumValueNode_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
