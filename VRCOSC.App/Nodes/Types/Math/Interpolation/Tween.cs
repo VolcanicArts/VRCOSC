@@ -41,6 +41,9 @@ public sealed class TweenNode<T> : Node, IFlowInput where T : INumber<T>
             await Task.Delay(TimeSpan.FromSeconds(1d / 60d));
         } while (!c.IsCancelled && System.Math.Abs(t - 1d) > double.Epsilon);
 
+        if (c.IsCancelled) return;
+
+        Value.Write(default!, c);
         await OnFinished.Execute(c);
     }
 }
