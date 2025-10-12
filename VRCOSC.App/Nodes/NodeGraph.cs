@@ -364,7 +364,10 @@ public class NodeGraph : IVRCClientEventHandler
                     foreach (var node in updateNodes)
                     {
                         var c = new PulseContext(this);
-                        await processNode(node, c, () => ((IUpdateNode)node).OnUpdate(c));
+                        bool hasUpdated = false;
+                        await processNode(node, c, () => hasUpdated = ((IUpdateNode)node).OnUpdate(c));
+
+                        if (!hasUpdated) continue;
 
                         if (!node.Metadata.IsFlowOutput)
                             TriggerTree(node, c);
@@ -544,7 +547,7 @@ public class NodeGraph : IVRCClientEventHandler
             tasks.TryRemove(node, out _);
         }
 
-        var c = baseContext is null ? new PulseContext(this) : baseContext.DeepCopy();
+        var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this);
 
         // display node, drive node, etc... Don't bother making a FlowTask
         if (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput && !node.Metadata.IsFlow)
