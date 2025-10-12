@@ -12,12 +12,12 @@ public sealed class DampContinuouslyNode<T> : Node, IUpdateNode where T : IFloat
     public GlobalStore<T> Current = new();
 
     public ValueInput<T> Target = new();
-    public ValueInput<double> TimeToTargetMilli = new("Time To Target Milli");
+    public ValueInput<double> HalfTimeMilli = new("Half Time Milli");
     public ValueOutput<T> Result = new();
 
     protected override Task Process(PulseContext c)
     {
-        var result = Utils.Interpolation.DampContinuously(Current.Read(c), Target.Read(c), TimeToTargetMilli.Read(c) / 2d, 1d / 60d * 1000d);
+        var result = Utils.Interpolation.DampContinuously(Current.Read(c), Target.Read(c), HalfTimeMilli.Read(c), 1d / 60d * 1000d);
 
         Result.Write(result, c);
         Current.Write(result, c);
