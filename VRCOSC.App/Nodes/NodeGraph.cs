@@ -365,7 +365,9 @@ public class NodeGraph : IVRCClientEventHandler
                     {
                         var c = new PulseContext(this);
                         await processNode(node, c, () => ((IUpdateNode)node).OnUpdate(c));
-                        TriggerTree(node, c);
+
+                        if (!node.Metadata.IsFlowOutput)
+                            TriggerTree(node, c);
                     }
 
                     await Task.Delay(TimeSpan.FromSeconds(1d / 60d));
