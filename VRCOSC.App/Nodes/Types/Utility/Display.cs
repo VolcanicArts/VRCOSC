@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Utility;
 
 [Node("Display", "Utility")]
-public sealed class DisplayNode<T> : Node, IDisplayNode, IUpdateNode, INotifyPropertyChanged
+public sealed class DisplayNode<T> : Node, IDisplayNode, INotifyPropertyChanged
 {
     private T value = default!;
 
@@ -25,6 +25,7 @@ public sealed class DisplayNode<T> : Node, IDisplayNode, IUpdateNode, INotifyPro
         }
     }
 
+    [NodeReactive]
     public ValueInput<T> Input = new();
 
     protected override Task Process(PulseContext c)
@@ -32,8 +33,6 @@ public sealed class DisplayNode<T> : Node, IDisplayNode, IUpdateNode, INotifyPro
         Value = Input.Read(c);
         return Task.CompletedTask;
     }
-
-    public bool OnUpdate(PulseContext c) => true;
 
     public void Clear() => Value = default!;
 

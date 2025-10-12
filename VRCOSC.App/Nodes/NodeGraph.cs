@@ -270,7 +270,7 @@ public class NodeGraph : IVRCClientEventHandler
             AddedConnections.Add(newConnection);
         }
 
-        if (newConnectionMade && inputNode.Metadata.IsTrigger)
+        if (newConnectionMade)
             TriggerTree(inputNode);
     }
 
@@ -279,12 +279,11 @@ public class NodeGraph : IVRCClientEventHandler
         Connections.TryRemove(connection.Id, out _);
         RemovedConnections.Add(connection);
 
-        // update all the trigger nodes when we remove a connection
-        var nodes = Nodes.Values.Where(node => connection.InputNodeId == node.Id && node.Metadata.IsTrigger);
+        var nodes = Nodes.Values.Where(node => connection.InputNodeId == node.Id);
 
         foreach (var node in nodes)
         {
-            StartFlow(node);
+            TriggerTree(node);
         }
     }
 
@@ -346,9 +345,9 @@ public class NodeGraph : IVRCClientEventHandler
 
     private void clearDisplayNodes()
     {
-        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IDisplayNode))))
+        foreach (var displayNode in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IDisplayNode))).Cast<IDisplayNode>())
         {
-            ((IDisplayNode)node).Clear();
+            displayNode.Clear();
         }
     }
 
@@ -582,8 +581,8 @@ public class NodeGraph : IVRCClientEventHandler
         // TODO: Accept optional existing context, but if context is not null make a deep copy
         var c = new PulseContext(this);
 
-        // display node, parameter driver, we don't need a task for them so just process and let them go
-        if (!node.Metadata.IsFlow && node.Metadata.IsValueInput && !node.Metadata.IsValueOutput)
+        // display node, drive node, etc... Don't bother making a FlowTask
+        if (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput && !node.Metadata.IsFlow)
         {
             _ = processNode(node, c);
             return;
@@ -651,15 +650,16 @@ public class NodeGraph : IVRCClientEventHandler
         }
     }
 
+    private readonly Func<Node, bool> triggerCriteria = node => node.Metadata.IsTrigger || (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput && !node.Metadata.IsFlow);
+
     public void TriggerTree(Node sourceNode)
     {
         if (!running) return;
 
         var triggerNodes = new List<Node>();
 
-        if (sourceNode.Metadata.IsTrigger ||
-            sourceNode.Metadata.IsValueInput && !sourceNode.Metadata.IsValueOutput ||
-            sourceNode.GetType().IsAssignableTo(typeof(IDisplayNode)))
+        // display node, drive node, etc...
+        if (triggerCriteria(sourceNode))
         {
             StartFlow(sourceNode);
             return;
@@ -687,7 +687,7 @@ public class NodeGraph : IVRCClientEventHandler
 
             if (inputSlot >= inputNode.Metadata.InputsCount) inputSlot = inputNode.Metadata.InputsCount - 1;
 
-            if (inputNode.Metadata.IsTrigger && inputNode.Metadata.Inputs[inputSlot].IsReactive)
+            if (triggerCriteria(inputNode) && inputNode.Metadata.Inputs[inputSlot].IsReactive)
             {
                 results.Add(inputNode);
                 continue;
