@@ -11,7 +11,7 @@ namespace VRCOSC.App.Nodes.Types.Math;
 public sealed class RoundNode<T> : Node where T : IFloatingPoint<T>
 {
     public ValueInput<T> Input = new();
-    public ValueInput<int> DecimalPlaces = new("Decimal Places", maxDigits<T>());
+    public ValueInput<int> DecimalPlaces = new("Decimal Places");
     public ValueOutput<T> Output = new();
 
     protected override Task Process(PulseContext c)
