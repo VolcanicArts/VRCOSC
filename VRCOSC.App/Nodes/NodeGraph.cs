@@ -449,13 +449,8 @@ public class NodeGraph : IVRCClientEventHandler
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
         {
             var c = new PulseContext(this);
-            c.Push(node);
-
-            var handler = (INodeEventHandler)node;
-            if (!handler.HandleNodeStart(c)) continue;
-
-            c.Pop();
-            startTasks.Add(processNode(node, c));
+            var nodeTask = processNode(node, c, () => ((INodeEventHandler)node).HandleNodeStart(c));
+            startTasks.Add(nodeTask);
         }
 
         await Task.WhenAll(startTasks);
@@ -468,13 +463,8 @@ public class NodeGraph : IVRCClientEventHandler
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
         {
             var c = new PulseContext(this);
-            c.Push(node);
-
-            var handler = (INodeEventHandler)node;
-            if (!handler.HandleNodeStop(c)) continue;
-
-            c.Pop();
-            stopTasks.Add(processNode(node, c));
+            var nodeTask = processNode(node, c, () => ((INodeEventHandler)node).HandleNodeStop(c));
+            stopTasks.Add(nodeTask);
         }
 
         await Task.WhenAll(stopTasks);
