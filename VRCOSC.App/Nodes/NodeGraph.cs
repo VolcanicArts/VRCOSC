@@ -552,7 +552,7 @@ public class NodeGraph : IVRCClientEventHandler
         if (tasks.TryGetValue(node, out var existingTask))
         {
             await existingTask.Context.Source.CancelAsync();
-            existingTask.Task.Wait();
+            await existingTask.Task;
             tasks.TryRemove(node, out _);
         }
 
