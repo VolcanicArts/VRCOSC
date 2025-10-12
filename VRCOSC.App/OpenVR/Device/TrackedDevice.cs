@@ -1,11 +1,12 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.OpenVR.Device;
 
-public record TrackedDevice
+public record TrackedDevice : IComparable<TrackedDevice>
 {
     /// <summary>
     /// The index of the device. This changes between sessions. Do not use this as a reference
@@ -58,6 +59,14 @@ public record TrackedDevice
         SerialNumber = serialNumber;
         DongleId = dongleId;
         Role = role;
+    }
+
+    public int CompareTo(TrackedDevice? other)
+    {
+        if (ReferenceEquals(this, other)) return 0;
+        if (other is null) return 1;
+
+        return string.Compare(SerialNumber, other.SerialNumber, StringComparison.Ordinal);
     }
 }
 
