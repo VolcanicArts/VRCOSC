@@ -167,6 +167,12 @@ public class OpenVRManager
 
         foreach (var device in devices.Values)
         {
+            if (!device.IsConnected)
+            {
+                device.Transform = Transform.Identity;
+                continue;
+            }
+
             device.Transform = poses[device.Index];
 
             if (device.Role is DeviceRole.Head or DeviceRole.LeftHand or DeviceRole.RightHand) continue;
@@ -265,9 +271,9 @@ public class OpenVRManager
     private void updateDeviceInfo(TrackedDevice device)
     {
         device.IsConnected = Valve.VR.OpenVR.System.IsTrackedDeviceConnected(device.Index);
-        device.ProvidesBatteryStatus = OpenVRHelper.GetBoolTrackedDeviceProperty(device.Index, ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
-        device.IsCharging = OpenVRHelper.GetBoolTrackedDeviceProperty(device.Index, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
-        device.BatteryPercentage = MathF.Max(0f, OpenVRHelper.GetFloatTrackedDeviceProperty(device.Index, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float));
+        device.ProvidesBatteryStatus = device.IsConnected && OpenVRHelper.GetBoolTrackedDeviceProperty(device.Index, ETrackedDeviceProperty.Prop_DeviceProvidesBatteryStatus_Bool);
+        device.IsCharging = device.IsConnected && OpenVRHelper.GetBoolTrackedDeviceProperty(device.Index, ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool);
+        device.BatteryPercentage = device.IsConnected ? MathF.Max(0f, OpenVRHelper.GetFloatTrackedDeviceProperty(device.Index, ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float)) : 0f;
     }
 
     private async Task pollEvents()
