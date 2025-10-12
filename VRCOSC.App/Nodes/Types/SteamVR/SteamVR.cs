@@ -74,7 +74,7 @@ public sealed class SteamVRDeviceInfoNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => Device.Read(c) is not null;
+    public bool OnUpdate(PulseContext c) => true;
 }
 
 [Node("Device Transform", "SteamVR")]
@@ -102,7 +102,7 @@ public sealed class SteamVRDeviceTransformSourceNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => Device.Read(c) is not null;
+    public bool OnUpdate(PulseContext c) => true;
 }
 
 [Node("Controller Trigger", "SteamVR/Input")]
@@ -125,7 +125,7 @@ public sealed class SteamVRControllerTriggerNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
+    public bool OnUpdate(PulseContext c) => true;
 }
 
 [Node("Controller Stick", "SteamVR/Input")]
@@ -148,7 +148,7 @@ public sealed class SteamVRControllerStickNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
+    public bool OnUpdate(PulseContext c) => true;
 }
 
 [Node("Controller Primary", "SteamVR/Input")]
@@ -169,7 +169,7 @@ public sealed class SteamVRControllerPrimaryNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
+    public bool OnUpdate(PulseContext c) => true;
 }
 
 [Node("Controller Secondary", "SteamVR/Input")]
@@ -190,7 +190,7 @@ public sealed class SteamVRControllerSecondaryNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
+    public bool OnUpdate(PulseContext c) => true;
 }
 
 [Node("Controller Grip", "SteamVR/Input")]
@@ -211,7 +211,7 @@ public sealed class SteamVRControllerGripNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
+    public bool OnUpdate(PulseContext c) => true;
 }
 
 [Node("Controller Pad", "SteamVR/Input")]
@@ -234,7 +234,7 @@ public sealed class SteamVRControllerPadNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
+    public bool OnUpdate(PulseContext c) => true;
 }
 
 [Node("Controller Skeleton", "SteamVR/Input")]
@@ -259,5 +259,5 @@ public sealed class SteamVRControllerSkeletonNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => Controller.Read(c) is not null;
+    public bool OnUpdate(PulseContext c) => true;
 }
