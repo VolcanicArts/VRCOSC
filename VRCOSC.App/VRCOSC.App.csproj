@@ -24,21 +24,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Extended.Wpf.Toolkit" Version="4.7.25104.5739" />
+        <PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
         <PackageReference Include="FontAwesome6.Fonts" Version="2.5.1" />
         <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4" />
         <PackageReference Include="MathParser.org-mXparser" Version="6.1.0" />
         <PackageReference Include="MeaMod.DNS" Version="1.0.71" />
-        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
+        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.205">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
         <PackageReference Include="NAudio" Version="2.2.1" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Octokit" Version="14.0.0" />
         <PackageReference Include="Semver" Version="3.0.0" />
-        <PackageReference Include="SoundFlow" Version="1.1.1" />
+        <PackageReference Include="SoundFlow" Version="1.2.1" />
         <PackageReference Include="Velopack" Version="0.0.1298" />
         <PackageReference Include="VolcanicArts.FastOSC" Version="1.1.1" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />
