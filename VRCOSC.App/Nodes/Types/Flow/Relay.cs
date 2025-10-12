@@ -17,3 +17,19 @@ public sealed class RelayNode<T> : Node
         return Task.CompletedTask;
     }
 }
+
+[Node("Update Relay", "Utility")]
+[NodeCollapsed]
+public sealed class UpdateRelayNode<T> : UpdateNode<T>
+{
+    public ValueInput<T> Input = new();
+    public ValueOutput<T> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        Output.Write(Input.Read(c), c);
+        return Task.CompletedTask;
+    }
+
+    protected override T GetValue(PulseContext c) => Input.Read(c);
+}
