@@ -373,7 +373,7 @@ public class NodeGraph : IVRCClientEventHandler
                             TriggerTree(node, c);
                     }
 
-                    await Task.Delay(TimeSpan.FromSeconds(1d / 60d));
+                    await Task.Delay(TimeSpan.FromSeconds(1d / 100d));
                 }
             }
             catch (Exception e)
