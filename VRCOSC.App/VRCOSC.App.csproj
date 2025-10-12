@@ -38,7 +38,7 @@
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Octokit" Version="14.0.0" />
         <PackageReference Include="Semver" Version="3.0.0" />
-        <PackageReference Include="SoundFlow" Version="1.2.1" />
+        <PackageReference Include="SoundFlow" Version="1.1.1" />
         <PackageReference Include="Velopack" Version="0.0.1298" />
         <PackageReference Include="VolcanicArts.FastOSC" Version="1.1.1" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />

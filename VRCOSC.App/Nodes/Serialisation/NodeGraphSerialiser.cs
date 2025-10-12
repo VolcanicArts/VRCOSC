@@ -89,6 +89,15 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
             }
         }
 
+        // Updating from previous variable system
+        foreach (var node in Reference.Nodes.Values.ToList())
+        {
+            if (node.GetType().IsAssignableTo(typeof(IHasVariableReference)) && ((IHasVariableReference)node).VariableId == Guid.Empty)
+            {
+                Reference.DeleteNode(node.Id);
+            }
+        }
+
         foreach (var sC in data.Connections)
         {
             if (!Reference.Nodes.ContainsKey(sC.InputNodeId) || !Reference.Nodes.ContainsKey(sC.OutputNodeId)) continue;
