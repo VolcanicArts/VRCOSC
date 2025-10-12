@@ -702,6 +702,8 @@ public class NodeGraph : IVRCClientEventHandler
 
     public async Task TriggerImpulse(ImpulseDefinition definition, PulseContext c)
     {
+        c.PushMemory();
+
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IImpulseReceiver))))
         {
             var impulseNode = (IImpulseReceiver)node;
@@ -720,6 +722,8 @@ public class NodeGraph : IVRCClientEventHandler
 
             await processNode(node, c, () => impulseNode.WriteOutputs(definition.Values, c));
         }
+
+        c.PopMemory();
     }
 }
 

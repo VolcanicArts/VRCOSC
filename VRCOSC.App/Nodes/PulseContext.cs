@@ -43,6 +43,10 @@ public class PulseContext
 
     internal bool HasMemory(Guid nodeId) => memory.Any(dict => dict.ContainsKey(nodeId));
 
+    internal void PushMemory() => memory.Push(new Dictionary<Guid, IRef[]>());
+
+    internal void PopMemory() => memory.Pop();
+
     internal async Task Execute(FlowCall call)
     {
         memory.Push(new Dictionary<Guid, IRef[]>());
