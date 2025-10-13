@@ -110,7 +110,8 @@ public class PulseContext
         if (BaseContext is not null)
             return BaseContext.readValue<T>(nodeId, index);
 
-        throw new InvalidOperationException($"Could not read from {nodeId} at index {index}");
+        // In theory this should never happen, but sometimes it does because of race conditions, so we'll just return default for at most 1 update
+        return default!;
     }
 
     private void writeValue<T>(Guid nodeId, int index, T value)
