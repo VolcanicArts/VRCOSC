@@ -259,13 +259,13 @@ internal interface IDisplayNode
 public interface IUpdateNode
 {
     /// <summary>
-    /// Called at 60hz. Return true if the node should cause a flow process if something has changed.
+    /// Called at 100hz. Return true if the node should cause a flow process if something has changed.
     /// </summary>
     public bool OnUpdate(PulseContext c);
 }
 
 /// <summary>
-/// Processes this node at 60hz, and then processes and updates downstream trigger nodes of the update if the result of <see cref="GetValue"/> has changed
+/// Processes this node at 100hz, and then processes and updates downstream trigger nodes of the update if the result of <see cref="GetValue"/> has changed
 /// </summary>
 /// <remarks>This is useful for output values that need to be polled</remarks>
 public abstract class UpdateNode<T> : Node, IUpdateNode

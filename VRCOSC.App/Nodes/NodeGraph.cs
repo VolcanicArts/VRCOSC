@@ -364,10 +364,9 @@ public class NodeGraph : IVRCClientEventHandler
                     foreach (var node in updateNodes)
                     {
                         var c = new PulseContext(this);
-                        bool hasUpdated = false;
-                        await processNode(node, c, () => hasUpdated = ((IUpdateNode)node).OnUpdate(c));
+                        var hasProcessed = await processNode(node, c, () => ((IUpdateNode)node).OnUpdate(c));
 
-                        if (!hasUpdated) continue;
+                        if (!hasProcessed) continue;
 
                         if (!node.Metadata.IsFlowOutput)
                             TriggerTree(node, c);
@@ -482,10 +481,9 @@ public class NodeGraph : IVRCClientEventHandler
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
         {
             var c = new PulseContext(this);
-            bool hasUpdated = false;
-            await processNode(node, c, () => hasUpdated = shouldHandleEvent.Invoke(c, (INodeEventHandler)node));
+            var hasProcessed = await processNode(node, c, () => shouldHandleEvent.Invoke(c, (INodeEventHandler)node));
 
-            if (!hasUpdated) continue;
+            if (!hasProcessed) continue;
 
             if (!node.Metadata.IsFlowOutput)
                 TriggerTree(node, c);
@@ -568,38 +566,41 @@ public class NodeGraph : IVRCClientEventHandler
 
     public Task ProcessNode(Guid nodeId, PulseContext c) => processNode(Nodes[nodeId], c);
 
-    private async Task processNode(Node node, PulseContext c, Func<bool>? onPreProcess = null)
+    /// <summary>
+    /// Processes a node, with an optional preprocess step after <see cref="Node.ShouldProcess"/> returns true
+    /// </summary>
+    private async Task<bool> processNode(Node node, PulseContext c, Func<bool>? onPreProcess = null)
     {
-        if (c.IsCancelled) return;
-        if (c.HasMemory(node.Id) && !node.Metadata.ForceReprocess) return;
+        if (c.IsCancelled) return false;
+        if (c.HasMemory(node.Id) && !node.Metadata.ForceReprocess) return false;
 
         await backtrackNode(node, c);
-        if (c.IsCancelled) return;
+        if (c.IsCancelled) return false;
 
         c.Push(node);
         c.CreateMemory(node);
-        if (c.IsCancelled) return;
+        if (c.IsCancelled) return false;
 
         if (!node.InternalShouldProcess(c))
         {
             c.Pop();
-            return;
+            return false;
         }
 
-        if (c.IsCancelled) return;
+        if (c.IsCancelled) return false;
 
         if (onPreProcess is not null && !onPreProcess.Invoke())
         {
             c.Pop();
-            return;
+            return false;
         }
 
-        if (c.IsCancelled) return;
+        if (c.IsCancelled) return false;
 
         await node.InternalProcess(c);
-        if (c.IsCancelled) return;
-
         c.Pop();
+
+        return true;
     }
 
     private async Task backtrackNode(Node node, PulseContext c)
