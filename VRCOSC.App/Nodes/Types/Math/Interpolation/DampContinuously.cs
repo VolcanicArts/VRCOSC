@@ -26,6 +26,7 @@ public sealed class DampContinuouslyNode<T> : Node, IUpdateNode where T : IFloat
         var current = Current.Read(c);
         var result = Utils.Interpolation.DampContinuously(current, Target.Read(c), HalfTimeMilli.Read(c) / 2d, 1d / 100d * 1000d);
         Current.Write(result, c);
-        return true;
+
+        return current != result;
     }
 }

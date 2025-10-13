@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FontAwesome6;
-using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 
@@ -254,33 +253,4 @@ internal interface INodeEventHandler
 internal interface IDisplayNode
 {
     public void Clear();
-}
-
-public interface IUpdateNode
-{
-    /// <summary>
-    /// Called at 100hz. Return true if the node should cause a flow process if something has changed.
-    /// </summary>
-    public bool OnUpdate(PulseContext c);
-}
-
-/// <summary>
-/// Processes this node at 100hz, and then processes and updates downstream trigger nodes of the update if the result of <see cref="GetValue"/> has changed
-/// </summary>
-/// <remarks>This is useful for output values that need to be polled</remarks>
-public abstract class UpdateNode<T> : Node, IUpdateNode
-{
-    private readonly GlobalStore<T> prevValue = new();
-
-    public bool OnUpdate(PulseContext c)
-    {
-        var value = GetValue(c);
-
-        if (EqualityComparer<T>.Default.Equals(value, prevValue.Read(c))) return false;
-
-        prevValue.Write(value, c);
-        return true;
-    }
-
-    protected abstract T GetValue(PulseContext c);
 }

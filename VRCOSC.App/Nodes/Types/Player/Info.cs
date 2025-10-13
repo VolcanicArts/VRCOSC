@@ -8,7 +8,7 @@ using VRCOSC.App.SDK.VRChat;
 namespace VRCOSC.App.Nodes.Types.Player;
 
 [Node("Player Movement", "Player/Info")]
-public sealed class PlayerMovementNode : Node, IUpdateNode
+public sealed class PlayerMovementNode : UpdateNode<Vector3, float, float>
 {
     public ValueOutput<Vector3> Velocity = new();
     public ValueOutput<float> AngularY = new("Angular Y");
@@ -24,11 +24,15 @@ public sealed class PlayerMovementNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override (Vector3, float, float) GetValues(PulseContext c)
+    {
+        var p = c.GetPlayer();
+        return (new Vector3(p.VelocityX, p.VelocityY, p.VelocityZ), p.AngularY, p.Upright);
+    }
 }
 
 [Node("Player Gesture", "Player/Info")]
-public sealed class PlayerGestureNode : Node, IUpdateNode
+public sealed class PlayerGestureNode : UpdateNode<GestureType, float, GestureType, float>
 {
     public ValueOutput<GestureType> LeftType = new("Left Type");
     public ValueOutput<float> LeftWeight = new("Left Weight");
@@ -46,11 +50,15 @@ public sealed class PlayerGestureNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override (GestureType, float, GestureType, float) GetValues(PulseContext c)
+    {
+        var p = c.GetPlayer();
+        return (p.GestureTypeLeft, p.GestureLeftWeight, p.GestureTypeRight, p.GestureRightWeight);
+    }
 }
 
 [Node("Player Voice", "Player/Info")]
-public sealed class PlayerVoiceNode : Node, IUpdateNode
+public sealed class PlayerVoiceNode : UpdateNode<Viseme, float>
 {
     public ValueOutput<Viseme> Viseme = new();
     public ValueOutput<float> Voice = new();
@@ -64,11 +72,15 @@ public sealed class PlayerVoiceNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override (Viseme, float) GetValues(PulseContext c)
+    {
+        var p = c.GetPlayer();
+        return (p.Viseme, p.Voice);
+    }
 }
 
 [Node("Player Identity", "Player/Info")]
-public sealed class PlayerIdentityNode : Node, IUpdateNode
+public sealed class PlayerIdentityNode : UpdateNode<bool, bool, bool, bool, bool, bool, bool, TrackingType>
 {
     public ValueOutput<bool> IsVR = new("Is VR");
     public ValueOutput<bool> IsMuted = new("Is Muted");
@@ -94,11 +106,15 @@ public sealed class PlayerIdentityNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override (bool, bool, bool, bool, bool, bool, bool, TrackingType) GetValues(PulseContext c)
+    {
+        var p = c.GetPlayer();
+        return (p.IsVR, p.IsMuted, p.Earmuffs, p.AFK, p.InStation, p.Seated, p.Grounded, p.TrackingType);
+    }
 }
 
 [Node("Player Size", "Player/Info")]
-public sealed class PlayerSizeNode : Node, IUpdateNode
+public sealed class PlayerSizeNode : UpdateNode<bool, float, float, float, float>
 {
     public ValueOutput<bool> ScaleModified = new("Scale Modified");
     public ValueOutput<float> ScaleFactor = new("Scale Factor");
@@ -118,5 +134,9 @@ public sealed class PlayerSizeNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override (bool, float, float, float, float) GetValues(PulseContext c)
+    {
+        var p = c.GetPlayer();
+        return (p.ScaleModified, p.ScaleFactor, p.ScaleFactorInverse, p.EyeHeightAsMeters, p.EyeHeightAsPercent);
+    }
 }

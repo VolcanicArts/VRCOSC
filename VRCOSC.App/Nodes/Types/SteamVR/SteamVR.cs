@@ -12,7 +12,7 @@ namespace VRCOSC.App.Nodes.Types.SteamVR;
 
 [Node("Is Dashboard Visible", "SteamVR")]
 [NodeCollapsed]
-public sealed class SteamVRIsDashboardVisibleNode : Node, IUpdateNode
+public sealed class SteamVRIsDashboardVisibleNode : UpdateNode<bool>
 {
     public ValueOutput<bool> IsVisible = new("Is Visible");
 
@@ -22,12 +22,12 @@ public sealed class SteamVRIsDashboardVisibleNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override bool GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.IsDashboardVisible;
 }
 
 [Node("Is User Present", "SteamVR")]
 [NodeCollapsed]
-public sealed class SteamVRIsUserPresentNode : Node, IUpdateNode
+public sealed class SteamVRIsUserPresentNode : UpdateNode<bool>
 {
     public ValueOutput<bool> IsPresent = new();
 
@@ -37,12 +37,12 @@ public sealed class SteamVRIsUserPresentNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override bool GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.IsUserPresent;
 }
 
 [Node("VR FPS", "SteamVR")]
 [NodeCollapsed]
-public sealed class SteamVRFPSNode : Node, IUpdateNode
+public sealed class SteamVRFPSNode : UpdateNode<float>
 {
     public ValueOutput<float> FPS = new();
 
@@ -52,11 +52,11 @@ public sealed class SteamVRFPSNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override float GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.FPS;
 }
 
 [Node("Device Info", "SteamVR")]
-public sealed class SteamVRDeviceInfoNode : Node, IUpdateNode
+public sealed class SteamVRDeviceInfoNode : UpdateNode<bool, bool, float>
 {
     public ValueInput<TrackedDevice> Device = new();
     public ValueOutput<bool> IsConnected = new("Is Connected");
@@ -74,11 +74,17 @@ public sealed class SteamVRDeviceInfoNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override (bool, bool, float) GetValues(PulseContext c)
+    {
+        var device = Device.Read(c);
+        if (device is null) return (false, false, 0f);
+
+        return (device.IsConnected, device.IsCharging, device.BatteryPercentage);
+    }
 }
 
 [Node("Device Transform", "SteamVR")]
-public sealed class SteamVRDeviceTransformSourceNode : Node, IUpdateNode
+public sealed class SteamVRDeviceTransformSourceNode : UpdateNode<Vector3, Quaternion>
 {
     public ValueInput<TrackedDevice> Device = new();
     public ValueOutput<Vector3> Position = new();
@@ -102,11 +108,17 @@ public sealed class SteamVRDeviceTransformSourceNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override (Vector3, Quaternion) GetValues(PulseContext c)
+    {
+        var device = Device.Read(c);
+        if (device is null) return (Transform.Identity.Position, Transform.Identity.Rotation);
+
+        return (device.Transform.Position, device.Transform.Rotation);
+    }
 }
 
 [Node("Controller Trigger", "SteamVR/Input")]
-public sealed class SteamVRControllerTriggerNode : Node, IUpdateNode
+public sealed class SteamVRControllerTriggerNode : UpdateNode<float, bool, bool>
 {
     public ValueInput<Controller> Controller = new();
 
@@ -125,11 +137,17 @@ public sealed class SteamVRControllerTriggerNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override (float, bool, bool) GetValues(PulseContext c)
+    {
+        var controller = Controller.Read(c);
+        if (controller is null) return (0f, false, false);
+
+        return (controller.Input.Trigger.Pull, controller.Input.Trigger.Touch, controller.Input.Trigger.Click);
+    }
 }
 
 [Node("Controller Stick", "SteamVR/Input")]
-public sealed class SteamVRControllerStickNode : Node, IUpdateNode
+public sealed class SteamVRControllerStickNode : UpdateNode<Vector2, bool, bool>
 {
     public ValueInput<Controller> Controller = new();
 
@@ -148,11 +166,17 @@ public sealed class SteamVRControllerStickNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override (Vector2, bool, bool) GetValues(PulseContext c)
+    {
+        var controller = Controller.Read(c);
+        if (controller is null) return (Vector2.Zero, false, false);
+
+        return (controller.Input.Stick.Position, controller.Input.Stick.Touch, controller.Input.Stick.Click);
+    }
 }
 
 [Node("Controller Primary", "SteamVR/Input")]
-public sealed class SteamVRControllerPrimaryNode : Node, IUpdateNode
+public sealed class SteamVRControllerPrimaryNode : UpdateNode<bool, bool>
 {
     public ValueInput<Controller> Controller = new();
 
@@ -169,11 +193,17 @@ public sealed class SteamVRControllerPrimaryNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override (bool, bool) GetValues(PulseContext c)
+    {
+        var controller = Controller.Read(c);
+        if (controller is null) return (false, false);
+
+        return (controller.Input.Primary.Touch, controller.Input.Primary.Click);
+    }
 }
 
 [Node("Controller Secondary", "SteamVR/Input")]
-public sealed class SteamVRControllerSecondaryNode : Node, IUpdateNode
+public sealed class SteamVRControllerSecondaryNode : UpdateNode<bool, bool>
 {
     public ValueInput<Controller> Controller = new();
 
@@ -190,11 +220,17 @@ public sealed class SteamVRControllerSecondaryNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override (bool, bool) GetValues(PulseContext c)
+    {
+        var controller = Controller.Read(c);
+        if (controller is null) return (false, false);
+
+        return (controller.Input.Secondary.Touch, controller.Input.Secondary.Click);
+    }
 }
 
 [Node("Controller Grip", "SteamVR/Input")]
-public sealed class SteamVRControllerGripNode : Node, IUpdateNode
+public sealed class SteamVRControllerGripNode : UpdateNode<float, bool>
 {
     public ValueInput<Controller> Controller = new();
 
@@ -211,11 +247,17 @@ public sealed class SteamVRControllerGripNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override (float, bool) GetValues(PulseContext c)
+    {
+        var controller = Controller.Read(c);
+        if (controller is null) return (0f, false);
+
+        return (controller.Input.Grip.Pull, controller.Input.Grip.Click);
+    }
 }
 
 [Node("Controller Pad", "SteamVR/Input")]
-public sealed class SteamVRControllerPadNode : Node, IUpdateNode
+public sealed class SteamVRControllerPadNode : UpdateNode<Vector2, bool, bool>
 {
     public ValueInput<Controller> Controller = new();
 
@@ -234,11 +276,17 @@ public sealed class SteamVRControllerPadNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override (Vector2, bool, bool) GetValues(PulseContext c)
+    {
+        var controller = Controller.Read(c);
+        if (controller is null) return (Vector2.Zero, false, false);
+
+        return (controller.Input.Pad.Position, controller.Input.Pad.Touch, controller.Input.Pad.Click);
+    }
 }
 
 [Node("Controller Skeleton", "SteamVR/Input")]
-public sealed class SteamVRControllerSkeletonNode : Node, IUpdateNode
+public sealed class SteamVRControllerSkeletonNode : UpdateNode<float, float, float, float>
 {
     public ValueInput<Controller> Controller = new();
 
@@ -259,5 +307,11 @@ public sealed class SteamVRControllerSkeletonNode : Node, IUpdateNode
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c) => true;
+    protected override (float, float, float, float) GetValues(PulseContext c)
+    {
+        var controller = Controller.Read(c);
+        if (controller is null) return (0f, 0f, 0f, 0f);
+
+        return (controller.Input.Skeleton.Index, controller.Input.Skeleton.Middle, controller.Input.Skeleton.Ring, controller.Input.Skeleton.Pinky);
+    }
 }
