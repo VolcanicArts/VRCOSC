@@ -79,3 +79,23 @@ public sealed class Vector2ContainsNode : Node
                point.Y >= minY && point.Y <= maxY;
     }
 }
+
+[Node("Delta", "Math/Vector2")]
+[NodeCollapsed]
+public sealed class Vector2DeltaNode : Node
+{
+    public GlobalStore<Vector2> PrevValue = new();
+
+    public ValueInput<Vector2> Input = new();
+    public ValueOutput<Vector2> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var input = Input.Read(c);
+        var prevValue = PrevValue.Read(c);
+
+        Output.Write(input - prevValue, c);
+        PrevValue.Write(input, c);
+        return Task.CompletedTask;
+    }
+}

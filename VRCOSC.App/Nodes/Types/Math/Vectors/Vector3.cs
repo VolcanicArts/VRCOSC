@@ -86,3 +86,23 @@ public sealed class Vector3ContainsNode : Node
                point.Z >= minZ && point.Z <= maxZ;
     }
 }
+
+[Node("Delta", "Math/Vector3")]
+[NodeCollapsed]
+public sealed class Vector3DeltaNode : Node
+{
+    public GlobalStore<Vector3> PrevValue = new();
+
+    public ValueInput<Vector3> Input = new();
+    public ValueOutput<Vector3> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var input = Input.Read(c);
+        var prevValue = PrevValue.Read(c);
+
+        Output.Write(input - prevValue, c);
+        PrevValue.Write(input, c);
+        return Task.CompletedTask;
+    }
+}
