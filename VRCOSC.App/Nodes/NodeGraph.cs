@@ -539,13 +539,6 @@ public class NodeGraph : IVRCClientEventHandler
     {
         if (!running) return;
 
-        if (tasks.TryGetValue(node, out var existingTask))
-        {
-            await existingTask.Context.Source.CancelAsync();
-            await existingTask.Task;
-            tasks.TryRemove(node, out _);
-        }
-
         var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this);
 
         // display node, drive node, etc... Don't bother making a FlowTask
@@ -555,9 +548,19 @@ public class NodeGraph : IVRCClientEventHandler
             return;
         }
 
+        var shouldProcess = await checkShouldProcess(node, c);
+        if (!shouldProcess) return;
+
+        if (tasks.TryGetValue(node, out var existingTask))
+        {
+            await existingTask.Context.Source.CancelAsync();
+            await existingTask.Task;
+            tasks.TryRemove(node, out _);
+        }
+
         var newTask = Task.Run(async () =>
         {
-            await processNode(node, c);
+            await node.InternalProcess(c);
             tasks.TryRemove(node, out _);
         });
 
@@ -565,6 +568,14 @@ public class NodeGraph : IVRCClientEventHandler
     }
 
     public Task ProcessNode(Guid nodeId, PulseContext c) => processNode(Nodes[nodeId], c);
+
+    private async Task<bool> checkShouldProcess(Node node, PulseContext c)
+    {
+        await backtrackNode(node, c);
+        c.Push(node);
+        c.CreateMemory(node);
+        return node.InternalShouldProcess(c);
+    }
 
     /// <summary>
     /// Processes a node, with an optional preprocess step after <see cref="Node.ShouldProcess"/> returns true
