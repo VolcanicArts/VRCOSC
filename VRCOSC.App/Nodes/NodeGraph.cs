@@ -270,7 +270,7 @@ public class NodeGraph : IVRCClientEventHandler
         }
 
         if (newConnectionMade)
-            TriggerTree(inputNode);
+            _ = TriggerTree(inputNode);
     }
 
     public void RemoveConnection(NodeConnection connection)
@@ -279,7 +279,7 @@ public class NodeGraph : IVRCClientEventHandler
         RemovedConnections.Add(connection);
 
         var affectedNode = Nodes[connection.InputNodeId];
-        TriggerTree(affectedNode);
+        _ = TriggerTree(affectedNode);
     }
 
     public NodeGroup AddGroup(IEnumerable<Guid> initialNodes, Guid? id = null)
@@ -325,16 +325,9 @@ public class NodeGraph : IVRCClientEventHandler
 
     private async Task walkForwardAllValueNodes()
     {
-        var triggerNodes = new List<Node>();
-
         foreach (var node in Nodes.Values.Where(node => !node.Metadata.IsFlow && !node.Metadata.IsValueInput && node.Metadata.IsValueOutput))
         {
-            walkForward(triggerNodes, node, 0);
-        }
-
-        foreach (var triggerNode in triggerNodes.DistinctBy(node => node.Id))
-        {
-            await startFlow(triggerNode);
+            await TriggerTree(node);
         }
     }
 
@@ -369,7 +362,7 @@ public class NodeGraph : IVRCClientEventHandler
                         if (!hasProcessed) continue;
 
                         if (!node.Metadata.IsFlowOutput)
-                            TriggerTree(node, c);
+                            await TriggerTree(node, c);
                     }
 
                     await Task.Delay(TimeSpan.FromSeconds(1d / 100d));
@@ -486,7 +479,7 @@ public class NodeGraph : IVRCClientEventHandler
             if (!hasProcessed) continue;
 
             if (!node.Metadata.IsFlowOutput)
-                TriggerTree(node, c);
+                await TriggerTree(node, c);
         }
     }
 
@@ -537,8 +530,6 @@ public class NodeGraph : IVRCClientEventHandler
 
     private async Task startFlow(Node node, PulseContext? baseContext = null)
     {
-        if (!running) return;
-
         var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this);
 
         // display node, drive node, etc... Don't bother making a FlowTask
@@ -641,51 +632,73 @@ public class NodeGraph : IVRCClientEventHandler
     /// <summary>
     /// Triggers the source node immediately if <see cref="triggerCriteria"/> applies, otherwise walks forward to get all the nodes that <see cref="triggerCriteria"/> applies to and triggers those
     /// </summary>
-    public async void TriggerTree(Node sourceNode, PulseContext? c = null)
+    public async Task TriggerTree(Node sourceNode, PulseContext? baseContext = null)
     {
         if (!running) return;
 
         // display node, drive node, etc...
         if (triggerCriteria(sourceNode))
         {
-            await startFlow(sourceNode, c);
+            await startFlow(sourceNode, baseContext);
             return;
         }
 
-        var triggerNodes = new List<Node>();
+        var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this);
+        var pathList = new List<Node[]>();
+        var currPath = new Stack<Node>();
+
+        currPath.Push(sourceNode);
 
         for (var i = 0; i < sourceNode.VirtualValueOutputCount(); i++)
         {
-            walkForward(triggerNodes, sourceNode, i);
+            await walkForward(pathList, currPath, sourceNode, i, c);
         }
 
-        foreach (var node in triggerNodes.DistinctBy(node => node.Id))
+        foreach (var path in pathList)
         {
-            await startFlow(node, c);
+            for (var i = path.Length - 1; i >= 0; i--)
+            {
+                var node = path[i];
+
+                if (i == 0)
+                {
+                    await startFlow(node, c);
+                    continue;
+                }
+
+                await processNode(node, c);
+            }
         }
     }
 
-    private void walkForward(List<Node> results, Node sourceNode, int outputValueSlot)
+    private async Task walkForward(List<Node[]> nodeList, Stack<Node> currPath, Node sourceNode, int outputValueSlot, PulseContext c)
     {
-        var connections = Connections.Values.Where(c => c.ConnectionType == ConnectionType.Value && c.OutputNodeId == sourceNode.Id && c.OutputSlot == outputValueSlot);
+        var connections = Connections.Values.Where(con => con.ConnectionType == ConnectionType.Value && con.OutputNodeId == sourceNode.Id && con.OutputSlot == outputValueSlot);
 
         foreach (var connection in connections)
         {
             var inputNode = Nodes[connection.InputNodeId];
             var inputSlot = connection.InputSlot;
 
+            if (inputNode.Metadata.IsFlowInput)
+                continue;
+
             if (inputSlot >= inputNode.Metadata.InputsCount) inputSlot = inputNode.Metadata.InputsCount - 1;
+
+            currPath.Push(inputNode);
 
             if (triggerCriteria(inputNode) && inputNode.Metadata.Inputs[inputSlot].IsReactive)
             {
-                results.Add(inputNode);
+                nodeList.Add(currPath.ToArray());
                 continue;
             }
 
             for (var i = 0; i < inputNode.VirtualValueOutputCount(); i++)
             {
-                walkForward(results, inputNode, i);
+                await walkForward(nodeList, currPath, inputNode, i, c);
             }
+
+            currPath.Pop();
         }
     }
 

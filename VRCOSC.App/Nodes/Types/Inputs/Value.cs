@@ -17,7 +17,7 @@ public class ValueNode<T> : Node
         set
         {
             this.value = value;
-            NodeGraph.TriggerTree(this);
+            _ = NodeGraph.TriggerTree(this);
         }
     }
 
