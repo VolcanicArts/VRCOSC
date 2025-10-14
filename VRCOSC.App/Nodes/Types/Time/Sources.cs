@@ -21,9 +21,9 @@ public sealed class DateTimeNowSourceNode : UpdateNode<DateTime>
     protected override DateTime GetValue(PulseContext c) => System.DateTime.Now;
 }
 
-[Node("Date Now", "Date & Time")]
+[Node("Date Today", "Date & Time")]
 [NodeCollapsed]
-public sealed class DateNowSourceNode : UpdateNode<DateTime>
+public sealed class DateTimeTodaySourceNode : UpdateNode<DateTime>
 {
     public ValueOutput<DateTime> Date = new();
 
@@ -38,7 +38,7 @@ public sealed class DateNowSourceNode : UpdateNode<DateTime>
 
 [Node("UTC Now", "Date & Time")]
 [NodeCollapsed]
-public sealed class UtcNowSourceNode : UpdateNode<DateTime>
+public sealed class DateTimeUtcNowSourceNode : UpdateNode<DateTime>
 {
     public ValueOutput<DateTime> UTCNow = new();
 
@@ -49,4 +49,10 @@ public sealed class UtcNowSourceNode : UpdateNode<DateTime>
     }
 
     protected override DateTime GetValue(PulseContext c) => DateTime.UtcNow;
+}
+
+[Node("Unix Epoch", "Date & Time")]
+public sealed class DateTimeUnixEpochConstantNode : ConstantNode<DateTime>
+{
+    protected override DateTime GetValue() => DateTime.UnixEpoch;
 }

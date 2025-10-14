@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types;
 
 [NodeCollapsed]
-public abstract class ValueOutputNode<T> : Node
+public abstract class ConstantNode<T> : Node
 {
     public ValueOutput<T> Output = new();
 

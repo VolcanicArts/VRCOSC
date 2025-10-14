@@ -6,13 +6,13 @@ using System.Globalization;
 namespace VRCOSC.App.Nodes.Types.Strings;
 
 [Node("Current Culture", "Strings")]
-public sealed class CurrentCultureValueOutputNode : ValueOutputNode<CultureInfo>
+public sealed class CurrentCultureConstantNode : ConstantNode<CultureInfo>
 {
     protected override CultureInfo GetValue() => CultureInfo.CurrentCulture;
 }
 
 [Node("Invariant Culture", "Strings")]
-public sealed class InvariantCultureValueOutputNode : ValueOutputNode<CultureInfo>
+public sealed class InvariantCultureConstantNode : ConstantNode<CultureInfo>
 {
     protected override CultureInfo GetValue() => CultureInfo.InvariantCulture;
 }

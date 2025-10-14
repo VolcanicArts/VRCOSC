@@ -7,21 +7,21 @@ namespace VRCOSC.App.Nodes.Types.Math.Constants;
 
 [Node("E", "Math/Constants")]
 [NodeCollapsed]
-public sealed class EValueOutputNode : ValueOutputNode<float>
+public sealed class EConstantNode : ConstantNode<float>
 {
     protected override float GetValue() => MathF.E;
 }
 
 [Node("Pi", "Math/Constants")]
 [NodeCollapsed]
-public sealed class PiValueOutputNode : ValueOutputNode<float>
+public sealed class PiConstantNode : ConstantNode<float>
 {
     protected override float GetValue() => MathF.PI;
 }
 
 [Node("Tau", "Math/Constants")]
 [NodeCollapsed]
-public sealed class TauValueOutputNode : ValueOutputNode<float>
+public sealed class TauConstantNode : ConstantNode<float>
 {
     protected override float GetValue() => MathF.Tau;
 }
