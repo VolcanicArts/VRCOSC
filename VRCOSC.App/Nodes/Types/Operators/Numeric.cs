@@ -194,22 +194,3 @@ public sealed class FloatingPointToNumberNode<Tfp, Tn> : Node where Tfp : IFloat
         return Task.CompletedTask;
     }
 }
-
-[Node("Delta", "Operators/Numeric")]
-[NodeCollapsed]
-public sealed class DeltaNode<T> : Node where T : INumber<T>
-{
-    public GlobalStore<T> PrevValue = new();
-
-    public ValueInput<T> Input = new();
-    public ValueOutput<T> Output = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var value = Input.Read(c);
-        var delta = value - PrevValue.Read(c);
-        PrevValue.Write(value, c);
-        Output.Write(delta, c);
-        return Task.CompletedTask;
-    }
-}
