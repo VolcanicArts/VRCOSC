@@ -60,7 +60,7 @@ public sealed class KeybindHoldReleaseNode : Node, IFlowInput
 }
 
 [Node("On Keybind Pressed", "Keybind")]
-public sealed class OnKeybindPressedNode : Node, IUpdateNode
+public sealed class OnKeybindPressedNode : Node, IActiveUpdateNode
 {
     public GlobalStore<bool> Pressed = new();
 

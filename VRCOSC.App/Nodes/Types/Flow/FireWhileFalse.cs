@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Fire While False", "Flow")]
-public sealed class FireWhileFalseNode : Node, IUpdateNode
+public sealed class FireWhileFalseNode : Node, IActiveUpdateNode
 {
     private readonly GlobalStore<DateTime> lastUpdate = new();
 

@@ -343,6 +343,7 @@ public class NodeGraph : IVRCClientEventHandler
     private CancellationTokenSource? updateTokenSource;
 
     private IEnumerable<Node> updateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IUpdateNode)));
+    private IEnumerable<Node> activeUpdateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IActiveUpdateNode)));
 
     private void startUpdate()
     {
@@ -354,15 +355,24 @@ public class NodeGraph : IVRCClientEventHandler
             {
                 while (!updateTokenSource.IsCancellationRequested)
                 {
-                    foreach (var node in updateNodes)
+                    foreach (var node in activeUpdateNodes)
                     {
                         var c = new PulseContext(this);
-                        var hasProcessed = await processNode(node, c, () => ((IUpdateNode)node).OnUpdate(c));
+                        var hasProcessed = await processNode(node, c, () => ((IActiveUpdateNode)node).OnUpdate(c));
 
                         if (!hasProcessed) continue;
 
-                        if (!node.Metadata.IsFlowOutput)
+                        if (!node.Metadata.IsFlowOutput && node.Metadata.IsValueOutput)
                             await TriggerTree(node, c);
+                    }
+
+                    foreach (var node in updateNodes)
+                    {
+                        var c = new PulseContext(this);
+                        c.Push(node);
+                        // Not needed but just in case a write happens so errors don't throw
+                        c.CreateMemory(node);
+                        ((IUpdateNode)node).OnUpdate(c);
                     }
 
                     await Task.Delay(TimeSpan.FromSeconds(1d / 100d));

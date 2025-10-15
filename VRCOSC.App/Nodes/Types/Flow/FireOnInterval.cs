@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Fire On Interval", "Flow")]
-public sealed class FireOnIntervalNode : Node, IUpdateNode
+public sealed class FireOnIntervalNode : Node, IActiveUpdateNode
 {
     private readonly GlobalStore<DateTime> lastUpdate = new();
 

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Math.Interpolation;
 
 [Node("Damp Continuously", "Math/Interpolation")]
-public sealed class DampContinuouslyNode<T> : Node, IUpdateNode where T : IFloatingPointIeee754<T>
+public sealed class DampContinuouslyNode<T> : Node, IActiveUpdateNode where T : IFloatingPointIeee754<T>
 {
     public GlobalStore<T> Current = new();
 

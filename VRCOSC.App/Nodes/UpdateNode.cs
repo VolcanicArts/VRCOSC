@@ -6,12 +6,24 @@ using VRCOSC.App.Nodes.Types;
 
 namespace VRCOSC.App.Nodes;
 
+/// <summary>
+/// A passively updating node that can only read and write from stores in <see cref="OnUpdate"/>
+/// </summary>
 public interface IUpdateNode
+{
+    public void OnUpdate(PulseContext c);
+}
+
+/// <summary>
+/// An actively updating node that can read inputs/stores and write outputs/stores in <see cref="OnUpdate"/>.
+/// If <see cref="OnUpdate"/> returns true it will process and notify nodes down flow of the <see cref="ValueOutput{T}"/> changes, otherwise it will not process
+/// </summary>
+public interface IActiveUpdateNode
 {
     public bool OnUpdate(PulseContext c);
 }
 
-public abstract class UpdateNode<T> : Node, IUpdateNode
+public abstract class UpdateNode<T> : Node, IActiveUpdateNode
 {
     private readonly GlobalStore<T> prevValue = new();
 
@@ -28,7 +40,7 @@ public abstract class UpdateNode<T> : Node, IUpdateNode
     protected abstract T GetValue(PulseContext c);
 }
 
-public abstract class UpdateNode<T1, T2> : Node, IUpdateNode
+public abstract class UpdateNode<T1, T2> : Node, IActiveUpdateNode
 {
     private readonly GlobalStore<T1> prevValue1 = new();
     private readonly GlobalStore<T2> prevValue2 = new();
@@ -51,7 +63,7 @@ public abstract class UpdateNode<T1, T2> : Node, IUpdateNode
     protected abstract (T1, T2) GetValues(PulseContext c);
 }
 
-public abstract class UpdateNode<T1, T2, T3> : Node, IUpdateNode
+public abstract class UpdateNode<T1, T2, T3> : Node, IActiveUpdateNode
 {
     private readonly GlobalStore<T1> prevValue1 = new();
     private readonly GlobalStore<T2> prevValue2 = new();
@@ -77,7 +89,7 @@ public abstract class UpdateNode<T1, T2, T3> : Node, IUpdateNode
     protected abstract (T1, T2, T3) GetValues(PulseContext c);
 }
 
-public abstract class UpdateNode<T1, T2, T3, T4> : Node, IUpdateNode
+public abstract class UpdateNode<T1, T2, T3, T4> : Node, IActiveUpdateNode
 {
     private readonly GlobalStore<T1> prevValue1 = new();
     private readonly GlobalStore<T2> prevValue2 = new();
@@ -106,7 +118,7 @@ public abstract class UpdateNode<T1, T2, T3, T4> : Node, IUpdateNode
     protected abstract (T1, T2, T3, T4) GetValues(PulseContext c);
 }
 
-public abstract class UpdateNode<T1, T2, T3, T4, T5> : Node, IUpdateNode
+public abstract class UpdateNode<T1, T2, T3, T4, T5> : Node, IActiveUpdateNode
 {
     private readonly GlobalStore<T1> prevValue1 = new();
     private readonly GlobalStore<T2> prevValue2 = new();
@@ -138,7 +150,7 @@ public abstract class UpdateNode<T1, T2, T3, T4, T5> : Node, IUpdateNode
     protected abstract (T1, T2, T3, T4, T5) GetValues(PulseContext c);
 }
 
-public abstract class UpdateNode<T1, T2, T3, T4, T5, T6> : Node, IUpdateNode
+public abstract class UpdateNode<T1, T2, T3, T4, T5, T6> : Node, IActiveUpdateNode
 {
     private readonly GlobalStore<T1> prevValue1 = new();
     private readonly GlobalStore<T2> prevValue2 = new();
@@ -173,7 +185,7 @@ public abstract class UpdateNode<T1, T2, T3, T4, T5, T6> : Node, IUpdateNode
     protected abstract (T1, T2, T3, T4, T5, T6) GetValues(PulseContext c);
 }
 
-public abstract class UpdateNode<T1, T2, T3, T4, T5, T6, T7> : Node, IUpdateNode
+public abstract class UpdateNode<T1, T2, T3, T4, T5, T6, T7> : Node, IActiveUpdateNode
 {
     private readonly GlobalStore<T1> prevValue1 = new();
     private readonly GlobalStore<T2> prevValue2 = new();
@@ -211,7 +223,7 @@ public abstract class UpdateNode<T1, T2, T3, T4, T5, T6, T7> : Node, IUpdateNode
     protected abstract (T1, T2, T3, T4, T5, T6, T7) GetValues(PulseContext c);
 }
 
-public abstract class UpdateNode<T1, T2, T3, T4, T5, T6, T7, T8> : Node, IUpdateNode
+public abstract class UpdateNode<T1, T2, T3, T4, T5, T6, T7, T8> : Node, IActiveUpdateNode
 {
     private readonly GlobalStore<T1> prevValue1 = new();
     private readonly GlobalStore<T2> prevValue2 = new();
