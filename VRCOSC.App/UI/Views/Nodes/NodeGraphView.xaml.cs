@@ -117,9 +117,30 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
     private void OnKeyDown(object sender, KeyEventArgs e)
     {
+        if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) && e.Key == Key.C)
+        {
+            executeCopy();
+            e.Handled = true;
+            return;
+        }
+
+        if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) && e.Key == Key.V)
+        {
+            executePaste();
+            e.Handled = true;
+            return;
+        }
+
         if (e.Key == Key.Space)
         {
             resetCanvasPosition();
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.Delete && selection is not null)
+        {
+            deleteSelection();
         }
     }
 
@@ -773,6 +794,36 @@ public partial class NodeGraphView : INotifyPropertyChanged
         updateSelectionDrag();
     }
 
+    private void executeCopy()
+    {
+        if (selection is null) return;
+
+        var position = (TranslateTransform)SelectionVisual.RenderTransform;
+
+        copyPasteHolder = new NodePreset
+        {
+            Nodes = selection.Items.OfType<NodeGraphItem>().Select(nodeGraphItem => new SerialisableNode(nodeGraphItem.Node)).ToList(),
+            Connections = selection.Connections.Select(connection => new SerialisableConnection(connection)).ToList(),
+            Groups = Graph.Groups.Values.Where(g => g.Nodes.All(nodeId => selection.Items.OfType<NodeGraphItem>().Select(item => item.Node.Id).Contains(nodeId))).Select(group => new SerialisableNodeGroup(group)).ToList()
+        };
+
+        foreach (var node in copyPasteHolder.Nodes)
+        {
+            node.Position = new Vector2(node.Position.X - (float)position.X, node.Position.Y - (float)position.Y);
+        }
+    }
+
+    private async void executePaste()
+    {
+        if (copyPasteHolder is null) return;
+
+        var graphTransform = getGraphTransform();
+        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
+        var newNodes = copyPasteHolder.SpawnTo(Graph, offset);
+        await Graph.MarkDirtyAsync();
+        shrinkWrapSelection(newNodes);
+    }
+
     private void updateGraphDrag()
     {
         if (graphDrag is null) return;
@@ -1266,7 +1317,12 @@ public partial class NodeGraphView : INotifyPropertyChanged
         deselectGraphItems();
     }
 
-    private async void SelectionContextMenu_DeleteAllClick(object sender, RoutedEventArgs e)
+    private void SelectionContextMenu_DeleteAllClick(object sender, RoutedEventArgs e)
+    {
+        deleteSelection();
+    }
+
+    private async void deleteSelection()
     {
         Debug.Assert(selection is not null);
 
@@ -1762,52 +1818,6 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         Graph.DeleteVariable(graphVariable);
         Graph.MarkDirty();
-    }
-
-    private void OnCopyCanExecute(object sender, CanExecuteRoutedEventArgs e)
-    {
-        e.CanExecute = selection is not null;
-        e.Handled = true;
-    }
-
-    private void OnCopyExecuted(object sender, ExecutedRoutedEventArgs e)
-    {
-        Debug.Assert(selection is not null);
-
-        var position = (TranslateTransform)SelectionVisual.RenderTransform;
-
-        copyPasteHolder = new NodePreset
-        {
-            Nodes = selection.Items.OfType<NodeGraphItem>().Select(nodeGraphItem => new SerialisableNode(nodeGraphItem.Node)).ToList(),
-            Connections = selection.Connections.Select(connection => new SerialisableConnection(connection)).ToList(),
-            Groups = Graph.Groups.Values.Where(g => g.Nodes.All(nodeId => selection.Items.OfType<NodeGraphItem>().Select(item => item.Node.Id).Contains(nodeId))).Select(group => new SerialisableNodeGroup(group)).ToList()
-        };
-
-        foreach (var node in copyPasteHolder.Nodes)
-        {
-            node.Position = new Vector2(node.Position.X - (float)position.X, node.Position.Y - (float)position.Y);
-        }
-
-        e.Handled = true;
-    }
-
-    private void OnPasteCanExecute(object sender, CanExecuteRoutedEventArgs e)
-    {
-        e.CanExecute = copyPasteHolder is not null;
-        e.Handled = true;
-    }
-
-    private async void OnPasteExecuted(object sender, ExecutedRoutedEventArgs e)
-    {
-        Debug.Assert(copyPasteHolder is not null);
-
-        var graphTransform = getGraphTransform();
-        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
-        var newNodes = copyPasteHolder.SpawnTo(Graph, offset);
-        await Graph.MarkDirtyAsync();
-        shrinkWrapSelection(newNodes);
-
-        e.Handled = true;
     }
 }
 
