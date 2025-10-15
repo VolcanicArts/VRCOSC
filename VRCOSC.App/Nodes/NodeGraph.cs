@@ -73,7 +73,7 @@ public class NodeGraph : IVRCClientEventHandler
     {
         running = true;
         await triggerOnStartNodes();
-        await walkForwardAllValueNodes();
+        await processAllTriggerNodes();
         startUpdate();
         VRChatLogReader.Register(this);
     }
@@ -323,9 +323,9 @@ public class NodeGraph : IVRCClientEventHandler
         Serialise();
     }
 
-    private async Task walkForwardAllValueNodes()
+    private async Task processAllTriggerNodes()
     {
-        foreach (var node in Nodes.Values.Where(node => !node.Metadata.IsFlow && !node.Metadata.IsValueInput && node.Metadata.IsValueOutput))
+        foreach (var node in Nodes.Values.Where(node => triggerCriteria(node) && node.Metadata.Inputs.Any(input => input.IsReactive)))
         {
             await TriggerTree(node);
         }
