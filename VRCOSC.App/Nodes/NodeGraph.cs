@@ -636,7 +636,6 @@ public class NodeGraph : IVRCClientEventHandler
     {
         if (!running) return;
 
-        // display node, drive node, etc...
         if (triggerCriteria(sourceNode))
         {
             await startFlow(sourceNode, baseContext);
@@ -651,27 +650,31 @@ public class NodeGraph : IVRCClientEventHandler
 
         for (var i = 0; i < sourceNode.VirtualValueOutputCount(); i++)
         {
-            await walkForward(pathList, currPath, sourceNode, i, c);
+            await walkForward(pathList, currPath, sourceNode, i);
+        }
+
+        // we want to process every non-trigger node before processing the trigger nodes so that
+        // every non-trigger node in the tree only runs once, even if non-trigger node isn't part
+        // of the current path but will be down one of the trigger node's flows
+
+        foreach (var path in pathList)
+        {
+            // traverse backwards as ToArray on a stack reverses the order
+            for (var i = path.Length - 1; i > 0; i--)
+            {
+                var node = path[i];
+                await processNode(node, c);
+            }
         }
 
         foreach (var path in pathList)
         {
-            for (var i = path.Length - 1; i >= 0; i--)
-            {
-                var node = path[i];
-
-                if (i == 0)
-                {
-                    await startFlow(node, c);
-                    continue;
-                }
-
-                await processNode(node, c);
-            }
+            var node = path.First();
+            await startFlow(node, c);
         }
     }
 
-    private async Task walkForward(List<Node[]> nodeList, Stack<Node> currPath, Node sourceNode, int outputValueSlot, PulseContext c)
+    private async Task walkForward(List<Node[]> nodeList, Stack<Node> currPath, Node sourceNode, int outputValueSlot)
     {
         var connections = Connections.Values.Where(con => con.ConnectionType == ConnectionType.Value && con.OutputNodeId == sourceNode.Id && con.OutputSlot == outputValueSlot);
 
@@ -695,7 +698,7 @@ public class NodeGraph : IVRCClientEventHandler
 
             for (var i = 0; i < inputNode.VirtualValueOutputCount(); i++)
             {
-                await walkForward(nodeList, currPath, inputNode, i, c);
+                await walkForward(nodeList, currPath, inputNode, i);
             }
 
             currPath.Pop();
