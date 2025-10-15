@@ -377,6 +377,7 @@ public abstract class Module
     public void Log(string message)
     {
         Logger.Log($"[{Title}]: {message}", LoggingTarget.Terminal);
+        LogDebug(message);
     }
 
     /// <summary>
