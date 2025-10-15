@@ -59,6 +59,7 @@ internal class AppManager
     public readonly Storage Storage = new($"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/{APP_NAME}");
 
     public Observable<AppManagerState> State { get; } = new(AppManagerState.Stopped);
+    public Observable<DateTime> LastStartedTime { get; } = new();
     public Observable<Theme> ProxyTheme { get; } = new(Theme.Dark);
 
     public ConnectionManager ConnectionManager = null!;
@@ -490,6 +491,7 @@ internal class AppManager
         }
 
         State.Value = AppManagerState.Started;
+        LastStartedTime.Value = DateTime.Now;
 
         sendMetadataParameters();
         sendControlParameters();
