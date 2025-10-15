@@ -1806,6 +1806,8 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var newNodes = copyPasteHolder.SpawnTo(Graph, offset);
         await Graph.MarkDirtyAsync();
         shrinkWrapSelection(newNodes);
+
+        e.Handled = true;
     }
 }
 

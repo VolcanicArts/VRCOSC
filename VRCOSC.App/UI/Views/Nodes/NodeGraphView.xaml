@@ -22,8 +22,10 @@
     </UserControl.CommandBindings>
     <UserControl.InputBindings>
         <KeyBinding Command="ApplicationCommands.Copy"
+                    CommandTarget="{Binding ElementName=OuterContainer}"
                     Modifiers="Control" Key="C"/>
         <KeyBinding Command="ApplicationCommands.Paste"
+                    CommandTarget="{Binding ElementName=OuterContainer}"
                     Modifiers="Control" Key="V"/>
     </UserControl.InputBindings>
     <UserControl.Resources>
