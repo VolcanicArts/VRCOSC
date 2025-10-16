@@ -141,6 +141,8 @@ public partial class NodeGraphView : INotifyPropertyChanged
         if (e.Key == Key.Delete && selection is not null)
         {
             deleteSelection();
+            e.Handled = true;
+            return;
         }
     }
 
