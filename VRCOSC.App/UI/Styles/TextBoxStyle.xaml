@@ -5,5 +5,7 @@
         <Setter Property="Foreground" Value="{DynamicResource CForeground1}" />
         <Setter Property="CaretBrush" Value="{DynamicResource CForeground3}" />
         <Setter Property="SelectionBrush" Value="{DynamicResource CForeground2}" />
+        <Setter Property="InputMethod.IsInputMethodEnabled" Value="False"/>
+        <Setter Property="InputMethod.IsInputMethodSuspended" Value="True"/>
     </Style>
 </ResourceDictionary>

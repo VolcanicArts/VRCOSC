@@ -17,6 +17,14 @@
                 <ResourceDictionary Source="UI/Styles/KeybindPickerStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/VRCOSCSliderStyle.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="PasswordBox" BasedOn="{StaticResource {x:Type PasswordBox}}">
+                <Setter Property="InputMethod.IsInputMethodEnabled" Value="False"/>
+                <Setter Property="InputMethod.IsInputMethodSuspended" Value="True"/>
+            </Style>
+            <Style TargetType="RichTextBox" BasedOn="{StaticResource {x:Type RichTextBox}}">
+                <Setter Property="InputMethod.IsInputMethodEnabled" Value="False"/>
+                <Setter Property="InputMethod.IsInputMethodSuspended" Value="True"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
