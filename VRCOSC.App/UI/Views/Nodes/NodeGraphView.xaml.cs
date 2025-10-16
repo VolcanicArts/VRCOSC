@@ -112,7 +112,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         presetCreatorWindowManager = new WindowManager(this);
         variableCreatorWindowManager = new WindowManager(this);
 
-        Task.Run(Graph.MarkDirty);
+        Task.Run(Graph.MarkDirtyAsync);
     }
 
     private void OnKeyDown(object sender, KeyEventArgs e)
