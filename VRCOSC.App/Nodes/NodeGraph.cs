@@ -677,7 +677,7 @@ public class NodeGraph : IVRCClientEventHandler
             }
         }
 
-        foreach (var path in pathList)
+        foreach (var path in pathList.DistinctBy(path => path.First().Id))
         {
             var node = path.First();
             await startFlow(node, c);
