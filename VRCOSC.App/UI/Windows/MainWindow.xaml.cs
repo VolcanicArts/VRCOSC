@@ -120,6 +120,12 @@ public partial class MainWindow
             return;
         }
 
+        foreach (Window window in Application.Current.Windows)
+        {
+            if (window != this)
+                window.Close();
+        }
+
         trayIcon?.Dispose();
     }
 
