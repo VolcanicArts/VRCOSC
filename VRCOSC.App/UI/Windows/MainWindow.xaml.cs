@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Threading;
 using Semver;
 using VRCOSC.App.Actions;
 using VRCOSC.App.ChatBox;
@@ -366,7 +367,11 @@ public partial class MainWindow
         var contextMenu = new ContextMenuStrip();
         contextMenu.Items.Add(AppManager.APP_NAME, null, (_, _) => transitionTray(false));
         contextMenu.Items.Add(new ToolStripSeparator());
-        contextMenu.Items.Add("Exit", null, (_, _) => Dispatcher.Invoke(() => Application.Current.Shutdown()));
+
+        contextMenu.Items.Add("Exit", null, (_, _) => Dispatcher.BeginInvoke(
+            DispatcherPriority.Background,
+            new Action(() => Application.Current.Shutdown())
+        ));
 
         trayIcon.ContextMenuStrip = contextMenu;
     }
