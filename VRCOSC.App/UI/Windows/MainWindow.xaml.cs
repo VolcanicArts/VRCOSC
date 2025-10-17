@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Threading;
+using CommandLine;
 using Semver;
 using VRCOSC.App.Actions;
 using VRCOSC.App.ChatBox;
@@ -65,8 +66,26 @@ public partial class MainWindow
     public Observable<bool> ShowAppDebug { get; } = new();
     public Observable<bool> ShowRouter { get; } = new();
 
-    public MainWindow()
+    public LaunchOptions? LaunchOptions { get; }
+
+    public MainWindow(string[] args)
     {
+        var parserResult = Parser.Default.ParseArguments<LaunchOptions>(args);
+
+        if (parserResult.Tag == ParserResultType.NotParsed)
+        {
+            Logger.Log("Launch options failed to parse:");
+
+            foreach (var parserResultError in parserResult.Errors)
+            {
+                Logger.Log(parserResultError.Tag.ToString());
+            }
+        }
+        else
+        {
+            LaunchOptions = parserResult.Value;
+        }
+
         InitializeComponent();
         DataContext = this;
         SourceInitialized += OnSourceInitialized;

@@ -11,12 +11,12 @@ namespace VRCOSC;
 public static class Program
 {
     [STAThread]
-    public static void Main()
+    public static void Main(string[] args)
     {
         VelopackApp.Build().Run();
 
         var app = new MainApp();
-        var mainWindow = new MainWindow();
+        var mainWindow = new MainWindow(args);
         app.Run(mainWindow);
     }
 }

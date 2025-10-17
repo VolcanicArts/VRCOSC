@@ -9,6 +9,7 @@ using System.Runtime.CompilerServices;
 using VRCOSC.App.Profiles.Serialisation;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
+using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Profiles;
@@ -57,6 +58,21 @@ public class ProfileManager : INotifyPropertyChanged
         DefaultProfile.Subscribe(newProfile => Logger.Log($"Default profile changed to {newProfile.ID}"));
 
         serialisationManager.Deserialise(false);
+
+        var launchOptionProfileId = MainWindow.GetInstance().LaunchOptions?.Profile;
+
+        if (!string.IsNullOrWhiteSpace(launchOptionProfileId))
+        {
+            Logger.Log($"Launch option profile found. Attempting switch to profile with ID {launchOptionProfileId}");
+
+            var profile = Profiles.SingleOrDefault(p => p.ID.ToString() == launchOptionProfileId);
+
+            if (profile is not null)
+            {
+                Logger.Log("Profile found");
+                ActiveProfile.Value = profile;
+            }
+        }
 
         checkForDefault();
 
