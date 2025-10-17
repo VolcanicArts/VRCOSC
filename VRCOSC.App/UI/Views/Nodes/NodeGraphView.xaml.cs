@@ -1313,7 +1313,6 @@ public partial class NodeGraphView : INotifyPropertyChanged
             if (string.IsNullOrEmpty(presetCreatorWindow.PresetName)) return;
 
             Graph.CreatePreset(presetCreatorWindow.PresetName, selectedNodes, (float)position.X, (float)position.Y);
-            RefreshContextMenu();
         };
 
         presetCreatorWindowManager.TrySpawnChild(presetCreatorWindow);

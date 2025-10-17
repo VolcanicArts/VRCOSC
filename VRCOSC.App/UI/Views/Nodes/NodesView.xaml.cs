@@ -37,6 +37,14 @@ public partial class NodesView
         };
     }
 
+    public void RefreshAllContextMenus()
+    {
+        foreach (var nodeGraphView in viewCache.Values)
+        {
+            nodeGraphView.RefreshContextMenu();
+        }
+    }
+
     private void setActiveTab(bool presetTab)
     {
         if (presetTab)

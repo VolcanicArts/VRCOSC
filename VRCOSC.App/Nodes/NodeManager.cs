@@ -11,6 +11,7 @@ using VRCOSC.App.Modules;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
+using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
@@ -166,6 +167,8 @@ public class NodeManager
             {
             }
         }
+
+        MainWindow.GetInstance().NodesView.RefreshAllContextMenus();
     }
 
     public async Task Start()
