@@ -159,11 +159,13 @@ public class NodeGraph : IVRCClientEventHandler
     public void DeleteNode(Guid nodeId)
     {
         var node = Nodes[nodeId];
+        var nodesToTrigger = new List<Guid>();
 
         foreach (var connection in Connections.Values.Where(connection => connection.OutputNodeId == nodeId || connection.InputNodeId == nodeId).ToList())
         {
             Connections.TryRemove(connection.Id, out _);
             RemovedConnections.Add(connection);
+            nodesToTrigger.Add(connection.InputNodeId);
         }
 
         var group = Groups.Values.SingleOrDefault(group => group.Nodes.Contains(nodeId));
@@ -177,7 +179,12 @@ public class NodeGraph : IVRCClientEventHandler
         Nodes.TryRemove(nodeId, out _);
         RemovedNodes.Add(node);
 
-        // TODO: When a ValueRelayNode is removed, bridge connections
+        foreach (var nodeToTriggerId in nodesToTrigger.Distinct())
+        {
+            if (nodeToTriggerId == nodeId) continue;
+
+            _ = TriggerTree(Nodes[nodeToTriggerId]);
+        }
     }
 
     public void CreateFlowConnection(Guid outputNodeId, int outputFlowSlot, Guid inputNodeId)
