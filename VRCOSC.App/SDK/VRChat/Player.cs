@@ -8,6 +8,9 @@ using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
+// ReSharper disable UnusedMember.Global
+// ReSharper disable MemberCanBePrivate.Global
+
 namespace VRCOSC.App.SDK.VRChat;
 
 public sealed class Player
@@ -191,29 +194,29 @@ public sealed class Player
     internal void ResetAll()
     {
         Viseme = default;
-        Voice = default;
+        Voice = 0;
         GestureTypeLeft = default;
         GestureTypeRight = default;
-        GestureLeftWeight = default;
-        GestureRightWeight = default;
-        AngularY = default;
-        VelocityX = default;
-        VelocityY = default;
-        VelocityZ = default;
-        Upright = default;
-        Grounded = default;
-        Seated = default;
-        AFK = default;
+        GestureLeftWeight = 0;
+        GestureRightWeight = 0;
+        AngularY = 0;
+        VelocityX = 0;
+        VelocityY = 0;
+        VelocityZ = 0;
+        Upright = 0;
+        Grounded = false;
+        Seated = false;
+        AFK = false;
         TrackingType = default;
-        IsVR = default;
-        IsMuted = default;
-        InStation = default;
-        Earmuffs = default;
-        ScaleModified = default;
-        ScaleFactor = default;
-        ScaleFactorInverse = default;
-        EyeHeightAsMeters = default;
-        EyeHeightAsPercent = default;
+        IsVR = false;
+        IsMuted = false;
+        InStation = false;
+        Earmuffs = false;
+        ScaleModified = false;
+        ScaleFactor = 0;
+        ScaleFactorInverse = 0;
+        EyeHeightAsMeters = 0;
+        EyeHeightAsPercent = 0;
 
         if (!hasChanged) return;
 
@@ -224,6 +227,9 @@ public sealed class Player
         StopLookLeft();
         StopLookRight();
         StopRun();
+        MoveHorizontal(0);
+        MoveVertical(0);
+        LookHorizontal(0);
     }
 
     public void MoveForward()
@@ -390,16 +396,19 @@ public sealed class Player
     public void MoveVertical(float value)
     {
         oscClient.Send(actionToAddress(VRChatAxesInput.Vertical), value);
+        hasChanged = true;
     }
 
     public void MoveHorizontal(float value)
     {
         oscClient.Send(actionToAddress(VRChatAxesInput.Horizontal), value);
+        hasChanged = true;
     }
 
     public void LookHorizontal(float value)
     {
         oscClient.Send(actionToAddress(VRChatAxesInput.LookHorizontal), value);
+        hasChanged = true;
     }
 }
 
