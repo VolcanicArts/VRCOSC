@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -18,9 +19,19 @@ public class WindowsMediaProvider
     private List<GlobalSystemMediaTransportControlsSession> cachedSessions = new();
 
     public ObservableCollection<string> Sessions { get; } = new();
-    public Dictionary<string, MediaState> States { get; } = new();
+    public ConcurrentDictionary<string, MediaState> States { get; } = new();
 
-    public MediaState CurrentState => CurrentSession is not null ? States.TryGetValue(CurrentSession.SourceAppUserModelId, out var session) ? session : new MediaState() : new MediaState();
+    public MediaState CurrentState
+    {
+        get
+        {
+            if (CurrentSession is null) return new MediaState();
+            if (States.TryGetValue(CurrentSession.SourceAppUserModelId, out var state)) return state;
+
+            return new MediaState();
+        }
+    }
+
     public GlobalSystemMediaTransportControlsSession? CurrentSession => cachedSessions.FirstOrDefault(session => session.SourceAppUserModelId == (focusedSessionId ?? currentSessionId));
 
     private string? focusedSessionId;
@@ -213,7 +224,13 @@ public class WindowsMediaProvider
         }
 
         Sessions.RemoveIf(session => !cachedSessions.Select(cachedSession => cachedSession.SourceAppUserModelId).Contains(session));
-        States.RemoveIf(pair => !Sessions.Contains(pair.Key));
+
+        var statesToRemove = States.Where(pair => !Sessions.Contains(pair.Key));
+
+        foreach (var pair in statesToRemove)
+        {
+            States.TryRemove(pair.Key, out var _);
+        }
 
         if (focusedSessionId is not null && !Sessions.Contains(focusedSessionId))
         {
