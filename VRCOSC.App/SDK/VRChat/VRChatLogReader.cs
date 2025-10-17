@@ -27,7 +27,7 @@ internal static class VRChatLogReader
     private static readonly Regex instance_joined_regex = new(@"^.+Finished entering world\.$");
     private static readonly Regex user_joined_regex = new(@"^.+OnPlayerJoined .+ \((.+)\)$");
     private static readonly Regex user_left_regex = new(@"^.+OnPlayerLeft .+ \((.+)\)$");
-    private static readonly Regex avatar_prechange_regex = new(@"^.+Initialize Limb Avatar VRCPlayer\[Local\] 1 True 1$");
+    private static readonly Regex avatar_prechange_regex = new(@"^.+Initialize Limb Avatar VRCPlayer\[Local\].+$");
 
     private static readonly List<LogLine> line_buffer = [];
     private static string? logFile;
