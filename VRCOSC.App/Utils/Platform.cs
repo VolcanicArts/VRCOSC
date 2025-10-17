@@ -12,6 +12,7 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Dwm;
 using Windows.Win32.Graphics.Gdi;
+using Windows.Win32.UI.Input.Ime;
 using Windows.Win32.UI.Shell.Common;
 using WinRT.Interop;
 
@@ -66,6 +67,7 @@ public static class Platform
     public static void ApplyDefaultStyling(this Window window)
     {
         setTitleBarColour(new HWND(new WindowInteropHelper(window).Handle));
+        PInvoke.ImmAssociateContext(new HWND(new WindowInteropHelper(window).Handle), HIMC.Null);
     }
 
     private static unsafe void setTitleBarColour(HWND hwnd)

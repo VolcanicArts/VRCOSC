@@ -19,3 +19,7 @@ UnhookWindowsHookEx
 CallNextHookEx
 GetModuleHandle
 KBDLLHOOKSTRUCT
+ImmAssociateContext
+ImmDisableIME
+ImmDisableTextFrameService
+GetCurrentThreadId
