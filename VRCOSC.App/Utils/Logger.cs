@@ -305,7 +305,7 @@ internal class Logger
         var lines = logOutput
                     .Replace(@"\r\n", @"\n")
                     .Split('\n')
-                    .Select(s => $@"{DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)} [{level.ToString().ToLowerInvariant()}]: {s.Trim()}");
+                    .Select(s => $@"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture)} [{level.ToString().ToLowerInvariant()}]: {s.Trim()}");
 
         if (outputToListeners)
         {
