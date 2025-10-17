@@ -11,7 +11,7 @@ public class VRChatClient
 {
     public readonly Player Player;
 
-    private bool lastKnownOpenState;
+    public bool LastKnownOpenState { get; private set; }
 
     internal VRChatClient(VRChatOSCClient oscClient)
     {
@@ -32,13 +32,13 @@ public class VRChatClient
     {
         var newOpenState = Process.GetProcessesByName("vrchat").Any();
 
-        if (newOpenState == lastKnownOpenState)
+        if (newOpenState == LastKnownOpenState)
         {
-            openState = lastKnownOpenState;
+            openState = LastKnownOpenState;
             return false;
         }
 
-        openState = lastKnownOpenState = newOpenState;
+        openState = LastKnownOpenState = newOpenState;
         return true;
     }
 }
