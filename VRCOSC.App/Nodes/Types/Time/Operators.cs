@@ -20,14 +20,21 @@ public sealed class TimeSpanConstructNode : Node
 
     protected override Task Process(PulseContext c)
     {
-        var timeSpan = TimeSpan.Zero;
-        timeSpan += TimeSpan.FromDays(Days.Read(c));
-        timeSpan += TimeSpan.FromHours(Hours.Read(c));
-        timeSpan += TimeSpan.FromMinutes(Minutes.Read(c));
-        timeSpan += TimeSpan.FromSeconds(Seconds.Read(c));
-        timeSpan += TimeSpan.FromMilliseconds(Milliseconds.Read(c));
-        timeSpan += TimeSpan.FromMicroseconds(Microseconds.Read(c));
-        Output.Write(timeSpan, c);
+        try
+        {
+            var timeSpan = TimeSpan.Zero;
+            timeSpan += TimeSpan.FromDays(Days.Read(c));
+            timeSpan += TimeSpan.FromHours(Hours.Read(c));
+            timeSpan += TimeSpan.FromMinutes(Minutes.Read(c));
+            timeSpan += TimeSpan.FromSeconds(Seconds.Read(c));
+            timeSpan += TimeSpan.FromMilliseconds(Milliseconds.Read(c));
+            timeSpan += TimeSpan.FromMicroseconds(Microseconds.Read(c));
+            Output.Write(timeSpan, c);
+        }
+        catch
+        {
+        }
+
         return Task.CompletedTask;
     }
 }
@@ -104,14 +111,21 @@ public sealed class DateTimeConstructNode : Node
 
     protected override Task Process(PulseContext c)
     {
-        var dateTime = DateTime.UnixEpoch;
-        dateTime += TimeSpan.FromDays(Days.Read(c));
-        dateTime += TimeSpan.FromHours(Hours.Read(c));
-        dateTime += TimeSpan.FromMinutes(Minutes.Read(c));
-        dateTime += TimeSpan.FromSeconds(Seconds.Read(c));
-        dateTime += TimeSpan.FromMilliseconds(Milliseconds.Read(c));
-        dateTime += TimeSpan.FromMicroseconds(Microseconds.Read(c));
-        Output.Write(dateTime, c);
+        try
+        {
+            var dateTime = DateTime.UnixEpoch;
+            dateTime += TimeSpan.FromDays(Days.Read(c));
+            dateTime += TimeSpan.FromHours(Hours.Read(c));
+            dateTime += TimeSpan.FromMinutes(Minutes.Read(c));
+            dateTime += TimeSpan.FromSeconds(Seconds.Read(c));
+            dateTime += TimeSpan.FromMilliseconds(Milliseconds.Read(c));
+            dateTime += TimeSpan.FromMicroseconds(Microseconds.Read(c));
+            Output.Write(dateTime, c);
+        }
+        catch
+        {
+        }
+
         return Task.CompletedTask;
     }
 }
@@ -146,6 +160,116 @@ public sealed class DateTimeExtractNode : Node
         Millisecond.Write(dateTime.Millisecond, c);
         Microsecond.Write(dateTime.Microsecond, c);
         Nanosecond.Write(dateTime.Nanosecond, c);
+
+        return Task.CompletedTask;
+    }
+}
+
+[Node("DateTime Difference", "Date & Time")]
+public sealed class DateTimeDifferenceNode : Node
+{
+    public ValueInput<DateTime> InputA = new("A");
+    public ValueInput<DateTime> InputB = new("B");
+
+    public ValueOutput<TimeSpan> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        try
+        {
+            Output.Write(InputA.Read(c) - InputB.Read(c), c);
+        }
+        catch
+        {
+        }
+
+        return Task.CompletedTask;
+    }
+}
+
+[Node("DateTime Add", "Date & Time")]
+public sealed class DateTimeAddNode : Node
+{
+    public ValueInput<DateTime> DateTime = new();
+    public ValueInput<TimeSpan> TimeSpan = new();
+
+    public ValueOutput<DateTime> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        try
+        {
+            Output.Write(DateTime.Read(c).Add(TimeSpan.Read(c)), c);
+        }
+        catch
+        {
+        }
+
+        return Task.CompletedTask;
+    }
+}
+
+[Node("DateTime Subtract", "Date & Time")]
+public sealed class DateTimeSubtractNode : Node
+{
+    public ValueInput<DateTime> DateTime = new();
+    public ValueInput<TimeSpan> TimeSpan = new();
+
+    public ValueOutput<DateTime> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        try
+        {
+            Output.Write(DateTime.Read(c).Subtract(TimeSpan.Read(c)), c);
+        }
+        catch
+        {
+        }
+
+        return Task.CompletedTask;
+    }
+}
+
+[Node("TimeSpan Add", "Date & Time")]
+public sealed class TimeSpanAddNode : Node
+{
+    public ValueInput<TimeSpan> Source = new();
+    public ValueInput<TimeSpan> Value = new();
+
+    public ValueOutput<TimeSpan> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        try
+        {
+            Output.Write(Source.Read(c).Add(Value.Read(c)), c);
+        }
+        catch
+        {
+        }
+
+        return Task.CompletedTask;
+    }
+}
+
+[Node("TimeSpan Subtract", "Date & Time")]
+public sealed class TimeSpanSubtractNode : Node
+{
+    public ValueInput<TimeSpan> Source = new();
+    public ValueInput<TimeSpan> Value = new();
+
+    public ValueOutput<TimeSpan> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        try
+        {
+            Output.Write(Source.Read(c).Subtract(Value.Read(c)), c);
+        }
+        catch
+        {
+        }
 
         return Task.CompletedTask;
     }

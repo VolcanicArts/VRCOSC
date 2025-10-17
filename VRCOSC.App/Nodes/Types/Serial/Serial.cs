@@ -13,22 +13,22 @@ public sealed class SerialWriteNode : Node, IFlowInput
     public FlowContinuation OnSuccess = new("On Success");
     public FlowContinuation OnFail = new("On Fail");
 
-    public ValueInput<string> PortName = new();
-    public ValueInput<int> BaudRate = new();
+    public ValueInput<string> PortName = new("Port Name");
+    public ValueInput<int> BaudRate = new("Baud Rate");
     public ValueInput<Parity> Parity = new();
-    public ValueInput<int> DataBits = new();
-    public ValueInput<StopBits> StopBits = new();
+    public ValueInput<int> DataBits = new("Data Bits");
+    public ValueInput<StopBits> StopBits = new("Stop Bits");
     public ValueInput<string> Command = new();
 
     protected override async Task Process(PulseContext c)
     {
         var portName = PortName.Read(c);
-        if (string.IsNullOrEmpty(portName)) return;
+        if (string.IsNullOrWhiteSpace(portName)) return;
 
         using SerialPort serial = new SerialPort(portName, BaudRate.Read(c), Parity.Read(c), DataBits.Read(c), StopBits.Read(c));
         var command = Command.Read(c);
 
-        if (string.IsNullOrEmpty(command))
+        if (string.IsNullOrWhiteSpace(command))
         {
             await OnFail.Execute(c);
             return;

@@ -8,7 +8,7 @@ using VRCOSC.App.ChatBox;
 namespace VRCOSC.App.Nodes.Types.ChatBox;
 
 [Node("Override ChatBox Text", "ChatBox")]
-public sealed class OverrideChatBoxTextNode : Node, IFlowInput
+public sealed class ChatBoxOverrideTextNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
 
@@ -31,6 +31,44 @@ public sealed class OverrideChatBoxTextNode : Node, IFlowInput
         ChatBoxManager.GetInstance().PulseText = input.Replace(Environment.NewLine, "\n");
         ChatBoxManager.GetInstance().PulseMinimalBackground = minimalBackground;
 
+        await Next.Execute(c);
+    }
+}
+
+[Node("Is ChatBox Layer Enabled", "ChatBox")]
+public sealed class ChatBoxIsLayerEnabledNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<int> Layer = new();
+
+    public ValueOutput<bool> IsEnabled = new("Is Enabled");
+
+    protected override async Task Process(PulseContext c)
+    {
+        var layer = Layer.Read(c);
+        layer = int.Clamp(layer, 0, ChatBoxManager.GetInstance().Timeline.LayerCount - 1);
+
+        var isEnabled = ChatBoxManager.GetInstance().Timeline.LayerEnabled[layer];
+        IsEnabled.Write(isEnabled, c);
+        await Next.Execute(c);
+    }
+}
+
+[Node("Set ChatBox Layer Enabled", "ChatBox")]
+public sealed class ChatBoxSetLayerEnabledNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<int> Layer = new();
+    public ValueInput<bool> Enabled = new("Enabled");
+
+    protected override async Task Process(PulseContext c)
+    {
+        var layer = Layer.Read(c);
+        layer = int.Clamp(layer, 0, ChatBoxManager.GetInstance().Timeline.LayerCount - 1);
+
+        ChatBoxManager.GetInstance().Timeline.LayerEnabled[layer] = Enabled.Read(c);
         await Next.Execute(c);
     }
 }
