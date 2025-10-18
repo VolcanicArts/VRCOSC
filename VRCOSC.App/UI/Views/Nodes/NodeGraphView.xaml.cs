@@ -1760,66 +1760,91 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
     private void CreateVariableSource_OnClick(object sender, RoutedEventArgs e)
     {
+        e.Handled = true;
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
 
-        var graphTransform = getGraphTransform();
-        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
+        Dispatcher.BeginInvoke(() =>
+        {
+            var graphTransform = getGraphTransform();
+            var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
 
-        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(VariableSourceNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
-        variableReference.VariableId = graphVariable.GetId();
-        Graph.MarkDirty();
+            var variableReference = (IHasVariableReference)Graph.AddNode(typeof(VariableSourceNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
+            variableReference.VariableId = graphVariable.GetId();
+            Graph.MarkDirty();
+        }, DispatcherPriority.ContextIdle);
     }
 
     private void CreateVariableReference_OnClick(object sender, RoutedEventArgs e)
     {
+        e.Handled = true;
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
 
-        var graphTransform = getGraphTransform();
-        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
+        Dispatcher.BeginInvoke(() =>
+        {
+            var graphTransform = getGraphTransform();
+            var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
 
-        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(VariableReferenceNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
-        variableReference.VariableId = graphVariable.GetId();
-        Graph.MarkDirty();
+            var variableReference = (IHasVariableReference)Graph.AddNode(typeof(VariableReferenceNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
+            variableReference.VariableId = graphVariable.GetId();
+            Graph.MarkDirty();
+        }, DispatcherPriority.ContextIdle);
     }
 
     private void CreateVariableWrite_OnClick(object sender, RoutedEventArgs e)
     {
+        e.Handled = true;
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
 
-        var graphTransform = getGraphTransform();
-        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
+        Dispatcher.BeginInvoke(() =>
+        {
+            var graphTransform = getGraphTransform();
+            var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
 
-        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(DirectWriteVariableNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
-        variableReference.VariableId = graphVariable.GetId();
-        Graph.MarkDirty();
+            var variableReference = (IHasVariableReference)Graph.AddNode(typeof(DirectWriteVariableNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
+            variableReference.VariableId = graphVariable.GetId();
+            Graph.MarkDirty();
+        }, DispatcherPriority.ContextIdle);
     }
 
     private void CreateVariableDrive_OnClick(object sender, RoutedEventArgs e)
     {
+        e.Handled = true;
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
 
-        var graphTransform = getGraphTransform();
-        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
+        Dispatcher.BeginInvoke(() =>
+        {
+            var graphTransform = getGraphTransform();
+            var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
 
-        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(DriveVariableNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
-        variableReference.VariableId = graphVariable.GetId();
-        Graph.MarkDirty();
+            var variableReference = (IHasVariableReference)Graph.AddNode(typeof(DriveVariableNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
+            variableReference.VariableId = graphVariable.GetId();
+            Graph.MarkDirty();
+        }, DispatcherPriority.ContextIdle);
     }
 
     private void DeleteVariable_OnClick(object sender, RoutedEventArgs e)
     {
+        e.Handled = true;
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
 
-        var result = MessageBox.Show("Are you sure you want to delete this variable?\n\nThis will remove all nodes that reference this variable", "Variable Delete Warning", MessageBoxButton.YesNo);
-        if (result != MessageBoxResult.Yes) return;
+        Dispatcher.BeginInvoke(() =>
+        {
+            var result = MessageBox.Show(Window.GetWindow(item)!,
+                "Are you sure you want to delete this variable?\n\nThis will remove all nodes that reference this variable",
+                "Variable Delete Warning",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
 
-        Graph.DeleteVariable(graphVariable);
-        Graph.MarkDirty();
+            if (result != MessageBoxResult.Yes) return;
+
+            Graph.DeleteVariable(graphVariable);
+            Graph.MarkDirty();
+        }, DispatcherPriority.ContextIdle);
     }
 }
 
