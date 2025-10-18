@@ -65,7 +65,16 @@
 						}
 					},
 					"mode": "joystick",
-					"path": "/user/hand/left/input/thumbstick"
+					"path": "/user/hand/left/input/joystick"
+				},
+				{
+					"inputs": {
+						"touch": {
+							"output": "/actions/main/in/left_stick_touch"
+						}
+					},
+					"mode": "joystick",
+					"path": "/user/hand/left/input/joystick"
 				},
 				{
 					"inputs": {
@@ -146,7 +155,16 @@
 						}
 					},
 					"mode": "joystick",
-					"path": "/user/hand/right/input/thumbstick"
+					"path": "/user/hand/right/input/joystick"
+				},
+				{
+					"inputs": {
+						"touch": {
+							"output": "/actions/main/in/right_stick_touch"
+						}
+					},
+					"mode": "joystick",
+					"path": "/user/hand/right/input/joystick"
 				},
 				{
 					"inputs": {

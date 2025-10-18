@@ -1,0 +1,160 @@
+{
+	"alias_info": {},
+	"app_key": "volcanicarts.vrcosc",
+	"bindings": {
+		"/actions/haptic": {
+			"haptics": [
+				{
+					"output": "/actions/haptic/out/lefthand",
+					"path": "/user/hand/left/output/haptic"
+				},
+				{
+					"output": "/actions/haptic/out/righthand",
+					"path": "/user/hand/right/output/haptic"
+				}
+			]
+		},
+		"/actions/main": {
+			"sources": [
+				{
+					"inputs": {
+						"click": {
+							"output": "/actions/main/in/left_stick_click"
+						},
+						"position": {
+							"output": "/actions/main/in/left_stick_position"
+						},
+						"touch": {
+							"output": "/actions/main/in/left_stick_touch"
+						}
+					},
+					"mode": "joystick",
+					"path": "/user/hand/left/input/joystick"
+				},
+				{
+					"inputs": {
+						"pull": {
+							"output": "/actions/main/in/left_trigger_pull"
+						},
+						"touch": {
+							"output": "/actions/main/in/left_trigger_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/left_trigger_click"
+						}
+					},
+					"mode": "trigger",
+					"path": "/user/hand/left/input/trigger"
+				},
+				{
+					"inputs": {
+						"pull": {
+							"output": "/actions/main/in/left_grip_pull"
+						},
+						"click": {
+							"output": "/actions/main/in/left_grip_click"
+						}
+					},
+					"mode": "trigger",
+					"path": "/user/hand/left/input/grip"
+				},
+				{
+					"inputs": {
+						"touch": {
+							"output": "/actions/main/in/left_primary_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/left_primary_click"
+						}
+					},
+					"mode": "button",
+					"path": "/user/hand/left/input/x"
+				},
+				{
+					"inputs": {
+						"touch": {
+							"output": "/actions/main/in/left_secondary_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/left_secondary_click"
+						}
+					},
+					"mode": "button",
+					"path": "/user/hand/left/input/y"
+				},
+				{
+					"inputs": {
+						"click": {
+							"output": "/actions/main/in/right_stick_click"
+						},
+						"position": {
+							"output": "/actions/main/in/right_stick_position"
+						},
+						"touch": {
+							"output": "/actions/main/in/right_stick_touch"
+						}
+					},
+					"mode": "joystick",
+					"path": "/user/hand/right/input/joystick"
+				},
+				{
+					"inputs": {
+						"pull": {
+							"output": "/actions/main/in/right_trigger_pull"
+						},
+						"touch": {
+							"output": "/actions/main/in/right_trigger_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/right_trigger_click"
+						}
+					},
+					"mode": "trigger",
+					"path": "/user/hand/right/input/trigger"
+				},
+				{
+					"inputs": {
+						"pull": {
+							"output": "/actions/main/in/right_grip_pull"
+						},
+						"click": {
+							"output": "/actions/main/in/right_grip_click"
+						}
+					},
+					"mode": "trigger",
+					"path": "/user/hand/right/input/grip"
+				},
+				{
+					"inputs": {
+						"touch": {
+							"output": "/actions/main/in/right_primary_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/right_primary_click"
+						}
+					},
+					"mode": "button",
+					"path": "/user/hand/right/input/a"
+				},
+				{
+					"inputs": {
+						"touch": {
+							"output": "/actions/main/in/right_secondary_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/right_secondary_click"
+						}
+					},
+					"mode": "button",
+					"path": "/user/hand/right/input/b"
+				}
+			]
+		}
+	},
+	"controller_type": "vive_cosmos_controller",
+	"description": "Vive Cosmos Bindings for VRCOSC",
+	"name": "vrcosc_vive_cosmos_controller",
+	"options": {},
+	"simulated_actions": []
+}
+
