@@ -4,13 +4,6 @@
              xmlns:themes="clr-namespace:VRCOSC.App.UI.Themes">
     <Application.Resources>
         <ResourceDictionary>
-            <Style TargetType="{x:Type UIElement}">
-                <Setter Property="InputMethod.IsInputMethodEnabled" Value="False"/>
-                <Setter Property="InputMethod.IsInputMethodSuspended" Value="True"/>
-                <Setter Property="InputMethod.PreferredImeState" Value="Off"/>
-                <Setter Property="InputMethod.PreferredImeConversionMode" Value="NoConversion"/>
-                <Setter Property="InputMethod.PreferredImeSentenceMode" Value="None"/>
-            </Style>
             <ResourceDictionary.MergedDictionaries>
                 <themes:ThemeResourceDictionary/>
                 <ResourceDictionary Source="UI/Styles/VRCOSCCheckBoxStyle.xaml" />

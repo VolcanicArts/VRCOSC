@@ -1711,29 +1711,33 @@ public partial class NodeGraphView : INotifyPropertyChanged
         }
     }
 
-    private void TextBoxValueOutputOnlyNodeTemplate_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    private async void TextBoxValueOutputOnlyNodeTemplate_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
     {
+        e.Handled = true;
         var textBox = (TextBox)sender;
         var nodeGraphItem = (NodeGraphItem)textBox.Tag;
 
         var type = nodeGraphItem.Node.Metadata.Outputs[0].Type;
 
-        try
+        await Task.Run(() =>
         {
-            var iNumberType = typeof(INumber<>).MakeGenericType(type);
-            if (!iNumberType.IsAssignableFrom(type)) return;
+            try
+            {
+                var iNumberType = typeof(INumber<>).MakeGenericType(type);
+                if (!iNumberType.IsAssignableFrom(type)) return;
 
-            var expression = new Expression(textBox.Text);
-            expression.disableImpliedMultiplicationMode();
-            var result = expression.calculate();
+                var expression = new Expression(textBox.Text);
+                expression.disableImpliedMultiplicationMode();
+                var result = expression.calculate();
 
-            var convertedResult = Convert.ChangeType(result, type);
-            e.Handled = true;
-            textBox.Text = convertedResult.ToString()!;
-        }
-        catch
-        {
-        }
+                var convertedResult = Convert.ChangeType(result, type);
+
+                Dispatcher.Invoke(() => textBox.Text = convertedResult.ToString()!);
+            }
+            catch
+            {
+            }
+        });
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -1764,15 +1768,12 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
 
-        Dispatcher.BeginInvoke(() =>
-        {
-            var graphTransform = getGraphTransform();
-            var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
+        var graphTransform = getGraphTransform();
+        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
 
-            var variableReference = (IHasVariableReference)Graph.AddNode(typeof(VariableSourceNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
-            variableReference.VariableId = graphVariable.GetId();
-            Graph.MarkDirty();
-        }, DispatcherPriority.ContextIdle);
+        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(VariableSourceNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
+        variableReference.VariableId = graphVariable.GetId();
+        Graph.MarkDirty();
     }
 
     private void CreateVariableReference_OnClick(object sender, RoutedEventArgs e)
@@ -1781,15 +1782,12 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
 
-        Dispatcher.BeginInvoke(() =>
-        {
-            var graphTransform = getGraphTransform();
-            var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
+        var graphTransform = getGraphTransform();
+        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
 
-            var variableReference = (IHasVariableReference)Graph.AddNode(typeof(VariableReferenceNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
-            variableReference.VariableId = graphVariable.GetId();
-            Graph.MarkDirty();
-        }, DispatcherPriority.ContextIdle);
+        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(VariableReferenceNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
+        variableReference.VariableId = graphVariable.GetId();
+        Graph.MarkDirty();
     }
 
     private void CreateVariableWrite_OnClick(object sender, RoutedEventArgs e)
@@ -1798,15 +1796,12 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
 
-        Dispatcher.BeginInvoke(() =>
-        {
-            var graphTransform = getGraphTransform();
-            var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
+        var graphTransform = getGraphTransform();
+        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
 
-            var variableReference = (IHasVariableReference)Graph.AddNode(typeof(DirectWriteVariableNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
-            variableReference.VariableId = graphVariable.GetId();
-            Graph.MarkDirty();
-        }, DispatcherPriority.ContextIdle);
+        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(DirectWriteVariableNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
+        variableReference.VariableId = graphVariable.GetId();
+        Graph.MarkDirty();
     }
 
     private void CreateVariableDrive_OnClick(object sender, RoutedEventArgs e)
@@ -1815,15 +1810,12 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
 
-        Dispatcher.BeginInvoke(() =>
-        {
-            var graphTransform = getGraphTransform();
-            var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
+        var graphTransform = getGraphTransform();
+        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
 
-            var variableReference = (IHasVariableReference)Graph.AddNode(typeof(DriveVariableNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
-            variableReference.VariableId = graphVariable.GetId();
-            Graph.MarkDirty();
-        }, DispatcherPriority.ContextIdle);
+        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(DriveVariableNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
+        variableReference.VariableId = graphVariable.GetId();
+        Graph.MarkDirty();
     }
 
     private void DeleteVariable_OnClick(object sender, RoutedEventArgs e)
@@ -1832,19 +1824,16 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
 
-        Dispatcher.BeginInvoke(() =>
-        {
-            var result = MessageBox.Show(Window.GetWindow(item)!,
-                "Are you sure you want to delete this variable?\n\nThis will remove all nodes that reference this variable",
-                "Variable Delete Warning",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
+        var result = MessageBox.Show(Window.GetWindow(item)!,
+            "Are you sure you want to delete this variable?\n\nThis will remove all nodes that reference this variable",
+            "Variable Delete Warning",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
 
-            if (result != MessageBoxResult.Yes) return;
+        if (result != MessageBoxResult.Yes) return;
 
-            Graph.DeleteVariable(graphVariable);
-            Graph.MarkDirty();
-        }, DispatcherPriority.ContextIdle);
+        Graph.DeleteVariable(graphVariable);
+        Graph.MarkDirty();
     }
 }
 
