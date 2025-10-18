@@ -116,7 +116,7 @@ public class SerialisableNode
     public SerialisableNode(Node node)
     {
         Id = node.Id;
-        Type = node.GetType().GetFriendlyName();
+        Type = node.GetType().GetFriendlyName(true);
         Position = new Vector2((float)node.NodePosition.X, (float)node.NodePosition.Y);
 
         if (node.Metadata.Properties.Count != 0)
@@ -220,7 +220,7 @@ public class SerialisableGraphVariable
         Id = variable.GetId();
         Name = variable.GetName();
         Persistent = variable.IsPersistent();
-        Type = variable.GetValueType().GetFriendlyName();
+        Type = variable.GetValueType().GetFriendlyName(true);
 
         if (Persistent)
             Value = variable.GetValue();

@@ -306,27 +306,27 @@ public static class TypeExtensions
     {
         var ctx = new NullabilityInfoContext();
         var nullInfo = ctx.Create(pi);
-        return pi.ParameterType.GetFriendlyName(nullInfo);
+        return pi.ParameterType.GetFriendlyName(false, nullInfo);
     }
 
     public static string GetFriendlyName(this PropertyInfo pi)
     {
         var ctx = new NullabilityInfoContext();
         var nullInfo = ctx.Create(pi);
-        return pi.PropertyType.GetFriendlyName(nullInfo);
+        return pi.PropertyType.GetFriendlyName(false, nullInfo);
     }
 
     /// <summary>
     /// Core formatter: walks the Type (and its nested generic args), consulting the parallel nullInfo tree.
     /// </summary>
-    public static string GetFriendlyName(this Type t, NullabilityInfo? nullInfo = null)
+    public static string GetFriendlyName(this Type t, bool includeNamespace = false, NullabilityInfo? nullInfo = null)
     {
         // 1) Handle Nullable<T> on value types
         if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>))
         {
             // unwrap T and its nullability info
             var innerType = t.GetGenericArguments()[0];
-            return innerType.GetFriendlyName() + "?";
+            return innerType.GetFriendlyName(includeNamespace) + "?";
         }
 
         // 2) Handle generic types (e.g. Dictionary<,>, IList<> on interfaces, etc.)
@@ -334,12 +334,12 @@ public static class TypeExtensions
 
         if (t.IsGenericParameter)
         {
-            baseName = t.Name;
+            baseName = includeNamespace ? t.FullName! : t.Name;
         }
         else if (t.IsGenericType)
         {
             // strip the `1, `2, etc.
-            var name = t.Name;
+            var name = includeNamespace ? t.FullName! : t.Name;
             var idx = name.IndexOf('`');
             if (idx >= 0) name = name[..idx];
 
@@ -347,7 +347,7 @@ public static class TypeExtensions
             var args = t.GetGenericArguments();
 
             var argNames = args
-                           .Select((argType, i) => argType.GetFriendlyName(nullInfo?.GenericTypeArguments[i]))
+                           .Select((argType, i) => argType.GetFriendlyName(includeNamespace, nullInfo?.GenericTypeArguments[i]))
                            .ToArray();
 
             baseName = $"{name}<{string.Join(", ", argNames)}>";
@@ -355,7 +355,7 @@ public static class TypeExtensions
         else
         {
             // simple non‐generic
-            baseName = t.toReadableName();
+            baseName = includeNamespace ? t.FullName! : t.toReadableName();
         }
 
         // 3) If this is a reference type (class, interface, delegate, array, etc.)
