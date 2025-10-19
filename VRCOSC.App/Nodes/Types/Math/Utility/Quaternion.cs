@@ -11,12 +11,12 @@ namespace VRCOSC.App.Nodes.Types.Math.Utility;
 [NodeCollapsed]
 public sealed class QuaternionToEulerNode : Node
 {
-    public ValueInput<Quaternion> Quaternion = new();
+    public ValueInput<Quaternion> Quaternion = new(defaultValue: System.Numerics.Quaternion.Identity);
     public ValueOutput<Vector3> Euler = new();
 
     protected override Task Process(PulseContext c)
     {
-        Euler.Write(Quaternion.Read(c).QuaternionToEuler(), c);
+        Euler.Write(Quaternion.Read(c).ToEulerDegrees(), c);
         return Task.CompletedTask;
     }
 }
@@ -30,22 +30,7 @@ public sealed class EulerToQuaternionNode : Node
 
     protected override Task Process(PulseContext c)
     {
-        Quaternion.Write(Euler.Read(c).EulerToQuaternion(), c);
-        return Task.CompletedTask;
-    }
-}
-
-[Node("Quaternion From Angles", "Math/Utility")]
-public sealed class QuaternionFromAnglesNode : Node
-{
-    public ValueInput<float> X = new();
-    public ValueInput<float> Y = new();
-    public ValueInput<float> Z = new();
-    public ValueOutput<Quaternion> Quaternion = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Quaternion.Write(System.Numerics.Quaternion.CreateFromYawPitchRoll(Y.Read(c), X.Read(c), Z.Read(c)), c);
+        Quaternion.Write(Euler.Read(c).ToQuaternion(), c);
         return Task.CompletedTask;
     }
 }
