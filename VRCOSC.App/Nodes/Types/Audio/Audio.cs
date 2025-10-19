@@ -4,9 +4,36 @@
 using System.IO;
 using System.Threading.Tasks;
 using SoundFlow.Components;
+using SoundFlow.Enums;
 using SoundFlow.Providers;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Audio;
+
+[Node("Track Info", "Audio")]
+public sealed class AudioTrackInfoNode : UpdateNode<PlaybackState>
+{
+    public ValueInput<SoundPlayer> Track = new();
+
+    public ValueOutput<PlaybackState> State = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var track = Track.Read(c);
+        if (track is null) return Task.CompletedTask;
+
+        State.Write(track.State, c);
+        return Task.CompletedTask;
+    }
+
+    protected override PlaybackState GetValue(PulseContext c)
+    {
+        var track = Track.Read(c);
+        if (track is null) return PlaybackState.Stopped;
+
+        return track.State;
+    }
+}
 
 [Node("Create Track", "Audio")]
 public sealed class AudioTrackCreateNode : Node
@@ -57,7 +84,7 @@ public sealed class AudioTrackPlayNode : Node, IFlowInput
 
         player.Play();
 
-        while (player.Time < player.Duration)
+        while (player.Time < player.Duration && !c.IsCancelled && player.State != PlaybackState.Stopped)
         {
             await Task.Delay(10);
         }
@@ -86,9 +113,23 @@ public sealed class AudioTrackPlayAsyncNode : Node, IFlowInput
             return;
         }
 
-        player.Play();
+        if (player.State == PlaybackState.Playing)
+            player.Stop();
 
+        player.Play();
+        waitForStop().Forget();
         await OnPlaying.Execute(c);
+        return;
+
+        async Task waitForStop()
+        {
+            while (player.Time < player.Duration && player.State != PlaybackState.Stopped)
+            {
+                await Task.Delay(10);
+            }
+
+            player.Stop();
+        }
     }
 }
 
