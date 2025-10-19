@@ -87,23 +87,12 @@ public sealed class SteamVRDeviceInfoNode : UpdateNode<bool, bool, float>
 public sealed class SteamVRDeviceTransformSourceNode : UpdateNode<Vector3, Quaternion>
 {
     public ValueInput<TrackedDevice> Device = new();
-    public ValueOutput<Vector3> Position = new();
-    public ValueOutput<Quaternion> Rotation = new();
+    public ValueOutput<Transform> Transform = new();
 
     protected override Task Process(PulseContext c)
     {
         var device = Device.Read(c);
-
-        if (device is null)
-        {
-            Position.Write(Transform.Identity.Position, c);
-            Rotation.Write(Transform.Identity.Rotation, c);
-        }
-        else
-        {
-            Position.Write(device.Transform.Position, c);
-            Rotation.Write(device.Transform.Rotation, c);
-        }
+        Transform.Write(device?.Transform ?? Utils.Transform.Identity, c);
 
         return Task.CompletedTask;
     }
@@ -111,7 +100,7 @@ public sealed class SteamVRDeviceTransformSourceNode : UpdateNode<Vector3, Quate
     protected override (Vector3, Quaternion) GetValues(PulseContext c)
     {
         var device = Device.Read(c);
-        if (device is null) return (Transform.Identity.Position, Transform.Identity.Rotation);
+        if (device is null) return (Utils.Transform.Identity.Position, Utils.Transform.Identity.Rotation);
 
         return (device.Transform.Position, device.Transform.Rotation);
     }

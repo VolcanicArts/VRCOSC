@@ -4,9 +4,9 @@
 using System.Numerics;
 using System.Threading.Tasks;
 
-namespace VRCOSC.App.Nodes.Types.Math.Utility;
+namespace VRCOSC.App.Nodes.Types.Math;
 
-[Node("Is Between", "Math/Utility")]
+[Node("Is Between", "Math")]
 public sealed class IsBetweenNode<T> : Node where T : INumber<T>
 {
     public ValueInput<T> Value = new();

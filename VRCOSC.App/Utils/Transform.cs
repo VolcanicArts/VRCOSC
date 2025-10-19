@@ -23,6 +23,14 @@ public struct Transform
         Rotation = rotation;
     }
 
+    public Transform RelativeTo(Transform parent)
+    {
+        var inverseRotationOther = Quaternion.Inverse(parent.Rotation);
+        var relativePosition = Vector3.Transform(Position - parent.Position, inverseRotationOther);
+        var relativeRotation = inverseRotationOther * Rotation;
+        return new Transform(relativePosition, relativeRotation);
+    }
+
     public static Transform Identity => new();
 }
 
