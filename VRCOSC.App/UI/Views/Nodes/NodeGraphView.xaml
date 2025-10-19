@@ -594,7 +594,7 @@
                                    HorizontalAlignment="Center"
                                    TextAlignment="Center"
                                    TextWrapping="WrapWithOverflow"
-                                   MaxWidth="300"
+                                   MaxWidth="350"
                                    Margin="0 -2 10 0"
                                    FontWeight="SemiBold"/>
                     </Grid>
