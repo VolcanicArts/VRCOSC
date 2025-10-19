@@ -626,7 +626,7 @@
                         </Grid.ColumnDefinitions>
                         <xctk:RichTextBox PreviewKeyDown="RichTextBox_PreviewKeyDown" Text="{Binding Node.Value, UpdateSourceTrigger=PropertyChanged}" Margin="5 0 0 0" Background="{DynamicResource CBackground2}" Foreground="{DynamicResource CForeground1}">
                             <xctk:RichTextBox.TextFormatter>
-                                <xctk:PlainTextFormatter/>
+                                <nodes:PlainTextFormatter/>
                             </xctk:RichTextBox.TextFormatter>
                         </xctk:RichTextBox>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"

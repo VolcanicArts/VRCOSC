@@ -12,6 +12,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -27,6 +28,7 @@ using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
+using Xceed.Wpf.Toolkit;
 using Expression = org.mariuszgromada.math.mxparser.Expression;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MenuItem = System.Windows.Controls.MenuItem;
@@ -1843,6 +1845,20 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         Graph.DeleteVariable(graphVariable);
         Graph.MarkDirty();
+    }
+}
+
+public class PlainTextFormatter : ITextFormatter
+{
+    public string GetText(FlowDocument document)
+    {
+        var text = new TextRange(document.ContentStart, document.ContentEnd).Text;
+        return text.EndsWith(Environment.NewLine) ? text.Remove(text.Length - Environment.NewLine.Length, Environment.NewLine.Length) : text;
+    }
+
+    public void SetText(FlowDocument document, string text)
+    {
+        new TextRange(document.ContentStart, document.ContentEnd).Text = text;
     }
 }
 
