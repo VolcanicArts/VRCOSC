@@ -68,7 +68,7 @@ public sealed class ChatBoxSetLayerEnabledNode : Node, IFlowInput
         var layer = Layer.Read(c);
         layer = int.Clamp(layer, 0, ChatBoxManager.GetInstance().Timeline.LayerCount - 1);
 
-        ChatBoxManager.GetInstance().Timeline.LayerEnabled[layer] = Enabled.Read(c);
+        ChatBoxManager.GetInstance().Timeline.SetLayerEnabled(layer, Enabled.Read(c));
         await Next.Execute(c);
     }
 }

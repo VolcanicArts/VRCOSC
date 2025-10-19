@@ -72,6 +72,14 @@ public class Timeline : INotifyPropertyChanged
         };
     }
 
+    public void SetLayerEnabled(int layer, bool enabled)
+    {
+        layer = int.Clamp(layer, 0, layer_count - 1);
+
+        LayerEnabled[layer] = enabled;
+        AppManager.GetInstance().VRChatOscClient.Send($"VRCOSC/Controls/ChatBox/Layer/{layer}", enabled);
+    }
+
     public void Start()
     {
         for (int i = 0; i < layer_count; i++)
