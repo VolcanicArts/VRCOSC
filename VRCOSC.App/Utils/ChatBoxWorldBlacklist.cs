@@ -25,7 +25,7 @@ internal class ChatBoxWorldBlacklist : IVRCClientEventHandler
         VRChatLogReader.Register(this);
     }
 
-    private async void updateCurrentWorld(string worldID)
+    private async Task updateCurrentWorld(string worldID)
     {
         await requestBlacklist();
 
@@ -55,7 +55,13 @@ internal class ChatBoxWorldBlacklist : IVRCClientEventHandler
 
     public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
     {
-        updateCurrentWorld(eventArgs.WorldId);
+        run().Forget();
+        return;
+
+        async Task run()
+        {
+            await updateCurrentWorld(eventArgs.WorldId);
+        }
     }
 }
 

@@ -86,7 +86,7 @@ public class NodeManager
             nodePreset.Load();
         }
 
-        Graphs.OnCollectionChanged(OnGraphsCollectionChanged);
+        Graphs.OnCollectionChanged((newItems, oldItems) => OnGraphsCollectionChanged(newItems, oldItems).Forget());
         Presets.OnCollectionChanged(OnPresetsCollectionChanged);
         Loaded.Value = true;
     }
@@ -128,7 +128,7 @@ public class NodeManager
         Presets.Clear();
     }
 
-    private async void OnGraphsCollectionChanged(IEnumerable<NodeGraph> newGraphs, IEnumerable<NodeGraph> oldGraphs)
+    private async Task OnGraphsCollectionChanged(IEnumerable<NodeGraph> newGraphs, IEnumerable<NodeGraph> oldGraphs)
     {
         foreach (var newGraph in newGraphs)
         {

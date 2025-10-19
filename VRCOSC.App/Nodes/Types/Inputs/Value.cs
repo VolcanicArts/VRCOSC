@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Threading.Tasks;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Inputs;
 
@@ -17,7 +18,7 @@ public class ValueNode<T> : Node
         set
         {
             this.value = value;
-            _ = NodeGraph.TriggerTree(this);
+            NodeGraph.TriggerTree(this).Forget();
         }
     }
 

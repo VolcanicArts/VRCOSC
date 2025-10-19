@@ -175,19 +175,25 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         }
     }
 
-    protected override async void OnRegisteredParameterReceived(RegisteredParameter parameter)
+    protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
     {
-        switch (parameter.Lookup)
-        {
-            case HeartrateParameter.Beat:
-                if (GetSettingValue<bool>(HeartrateSetting.BeatMode) && parameter.GetValue<bool>())
-                {
-                    await Task.Delay(50);
-                    beatParameterValue = false;
-                    SendParameter(HeartrateParameter.Beat, beatParameterValue);
-                }
+        run().Forget();
+        return;
 
-                break;
+        async Task run()
+        {
+            switch (parameter.Lookup)
+            {
+                case HeartrateParameter.Beat:
+                    if (GetSettingValue<bool>(HeartrateSetting.BeatMode) && parameter.GetValue<bool>())
+                    {
+                        await Task.Delay(50);
+                        beatParameterValue = false;
+                        SendParameter(HeartrateParameter.Beat, beatParameterValue);
+                    }
+
+                    break;
+            }
         }
     }
 

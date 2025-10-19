@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Threading;
 using VRCOSC.App.Nodes;
 using VRCOSC.App.Utils;
 
@@ -71,7 +71,7 @@ public partial class NodesView
         showNodeGraph(selectedGraph ?? GraphsSource.First());
     }
 
-    private async void showNodeGraph(NodeGraph nodeGraph)
+    private void showNodeGraph(NodeGraph nodeGraph)
     {
         if (!viewCache.TryGetValue(nodeGraph.Id, out var view))
         {
@@ -80,7 +80,6 @@ public partial class NodesView
         }
 
         ActiveField.Content = view;
-        await Dispatcher.Yield(DispatcherPriority.Loaded);
 
         if (selectedGraph is not null)
             selectedGraph.Selected.Value = false;
@@ -91,25 +90,27 @@ public partial class NodesView
 
     private void CreateGraph_OnClick(object sender, RoutedEventArgs e)
     {
-        e.Handled = true;
-
         var newGraph = new NodeGraph();
         NodeManager.GetInstance().Graphs.Add(newGraph);
         showNodeGraph(newGraph);
     }
 
-    private async void ImportGraph_OnClick(object sender, RoutedEventArgs e)
+    private void ImportGraph_OnClick(object sender, RoutedEventArgs e)
     {
-        var filePath = await Platform.PickFileAsync(".json");
-        if (filePath is null) return;
+        run().Forget();
+        return;
 
-        NodeManager.GetInstance().ImportGraph(filePath);
+        async Task run()
+        {
+            var filePath = await Platform.PickFileAsync(".json");
+            if (filePath is null) return;
+
+            NodeManager.GetInstance().ImportGraph(filePath);
+        }
     }
 
     private void GraphTab_OnClick(object sender, MouseButtonEventArgs e)
     {
-        e.Handled = true;
-
         var element = (FrameworkElement)sender;
         var graph = (NodeGraph)element.Tag;
 
@@ -165,17 +166,23 @@ public partial class NodesView
         NodeManager.GetInstance().ShowExternally(graph);
     }
 
-    private async void ImportPreset_OnClick(object sender, RoutedEventArgs e)
+    private void ImportPreset_OnClick(object sender, RoutedEventArgs e)
     {
-        var filePath = await Platform.PickFileAsync(".json");
-        if (filePath is null) return;
+        run().Forget();
+        return;
 
-        NodeManager.GetInstance().ImportPreset(filePath);
-
-        // we need to refresh the context menu to add the imported preset
-        foreach (var nodeGraph in GraphsSource.Where(g => g.UILoaded))
+        async Task run()
         {
-            nodeGraph.MarkDirty();
+            var filePath = await Platform.PickFileAsync(".json");
+            if (filePath is null) return;
+
+            NodeManager.GetInstance().ImportPreset(filePath);
+
+            // we need to refresh the context menu to add the imported preset
+            foreach (var nodeGraph in GraphsSource.Where(g => g.UILoaded))
+            {
+                nodeGraph.MarkDirty();
+            }
         }
     }
 

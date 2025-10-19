@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Profiles;
@@ -32,15 +33,21 @@ public partial class ModulesView
         prefabsWindowManager = new WindowManager(this);
     }
 
-    private async void ImportButton_OnClick(object sender, RoutedEventArgs e)
+    private void ImportButton_OnClick(object sender, RoutedEventArgs e)
     {
-        var element = (FrameworkElement)sender;
-        var module = (Module)element.Tag;
+        run().Forget();
+        return;
 
-        var filePath = await Platform.PickFileAsync(".json");
-        if (filePath is null) return;
+        async Task run()
+        {
+            var element = (FrameworkElement)sender;
+            var module = (Module)element.Tag;
 
-        Dispatcher.Invoke(() => module.ImportConfig(filePath));
+            var filePath = await Platform.PickFileAsync(".json");
+            if (filePath is null) return;
+
+            await module.ImportConfig(filePath);
+        }
     }
 
     private void ExportButton_OnClick(object sender, RoutedEventArgs e)

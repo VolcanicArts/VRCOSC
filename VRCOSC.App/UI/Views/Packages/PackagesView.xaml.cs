@@ -4,6 +4,7 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -14,6 +15,7 @@ using VRCOSC.App.Packages;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows;
 using VRCOSC.App.UI.Windows.Packages;
+using VRCOSC.App.Utils;
 using Xceed.Wpf.Toolkit;
 using MessageBox = System.Windows.MessageBox;
 
@@ -38,14 +40,22 @@ public sealed partial class PackagesView
         windowManager = new WindowManager(this);
     }
 
-    private async void RefreshButton_OnClick(object sender, RoutedEventArgs e)
+    private void RefreshButton_OnClick(object sender, RoutedEventArgs e)
     {
-        if (AppManager.GetInstance().State.Value is AppManagerState.Starting or AppManagerState.Started)
-        {
-            await AppManager.GetInstance().StopAsync();
-        }
+        run().Forget();
+        return;
 
-        _ = MainWindow.GetInstance().ShowLoadingOverlay(new CallbackProgressAction("Refreshing All Packages", () => PackageManager.GetInstance().RefreshAllSources(true)));
+        async Task run()
+        {
+            var app = AppManager.GetInstance();
+
+            if (app.State.Value is AppManagerState.Starting or AppManagerState.Started)
+                await app.StopAsync();
+
+            await MainWindow.GetInstance().ShowLoadingOverlay(
+                new CallbackProgressAction("Refreshing All Packages",
+                    () => PackageManager.GetInstance().RefreshAllSources(true)));
+        }
     }
 
     private void filterDataGrid(string filterText)
@@ -71,30 +81,48 @@ public sealed partial class PackagesView
 
     private void InstallButton_OnClick(object sender, RoutedEventArgs e)
     {
-        var element = (FrameworkElement)sender;
-        var packageSource = (PackageSource)element.Tag;
+        run().Forget();
+        return;
 
-        _ = MainWindow.GetInstance().ShowLoadingOverlay(new CallbackProgressAction($"Installing {packageSource.DisplayName}", () => PackageManager.GetInstance().InstallPackage(packageSource)));
+        async Task run()
+        {
+            var element = (FrameworkElement)sender;
+            var packageSource = (PackageSource)element.Tag;
+
+            await MainWindow.GetInstance().ShowLoadingOverlay(new CallbackProgressAction($"Installing {packageSource.DisplayName}", () => PackageManager.GetInstance().InstallPackage(packageSource)));
+        }
     }
 
     private void UninstallButton_OnClick(object sender, RoutedEventArgs e)
     {
-        var element = (FrameworkElement)sender;
-        var packageSource = (PackageSource)element.Tag;
+        run().Forget();
+        return;
 
-        var result = MessageBox.Show($"Are you sure you want to uninstall {packageSource.DisplayName}?", "Uninstall Warning", MessageBoxButton.YesNo);
-        if (result != MessageBoxResult.Yes) return;
+        async Task run()
+        {
+            var element = (FrameworkElement)sender;
+            var packageSource = (PackageSource)element.Tag;
 
-        _ = MainWindow.GetInstance().ShowLoadingOverlay(new CallbackProgressAction($"Uninstalling {packageSource.DisplayName}", () => PackageManager.GetInstance().UninstallPackage(packageSource)));
+            var result = MessageBox.Show($"Are you sure you want to uninstall {packageSource.DisplayName}?", "Uninstall Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (result != MessageBoxResult.Yes) return;
+
+            await MainWindow.GetInstance().ShowLoadingOverlay(new CallbackProgressAction($"Uninstalling {packageSource.DisplayName}", () => PackageManager.GetInstance().UninstallPackage(packageSource)));
+        }
     }
 
     private void InstalledVersion_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        var element = (ComboBox)sender;
-        var packageSource = (PackageSource)element.Tag;
-        var packageRelease = packageSource.FilteredReleases[element.SelectedIndex];
+        run().Forget();
+        return;
 
-        _ = MainWindow.GetInstance().ShowLoadingOverlay(new CallbackProgressAction($"Installing {packageSource.DisplayName} - {packageRelease.Version}", () => PackageManager.GetInstance().InstallPackage(packageSource, packageRelease)));
+        async Task run()
+        {
+            var element = (ComboBox)sender;
+            var packageSource = (PackageSource)element.Tag;
+            var packageRelease = packageSource.FilteredReleases[element.SelectedIndex];
+
+            await MainWindow.GetInstance().ShowLoadingOverlay(new CallbackProgressAction($"Installing {packageSource.DisplayName} - {packageRelease.Version}", () => PackageManager.GetInstance().InstallPackage(packageSource, packageRelease)));
+        }
     }
 
     private void InstalledVersion_LostMouseCapture(object sender, MouseEventArgs e)

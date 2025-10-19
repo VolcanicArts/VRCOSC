@@ -107,55 +107,62 @@ public partial class MainWindow
         Title = $"{AppManager.APP_NAME} {AppManager.Version}";
         if (installedUpdateChannel != UpdateChannel.Live) Title += $" {installedUpdateChannel.ToString().ToUpper()}";
 
-        load();
+        load().Forget();
     }
 
-    private async void OnLoaded(object sender, RoutedEventArgs e)
+    private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.StartInTray))
+        run().Forget();
+        return;
+
+        async Task run()
         {
-            // required for some windows scheduling funkiness
-            await Task.Delay(100);
-            transitionTray(true);
+            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.StartInTray))
+            {
+                // required for some windows scheduling funkiness
+                await Task.Delay(100);
+                transitionTray(true);
+            }
         }
     }
 
-    private async void OnClosing(object? sender, CancelEventArgs e)
+    private void OnClosing(object? sender, CancelEventArgs e)
     {
-        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.TrayOnClose))
+        run().Forget();
+        return;
+
+        async Task run()
         {
-            e.Cancel = true;
-            transitionTray(true);
-            return;
+            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.TrayOnClose))
+            {
+                e.Cancel = true;
+                transitionTray(true);
+                return;
+            }
+
+            var appManager = AppManager.GetInstance();
+
+            if (appManager.State.Value is AppManagerState.Started)
+            {
+                e.Cancel = true;
+                await appManager.StopAsync();
+                Close();
+                return;
+            }
+
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window != this)
+                    window.Close();
+            }
+
+            trayIcon?.Dispose();
         }
-
-        var appManager = AppManager.GetInstance();
-
-        if (appManager.State.Value is AppManagerState.Started)
-        {
-            e.Cancel = true;
-            await appManager.StopAsync();
-            Close();
-            return;
-        }
-
-        foreach (Window window in Application.Current.Windows)
-        {
-            if (window != this)
-                window.Close();
-        }
-
-        trayIcon?.Dispose();
     }
 
-    // because this isn't returning a task and we're not doing Task.Run(), this still runs in the same
-    // synchronisation context as the UI thread, meaning we don't get threading errors when initialising
-    // unfortunately this does mean it also blocks the UI thread when making changes, freezing the loading screen,
-    // but this method being async at least means that the window opens immediately and we can tell
-    // the user what's going on
-    private async void load()
+    private async Task load()
     {
-        // force the task to be async to open the window ASAP
+        // Force task to be async immediately
         await Task.Delay(1);
 
         velopackUpdater = new VelopackUpdater();

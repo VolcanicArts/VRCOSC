@@ -165,7 +165,7 @@ public partial class RunView : INotifyPropertyChanged
 
     private void PlayButtonOnClick(object sender, RoutedEventArgs e)
     {
-        AppManager.GetInstance().RequestStart();
+        AppManager.GetInstance().RequestStart().Forget();
     }
 
     private void StopButtonOnClick(object sender, RoutedEventArgs e)
@@ -196,7 +196,7 @@ public partial class RunView : INotifyPropertyChanged
     private void ForceStartButton_OnClick(object sender, RoutedEventArgs e)
     {
         ForceStartButton.IsEnabled = false;
-        AppManager.GetInstance().ForceStart();
+        AppManager.GetInstance().ForceStart().Forget();
     }
 
     private void AvatarParameterViewButton_Click(object sender, RoutedEventArgs e)

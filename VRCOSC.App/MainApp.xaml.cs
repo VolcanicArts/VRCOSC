@@ -30,13 +30,21 @@ public partial class MainApp
             ExceptionHandler.Handle((ex.ExceptionObject as Exception)!, "An unhandled exception has occured", true);
         };
 
-        AppDomain.CurrentDomain.FirstChanceException += (s, ex) =>
+        AppDomain.CurrentDomain.FirstChanceException += (s, e) =>
         {
-            if (ex.Exception.Source?.Contains("PresentationCore") == true ||
-                ex.Exception.ToString().Contains("InputMethod") ||
-                ex.Exception.ToString().Contains("ITfThreadMgr"))
+            var ex = e.Exception;
+
+            if (ex is PlatformNotSupportedException
+                && (ex.StackTrace?.Contains("Windows.UI.ViewManagement.InputPane") ?? false))
+                return;
+
+            var txt = ex.ToString();
+
+            if (txt.Contains("ITfThreadMgr") ||
+                txt.Contains("TextServicesContext") ||
+                txt.Contains("System.Windows.Input.InputMethod"))
             {
-                ExceptionHandler.Handle(ex.Exception, "FirstChanceException (input/TSF)");
+                ExceptionHandler.Handle(ex, "FirstChance (input/TSF)");
             }
         };
     }

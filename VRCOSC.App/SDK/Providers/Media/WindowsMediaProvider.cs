@@ -166,14 +166,20 @@ public class WindowsMediaProvider
         OnPlaybackStateChanged?.Invoke();
     }
 
-    private async void onAnyMediaPropertyChanged(GlobalSystemMediaTransportControlsSession? session, MediaPropertiesChangedEventArgs? _)
+    private void onAnyMediaPropertyChanged(GlobalSystemMediaTransportControlsSession? session, MediaPropertiesChangedEventArgs? _)
     {
-        Logger.Log($"Media property change: {session?.SourceAppUserModelId}", LoggingTarget.Information);
+        run().Forget();
+        return;
 
-        await updateMediaProperties(session);
-        updateTimeline(session);
-        OnTrackChanged?.Invoke();
-        OnPlaybackPositionChanged?.Invoke();
+        async Task run()
+        {
+            Logger.Log($"Media property change: {session?.SourceAppUserModelId}", LoggingTarget.Information);
+
+            await updateMediaProperties(session);
+            updateTimeline(session);
+            OnTrackChanged?.Invoke();
+            OnPlaybackPositionChanged?.Invoke();
+        }
     }
 
     private void onAnyTimelinePropertiesChanged(GlobalSystemMediaTransportControlsSession? session, TimelinePropertiesChangedEventArgs? _)
@@ -198,9 +204,9 @@ public class WindowsMediaProvider
         OnPlaybackStateChanged?.Invoke();
     }
 
-    private async void currentSessionChanged(GlobalSystemMediaTransportControlsSessionManager? sender, CurrentSessionChangedEventArgs? args)
+    private void currentSessionChanged(GlobalSystemMediaTransportControlsSessionManager? sender, CurrentSessionChangedEventArgs? args)
     {
-        await updateCurrentSession();
+        updateCurrentSession().Forget();
     }
 
     private void sessionsChanged(GlobalSystemMediaTransportControlsSessionManager? _, SessionsChangedEventArgs? _2)
@@ -243,80 +249,80 @@ public class WindowsMediaProvider
         }
     }
 
-    public async void Play()
+    public void Play()
     {
-        try
+        run().Forget();
+        return;
+
+        async Task run()
         {
             await CurrentSession?.TryPlayAsync();
         }
-        catch (Exception)
-        {
-        }
     }
 
-    public async void Pause()
+    public void Pause()
     {
-        try
+        run().Forget();
+        return;
+
+        async Task run()
         {
             await CurrentSession?.TryPauseAsync();
         }
-        catch (Exception)
-        {
-        }
     }
 
-    public async void SkipNext()
+    public void SkipNext()
     {
-        try
+        run().Forget();
+        return;
+
+        async Task run()
         {
             await CurrentSession?.TrySkipNextAsync();
         }
-        catch (Exception)
-        {
-        }
     }
 
-    public async void SkipPrevious()
+    public void SkipPrevious()
     {
-        try
+        run().Forget();
+        return;
+
+        async Task run()
         {
             await CurrentSession?.TrySkipPreviousAsync();
         }
-        catch (Exception)
-        {
-        }
     }
 
-    public async void ChangeShuffle(bool active)
+    public void ChangeShuffle(bool active)
     {
-        try
+        run().Forget();
+        return;
+
+        async Task run()
         {
             await CurrentSession?.TryChangeShuffleActiveAsync(active);
         }
-        catch (Exception)
-        {
-        }
     }
 
-    public async void ChangePlaybackPosition(TimeSpan playbackPosition)
+    public void ChangePlaybackPosition(TimeSpan playbackPosition)
     {
-        try
+        run().Forget();
+        return;
+
+        async Task run()
         {
             await CurrentSession?.TryChangePlaybackPositionAsync(playbackPosition.Ticks);
         }
-        catch (Exception)
-        {
-        }
     }
 
-    public async void ChangeRepeatMode(MediaPlaybackAutoRepeatMode mode)
+    public void ChangeRepeatMode(MediaPlaybackAutoRepeatMode mode)
     {
-        try
+        run().Forget();
+        return;
+
+        async Task run()
         {
             await CurrentSession?.TryChangeAutoRepeatModeAsync(mode);
-        }
-        catch (Exception)
-        {
         }
     }
 

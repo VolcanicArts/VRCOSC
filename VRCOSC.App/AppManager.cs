@@ -200,57 +200,64 @@ internal class AppManager
 
         await ConnectionManager.Stop();
 
-        if (clientOpenState && State.Value == AppManagerState.Stopped && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStart)) RequestStart();
+        if (clientOpenState && State.Value == AppManagerState.Stopped && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStart)) await RequestStart();
         if (!clientOpenState && State.Value == AppManagerState.Started && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStop)) await StopAsync();
     }
 
     #region OSC
 
-    private void onVRChatOSCMessageReceived(VRChatOSCMessage message)
+    private async void onVRChatOSCMessageReceived(VRChatOSCMessage message)
     {
-        if (string.IsNullOrEmpty(message.Address)) return;
-
-        if (message.IsAvatarChangeEvent)
+        try
         {
-            parameterCache.Clear();
+            if (string.IsNullOrEmpty(message.Address)) return;
 
-            var avatarId = (string)message.ParameterValue;
-            currentAvatarConfig = avatarId.StartsWith("local") ? null : AvatarConfigLoader.LoadConfigFor(avatarId);
-
-            VRChatClient.HandleAvatarChange();
-            ModuleManager.GetInstance().AvatarChange(currentAvatarConfig);
-            NodeManager.GetInstance().OnAvatarChange(currentAvatarConfig);
-
-            if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) return;
-
-            sendMetadataParameters();
-            sendControlParameters();
-        }
-
-        if (message.IsDollyEvent)
-        {
-            DollyManager.GetInstance().HandleDollyEvent(message);
-        }
-
-        if (message.IsAvatarParameter)
-        {
-            var parameter = new VRChatParameter(message);
-            parameterCache[parameter.GetDefinition()] = parameter;
-
-            var wasPlayerUpdated = VRChatClient.Player.Update(parameter);
-
-            if (wasPlayerUpdated)
+            if (message.IsAvatarChangeEvent)
             {
-                ModuleManager.GetInstance().PlayerUpdate();
+                parameterCache.Clear();
+
+                var avatarId = (string)message.ParameterValue;
+                currentAvatarConfig = avatarId.StartsWith("local") ? null : AvatarConfigLoader.LoadConfigFor(avatarId);
+
+                await VRChatClient.HandleAvatarChange();
+                ModuleManager.GetInstance().AvatarChange(currentAvatarConfig);
+                NodeManager.GetInstance().OnAvatarChange(currentAvatarConfig);
+
+                if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) return;
+
+                sendMetadataParameters();
+                sendControlParameters();
             }
 
-            if (parameter.Name.StartsWith("VRCOSC/Controls"))
+            if (message.IsDollyEvent)
             {
-                handleControlParameter(parameter);
+                DollyManager.GetInstance().HandleDollyEvent(message);
             }
 
-            ModuleManager.GetInstance().OnParameterReceived(parameter);
-            NodeManager.GetInstance().OnParameterReceived(parameter);
+            if (message.IsAvatarParameter)
+            {
+                var parameter = new VRChatParameter(message);
+                parameterCache[parameter.GetDefinition()] = parameter;
+
+                var wasPlayerUpdated = VRChatClient.Player.Update(parameter);
+
+                if (wasPlayerUpdated)
+                {
+                    ModuleManager.GetInstance().PlayerUpdate();
+                }
+
+                if (parameter.Name.StartsWith("VRCOSC/Controls"))
+                {
+                    handleControlParameter(parameter);
+                }
+
+                ModuleManager.GetInstance().OnParameterReceived(parameter);
+                NodeManager.GetInstance().OnParameterReceived(parameter);
+            }
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e);
         }
     }
 
@@ -307,7 +314,7 @@ internal class AppManager
 
     private CancellationTokenSource requestStartCancellationSource = null!;
 
-    public async void ForceStart()
+    public async Task ForceStart()
     {
         Logger.Log("Force starting");
         CancelStartRequest();
@@ -322,7 +329,7 @@ internal class AppManager
         State.Value = AppManagerState.Stopped;
     }
 
-    public async void RequestStart()
+    public async Task RequestStart()
     {
         if (State.Value is AppManagerState.Waiting or AppManagerState.Starting or AppManagerState.Started) return;
 
@@ -538,7 +545,7 @@ internal class AppManager
     {
         await StopAsync();
         await Task.Delay(200);
-        RequestStart();
+        await RequestStart();
     }
 
     #endregion

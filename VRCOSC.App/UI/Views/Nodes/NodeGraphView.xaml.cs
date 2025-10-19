@@ -12,7 +12,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -28,7 +27,6 @@ using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
-using Xceed.Wpf.Toolkit;
 using Expression = org.mariuszgromada.math.mxparser.Expression;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MenuItem = System.Windows.Controls.MenuItem;
@@ -127,7 +125,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) && e.Key == Key.V)
         {
-            executePaste();
+            executePaste().Forget();
             e.Handled = true;
             return;
         }
@@ -141,7 +139,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         if (e.Key == Key.Delete && selection is not null)
         {
-            deleteSelection();
+            deleteSelection().Forget();
             e.Handled = true;
             return;
         }
@@ -816,7 +814,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         }
     }
 
-    private async void executePaste()
+    private async Task executePaste()
     {
         if (copyPasteHolder is null) return;
 
@@ -1240,14 +1238,20 @@ public partial class NodeGraphView : INotifyPropertyChanged
         }
     }
 
-    private async void GraphContextMenu_PresetItemClick(object sender, RoutedEventArgs e)
+    private void GraphContextMenu_PresetItemClick(object sender, RoutedEventArgs e)
     {
-        var element = (FrameworkElement)sender;
-        var preset = (NodePreset)element.Tag;
+        run().Forget();
+        return;
 
-        var newNodes = preset.SpawnTo(Graph, graphContextMenuPosition);
-        await Graph.MarkDirtyAsync();
-        shrinkWrapSelection(newNodes);
+        async Task run()
+        {
+            var element = (FrameworkElement)sender;
+            var preset = (NodePreset)element.Tag;
+
+            var newNodes = preset.SpawnTo(Graph, graphContextMenuPosition);
+            await Graph.MarkDirtyAsync();
+            shrinkWrapSelection(newNodes);
+        }
     }
 
     private void NodeContextMenu_DeleteClick(object sender, RoutedEventArgs e)
@@ -1321,10 +1325,10 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
     private void SelectionContextMenu_DeleteAllClick(object sender, RoutedEventArgs e)
     {
-        deleteSelection();
+        deleteSelection().Forget();
     }
 
-    private async void deleteSelection()
+    private async Task deleteSelection()
     {
         Debug.Assert(selection is not null);
 
@@ -1595,25 +1599,31 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var element = (FrameworkElement)sender;
         var nodeGraphItem = (NodeGraphItem)element.Tag;
 
-        _ = Graph.TriggerTree(nodeGraphItem.Node);
+        Graph.TriggerTree(nodeGraphItem.Node).Forget();
     }
 
-    private async void EnumValueNode_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void EnumValueNode_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        var element = (FrameworkElement)sender;
-        var nodeGraphItem = (NodeGraphItem)element.Tag;
+        run().Forget();
+        return;
 
-        if (!hasLoaded) return;
-
-        // force off the UI thread to wait for a new render
-        await Task.Delay(1);
-
-        Dispatcher.Invoke(() =>
+        async Task run()
         {
-            populateNodeGraphItemSnapOffset(nodeGraphItem);
-            refreshGraphItemPosition(nodeGraphItem);
-            drawNodeConnections(nodeGraphItem.Node);
-        }, DispatcherPriority.Render);
+            var element = (FrameworkElement)sender;
+            var nodeGraphItem = (NodeGraphItem)element.Tag;
+
+            if (!hasLoaded) return;
+
+            // force off the UI thread to wait for a new render
+            await Task.Delay(1);
+
+            Dispatcher.Invoke(() =>
+            {
+                populateNodeGraphItemSnapOffset(nodeGraphItem);
+                refreshGraphItemPosition(nodeGraphItem);
+                drawNodeConnections(nodeGraphItem.Node);
+            }, DispatcherPriority.Render);
+        }
     }
 
     private void InputVariableSize_IncreaseOnClick(object sender, RoutedEventArgs e)
@@ -1711,17 +1721,16 @@ public partial class NodeGraphView : INotifyPropertyChanged
         }
     }
 
-    private async void TextBoxValueOutputOnlyNodeTemplate_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    private void TextBoxValueOutputOnlyNodeTemplate_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
     {
-        e.Handled = true;
         var textBox = (TextBox)sender;
         var nodeGraphItem = (NodeGraphItem)textBox.Tag;
 
         var type = nodeGraphItem.Node.Metadata.Outputs[0].Type;
 
-        await Task.Run(() =>
+        try
         {
-            try
+            Task.Run(() =>
             {
                 var iNumberType = typeof(INumber<>).MakeGenericType(type);
                 if (!iNumberType.IsAssignableFrom(type)) return;
@@ -1733,11 +1742,11 @@ public partial class NodeGraphView : INotifyPropertyChanged
                 var convertedResult = Convert.ChangeType(result, type);
 
                 Dispatcher.Invoke(() => textBox.Text = convertedResult.ToString()!);
-            }
-            catch
-            {
-            }
-        });
+            }).Forget();
+        }
+        catch
+        {
+        }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -1996,18 +2005,4 @@ public record ConnectionItem
     public virtual bool Equals(ConnectionItem? other) => Connection == other?.Connection;
 
     public override int GetHashCode() => Connection.GetHashCode();
-}
-
-public class RichPlainTextFormatter : ITextFormatter
-{
-    public string GetText(FlowDocument document)
-    {
-        var text = new TextRange(document.ContentStart, document.ContentEnd).Text;
-        return text.Remove(text.Length - Environment.NewLine.Length, Environment.NewLine.Length);
-    }
-
-    public void SetText(FlowDocument document, string text)
-    {
-        new TextRange(document.ContentStart, document.ContentEnd).Text = text;
-    }
 }

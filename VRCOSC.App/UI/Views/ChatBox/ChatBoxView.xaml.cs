@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -413,12 +414,18 @@ public partial class ChatBoxView
             Keyboard.ClearFocus();
     }
 
-    private async void ImportButton_OnClick(object sender, RoutedEventArgs e)
+    private void ImportButton_OnClick(object sender, RoutedEventArgs e)
     {
-        var filePath = await Platform.PickFileAsync(".json");
-        if (filePath is null) return;
+        run().Forget();
+        return;
 
-        Dispatcher.Invoke(() => ChatBoxManager.GetInstance().Deserialise(filePath));
+        async Task run()
+        {
+            var filePath = await Platform.PickFileAsync(".json");
+            if (filePath is null) return;
+
+            ChatBoxManager.GetInstance().Deserialise(filePath);
+        }
     }
 
     private void ExportButton_OnClick(object sender, RoutedEventArgs e)
@@ -429,12 +436,19 @@ public partial class ChatBoxView
 
     private void ClearButton_OnClick(object sender, RoutedEventArgs e)
     {
-        var result = MessageBox.Show(MainWindow.GetInstance(), "Warning. This will erase your entire timeline. Are you sure?", "Erase Timeline?", MessageBoxButton.YesNo);
-        if (result != MessageBoxResult.Yes) return;
+        run().Forget();
+        return;
 
-        // Clearing the clips doesn't fire the collection changed event. This fixes it
-        ChatBoxManager.GetInstance().Timeline.Clips.RemoveIf(_ => true);
-        SelectedClip = null;
+        Task run()
+        {
+            var result = MessageBox.Show(MainWindow.GetInstance(), "Warning. This will erase your entire timeline. Are you sure?", "Erase Timeline?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (result != MessageBoxResult.Yes) return Task.CompletedTask;
+
+            // Clearing the clips doesn't fire the collection changed event. This fixes it
+            ChatBoxManager.GetInstance().Timeline.Clips.RemoveIf(_ => true);
+            SelectedClip = null;
+            return Task.CompletedTask;
+        }
     }
 
     private void showRightClickMenu(int? layer, Clip? clip)

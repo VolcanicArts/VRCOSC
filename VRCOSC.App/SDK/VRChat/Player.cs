@@ -184,7 +184,7 @@ public sealed class Player
     private static string actionToAddress(VRChatButtonInput action) => $"/input/{action}";
     private static string actionToAddress(VRChatAxesInput action) => $"/input/{action}";
 
-    private async void sendAndReset(VRChatButtonInput action)
+    private async Task sendAndReset(VRChatButtonInput action)
     {
         oscClient.Send(actionToAddress(action), 1);
         await Task.Delay(15);
@@ -300,7 +300,7 @@ public sealed class Player
 
     public void Jump()
     {
-        sendAndReset(VRChatButtonInput.Jump);
+        sendAndReset(VRChatButtonInput.Jump).Forget();
     }
 
     public void Run()
@@ -316,62 +316,62 @@ public sealed class Player
 
     public void ComfortLeft()
     {
-        sendAndReset(VRChatButtonInput.ComfortLeft);
+        sendAndReset(VRChatButtonInput.ComfortLeft).Forget();
     }
 
     public void ComfortRight()
     {
-        sendAndReset(VRChatButtonInput.ComfortRight);
+        sendAndReset(VRChatButtonInput.ComfortRight).Forget();
     }
 
     public void DropRight()
     {
-        sendAndReset(VRChatButtonInput.DropRight);
+        sendAndReset(VRChatButtonInput.DropRight).Forget();
     }
 
     public void UseRight()
     {
-        sendAndReset(VRChatButtonInput.UseRight);
+        sendAndReset(VRChatButtonInput.UseRight).Forget();
     }
 
     public void GrabRight()
     {
-        sendAndReset(VRChatButtonInput.GrabRight);
+        sendAndReset(VRChatButtonInput.GrabRight).Forget();
     }
 
     public void DropLeft()
     {
-        sendAndReset(VRChatButtonInput.DropLeft);
+        sendAndReset(VRChatButtonInput.DropLeft).Forget();
     }
 
     public void UseLeft()
     {
-        sendAndReset(VRChatButtonInput.UseLeft);
+        sendAndReset(VRChatButtonInput.UseLeft).Forget();
     }
 
     public void GrabLeft()
     {
-        sendAndReset(VRChatButtonInput.GrabLeft);
+        sendAndReset(VRChatButtonInput.GrabLeft).Forget();
     }
 
     public void EnableSafeMode()
     {
-        sendAndReset(VRChatButtonInput.PanicButton);
+        sendAndReset(VRChatButtonInput.PanicButton).Forget();
     }
 
     public void ToggleLeftQuickMenu()
     {
-        sendAndReset(VRChatButtonInput.QuickMenuToggleLeft);
+        sendAndReset(VRChatButtonInput.QuickMenuToggleLeft).Forget();
     }
 
     public void ToggleRightQuickMenu()
     {
-        sendAndReset(VRChatButtonInput.QuickMenuToggleRight);
+        sendAndReset(VRChatButtonInput.QuickMenuToggleRight).Forget();
     }
 
     public void ToggleVoice()
     {
-        sendAndReset(VRChatButtonInput.Voice);
+        sendAndReset(VRChatButtonInput.Voice).Forget();
     }
 
     public void Mute()

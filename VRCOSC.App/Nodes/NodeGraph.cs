@@ -108,7 +108,7 @@ public class NodeGraph : IVRCClientEventHandler
 
     #region Management
 
-    public async void MarkDirty() => await MarkDirtyAsync();
+    public void MarkDirty() => MarkDirtyAsync().Forget();
 
     public async Task MarkDirtyAsync()
     {
@@ -183,7 +183,7 @@ public class NodeGraph : IVRCClientEventHandler
         {
             if (nodeToTriggerId == nodeId) continue;
 
-            _ = TriggerTree(Nodes[nodeToTriggerId]);
+            TriggerTree(Nodes[nodeToTriggerId]).Forget();
         }
     }
 
@@ -277,7 +277,7 @@ public class NodeGraph : IVRCClientEventHandler
         }
 
         if (newConnectionMade)
-            _ = TriggerTree(inputNode);
+            TriggerTree(inputNode).Forget();
     }
 
     public void RemoveConnection(NodeConnection connection)
@@ -286,7 +286,7 @@ public class NodeGraph : IVRCClientEventHandler
         RemovedConnections.Add(connection);
 
         var affectedNode = Nodes[connection.InputNodeId];
-        _ = TriggerTree(affectedNode);
+        TriggerTree(affectedNode).Forget();
     }
 
     public NodeGroup AddGroup(IEnumerable<Guid> initialNodes, Guid? id = null)
@@ -484,7 +484,7 @@ public class NodeGraph : IVRCClientEventHandler
         await Task.WhenAll(stopTasks);
     }
 
-    private async void handleNodeEvent(Func<PulseContext, INodeEventHandler, bool> shouldHandleEvent)
+    private async Task handleNodeEvent(Func<PulseContext, INodeEventHandler, bool> shouldHandleEvent)
     {
         Debug.Assert(running);
 
@@ -502,47 +502,47 @@ public class NodeGraph : IVRCClientEventHandler
 
     public void OnParameterReceived(VRChatParameter parameter)
     {
-        Task.Run(() => handleNodeEvent((c, node) => node.HandleParameterReceive(c, parameter)));
+        handleNodeEvent((c, node) => node.HandleParameterReceive(c, parameter)).Forget();
     }
 
     public void OnAvatarChange(AvatarConfig? config)
     {
-        Task.Run(() => handleNodeEvent((c, node) => node.HandleAvatarChange(c, config)));
+        handleNodeEvent((c, node) => node.HandleAvatarChange(c, config)).Forget();
     }
 
     public void OnPartialSpeechResult(string result)
     {
-        Task.Run(() => handleNodeEvent((c, node) => node.HandlePartialSpeechResult(c, result)));
+        handleNodeEvent((c, node) => node.HandlePartialSpeechResult(c, result)).Forget();
     }
 
     public void OnFinalSpeechResult(string result)
     {
-        Task.Run(() => handleNodeEvent((c, node) => node.HandleFinalSpeechResult(c, result)));
+        handleNodeEvent((c, node) => node.HandleFinalSpeechResult(c, result)).Forget();
     }
 
     public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
     {
-        Task.Run(() => handleNodeEvent((c, node) => node.HandleOnInstanceJoined(c, eventArgs)));
+        handleNodeEvent((c, node) => node.HandleOnInstanceJoined(c, eventArgs)).Forget();
     }
 
     public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs)
     {
-        Task.Run(() => handleNodeEvent((c, node) => node.HandleOnInstanceLeft(c, eventArgs)));
+        handleNodeEvent((c, node) => node.HandleOnInstanceLeft(c, eventArgs)).Forget();
     }
 
     public void OnUserJoined(VRChatClientEventUserJoined eventArgs)
     {
-        Task.Run(() => handleNodeEvent((c, node) => node.HandleOnUserJoined(c, eventArgs)));
+        handleNodeEvent((c, node) => node.HandleOnUserJoined(c, eventArgs)).Forget();
     }
 
     public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
     {
-        Task.Run(() => handleNodeEvent((c, node) => node.HandleOnUserLeft(c, eventArgs)));
+        handleNodeEvent((c, node) => node.HandleOnUserLeft(c, eventArgs)).Forget();
     }
 
     public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs)
     {
-        Task.Run(() => handleNodeEvent((c, node) => node.HandleOnAvatarPreChange(c, eventArgs)));
+        handleNodeEvent((c, node) => node.HandleOnAvatarPreChange(c, eventArgs)).Forget();
     }
 
     private async Task startFlow(Node node, PulseContext? baseContext = null)

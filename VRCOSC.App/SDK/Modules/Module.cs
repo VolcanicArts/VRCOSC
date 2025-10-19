@@ -147,7 +147,7 @@ public abstract class Module
         OnPostLoad();
     }
 
-    internal async void ImportConfig(string filePathOverride)
+    internal async Task ImportConfig(string filePathOverride)
     {
         await ModuleManager.GetInstance().ReloadAllModules(new Dictionary<string, string> { { FullID, filePathOverride } });
     }

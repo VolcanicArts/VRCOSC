@@ -10,6 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -111,6 +112,21 @@ public static class ObservableCollectionExtensions
                 _disposed = true;
             }
         }
+    }
+}
+
+public static class TaskExtensions
+{
+    public static void Forget(this Task task)
+    {
+        if (task.IsCompleted)
+        {
+            if (task.IsFaulted) ExceptionHandler.Handle(task.Exception!.GetBaseException(), "A forgotten task has thrown an exception");
+            return;
+        }
+
+        _ = task.ContinueWith(t => ExceptionHandler.Handle(t.Exception!.GetBaseException(), "A forgotten task has thrown an exception"),
+            TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
     }
 }
 

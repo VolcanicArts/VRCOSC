@@ -1,11 +1,13 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Windows.Profiles;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.Profiles;
 
@@ -25,16 +27,22 @@ public partial class ProfilesView
         windowManager = new WindowManager(this);
     }
 
-    private async void RemoveProfile_ButtonClick(object sender, RoutedEventArgs e)
+    private void RemoveProfile_ButtonClick(object sender, RoutedEventArgs e)
     {
-        var button = (Button)sender;
-        var profile = (Profile)button.Tag;
+        run().Forget();
+        return;
 
-        var result = MessageBox.Show("Are you sure you want to delete this profile?\nDeleting will remove all saved module, persistence, and ChatBox data", "Profile Delete Warning", MessageBoxButton.YesNo);
-        if (result != MessageBoxResult.Yes) return;
+        async Task run()
+        {
+            var button = (Button)sender;
+            var profile = (Profile)button.Tag;
 
-        await AppManager.GetInstance().StopAsync();
-        ProfileManager.GetInstance().Profiles.Remove(profile);
+            var result = MessageBox.Show("Are you sure you want to delete this profile?\nDeleting will remove all saved module, persistence, and ChatBox data", "Profile Delete Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (result != MessageBoxResult.Yes) return;
+
+            await AppManager.GetInstance().StopAsync();
+            ProfileManager.GetInstance().Profiles.Remove(profile);
+        }
     }
 
     private void EditProfile_ButtonClick(object sender, RoutedEventArgs e)

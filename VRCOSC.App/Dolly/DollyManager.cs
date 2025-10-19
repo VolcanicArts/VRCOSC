@@ -91,7 +91,7 @@ public class DollyManager
     /// <summary>
     /// Imports the dolly file into VRChat
     /// </summary>
-    public async void Import(Dolly dolly)
+    public async Task Import(Dolly dolly)
     {
         // not stopping causes vrchat to combine the paths and keep playing
         Stop();

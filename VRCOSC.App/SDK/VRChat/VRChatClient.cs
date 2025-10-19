@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
 
 namespace VRCOSC.App.SDK.VRChat;
@@ -23,7 +24,7 @@ public class VRChatClient
         Player.ResetAll();
     }
 
-    public async void HandleAvatarChange()
+    public async Task HandleAvatarChange()
     {
         await Player.RetrieveAll();
     }
