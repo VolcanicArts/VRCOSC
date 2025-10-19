@@ -173,12 +173,24 @@ public class OpenVRManager
                 continue;
             }
 
-            device.Transform = poses[device.Index];
-
-            if (device.Role is DeviceRole.Head or DeviceRole.LeftHand or DeviceRole.RightHand) continue;
-
-            device.Transform = device.Transform with { Rotation = Quaternion.Multiply(device.Transform.Rotation, Quaternion.CreateFromAxisAngle(Vector3.UnitX, -MathF.PI / 2)) };
+            device.Transform = convertOpenVRTransformToEngineTransform(poses[device.Index]);
         }
+    }
+
+    /// <summary>
+    /// OpenVR uses -Z as forward. Game engines like Unity or Godot use +Z as forward. We'll copy those to ensure compatibility with what users expect
+    /// </summary>
+    private static Transform convertOpenVRTransformToEngineTransform(Transform t)
+    {
+        // flip Z for position
+        var p = t.Position;
+        p.Z = -p.Z;
+
+        // flip Z for rotation: 180 around Y
+        var zFlip = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI);
+        var r = zFlip * t.Rotation;
+
+        return new Transform(p, r);
     }
 
     private void onSlowUpdate()
