@@ -84,8 +84,20 @@
 			"binding_url": "oculus_touch_bindings.json"
 		},
 		{
-			"controller_type": "vive",
+			"controller_type": "vive_controller",
 			"binding_url": "vive_bindings.json"
+		},
+		{
+			"controller_type": "vd_hand_controller",
+			"binding_url": "vd_hand_controller_bindings.json"
+		},
+		{
+			"controller_type": "holographic_controller",
+			"binding_url": "holographic_controller_bindings.json"
+		},
+		{
+			"controller_type": "vive_cosmos_controller",
+			"binding_url": "vive_cosmos_controller_bindings.json"
 		}
 	]
 }

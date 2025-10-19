@@ -11,42 +11,6 @@
 				{
 					"output": "/actions/haptic/out/righthand",
 					"path": "/user/hand/right/output/haptic"
-				},
-				{
-					"output": "/actions/haptic/out/leftfoot",
-					"path": "/user/foot/left/output/haptic"
-				},
-				{
-					"output": "/actions/haptic/out/rightfoot",
-					"path": "/user/foot/right/output/haptic"
-				},
-				{
-					"output": "/actions/haptic/out/waist",
-					"path": "/user/waist/output/haptic"
-				},
-				{
-					"output": "/actions/haptic/out/chest",
-					"path": "/user/chest/output/haptic"
-				},
-				{
-					"output": "/actions/haptic/out/leftknee",
-					"path": "/user/knee/left/output/haptic"
-				},
-				{
-					"output": "/actions/haptic/out/rightknee",
-					"path": "/user/knee/right/output/haptic"
-				},
-				{
-					"output": "/actions/haptic/out/leftelbow",
-					"path": "/user/elbow/left/output/haptic"
-				},
-				{
-					"output": "/actions/haptic/out/rightelbow",
-					"path": "/user/elbow/right/output/haptic"
-				},
-				{
-					"output": "/actions/haptic/out/head",
-					"path": "/user/head/output/haptic"
 				}
 			]
 		},
@@ -54,14 +18,14 @@
 			"sources": [
 				{
 					"inputs": {
+						"click": {
+							"output": "/actions/main/in/left_stick_click"
+						},
 						"position": {
 							"output": "/actions/main/in/left_stick_position"
 						},
 						"touch": {
 							"output": "/actions/main/in/left_stick_touch"
-						},
-						"click": {
-							"output": "/actions/main/in/left_stick_click"
 						}
 					},
 					"mode": "joystick",
@@ -84,6 +48,15 @@
 				},
 				{
 					"inputs": {
+						"click": {
+							"output": "/actions/main/in/left_grip_click"
+						}
+					},
+					"mode": "button",
+					"path": "/user/hand/left/input/grip"
+				},
+				{
+					"inputs": {
 						"touch": {
 							"output": "/actions/main/in/left_primary_touch"
 						},
@@ -92,31 +65,7 @@
 						}
 					},
 					"mode": "button",
-					"path": "/user/hand/left/input/x"
-				},
-				{
-					"inputs": {
-						"touch": {
-							"output": "/actions/main/in/left_secondary_touch"
-						},
-						"click": {
-							"output": "/actions/main/in/left_secondary_click"
-						}
-					},
-					"mode": "button",
-					"path": "/user/hand/left/input/y"
-				},
-				{
-					"inputs": {
-						"pull": {
-							"output": "/actions/main/in/left_grip_pull"
-						},
-						"click": {
-							"output": "/actions/main/in/left_grip_click"
-						}
-					},
-					"mode": "trigger",
-					"path": "/user/hand/left/input/grip"
+					"path": "/user/hand/left/input/application_menu"
 				},
 				{
 					"inputs": {
@@ -135,14 +84,14 @@
 				},
 				{
 					"inputs": {
+						"click": {
+							"output": "/actions/main/in/right_stick_click"
+						},
 						"position": {
 							"output": "/actions/main/in/right_stick_position"
 						},
 						"touch": {
 							"output": "/actions/main/in/right_stick_touch"
-						},
-						"click": {
-							"output": "/actions/main/in/right_stick_click"
 						}
 					},
 					"mode": "joystick",
@@ -165,38 +114,11 @@
 				},
 				{
 					"inputs": {
-						"touch": {
-							"output": "/actions/main/in/right_primary_touch"
-						},
-						"click": {
-							"output": "/actions/main/in/right_primary_click"
-						}
-					},
-					"mode": "button",
-					"path": "/user/hand/right/input/a"
-				},
-				{
-					"inputs": {
-						"touch": {
-							"output": "/actions/main/in/right_secondary_touch"
-						},
-						"click": {
-							"output": "/actions/main/in/right_secondary_click"
-						}
-					},
-					"mode": "button",
-					"path": "/user/hand/right/input/b"
-				},
-				{
-					"inputs": {
-						"pull": {
-							"output": "/actions/main/in/right_grip_pull"
-						},
 						"click": {
 							"output": "/actions/main/in/right_grip_click"
 						}
 					},
-					"mode": "trigger",
+					"mode": "button",
 					"path": "/user/hand/right/input/grip"
 				},
 				{
@@ -217,9 +139,10 @@
 			]
 		}
 	},
-	"controller_type": "oculus_touch",
-	"description": "Oculus Bindings for VRCOSC",
-	"name": "vrcosc_oculus_touch",
+	"controller_type": "holographic_controller",
+	"description": "Windows Mixed Reality Bindings for VRCOSC",
+	"name": "vrcosc_holographic_controller",
 	"options": {},
 	"simulated_actions": []
 }
+

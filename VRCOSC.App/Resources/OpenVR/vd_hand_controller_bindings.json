@@ -54,14 +54,11 @@
 			"sources": [
 				{
 					"inputs": {
-						"position": {
-							"output": "/actions/main/in/left_stick_position"
-						},
-						"touch": {
-							"output": "/actions/main/in/left_stick_touch"
-						},
 						"click": {
 							"output": "/actions/main/in/left_stick_click"
+						},
+						"position": {
+							"output": "/actions/main/in/left_stick_position"
 						}
 					},
 					"mode": "joystick",
@@ -120,29 +117,11 @@
 				},
 				{
 					"inputs": {
-						"position": {
-							"output": "/actions/main/in/left_pad_position"
-						},
-						"touch": {
-							"output": "/actions/main/in/left_pad_touch"
-						},
-						"click": {
-							"output": "/actions/main/in/left_pad_click"
-						}
-					},
-					"mode": "trackpad",
-					"path": "/user/hand/left/input/trackpad"
-				},
-				{
-					"inputs": {
-						"position": {
-							"output": "/actions/main/in/right_stick_position"
-						},
-						"touch": {
-							"output": "/actions/main/in/right_stick_touch"
-						},
 						"click": {
 							"output": "/actions/main/in/right_stick_click"
+						},
+						"position": {
+							"output": "/actions/main/in/right_stick_position"
 						}
 					},
 					"mode": "joystick",
@@ -198,28 +177,14 @@
 					},
 					"mode": "trigger",
 					"path": "/user/hand/right/input/grip"
-				},
-				{
-					"inputs": {
-						"position": {
-							"output": "/actions/main/in/right_pad_position"
-						},
-						"touch": {
-							"output": "/actions/main/in/right_pad_touch"
-						},
-						"click": {
-							"output": "/actions/main/in/right_pad_click"
-						}
-					},
-					"mode": "trackpad",
-					"path": "/user/hand/right/input/trackpad"
 				}
 			]
 		}
 	},
-	"controller_type": "oculus_touch",
-	"description": "Oculus Bindings for VRCOSC",
-	"name": "vrcosc_oculus_touch",
+	"controller_type": "vd_hand_controller",
+	"description": "Virtual Desktop Bindings for VRCOSC",
+	"name": "vrcosc_vd_hand_controller",
 	"options": {},
 	"simulated_actions": []
 }
+
