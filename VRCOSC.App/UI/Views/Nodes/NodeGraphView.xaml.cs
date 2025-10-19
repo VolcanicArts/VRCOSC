@@ -1728,9 +1728,9 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         var type = nodeGraphItem.Node.Metadata.Outputs[0].Type;
 
-        try
+        Task.Run(() =>
         {
-            Task.Run(() =>
+            try
             {
                 var iNumberType = typeof(INumber<>).MakeGenericType(type);
                 if (!iNumberType.IsAssignableFrom(type)) return;
@@ -1742,11 +1742,11 @@ public partial class NodeGraphView : INotifyPropertyChanged
                 var convertedResult = Convert.ChangeType(result, type);
 
                 Dispatcher.Invoke(() => textBox.Text = convertedResult.ToString()!);
-            }).Forget();
-        }
-        catch
-        {
-        }
+            }
+            catch
+            {
+            }
+        }).Forget();
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
