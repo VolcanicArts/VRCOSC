@@ -126,14 +126,13 @@ public partial class MainWindow
         }
     }
 
-    private void OnClosing(object? sender, CancelEventArgs e)
-    {
-        run().Forget();
-        return;
+    private bool bypassTrayOnClose { get; set; }
 
-        async Task run()
+    private async void OnClosing(object? sender, CancelEventArgs e)
+    {
+        try
         {
-            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.TrayOnClose))
+            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.TrayOnClose) && !bypassTrayOnClose)
             {
                 e.Cancel = true;
                 transitionTray(true);
@@ -157,6 +156,10 @@ public partial class MainWindow
             }
 
             trayIcon?.Dispose();
+        }
+        catch (Exception ex)
+        {
+            ExceptionHandler.Handle(ex);
         }
     }
 
@@ -401,8 +404,12 @@ public partial class MainWindow
         contextMenu.Items.Add(new ToolStripSeparator());
 
         contextMenu.Items.Add("Exit", null, (_, _) => Dispatcher.BeginInvoke(
-            DispatcherPriority.Background,
-            new Action(() => Application.Current.Shutdown())
+            DispatcherPriority.ContextIdle,
+            new Action(() =>
+            {
+                bypassTrayOnClose = true;
+                Close();
+            })
         ));
 
         trayIcon.ContextMenuStrip = contextMenu;
