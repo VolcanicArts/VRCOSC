@@ -37,12 +37,18 @@ public sealed class OnInstanceJoinedNode : Node, INodeEventHandler
 {
     public FlowCall OnInstanceJoined = new();
 
+    public ValueOutput<string> WorldId = new("World Id");
+
     protected override async Task Process(PulseContext c)
     {
         await OnInstanceJoined.Execute(c);
     }
 
-    public bool HandleOnInstanceJoined(PulseContext c, VRChatClientEventInstanceJoined eventArgs) => true;
+    public bool HandleOnInstanceJoined(PulseContext c, VRChatClientEventInstanceJoined eventArgs)
+    {
+        WorldId.Write(eventArgs.WorldId, c);
+        return true;
+    }
 }
 
 [Node("On Instance Left", "Events")]
@@ -63,12 +69,18 @@ public sealed class OnUserJoinedNode : Node, INodeEventHandler
 {
     public FlowCall OnUserJoined = new();
 
+    public ValueOutput<string> UserId = new("User Id");
+
     protected override async Task Process(PulseContext c)
     {
         await OnUserJoined.Execute(c);
     }
 
-    public bool HandleOnUserJoined(PulseContext c, VRChatClientEventUserJoined eventArgs) => true;
+    public bool HandleOnUserJoined(PulseContext c, VRChatClientEventUserJoined eventArgs)
+    {
+        UserId.Write(eventArgs.UserId, c);
+        return true;
+    }
 }
 
 [Node("On User Left", "Events")]
@@ -76,12 +88,18 @@ public sealed class OnUserLeftNode : Node, INodeEventHandler
 {
     public FlowCall OnUserLeft = new();
 
+    public ValueOutput<string> UserId = new("User Id");
+
     protected override async Task Process(PulseContext c)
     {
         await OnUserLeft.Execute(c);
     }
 
-    public bool HandleOnUserLeft(PulseContext c, VRChatClientEventUserLeft eventArgs) => true;
+    public bool HandleOnUserLeft(PulseContext c, VRChatClientEventUserLeft eventArgs)
+    {
+        UserId.Write(eventArgs.UserId, c);
+        return true;
+    }
 }
 
 [Node("On Avatar PreChange", "Events")]
