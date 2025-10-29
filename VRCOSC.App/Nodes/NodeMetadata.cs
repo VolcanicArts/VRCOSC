@@ -125,11 +125,19 @@ public static class NodeMetadataBuilder
             var field = fields[i];
             var instance = (INodeAttribute)field.GetValue(node)!;
 
+            object? defaultValue = null;
+
+            if (field.FieldType.IsAssignableTo(typeof(IValueInput)))
+            {
+                defaultValue = ((IValueInput)field.GetValue(node)!).GetDefaultValue();
+            }
+
             arr[i] = new NodeValueMetadata
             {
                 Name = string.IsNullOrEmpty(instance.Name) ? field.Name : instance.Name,
                 Parameter = field,
-                IsReactive = field.HasCustomAttribute<NodeReactiveAttribute>()
+                IsReactive = field.HasCustomAttribute<NodeReactiveAttribute>(),
+                DefaultValue = defaultValue
             };
         }
 
@@ -179,6 +187,7 @@ public sealed class NodeValueMetadata
     public string Name { get; set; } = null!;
     public FieldInfo Parameter { get; set; } = null!;
     public bool IsReactive { get; set; }
+    public object? DefaultValue { get; set; }
 
     public Type Type => Parameter.FieldType.GenericTypeArguments[0];
 }

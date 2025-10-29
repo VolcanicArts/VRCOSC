@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -136,7 +136,10 @@ public class GlobalStore<T> : IStore
     }
 }
 
-public interface IValueInput : INodeAttribute;
+public interface IValueInput : INodeAttribute
+{
+    public object? GetDefaultValue();
+}
 
 public interface IValueOutput : INodeAttribute;
 
@@ -146,6 +149,7 @@ public class ValueInput<T> : IValueInput
     public string Name { get; init; }
 
     internal T DefaultValue { get; }
+    public object? GetDefaultValue() => DefaultValue;
 
     public ValueInput(string name = "", T defaultValue = default!)
     {
@@ -179,6 +183,7 @@ public class ValueInputList<T> : IValueInput
 {
     public int Index { get; set; }
     public string Name { get; init; }
+    public object? GetDefaultValue() => null;
 
     public ValueInputList(string name = "")
     {
