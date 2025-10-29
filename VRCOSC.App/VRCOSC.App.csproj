@@ -40,7 +40,7 @@
         <PackageReference Include="Semver" Version="3.0.0" />
         <PackageReference Include="SoundFlow" Version="1.1.1" />
         <PackageReference Include="Velopack" Version="0.0.1298" />
-        <PackageReference Include="VolcanicArts.FastOSC" Version="1.1.1" />
+        <PackageReference Include="VolcanicArts.FastOSC" Version="2.0.0" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />
         <PackageReference Include="Whisper.net" Version="1.8.1" />
         <PackageReference Include="Whisper.net.Runtime" Version="1.8.1" />

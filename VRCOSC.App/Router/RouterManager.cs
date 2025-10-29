@@ -76,7 +76,15 @@ public class RouterManager
                     Logger.Log($"Starting receiver router instance `{route.Name.Value}` on {endpoint}", LoggingTarget.Terminal);
 
                     var receiver = new OSCReceiver();
-                    receiver.OnMessageReceived += message => AppManager.GetInstance().VRChatOscClient.Send(message.Address, message.Arguments);
+
+                    receiver.OnPacketReceived += packet =>
+                    {
+                        if (packet is OSCMessage message)
+                            AppManager.GetInstance().VRChatOscClient.Send(message.Address, message.Arguments);
+
+                        return Task.CompletedTask;
+                    };
+
                     receiver.Connect(endpoint);
 
                     receivers.Add((route, receiver));
@@ -115,11 +123,13 @@ public class RouterManager
         receivers.Clear();
     }
 
-    private void onParameterReceived(VRChatOSCMessage message)
+    private Task onParameterReceived(VRChatOSCMessage message)
     {
         foreach (var (_, sender) in senders)
         {
             sender.Send(message);
         }
+
+        return Task.CompletedTask;
     }
 }

@@ -18,7 +18,7 @@ namespace VRCOSC.App.OSC.VRChat;
 public class VRChatOSCClient
 {
     public Action<VRChatOSCMessage>? OnVRChatOSCMessageSent;
-    public Action<VRChatOSCMessage>? OnVRChatOSCMessageReceived;
+    public Func<VRChatOSCMessage, Task>? OnVRChatOSCMessageReceived;
 
     private readonly HttpClient client = new();
 
@@ -34,12 +34,17 @@ public class VRChatOSCClient
     {
         client.Timeout = TimeSpan.FromMilliseconds(50);
 
-        receiver.OnMessageReceived += message =>
+        receiver.OnPacketReceived += async packet =>
         {
+            if (packet is OSCBundle) return;
+
+            var message = (packet as OSCMessage)!;
             var data = new VRChatOSCMessage(message);
             if (data.Arguments.Length == 0) return;
 
-            OnVRChatOSCMessageReceived?.Invoke(data);
+            if (OnVRChatOSCMessageReceived is null) return;
+
+            await OnVRChatOSCMessageReceived.Invoke(data);
         };
     }
 

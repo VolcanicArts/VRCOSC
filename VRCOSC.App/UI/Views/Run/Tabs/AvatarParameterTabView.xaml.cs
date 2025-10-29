@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows.Threading;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Utils;
@@ -76,9 +77,9 @@ public partial class AvatarParameterTabView
         });
     }
 
-    private void onVRChatOSCMessageReceived(VRChatOSCMessage e)
+    private Task onVRChatOSCMessageReceived(VRChatOSCMessage e)
     {
-        if (!e.IsAvatarParameter) return;
+        if (!e.IsAvatarParameter) return Task.CompletedTask;
 
         Dispatcher.Invoke(() =>
         {
@@ -87,6 +88,8 @@ public partial class AvatarParameterTabView
                 return incomingLocal[e.ParameterName] = e.ParameterValue;
             }
         });
+
+        return Task.CompletedTask;
     }
 
     private void OnAppManagerStateChange(AppManagerState newState) => Dispatcher.Invoke(() =>

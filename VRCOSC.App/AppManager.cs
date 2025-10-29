@@ -8,11 +8,9 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Security.Principal;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using FastOSC;
 using org.mariuszgromada.math.mxparser;
 using SoundFlow.Abstracts;
 using SoundFlow.Backends.MiniAudio;
@@ -88,9 +86,6 @@ internal class AppManager
     public void Initialise()
     {
         audioEngine = new MiniAudioEngine(44100, Capability.Playback);
-
-        OSCEncoder.SetEncoding(Encoding.UTF8);
-        OSCDecoder.SetEncoding(Encoding.UTF8);
 
         SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Subscribe(theme => ProxyTheme.Value = theme, true);
 
@@ -206,7 +201,7 @@ internal class AppManager
 
     #region OSC
 
-    private async void onVRChatOSCMessageReceived(VRChatOSCMessage message)
+    private async Task onVRChatOSCMessageReceived(VRChatOSCMessage message)
     {
         try
         {
