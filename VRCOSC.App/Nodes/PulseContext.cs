@@ -70,6 +70,8 @@ public class PulseContext
 
     internal Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
 
+    internal Instance GetInstance() => AppManager.GetInstance().VRChatClient.Instance;
+
     internal async Task<VRChatParameter?> GetParameter<T>(string name)
     {
         var parameterDefinition = new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>());

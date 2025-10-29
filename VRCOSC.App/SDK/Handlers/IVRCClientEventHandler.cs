@@ -7,6 +7,10 @@ namespace VRCOSC.App.SDK.Handlers;
 
 public interface IVRCClientEventHandler
 {
+    public void OnUserAuthenticated(VRChatClientEventUserAuthenticated eventArgs)
+    {
+    }
+
     public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
     {
     }

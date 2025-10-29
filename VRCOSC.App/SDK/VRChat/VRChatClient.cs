@@ -11,12 +11,14 @@ namespace VRCOSC.App.SDK.VRChat;
 public class VRChatClient
 {
     public readonly Player Player;
+    public readonly Instance Instance;
 
     public bool LastKnownOpenState { get; private set; }
 
     internal VRChatClient(VRChatOSCClient oscClient)
     {
         Player = new Player(oscClient);
+        Instance = new Instance();
     }
 
     public void Teardown()

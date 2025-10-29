@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json.Nodes;
+using VRCOSC.App.SDK.VRChat;
 
 // ReSharper disable InconsistentNaming
 
@@ -32,7 +33,9 @@ public static partial class TypeResolver
         { "string", typeof(string) },
         { "jsonarray", typeof(JsonArray) },
         { "jsonnode", typeof(JsonNode) },
-        { "jsonobject", typeof(JsonObject) }
+        { "jsonobject", typeof(JsonObject) },
+        { "user", typeof(User) },
+        { "instance", typeof(Instance) }
     };
 
     private static Lazy<Dictionary<string, Type>> typeIndex = new(buildTypeIndex, true);

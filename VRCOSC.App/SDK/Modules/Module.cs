@@ -328,6 +328,8 @@ public abstract class Module
     /// </summary>
     public Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
 
+    public Instance GetInstance() => AppManager.GetInstance().VRChatClient.Instance;
+
     /// <summary>
     /// Allows you to access the current state of the current OpenVR runtime
     /// </summary>

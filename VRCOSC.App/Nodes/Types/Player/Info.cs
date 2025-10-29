@@ -7,6 +7,22 @@ using VRCOSC.App.SDK.VRChat;
 
 namespace VRCOSC.App.Nodes.Types.Player;
 
+[Node("Player User", "Player/Info")]
+public sealed class PlayerUserNode : UpdateNode<string, string>
+{
+    public ValueOutput<string> UserId = new("User Id");
+    public ValueOutput<string> Username = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        UserId.Write(c.GetPlayer().User.UserId, c);
+        Username.Write(c.GetPlayer().User.Username, c);
+        return Task.CompletedTask;
+    }
+
+    protected override (string, string) GetValues(PulseContext c) => (c.GetPlayer().User.UserId, c.GetPlayer().User.Username);
+}
+
 [Node("Player Movement", "Player/Info")]
 public sealed class PlayerMovementNode : UpdateNode<Vector3, float, float>
 {

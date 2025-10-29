@@ -40,6 +40,8 @@ public sealed class Player
     public float EyeHeightAsMeters { get; private set; }
     public float EyeHeightAsPercent { get; private set; }
 
+    public User User { get; internal set; } = new(string.Empty, string.Empty);
+
     private readonly VRChatOSCClient oscClient;
     private bool hasChanged;
 

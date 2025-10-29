@@ -40,7 +40,7 @@ using Module = VRCOSC.App.SDK.Modules.Module;
 
 namespace VRCOSC.App;
 
-internal class AppManager
+internal class AppManager : IVRCClientEventHandler
 {
 #if DEBUG
     public const string APP_NAME = "VRCOSC-Dev";
@@ -159,6 +159,33 @@ internal class AppManager
 
         OpenVRManager = new OpenVRManager();
         SteamVRManager = new SteamVRManager();
+    }
+
+    public void OnUserAuthenticated(VRChatClientEventUserAuthenticated eventArgs)
+    {
+        VRChatClient.Player.User = eventArgs.User;
+    }
+
+    public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
+    {
+        VRChatClient.Instance.WorldId = eventArgs.WorldId;
+        VRChatClient.Instance.Users.Clear();
+    }
+
+    public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs)
+    {
+        VRChatClient.Instance.WorldId = null;
+        VRChatClient.Instance.Users.Clear();
+    }
+
+    public void OnUserJoined(VRChatClientEventUserJoined eventArgs)
+    {
+        VRChatClient.Instance.Users.Add(eventArgs.User);
+    }
+
+    public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
+    {
+        VRChatClient.Instance.Users.RemoveIf(user => user.UserId == eventArgs.UserId);
     }
 
     public async Task<VRChatParameter?> FindParameter(ParameterDefinition parameterDefinition, CancellationToken token)
@@ -472,6 +499,8 @@ internal class AppManager
             SpeechEngine.Initialise();
         }
 
+        VRChatLogReader.Register(this);
+
         State.Value = AppManagerState.Starting;
 
         StartupManager.GetInstance().OpenFileLocations();
@@ -573,6 +602,8 @@ internal class AppManager
         await RouterManager.GetInstance().Stop();
 
         State.Value = AppManagerState.Stopped;
+
+        VRChatLogReader.Deregister(this);
     }
 
     #endregion
