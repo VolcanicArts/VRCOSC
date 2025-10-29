@@ -99,7 +99,7 @@ public sealed class JsonNodeMetadataNode : Node
     }
 }
 
-[Node("Json Object To Dict", "Json")]
+[Node("Json Object To Dictionary", "Json")]
 public sealed class JsonObjectToDictionaryNode<T> : Node
 {
     public ValueInput<JsonObject> Input = new();
@@ -241,6 +241,73 @@ public sealed class JsonObjectNode : Node, IHasTextProperty
         {
         }
 
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Json To String", "Json")]
+public sealed class JsonToStringNode : Node
+{
+    private readonly JsonSerializerOptions options = new()
+    {
+        AllowTrailingCommas = true
+    };
+
+    public ValueInput<JsonNode> Input = new();
+    public ValueOutput<string> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var input = Input.Read(c);
+        if (input is null) return Task.CompletedTask;
+
+        Output.Write(input.ToJsonString(options), c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Dictionary To Json Object", "Json")]
+public sealed class DictionaryToJsonObjectNode<T> : Node
+{
+    private readonly JsonSerializerOptions options = new()
+    {
+        AllowTrailingCommas = true
+    };
+
+    public ValueInput<Dictionary<string, T>> Input = new();
+    public ValueOutput<JsonObject> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var input = Input.Read(c);
+        if (input is null) return Task.CompletedTask;
+
+        var value = (JsonObject)JsonSerializer.SerializeToNode(input, options)!;
+
+        Output.Write(value, c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Enumerable to Json Array", "Json")]
+public sealed class EnumerableToJsonArrayNode<T> : Node
+{
+    private readonly JsonSerializerOptions options = new()
+    {
+        AllowTrailingCommas = true
+    };
+
+    public ValueInput<IEnumerable<T>> Input = new();
+    public ValueOutput<JsonArray> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var input = Input.Read(c);
+        if (input is null) return Task.CompletedTask;
+
+        var value = (JsonArray)JsonSerializer.SerializeToNode(input, options)!;
+
+        Output.Write(value, c);
         return Task.CompletedTask;
     }
 }

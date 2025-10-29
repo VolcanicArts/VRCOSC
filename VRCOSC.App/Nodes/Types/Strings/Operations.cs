@@ -110,3 +110,87 @@ public sealed class StringIsNullOrWhiteSpaceNode : Node
         return Task.CompletedTask;
     }
 }
+
+[Node("Length", "Strings")]
+[NodeCollapsed]
+public sealed class StringLengthNode : Node
+{
+    public ValueInput<string> Input = new(defaultValue: string.Empty);
+    public ValueOutput<int> Length = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        Length.Write(Input.Read(c).Length, c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Substring", "Strings")]
+public sealed class StringSubstringNode : Node
+{
+    public ValueInput<string> Input = new(defaultValue: string.Empty);
+    public ValueInput<int> Index = new();
+    public ValueInput<int> Length = new();
+
+    public ValueOutput<string> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var input = Input.Read(c);
+        var index = Index.Read(c);
+        var length = Length.Read(c);
+
+        try
+        {
+            Output.Write(length == 0 ? input.Substring(index) : input.Substring(index, length), c);
+        }
+        catch
+        {
+            Output.Write(string.Empty, c);
+        }
+
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Ends With", "Strings")]
+public sealed class StringEndsWithNode : Node
+{
+    public ValueInput<string> Input = new(defaultValue: string.Empty);
+    public ValueInput<string> Check = new(defaultValue: string.Empty);
+    public ValueInput<StringComparison> Comparison = new();
+
+    public ValueOutput<bool> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var input = Input.Read(c);
+        var check = Check.Read(c);
+        var comparison = Comparison.Read(c);
+
+        Output.Write(input.EndsWith(check, comparison), c);
+
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Starts With", "Strings")]
+public sealed class StringStartsWithNode : Node
+{
+    public ValueInput<string> Input = new(defaultValue: string.Empty);
+    public ValueInput<string> Check = new(defaultValue: string.Empty);
+    public ValueInput<StringComparison> Comparison = new();
+
+    public ValueOutput<bool> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var input = Input.Read(c);
+        var check = Check.Read(c);
+        var comparison = Comparison.Read(c);
+
+        Output.Write(input.StartsWith(check, comparison), c);
+
+        return Task.CompletedTask;
+    }
+}
