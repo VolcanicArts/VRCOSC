@@ -62,7 +62,7 @@ public static class ExceptionHandler
 
         isWindowShowing = false;
 
-        if (isCritical) Application.Current.Shutdown(-1);
+        if (isCritical && Application.Current is not null) Application.Current.Shutdown(-1);
     }
 
     public static void Handle(string message)
