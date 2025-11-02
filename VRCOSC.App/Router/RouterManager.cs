@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Net;
 using System.Threading.Tasks;
 using FastOSC;
+using VRCOSC.App.ChatBox;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Router.Serialisation.V1;
 using VRCOSC.App.Serialisation;
@@ -80,7 +81,15 @@ public class RouterManager
                     receiver.OnPacketReceived += packet =>
                     {
                         if (packet is OSCMessage message)
+                        {
+                            if (message.Address == VRChatOSCConstants.ADDRESS_CHATBOX_INPUT)
+                            {
+                                ChatBoxManager.GetInstance().SetRouterChatBoxInput((string)message.Arguments[0]!);
+                                return Task.CompletedTask;
+                            }
+
                             AppManager.GetInstance().VRChatOscClient.Send(message.Address, message.Arguments);
+                        }
 
                         return Task.CompletedTask;
                     };

@@ -195,7 +195,19 @@ public class Clip : INotifyPropertyChanged
                 return false;
             }
 
+            // we know we're in the built-in text state
             currentState = States[0];
+
+            var result = currentState.RunFormatting();
+
+            // ignore the built-in text state if the result is empty.
+            // this helps the router chatbox text input work
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                currentState = null;
+                return false;
+            }
+
             return true;
         }
 

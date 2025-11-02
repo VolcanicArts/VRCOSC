@@ -117,6 +117,14 @@ public class ChatBoxManager : INotifyPropertyChanged
             ClipVariableType = typeof(FileReaderClipVariable),
             ValueType = typeof(string)
         });
+
+        VariableReferences.Add(new ClipVariableReference
+        {
+            VariableID = BuiltInVariables.RouterChatBoxInput.ToLookup(),
+            DisplayName = { Value = "Router ChatBox Input" },
+            ClipVariableType = typeof(StringClipVariable),
+            ValueType = typeof(string)
+        });
     }
 
     public void Unload()
@@ -206,6 +214,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         isClear = true;
         currentIsTyping = false;
         CurrentClip = null;
+        routerChatBoxInput = string.Empty;
 
         sendTask.Start(TimeSpan.FromMilliseconds(sendInterval));
         updateTask.Start(TimeSpan.FromSeconds(1f / 60f));
@@ -288,12 +297,20 @@ public class ChatBoxManager : INotifyPropertyChanged
         return Task.CompletedTask;
     }
 
+    private string routerChatBoxInput;
+
+    public void SetRouterChatBoxInput(string text)
+    {
+        routerChatBoxInput = text;
+    }
+
     private void updateBuiltInVariables()
     {
         GetVariable(null, BuiltInVariables.FocusedWindow.ToLookup())!.SetValue(ProcessExtensions.GetActiveWindowTitle() ?? string.Empty);
         GetVariable(null, BuiltInVariables.Text.ToLookup())!.SetValue(string.Empty);
         GetVariable(null, BuiltInVariables.Timer.ToLookup())!.SetValue(TimeSpan.Zero);
         GetVariable(null, BuiltInVariables.FileReader.ToLookup())!.SetValue(string.Empty);
+        GetVariable(null, BuiltInVariables.RouterChatBoxInput.ToLookup())!.SetValue(routerChatBoxInput);
     }
 
     private void evaluateClips()
@@ -501,5 +518,6 @@ public enum BuiltInVariables
     Text,
     FocusedWindow,
     Timer,
-    FileReader
+    FileReader,
+    RouterChatBoxInput
 }
