@@ -139,23 +139,28 @@ public class PackageManager
 
     private async Task downloadRelease(PackageSource source, PackageRelease release, Storage targetDirectory)
     {
-        var tasks = release.Assets.Select(assetName => Task.Run(async () =>
+        foreach (var assetName in release.Assets)
         {
-            var fileDownload = new FileDownload();
-            await fileDownload.DownloadFileAsync(new Uri($"{source.URL}/releases/download/{release.Version}/{assetName}"), targetDirectory.GetFullPath(assetName, true));
-
-            if (assetName.EndsWith(".zip"))
+            try
             {
-                var zipPath = targetDirectory.GetFullPath(assetName);
-                var extractPath = targetDirectory.GetFullPath(string.Empty);
+                var fileDownload = new FileDownload();
+                await fileDownload.DownloadFileAsync(new Uri($"{source.URL}/releases/download/{release.Version}/{assetName}"), targetDirectory.GetFullPath(assetName, true));
 
-                ZipFile.ExtractToDirectory(zipPath, extractPath);
+                if (assetName.EndsWith(".zip"))
+                {
+                    var zipPath = targetDirectory.GetFullPath(assetName);
+                    var extractPath = targetDirectory.GetFullPath(string.Empty);
 
-                targetDirectory.Delete(assetName);
+                    ZipFile.ExtractToDirectory(zipPath, extractPath);
+
+                    targetDirectory.Delete(assetName);
+                }
             }
-        }));
-
-        await Task.WhenAll(tasks);
+            catch (Exception e)
+            {
+                Logger.Error(e, $"{assetName} failed to install");
+            }
+        }
     }
 
     public async Task UninstallPackage(PackageSource packageSource)
