@@ -108,7 +108,11 @@ public sealed class VariableReferenceToValueNode<T> : UpdateNode<T>
         return Task.CompletedTask;
     }
 
-    protected override T GetValue(PulseContext c) => Reference.Read(c).Value.Value;
+    protected override T GetValue(PulseContext c)
+    {
+        var reference = Reference.Read(c);
+        return reference is null ? default! : reference.Value.Value;
+    }
 }
 
 [Node("Variable Source")]
