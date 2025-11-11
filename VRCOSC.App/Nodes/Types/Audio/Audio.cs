@@ -64,8 +64,8 @@ public sealed class AudioTrackCreateNode : Node
     }
 }
 
-[Node("Play Track", "Audio")]
-public sealed class AudioTrackPlayNode : Node, IFlowInput
+[Node("Play Track And Wait", "Audio")]
+public sealed class AudioTrackPlayAndWaitNode : Node, IFlowInput
 {
     public FlowContinuation OnFinished = new("On Finished");
     public FlowContinuation OnFailed = new("On Failed");
@@ -95,8 +95,8 @@ public sealed class AudioTrackPlayNode : Node, IFlowInput
     }
 }
 
-[Node("Play Track Async", "Audio")]
-public sealed class AudioTrackPlayAsyncNode : Node, IFlowInput
+[Node("Play Track", "Audio")]
+public sealed class AudioTrackPlayNode : Node, IFlowInput
 {
     public FlowContinuation OnPlaying = new("On Playing");
     public FlowContinuation OnFailed = new("On Failed");
