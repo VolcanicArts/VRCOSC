@@ -47,23 +47,22 @@ public partial class ChatBoxView
     }
 
     private Border? clipBorder;
-    private Clip? selectedClip;
 
     public Clip? SelectedClip
     {
-        get => selectedClip;
+        get;
         set
         {
-            if (selectedClip == value) return;
+            if (field == value) return;
 
-            var selectedClipBefore = selectedClip;
-            selectedClip = value;
-            SelectedClipGrid.DataContext = selectedClip;
+            var selectedClipBefore = field;
+            field = value;
+            SelectedClipGrid.DataContext = field;
 
-            if (selectedClip is null && selectedClipBefore is not null)
+            if (field is null && selectedClipBefore is not null)
                 SelectedClipGrid.FadeOutFromOne(150);
 
-            if (selectedClip is not null && selectedClipBefore is null)
+            if (field is not null && selectedClipBefore is null)
                 SelectedClipGrid.FadeInFromZero(150);
         }
     }

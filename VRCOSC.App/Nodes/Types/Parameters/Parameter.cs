@@ -189,18 +189,16 @@ public sealed class WildcardParameterSourceNode<T, W0> : Node, INodeEventHandler
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
-    private string text = string.Empty;
-
     [NodeProperty("text")]
     public string Text
     {
-        get => text;
+        get;
         set
         {
-            text = value;
-            textRegex = TemplatedVRChatParameter.TemplateAsRegex(text);
+            field = value;
+            textRegex = TemplatedVRChatParameter.TemplateAsRegex(field);
         }
-    }
+    } = string.Empty;
 
     private Regex textRegex = null!;
 
@@ -237,18 +235,16 @@ public sealed class WildcardParameterSourceNode<T, W0, W1> : Node, INodeEventHan
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
-    private string text = string.Empty;
-
     [NodeProperty("text")]
     public string Text
     {
-        get => text;
+        get;
         set
         {
-            text = value;
-            textRegex = TemplatedVRChatParameter.TemplateAsRegex(text);
+            field = value;
+            textRegex = TemplatedVRChatParameter.TemplateAsRegex(field);
         }
-    }
+    } = string.Empty;
 
     private Regex textRegex = null!;
 
@@ -288,18 +284,16 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : Node, INodeEven
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
-    private string text = string.Empty;
-
     [NodeProperty("text")]
     public string Text
     {
-        get => text;
+        get;
         set
         {
-            text = value;
-            textRegex = TemplatedVRChatParameter.TemplateAsRegex(text);
+            field = value;
+            textRegex = TemplatedVRChatParameter.TemplateAsRegex(field);
         }
-    }
+    } = string.Empty;
 
     private Regex textRegex = null!;
 
@@ -342,18 +336,16 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2, W3> : Node, INode
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
-    private string text = string.Empty;
-
     [NodeProperty("text")]
     public string Text
     {
-        get => text;
+        get;
         set
         {
-            text = value;
-            textRegex = TemplatedVRChatParameter.TemplateAsRegex(text);
+            field = value;
+            textRegex = TemplatedVRChatParameter.TemplateAsRegex(field);
         }
-    }
+    } = string.Empty;
 
     private Regex textRegex = null!;
 

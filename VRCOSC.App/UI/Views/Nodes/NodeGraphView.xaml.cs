@@ -74,19 +74,18 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
     private GraphItemSelection? selection;
     private NodePreset? copyPasteHolder;
-    private bool contentVisible = true;
 
     public bool ContentVisible
     {
-        get => contentVisible;
+        get;
         set
         {
-            if (value == contentVisible) return;
+            if (value == field) return;
 
-            contentVisible = value;
+            field = value;
             OnPropertyChanged();
         }
-    }
+    } = true;
 
     public ObservableCollection<IGraphVariable> GraphVariablesSource { get; } = new();
 
@@ -1503,16 +1502,14 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
     #region NodeGraph Title
 
-    private bool graphTitleEditing;
-
     public bool GraphTitleEditing
     {
-        get => graphTitleEditing;
+        get;
         set
         {
-            if (value == graphTitleEditing) return;
+            if (value == field) return;
 
-            graphTitleEditing = value;
+            field = value;
             OnPropertyChanged();
         }
     }
@@ -1890,30 +1887,26 @@ public record GraphItem : INotifyPropertyChanged
     public FrameworkElement Element { get; set; } = null!;
     public Vector SnapOffset { get; set; }
 
-    private double posX;
-
     public double PosX
     {
-        get => posX;
+        get;
         private set
         {
-            if (value.Equals(posX)) return;
+            if (value.Equals(field)) return;
 
-            posX = value;
+            field = value;
             OnPropertyChanged();
         }
     }
 
-    private double posY;
-
     public double PosY
     {
-        get => posY;
+        get;
         private set
         {
-            if (value.Equals(posY)) return;
+            if (value.Equals(field)) return;
 
-            posY = value;
+            field = value;
             OnPropertyChanged();
         }
     }
@@ -1960,44 +1953,38 @@ public record NodeGroupGraphItem : GraphItem
 {
     public NodeGroup Group { get; }
 
-    private bool editing;
-
     public bool Editing
     {
-        get => editing;
+        get;
         set
         {
-            if (value == editing) return;
+            if (value == field) return;
 
-            editing = value;
+            field = value;
             OnPropertyChanged();
         }
     }
-
-    private double width;
 
     public double Width
     {
-        get => width;
+        get;
         set
         {
-            if (value.Equals(width)) return;
+            if (value.Equals(field)) return;
 
-            width = value;
+            field = value;
             OnPropertyChanged();
         }
     }
 
-    private double height;
-
     public double Height
     {
-        get => height;
+        get;
         set
         {
-            if (value.Equals(height)) return;
+            if (value.Equals(field)) return;
 
-            height = value;
+            field = value;
             OnPropertyChanged();
         }
     }

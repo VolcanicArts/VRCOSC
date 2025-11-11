@@ -9,18 +9,16 @@ namespace VRCOSC.App.Nodes.Types.Inputs;
 [Node("Value")]
 public class ValueNode<T> : Node
 {
-    private T value = default!;
-
     [NodeProperty("value")]
     public T Value
     {
-        get => value;
+        get;
         set
         {
-            this.value = value;
+            field = value;
             NodeGraph.TriggerTree(this).Forget();
         }
-    }
+    } = default!;
 
     public ValueOutput<T> Output = new();
 

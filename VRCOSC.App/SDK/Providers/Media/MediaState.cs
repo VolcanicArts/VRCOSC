@@ -33,18 +33,16 @@ public class MediaTimelineProperties
 {
     public TimeSpan Start { get; internal set; } = TimeSpan.Zero;
 
-    private TimeSpan end = TimeSpan.Zero;
-
     public TimeSpan End
     {
         get
         {
-            if (end == TimeSpan.Zero || Position >= end) return Position;
+            if (field == TimeSpan.Zero || Position >= field) return Position;
 
-            return end;
+            return field;
         }
-        internal set => end = value;
-    }
+        internal set;
+    } = TimeSpan.Zero;
 
     public TimeSpan Position { get; internal set; } = TimeSpan.Zero;
 

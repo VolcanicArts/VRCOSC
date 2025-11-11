@@ -40,16 +40,14 @@ public class ObservableConverter : JsonConverter<IObservable>
 
 public sealed class Observable<T> : IObservable, INotifyPropertyChanged, IEquatable<Observable<T>>
 {
-    private T value;
-
     public T Value
     {
-        get => value;
+        get;
         set
         {
-            if (EqualityComparer<T>.Default.Equals(value, this.value)) return;
+            if (EqualityComparer<T>.Default.Equals(value, field)) return;
 
-            this.value = value;
+            field = value;
             notifyObservers();
             OnPropertyChanged();
         }

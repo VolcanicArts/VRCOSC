@@ -11,15 +11,13 @@ public partial class DateTimeSettingView
 {
     private readonly DateTimeModuleSetting moduleSetting;
 
-    private DateTime proxyValue;
-
     public DateTime ProxyValue
     {
-        get => proxyValue;
+        get;
         set
         {
-            proxyValue = value;
-            moduleSetting.Attribute.Value = new DateTimeOffset(proxyValue, TimeZoneInfo.Local.GetUtcOffset(proxyValue));
+            field = value;
+            moduleSetting.Attribute.Value = new DateTimeOffset(field, TimeZoneInfo.Local.GetUtcOffset(field));
         }
     }
 

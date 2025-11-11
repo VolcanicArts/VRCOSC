@@ -11,19 +11,17 @@ namespace VRCOSC.App.Nodes.Types.Utility;
 [Node("Display", "Utility")]
 public sealed class DisplayNode<T> : Node, IDisplayNode, INotifyPropertyChanged
 {
-    private T value = default!;
-
     public T Value
     {
-        get => value;
+        get;
         set
         {
-            if (EqualityComparer<T>.Default.Equals(value, this.value)) return;
+            if (EqualityComparer<T>.Default.Equals(value, field)) return;
 
-            this.value = value;
+            field = value;
             OnPropertyChanged();
         }
-    }
+    } = default!;
 
     [NodeReactive]
     public ValueInput<T> Input = new();
@@ -47,19 +45,17 @@ public sealed class DisplayNode<T> : Node, IDisplayNode, INotifyPropertyChanged
 [Node("Passthrough Display", "Utility")]
 public sealed class PassthroughDisplayNode<T> : Node, IDisplayNode, INotifyPropertyChanged
 {
-    private T value = default!;
-
     public T Value
     {
-        get => value;
+        get;
         set
         {
-            if (EqualityComparer<T>.Default.Equals(value, this.value)) return;
+            if (EqualityComparer<T>.Default.Equals(value, field)) return;
 
-            this.value = value;
+            field = value;
             OnPropertyChanged();
         }
-    }
+    } = default!;
 
     public ValueInput<T> Input = new();
     public ValueOutput<T> Output = new();

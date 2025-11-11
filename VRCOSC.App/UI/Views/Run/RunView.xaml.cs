@@ -19,14 +19,12 @@ public partial class RunView : INotifyPropertyChanged
 {
     private const int view_button_width = 160;
 
-    private int chosenTab;
-
     public int ChosenTab
     {
-        get => chosenTab;
+        get;
         set
         {
-            chosenTab = value;
+            field = value;
             setChosenView();
             OnPropertyChanged();
         }
