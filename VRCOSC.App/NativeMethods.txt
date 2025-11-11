@@ -19,3 +19,8 @@ UnhookWindowsHookEx
 CallNextHookEx
 GetModuleHandle
 KBDLLHOOKSTRUCT
+GetCurrentThreadId
+GetMessage
+TranslateMessage
+DispatchMessage
+PostThreadMessage
