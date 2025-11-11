@@ -74,6 +74,13 @@ public class NodeReactiveAttribute : Attribute;
 [AttributeUsage(AttributeTargets.Class)]
 public class NodeForceReprocessAttribute : Attribute;
 
+/// <inheritdoc/>
+/// <summary>
+/// Changes a trigger node to allow for multiple flows from source. Good for API events
+/// </summary>
+[AttributeUsage(AttributeTargets.Class)]
+public class NodeMultiFlowAttribute : Attribute;
+
 public interface INodeAttribute
 {
     public int Index { get; internal set; }

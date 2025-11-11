@@ -33,6 +33,9 @@ public static class NodeMetadataBuilder
         var isValueInput = valueInputs.Count != 0;
         var isValueOutput = valueOutputs.Count != 0;
 
+        var isMultiFlow = type.HasCustomAttribute<NodeMultiFlowAttribute>();
+        if (isMultiFlow && !(isFlowOutput && !isFlowInput)) throw new Exception($"Cannot build {nameof(NodeMetadata)} from a type that is not a trigger node but marked as {nameof(NodeMultiFlowAttribute)}");
+
         var inputsHaveVariableSize = valueInputs.Any(m => m.FieldType.GetGenericTypeDefinition() == typeof(ValueInputList<>));
 
         if (inputsHaveVariableSize)
@@ -86,7 +89,8 @@ public static class NodeMetadataBuilder
             ValueInputHasVariableSize = inputsHaveVariableSize,
             ValueOutputHasVariableSize = outputsHaveVariableSize,
             ForceReprocess = type.HasCustomAttribute<NodeForceReprocessAttribute>(),
-            Properties = properties
+            Properties = properties,
+            MultiFlow = isMultiFlow
         };
 
         return metadata;
@@ -169,6 +173,7 @@ public sealed class NodeMetadata
     public bool ValueInputHasVariableSize { get; internal set; }
     public bool ValueOutputHasVariableSize { get; internal set; }
     public bool ForceReprocess { get; internal set; }
+    public bool MultiFlow { get; internal set; }
 
     public List<PropertyInfo> Properties { get; set; } = [];
 

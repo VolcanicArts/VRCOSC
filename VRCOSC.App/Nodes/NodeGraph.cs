@@ -569,10 +569,13 @@ public class NodeGraph : IVRCClientEventHandler
         var newTask = Task.Run(async () =>
         {
             await node.InternalProcess(c);
-            tasks.TryRemove(node, out _);
+
+            if (!node.Metadata.MultiFlow)
+                tasks.TryRemove(node, out _);
         });
 
-        tasks.TryAdd(node, new FlowTask(newTask, c));
+        if (!node.Metadata.MultiFlow)
+            tasks.TryAdd(node, new FlowTask(newTask, c));
     }
 
     public Task ProcessNode(Guid nodeId, PulseContext c) => processNode(Nodes[nodeId], c);
