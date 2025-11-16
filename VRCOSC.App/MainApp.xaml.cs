@@ -15,19 +15,19 @@ public partial class MainApp
 
         Current.DispatcherUnhandledException += (s, ex) =>
         {
-            ExceptionHandler.Handle(ex.Exception, "DispatcherUnhandledException", true);
+            Logger.Error(ex.Exception, "DispatcherUnhandledException");
             ex.Handled = false;
         };
 
         TaskScheduler.UnobservedTaskException += (s, ex) =>
         {
-            ExceptionHandler.Handle(ex.Exception, "UnobservedTaskException", true);
+            Logger.Error(ex.Exception, "UnobservedTaskException");
             ex.SetObserved();
         };
 
         AppDomain.CurrentDomain.UnhandledException += (s, ex) =>
         {
-            ExceptionHandler.Handle((ex.ExceptionObject as Exception)!, "An unhandled exception has occured", true);
+            Logger.Error((ex.ExceptionObject as Exception)!, "An unhandled exception has occured");
         };
 
         AppDomain.CurrentDomain.FirstChanceException += (s, e) =>
@@ -44,7 +44,7 @@ public partial class MainApp
                 txt.Contains("TextServicesContext") ||
                 txt.Contains("System.Windows.Input.InputMethod"))
             {
-                ExceptionHandler.Handle(ex, "FirstChance (input/TSF)");
+                Logger.Error(ex, "FirstChance (input/TSF)");
             }
         };
     }
