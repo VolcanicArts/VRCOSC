@@ -153,8 +153,9 @@
                                                                                 Cursor="Hand"
                                                                                 Drop="VariableInstance_DropTarget"
                                                                                 DragEnter="VariableInstance_DragEnter"
-                                                                                Padding="5 0"
+                                                                                DragOver="VariableInstance_DragOver"
                                                                                 DragLeave="VariableInstance_DragLeave"
+                                                                                Padding="5 0"
                                                                                 Tag="{Binding}">
                                                                                 <Border.Background>
                                                                                     <MultiBinding Converter="{StaticResource AlternatingColourConverter}">

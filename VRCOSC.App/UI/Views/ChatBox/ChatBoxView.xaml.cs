@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -34,6 +35,8 @@ public partial class ChatBoxView
 
     public ChatBoxManager ChatBoxManager => ChatBoxManager.GetInstance();
 
+    public ObservableCollection<object> TimelineItems { get; } = [];
+
     public ChatBoxView()
     {
         InitializeComponent();
@@ -44,6 +47,21 @@ public partial class ChatBoxView
         AppManager.GetInstance().State.Subscribe(newState => Dispatcher.Invoke(() => Indicator.Visibility = newState == AppManagerState.Started ? Visibility.Visible : Visibility.Collapsed), true);
         ChatBoxManager.GetInstance().Timeline.Length.Subscribe(_ => drawLines());
         AppManager.GetInstance().ProxyTheme.Subscribe(_ => drawLines());
+
+        ChatBoxManager.GetInstance().Timeline.Clips.OnCollectionChanged(onClipsCollectionChanged, true);
+        ChatBoxManager.GetInstance().Timeline.DroppableAreas.OnCollectionChanged(onDroppableAreasCollectionChanged, true);
+    }
+
+    private void onClipsCollectionChanged(IEnumerable<Clip> newItems, IEnumerable<Clip> oldItems)
+    {
+        TimelineItems.RemoveIf(item => item is Clip clipItem && oldItems.Contains(clipItem));
+        TimelineItems.AddRange(newItems);
+    }
+
+    private void onDroppableAreasCollectionChanged(IEnumerable<DroppableArea> newItems, IEnumerable<DroppableArea> oldItems)
+    {
+        TimelineItems.RemoveIf(item => item is DroppableArea droppableAreaItem && oldItems.Contains(droppableAreaItem));
+        TimelineItems.AddRange(newItems);
     }
 
     private Border? clipBorder;
@@ -70,11 +88,6 @@ public partial class ChatBoxView
     private void ChatBoxPage_OnLoaded(object sender, RoutedEventArgs e)
     {
         drawLines();
-    }
-
-    private void ChatBoxPage_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-    {
-        RightClickMenu.FadeOutFromOne(50);
     }
 
     private void ChatBoxPage_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -178,7 +191,6 @@ public partial class ChatBoxView
         clipBorder = clipGrid.FindVisualParent<Border>("ClipBorder");
         clipBorder!.Background = (Brush)FindResource("CBackground6");
         SelectedClip = clip;
-        RightClickMenu.FadeOutFromOne(50);
     }
 
     private void Clip_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -193,8 +205,6 @@ public partial class ChatBoxView
         clipBorder = clipGrid.FindVisualParent<Border>("ClipBorder");
         clipBorder!.Background = (Brush)FindResource("CBackground6");
         SelectedClip = clip;
-
-        showRightClickMenu(null, clip);
     }
 
     private void ClipMain_OnLeftMouseButtonDown(object sender, MouseButtonEventArgs e)
@@ -370,35 +380,21 @@ public partial class ChatBoxView
 
     private void TimelineContent_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
-        if (clipBorder is not null)
-            clipBorder.Background = (Brush)FindResource("CBackground4");
-
+        clipBorder?.Background = (Brush)FindResource("CBackground4");
         SelectedClip = null;
         e.Handled = true;
-        RightClickMenu.FadeOutFromOne(50);
     }
 
     private void TimelineContent_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
     {
-        e.Handled = true;
-
-        var layer = (int)Math.Floor(e.GetPosition(Timeline).Y / 50d);
-
-        if (clipBorder is not null)
-            clipBorder.Background = (Brush)FindResource("CBackground4");
-
+        clipBorder?.Background = (Brush)FindResource("CBackground4");
         SelectedClip = null;
-        showRightClickMenu(layer, null);
+        e.Handled = true;
     }
 
     private void TimelineContent_OnMouseMove(object sender, MouseEventArgs e)
     {
         if (draggingClip is null) return;
-
-        var layer = (int)Math.Floor(e.GetPosition(Timeline).Y / 50d);
-        if (draggingClip.Layer.Value == layer) return;
-
-        DragDrop.DoDragDrop(this, new object(), DragDropEffects.Move);
     }
 
     private void TextBox_OnLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
@@ -450,31 +446,11 @@ public partial class ChatBoxView
         }
     }
 
-    private void showRightClickMenu(int? layer, Clip? clip)
-    {
-        RightClickMenu.Visibility = Visibility.Collapsed;
-
-        RightClickMenuLayerOptions.Visibility = layer is not null ? Visibility.Visible : Visibility.Collapsed;
-        RightClickMenuClipOptions.Visibility = clip is not null ? Visibility.Visible : Visibility.Collapsed;
-
-        RightClickMenu.Tag = layer is not null ? layer : clip;
-
-        var mousePos = Mouse.GetPosition(TimelineContainer);
-        RightClickMenu.RenderTransform = new TranslateTransform(mousePos.X, mousePos.Y);
-
-        RightClickMenu.FadeInFromZero(50);
-    }
-
-    private void RightClickMenu_OnMouseDown(object sender, MouseButtonEventArgs e)
-    {
-        e.Handled = true;
-    }
-
     private void createClip()
     {
-        var layer = (int)RightClickMenu.Tag;
-
-        var xPos = ((TranslateTransform)RightClickMenu.RenderTransform).X;
+        Logger.Log(contextMenuOpeningMousePos.ToString(), LoggingTarget.Information);
+        var layer = (int)Math.Floor(contextMenuOpeningMousePos.Y / 50d);
+        var xPos = contextMenuOpeningMousePos.X;
         var xPosNormalised = xPos / TimelineContainer.ActualWidth;
         var closestSecond = (int)Math.Floor(xPosNormalised * ChatBoxManager.GetInstance().Timeline.Length.Value);
 
@@ -488,8 +464,6 @@ public partial class ChatBoxView
         };
 
         ChatBoxManager.GetInstance().Timeline.Clips.Add(clip);
-
-        RightClickMenu.FadeOutFromOne(50);
     }
 
     private void CreateClipOnLayer_OnClick(object sender, RoutedEventArgs e)
@@ -499,26 +473,38 @@ public partial class ChatBoxView
 
     private void DeleteClip_OnClick(object sender, RoutedEventArgs e)
     {
-        var clip = (Clip)RightClickMenu.Tag;
+        var element = (FrameworkElement)sender;
+        var clip = (Clip)element.Tag;
 
         var editWindow = clipEditWindowCache.FirstOrDefault(window => window.ReferenceClip == clip);
         editWindow?.Close();
 
-        if (clipBorder is not null)
-            clipBorder.Background = (Brush)FindResource("CBackground4");
-
+        clipBorder?.Background = (Brush)FindResource("CBackground4");
         SelectedClip = null;
 
         ChatBoxManager.GetInstance().Timeline.Clips.Remove(clip);
-        RightClickMenu.FadeOutFromOne(50);
     }
 
-    private void DroppableArea_OnDrop(object sender, DragEventArgs e)
+    private void DroppableArea_OnMouseEnter(object sender, MouseEventArgs e)
     {
+        if (draggingClip is null) return;
+
+        Mouse.OverrideCursor = Cursors.Hand;
+    }
+
+    private void DroppableArea_OnMouseLeave(object sender, MouseEventArgs e)
+    {
+        if (draggingClip is null) return;
+
+        Mouse.OverrideCursor = null;
+    }
+
+    private void DroppableArea_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (draggingClip is null) return;
+
         var element = (FrameworkElement)sender;
         var droppableArea = (DroppableArea)element.Tag;
-
-        Debug.Assert(draggingClip is not null);
 
         var clipWidth = draggingClip.End.Value - draggingClip.Start.Value;
         var areaWidth = droppableArea.End - droppableArea.Start;
@@ -544,6 +530,8 @@ public partial class ChatBoxView
         ChatBoxManager.GetInstance().Timeline.GenerateDroppableAreas(draggingClip.Layer.Value);
 
         draggingClip = null;
+        Mouse.OverrideCursor = null;
+        e.Handled = true;
     }
 
     private void IgnoreErrors_ButtonClick(object sender, RoutedEventArgs e)
@@ -558,18 +546,18 @@ public partial class ChatBoxView
 
     private void CopyClip_OnClick(object sender, RoutedEventArgs e)
     {
-        CopiedClip = SelectedClip;
+        var element = (FrameworkElement)sender;
+        var clip = (Clip)element.Tag;
+        CopiedClip = clip;
         PasteClipButtonVisibility.Value = Visibility.Visible;
-        RightClickMenu.FadeOutFromOne(50);
     }
 
     private void PasteClipOnLayer_OnClick(object sender, RoutedEventArgs e)
     {
         Debug.Assert(CopiedClip is not null);
 
-        var layer = (int)RightClickMenu.Tag;
-
-        var xPos = ((TranslateTransform)RightClickMenu.RenderTransform).X;
+        var layer = (int)Math.Floor(contextMenuOpeningMousePos.Y / 50d);
+        var xPos = contextMenuOpeningMousePos.X;
         var xPosNormalised = xPos / TimelineContainer.ActualWidth;
         var closestSecond = (int)Math.Floor(xPosNormalised * ChatBoxManager.GetInstance().Timeline.Length.Value);
 
@@ -595,12 +583,18 @@ public partial class ChatBoxView
 
         CopiedClip = null;
         PasteClipButtonVisibility.Value = Visibility.Collapsed;
-        RightClickMenu.FadeOutFromOne(50);
     }
 
     private void HelpButton_OnClick(object sender, RoutedEventArgs e)
     {
         new Uri("https://vrcosc.com/docs/v2/chatbox").OpenExternally();
+    }
+
+    private Point contextMenuOpeningMousePos;
+
+    private void TimelineContext_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+    {
+        contextMenuOpeningMousePos = Mouse.GetPosition(Timeline);
     }
 }
 
