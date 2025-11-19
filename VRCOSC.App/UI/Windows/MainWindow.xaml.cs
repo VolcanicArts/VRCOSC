@@ -121,7 +121,7 @@ public partial class MainWindow
             {
                 // required for some windows scheduling funkiness
                 await Task.Delay(100);
-                transitionTray(true);
+                TransitionTray(true);
             }
         }
     }
@@ -135,7 +135,7 @@ public partial class MainWindow
             if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.TrayOnClose) && !bypassTrayOnClose)
             {
                 e.Cancel = true;
-                transitionTray(true);
+                TransitionTray(true);
                 return;
             }
 
@@ -393,14 +393,14 @@ public partial class MainWindow
     private void setupTrayIcon()
     {
         trayIcon = new NotifyIcon();
-        trayIcon.DoubleClick += (_, _) => transitionTray(!currentlyInTray);
+        trayIcon.DoubleClick += (_, _) => TransitionTray(!currentlyInTray);
 
         trayIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Assembly.GetEntryAssembly()!.Location)!;
         trayIcon.Visible = true;
         trayIcon.Text = AppManager.APP_NAME;
 
         var contextMenu = new ContextMenuStrip();
-        contextMenu.Items.Add(AppManager.APP_NAME, null, (_, _) => transitionTray(false));
+        contextMenu.Items.Add(AppManager.APP_NAME, null, (_, _) => TransitionTray(false));
         contextMenu.Items.Add(new ToolStripSeparator());
 
         contextMenu.Items.Add("Exit", null, (_, _) => Dispatcher.BeginInvoke(
@@ -415,7 +415,7 @@ public partial class MainWindow
         trayIcon.ContextMenuStrip = contextMenu;
     }
 
-    private void transitionTray(bool inTray)
+    public void TransitionTray(bool inTray)
     {
         try
         {
@@ -433,10 +433,20 @@ public partial class MainWindow
                 return;
             }
 
-            if (currentlyInTray && !inTray)
+            if (!inTray)
             {
-                Show();
+                if (!IsVisible)
+                    Show();
+
+                if (WindowState == WindowState.Minimized)
+                    WindowState = WindowState.Normal;
+
                 Activate();
+                // it works /shrug
+                Topmost = true;
+                Topmost = false;
+                Focus();
+
                 currentlyInTray = false;
                 return;
             }
