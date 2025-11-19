@@ -5,25 +5,9 @@ using System.Numerics;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.VRChat;
 
-namespace VRCOSC.App.Nodes.Types.Player;
+namespace VRCOSC.App.Nodes.Types.VRChat.Player;
 
-[Node("Player User", "Player/Info")]
-public sealed class PlayerUserNode : UpdateNode<string, string>
-{
-    public ValueOutput<string> UserId = new("User Id");
-    public ValueOutput<string> Username = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        UserId.Write(c.GetPlayer().User.UserId, c);
-        Username.Write(c.GetPlayer().User.Username, c);
-        return Task.CompletedTask;
-    }
-
-    protected override (string, string) GetValues(PulseContext c) => (c.GetPlayer().User.UserId, c.GetPlayer().User.Username);
-}
-
-[Node("Player Movement", "Player/Info")]
+[Node("Player Movement", "VRChat/Player/Info")]
 public sealed class PlayerMovementNode : UpdateNode<Vector3, float, float>
 {
     public ValueOutput<Vector3> Velocity = new();
@@ -47,7 +31,7 @@ public sealed class PlayerMovementNode : UpdateNode<Vector3, float, float>
     }
 }
 
-[Node("Player Gesture", "Player/Info")]
+[Node("Player Gesture", "VRChat/Player/Info")]
 public sealed class PlayerGestureNode : UpdateNode<GestureType, float, GestureType, float>
 {
     public ValueOutput<GestureType> LeftType = new("Left Type");
@@ -73,7 +57,7 @@ public sealed class PlayerGestureNode : UpdateNode<GestureType, float, GestureTy
     }
 }
 
-[Node("Player Voice", "Player/Info")]
+[Node("Player Voice", "VRChat/Player/Info")]
 public sealed class PlayerVoiceNode : UpdateNode<Viseme, float>
 {
     public ValueOutput<Viseme> Viseme = new();
@@ -95,7 +79,7 @@ public sealed class PlayerVoiceNode : UpdateNode<Viseme, float>
     }
 }
 
-[Node("Player Identity", "Player/Info")]
+[Node("Player Identity", "VRChat/Player/Info")]
 public sealed class PlayerIdentityNode : UpdateNode<bool, bool, bool, bool, bool, bool, bool, TrackingType>
 {
     public ValueOutput<bool> IsVR = new("Is VR");
@@ -129,7 +113,7 @@ public sealed class PlayerIdentityNode : UpdateNode<bool, bool, bool, bool, bool
     }
 }
 
-[Node("Player Size", "Player/Info")]
+[Node("Player Size", "VRChat/Player/Info")]
 public sealed class PlayerSizeNode : UpdateNode<bool, float, float, float, float>
 {
     public ValueOutput<bool> ScaleModified = new("Scale Modified");

@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Nodes.Types.Player;
+namespace VRCOSC.App.Nodes.Types.VRChat.Player;
 
-[Node("Mute Set", "Player/Actions")]
+[Node("Mute Set", "VRChat/Player/Actions")]
 public sealed class PlayerMuteSetNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -25,7 +25,7 @@ public sealed class PlayerMuteSetNode : Node, IFlowInput
     }
 }
 
-[Node("Mute Toggle", "Player/Actions")]
+[Node("Mute Toggle", "VRChat/Player/Actions")]
 public sealed class PlayerMuteToggleNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -37,7 +37,7 @@ public sealed class PlayerMuteToggleNode : Node, IFlowInput
     }
 }
 
-[Node("Push To Talk", "Player/Actions")]
+[Node("Push To Talk", "VRChat/Player/Actions")]
 public sealed class PlayerPushToTalkNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -51,7 +51,7 @@ public sealed class PlayerPushToTalkNode : Node, IFlowInput
     }
 }
 
-[Node("Jump", "Player/Actions")]
+[Node("Jump", "VRChat/Player/Actions")]
 public sealed class PlayerJumpNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -63,7 +63,7 @@ public sealed class PlayerJumpNode : Node, IFlowInput
     }
 }
 
-[Node("Look Horizontal", "Player/Actions")]
+[Node("Look Horizontal", "VRChat/Player/Actions")]
 public sealed class PlayerLookHorizontalNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -77,7 +77,7 @@ public sealed class PlayerLookHorizontalNode : Node, IFlowInput
     }
 }
 
-[Node("Move Vertical", "Player/Actions")]
+[Node("Move Vertical", "VRChat/Player/Actions")]
 public sealed class PlayerMoveVerticalNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -94,7 +94,7 @@ public sealed class PlayerMoveVerticalNode : Node, IFlowInput
     }
 }
 
-[Node("Move Horizontal", "Player/Actions")]
+[Node("Move Horizontal", "VRChat/Player/Actions")]
 public sealed class PlayerMoveHorizontalNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -111,7 +111,7 @@ public sealed class PlayerMoveHorizontalNode : Node, IFlowInput
     }
 }
 
-[Node("Set Run", "Player/Actions")]
+[Node("Set Run", "VRChat/Player/Actions")]
 public sealed class PlayerSetRunNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -129,7 +129,7 @@ public sealed class PlayerSetRunNode : Node, IFlowInput
     }
 }
 
-[Node("Change Avatar", "Player/Actions")]
+[Node("Change Avatar", "VRChat/Player/Actions")]
 public sealed class PlayerChangeAvatarNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -149,7 +149,7 @@ public sealed class PlayerChangeAvatarNode : Node, IFlowInput
     }
 }
 
-[Node("Grab", "Player/Actions")]
+[Node("Grab", "VRChat/Player/Actions")]
 public sealed class PlayerGrabNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -167,7 +167,7 @@ public sealed class PlayerGrabNode : Node, IFlowInput
     }
 }
 
-[Node("Drop", "Player/Actions")]
+[Node("Drop", "VRChat/Player/Actions")]
 public sealed class PlayerDropNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -185,7 +185,7 @@ public sealed class PlayerDropNode : Node, IFlowInput
     }
 }
 
-[Node("Use", "Player/Actions")]
+[Node("Use", "VRChat/Player/Actions")]
 public sealed class PlayerUseNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -203,7 +203,7 @@ public sealed class PlayerUseNode : Node, IFlowInput
     }
 }
 
-[Node("Enter Safe Mode", "Player/Actions")]
+[Node("Enter Safe Mode", "VRChat/Player/Actions")]
 public sealed class PlayerEnterSafeModeNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
@@ -216,7 +216,7 @@ public sealed class PlayerEnterSafeModeNode : Node, IFlowInput
     }
 }
 
-[Node("Toggle Quick Menu", "Player/Actions")]
+[Node("Toggle Quick Menu", "VRChat/Player/Actions")]
 public sealed class PlayerToggleQuickMenuNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");
