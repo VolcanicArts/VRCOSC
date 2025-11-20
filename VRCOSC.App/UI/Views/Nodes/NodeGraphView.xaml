@@ -123,10 +123,10 @@
         </DataTemplate>
 
         <DataTemplate x:Key="FlowInputTemplate">
-            <Border Height="10" Width="10"
+            <Border Height="12" Width="6"
                     Cursor="Arrow"
                     VerticalAlignment="Center"
-                    Background="{StaticResource FlowBrush}" CornerRadius="5"
+                    Background="{StaticResource FlowBrush}" CornerRadius="1"
                     Tag="{Binding Converter={StaticResource FlowInputSlotNameConverter}}"
                     MouseDown="ConnectionInput_OnMouseDown"
                     MouseUp="ConnectionInput_OnMouseUp">
@@ -134,10 +134,10 @@
         </DataTemplate>
 
         <DataTemplate x:Key="FlowOutputTemplate">
-            <Border  Height="10" Width="10"
+            <Border  Height="12" Width="6"
                      Cursor="Arrow"
                      VerticalAlignment="Center"
-                     Background="{StaticResource FlowBrush}" CornerRadius="5"
+                     Background="{StaticResource FlowBrush}" CornerRadius="1"
                      Tag="{Binding Converter={StaticResource FlowOutputSlotNameConverter}}"
                      MouseDown="ConnectionOutput_OnMouseDown"
                      MouseUp="ConnectionOutput_OnMouseUp">
@@ -341,7 +341,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <core:TextButton Grid.Column="0" Text="Call" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ButtonColour="Gray" FontSize="17"
+                        <core:TextButton Grid.Column="0" Text="Call" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ButtonColour="Gray" FontSize="16"
                                          Margin="5 5 0 5" CornerRadius="2" Tag="{Binding}" Cursor="Arrow" Click="ButtonNode_OnClick"/>
                         <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
                                       VerticalAlignment="Center" HorizontalAlignment="Right"
@@ -349,7 +349,7 @@
                                       ItemTemplate="{StaticResource FlowOutputTemplate}"
                                       ItemsPanel="{StaticResource ItemsPanelTemplate}">
                             <ItemsControl.RenderTransform>
-                                <TranslateTransform X="6"/>
+                                <TranslateTransform X="4"/>
                             </ItemsControl.RenderTransform>
                         </ItemsControl>
                     </Grid>
@@ -839,7 +839,7 @@
                             <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource FlowConnectionAreaVisibilityConverter}}">
                                 <Border Name="FlowInputContainer" VerticalAlignment="Top" HorizontalAlignment="Left">
                                     <Border.RenderTransform>
-                                        <TranslateTransform X="-6"/>
+                                        <TranslateTransform X="-4"/>
                                     </Border.RenderTransform>
                                     <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterLeft}}"
                                                   VerticalAlignment="Top" HorizontalAlignment="Left"
@@ -850,7 +850,7 @@
                                 </Border>
                                 <Border Name="FlowOutputContainer" VerticalAlignment="Top" HorizontalAlignment="Right">
                                     <Border.RenderTransform>
-                                        <TranslateTransform X="6"/>
+                                        <TranslateTransform X="4"/>
                                     </Border.RenderTransform>
                                     <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
                                                   VerticalAlignment="Top" HorizontalAlignment="Right"
@@ -925,7 +925,7 @@
                             <Grid VerticalAlignment="Top" Visibility="{Binding Converter={StaticResource FlowConnectionAreaVisibilityConverter}}">
                                 <Border Name="FlowInputContainer" VerticalAlignment="Top" HorizontalAlignment="Left">
                                     <Border.RenderTransform>
-                                        <TranslateTransform X="-6"/>
+                                        <TranslateTransform X="-4"/>
                                     </Border.RenderTransform>
                                     <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterLeft}}"
                                                   VerticalAlignment="Top" HorizontalAlignment="Left"
@@ -936,7 +936,7 @@
                                 </Border>
                                 <Border Name="FlowOutputContainer" VerticalAlignment="Top" HorizontalAlignment="Right">
                                     <Border.RenderTransform>
-                                        <TranslateTransform X="6"/>
+                                        <TranslateTransform X="4"/>
                                     </Border.RenderTransform>
                                     <ItemsControl ItemsSource="{Binding Converter={StaticResource FlowAmountConverterRight}}"
                                                   VerticalAlignment="Top" HorizontalAlignment="Right"
