@@ -141,6 +141,7 @@ public partial class SpeechView
     public Observable<bool> SpeechTranslate => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.SpeechTranslate);
     public Observable<float> ActivationThreshold => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechNoiseCutoff);
     public Observable<SpeechModel> SpeechModel => SettingsManager.GetInstance().GetObservable<SpeechModel>(VRCOSCSetting.SpeechModel);
+    public Observable<int> GPUSelect => SettingsManager.GetInstance().GetObservable<int>(VRCOSCSetting.SpeechGPU);
 
     public int ConfidenceSliderValue
     {
@@ -154,9 +155,9 @@ public partial class SpeechView
         set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechNoiseCutoff).Value = value / 100f;
     }
 
-    public double VolumeAdjustmentSliderValue
+    public float VolumeAdjustmentSliderValue
     {
-        get => Interpolation.Map(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value, 0, 3, 0, 300);
+        get => (float)Interpolation.Map(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value, 0, 3, 0, 300);
         set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value = (float)Interpolation.Map(value, 0, 300, 0, 3);
     }
 }

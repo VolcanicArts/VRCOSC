@@ -23,15 +23,21 @@ public static class AvatarConfigLoader
             return null;
         }
 
-        var oscFolderContents = Directory.GetDirectories(vr_chat_osc_folder_path);
+        var userFolders = Directory.GetDirectories(vr_chat_osc_folder_path);
 
-        if (!oscFolderContents.Any())
+        if (userFolders.Length == 0)
+        {
+            Logger.Log("OSC folder has no contents");
+            return null;
+        }
+
+        var userFolder = userFolders.OrderByDescending(getLatestWriteTime).First();
+
+        if (userFolder is null)
         {
             Logger.Log("User folder unavailable");
             return null;
         }
-
-        var userFolder = oscFolderContents.First();
 
         var avatarFolderPath = Path.Combine(userFolder, "Avatars");
 
@@ -43,15 +49,15 @@ public static class AvatarConfigLoader
 
         var avatarFiles = Directory.GetFiles(avatarFolderPath);
 
-        if (!avatarFiles.Any())
+        if (avatarFiles.Length == 0)
         {
-            Logger.Log("No configs present");
+            Logger.Log("Avatars folder has no contents");
             return null;
         }
 
         var avatarIdFiles = avatarFiles.Where(filePath => filePath.Contains(avatarId)).ToArray();
 
-        if (!avatarIdFiles.Any())
+        if (avatarIdFiles.Length == 0)
         {
             Logger.Log("No config available for specified Id");
             return null;
@@ -63,5 +69,28 @@ public static class AvatarConfigLoader
 
         if (data is not null) Logger.Log($"Successfully loaded config for avatar {data.Name} containing {data.Parameters.Count} parameters");
         return data;
+    }
+
+    /// <summary>
+    /// Gets the latest write time of <paramref name="directory"/>, including subdirectories and files
+    /// </summary>
+    private static DateTime getLatestWriteTime(string directory)
+    {
+        var dir = new DirectoryInfo(directory);
+        var latest = dir.LastWriteTimeUtc;
+
+        foreach (var subDir in dir.EnumerateDirectories("*", SearchOption.AllDirectories))
+        {
+            if (subDir.LastWriteTimeUtc > latest)
+                latest = subDir.LastWriteTimeUtc;
+        }
+
+        foreach (var file in dir.EnumerateFiles("*", SearchOption.AllDirectories))
+        {
+            if (file.LastWriteTimeUtc > latest)
+                latest = file.LastWriteTimeUtc;
+        }
+
+        return latest;
     }
 }

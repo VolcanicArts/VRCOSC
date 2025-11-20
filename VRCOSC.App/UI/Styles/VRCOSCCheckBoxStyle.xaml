@@ -4,6 +4,7 @@
                     xmlns:fa6="http://schemas.fontawesome.com/icons/fonts">
     <Style TargetType="core:VRCOSCCheckBox">
         <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="BorderThickness" Value="3"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="core:VRCOSCCheckBox">
@@ -11,7 +12,7 @@
                         x:Name="Border"
                         Background="Transparent"
                         BorderBrush="{DynamicResource CForeground3}"
-                        BorderThickness="3"
+                        BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius}">
                         <Viewbox Stretch="Uniform" Margin="5">
                             <fa6:ImageAwesome

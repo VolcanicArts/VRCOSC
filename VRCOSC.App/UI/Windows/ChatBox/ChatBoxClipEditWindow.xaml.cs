@@ -244,6 +244,21 @@ public partial class ChatBoxClipEditWindow : IManagedWindow
         }
     }
 
+    private void VariableInstance_DragOver(object sender, DragEventArgs e)
+    {
+        var border = (Border)sender;
+
+        if (draggedInstance is not null)
+        {
+            e.Effects = DragDropEffects.Move;
+            border.BorderThickness = new Thickness(1);
+        }
+        else
+        {
+            e.Effects = DragDropEffects.None;
+        }
+    }
+
     private void VariableInstance_DragLeave(object sender, DragEventArgs e)
     {
         var border = (Border)sender;

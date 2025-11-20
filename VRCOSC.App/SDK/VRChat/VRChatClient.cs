@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
 
 namespace VRCOSC.App.SDK.VRChat;
@@ -10,12 +11,14 @@ namespace VRCOSC.App.SDK.VRChat;
 public class VRChatClient
 {
     public readonly Player Player;
+    public readonly Instance Instance;
 
-    private bool lastKnownOpenState;
+    public bool LastKnownOpenState { get; private set; }
 
-    public VRChatClient(VRChatOscClient oscClient)
+    internal VRChatClient(VRChatOSCClient oscClient)
     {
         Player = new Player(oscClient);
+        Instance = new Instance();
     }
 
     public void Teardown()
@@ -23,7 +26,7 @@ public class VRChatClient
         Player.ResetAll();
     }
 
-    public async void HandleAvatarChange()
+    public async Task HandleAvatarChange()
     {
         await Player.RetrieveAll();
     }
@@ -32,13 +35,13 @@ public class VRChatClient
     {
         var newOpenState = Process.GetProcessesByName("vrchat").Any();
 
-        if (newOpenState == lastKnownOpenState)
+        if (newOpenState == LastKnownOpenState)
         {
-            openState = lastKnownOpenState;
+            openState = LastKnownOpenState;
             return false;
         }
 
-        openState = lastKnownOpenState = newOpenState;
+        openState = LastKnownOpenState = newOpenState;
         return true;
     }
 }

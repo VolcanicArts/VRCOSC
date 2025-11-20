@@ -7,8 +7,27 @@ namespace VRCOSC.App.SDK.Handlers;
 
 public interface IVRCClientEventHandler
 {
-    public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs);
-    public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs);
-    public void OnUserJoined(VRChatClientEventUserJoined eventArgs);
-    public void OnUserLeft(VRChatClientEventUserLeft eventArgs);
+    public void OnUserAuthenticated(VRChatClientEventUserAuthenticated eventArgs)
+    {
+    }
+
+    public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
+    {
+    }
+
+    public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs)
+    {
+    }
+
+    public void OnUserJoined(VRChatClientEventUserJoined eventArgs)
+    {
+    }
+
+    public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
+    {
+    }
+
+    public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs)
+    {
+    }
 }

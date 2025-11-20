@@ -49,33 +49,39 @@ public class WhisperSpeechEngine : SpeechEngine
         initialised = true;
     }
 
-    private async void onCaptureDeviceIdChanged(string newDeviceId)
+    private void onCaptureDeviceIdChanged(string newDeviceId)
     {
-        if (audioProcessor is not null)
-            await audioProcessor.Stop();
+        run().Forget();
+        return;
 
-        if (repeater is not null)
-            await repeater.StopAsync();
-
-        var captureDevice = string.IsNullOrEmpty(newDeviceId) ? WasapiCapture.GetDefaultCaptureDevice() : AudioDeviceHelper.GetDeviceByID(newDeviceId);
-
-        if (captureDevice is null)
+        async Task run()
         {
-            ExceptionHandler.Handle("Chosen microphone isn't available");
-            return;
+            if (audioProcessor is not null)
+                await audioProcessor.Stop();
+
+            if (repeater is not null)
+                await repeater.StopAsync();
+
+            var captureDevice = string.IsNullOrEmpty(newDeviceId) ? WasapiCapture.GetDefaultCaptureDevice() : AudioDeviceHelper.GetDeviceByID(newDeviceId);
+
+            if (captureDevice is null)
+            {
+                ExceptionHandler.Handle("Chosen microphone isn't available");
+                return;
+            }
+
+            Logger.Log($"Switching microphone to {captureDevice.FriendlyName}");
+
+            audioProcessor = new AudioProcessor(captureDevice);
+            audioProcessor.Start();
+
+            repeater = new Repeater($"{nameof(WhisperSpeechEngine)}-{nameof(processResult)}", processResult);
+            // Do not change this from 1.5
+            repeater.Start(TimeSpan.FromSeconds(1.5f));
         }
-
-        Logger.Log($"Switching microphone to {captureDevice.FriendlyName}");
-
-        audioProcessor = new AudioProcessor(captureDevice);
-        audioProcessor.Start();
-
-        repeater = new Repeater($"{nameof(WhisperSpeechEngine)}-{nameof(processResult)}", processResult);
-        // Do not change this from 1.5
-        repeater.Start(TimeSpan.FromSeconds(1.5f));
     }
 
-    private async void processResult()
+    private async Task processResult()
     {
         Debug.Assert(audioProcessor is not null);
 

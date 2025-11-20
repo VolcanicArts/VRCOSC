@@ -135,8 +135,15 @@ public partial class AppDebugView
         }
     }
 
-    private async void ReloadModules_OnClick(object sender, RoutedEventArgs e)
+    private void ReloadModules_OnClick(object sender, RoutedEventArgs e)
     {
-        await ModuleManager.GetInstance().ReloadAllModules();
+        run().Forget();
+        return;
+
+        async Task run()
+        {
+            await ModuleManager.GetInstance().ReloadAllModules();
+            TypeResolver.Reset();
+        }
     }
 }

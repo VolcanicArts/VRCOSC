@@ -3,6 +3,8 @@
 
 using System;
 using System.Windows.Controls;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.Modules.Attributes.Settings;
@@ -58,10 +60,17 @@ public abstract class ModuleSetting
     protected abstract bool IsDefault();
     public abstract T GetValue<T>();
 
+    protected JsonSerializer Serializer { get; }
+
     protected ModuleSetting(string title, string description, Type viewType)
     {
         Title = title;
         Description = description;
         ViewType = viewType;
+
+        Serializer = JsonSerializer.Create(new JsonSerializerSettings
+        {
+            ContractResolver = new DefaultContractResolver()
+        });
     }
 }

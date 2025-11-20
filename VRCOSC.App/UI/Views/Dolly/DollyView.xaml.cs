@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Threading.Tasks;
 using System.Windows;
 using VRCOSC.App.Dolly;
 using VRCOSC.App.UI.Core;
@@ -48,10 +49,16 @@ public partial class DollyView
 
     private void LoadDolly_OnClick(object sender, RoutedEventArgs e)
     {
-        var element = (FrameworkElement)sender;
-        var dolly = (App.Dolly.Dolly)element.Tag;
+        run().Forget();
+        return;
 
-        DollyManager.GetInstance().Import(dolly);
+        async Task run()
+        {
+            var element = (FrameworkElement)sender;
+            var dolly = (App.Dolly.Dolly)element.Tag;
+
+            await DollyManager.GetInstance().Import(dolly);
+        }
     }
 
     private void DeleteDolly_OnClick(object sender, RoutedEventArgs e)
@@ -65,17 +72,29 @@ public partial class DollyView
         DollyManager.GetInstance().Dollies.Remove(dolly);
     }
 
-    private async void ImportVRChat_OnClick(object sender, RoutedEventArgs e)
+    private void ImportVRChat_OnClick(object sender, RoutedEventArgs e)
     {
-        await DollyManager.GetInstance().Export();
+        run().Forget();
+        return;
+
+        async Task run()
+        {
+            await DollyManager.GetInstance().Export();
+        }
     }
 
-    private async void ImportFile_OnClick(object sender, RoutedEventArgs e)
+    private void ImportFile_OnClick(object sender, RoutedEventArgs e)
     {
-        var filePath = await Platform.PickFileAsync(".json");
-        if (filePath is null) return;
+        run().Forget();
+        return;
 
-        DollyManager.GetInstance().ImportFile(filePath);
+        async Task run()
+        {
+            var filePath = await Platform.PickFileAsync(".json");
+            if (filePath is null) return;
+
+            DollyManager.GetInstance().ImportFile(filePath);
+        }
     }
 
     private void Play_OnClick(object sender, RoutedEventArgs e)

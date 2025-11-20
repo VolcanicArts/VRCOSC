@@ -11,9 +11,7 @@ public class ModuleParameter
     public Observable<bool> Enabled { get; } = new(true);
     public Observable<string> Name { get; }
 
-    private readonly string title;
-
-    public string Title => Legacy ? $"Legacy: {title}" : title;
+    public string Title => Legacy ? $"Legacy: {field}" : field;
 
     public string Description { get; }
 
@@ -36,7 +34,7 @@ public class ModuleParameter
     {
         Name = new Observable<string>(defaultName);
 
-        this.title = title;
+        Title = title;
         Description = description;
         Mode = mode;
         ExpectedType = expectedType;

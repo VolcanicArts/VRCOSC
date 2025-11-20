@@ -65,6 +65,8 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     public Clip? CurrentClip { get; private set; }
     public string LiveText { get; set; } = string.Empty;
+    public string? PulseText { get; set; }
+    public bool PulseMinimalBackground { get; set; }
 
     private ChatBoxManager()
     {
@@ -113,6 +115,14 @@ public class ChatBoxManager : INotifyPropertyChanged
             VariableID = BuiltInVariables.FileReader.ToLookup(),
             DisplayName = { Value = "File Reader" },
             ClipVariableType = typeof(FileReaderClipVariable),
+            ValueType = typeof(string)
+        });
+
+        VariableReferences.Add(new ClipVariableReference
+        {
+            VariableID = BuiltInVariables.RouterChatBoxInput.ToLookup(),
+            DisplayName = { Value = "Router ChatBox Input" },
+            ClipVariableType = typeof(StringClipVariable),
             ValueType = typeof(string)
         });
     }
@@ -204,6 +214,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         isClear = true;
         currentIsTyping = false;
         CurrentClip = null;
+        routerChatBoxInput = string.Empty;
 
         sendTask.Start(TimeSpan.FromMilliseconds(sendInterval));
         updateTask.Start(TimeSpan.FromSeconds(1f / 60f));
@@ -235,12 +246,13 @@ public class ChatBoxManager : INotifyPropertyChanged
         ClearText();
     }
 
-    private void update()
+    private Task update()
     {
         OnPropertyChanged(nameof(CurrentPercentage));
+        return Task.CompletedTask;
     }
 
-    private void chatBoxUpdate()
+    private Task chatBoxUpdate()
     {
         updateBuiltInVariables();
         ModuleManager.GetInstance().ChatBoxUpdate();
@@ -260,10 +272,36 @@ public class ChatBoxManager : INotifyPropertyChanged
             currentText = LiveText;
             SendText(LiveText);
             setTyping(false);
-            return;
+            return Task.CompletedTask;
+        }
+
+        if (PulseText is not null)
+        {
+            CurrentClip = null;
+            var text = PulseText;
+
+            if (PulseMinimalBackground)
+            {
+                if (text.Length >= 144) text = text[..142];
+                text += "\u0003\u001f";
+            }
+
+            currentText = text;
+            isClear = false;
+            SendText(text);
+            setTyping(false);
+            return Task.CompletedTask;
         }
 
         evaluateClips();
+        return Task.CompletedTask;
+    }
+
+    private string routerChatBoxInput;
+
+    public void SetRouterChatBoxInput(string text)
+    {
+        routerChatBoxInput = text;
     }
 
     private void updateBuiltInVariables()
@@ -272,11 +310,12 @@ public class ChatBoxManager : INotifyPropertyChanged
         GetVariable(null, BuiltInVariables.Text.ToLookup())!.SetValue(string.Empty);
         GetVariable(null, BuiltInVariables.Timer.ToLookup())!.SetValue(TimeSpan.Zero);
         GetVariable(null, BuiltInVariables.FileReader.ToLookup())!.SetValue(string.Empty);
+        GetVariable(null, BuiltInVariables.RouterChatBoxInput.ToLookup())!.SetValue(routerChatBoxInput);
     }
 
     private void evaluateClips()
     {
-        if (ChatBoxWorldBlacklist.IsCurrentWorldBlacklisted && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ChatBoxWorldBlacklist))
+        if (AppManager.GetInstance().ChatBoxWorldBlacklist.IsCurrentWorldBlacklisted && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.ChatBoxWorldBlacklist))
         {
             handleClip(null);
             return;
@@ -327,7 +366,7 @@ public class ChatBoxManager : INotifyPropertyChanged
     public void SendText(string text)
     {
         var finalText = convertSpecialCharacters(text);
-        AppManager.GetInstance().VRChatOscClient.Send(VRChatOscConstants.ADDRESS_CHATBOX_INPUT, finalText, true, false);
+        AppManager.GetInstance().VRChatOscClient.Send(VRChatOSCConstants.ADDRESS_CHATBOX_INPUT, finalText, true, false);
     }
 
     private static string convertSpecialCharacters(string input)
@@ -346,7 +385,7 @@ public class ChatBoxManager : INotifyPropertyChanged
 
     private void setTyping(bool typing)
     {
-        AppManager.GetInstance().VRChatOscClient.Send(VRChatOscConstants.ADDRESS_CHATBOX_TYPING, typing);
+        AppManager.GetInstance().VRChatOscClient.Send(VRChatOSCConstants.ADDRESS_CHATBOX_TYPING, typing);
     }
 
     #region States
@@ -479,5 +518,6 @@ public enum BuiltInVariables
     Text,
     FocusedWindow,
     Timer,
-    FileReader
+    FileReader,
+    RouterChatBoxInput
 }

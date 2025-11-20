@@ -56,16 +56,17 @@ public class PackageSource
         return SemVersion.ComparePrecedence(latestVersion, installedVersion) == 1;
     }
 
-    public PackageRelease? GetLatestNonPreRelease()
+    public PackageRelease? GetLatestPackages(bool includePreRelease)
     {
-        if (InstalledRelease?.IsPreRelease ?? false) return null;
+        var installedIsPreRelease = InstalledRelease?.IsPreRelease ?? false;
+        if (installedIsPreRelease && !includePreRelease) return null;
 
-        var latestNonPreRelease = filterReleases(true, false).FirstOrDefault();
-        if (latestNonPreRelease is null) return null;
+        var latestRelease = filterReleases(true, includePreRelease).FirstOrDefault();
+        if (latestRelease is null) return null;
 
         var installedVersion = SemVersion.Parse(InstalledVersion, SemVersionStyles.Any);
-        var latestNonPreReleaseVersion = SemVersion.Parse(latestNonPreRelease.Version, SemVersionStyles.Any);
-        return SemVersion.ComparePrecedence(latestNonPreReleaseVersion, installedVersion) == 1 ? latestNonPreRelease : null;
+        var latestVersion = SemVersion.Parse(latestRelease.Version, SemVersionStyles.Any);
+        return SemVersion.ComparePrecedence(latestVersion, installedVersion) == 1 ? latestRelease : null;
     }
 
     public bool IsUnavailable() => State is PackageSourceState.MissingRepo or PackageSourceState.NoReleases or PackageSourceState.InvalidPackageFile or PackageSourceState.Unknown;

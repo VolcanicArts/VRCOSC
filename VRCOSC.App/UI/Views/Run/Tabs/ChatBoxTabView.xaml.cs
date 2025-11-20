@@ -43,9 +43,9 @@ public partial class ChatBoxTabView
 
     private void ChatBoxTabView_OnLoaded(object sender, RoutedEventArgs e)
     {
-        AppManager.GetInstance().State.Subscribe(newState =>
+        AppManager.GetInstance().State.Subscribe(newState => Dispatcher.Invoke(() =>
         {
             if (newState == AppManagerState.Stopped) LiveTextTextBox.Text = string.Empty;
-        }, true);
+        }), true);
     }
 }

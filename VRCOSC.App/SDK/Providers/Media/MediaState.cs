@@ -33,23 +33,21 @@ public class MediaTimelineProperties
 {
     public TimeSpan Start { get; internal set; } = TimeSpan.Zero;
 
-    private TimeSpan end = TimeSpan.Zero;
-
     public TimeSpan End
     {
         get
         {
-            if (Math.Abs(end.Ticks) == 0 || Position >= end) return Position;
+            if (field == TimeSpan.Zero || Position >= field) return Position;
 
-            return end;
+            return field;
         }
-        internal set => end = value;
-    }
+        internal set;
+    } = TimeSpan.Zero;
 
     public TimeSpan Position { get; internal set; } = TimeSpan.Zero;
 
     /// <summary>
     /// The progress of the song as a normalised percentage
     /// </summary>
-    public float Progress => Math.Abs(End.Ticks) == 0 || Position >= End ? 1f : Position.Ticks / (float)End.Ticks;
+    public float Progress => End == TimeSpan.Zero || Position >= End ? 1f : Position.Ticks / (float)End.Ticks;
 }

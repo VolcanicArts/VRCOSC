@@ -25,6 +25,7 @@ public partial class BehaviourView
     public IEnumerable<ConnectionMode> ConnectionModeSource => Enum.GetValues<ConnectionMode>();
     public IEnumerable<UpdateChannel> UpdateChannelSource => Enum.GetValues<UpdateChannel>();
 
+    public Observable<bool> GlobalKeyboardHook => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.GlobalKeyboardHook);
     public Observable<ConnectionMode> ConnectionMode => SettingsManager.GetInstance().GetObservable<ConnectionMode>(VRCOSCSetting.ConnectionMode);
     public Observable<string> OutgoingEndpoint => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.OutgoingEndpoint);
     public Observable<string> IncomingEndpoint => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.IncomingEndpoint);

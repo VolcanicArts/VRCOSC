@@ -1,11 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
+        <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
         <WindowsSdkPackageVersion>10.0.26100.1</WindowsSdkPackageVersion>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
-        <UseWindowsForms>true</UseWindowsForms>
         <LangVersion>latestmajor</LangVersion>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <CsWin32Generate>true</CsWin32Generate>
@@ -24,26 +23,28 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Extended.Wpf.Toolkit" Version="4.6.1" />
+        <PackageReference Include="CommandLineParser" Version="2.9.1" />
+        <PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
         <PackageReference Include="FontAwesome6.Fonts" Version="2.5.1" />
-        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.4" />
+        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.5-pre548" />
         <PackageReference Include="MathParser.org-mXparser" Version="6.1.0" />
         <PackageReference Include="MeaMod.DNS" Version="1.0.71" />
-        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183">
+        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.250">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
-        <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="NAudio" Version="2.2.1" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Octokit" Version="14.0.0" />
         <PackageReference Include="Semver" Version="3.0.0" />
-        <PackageReference Include="Velopack" Version="0.0.1053" />
-        <PackageReference Include="VolcanicArts.FastOSC" Version="1.1.1" />
+        <PackageReference Include="SoundFlow" Version="1.1.1" />
+        <PackageReference Include="Velopack" Version="0.0.1298" />
+        <PackageReference Include="VolcanicArts.FastOSC" Version="2.0.0" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />
-        <PackageReference Include="Whisper.net" Version="1.7.4" />
-        <PackageReference Include="Whisper.net.Runtime" Version="1.7.4" />
-        <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.7.4" />
+        <PackageReference Include="Whisper.net" Version="1.9.0" />
+        <PackageReference Include="Whisper.net.Runtime" Version="1.9.0" />
+        <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.9.0" />
         <PackageReference Include="WindowsInput" Version="6.4.1" />
     </ItemGroup>
 
@@ -60,6 +61,8 @@
       <EmbeddedResource Include="Resources\OpenVR\oculus_touch_bindings.json" />
       <None Remove="Resources\OpenVR\SteamImage.png" />
       <EmbeddedResource Include="Resources\OpenVR\SteamImage.png" />
+      <None Remove="Resources\OpenVR\vive_bindings.json" />
+      <EmbeddedResource Include="Resources\OpenVR\vive_bindings.json" />
     </ItemGroup>
 
     <ItemGroup>
@@ -239,6 +242,17 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Resources\Fonts\Iosevka-Regular.ttf" />
+      <Resource Include="Resources\Fonts\Iosevka-Regular.ttf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resources\Fonts\Iosevka-SemiBold.ttf" />
+      <Resource Include="Resources\Fonts\Iosevka-SemiBold.ttf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Resource>
     </ItemGroup>
 
 </Project>

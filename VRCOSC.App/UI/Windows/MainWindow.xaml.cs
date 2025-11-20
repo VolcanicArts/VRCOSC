@@ -4,24 +4,23 @@
 using System;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
-using Newtonsoft.Json;
+using System.Windows.Threading;
+using CommandLine;
 using Semver;
 using VRCOSC.App.Actions;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Dolly;
 using VRCOSC.App.Modules;
-using VRCOSC.App.OVR;
+using VRCOSC.App.Nodes;
 using VRCOSC.App.Packages;
 using VRCOSC.App.Profiles;
 using VRCOSC.App.Router;
-using VRCOSC.App.SDK.OVR.Metadata;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Startup;
 using VRCOSC.App.UI.Core;
@@ -30,6 +29,7 @@ using VRCOSC.App.UI.Views.ChatBox;
 using VRCOSC.App.UI.Views.Dolly;
 using VRCOSC.App.UI.Views.Information;
 using VRCOSC.App.UI.Views.Modules;
+using VRCOSC.App.UI.Views.Nodes;
 using VRCOSC.App.UI.Views.Packages;
 using VRCOSC.App.UI.Views.Profiles;
 using VRCOSC.App.UI.Views.Run;
@@ -53,6 +53,7 @@ public partial class MainWindow
     public PackagesView PackagesView = null!;
     public ModulesView ModulesView = null!;
     public ChatBoxView ChatBoxView = null!;
+    public NodesView NodesView = null!;
     public DollyView DollyView = null!;
     public RunView RunView = null!;
     public ProfilesView ProfilesView = null!;
@@ -65,8 +66,26 @@ public partial class MainWindow
     public Observable<bool> ShowAppDebug { get; } = new();
     public Observable<bool> ShowRouter { get; } = new();
 
-    public MainWindow()
+    public LaunchOptions? LaunchOptions { get; }
+
+    public MainWindow(string[] args)
     {
+        var parserResult = Parser.Default.ParseArguments<LaunchOptions>(args);
+
+        if (parserResult.Tag == ParserResultType.NotParsed)
+        {
+            Logger.Log("Launch options failed to parse:");
+
+            foreach (var parserResultError in parserResult.Errors)
+            {
+                Logger.Log(parserResultError.Tag.ToString());
+            }
+        }
+        else
+        {
+            LaunchOptions = parserResult.Value;
+        }
+
         InitializeComponent();
         DataContext = this;
         SourceInitialized += OnSourceInitialized;
@@ -88,51 +107,65 @@ public partial class MainWindow
         Title = $"{AppManager.APP_NAME} {AppManager.Version}";
         if (installedUpdateChannel != UpdateChannel.Live) Title += $" {installedUpdateChannel.ToString().ToUpper()}";
 
-        load();
+        load().Forget();
     }
 
-    private async void OnLoaded(object sender, RoutedEventArgs e)
+    private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.StartInTray))
+        run().Forget();
+        return;
+
+        async Task run()
         {
-            // required for some windows scheduling funkiness
-            await Task.Delay(100);
-            transitionTray(true);
+            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.StartInTray))
+            {
+                // required for some windows scheduling funkiness
+                await Task.Delay(100);
+                TransitionTray(true);
+            }
         }
     }
+
+    private bool bypassTrayOnClose { get; set; }
 
     private async void OnClosing(object? sender, CancelEventArgs e)
     {
-        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.TrayOnClose))
+        try
         {
-            e.Cancel = true;
-            transitionTray(true);
-            return;
+            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.TrayOnClose) && !bypassTrayOnClose)
+            {
+                e.Cancel = true;
+                TransitionTray(true);
+                return;
+            }
+
+            var appManager = AppManager.GetInstance();
+
+            if (appManager.State.Value is AppManagerState.Started)
+            {
+                e.Cancel = true;
+                await appManager.StopAsync();
+                Close();
+                return;
+            }
+
+            foreach (Window window in Application.Current.Windows)
+            {
+                if (window != this)
+                    window.Close();
+            }
+
+            trayIcon?.Dispose();
         }
-
-        var appManager = AppManager.GetInstance();
-
-        if (appManager.State.Value is AppManagerState.Started)
+        catch (Exception ex)
         {
-            e.Cancel = true;
-            await appManager.StopAsync();
-            Close();
-            return;
+            ExceptionHandler.Handle(ex);
         }
-
-        OVRDeviceManager.GetInstance().Serialise();
-
-        trayIcon?.Dispose();
     }
 
-    // because this isn't returning a task and we're not doing Task.Run(), this still runs in the same
-    // synchronisation context as the UI thread, meaning we don't get threading errors when initialising
-    // unfortunately this does mean it also blocks the UI thread when making changes, freezing the loading screen,
-    // but this method being async at least means that the window opens immediately and we can tell
-    // the user what's going on
-    private async void load()
+    private async Task load()
     {
-        // force the task to be async to open the window ASAP
+        // Force task to be async immediately
         await Task.Delay(1);
 
         velopackUpdater = new VelopackUpdater();
@@ -155,13 +188,13 @@ public partial class MainWindow
 
         createBackupIfUpdated();
         setupTrayIcon();
-        copyOpenVrFiles();
 
         AppManager.GetInstance().Initialise();
 
         PackagesView = new PackagesView();
         ModulesView = new ModulesView();
         ChatBoxView = new ChatBoxView();
+        NodesView = new NodesView();
         DollyView = new DollyView();
         RunView = new RunView();
         ProfilesView = new ProfilesView();
@@ -169,6 +202,8 @@ public partial class MainWindow
         InformationView = new InformationView();
 
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
+
+        var isBeta = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCMetadata.InstalledUpdateChannel) == UpdateChannel.Beta;
 
         await PackageManager.GetInstance().Load();
 
@@ -183,9 +218,9 @@ public partial class MainWindow
         {
             await PackageManager.GetInstance().RefreshAllSources(true);
 
-            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && PackageManager.GetInstance().AnyInstalledPackageUpdates())
+            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && PackageManager.GetInstance().AnyInstalledPackageUpdates(isBeta))
             {
-                await PackageManager.GetInstance().UpdateAllInstalledPackages();
+                await PackageManager.GetInstance().UpdateAllInstalledPackages(isBeta);
             }
         }
 
@@ -208,6 +243,7 @@ public partial class MainWindow
 
         ProfileManager.GetInstance().Load();
         ModuleManager.GetInstance().LoadAllModules();
+        NodeManager.GetInstance().Load();
         ChatBoxManager.GetInstance().Load();
         RouterManager.GetInstance().Load();
         DollyManager.GetInstance().Load();
@@ -349,53 +385,6 @@ public partial class MainWindow
         }
     }
 
-    private void copyOpenVrFiles()
-    {
-        var runtimeOVRStorage = storage.GetStorageForDirectory("runtime/openvr");
-        var runtimeOVRPath = runtimeOVRStorage.GetFullPath(string.Empty);
-
-        var ovrFiles = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(file => file.Contains("OpenVR"));
-
-        foreach (var file in ovrFiles)
-        {
-            File.WriteAllBytes(Path.Combine(runtimeOVRPath, getOriginalFileName(file)), getResourceBytes(file));
-        }
-
-        var manifest = new OVRManifest();
-#if DEBUG
-        manifest.Applications[0].BinaryPathWindows = Environment.ProcessPath!;
-#else
-        manifest.Applications[0].BinaryPathWindows = Path.Join(VelopackLocator.GetDefault(null).RootAppDir, "current", "VRCOSC.exe");
-#endif
-        manifest.Applications[0].ActionManifestPath = runtimeOVRStorage.GetFullPath("action_manifest.json");
-        manifest.Applications[0].ImagePath = runtimeOVRStorage.GetFullPath("SteamImage.png");
-
-        File.WriteAllText(Path.Join(runtimeOVRPath, "app.vrmanifest"), JsonConvert.SerializeObject(manifest, Formatting.Indented));
-    }
-
-    private static string getOriginalFileName(string fullResourceName)
-    {
-        var parts = fullResourceName.Split('.');
-        return parts[^2] + "." + parts[^1];
-    }
-
-    private static byte[] getResourceBytes(string resourceName)
-    {
-        var assembly = Assembly.GetExecutingAssembly();
-
-        using var stream = assembly.GetManifestResourceStream(resourceName);
-
-        if (stream == null)
-        {
-            throw new InvalidOperationException($"{resourceName} does not exist");
-        }
-
-        using var memoryStream = new MemoryStream();
-
-        stream.CopyTo(memoryStream);
-        return memoryStream.ToArray();
-    }
-
     #region Tray
 
     private bool currentlyInTray;
@@ -404,21 +393,29 @@ public partial class MainWindow
     private void setupTrayIcon()
     {
         trayIcon = new NotifyIcon();
-        trayIcon.DoubleClick += (_, _) => transitionTray(!currentlyInTray);
+        trayIcon.DoubleClick += (_, _) => TransitionTray(!currentlyInTray);
 
         trayIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Assembly.GetEntryAssembly()!.Location)!;
         trayIcon.Visible = true;
         trayIcon.Text = AppManager.APP_NAME;
 
         var contextMenu = new ContextMenuStrip();
-        contextMenu.Items.Add(AppManager.APP_NAME, null, (_, _) => transitionTray(false));
+        contextMenu.Items.Add(AppManager.APP_NAME, null, (_, _) => TransitionTray(false));
         contextMenu.Items.Add(new ToolStripSeparator());
-        contextMenu.Items.Add("Exit", null, (_, _) => Dispatcher.Invoke(() => Application.Current.Shutdown()));
+
+        contextMenu.Items.Add("Exit", null, (_, _) => Dispatcher.BeginInvoke(
+            DispatcherPriority.ContextIdle,
+            new Action(() =>
+            {
+                bypassTrayOnClose = true;
+                Close();
+            })
+        ));
 
         trayIcon.ContextMenuStrip = contextMenu;
     }
 
-    private void transitionTray(bool inTray)
+    public void TransitionTray(bool inTray)
     {
         try
         {
@@ -436,10 +433,20 @@ public partial class MainWindow
                 return;
             }
 
-            if (currentlyInTray && !inTray)
+            if (!inTray)
             {
-                Show();
+                if (!IsVisible)
+                    Show();
+
+                if (WindowState == WindowState.Minimized)
+                    WindowState = WindowState.Normal;
+
                 Activate();
+                // it works /shrug
+                Topmost = true;
+                Topmost = false;
+                Focus();
+
                 currentlyInTray = false;
                 return;
             }
@@ -484,6 +491,11 @@ public partial class MainWindow
     private void ChatBoxButton_OnClick(object sender, RoutedEventArgs e)
     {
         setContent(ChatBoxView);
+    }
+
+    private void NodesButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        setContent(NodesView);
     }
 
     private void DollyButton_OnClick(object sender, RoutedEventArgs e)

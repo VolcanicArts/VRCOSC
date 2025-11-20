@@ -19,14 +19,12 @@ public partial class RunView : INotifyPropertyChanged
 {
     private const int view_button_width = 160;
 
-    private int chosenTab;
-
     public int ChosenTab
     {
-        get => chosenTab;
+        get;
         set
         {
-            chosenTab = value;
+            field = value;
             setChosenView();
             OnPropertyChanged();
         }
@@ -165,7 +163,7 @@ public partial class RunView : INotifyPropertyChanged
 
     private void PlayButtonOnClick(object sender, RoutedEventArgs e)
     {
-        AppManager.GetInstance().RequestStart();
+        AppManager.GetInstance().RequestStart().Forget();
     }
 
     private void StopButtonOnClick(object sender, RoutedEventArgs e)
@@ -196,7 +194,7 @@ public partial class RunView : INotifyPropertyChanged
     private void ForceStartButton_OnClick(object sender, RoutedEventArgs e)
     {
         ForceStartButton.IsEnabled = false;
-        AppManager.GetInstance().ForceStart();
+        AppManager.GetInstance().ForceStart().Forget();
     }
 
     private void AvatarParameterViewButton_Click(object sender, RoutedEventArgs e)

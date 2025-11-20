@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29409.12
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11123.170 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9AF9C164-2A9E-4958-BB12-0FEDC40F58EC}"
 	ProjectSection(SolutionItems) = preProject
@@ -13,6 +13,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRCOSC", "VRCOSC\VRCOSC.csproj", "{6337B998-53B5-40B5-90EF-994A8468BF5D}"
 EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{86C71362-26D0-4F41-8851-F424BE844352}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{86C71362-26D0-4F41-8851-F424BE844352}.Debug|Any CPU.Build.0 = Debug|Any CPU
@@ -23,8 +27,7 @@ Global
 		{6337B998-53B5-40B5-90EF-994A8468BF5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6337B998-53B5-40B5-90EF-994A8468BF5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

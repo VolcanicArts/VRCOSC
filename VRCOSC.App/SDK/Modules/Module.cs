@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,15 +17,17 @@ using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.Modules;
+using VRCOSC.App.OpenVR;
 using VRCOSC.App.OSC.VRChat;
+using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.SDK.Modules.Attributes.Types;
-using VRCOSC.App.SDK.OVR;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Parameters.Queryable;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
+using VRCOSC.App.SteamVR;
 using VRCOSC.App.UI.Core;
 using VRCOSC.App.UI.Views.Modules.Settings;
 using VRCOSC.App.Utils;
@@ -76,8 +79,10 @@ public abstract class Module
     private readonly List<Repeater> updateTasks = new();
     private readonly List<MethodInfo> chatBoxUpdateMethods = new();
 
-    private readonly object parameterWaitListLock = new();
-    private readonly List<WaitingParameter> parameterWaitList = [];
+    private readonly object registeredParameterWaitListLock = new();
+    private readonly object anyParameterWaitListLock = new();
+    private readonly List<RegisteredWaitingParameter> registeredParameterWaitList = [];
+    private readonly List<AnyWaitingParameter> anyParameterWaitList = [];
 
     private SerialisationManager moduleSerialisationManager = null!;
     private SerialisationManager persistenceSerialisationManager = null!;
@@ -142,7 +147,7 @@ public abstract class Module
         OnPostLoad();
     }
 
-    internal async void ImportConfig(string filePathOverride)
+    internal async Task ImportConfig(string filePathOverride)
     {
         await ModuleManager.GetInstance().ReloadAllModules(new Dictionary<string, string> { { FullID, filePathOverride } });
     }
@@ -216,16 +221,6 @@ public abstract class Module
 
     #region Runtime
 
-    private static Regex parameterToRegex(string parameterName)
-    {
-        var pattern = "^"; // start of string
-        pattern += @"(?:VF\d+_)?"; // VRCFury prefix
-        pattern += $"(?:{Regex.Escape(parameterName).Replace(@"\*", @"(\S*?)")})";
-        pattern += "$"; // end of string
-
-        return new Regex(pattern);
-    }
-
     internal async Task Start()
     {
         try
@@ -237,7 +232,7 @@ public abstract class Module
 
             var validReadParameters = Parameters.Where(parameter => !string.IsNullOrWhiteSpace(parameter.Value.Name.Value) && parameter.Value.Mode.HasFlag(ParameterMode.Read) && parameter.Value.Enabled.Value).ToList();
             readParameters.AddRange(validReadParameters);
-            parameterNameRegex.AddRange(validReadParameters.Select(pair => new KeyValuePair<Enum, Regex>(pair.Key, parameterToRegex(pair.Value.Name.Value))));
+            parameterNameRegex.AddRange(validReadParameters.Select(pair => new KeyValuePair<Enum, Regex>(pair.Key, TemplatedVRChatParameter.TemplateAsRegex(pair.Value.Name.Value))));
 
             loadPersistentProperties();
 
@@ -251,6 +246,11 @@ public abstract class Module
 
             initialiseUpdateAttributes(GetType());
 
+            if (GetType().IsAssignableTo(typeof(IVRCClientEventHandler)))
+            {
+                VRChatLogReader.Register((IVRCClientEventHandler)this);
+            }
+
             State.Value = ModuleState.Started;
         }
         catch (Exception e)
@@ -263,6 +263,11 @@ public abstract class Module
     internal async Task Stop()
     {
         State.Value = ModuleState.Stopping;
+
+        if (GetType().IsAssignableTo(typeof(IVRCClientEventHandler)))
+        {
+            VRChatLogReader.Deregister((IVRCClientEventHandler)this);
+        }
 
         foreach (var updateTask in updateTasks) await updateTask.StopAsync();
         updateTasks.Clear();
@@ -300,7 +305,7 @@ public abstract class Module
             });
     }
 
-    private void invokeMethod(MethodBase method)
+    private Task invokeMethod(MethodBase method)
     {
         try
         {
@@ -310,6 +315,8 @@ public abstract class Module
         {
             ExceptionHandler.Handle(e, $"{FullID} experienced an exception calling method {method.Name}");
         }
+
+        return Task.CompletedTask;
     }
 
     #endregion
@@ -321,10 +328,17 @@ public abstract class Module
     /// </summary>
     public Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
 
+    public Instance GetInstance() => AppManager.GetInstance().VRChatClient.Instance;
+
     /// <summary>
-    /// Allows you to access the current state of SteamVR (or any OpenVR runtime)
+    /// Allows you to access the current state of the current OpenVR runtime
     /// </summary>
-    public OVRClient GetOVRClient() => AppManager.GetInstance().OVRClient;
+    public OpenVRManager GetOpenVRManager() => AppManager.GetInstance().OpenVRManager;
+
+    /// <summary>
+    /// Allows you to access the current state of SteamVR
+    /// </summary>
+    public SteamVRManager GetSteamVRManager() => AppManager.GetInstance().SteamVRManager;
 
     #region Callbacks
 
@@ -340,7 +354,7 @@ public abstract class Module
 
     protected virtual Task OnModuleStop() => Task.CompletedTask;
 
-    protected virtual void OnAnyParameterReceived(ReceivedParameter parameter)
+    protected virtual void OnAnyParameterReceived(VRChatParameter parameter)
     {
     }
 
@@ -365,6 +379,7 @@ public abstract class Module
     public void Log(string message)
     {
         Logger.Log($"[{Title}]: {message}", LoggingTarget.Terminal);
+        LogDebug(message);
     }
 
     /// <summary>
@@ -850,7 +865,7 @@ public abstract class Module
     /// </summary>
     protected void ChangeAvatar(string avatarId)
     {
-        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOscConstants.ADDRESS_AVATAR_CHANGE}", avatarId);
+        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_CHANGE}", avatarId);
     }
 
     /// <summary>
@@ -861,7 +876,43 @@ public abstract class Module
     /// <param name="value">The value to set the parameter to</param>
     protected void SendParameter(string name, object value)
     {
-        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOscConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", value);
+        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", value);
+    }
+
+    /// <summary>
+    /// Allows you to send any parameter name and value, but wait for VRChat to acknowledge it
+    /// </summary>
+    /// <param name="name">The name of the parameter</param>
+    /// <param name="value">The value to set the parameter to</param>
+    /// <param name="blockEvents">Whether to block <see cref="OnAnyParameterReceived"/> from running until we acknowledge a response. This is helpful to prevent unwanted loopbacks</param>
+    /// <param name="timeout">The timeout at which waiting fails. Defaults to 0.5 seconds</param>
+    /// <returns>True if the parameter was acknowledged, false if the parameter doesn't exist or VRChat is closed</returns>
+    protected async Task<bool> SendParameterAndWait(string name, object value, bool blockEvents = false, TimeSpan timeout = default)
+    {
+        if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(0.5f);
+
+        var taskCompletionSource = new TaskCompletionSource();
+        var waitingParameter = new AnyWaitingParameter(name, blockEvents, taskCompletionSource);
+
+        lock (anyParameterWaitListLock)
+        {
+            anyParameterWaitList.Add(waitingParameter);
+        }
+
+        SendParameter(name, value);
+
+        var result = false;
+
+        try
+        {
+            await taskCompletionSource.Task.WaitAsync(timeout);
+            result = true;
+        }
+        catch (TimeoutException)
+        {
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -883,7 +934,7 @@ public abstract class Module
     }
 
     /// <summary>
-    /// Allows you to send a customisable parameter using its lookup and a value.
+    /// Allows you to send a customisable parameter using its lookup and a value, but wait for VRChat to acknowledge it
     /// </summary>
     /// <param name="lookup">The lookup of the parameter</param>
     /// <param name="value">The value to set the parameter to</param>
@@ -895,11 +946,11 @@ public abstract class Module
         if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(0.5f);
 
         var taskCompletionSource = new TaskCompletionSource();
-        var waitingParameter = new WaitingParameter(lookup, blockEvents, taskCompletionSource);
+        var waitingParameter = new RegisteredWaitingParameter(lookup, blockEvents, taskCompletionSource);
 
-        lock (parameterWaitListLock)
+        lock (registeredParameterWaitListLock)
         {
-            parameterWaitList.Add(waitingParameter);
+            registeredParameterWaitList.Add(waitingParameter);
         }
 
         SendParameter(lookup, value);
@@ -984,64 +1035,72 @@ public abstract class Module
         }
     }
 
+    protected Task<string?> FindCurrentAvatar() => AppManager.GetInstance().VRChatOscClient.FindCurrentAvatar(CancellationToken.None);
+
     /// <summary>
     /// Retrieves a parameter's value using OSCQuery
     /// </summary>
     /// <param name="lookup">The lookup of the registered parameter</param>
-    protected Task<ReceivedParameter?> FindParameter(Enum lookup) => FindParameter(Parameters[lookup].Name.Value);
+    protected Task<VRChatParameter?> FindParameter(Enum lookup) => FindParameter(Parameters[lookup].Name.Value);
 
     /// <summary>
     /// Retrieves a parameter's value using OSCQuery
     /// </summary>
     /// <param name="parameterName">The name of the parameter</param>
-    protected Task<ReceivedParameter?> FindParameter(string parameterName) => AppManager.GetInstance().VRChatOscClient.FindParameter(parameterName);
+    protected Task<VRChatParameter?> FindParameter(string parameterName) => AppManager.GetInstance().VRChatOscClient.FindParameter(parameterName, CancellationToken.None);
 
-    internal void OnParameterReceived(VRChatOscMessage message)
+    internal void OnParameterReceived(VRChatParameter parameter)
     {
-        var receivedParameter = new ReceivedParameter(message.ParameterName, message.ParameterValue);
+        List<AnyWaitingParameter> anyWaitingParameters;
 
-        try
+        lock (anyParameterWaitListLock)
         {
-            OnAnyParameterReceived(receivedParameter);
-        }
-        catch (Exception e)
-        {
-            ExceptionHandler.Handle(e, $"Module {FullID} experienced an exception calling {nameof(OnAnyParameterReceived)}");
+            anyWaitingParameters = anyParameterWaitList.Where(waitingParameter => waitingParameter.Name == parameter.Name).ToList();
         }
 
-        Enum? lookup = null;
-        ModuleParameter? parameterData = null;
-        Match? match = null;
-
-        foreach (var (parameterLookup, moduleParameter) in readParameters)
+        if (!anyWaitingParameters.Any(waitingParameter => waitingParameter.BlockEvents))
         {
-            var localMatch = parameterNameRegex[parameterLookup].Match(receivedParameter.Name);
-            if (!localMatch.Success) continue;
+            try
+            {
+                OnAnyParameterReceived(parameter);
+            }
+            catch (Exception e)
+            {
+                ExceptionHandler.Handle(e, $"Module {FullID} experienced an exception calling {nameof(OnAnyParameterReceived)}");
+            }
+        }
 
-            lookup = parameterLookup;
-            parameterData = moduleParameter;
-            match = localMatch;
+        lock (anyParameterWaitListLock)
+        {
+            foreach (var waitingParameter in anyWaitingParameters)
+            {
+                anyParameterWaitList.Remove(waitingParameter);
+                waitingParameter.CompletionSource.SetResult();
+            }
+        }
+
+        RegisteredParameter? registeredParameter = null;
+
+        foreach (var (lookup, _) in readParameters.Where(pair => pair.Value.ExpectedType == parameter.Type))
+        {
+            var templateRegex = parameterNameRegex[lookup];
+            var checkingRegisteredParameter = new RegisteredParameter(lookup, new TemplatedVRChatParameter(templateRegex, parameter));
+            if (!checkingRegisteredParameter.IsMatch()) continue;
+
+            registeredParameter = checkingRegisteredParameter;
             break;
         }
 
-        if (lookup is null || parameterData is null || match is null) return;
+        if (registeredParameter is null) return;
 
-        if (receivedParameter.Type != parameterData.ExpectedType)
+        List<RegisteredWaitingParameter> registeredWaitingParameters;
+
+        lock (registeredParameterWaitListLock)
         {
-            Log($"Cannot accept input parameter. `{lookup}` expects type `{parameterData.ExpectedType.ToString()}` but received type `{receivedParameter.Type.ToString()}`");
-            return;
+            registeredWaitingParameters = registeredParameterWaitList.Where(waitingParameter => waitingParameter.Lookup.Equals(registeredParameter.Lookup)).ToList();
         }
 
-        var registeredParameter = new RegisteredParameter(receivedParameter, lookup, parameterData, match);
-
-        List<WaitingParameter> waitingParameters;
-
-        lock (parameterWaitListLock)
-        {
-            waitingParameters = parameterWaitList.Where(waitingParameter => waitingParameter.Lookup.Equals(lookup)).ToList();
-        }
-
-        if (!waitingParameters.Any(waitingParameter => waitingParameter.BlockEvents))
+        if (!registeredWaitingParameters.Any(waitingParameter => waitingParameter.BlockEvents))
         {
             try
             {
@@ -1053,11 +1112,11 @@ public abstract class Module
             }
         }
 
-        lock (parameterWaitListLock)
+        lock (registeredParameterWaitListLock)
         {
-            foreach (var waitingParameter in waitingParameters)
+            foreach (var waitingParameter in registeredWaitingParameters)
             {
-                parameterWaitList.Remove(waitingParameter);
+                registeredParameterWaitList.Remove(waitingParameter);
                 waitingParameter.CompletionSource.SetResult();
             }
         }
@@ -1089,12 +1148,17 @@ public abstract class Module
 
     internal void InvokeChatBoxUpdate()
     {
-        chatBoxUpdateMethods.ForEach(invokeMethod);
+        foreach (var chatBoxUpdateMethod in chatBoxUpdateMethods)
+        {
+            invokeMethod(chatBoxUpdateMethod);
+        }
     }
 
     #endregion
 
-    private record WaitingParameter(Enum Lookup, bool BlockEvents, TaskCompletionSource CompletionSource);
+    private record RegisteredWaitingParameter(Enum Lookup, bool BlockEvents, TaskCompletionSource CompletionSource);
+
+    private record AnyWaitingParameter(string Name, bool BlockEvents, TaskCompletionSource CompletionSource);
 
     public record SettingsGroup(string Title, string Description, List<string> Settings);
 }

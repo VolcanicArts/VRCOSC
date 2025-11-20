@@ -21,15 +21,15 @@ public partial class ChatBoxPreviewView
 
         DataContext = this;
 
-        AppManager.GetInstance().VRChatOscClient.OnParameterSent += OnParameterSent;
+        AppManager.GetInstance().VRChatOscClient.OnVRChatOSCMessageSent += OnVRChatOSCMessageSent;
     }
 
-    private void OnParameterSent(VRChatOscMessage message) => Dispatcher.Invoke(() =>
+    private void OnVRChatOSCMessageSent(VRChatOSCMessage message) => Dispatcher.Invoke(() =>
     {
         if (!message.IsChatboxInput) return;
 
         var currentClip = ChatBoxManager.GetInstance().CurrentClip;
-        UseMinimalBackground.Value = currentClip?.ShouldUseMinimalBackground() ?? false;
+        UseMinimalBackground.Value = (currentClip?.ShouldUseMinimalBackground() ?? false) || (ChatBoxManager.GetInstance().PulseText is not null && ChatBoxManager.GetInstance().PulseMinimalBackground);
 
         var text = (string)message.ParameterValue;
 

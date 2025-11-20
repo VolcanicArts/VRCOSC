@@ -76,6 +76,8 @@ public class SettingsManager
         setDefault(VRCOSCSetting.SpeechNoiseCutoff, 0.14f);
         setDefault(VRCOSCSetting.SpeechMicVolumeAdjustment, 1f);
         setDefault(VRCOSCSetting.SpeechTranslate, false);
+        setDefault(VRCOSCSetting.SpeechGPU, 0);
+        setDefault(VRCOSCSetting.GlobalKeyboardHook, false);
 
         setDefault(VRCOSCMetadata.InstalledVersion, string.Empty);
         setDefault(VRCOSCMetadata.LastUpdateCheck, DateTime.Now);
@@ -87,7 +89,7 @@ public class SettingsManager
     public Observable<T> GetObservable<T>(VRCOSCSetting lookup) where T : notnull
     {
         if (!Settings.TryGetValue(lookup, out var observable)) throw new InvalidOperationException("Setting doesn't exist");
-        if (observable is not Observable<T> castObservable) throw new InvalidOperationException($"Setting is not of type {typeof(T).ToReadableName()}");
+        if (observable is not Observable<T> castObservable) throw new InvalidOperationException($"Setting is not of type {typeof(T).GetFriendlyName()}");
 
         return castObservable;
     }
@@ -95,7 +97,7 @@ public class SettingsManager
     public Observable<T> GetObservable<T>(VRCOSCMetadata lookup) where T : notnull
     {
         if (!Metadata.TryGetValue(lookup, out var observable)) throw new InvalidOperationException("Metadata doesn't exist");
-        if (observable is not Observable<T> castObservable) throw new InvalidOperationException($"Metadata is not of type {typeof(T).ToReadableName()}");
+        if (observable is not Observable<T> castObservable) throw new InvalidOperationException($"Metadata is not of type {typeof(T).GetFriendlyName()}");
 
         return castObservable;
     }
@@ -145,7 +147,9 @@ public enum VRCOSCSetting
     SpeechConfidence,
     SpeechNoiseCutoff,
     SpeechMicVolumeAdjustment,
-    SpeechTranslate
+    SpeechTranslate,
+    SpeechGPU,
+    GlobalKeyboardHook
 }
 
 public enum VRCOSCMetadata

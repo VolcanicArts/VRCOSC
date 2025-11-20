@@ -15,25 +15,22 @@ public class ObservableKeyValuePair<TKey, TValue> : INotifyPropertyChanged
 {
     #region properties
 
-    private TKey key;
-    private TValue value;
-
     public TKey Key
     {
-        get => key;
+        get;
         set
         {
-            key = value;
+            field = value;
             OnPropertyChanged("Key");
         }
     }
 
     public TValue Value
     {
-        get => value;
+        get;
         set
         {
-            this.value = value;
+            field = value;
             OnPropertyChanged("Value");
         }
     }

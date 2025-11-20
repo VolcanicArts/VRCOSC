@@ -48,7 +48,9 @@ public class PackageManager
         storage = baseStorage.GetStorageForDirectory("packages/remote");
 
         builtinSources.Add(OfficialModulesSource = new PackageSource("VolcanicArts", "VRCOSC-Modules", PackageType.Official));
-        builtinSources.Add(new PackageSource("DJDavid98", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
+        builtinSources.Add(new PackageSource("WentTheFox", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
+        builtinSources.Add(new PackageSource("Yeusepe", "Yeusepes-Modules", PackageType.Curated));
+        builtinSources.Add(new PackageSource("CrookedToe", "CrookedToe-s-Modules", PackageType.Curated));
 
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));
@@ -88,14 +90,14 @@ public class PackageManager
         MainWindow.GetInstance().PackagesView.Refresh();
     }
 
-    public bool AnyInstalledPackageUpdates() => Sources.Where(source => source.IsInstalled()).Any(packageSource => packageSource.GetLatestNonPreRelease() is not null);
+    public bool AnyInstalledPackageUpdates(bool includePreRelease) => Sources.Where(source => source.IsInstalled()).Any(packageSource => packageSource.GetLatestPackages(includePreRelease) is not null);
 
-    public async Task UpdateAllInstalledPackages()
+    public async Task UpdateAllInstalledPackages(bool includePreRelease)
     {
         var tasks = Sources.Where(source => source.IsInstalled()).Select(packageSource =>
         {
-            var latestNonPreRelease = packageSource.GetLatestNonPreRelease();
-            return latestNonPreRelease is null ? Task.CompletedTask : InstallPackage(packageSource, latestNonPreRelease, false, false);
+            var latestRelease = packageSource.GetLatestPackages(includePreRelease);
+            return latestRelease is null ? Task.CompletedTask : InstallPackage(packageSource, latestRelease, false, false);
         });
 
         await Task.WhenAll(tasks);
@@ -139,23 +141,28 @@ public class PackageManager
 
     private async Task downloadRelease(PackageSource source, PackageRelease release, Storage targetDirectory)
     {
-        var tasks = release.Assets.Select(assetName => Task.Run(async () =>
+        foreach (var assetName in release.Assets)
         {
-            var fileDownload = new FileDownload();
-            await fileDownload.DownloadFileAsync(new Uri($"{source.URL}/releases/download/{release.Version}/{assetName}"), targetDirectory.GetFullPath(assetName, true));
-
-            if (assetName.EndsWith(".zip"))
+            try
             {
-                var zipPath = targetDirectory.GetFullPath(assetName);
-                var extractPath = targetDirectory.GetFullPath(string.Empty);
+                var fileDownload = new FileDownload();
+                await fileDownload.DownloadFileAsync(new Uri($"{source.URL}/releases/download/{release.Version}/{assetName}"), targetDirectory.GetFullPath(assetName, true));
 
-                ZipFile.ExtractToDirectory(zipPath, extractPath);
+                if (assetName.EndsWith(".zip"))
+                {
+                    var zipPath = targetDirectory.GetFullPath(assetName);
+                    var extractPath = targetDirectory.GetFullPath(string.Empty);
 
-                targetDirectory.Delete(assetName);
+                    await ZipFile.ExtractToDirectoryAsync(zipPath, extractPath);
+
+                    targetDirectory.Delete(assetName);
+                }
             }
-        }));
-
-        await Task.WhenAll(tasks);
+            catch (Exception e)
+            {
+                Logger.Error(e, $"{assetName} failed to install");
+            }
+        }
     }
 
     public async Task UninstallPackage(PackageSource packageSource)

@@ -38,18 +38,16 @@ public class ObservableConverter : JsonConverter<IObservable>
     }
 }
 
-public sealed class Observable<T> : IObservable, INotifyPropertyChanged, IEquatable<Observable<T>> where T : notnull
+public sealed class Observable<T> : IObservable, INotifyPropertyChanged, IEquatable<Observable<T>>
 {
-    private T value;
-
     public T Value
     {
-        get => value;
+        get;
         set
         {
-            if (EqualityComparer<T>.Default.Equals(value, this.value)) return;
+            if (EqualityComparer<T>.Default.Equals(value, field)) return;
 
-            this.value = value;
+            field = value;
             notifyObservers();
             OnPropertyChanged();
         }
@@ -57,6 +55,7 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, IEquata
 
     public T DefaultValue { get; }
 
+    private readonly object notifyLock = new();
     private readonly List<Action> noValueActions = new();
     private readonly List<Action<T>> actions = new();
 
@@ -83,31 +82,45 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, IEquata
 
     public void SetValue(object newValue)
     {
-        if (newValue is not T castValue) throw new InvalidOperationException($"Attempted to set anonymous value of type {newValue.GetType().ToReadableName()} for type {typeof(T).ToReadableName()}");
+        if (newValue is not T castValue) throw new InvalidOperationException($"Attempted to set anonymous value of type {newValue.GetType().GetFriendlyName()} for type {typeof(T).GetFriendlyName()}");
 
         Value = castValue;
     }
 
     public void Subscribe(Action noValueAction, bool runOnceImmediately = false)
     {
-        noValueActions.Add(noValueAction);
+        lock (notifyLock)
+        {
+            noValueActions.Add(noValueAction);
+        }
+
         if (runOnceImmediately) noValueAction.Invoke();
     }
 
     public void Subscribe(Action<T> action, bool runOnceImmediately = false)
     {
-        actions.Add(action);
+        lock (notifyLock)
+        {
+            actions.Add(action);
+        }
+
         if (runOnceImmediately) action.Invoke(Value);
     }
 
     public void Unsubscribe(Action noValueAction)
     {
-        noValueActions.Remove(noValueAction);
+        lock (notifyLock)
+        {
+            noValueActions.Remove(noValueAction);
+        }
     }
 
     public void Unsubscribe(Action<T> action)
     {
-        actions.Remove(action);
+        lock (notifyLock)
+        {
+            actions.Remove(action);
+        }
     }
 
     public bool IsDefault => EqualityComparer<T>.Default.Equals(Value, DefaultValue);
@@ -119,14 +132,17 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, IEquata
 
     private void notifyObservers()
     {
-        foreach (var noValueAction in noValueActions)
+        lock (notifyLock)
         {
-            noValueAction.Invoke();
-        }
+            foreach (var noValueAction in noValueActions)
+            {
+                noValueAction.Invoke();
+            }
 
-        foreach (var action in actions)
-        {
-            action.Invoke(Value);
+            foreach (var action in actions)
+            {
+                action.Invoke(Value);
+            }
         }
     }
 

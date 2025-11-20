@@ -10,6 +10,14 @@
         <Style TargetType="fa6:ImageAwesome">
             <Setter Property="PrimaryColor" Value="{DynamicResource CForeground1}" />
         </Style>
+        <Style TargetType="ToolTip">
+            <Setter Property="HorizontalOffset" Value="10"/>
+            <Setter Property="VerticalOffset" Value="5"/>
+            <Setter Property="Background" Value="{StaticResource CBackground2}"/>
+            <Setter Property="Foreground" Value="{StaticResource CForeground1}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
         <Style TargetType="RadioButton">
             <Setter Property="OverridesDefaultStyle" Value="True" />
             <Setter Property="Height" Value="70" />
@@ -78,6 +86,9 @@
                 <ColumnDefinition Width="70" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
+            <Border Grid.Column="1" Background="{DynamicResource CBackground2}">
+                <ContentControl Name="ContentControl" />
+            </Border>
             <Border Grid.Column="0" Background="{DynamicResource CBackground1}">
                 <Grid>
                     <StackPanel Orientation="Vertical" VerticalAlignment="Top">
@@ -89,6 +100,9 @@
                         </RadioButton>
                         <RadioButton GroupName="TabBar" Click="ChatBoxButton_OnClick" >
                             <fa6:ImageAwesome Icon="Solid_Message" ToolTip="ChatBox" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
+                        </RadioButton>
+                        <RadioButton GroupName="TabBar" Click="NodesButton_OnClick" >
+                            <fa6:ImageAwesome Icon="Solid_CircleNodes" ToolTip="Pulse" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
                         </RadioButton>
                         <RadioButton GroupName="TabBar" Click="RunButton_OnClick" >
                             <fa6:ImageAwesome Icon="Solid_Play" ToolTip="Run" ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
@@ -109,9 +123,6 @@
                         </RadioButton>
                     </StackPanel>
                 </Grid>
-            </Border>
-            <Border Grid.Column="1" Background="{DynamicResource CBackground2}">
-                <ContentControl Name="ContentControl" />
             </Border>
         </Grid>
         <Grid Name="LoadingOverlay">

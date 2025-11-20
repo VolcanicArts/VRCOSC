@@ -19,7 +19,7 @@ public class DollyManager
     private static DollyManager? instance;
     internal static DollyManager GetInstance() => instance ??= new DollyManager();
 
-    private VRChatOscClient oscClient => AppManager.GetInstance().VRChatOscClient;
+    private VRChatOSCClient oscClient => AppManager.GetInstance().VRChatOscClient;
     private Storage dollyStorage => AppManager.GetInstance().Storage.GetStorageForDirectory(Path.Join("profiles", ProfileManager.GetInstance().ActiveProfile.Value.ID.ToString(), "dollies"));
     private string vrchatDollyDirectoryPath => Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "VRChat", "CameraPaths");
 
@@ -75,23 +75,23 @@ public class DollyManager
 
     public void Play()
     {
-        oscClient.Send(VRChatOscConstants.ADDRESS_DOLLY_PLAY, true);
+        oscClient.Send(VRChatOSCConstants.ADDRESS_DOLLY_PLAY, true);
     }
 
     public void Stop()
     {
-        oscClient.Send(VRChatOscConstants.ADDRESS_DOLLY_PLAY, false);
+        oscClient.Send(VRChatOSCConstants.ADDRESS_DOLLY_PLAY, false);
     }
 
     public void PlayDelayed(int secondsDelay)
     {
-        oscClient.Send(VRChatOscConstants.ADDRESS_DOLLY_PLAYDELAYED, secondsDelay);
+        oscClient.Send(VRChatOSCConstants.ADDRESS_DOLLY_PLAYDELAYED, secondsDelay);
     }
 
     /// <summary>
     /// Imports the dolly file into VRChat
     /// </summary>
-    public async void Import(Dolly dolly)
+    public async Task Import(Dolly dolly)
     {
         // not stopping causes vrchat to combine the paths and keep playing
         Stop();
@@ -99,7 +99,7 @@ public class DollyManager
 
         var filePath = dollyStorage.GetFullPath($"{dolly.Id.ToString()}.json");
         var contents = await File.ReadAllTextAsync(filePath);
-        oscClient.Send(VRChatOscConstants.ADDRESS_DOLLY_IMPORT, contents);
+        oscClient.Send(VRChatOSCConstants.ADDRESS_DOLLY_IMPORT, contents);
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ public class DollyManager
         var destinationFilePath = dollyStorage.GetFullPath($"{newDolly.Id.ToString()}.json");
         var currentDateTime = DateTime.Now;
 
-        oscClient.Send(VRChatOscConstants.ADDRESS_DOLLY_EXPORT, [null]);
+        oscClient.Send(VRChatOSCConstants.ADDRESS_DOLLY_EXPORT, [null]);
         await Task.Delay(100);
 
         var vrchatDollyDirectory = new DirectoryInfo(vrchatDollyDirectoryPath);
@@ -138,9 +138,9 @@ public class DollyManager
         Dollies.Add(newDolly);
     }
 
-    public void HandleDollyEvent(VRChatOscMessage message)
+    public void HandleDollyEvent(VRChatOSCMessage message)
     {
-        if (message.Address == VRChatOscConstants.ADDRESS_DOLLY_PLAY)
+        if (message.Address == VRChatOSCConstants.ADDRESS_DOLLY_PLAY)
         {
             var playing = (bool)message.Arguments[0]!;
 

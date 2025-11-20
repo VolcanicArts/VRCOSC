@@ -16,7 +16,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     protected T? HeartrateProvider;
 
     private float currentValue;
-    private int targetValue;
+    public int TargetValue { get; private set; }
 
     private float currentAverage;
     private int targetAverage;
@@ -79,7 +79,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     protected override async Task<bool> OnModuleStart()
     {
         currentValue = 0;
-        targetValue = 0;
+        TargetValue = 0;
         currentAverage = 0;
         targetAverage = 0;
         beatParameterValue = false;
@@ -95,7 +95,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         HeartrateProvider.OnHeartrateUpdate += newHeartrate =>
         {
             ChangeState(HeartrateState.Connected);
-            targetValue = newHeartrate;
+            TargetValue = newHeartrate;
 
             lock (valuesLock)
             {
@@ -153,13 +153,13 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     {
         while (!beatParameterSource!.IsCancellationRequested)
         {
-            if (targetValue == 0f)
+            if (TargetValue == 0f)
             {
                 await Task.Delay(TimeSpan.FromSeconds(1));
                 continue;
             }
 
-            var delay = (int)MathF.Round(60f * 1000f / targetValue);
+            var delay = (int)MathF.Round(60f * 1000f / TargetValue);
             await Task.Delay(delay);
 
             if (GetSettingValue<bool>(HeartrateSetting.BeatMode))
@@ -175,19 +175,25 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         }
     }
 
-    protected override async void OnRegisteredParameterReceived(RegisteredParameter parameter)
+    protected override void OnRegisteredParameterReceived(RegisteredParameter parameter)
     {
-        switch (parameter.Lookup)
-        {
-            case HeartrateParameter.Beat:
-                if (GetSettingValue<bool>(HeartrateSetting.BeatMode) && parameter.GetValue<bool>())
-                {
-                    await Task.Delay(50);
-                    beatParameterValue = false;
-                    SendParameter(HeartrateParameter.Beat, beatParameterValue);
-                }
+        run().Forget();
+        return;
 
-                break;
+        async Task run()
+        {
+            switch (parameter.Lookup)
+            {
+                case HeartrateParameter.Beat:
+                    if (GetSettingValue<bool>(HeartrateSetting.BeatMode) && parameter.GetValue<bool>())
+                    {
+                        await Task.Delay(50);
+                        beatParameterValue = false;
+                        SendParameter(HeartrateParameter.Beat, beatParameterValue);
+                    }
+
+                    break;
+            }
         }
     }
 
@@ -213,11 +219,11 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     {
         if (GetSettingValue<bool>(HeartrateSetting.SmoothValue))
         {
-            currentValue = (float)Interpolation.DampContinuously(currentValue, targetValue, GetSettingValue<int>(HeartrateSetting.SmoothValueLength) / 2d, 50d);
+            currentValue = (float)Interpolation.DampContinuously(currentValue, TargetValue, GetSettingValue<int>(HeartrateSetting.SmoothValueLength) / 2f, 50f);
         }
         else
         {
-            currentValue = targetValue;
+            currentValue = TargetValue;
         }
     }
 
@@ -242,7 +248,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 
         if (GetSettingValue<bool>(HeartrateSetting.SmoothAverage))
         {
-            currentAverage = (float)Interpolation.DampContinuously(currentAverage, targetAverage, GetSettingValue<int>(HeartrateSetting.SmoothAverageLength) / 2d, 50d);
+            currentAverage = (float)Interpolation.DampContinuously(currentAverage, targetAverage, GetSettingValue<int>(HeartrateSetting.SmoothAverageLength) / 2f, 50f);
         }
         else
         {

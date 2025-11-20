@@ -1,0 +1,30 @@
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// See the LICENSE file in the repository root for full license text.
+
+using System;
+using System.Threading.Tasks;
+
+namespace VRCOSC.App.Nodes.Types.Flow;
+
+[Node("Continue On Elapsed", "Flow")]
+public sealed class ContinueOnElapsedNode : Node, IFlowInput
+{
+    private readonly GlobalStore<DateTime> lastUpdate = new();
+
+    public FlowContinuation OnElapsed = new("On Elapsed");
+
+    public ValueInput<int> ElapsedMilliseconds = new("Elapsed Milliseconds");
+
+    protected override async Task Process(PulseContext c)
+    {
+        if (ElapsedMilliseconds.Read(c) <= 0) return;
+
+        var dateTimeNow = DateTime.Now;
+
+        if ((dateTimeNow - lastUpdate.Read(c)).TotalMilliseconds >= ElapsedMilliseconds.Read(c))
+        {
+            lastUpdate.Write(dateTimeNow, c);
+            await OnElapsed.Execute(c);
+        }
+    }
+}

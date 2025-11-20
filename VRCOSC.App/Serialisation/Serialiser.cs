@@ -24,6 +24,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
 
     protected virtual string Directory => string.Empty;
     protected virtual string FileName => string.Empty;
+    protected virtual Formatting Format => Formatting.Indented;
 
     private readonly Storage baseStorage;
 
@@ -99,7 +100,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
             lock (serialisationLock)
             {
                 var data = (TSerialisable)Activator.CreateInstance(typeof(TSerialisable), Reference)!;
-                var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data, Formatting.Indented));
+                var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data, Format));
                 using var stream = baseStorage.GetStorageForDirectory(Directory).CreateFileSafely(FileName);
                 stream.Write(bytes);
             }
@@ -115,32 +116,40 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
 
     private T? performDeserialisation<T>(string filePath) where T : class
     {
-        var bytes = File.ReadAllBytes(filePath);
-
-        if (bytes is [0xFF, 0xFE, ..])
+        try
         {
-            bytes = bytes[2..];
-            Logger.Log("Found BOM. Deserialising as UTF16");
-            return JsonConvert.DeserializeObject<T>(Encoding.Unicode.GetString(bytes));
+            var bytes = File.ReadAllBytes(filePath);
+
+            if (bytes is [0xFF, 0xFE, ..])
+            {
+                bytes = bytes[2..];
+                Logger.Log("Found BOM. Deserialising as UTF16");
+                return JsonConvert.DeserializeObject<T>(Encoding.Unicode.GetString(bytes));
+            }
+
+            var utf16Str = Encoding.Unicode.GetString(bytes);
+            var utf8Str = Encoding.UTF8.GetString(bytes);
+
+            if (utf16Str.StartsWith('{'))
+            {
+                Logger.Log($"Deserialising {filePath} as UTF16", LoggingTarget.Information);
+                return JsonConvert.DeserializeObject<T>(utf16Str);
+            }
+
+            if (utf8Str.StartsWith('{'))
+            {
+                Logger.Log($"Deserialising {filePath} as UTF8", LoggingTarget.Information);
+                return JsonConvert.DeserializeObject<T>(utf8Str);
+            }
+
+            Logger.Log($"'{filePath}' was unable to be deserialised");
+            return null;
         }
-
-        var utf16Str = Encoding.Unicode.GetString(bytes);
-        var utf8Str = Encoding.UTF8.GetString(bytes);
-
-        if (utf16Str.StartsWith('{'))
+        catch (Exception e)
         {
-            Logger.Log($"Deserialising {filePath} as UTF16", LoggingTarget.Information);
-            return JsonConvert.DeserializeObject<T>(utf16Str);
+            ExceptionHandler.Handle(e, $"'{filePath}' was unable to be deserialised");
+            return null;
         }
-
-        if (utf8Str.StartsWith('{'))
-        {
-            Logger.Log($"Deserialising {filePath} as UTF8", LoggingTarget.Information);
-            return JsonConvert.DeserializeObject<T>(utf8Str);
-        }
-
-        Logger.Log($"'{filePath}' was unable to be deserialised");
-        return null;
     }
 
     /// <summary>
@@ -168,6 +177,10 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
                     outValue = token.ToObject(targetType)!;
                     return true;
 
+                case string strValue when targetType == typeof(Guid):
+                    outValue = Guid.Parse(strValue);
+                    return true;
+
                 case var subValue when targetType.IsAssignableTo(typeof(Enum)):
                     outValue = Enum.ToObject(targetType, subValue);
                     return true;
@@ -185,7 +198,7 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e, $"'{FullPath}' was unable to convert {value!.GetType().ToReadableName()} to {targetType.ToReadableName()}");
+            ExceptionHandler.Handle(e, $"'{FullPath}' was unable to convert {value!.GetType().GetFriendlyName()} to {targetType.GetFriendlyName()}");
             throw;
         }
     }

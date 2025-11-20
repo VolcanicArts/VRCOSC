@@ -64,52 +64,6 @@
                     </Grid>
                 </core:SpacedStackPanel>
             </GroupBox>
-            <GroupBox Header="Devices">
-                <core:SpacedStackPanel Spacing="10" Margin="7">
-                    <TextBlock Style="{StaticResource NoteTextStyle}">
-                        The list below is every device you've connected to SteamVR with VRCOSC open.
-                        <LineBreak/>
-                        For modules that use SteamVR integration you will need to assign roles to each device so the modules know which device is what.
-                        <LineBreak/>
-                        VRCOSC will attempt to assign the correct role based on a variety of factors, but for generic trackers you will need to assign them manually.
-                    </TextBlock>
-                    <core:HeaderFooterListView HideFooterWhenEmpty="True" ShouldTruncateHeight="False" ItemsSource="{Binding TrackedDevices}" AlternationCount="2">
-                        <core:HeaderFooterListView.Header>
-                            <Border Background="{DynamicResource CBackground1}" Height="5"/>
-                        </core:HeaderFooterListView.Header>
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate>
-                                            <Border Padding="5" Height="35">
-                                                <Border.Background>
-                                                    <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
-                                                        <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
-                                                        <Binding Source="{StaticResource CBackground3Proxy}" Path="Data"/>
-                                                        <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
-                                                    </MultiBinding>
-                                                </Border.Background>
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="200"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="15" FontWeight="Regular" Foreground="{DynamicResource CForeground1}" Text="{Binding Key}"/>
-                                                    <ComboBox Grid.Column="1" Tag="{Binding Key}" SelectedItem="{Binding Value.Role, Mode=OneWay}" SelectionChanged="Selector_OnSelectionChanged" FontSize="15" ItemsSource="{Binding Path=DeviceRoleSource, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}"/>
-                                                </Grid>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                        <core:HeaderFooterListView.Footer>
-                            <Border Background="{DynamicResource CBackground1}" Height="5"/>
-                        </core:HeaderFooterListView.Footer>
-                    </core:HeaderFooterListView>
-                </core:SpacedStackPanel>
-            </GroupBox>
         </core:SpacedStackPanel>
     </Grid>
 </UserControl>

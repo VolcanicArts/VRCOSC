@@ -181,12 +181,14 @@ public class ConnectionManager
 
     #endregion
 
-    private void refreshServices()
+    private Task refreshServices()
     {
-        if (IsConnected || mdns is null) return;
+        if (IsConnected || mdns is null) return Task.CompletedTask;
 
         mdns.SendQuery($"{osc_service_name}.local");
         mdns.SendQuery($"{osc_query_service_name}.local");
+
+        return Task.CompletedTask;
     }
 
     private static readonly IPEndPoint default_loopback_endpoint = new(IPAddress.Loopback, 0);

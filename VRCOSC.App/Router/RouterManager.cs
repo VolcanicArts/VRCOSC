@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Net;
 using System.Threading.Tasks;
 using FastOSC;
+using VRCOSC.App.ChatBox;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Router.Serialisation.V1;
 using VRCOSC.App.Serialisation;
@@ -76,7 +77,23 @@ public class RouterManager
                     Logger.Log($"Starting receiver router instance `{route.Name.Value}` on {endpoint}", LoggingTarget.Terminal);
 
                     var receiver = new OSCReceiver();
-                    receiver.OnMessageReceived += message => AppManager.GetInstance().VRChatOscClient.Send(message.Address, message.Arguments);
+
+                    receiver.OnPacketReceived += packet =>
+                    {
+                        if (packet is OSCMessage message)
+                        {
+                            if (message.Address == VRChatOSCConstants.ADDRESS_CHATBOX_INPUT)
+                            {
+                                ChatBoxManager.GetInstance().SetRouterChatBoxInput((string)message.Arguments[0]!);
+                                return Task.CompletedTask;
+                            }
+
+                            AppManager.GetInstance().VRChatOscClient.Send(message.Address, message.Arguments);
+                        }
+
+                        return Task.CompletedTask;
+                    };
+
                     receiver.Connect(endpoint);
 
                     receivers.Add((route, receiver));
@@ -88,7 +105,7 @@ public class RouterManager
             }
         }
 
-        AppManager.GetInstance().VRChatOscClient.OnParameterReceived += onParameterReceived;
+        AppManager.GetInstance().VRChatOscClient.OnVRChatOSCMessageReceived += onParameterReceived;
 
         started = true;
     }
@@ -97,7 +114,7 @@ public class RouterManager
     {
         if (!started) return;
 
-        AppManager.GetInstance().VRChatOscClient.OnParameterReceived -= onParameterReceived;
+        AppManager.GetInstance().VRChatOscClient.OnVRChatOSCMessageReceived -= onParameterReceived;
 
         foreach (var (route, sender) in senders)
         {
@@ -115,11 +132,13 @@ public class RouterManager
         receivers.Clear();
     }
 
-    private void onParameterReceived(VRChatOscMessage message)
+    private Task onParameterReceived(VRChatOSCMessage message)
     {
         foreach (var (_, sender) in senders)
         {
             sender.Send(message);
         }
+
+        return Task.CompletedTask;
     }
 }

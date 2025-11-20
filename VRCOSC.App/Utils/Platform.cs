@@ -27,7 +27,9 @@ public static class Platform
             FileTypeFilter = { filter }
         };
 
-        InitializeWithWindow.Initialize(picker, PInvoke.GetActiveWindow());
+        var mainWindowHandle = new WindowInteropHelper(Application.Current.MainWindow!).EnsureHandle();
+
+        InitializeWithWindow.Initialize(picker, mainWindowHandle);
 
         return (await picker.PickSingleFileAsync())?.Path;
     }

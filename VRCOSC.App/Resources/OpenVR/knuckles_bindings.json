@@ -54,17 +54,41 @@
 			"sources": [
 				{
 					"inputs": {
+						"position": {
+							"output": "/actions/main/in/left_stick_position"
+						},
 						"touch": {
-							"output": "/actions/main/in/leftstick"
+							"output": "/actions/main/in/left_stick_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/left_stick_click"
 						}
 					},
-					"mode": "button",
+					"mode": "joystick",
 					"path": "/user/hand/left/input/thumbstick"
 				},
 				{
 					"inputs": {
+						"pull": {
+							"output": "/actions/main/in/left_trigger_pull"
+						},
 						"touch": {
-							"output": "/actions/main/in/lefta"
+							"output": "/actions/main/in/left_trigger_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/left_trigger_click"
+						}
+					},
+					"mode": "trigger",
+					"path": "/user/hand/left/input/trigger"
+				},
+				{
+					"inputs": {
+						"touch": {
+							"output": "/actions/main/in/left_primary_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/left_primary_click"
 						}
 					},
 					"mode": "button",
@@ -73,7 +97,10 @@
 				{
 					"inputs": {
 						"touch": {
-							"output": "/actions/main/in/leftb"
+							"output": "/actions/main/in/left_secondary_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/left_secondary_click"
 						}
 					},
 					"mode": "button",
@@ -81,8 +108,26 @@
 				},
 				{
 					"inputs": {
+						"pull": {
+							"output": "/actions/main/in/left_grip_pull"
+						},
+						"click": {
+							"output": "/actions/main/in/left_grip_click"
+						}
+					},
+					"mode": "trigger",
+					"path": "/user/hand/left/input/grip"
+				},
+				{
+					"inputs": {
+						"position": {
+							"output": "/actions/main/in/left_pad_position"
+						},
 						"touch": {
-							"output": "/actions/main/in/leftpad"
+							"output": "/actions/main/in/left_pad_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/left_pad_click"
 						}
 					},
 					"mode": "trackpad",
@@ -91,7 +136,7 @@
 				{
 					"inputs": {
 						"pull": {
-							"output": "/actions/main/in/leftfingerindex"
+							"output": "/actions/main/in/left_finger_index"
 						}
 					},
 					"mode": "trigger",
@@ -100,7 +145,7 @@
 				{
 					"inputs": {
 						"pull": {
-							"output": "/actions/main/in/leftfingermiddle"
+							"output": "/actions/main/in/left_finger_middle"
 						}
 					},
 					"mode": "trigger",
@@ -109,7 +154,7 @@
 				{
 					"inputs": {
 						"pull": {
-							"output": "/actions/main/in/leftfingerring"
+							"output": "/actions/main/in/left_finger_ring"
 						}
 					},
 					"mode": "trigger",
@@ -118,7 +163,7 @@
 				{
 					"inputs": {
 						"pull": {
-							"output": "/actions/main/in/leftfingerpinky"
+							"output": "/actions/main/in/left_finger_pinky"
 						}
 					},
 					"mode": "trigger",
@@ -126,17 +171,41 @@
 				},
 				{
 					"inputs": {
+						"position": {
+							"output": "/actions/main/in/right_stick_position"
+						},
 						"touch": {
-							"output": "/actions/main/in/rightstick"
+							"output": "/actions/main/in/right_stick_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/right_stick_click"
 						}
 					},
-					"mode": "button",
+					"mode": "joystick",
 					"path": "/user/hand/right/input/thumbstick"
 				},
 				{
 					"inputs": {
+						"pull": {
+							"output": "/actions/main/in/right_trigger_pull"
+						},
 						"touch": {
-							"output": "/actions/main/in/righta"
+							"output": "/actions/main/in/right_trigger_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/right_trigger_click"
+						}
+					},
+					"mode": "trigger",
+					"path": "/user/hand/right/input/trigger"
+				},
+				{
+					"inputs": {
+						"touch": {
+							"output": "/actions/main/in/right_primary_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/right_primary_click"
 						}
 					},
 					"mode": "button",
@@ -145,7 +214,10 @@
 				{
 					"inputs": {
 						"touch": {
-							"output": "/actions/main/in/rightb"
+							"output": "/actions/main/in/right_secondary_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/right_secondary_click"
 						}
 					},
 					"mode": "button",
@@ -153,8 +225,26 @@
 				},
 				{
 					"inputs": {
+						"pull": {
+							"output": "/actions/main/in/right_grip_pull"
+						},
+						"click": {
+							"output": "/actions/main/in/right_grip_click"
+						}
+					},
+					"mode": "trigger",
+					"path": "/user/hand/right/input/grip"
+				},
+				{
+					"inputs": {
+						"position": {
+							"output": "/actions/main/in/right_pad_position"
+						},
 						"touch": {
-							"output": "/actions/main/in/rightpad"
+							"output": "/actions/main/in/right_pad_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/right_pad_click"
 						}
 					},
 					"mode": "trackpad",
@@ -163,7 +253,7 @@
 				{
 					"inputs": {
 						"pull": {
-							"output": "/actions/main/in/rightfingerindex"
+							"output": "/actions/main/in/right_finger_index"
 						}
 					},
 					"mode": "trigger",
@@ -172,7 +262,7 @@
 				{
 					"inputs": {
 						"pull": {
-							"output": "/actions/main/in/rightfingermiddle"
+							"output": "/actions/main/in/right_finger_middle"
 						}
 					},
 					"mode": "trigger",
@@ -181,7 +271,7 @@
 				{
 					"inputs": {
 						"pull": {
-							"output": "/actions/main/in/rightfingerring"
+							"output": "/actions/main/in/right_finger_ring"
 						}
 					},
 					"mode": "trigger",
@@ -190,7 +280,7 @@
 				{
 					"inputs": {
 						"pull": {
-							"output": "/actions/main/in/rightfingerpinky"
+							"output": "/actions/main/in/right_finger_pinky"
 						}
 					},
 					"mode": "trigger",
@@ -200,8 +290,8 @@
 		}
 	},
 	"controller_type": "knuckles",
-	"description": "A modular OSC program creator made for VRChat",
-	"name": "VRCOSC",
+	"description": "Knuckles bindings for VRCOSC",
+	"name": "vrcosc_knuckles",
 	"options": {},
 	"simulated_actions": []
 }
