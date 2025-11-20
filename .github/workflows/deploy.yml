@@ -1,0 +1,86 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+      channel:
+        description: 'Release Channel (live/beta)'
+        required: true
+
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Cache All
+      id: cache-all
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.nuget/packages
+          ~/.dotnet/tools
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+    
+    - name: Install Dependencies and Tools
+      if: steps.cache-all.outputs.cache-hit == 'false'
+      run: | 
+        dotnet tool install --global vpk
+        dotnet restore
+
+    - name: Publish desktop app
+      run: dotnet publish VRCOSC/VRCOSC.csproj --configuration Release -o ./publish
+      
+    - name: Remove unused language folders
+      run: |
+        Get-ChildItem -Path ./publish -Directory |
+          Where-Object { $_.Name -match '^[a-z]{2}(-[A-Za-z0-9]+)*$' } |
+          ForEach-Object {
+            Write-Host "Removing language folder: $($_.FullName)"
+            Remove-Item $_.FullName -Recurse -Force
+          }
+
+    - name: List contents of publish folder
+      run: |
+        dir ./publish
+
+    - name: Package with Velopack
+      run: vpk pack -u "VRCOSC" --packAuthors "VolcanicArts" --packTitle "VRCOSC" -p "./publish" -e "VRCOSC.exe" -o "./releases" -i "./VRCOSC/app.ico" -s "./Logo.png" -c "${{ inputs.channel }}" -v "${{ inputs.version }}"
+
+    - name: List contents of releases folder
+      run: |
+        dir ./releases
+
+    - name: Pack NuGet SDK
+      run: dotnet pack VRCOSC.App/VRCOSC.App.csproj --configuration Release -p:PackageVersion=${{ inputs.version }} -p:NoWarn=true -o ./nuget
+
+    - name: Generate GitHub release body
+      id: release_body
+      shell: pwsh
+      run: |
+        $version = "${{ inputs.version }}"
+        $channel = "${{ inputs.channel }}"
+    
+        if ($channel -eq "live") {
+          $body = @()
+          $body += "## Installation"
+          $body += "- Download and run [VRCOSCSetup.exe](https://github.com/VolcanicArts/VRCOSC/releases/latest/download/VRCOSCSetup.exe) (It may get blocked by your antivirus (including Windows Defender)). A shortcut will be made on your desktop and start menu."
+          $body += "- Join the [Discord Server](https://vrcosc.com/discord) to get help or make suggestions."
+          $body += "- If you have trouble with the software or prefabs check the [FAQ](https://vrcosc.com/docs/faq)."
+          $body += ""
+          $body += "Changelog: https://vrcosc.com/changelog/$version"
+        } else {
+          $body = @("This is a beta release. Please download the latest live release if you do not intend on testing beta features.")
+        }
+    
+        $releasebody = $body -join "`n"
+        echo "$releasebody"
