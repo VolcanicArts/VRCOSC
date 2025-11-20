@@ -69,8 +69,7 @@ public sealed class OnUserJoinedNode : Node, INodeEventHandler
 {
     public FlowCall OnUserJoined = new();
 
-    public ValueOutput<string> UserId = new("User Id");
-    public ValueOutput<string> Username = new("Username");
+    public ValueOutput<User> User = new("User");
 
     protected override async Task Process(PulseContext c)
     {
@@ -79,8 +78,7 @@ public sealed class OnUserJoinedNode : Node, INodeEventHandler
 
     public bool HandleOnUserJoined(PulseContext c, VRChatClientEventUserJoined eventArgs)
     {
-        UserId.Write(eventArgs.User.UserId, c);
-        Username.Write(eventArgs.User.Username, c);
+        User.Write(eventArgs.User, c);
         return true;
     }
 }
@@ -90,7 +88,7 @@ public sealed class OnUserLeftNode : Node, INodeEventHandler
 {
     public FlowCall OnUserLeft = new();
 
-    public ValueOutput<string> UserId = new("User Id");
+    public ValueOutput<User> User = new("User");
 
     protected override async Task Process(PulseContext c)
     {
@@ -99,7 +97,7 @@ public sealed class OnUserLeftNode : Node, INodeEventHandler
 
     public bool HandleOnUserLeft(PulseContext c, VRChatClientEventUserLeft eventArgs)
     {
-        UserId.Write(eventArgs.UserId, c);
+        User.Write(eventArgs.User, c);
         return true;
     }
 }

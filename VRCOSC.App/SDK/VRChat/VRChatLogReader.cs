@@ -27,7 +27,7 @@ internal static class VRChatLogReader
     private static readonly Regex instance_change_regex = new("^.+Destination set: (.+):.+$");
     private static readonly Regex instance_joined_regex = new(@"^.+Finished entering world\.$");
     private static readonly Regex user_joined_regex = new(@"^.+OnPlayerJoined (.+) \((.+)\)$");
-    private static readonly Regex user_left_regex = new(@"^.+OnPlayerLeft .+ \((.+)\)$");
+    private static readonly Regex user_left_regex = new(@"^.+OnPlayerLeft (.+) \((.+)\)$");
     private static readonly Regex avatar_prechange_regex = new(@"^.+Initialize Limb Avatar VRCPlayer\[Local\].+$");
 
     private static readonly List<LogLine> line_buffer = [];
@@ -193,8 +193,9 @@ internal static class VRChatLogReader
         var match = user_left_regex.Match(logLine.Line);
         if (!match.Success) return;
 
-        var userId = match.Groups[1].Captures[0].Value;
-        handlers.ForEach(handler => handler.OnUserLeft(new VRChatClientEventUserLeft(logLine.DateTime, userId)));
+        var username = match.Groups[1].Captures[0].Value;
+        var userId = match.Groups[2].Captures[0].Value;
+        handlers.ForEach(handler => handler.OnUserLeft(new VRChatClientEventUserLeft(logLine.DateTime, new User(userId, username))));
     }
 
     private static void checkUserJoined(LogLine logLine)
@@ -229,7 +230,7 @@ public record VRChatClientEventInstanceLeft(DateTime DateTime) : VRChatClientEve
 
 public record VRChatClientEventInstanceJoined(DateTime DateTime, string WorldId) : VRChatClientEvent(DateTime);
 
-public record VRChatClientEventUserLeft(DateTime DateTime, string UserId) : VRChatClientEvent(DateTime);
+public record VRChatClientEventUserLeft(DateTime DateTime, User User) : VRChatClientEvent(DateTime);
 
 public record VRChatClientEventUserJoined(DateTime DateTime, User User) : VRChatClientEvent(DateTime);
 

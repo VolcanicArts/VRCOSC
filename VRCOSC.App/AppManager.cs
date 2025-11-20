@@ -185,7 +185,7 @@ internal class AppManager : IVRCClientEventHandler
 
     public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
     {
-        VRChatClient.Instance.Users.RemoveIf(user => user.UserId == eventArgs.UserId);
+        VRChatClient.Instance.Users.RemoveIf(user => user == eventArgs.User);
     }
 
     public async Task<VRChatParameter?> FindParameter(ParameterDefinition parameterDefinition, CancellationToken token)
