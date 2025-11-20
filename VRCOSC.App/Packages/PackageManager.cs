@@ -49,6 +49,8 @@ public class PackageManager
 
         builtinSources.Add(OfficialModulesSource = new PackageSource("VolcanicArts", "VRCOSC-Modules", PackageType.Official));
         builtinSources.Add(new PackageSource("WentTheFox", "VRCOSC-BluetoothHeartrate", PackageType.Curated));
+        builtinSources.Add(new PackageSource("Yeusepe", "Yeusepes-Modules", PackageType.Curated));
+        builtinSources.Add(new PackageSource("CrookedToe", "CrookedToe-s-Modules", PackageType.Curated));
 
         serialisationManager = new SerialisationManager();
         serialisationManager.RegisterSerialiser(1, new PackageManagerSerialiser(baseStorage, this));
@@ -151,7 +153,7 @@ public class PackageManager
                     var zipPath = targetDirectory.GetFullPath(assetName);
                     var extractPath = targetDirectory.GetFullPath(string.Empty);
 
-                    ZipFile.ExtractToDirectory(zipPath, extractPath);
+                    await ZipFile.ExtractToDirectoryAsync(zipPath, extractPath);
 
                     targetDirectory.Delete(assetName);
                 }
