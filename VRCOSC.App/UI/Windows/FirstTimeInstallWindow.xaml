@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
         mc:Ignorable="d"
-        Title="Welcome to VRCOSC V2" Width="750" Height="*"
+        Title="Welcome to VRCOSC V2" Width="750" Height="400"
         ResizeMode="NoResize">
     <Border Background="{DynamicResource CBackground2}" Padding="40">
         <core:SpacedStackPanel Spacing="20" HorizontalAlignment="Center">
