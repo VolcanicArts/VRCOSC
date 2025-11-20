@@ -55,7 +55,7 @@ public sealed class VRChatAvatarSourceNode : Node, INodeEventHandler
 [Node("Instance Source", "VRChat")]
 public sealed class VRChatInstanceSourceNode : UpdateNode<string?, int>, INodeEventHandler
 {
-    public ValueOutput<string?> WorldId = new("Id");
+    public ValueOutput<string?> WorldId = new("World Id");
     public ValueOutput<IEnumerable<User>> Users = new();
 
     protected override Task Process(PulseContext c)
