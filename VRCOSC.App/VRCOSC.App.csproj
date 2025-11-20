@@ -26,10 +26,10 @@
         <PackageReference Include="CommandLineParser" Version="2.9.1" />
         <PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
         <PackageReference Include="FontAwesome6.Fonts" Version="2.5.1" />
-        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.5-pre537" />
+        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.5-pre548" />
         <PackageReference Include="MathParser.org-mXparser" Version="6.1.0" />
         <PackageReference Include="MeaMod.DNS" Version="1.0.71" />
-        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.242">
+        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.250">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -42,9 +42,9 @@
         <PackageReference Include="Velopack" Version="0.0.1298" />
         <PackageReference Include="VolcanicArts.FastOSC" Version="2.0.0" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />
-        <PackageReference Include="Whisper.net" Version="1.8.1" />
-        <PackageReference Include="Whisper.net.Runtime" Version="1.8.1" />
-        <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.8.1" />
+        <PackageReference Include="Whisper.net" Version="1.9.0" />
+        <PackageReference Include="Whisper.net.Runtime" Version="1.9.0" />
+        <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.9.0" />
         <PackageReference Include="WindowsInput" Version="6.4.1" />
     </ItemGroup>
 
