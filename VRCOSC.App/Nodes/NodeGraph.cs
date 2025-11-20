@@ -399,7 +399,8 @@ public class NodeGraph : IVRCClientEventHandler
             Name = { Value = name },
             Nodes = nodeIds.Select(id => new SerialisableNode(Nodes[id])).ToList(),
             Connections = Connections.Values.Where(c => nodeIds.Contains(c.OutputNodeId) && nodeIds.Contains(c.InputNodeId)).Select(c => new SerialisableConnection(c)).ToList(),
-            Groups = Groups.Values.Where(g => g.Nodes.All(nodeIds.Contains)).Select(g => new SerialisableNodeGroup(g)).ToList()
+            Groups = Groups.Values.Where(g => g.Nodes.All(nodeIds.Contains)).Select(g => new SerialisableNodeGroup(g)).ToList(),
+            Variables = nodeIds.Select(id => Nodes[id]).OfType<IHasVariableReference>().Select(node => new SerialisableGraphVariable(GraphVariables[node.VariableId])).ToList()
         };
 
         foreach (var node in nodePreset.Nodes)

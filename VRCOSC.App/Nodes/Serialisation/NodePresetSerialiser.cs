@@ -25,6 +25,7 @@ public class NodePresetSerialiser : ProfiledSerialiser<NodePreset, SerialisableN
         Reference.Nodes = data.Nodes;
         Reference.Connections = data.Connections;
         Reference.Groups = data.Groups;
+        Reference.Variables = data.Variables;
         return false;
     }
 }

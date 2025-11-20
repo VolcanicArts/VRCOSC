@@ -19,6 +19,7 @@ public class NodePreset
     public List<SerialisableNode> Nodes { get; set; } = [];
     public List<SerialisableConnection> Connections { get; set; } = [];
     public List<SerialisableNodeGroup> Groups { get; set; } = [];
+    public List<SerialisableGraphVariable> Variables { get; set; } = [];
 
     private readonly SerialisationManager serialiser;
 
@@ -46,6 +47,28 @@ public class NodePreset
     public IEnumerable<Guid> SpawnTo(NodeGraph targetGraph, Point pos)
     {
         var nodeIdMapping = new Dictionary<Guid, Guid>();
+        var variableIdMapping = new Dictionary<Guid, Guid>();
+
+        foreach (var sV in Variables)
+        {
+            if (variableIdMapping.ContainsKey(sV.Id)) continue;
+            if (!TypeResolver.TryConstruct(sV.Type, out var variableType)) continue;
+
+            var newId = Guid.NewGuid();
+
+            if (tryConvertToTargetType(sV.Value, variableType, out var variableValue))
+            {
+                var variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [newId, sV.Name, sV.Persistent, variableValue])!;
+                targetGraph.GraphVariables.TryAdd(newId, variable);
+                variableIdMapping.Add(sV.Id, newId);
+            }
+            else
+            {
+                var variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [newId, sV.Name, sV.Persistent])!;
+                targetGraph.GraphVariables.TryAdd(newId, variable);
+                variableIdMapping.Add(sV.Id, newId);
+            }
+        }
 
         foreach (var sN in Nodes)
         {
@@ -69,6 +92,9 @@ public class NodePreset
                         {
                             if (tryConvertToTargetType(propertyValue, property.PropertyType, out var convertedValue))
                             {
+                                if (propertyKey == "variable_id")
+                                    convertedValue = variableIdMapping[(Guid)convertedValue!];
+
                                 property.SetValue(node, convertedValue);
                             }
                         }
