@@ -256,7 +256,13 @@ public class WindowsMediaProvider
 
         async Task run()
         {
-            await CurrentSession?.TryPlayAsync();
+            try
+            {
+                await CurrentSession?.TryPlayAsync();
+            }
+            catch
+            {
+            }
         }
     }
 
@@ -267,7 +273,13 @@ public class WindowsMediaProvider
 
         async Task run()
         {
-            await CurrentSession?.TryPauseAsync();
+            try
+            {
+                await CurrentSession?.TryPauseAsync();
+            }
+            catch
+            {
+            }
         }
     }
 
@@ -278,7 +290,13 @@ public class WindowsMediaProvider
 
         async Task run()
         {
-            await CurrentSession?.TrySkipNextAsync();
+            try
+            {
+                await CurrentSession?.TrySkipNextAsync();
+            }
+            catch
+            {
+            }
         }
     }
 
@@ -289,7 +307,13 @@ public class WindowsMediaProvider
 
         async Task run()
         {
-            await CurrentSession?.TrySkipPreviousAsync();
+            try
+            {
+                await CurrentSession?.TrySkipPreviousAsync();
+            }
+            catch
+            {
+            }
         }
     }
 
@@ -300,7 +324,13 @@ public class WindowsMediaProvider
 
         async Task run()
         {
-            await CurrentSession?.TryChangeShuffleActiveAsync(active);
+            try
+            {
+                await CurrentSession?.TryChangeShuffleActiveAsync(active);
+            }
+            catch
+            {
+            }
         }
     }
 
@@ -311,7 +341,13 @@ public class WindowsMediaProvider
 
         async Task run()
         {
-            await CurrentSession?.TryChangePlaybackPositionAsync(playbackPosition.Ticks);
+            try
+            {
+                await CurrentSession?.TryChangePlaybackPositionAsync(playbackPosition.Ticks);
+            }
+            catch
+            {
+            }
         }
     }
 
@@ -322,7 +358,13 @@ public class WindowsMediaProvider
 
         async Task run()
         {
-            await CurrentSession?.TryChangeAutoRepeatModeAsync(mode);
+            try
+            {
+                await CurrentSession?.TryChangeAutoRepeatModeAsync(mode);
+            }
+            catch
+            {
+            }
         }
     }
 
