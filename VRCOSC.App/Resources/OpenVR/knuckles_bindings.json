@@ -110,9 +110,6 @@
 					"inputs": {
 						"pull": {
 							"output": "/actions/main/in/left_grip_pull"
-						},
-						"click": {
-							"output": "/actions/main/in/left_grip_click"
 						}
 					},
 					"mode": "trigger",
@@ -227,9 +224,6 @@
 					"inputs": {
 						"pull": {
 							"output": "/actions/main/in/right_grip_pull"
-						},
-						"click": {
-							"output": "/actions/main/in/right_grip_click"
 						}
 					},
 					"mode": "trigger",
