@@ -728,8 +728,6 @@ public class NodeGraph : IVRCClientEventHandler
 
     public async Task TriggerImpulse(ImpulseDefinition definition, PulseContext c)
     {
-        c.PushMemory();
-
         foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IImpulseReceiver))))
         {
             var impulseNode = (IImpulseReceiver)node;
@@ -746,14 +744,14 @@ public class NodeGraph : IVRCClientEventHandler
                 if (!type.GenericTypeArguments.SequenceEqual(definition.Values.Select(o => o.GetType()))) continue;
             }
 
-            await processNode(node, c, () =>
+            var newC = new PulseContext(c, this);
+
+            await processNode(node, newC, () =>
             {
                 impulseNode.WriteOutputs(definition.Values, c);
                 return true;
             });
         }
-
-        c.PopMemory();
     }
 }
 

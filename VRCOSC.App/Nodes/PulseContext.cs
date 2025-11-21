@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.Nodes.Types;
@@ -22,7 +21,7 @@ public class PulseContext
 
     internal readonly NodeGraph Graph;
     internal readonly PulseContext? BaseContext;
-    private Stack<Dictionary<Guid, IRef[]>> memory { get; } = [];
+    private Dictionary<Guid, IRef[]> memory { get; } = [];
     private Dictionary<Guid, Dictionary<IStore, IRef>> stores { get; } = [];
     private Stack<Node> nodes { get; } = [];
 
@@ -32,8 +31,6 @@ public class PulseContext
 
         Source = new CancellationTokenSource();
         Token = Source.Token;
-
-        memory.Push(new Dictionary<Guid, IRef[]>());
     }
 
     internal PulseContext(PulseContext baseContext, NodeGraph graph)
@@ -48,23 +45,11 @@ public class PulseContext
 
     internal Node Peek() => nodes.Peek();
 
-    internal bool HasMemory(Guid nodeId) => memory.Any(dict => dict.ContainsKey(nodeId)) || (BaseContext?.HasMemory(nodeId) ?? false);
+    internal bool HasMemory(Guid nodeId) => memory.ContainsKey(nodeId) || (BaseContext?.HasMemory(nodeId) ?? false);
 
-    internal void PushMemory() => memory.Push(new Dictionary<Guid, IRef[]>());
+    internal Task Execute(FlowCall call) => processNext(call, true);
 
-    internal void PopMemory() => memory.Pop();
-
-    internal async Task Execute(FlowCall call)
-    {
-        memory.Push(new Dictionary<Guid, IRef[]>());
-        await processNext(call);
-        memory.Pop();
-    }
-
-    internal Task Execute(FlowContinuation continuation)
-    {
-        return processNext(continuation);
-    }
+    internal Task Execute(FlowContinuation continuation) => processNext(continuation, false);
 
     internal Task<AvatarConfig?> GetCurrentAvatar() => AppManager.GetInstance().FindCurrentAvatar(Token);
 
@@ -80,13 +65,13 @@ public class PulseContext
         return parameter;
     }
 
-    private Task processNext(IFlow next)
+    private Task processNext(IFlow next, bool scope)
     {
         var current = Peek();
 
         var outputIndex = next.Index;
         var connection = Graph.FindConnectionFromFlowOutput(current.Id, outputIndex);
-        return connection is null ? Task.CompletedTask : Graph.ProcessNode(connection.InputNodeId, this);
+        return connection is null ? Task.CompletedTask : Graph.ProcessNode(connection.InputNodeId, scope ? new PulseContext(this, Graph) : this);
     }
 
     private T readValue<T>(Guid nodeId, int index)
@@ -94,11 +79,8 @@ public class PulseContext
         var metadata = Graph.Nodes[nodeId].Metadata;
         var hasVariableSize = metadata.ValueOutputHasVariableSize;
 
-        for (var i = 0; i < memory.Count; i++)
+        if (memory.TryGetValue(nodeId, out var refs))
         {
-            var innerMemory = memory.ElementAt(i);
-            if (!innerMemory.TryGetValue(nodeId, out var refs)) continue;
-
             if (hasVariableSize && index >= metadata.OutputsCount - 1)
             {
                 var variableRef = (T[])refs[metadata.OutputsCount - 1].GetValue()!;
@@ -118,12 +100,12 @@ public class PulseContext
 
     private void writeValue<T>(Guid nodeId, int index, T value)
     {
-        ((Ref<T>)memory.Peek()[nodeId][index]).Value = value;
+        ((Ref<T>)memory[nodeId][index]).Value = value;
     }
 
     private void writeValueList<T>(Guid nodeId, int index, int listIndex, T value)
     {
-        ((Ref<T[]>)memory.Peek()[nodeId][index]).Value[listIndex] = value;
+        ((Ref<T[]>)memory[nodeId][index]).Value[listIndex] = value;
     }
 
     internal T Read<T>(ValueInput<T> valueInput)
@@ -219,7 +201,7 @@ public class PulseContext
             }
         }
 
-        memory.Peek()[node.Id] = valueOutputRefs;
+        memory[node.Id] = valueOutputRefs;
     }
 }
 
