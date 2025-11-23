@@ -1075,7 +1075,10 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
                     var type = typeof(ValueNode<>).MakeGenericType(slotInputType);
                     var outputNode = Graph.AddNode(type, mousePos);
-                    outputNode.GetType().GetProperty("Value")!.SetValue(outputNode, Convert.ChangeType(node.Metadata.Inputs[slot].DefaultValue, slotInputType));
+
+                    if (slot < node.Metadata.InputsCount - 1)
+                        outputNode.GetType().GetProperty("Value")!.SetValue(outputNode, Convert.ChangeType(node.Metadata.Inputs[slot].DefaultValue, slotInputType));
+
                     Graph.CreateValueConnection(outputNode.Id, 0, node.Id, slot);
                     Graph.MarkDirty();
                     stopConnectionDrag();
@@ -1149,6 +1152,17 @@ public partial class NodeGraphView : INotifyPropertyChanged
     private void GroupContainer_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
         Focus();
+
+        if (Keyboard.IsKeyDown(Key.LeftCtrl))
+        {
+            e.Handled = true;
+
+            var mousePos = Mouse.GetPosition(GraphContainer);
+            selectionCreate = new SelectionCreate(mousePos);
+            SelectionVisual.Visibility = Visibility.Visible;
+            OuterContainer.CaptureMouse();
+            return;
+        }
 
         var element = (FrameworkElement)sender;
         var nodeGroupGraphItem = (NodeGroupGraphItem)element.Tag;

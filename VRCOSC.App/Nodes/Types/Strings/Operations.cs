@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Strings;
@@ -192,5 +193,30 @@ public sealed class StringStartsWithNode : Node
         Output.Write(input.StartsWith(check, comparison), c);
 
         return Task.CompletedTask;
+    }
+}
+
+[Node("Parse", "Strings")]
+public sealed class StringParseNode<T> : Node, IFlowInput where T : IParsable<T>
+{
+    public FlowContinuation Success = new("On Success");
+    public FlowContinuation Failed = new("On Failed");
+
+    public ValueInput<string> Input = new();
+    public ValueInput<CultureInfo> Culture = new("Culture", CultureInfo.CurrentCulture);
+    public ValueOutput<T> Output = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        if (T.TryParse(Input.Read(c), Culture.Read(c), out var parsedInput))
+        {
+            Output.Write(parsedInput, c);
+            await Success.Execute(c);
+        }
+        else
+        {
+            Output.Write(default!, c);
+            await Failed.Execute(c);
+        }
     }
 }

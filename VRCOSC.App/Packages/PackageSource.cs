@@ -58,9 +58,6 @@ public class PackageSource
 
     public PackageRelease? GetLatestPackages(bool includePreRelease)
     {
-        var installedIsPreRelease = InstalledRelease?.IsPreRelease ?? false;
-        if (installedIsPreRelease && !includePreRelease) return null;
-
         var latestRelease = filterReleases(true, includePreRelease).FirstOrDefault();
         if (latestRelease is null) return null;
 
