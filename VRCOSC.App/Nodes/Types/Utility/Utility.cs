@@ -1,6 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Utility;
@@ -42,5 +44,30 @@ public sealed class FloatProgressVisualNode : Node
 
         Result.Write(visual, c);
         return Task.CompletedTask;
+    }
+}
+
+[Node("Parse", "Utility")]
+public sealed class ParseNode<T> : Node, IFlowInput where T : IParsable<T>
+{
+    public FlowContinuation Success = new("On Success");
+    public FlowContinuation Failed = new("On Failed");
+
+    public ValueInput<string> Input = new();
+    public ValueInput<CultureInfo> Culture = new("Culture", CultureInfo.CurrentCulture);
+    public ValueOutput<T> Output = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        if (T.TryParse(Input.Read(c), Culture.Read(c), out var parsedInput))
+        {
+            Output.Write(parsedInput, c);
+            await Success.Execute(c);
+        }
+        else
+        {
+            Output.Write(default!, c);
+            await Failed.Execute(c);
+        }
     }
 }
