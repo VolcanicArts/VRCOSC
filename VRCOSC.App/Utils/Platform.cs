@@ -40,7 +40,7 @@ public static class Platform
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e);
+            ExceptionHandler.Handle(e, $"{nameof(PickFileAsync)} has experienced an issue");
             return string.Empty;
         }
     }
