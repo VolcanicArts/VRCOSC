@@ -21,17 +21,28 @@ public static class Platform
 {
     public static async Task<string?> PickFileAsync(string filter)
     {
-        var picker = new FileOpenPicker
+        try
         {
-            SuggestedStartLocation = PickerLocationId.Downloads,
-            FileTypeFilter = { filter }
-        };
+            var picker = new FileOpenPicker
+            {
+                SuggestedStartLocation = PickerLocationId.Downloads,
+                FileTypeFilter = { filter }
+            };
 
-        var mainWindowHandle = new WindowInteropHelper(Application.Current.MainWindow!).EnsureHandle();
+            var mainWindow = Application.Current.MainWindow;
+            if (mainWindow is null) return string.Empty;
 
-        InitializeWithWindow.Initialize(picker, mainWindowHandle);
+            var mainWindowHandle = new WindowInteropHelper(mainWindow).EnsureHandle();
 
-        return (await picker.PickSingleFileAsync())?.Path;
+            InitializeWithWindow.Initialize(picker, mainWindowHandle);
+
+            return (await picker.PickSingleFileAsync())?.Path;
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e);
+            return string.Empty;
+        }
     }
 
     public static unsafe void PresentFile(string filePath)
