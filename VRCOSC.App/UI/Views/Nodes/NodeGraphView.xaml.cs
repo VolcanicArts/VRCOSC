@@ -1153,6 +1153,17 @@ public partial class NodeGraphView : INotifyPropertyChanged
     {
         Focus();
 
+        if (Keyboard.IsKeyDown(Key.LeftCtrl))
+        {
+            e.Handled = true;
+
+            var mousePos = Mouse.GetPosition(GraphContainer);
+            selectionCreate = new SelectionCreate(mousePos);
+            SelectionVisual.Visibility = Visibility.Visible;
+            OuterContainer.CaptureMouse();
+            return;
+        }
+
         var element = (FrameworkElement)sender;
         var nodeGroupGraphItem = (NodeGroupGraphItem)element.Tag;
 
