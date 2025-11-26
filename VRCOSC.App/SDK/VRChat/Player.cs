@@ -189,7 +189,7 @@ public sealed class Player
     private async Task sendAndReset(VRChatButtonInput action)
     {
         oscClient.Send(actionToAddress(action), 1);
-        await Task.Delay(15);
+        await Task.Delay(50);
         oscClient.Send(actionToAddress(action), 0);
     }
 
