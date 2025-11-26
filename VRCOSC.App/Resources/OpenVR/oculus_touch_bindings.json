@@ -108,6 +108,18 @@
 				},
 				{
 					"inputs": {
+						"touch": {
+							"output": "/actions/main/in/left_system_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/left_system_click"
+						}
+					},
+					"mode": "button",
+					"path": "/user/hand/left/input/system"
+				},
+				{
+					"inputs": {
 						"pull": {
 							"output": "/actions/main/in/left_grip_pull"
 						},
@@ -186,6 +198,18 @@
 					},
 					"mode": "button",
 					"path": "/user/hand/right/input/b"
+				},
+				{
+					"inputs": {
+						"touch": {
+							"output": "/actions/main/in/right_system_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/right_system_click"
+						}
+					},
+					"mode": "button",
+					"path": "/user/hand/right/input/system"
 				},
 				{
 					"inputs": {

@@ -218,6 +218,33 @@ public sealed class SteamVRControllerSecondaryNode : UpdateNode<bool, bool>
     }
 }
 
+[Node("Controller System", "SteamVR/Input")]
+public sealed class SteamVRControllerSystemNode : UpdateNode<bool, bool>
+{
+    public ValueInput<Controller> Controller = new();
+
+    public ValueOutput<bool> Touch = new();
+    public ValueOutput<bool> Click = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var controller = Controller.Read(c);
+        if (controller is null) return Task.CompletedTask;
+
+        Touch.Write(controller.Input.System.Touch, c);
+        Click.Write(controller.Input.System.Click, c);
+        return Task.CompletedTask;
+    }
+
+    protected override (bool, bool) GetValues(PulseContext c)
+    {
+        var controller = Controller.Read(c);
+        if (controller is null) return (false, false);
+
+        return (controller.Input.System.Touch, controller.Input.System.Click);
+    }
+}
+
 [Node("Controller Grip", "SteamVR/Input")]
 public sealed class SteamVRControllerGripNode : UpdateNode<float, bool>
 {
