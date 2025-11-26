@@ -409,17 +409,18 @@ public partial class ChatBoxView
             Keyboard.ClearFocus();
     }
 
-    private void ImportButton_OnClick(object sender, RoutedEventArgs e)
+    private async void ImportButton_OnClick(object sender, RoutedEventArgs e)
     {
-        run().Forget();
-        return;
-
-        async Task run()
+        try
         {
             var filePath = await Platform.PickFileAsync(".json");
             if (filePath is null) return;
 
             ChatBoxManager.GetInstance().Deserialise(filePath);
+        }
+        catch (Exception ex)
+        {
+            ExceptionHandler.Handle(ex);
         }
     }
 

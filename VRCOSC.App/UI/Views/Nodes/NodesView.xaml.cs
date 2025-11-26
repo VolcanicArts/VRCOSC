@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -95,17 +94,18 @@ public partial class NodesView
         showNodeGraph(newGraph);
     }
 
-    private void ImportGraph_OnClick(object sender, RoutedEventArgs e)
+    private async void ImportGraph_OnClick(object sender, RoutedEventArgs e)
     {
-        run().Forget();
-        return;
-
-        async Task run()
+        try
         {
             var filePath = await Platform.PickFileAsync(".json");
             if (filePath is null) return;
 
             NodeManager.GetInstance().ImportGraph(filePath);
+        }
+        catch (Exception ex)
+        {
+            ExceptionHandler.Handle(ex);
         }
     }
 
@@ -166,12 +166,9 @@ public partial class NodesView
         NodeManager.GetInstance().ShowExternally(graph);
     }
 
-    private void ImportPreset_OnClick(object sender, RoutedEventArgs e)
+    private async void ImportPreset_OnClick(object sender, RoutedEventArgs e)
     {
-        run().Forget();
-        return;
-
-        async Task run()
+        try
         {
             var filePath = await Platform.PickFileAsync(".json");
             if (filePath is null) return;
@@ -181,8 +178,12 @@ public partial class NodesView
             // we need to refresh the context menu to add the imported preset
             foreach (var nodeGraph in GraphsSource.Where(g => g.UILoaded))
             {
-                nodeGraph.MarkDirty();
+                await nodeGraph.MarkDirtyAsync();
             }
+        }
+        catch (Exception ex)
+        {
+            ExceptionHandler.Handle(ex);
         }
     }
 
