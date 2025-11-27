@@ -11,6 +11,7 @@ public struct InputState
     public Trigger Trigger;
     public Button Primary;
     public Button Secondary;
+    public Button System;
     public Grip Grip;
     public Pad Pad;
     public Skeleton Skeleton;

@@ -45,6 +45,8 @@ public class OpenVRInput
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_primary_click", ref leftControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_secondary_touch", ref leftControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_secondary_click", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_system_touch", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_system_click", ref leftControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_grip_pull", ref leftControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_grip_click", ref leftControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_pad_position", ref leftControllerActions[i++]);
@@ -66,6 +68,8 @@ public class OpenVRInput
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_primary_click", ref rightControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_secondary_touch", ref rightControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_secondary_click", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_system_touch", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_system_click", ref rightControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_grip_pull", ref rightControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_grip_click", ref rightControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_pad_position", ref rightControllerActions[i++]);
@@ -121,14 +125,10 @@ public class OpenVRInput
     private void updateDevices()
     {
         var leftController = manager.GetLeftController();
-
-        if (leftController is not null)
-            leftController.Input = populateInputState(leftControllerActions);
+        leftController?.Input = populateInputState(leftControllerActions);
 
         var rightController = manager.GetRightController();
-
-        if (rightController is not null)
-            rightController.Input = populateInputState(rightControllerActions);
+        rightController?.Input = populateInputState(rightControllerActions);
     }
 
     private InputState populateInputState(ulong[] actions)
@@ -155,6 +155,10 @@ public class OpenVRInput
         var secondaryTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
         var secondaryClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
         state.Secondary = new Button(secondaryTouch, secondaryClick);
+
+        var systemTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
+        var systemClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
+        state.System = new Button(systemTouch, systemClick);
 
         var gripPull = OpenVRHelper.GetAnalogueInput(actions[i++]).x;
         var gripClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;

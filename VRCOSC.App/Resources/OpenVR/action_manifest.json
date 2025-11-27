@@ -24,6 +24,9 @@
 		{ "name": "/actions/main/in/left_secondary_touch",  "type": "boolean" },
 		{ "name": "/actions/main/in/left_secondary_click",  "type": "boolean" },
 
+		{ "name": "/actions/main/in/left_system_touch",     "type": "boolean" },
+		{ "name": "/actions/main/in/left_system_click",     "type": "boolean" },
+
 		{ "name": "/actions/main/in/left_grip_pull",        "type": "vector1" },
 		{ "name": "/actions/main/in/left_grip_click",       "type": "boolean" },
 
@@ -49,6 +52,9 @@
 
 		{ "name": "/actions/main/in/right_secondary_touch", "type": "boolean" },
 		{ "name": "/actions/main/in/right_secondary_click", "type": "boolean" },
+
+		{ "name": "/actions/main/in/right_system_touch",    "type": "boolean" },
+		{ "name": "/actions/main/in/right_system_click",    "type": "boolean" },
 
 		{ "name": "/actions/main/in/right_grip_pull",       "type": "vector1" },
 		{ "name": "/actions/main/in/right_grip_click",      "type": "boolean" },

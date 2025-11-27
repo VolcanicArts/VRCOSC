@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Threading.Tasks;
 using System.Windows;
 using VRCOSC.App.Dolly;
@@ -83,17 +84,18 @@ public partial class DollyView
         }
     }
 
-    private void ImportFile_OnClick(object sender, RoutedEventArgs e)
+    private async void ImportFile_OnClick(object sender, RoutedEventArgs e)
     {
-        run().Forget();
-        return;
-
-        async Task run()
+        try
         {
             var filePath = await Platform.PickFileAsync(".json");
             if (filePath is null) return;
 
             DollyManager.GetInstance().ImportFile(filePath);
+        }
+        catch (Exception ex)
+        {
+            ExceptionHandler.Handle(ex);
         }
     }
 
