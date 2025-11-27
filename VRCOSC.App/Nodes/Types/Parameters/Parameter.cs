@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
@@ -69,6 +70,71 @@ public sealed class DriveParameterNode<T> : Node, IUpdateNode, IHasTextProperty
     {
         if (!string.IsNullOrWhiteSpace(Text))
             AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{Text}", CurrValue.Read(c));
+    }
+}
+
+[Node("Toggle Parameter", "Parameters/Send")]
+[NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
+public sealed class ToggleParameterNode<T> : Node, IFlowInput, IHasTextProperty
+{
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
+
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<T> ValueOn;
+    public ValueInput<T> ValueOff = new("Off");
+
+    public ToggleParameterNode()
+    {
+        ValueOn = new ValueInput<T>("On", defaultValue: getOnValue());
+    }
+
+    protected override async Task Process(PulseContext c)
+    {
+        var valueOn = ValueOn.Read(c);
+        var valueOff = ValueOff.Read(c);
+
+        if (string.IsNullOrWhiteSpace(Text)) return;
+
+        var parameter = await AppManager.GetInstance().FindParameter(new ParameterDefinition(Text, ParameterTypeFactory.CreateFrom<T>()), c.Token);
+
+        T sendValue = default!;
+
+        if (parameter is not null)
+        {
+            var currentValue = parameter.GetValue<T>();
+
+            if (EqualityComparer<T>.Default.Equals(currentValue, valueOn))
+            {
+                sendValue = valueOff;
+            }
+            else if (EqualityComparer<T>.Default.Equals(currentValue, valueOff))
+            {
+                sendValue = valueOn;
+            }
+            else
+            {
+                sendValue = valueOn;
+            }
+        }
+
+        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{Text}", sendValue);
+        await Next.Execute(c);
+    }
+
+    private T getOnValue()
+    {
+        if (typeof(T) == typeof(bool))
+            return (T)(object)true;
+
+        if (typeof(T) == typeof(int))
+            return (T)(object)255;
+
+        if (typeof(T) == typeof(float))
+            return (T)(object)1f;
+
+        return default!;
     }
 }
 

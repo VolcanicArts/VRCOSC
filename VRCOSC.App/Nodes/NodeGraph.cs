@@ -128,6 +128,7 @@ public class NodeGraph : IVRCClientEventHandler
     public Node AddNode(Type nodeType, Point initialPosition, Guid? id = null)
     {
         var node = (Node)Activator.CreateInstance(nodeType)!;
+        node.Init();
         node.NodePosition = initialPosition;
 
         if (id.HasValue)
