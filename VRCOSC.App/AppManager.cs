@@ -593,6 +593,12 @@ internal class AppManager : IVRCClientEventHandler
         await VRChatOscClient.DisableReceive();
         VRChatOscClient.OnVRChatOSCMessageReceived -= onVRChatOSCMessageReceived;
 
+        // Pulse relies on messages to update sources, so we'll clear it out with fake parameter messages with default values
+        foreach (var (definition, _) in parameterCache)
+        {
+            NodeManager.GetInstance().OnParameterReceived(new VRChatParameter(definition.Name, definition.DefaultValue));
+        }
+
         await VRChatLogReader.Stop();
         await NodeManager.GetInstance().Stop();
         await ModuleManager.GetInstance().StopAsync();
@@ -600,6 +606,8 @@ internal class AppManager : IVRCClientEventHandler
         VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
         await RouterManager.GetInstance().Stop();
+
+        parameterCache.Clear();
 
         State.Value = AppManagerState.Stopped;
 

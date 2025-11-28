@@ -26,6 +26,14 @@ public record ParameterDefinition
         Type = type;
     }
 
+    public object DefaultValue => Type switch
+    {
+        ParameterType.Bool => false,
+        ParameterType.Int => 0,
+        ParameterType.Float => 0f,
+        _ => null!
+    };
+
     public virtual bool Equals(ParameterDefinition? other) => Name == other?.Name && Type == other.Type;
 
     public override int GetHashCode() => HashCode.Combine(Name, Type);
