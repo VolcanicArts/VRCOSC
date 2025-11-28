@@ -1067,7 +1067,14 @@ public partial class NodeGraphView : INotifyPropertyChanged
             if (connectionDrag.Origin == ConnectionDragOrigin.ValueInput)
             {
                 var slotInputType = node.GetTypeOfInputSlot(slot);
-                if (slotInputType.IsGenericType && slotInputType.GetGenericTypeDefinition() == typeof(Nullable<>)) slotInputType = slotInputType.GenericTypeArguments[0];
+
+                var isNullable = false;
+
+                if (slotInputType.IsGenericType && slotInputType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    slotInputType = slotInputType.GenericTypeArguments[0];
+                    isNullable = true;
+                }
 
                 if (NodeConstants.INPUT_TYPES.Contains(slotInputType) || slotInputType.IsAssignableTo(typeof(Enum)) || slotInputType == typeof(Keybind))
                 {
@@ -1076,7 +1083,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
                     var type = typeof(ValueNode<>).MakeGenericType(slotInputType);
                     var outputNode = Graph.AddNode(type, mousePos);
 
-                    if (slot < node.Metadata.InputsCount - 1)
+                    if (slot < node.Metadata.InputsCount - 1 && !isNullable)
                         outputNode.GetType().GetProperty("Value")!.SetValue(outputNode, Convert.ChangeType(node.Metadata.Inputs[slot].DefaultValue, slotInputType));
 
                     Graph.CreateValueConnection(outputNode.Id, 0, node.Id, slot);
