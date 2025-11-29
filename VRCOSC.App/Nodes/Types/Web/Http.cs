@@ -70,11 +70,13 @@ public sealed class HttpPostNode : Node, IFlowInput
 
     public ValueInput<string> URL = new();
     public ValueInput<Dictionary<string, string>> Headers = new();
+    public ValueInput<string> Content = new();
     public ValueOutput<HttpStatusCode> StatusCode = new("Status Code");
 
     protected override async Task Process(PulseContext c)
     {
         var url = URL.Read(c);
+        var content = Content.Read(c);
         var headers = Headers.Read(c);
 
         if (string.IsNullOrEmpty(url))
@@ -88,6 +90,7 @@ public sealed class HttpPostNode : Node, IFlowInput
         try
         {
             using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(url));
+            request.Content = new StringContent(content);
 
             foreach (var header in headers) request.Headers.Add(header.Key, header.Value);
 
