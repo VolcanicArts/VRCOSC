@@ -365,12 +365,18 @@ public class NodeGraph : IVRCClientEventHandler
                     foreach (var node in activeUpdateNodes)
                     {
                         var c = new PulseContext(this);
-                        var hasProcessed = await processNode(node, c, () => ((IActiveUpdateNode)node).OnUpdate(c));
 
-                        if (!hasProcessed) continue;
+                        if (node.Metadata.IsTrigger)
+                        {
+                            await startFlow(node, c, newC => ((IActiveUpdateNode)node).OnUpdate(newC));
+                        }
+                        else
+                        {
+                            var hasProcessed = await processNode(node, c, () => ((IActiveUpdateNode)node).OnUpdate(c));
+                            if (!hasProcessed) continue;
 
-                        if (!node.Metadata.IsFlowOutput && node.Metadata.IsValueOutput)
                             await TriggerTree(node, c);
+                        }
                     }
 
                     foreach (var node in updateNodes)
