@@ -18,19 +18,19 @@ public sealed class SpeechSourceNode : Node, INodeEventHandler
         return Task.CompletedTask;
     }
 
-    public bool HandlePartialSpeechResult(PulseContext c, string result)
+    public Task<bool> HandlePartialSpeechResult(PulseContext c, string result)
     {
-        if (result == textStore.Read(c)) return false;
+        if (result == textStore.Read(c)) return Task.FromResult(false);
 
         textStore.Write(result, c);
-        return true;
+        return Task.FromResult(true);
     }
 
-    public bool HandleFinalSpeechResult(PulseContext c, string result)
+    public Task<bool> HandleFinalSpeechResult(PulseContext c, string result)
     {
-        if (result == textStore.Read(c)) return false;
+        if (result == textStore.Read(c)) return Task.FromResult(false);
 
         textStore.Write(result, c);
-        return true;
+        return Task.FromResult(true);
     }
 }

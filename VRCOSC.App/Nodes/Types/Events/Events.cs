@@ -16,7 +16,7 @@ public sealed class OnStartNode : Node, INodeEventHandler
         await OnStart.Execute(c);
     }
 
-    public bool HandleNodeStart(PulseContext c) => true;
+    public Task<bool> HandleNodeStart(PulseContext c) => Task.FromResult(true);
 }
 
 [Node("On Stop", "Events")]
@@ -29,7 +29,7 @@ public sealed class OnStopNode : Node, INodeEventHandler
         await OnStop.Execute(c);
     }
 
-    public bool HandleNodeStop(PulseContext c) => true;
+    public Task<bool> HandleNodeStop(PulseContext c) => Task.FromResult(true);
 }
 
 [Node("On Instance Joined", "Events")]
@@ -44,10 +44,10 @@ public sealed class OnInstanceJoinedNode : Node, INodeEventHandler
         await OnInstanceJoined.Execute(c);
     }
 
-    public bool HandleOnInstanceJoined(PulseContext c, VRChatClientEventInstanceJoined eventArgs)
+    public Task<bool> HandleOnInstanceJoined(PulseContext c, VRChatClientEventInstanceJoined eventArgs)
     {
         WorldId.Write(eventArgs.WorldId, c);
-        return true;
+        return Task.FromResult(true);
     }
 }
 
@@ -61,7 +61,7 @@ public sealed class OnInstanceLeftNode : Node, INodeEventHandler
         await OnInstanceLeft.Execute(c);
     }
 
-    public bool HandleOnInstanceLeft(PulseContext c, VRChatClientEventInstanceLeft eventArgs) => true;
+    public Task<bool> HandleOnInstanceLeft(PulseContext c, VRChatClientEventInstanceLeft eventArgs) => Task.FromResult(true);
 }
 
 [Node("On User Joined", "Events")]
@@ -76,10 +76,10 @@ public sealed class OnUserJoinedNode : Node, INodeEventHandler
         await OnUserJoined.Execute(c);
     }
 
-    public bool HandleOnUserJoined(PulseContext c, VRChatClientEventUserJoined eventArgs)
+    public Task<bool> HandleOnUserJoined(PulseContext c, VRChatClientEventUserJoined eventArgs)
     {
         User.Write(eventArgs.User, c);
-        return true;
+        return Task.FromResult(true);
     }
 }
 
@@ -95,10 +95,10 @@ public sealed class OnUserLeftNode : Node, INodeEventHandler
         await OnUserLeft.Execute(c);
     }
 
-    public bool HandleOnUserLeft(PulseContext c, VRChatClientEventUserLeft eventArgs)
+    public Task<bool> HandleOnUserLeft(PulseContext c, VRChatClientEventUserLeft eventArgs)
     {
         User.Write(eventArgs.User, c);
-        return true;
+        return Task.FromResult(true);
     }
 }
 
@@ -112,5 +112,5 @@ public sealed class OnAvatarPreChangeNode : Node, INodeEventHandler
         await OnAvatarPreChange.Execute(c);
     }
 
-    public bool HandleOnAvatarPreChange(PulseContext c, VRChatClientEventAvatarPreChange eventArgs) => true;
+    public Task<bool> HandleOnAvatarPreChange(PulseContext c, VRChatClientEventAvatarPreChange eventArgs) => Task.FromResult(true);
 }
