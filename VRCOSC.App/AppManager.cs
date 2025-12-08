@@ -69,7 +69,7 @@ internal class AppManager : IVRCClientEventHandler
     public OpenVRManager OpenVRManager { get; private set; }
     public SteamVRManager SteamVRManager { get; private set; }
 
-    private AudioEngine audioEngine = null!;
+    private AudioEngine? audioEngine;
 
     private Repeater vrchatCheckTask = null!;
 
@@ -85,7 +85,14 @@ internal class AppManager : IVRCClientEventHandler
 
     public void Initialise()
     {
-        audioEngine = new MiniAudioEngine(44100, Capability.Playback);
+        try
+        {
+            audioEngine = new MiniAudioEngine(44100, Capability.Playback);
+        }
+        catch
+        {
+            // if a user doesn't have any output
+        }
 
         SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Subscribe(theme => ProxyTheme.Value = theme, true);
 
