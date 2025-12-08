@@ -42,6 +42,8 @@ public struct Gamepad
 [Node("Gamepad Source", "Input/Gamepad")]
 public sealed class GamepadSourceNode : Node, IUpdateNode, IHasTextProperty
 {
+    public int UpdateOffset => 0;
+
     [NodeProperty("text")]
     public string Text { get; set; }
 
@@ -118,10 +120,10 @@ public sealed class GamepadLeftStickNode : UpdateNode<Vector2, bool>
         return Task.CompletedTask;
     }
 
-    protected override (Vector2, bool) GetValues(PulseContext c)
+    protected override Task<(Vector2, bool)> GetValues(PulseContext c)
     {
         var gamepad = Gamepad.Read(c);
-        return (gamepad.LeftStickPos, gamepad.LeftStickClick);
+        return Task.FromResult((gamepad.LeftStickPos, gamepad.LeftStickClick));
     }
 }
 
@@ -141,10 +143,10 @@ public sealed class GamepadRightStickNode : UpdateNode<Vector2, bool>
         return Task.CompletedTask;
     }
 
-    protected override (Vector2, bool) GetValues(PulseContext c)
+    protected override Task<(Vector2, bool)> GetValues(PulseContext c)
     {
         var gamepad = Gamepad.Read(c);
-        return (gamepad.RightStickPos, gamepad.RightStickClick);
+        return Task.FromResult((gamepad.RightStickPos, gamepad.RightStickClick));
     }
 }
 
@@ -164,10 +166,10 @@ public sealed class GamepadTriggersNode : UpdateNode<float, float>
         return Task.CompletedTask;
     }
 
-    protected override (float, float) GetValues(PulseContext c)
+    protected override Task<(float, float)> GetValues(PulseContext c)
     {
         var gamepad = Gamepad.Read(c);
-        return (gamepad.LeftTrigger, gamepad.RightTrigger);
+        return Task.FromResult((gamepad.LeftTrigger, gamepad.RightTrigger));
     }
 }
 
@@ -187,10 +189,10 @@ public sealed class GamepadShouldersNode : UpdateNode<bool, bool>
         return Task.CompletedTask;
     }
 
-    protected override (bool, bool) GetValues(PulseContext c)
+    protected override Task<(bool, bool)> GetValues(PulseContext c)
     {
         var gamepad = Gamepad.Read(c);
-        return (gamepad.LeftShoulder, gamepad.RightShoulder);
+        return Task.FromResult((gamepad.LeftShoulder, gamepad.RightShoulder));
     }
 }
 
@@ -214,10 +216,10 @@ public sealed class GamepadDPadNode : UpdateNode<bool, bool, bool, bool>
         return Task.CompletedTask;
     }
 
-    protected override (bool, bool, bool, bool) GetValues(PulseContext c)
+    protected override Task<(bool, bool, bool, bool)> GetValues(PulseContext c)
     {
         var gamepad = Gamepad.Read(c);
-        return (gamepad.DPadUp, gamepad.DPadDown, gamepad.DPadLeft, gamepad.DPadRight);
+        return Task.FromResult((gamepad.DPadUp, gamepad.DPadDown, gamepad.DPadLeft, gamepad.DPadRight));
     }
 }
 
@@ -245,9 +247,9 @@ public sealed class GamepadButtonsNode : UpdateNode<bool, bool, bool, bool, bool
         return Task.CompletedTask;
     }
 
-    protected override (bool, bool, bool, bool, bool, bool) GetValues(PulseContext c)
+    protected override Task<(bool, bool, bool, bool, bool, bool)> GetValues(PulseContext c)
     {
         var gamepad = Gamepad.Read(c);
-        return (gamepad.A, gamepad.B, gamepad.X, gamepad.Y, gamepad.Start, gamepad.Back);
+        return Task.FromResult((gamepad.A, gamepad.B, gamepad.X, gamepad.Y, gamepad.Start, gamepad.Back));
     }
 }

@@ -24,10 +24,10 @@ public sealed class PlayerMovementNode : UpdateNode<Vector3, float, float>
         return Task.CompletedTask;
     }
 
-    protected override (Vector3, float, float) GetValues(PulseContext c)
+    protected override Task<(Vector3, float, float)> GetValues(PulseContext c)
     {
         var p = c.GetPlayer();
-        return (new Vector3(p.VelocityX, p.VelocityY, p.VelocityZ), p.AngularY, p.Upright);
+        return Task.FromResult((new Vector3(p.VelocityX, p.VelocityY, p.VelocityZ), p.AngularY, p.Upright));
     }
 }
 
@@ -50,10 +50,10 @@ public sealed class PlayerGestureNode : UpdateNode<GestureType, float, GestureTy
         return Task.CompletedTask;
     }
 
-    protected override (GestureType, float, GestureType, float) GetValues(PulseContext c)
+    protected override Task<(GestureType, float, GestureType, float)> GetValues(PulseContext c)
     {
         var p = c.GetPlayer();
-        return (p.GestureTypeLeft, p.GestureLeftWeight, p.GestureTypeRight, p.GestureRightWeight);
+        return Task.FromResult((p.GestureTypeLeft, p.GestureLeftWeight, p.GestureTypeRight, p.GestureRightWeight));
     }
 }
 
@@ -72,10 +72,10 @@ public sealed class PlayerVoiceNode : UpdateNode<Viseme, float>
         return Task.CompletedTask;
     }
 
-    protected override (Viseme, float) GetValues(PulseContext c)
+    protected override Task<(Viseme, float)> GetValues(PulseContext c)
     {
         var p = c.GetPlayer();
-        return (p.Viseme, p.Voice);
+        return Task.FromResult((p.Viseme, p.Voice));
     }
 }
 
@@ -106,10 +106,10 @@ public sealed class PlayerIdentityNode : UpdateNode<bool, bool, bool, bool, bool
         return Task.CompletedTask;
     }
 
-    protected override (bool, bool, bool, bool, bool, bool, bool, TrackingType) GetValues(PulseContext c)
+    protected override Task<(bool, bool, bool, bool, bool, bool, bool, TrackingType)> GetValues(PulseContext c)
     {
         var p = c.GetPlayer();
-        return (p.IsVR, p.IsMuted, p.Earmuffs, p.AFK, p.InStation, p.Seated, p.Grounded, p.TrackingType);
+        return Task.FromResult((p.IsVR, p.IsMuted, p.Earmuffs, p.AFK, p.InStation, p.Seated, p.Grounded, p.TrackingType));
     }
 }
 
@@ -134,9 +134,9 @@ public sealed class PlayerSizeNode : UpdateNode<bool, float, float, float, float
         return Task.CompletedTask;
     }
 
-    protected override (bool, float, float, float, float) GetValues(PulseContext c)
+    protected override Task<(bool, float, float, float, float)> GetValues(PulseContext c)
     {
         var p = c.GetPlayer();
-        return (p.ScaleModified, p.ScaleFactor, p.ScaleFactorInverse, p.EyeHeightAsMeters, p.EyeHeightAsPercent);
+        return Task.FromResult((p.ScaleModified, p.ScaleFactor, p.ScaleFactorInverse, p.EyeHeightAsMeters, p.EyeHeightAsPercent));
     }
 }

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Utils;
 
@@ -62,6 +63,7 @@ public sealed class KeybindHoldReleaseNode : Node, IFlowInput
 [Node("On Keybind Pressed", "Keybind")]
 public sealed class OnKeybindPressedNode : Node, IActiveUpdateNode
 {
+    public int UpdateOffset => 0;
     public GlobalStore<bool> Pressed = new();
 
     public FlowContinuation OnPressed = new("On Pressed");
@@ -74,27 +76,27 @@ public sealed class OnKeybindPressedNode : Node, IActiveUpdateNode
         await OnPressed.Execute(c);
     }
 
-    public bool OnUpdate(PulseContext c)
+    public Task<bool> OnUpdate(PulseContext c)
     {
         var keybind = Keybind.Read(c);
-        if (keybind is null) return false;
+        if (keybind is null) return Task.FromResult(false);
 
-        var result = keybind.Keys.TrueForAll(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key)) &&
-                     keybind.Modifiers.TrueForAll(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key));
+        var result = keybind.Keys.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key))
+                     && keybind.Modifiers.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key));
 
         if (AllowHold.Read(c))
         {
             Pressed.Write(result, c);
-            return result;
+            return Task.FromResult(result);
         }
 
         if (result && !Pressed.Read(c))
         {
             Pressed.Write(result, c);
-            return true;
+            return Task.FromResult(true);
         }
 
         Pressed.Write(result, c);
-        return false;
+        return Task.FromResult(false);
     }
 }

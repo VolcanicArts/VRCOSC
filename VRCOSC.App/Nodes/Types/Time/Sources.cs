@@ -18,7 +18,7 @@ public sealed class DateTimeNowSourceNode : UpdateNode<DateTime>
         return Task.CompletedTask;
     }
 
-    protected override DateTime GetValue(PulseContext c) => System.DateTime.Now;
+    protected override Task<DateTime> GetValue(PulseContext c) => Task.FromResult(System.DateTime.Now);
 }
 
 [Node("Date Today", "Date & Time")]
@@ -33,7 +33,7 @@ public sealed class DateTimeTodaySourceNode : UpdateNode<DateTime>
         return Task.CompletedTask;
     }
 
-    protected override DateTime GetValue(PulseContext c) => DateTime.Today;
+    protected override Task<DateTime> GetValue(PulseContext c) => Task.FromResult(DateTime.Today);
 }
 
 [Node("UTC Now", "Date & Time")]
@@ -48,7 +48,7 @@ public sealed class DateTimeUtcNowSourceNode : UpdateNode<DateTime>
         return Task.CompletedTask;
     }
 
-    protected override DateTime GetValue(PulseContext c) => DateTime.UtcNow;
+    protected override Task<DateTime> GetValue(PulseContext c) => Task.FromResult(DateTime.UtcNow);
 }
 
 [Node("Unix Epoch", "Date & Time")]

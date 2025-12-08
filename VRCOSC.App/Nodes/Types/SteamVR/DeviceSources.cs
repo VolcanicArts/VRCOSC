@@ -19,7 +19,7 @@ public sealed class SteamVRHMDSourceNode : UpdateNode<HMD?>
         return Task.CompletedTask;
     }
 
-    protected override HMD? GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.GetHMD();
+    protected override Task<HMD?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetHMD());
 }
 
 [Node("Left Controller", "SteamVR/Devices")]
@@ -33,7 +33,7 @@ public sealed class SteamVRLeftControllerSourceNode : UpdateNode<Controller?>
         return Task.CompletedTask;
     }
 
-    protected override Controller? GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.GetLeftController();
+    protected override Task<Controller?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetLeftController());
 }
 
 [Node("Right Controller", "SteamVR/Devices")]
@@ -47,7 +47,7 @@ public sealed class SteamVRRightControllerSourceNode : UpdateNode<Controller?>
         return Task.CompletedTask;
     }
 
-    protected override Controller? GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.GetRightController();
+    protected override Task<Controller?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetRightController());
 }
 
 [Node("Chest Tracker", "SteamVR/Devices")]
@@ -61,7 +61,7 @@ public sealed class SteamVRChestSourceNode : UpdateNode<TrackedDevice?>
         return Task.CompletedTask;
     }
 
-    protected override TrackedDevice? GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.Chest);
+    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.Chest));
 }
 
 [Node("Waist Tracker", "SteamVR/Devices")]
@@ -75,7 +75,7 @@ public sealed class SteamVRWaistSourceNode : UpdateNode<TrackedDevice?>
         return Task.CompletedTask;
     }
 
-    protected override TrackedDevice? GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.Waist);
+    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.Waist));
 }
 
 [Node("Left Elbow Tracker", "SteamVR/Devices")]
@@ -89,7 +89,7 @@ public sealed class SteamVRLeftElbowSourceNode : UpdateNode<TrackedDevice?>
         return Task.CompletedTask;
     }
 
-    protected override TrackedDevice? GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftElbow);
+    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftElbow));
 }
 
 [Node("Right Elbow Tracker", "SteamVR/Devices")]
@@ -103,7 +103,7 @@ public sealed class SteamVRRightElbowSourceNode : UpdateNode<TrackedDevice?>
         return Task.CompletedTask;
     }
 
-    protected override TrackedDevice? GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightElbow);
+    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightElbow));
 }
 
 [Node("Left Knee Tracker", "SteamVR/Devices")]
@@ -117,7 +117,7 @@ public sealed class SteamVRLeftKneeSourceNode : UpdateNode<TrackedDevice?>
         return Task.CompletedTask;
     }
 
-    protected override TrackedDevice? GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftKnee);
+    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftKnee));
 }
 
 [Node("Right Knee Tracker", "SteamVR/Devices")]
@@ -131,7 +131,7 @@ public sealed class SteamVRRightKneeSourceNode : UpdateNode<TrackedDevice?>
         return Task.CompletedTask;
     }
 
-    protected override TrackedDevice? GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightKnee);
+    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightKnee));
 }
 
 [Node("Left Foot Tracker", "SteamVR/Devices")]
@@ -145,7 +145,7 @@ public sealed class SteamVRLeftFootSourceNode : UpdateNode<TrackedDevice?>
         return Task.CompletedTask;
     }
 
-    protected override TrackedDevice? GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftFoot);
+    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftFoot));
 }
 
 [Node("Right Foot Tracker", "SteamVR/Devices")]
@@ -159,7 +159,7 @@ public sealed class SteamVRRightFootSourceNode : UpdateNode<TrackedDevice?>
         return Task.CompletedTask;
     }
 
-    protected override TrackedDevice? GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightFoot);
+    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightFoot));
 }
 
 [Node("Tracked Device", "SteamVR/Devices")]
@@ -176,5 +176,5 @@ public sealed class SteamVRTrackedDeviceSourceNode : UpdateNode<TrackedDevice?>,
         return Task.CompletedTask;
     }
 
-    protected override TrackedDevice? GetValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(Text);
+    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(Text));
 }

@@ -14,7 +14,6 @@ using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Strings;
 using VRCOSC.App.SDK.Handlers;
-using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -350,8 +349,8 @@ public class NodeGraph : IVRCClientEventHandler
     private Task? updateTask;
     private CancellationTokenSource? updateTokenSource;
 
-    private IEnumerable<Node> updateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IUpdateNode)));
-    private IEnumerable<Node> activeUpdateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IActiveUpdateNode)));
+    private IEnumerable<Node> updateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IUpdateNode))).OrderBy(node => ((IUpdateNode)node).UpdateOffset);
+    private IEnumerable<Node> activeUpdateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IActiveUpdateNode))).OrderBy(node => ((IActiveUpdateNode)node).UpdateOffset);
 
     private void startUpdate()
     {
@@ -486,7 +485,7 @@ public class NodeGraph : IVRCClientEventHandler
         await Task.WhenAll(stopTasks);
     }
 
-    private async Task handleNodeEvent(Func<PulseContext, INodeEventHandler, bool> shouldHandleEvent)
+    private async Task handleNodeEvent(Func<PulseContext, INodeEventHandler, Task<bool>> shouldHandleEvent)
     {
         Debug.Assert(running);
 
@@ -500,16 +499,6 @@ public class NodeGraph : IVRCClientEventHandler
             if (!node.Metadata.IsFlowOutput)
                 await TriggerTree(node, c);
         }
-    }
-
-    public void OnParameterReceived(VRChatParameter parameter)
-    {
-        handleNodeEvent((c, node) => node.HandleParameterReceive(c, parameter)).Forget();
-    }
-
-    public void OnAvatarChange(AvatarConfig? config)
-    {
-        handleNodeEvent((c, node) => node.HandleAvatarChange(c, config)).Forget();
     }
 
     public void OnPartialSpeechResult(string result)
@@ -593,7 +582,7 @@ public class NodeGraph : IVRCClientEventHandler
     /// <summary>
     /// Processes a node, with an optional preprocess step after <see cref="Node.ShouldProcess"/> returns true
     /// </summary>
-    private async Task<bool> processNode(Node node, PulseContext c, Func<bool>? onPreProcess = null)
+    private async Task<bool> processNode(Node node, PulseContext c, Func<Task<bool>>? onPreProcess = null)
     {
         if (c.IsCancelled) return false;
         if (c.HasMemory(node.Id) && !node.Metadata.ForceReprocess) return false;
@@ -613,10 +602,15 @@ public class NodeGraph : IVRCClientEventHandler
 
         if (c.IsCancelled) return false;
 
-        if (onPreProcess is not null && !onPreProcess.Invoke())
+        if (onPreProcess is not null)
         {
-            c.Pop();
-            return false;
+            var result = await onPreProcess.Invoke();
+
+            if (!result)
+            {
+                c.Pop();
+                return false;
+            }
         }
 
         if (c.IsCancelled) return false;
@@ -689,9 +683,8 @@ public class NodeGraph : IVRCClientEventHandler
             }
         }
 
-        foreach (var path in pathList.DistinctBy(path => path.First().Id))
+        foreach (var node in pathList.Select(path => path.First()).DistinctBy(node => node.Id))
         {
-            var node = path.First();
             await startFlow(node, c);
         }
     }
@@ -750,7 +743,7 @@ public class NodeGraph : IVRCClientEventHandler
             await processNode(node, newC, () =>
             {
                 impulseNode.WriteOutputs(definition.Values, c);
-                return true;
+                return Task.FromResult(true);
             });
         }
     }

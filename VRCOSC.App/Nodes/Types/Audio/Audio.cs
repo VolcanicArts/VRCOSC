@@ -26,12 +26,12 @@ public sealed class AudioTrackInfoNode : UpdateNode<PlaybackState>
         return Task.CompletedTask;
     }
 
-    protected override PlaybackState GetValue(PulseContext c)
+    protected override Task<PlaybackState> GetValue(PulseContext c)
     {
         var track = Track.Read(c);
-        if (track is null) return PlaybackState.Stopped;
+        if (track is null) return Task.FromResult(PlaybackState.Stopped);
 
-        return track.State;
+        return Task.FromResult(track.State);
     }
 }
 

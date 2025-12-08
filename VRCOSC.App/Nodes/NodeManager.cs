@@ -9,8 +9,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Profiles;
-using VRCOSC.App.SDK.Parameters;
-using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
 
@@ -188,26 +186,6 @@ public class NodeManager
         foreach (var graph in Graphs)
         {
             await graph.Stop();
-        }
-    }
-
-    public void OnParameterReceived(VRChatParameter parameter)
-    {
-        if (!Loaded.Value) return;
-
-        foreach (var graph in Graphs)
-        {
-            graph.OnParameterReceived(parameter);
-        }
-    }
-
-    public void OnAvatarChange(AvatarConfig? config)
-    {
-        if (!Loaded.Value) return;
-
-        foreach (var graph in Graphs)
-        {
-            graph.OnAvatarChange(config);
         }
     }
 

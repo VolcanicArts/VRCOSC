@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -60,9 +60,7 @@ public class PulseContext
     internal async Task<VRChatParameter?> GetParameter<T>(string name)
     {
         var parameterDefinition = new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>());
-        var parameter = await AppManager.GetInstance().FindParameter(parameterDefinition, Token);
-
-        return parameter;
+        return await AppManager.GetInstance().FindParameter(parameterDefinition, Token);
     }
 
     private Task processNext(IFlow next, bool scope)

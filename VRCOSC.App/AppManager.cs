@@ -243,7 +243,6 @@ internal class AppManager : IVRCClientEventHandler
 
                 await VRChatClient.HandleAvatarChange();
                 ModuleManager.GetInstance().AvatarChange(currentAvatarConfig);
-                NodeManager.GetInstance().OnAvatarChange(currentAvatarConfig);
 
                 if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) return;
 
@@ -274,7 +273,6 @@ internal class AppManager : IVRCClientEventHandler
                 }
 
                 ModuleManager.GetInstance().OnParameterReceived(parameter);
-                NodeManager.GetInstance().OnParameterReceived(parameter);
             }
         }
         catch (Exception e)
@@ -592,12 +590,6 @@ internal class AppManager : IVRCClientEventHandler
 
         await VRChatOscClient.DisableReceive();
         VRChatOscClient.OnVRChatOSCMessageReceived -= onVRChatOSCMessageReceived;
-
-        // Pulse relies on messages to update sources, so we'll clear it out with fake parameter messages with default values
-        foreach (var (definition, _) in parameterCache)
-        {
-            NodeManager.GetInstance().OnParameterReceived(new VRChatParameter(definition.Name, definition.DefaultValue));
-        }
 
         await VRChatLogReader.Stop();
         await NodeManager.GetInstance().Stop();

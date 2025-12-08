@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using VRCOSC.App.Nodes.Types;
 
 namespace VRCOSC.App.Nodes;
@@ -11,6 +12,7 @@ namespace VRCOSC.App.Nodes;
 /// </summary>
 public interface IUpdateNode
 {
+    public int UpdateOffset { get; }
     public void OnUpdate(PulseContext c);
 }
 
@@ -20,16 +22,18 @@ public interface IUpdateNode
 /// </summary>
 public interface IActiveUpdateNode
 {
-    public bool OnUpdate(PulseContext c);
+    public int UpdateOffset { get; }
+    public Task<bool> OnUpdate(PulseContext c);
 }
 
 public abstract class UpdateNode<T> : Node, IActiveUpdateNode
 {
+    public virtual int UpdateOffset => 0;
     private readonly GlobalStore<T> prevValue = new();
 
-    public bool OnUpdate(PulseContext c)
+    public async Task<bool> OnUpdate(PulseContext c)
     {
-        var value = GetValue(c);
+        var value = await GetValue(c);
 
         if (EqualityComparer<T>.Default.Equals(value, prevValue.Read(c))) return false;
 
@@ -37,17 +41,18 @@ public abstract class UpdateNode<T> : Node, IActiveUpdateNode
         return true;
     }
 
-    protected abstract T GetValue(PulseContext c);
+    protected abstract Task<T> GetValue(PulseContext c);
 }
 
 public abstract class UpdateNode<T1, T2> : Node, IActiveUpdateNode
 {
+    public virtual int UpdateOffset => 0;
     private readonly GlobalStore<T1> prevValue1 = new();
     private readonly GlobalStore<T2> prevValue2 = new();
 
-    public bool OnUpdate(PulseContext c)
+    public async Task<bool> OnUpdate(PulseContext c)
     {
-        var value = GetValues(c);
+        var value = await GetValues(c);
 
         if (EqualityComparer<T1>.Default.Equals(value.Item1, prevValue1.Read(c))
             && EqualityComparer<T2>.Default.Equals(value.Item2, prevValue2.Read(c)))
@@ -60,18 +65,19 @@ public abstract class UpdateNode<T1, T2> : Node, IActiveUpdateNode
         return true;
     }
 
-    protected abstract (T1, T2) GetValues(PulseContext c);
+    protected abstract Task<(T1, T2)> GetValues(PulseContext c);
 }
 
 public abstract class UpdateNode<T1, T2, T3> : Node, IActiveUpdateNode
 {
+    public virtual int UpdateOffset => 0;
     private readonly GlobalStore<T1> prevValue1 = new();
     private readonly GlobalStore<T2> prevValue2 = new();
     private readonly GlobalStore<T3> prevValue3 = new();
 
-    public bool OnUpdate(PulseContext c)
+    public async Task<bool> OnUpdate(PulseContext c)
     {
-        var value = GetValues(c);
+        var value = await GetValues(c);
 
         if (EqualityComparer<T1>.Default.Equals(value.Item1, prevValue1.Read(c))
             && EqualityComparer<T2>.Default.Equals(value.Item2, prevValue2.Read(c))
@@ -86,19 +92,20 @@ public abstract class UpdateNode<T1, T2, T3> : Node, IActiveUpdateNode
         return true;
     }
 
-    protected abstract (T1, T2, T3) GetValues(PulseContext c);
+    protected abstract Task<(T1, T2, T3)> GetValues(PulseContext c);
 }
 
 public abstract class UpdateNode<T1, T2, T3, T4> : Node, IActiveUpdateNode
 {
+    public virtual int UpdateOffset => 0;
     private readonly GlobalStore<T1> prevValue1 = new();
     private readonly GlobalStore<T2> prevValue2 = new();
     private readonly GlobalStore<T3> prevValue3 = new();
     private readonly GlobalStore<T4> prevValue4 = new();
 
-    public bool OnUpdate(PulseContext c)
+    public async Task<bool> OnUpdate(PulseContext c)
     {
-        var value = GetValues(c);
+        var value = await GetValues(c);
 
         if (EqualityComparer<T1>.Default.Equals(value.Item1, prevValue1.Read(c))
             && EqualityComparer<T2>.Default.Equals(value.Item2, prevValue2.Read(c))
@@ -115,20 +122,21 @@ public abstract class UpdateNode<T1, T2, T3, T4> : Node, IActiveUpdateNode
         return true;
     }
 
-    protected abstract (T1, T2, T3, T4) GetValues(PulseContext c);
+    protected abstract Task<(T1, T2, T3, T4)> GetValues(PulseContext c);
 }
 
 public abstract class UpdateNode<T1, T2, T3, T4, T5> : Node, IActiveUpdateNode
 {
+    public virtual int UpdateOffset => 0;
     private readonly GlobalStore<T1> prevValue1 = new();
     private readonly GlobalStore<T2> prevValue2 = new();
     private readonly GlobalStore<T3> prevValue3 = new();
     private readonly GlobalStore<T4> prevValue4 = new();
     private readonly GlobalStore<T5> prevValue5 = new();
 
-    public bool OnUpdate(PulseContext c)
+    public async Task<bool> OnUpdate(PulseContext c)
     {
-        var value = GetValues(c);
+        var value = await GetValues(c);
 
         if (EqualityComparer<T1>.Default.Equals(value.Item1, prevValue1.Read(c))
             && EqualityComparer<T2>.Default.Equals(value.Item2, prevValue2.Read(c))
@@ -147,11 +155,12 @@ public abstract class UpdateNode<T1, T2, T3, T4, T5> : Node, IActiveUpdateNode
         return true;
     }
 
-    protected abstract (T1, T2, T3, T4, T5) GetValues(PulseContext c);
+    protected abstract Task<(T1, T2, T3, T4, T5)> GetValues(PulseContext c);
 }
 
 public abstract class UpdateNode<T1, T2, T3, T4, T5, T6> : Node, IActiveUpdateNode
 {
+    public virtual int UpdateOffset => 0;
     private readonly GlobalStore<T1> prevValue1 = new();
     private readonly GlobalStore<T2> prevValue2 = new();
     private readonly GlobalStore<T3> prevValue3 = new();
@@ -159,9 +168,9 @@ public abstract class UpdateNode<T1, T2, T3, T4, T5, T6> : Node, IActiveUpdateNo
     private readonly GlobalStore<T5> prevValue5 = new();
     private readonly GlobalStore<T6> prevValue6 = new();
 
-    public bool OnUpdate(PulseContext c)
+    public async Task<bool> OnUpdate(PulseContext c)
     {
-        var value = GetValues(c);
+        var value = await GetValues(c);
 
         if (EqualityComparer<T1>.Default.Equals(value.Item1, prevValue1.Read(c))
             && EqualityComparer<T2>.Default.Equals(value.Item2, prevValue2.Read(c))
@@ -182,11 +191,12 @@ public abstract class UpdateNode<T1, T2, T3, T4, T5, T6> : Node, IActiveUpdateNo
         return true;
     }
 
-    protected abstract (T1, T2, T3, T4, T5, T6) GetValues(PulseContext c);
+    protected abstract Task<(T1, T2, T3, T4, T5, T6)> GetValues(PulseContext c);
 }
 
 public abstract class UpdateNode<T1, T2, T3, T4, T5, T6, T7> : Node, IActiveUpdateNode
 {
+    public virtual int UpdateOffset => 0;
     private readonly GlobalStore<T1> prevValue1 = new();
     private readonly GlobalStore<T2> prevValue2 = new();
     private readonly GlobalStore<T3> prevValue3 = new();
@@ -195,9 +205,9 @@ public abstract class UpdateNode<T1, T2, T3, T4, T5, T6, T7> : Node, IActiveUpda
     private readonly GlobalStore<T6> prevValue6 = new();
     private readonly GlobalStore<T7> prevValue7 = new();
 
-    public bool OnUpdate(PulseContext c)
+    public async Task<bool> OnUpdate(PulseContext c)
     {
-        var value = GetValues(c);
+        var value = await GetValues(c);
 
         if (EqualityComparer<T1>.Default.Equals(value.Item1, prevValue1.Read(c))
             && EqualityComparer<T2>.Default.Equals(value.Item2, prevValue2.Read(c))
@@ -220,11 +230,12 @@ public abstract class UpdateNode<T1, T2, T3, T4, T5, T6, T7> : Node, IActiveUpda
         return true;
     }
 
-    protected abstract (T1, T2, T3, T4, T5, T6, T7) GetValues(PulseContext c);
+    protected abstract Task<(T1, T2, T3, T4, T5, T6, T7)> GetValues(PulseContext c);
 }
 
 public abstract class UpdateNode<T1, T2, T3, T4, T5, T6, T7, T8> : Node, IActiveUpdateNode
 {
+    public virtual int UpdateOffset => 0;
     private readonly GlobalStore<T1> prevValue1 = new();
     private readonly GlobalStore<T2> prevValue2 = new();
     private readonly GlobalStore<T3> prevValue3 = new();
@@ -234,9 +245,9 @@ public abstract class UpdateNode<T1, T2, T3, T4, T5, T6, T7, T8> : Node, IActive
     private readonly GlobalStore<T7> prevValue7 = new();
     private readonly GlobalStore<T8> prevValue8 = new();
 
-    public bool OnUpdate(PulseContext c)
+    public async Task<bool> OnUpdate(PulseContext c)
     {
-        var value = GetValues(c);
+        var value = await GetValues(c);
 
         if (EqualityComparer<T1>.Default.Equals(value.Item1, prevValue1.Read(c))
             && EqualityComparer<T2>.Default.Equals(value.Item2, prevValue2.Read(c))
@@ -261,5 +272,5 @@ public abstract class UpdateNode<T1, T2, T3, T4, T5, T6, T7, T8> : Node, IActive
         return true;
     }
 
-    protected abstract (T1, T2, T3, T4, T5, T6, T7, T8) GetValues(PulseContext c);
+    protected abstract Task<(T1, T2, T3, T4, T5, T6, T7, T8)> GetValues(PulseContext c);
 }

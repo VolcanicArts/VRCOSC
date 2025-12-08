@@ -8,6 +8,8 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Wait Until True", "Flow")]
 public sealed class WaitUntilTrueNode : Node, IActiveUpdateNode, IFlowInput
 {
+    public int UpdateOffset => 0;
+
     public GlobalStore<bool> CurrCondition = new();
 
     public FlowContinuation Next = new();
@@ -24,16 +26,18 @@ public sealed class WaitUntilTrueNode : Node, IActiveUpdateNode, IFlowInput
         await Next.Execute(c);
     }
 
-    public bool OnUpdate(PulseContext c)
+    public Task<bool> OnUpdate(PulseContext c)
     {
         CurrCondition.Write(Condition.Read(c), c);
-        return false;
+        return Task.FromResult(false);
     }
 }
 
 [Node("Wait Until False", "Flow")]
 public sealed class WaitUntilFalseNode : Node, IActiveUpdateNode, IFlowInput
 {
+    public int UpdateOffset => 0;
+
     public GlobalStore<bool> CurrCondition = new();
 
     public FlowContinuation Next = new();
@@ -50,9 +54,9 @@ public sealed class WaitUntilFalseNode : Node, IActiveUpdateNode, IFlowInput
         await Next.Execute(c);
     }
 
-    public bool OnUpdate(PulseContext c)
+    public Task<bool> OnUpdate(PulseContext c)
     {
         CurrCondition.Write(Condition.Read(c), c);
-        return false;
+        return Task.FromResult(false);
     }
 }

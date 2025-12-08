@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FontAwesome6;
-using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 
 namespace VRCOSC.App.Nodes;
@@ -249,18 +248,15 @@ public record ImpulseDefinition(string Name, object[] Values);
 
 internal interface INodeEventHandler
 {
-    public bool HandleNodeStart(PulseContext c) => false;
-    public bool HandleNodeStop(PulseContext c) => false;
-    public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter) => false;
-    public bool HandleAvatarChange(PulseContext c, AvatarConfig? config) => false;
-    public bool HandlePartialSpeechResult(PulseContext c, string result) => false;
-    public bool HandleFinalSpeechResult(PulseContext c, string result) => false;
-    public bool HandleOnInstanceJoined(PulseContext c, VRChatClientEventInstanceJoined eventArgs) => false;
-    public bool HandleOnInstanceLeft(PulseContext c, VRChatClientEventInstanceLeft eventArgs) => false;
-    public bool HandleOnUserJoined(PulseContext c, VRChatClientEventUserJoined eventArgs) => false;
-    public bool HandleOnUserLeft(PulseContext c, VRChatClientEventUserLeft eventArgs) => false;
-    public bool HandleOnAvatarPreChange(PulseContext c, VRChatClientEventAvatarPreChange eventArgs) => false;
-    public bool HandleOnUserAuthenticated(PulseContext c, VRChatClientEventUserAuthenticated eventArgs) => false;
+    public Task<bool> HandleNodeStart(PulseContext c) => Task.FromResult(false);
+    public Task<bool> HandleNodeStop(PulseContext c) => Task.FromResult(false);
+    public Task<bool> HandlePartialSpeechResult(PulseContext c, string result) => Task.FromResult(false);
+    public Task<bool> HandleFinalSpeechResult(PulseContext c, string result) => Task.FromResult(false);
+    public Task<bool> HandleOnInstanceJoined(PulseContext c, VRChatClientEventInstanceJoined eventArgs) => Task.FromResult(false);
+    public Task<bool> HandleOnInstanceLeft(PulseContext c, VRChatClientEventInstanceLeft eventArgs) => Task.FromResult(false);
+    public Task<bool> HandleOnUserJoined(PulseContext c, VRChatClientEventUserJoined eventArgs) => Task.FromResult(false);
+    public Task<bool> HandleOnUserLeft(PulseContext c, VRChatClientEventUserLeft eventArgs) => Task.FromResult(false);
+    public Task<bool> HandleOnAvatarPreChange(PulseContext c, VRChatClientEventAvatarPreChange eventArgs) => Task.FromResult(false);
 }
 
 internal interface IDisplayNode

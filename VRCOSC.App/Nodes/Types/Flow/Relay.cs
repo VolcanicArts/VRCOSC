@@ -31,5 +31,5 @@ public sealed class UpdateRelayNode<T> : UpdateNode<T>
         return Task.CompletedTask;
     }
 
-    protected override T GetValue(PulseContext c) => Input.Read(c);
+    protected override Task<T> GetValue(PulseContext c) => Task.FromResult(Input.Read(c));
 }
