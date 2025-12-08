@@ -538,7 +538,7 @@ public class NodeGraph : IVRCClientEventHandler
 
     private async Task startFlow(Node node, PulseContext? baseContext = null)
     {
-        var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this);
+        var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this, new CancellationTokenSource());
 
         // display node, drive node, etc... Don't bother making a FlowTask
         if (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput && !node.Metadata.IsFlow)

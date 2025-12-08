@@ -15,7 +15,7 @@ namespace VRCOSC.App.Nodes;
 public class PulseContext
 {
     internal CancellationTokenSource Source { get; }
-    public CancellationToken Token { get; }
+    public CancellationToken Token => Source.Token;
 
     public bool IsCancelled => Token.IsCancellationRequested;
 
@@ -28,15 +28,14 @@ public class PulseContext
     internal PulseContext(NodeGraph graph)
     {
         Graph = graph;
-
         Source = new CancellationTokenSource();
-        Token = Source.Token;
     }
 
-    internal PulseContext(PulseContext baseContext, NodeGraph graph)
-        : this(graph)
+    internal PulseContext(PulseContext baseContext, NodeGraph graph, CancellationTokenSource? source = null)
     {
+        Graph = graph;
         BaseContext = baseContext;
+        Source = source ?? baseContext.Source;
     }
 
     internal void Push(Node node) => nodes.Push(node);
