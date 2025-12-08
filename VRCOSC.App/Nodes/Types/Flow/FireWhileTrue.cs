@@ -9,6 +9,8 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Fire While True", "Flow")]
 public sealed class FireWhileTrueNode : Node, IActiveUpdateNode
 {
+    public int UpdateOffset => 0;
+
     private readonly GlobalStore<DateTime> lastUpdate = new();
 
     public FlowCall Next = new();
@@ -18,18 +20,21 @@ public sealed class FireWhileTrueNode : Node, IActiveUpdateNode
 
     protected override async Task Process(PulseContext c)
     {
-        var delay = DelayMilliseconds.Read(c);
-        if (delay <= 0) return;
+        await Next.Execute(c);
+    }
 
+    public Task<bool> OnUpdate(PulseContext c)
+    {
+        var delay = DelayMilliseconds.Read(c);
         var dateTimeNow = DateTime.Now;
         var shouldContinue = (dateTimeNow - lastUpdate.Read(c)).TotalMilliseconds >= delay;
 
         if (shouldContinue && Condition.Read(c))
         {
             lastUpdate.Write(dateTimeNow, c);
-            await Next.Execute(c);
+            return Task.FromResult(true);
         }
-    }
 
-    public bool OnUpdate(PulseContext c) => true;
+        return Task.FromResult(false);
+    }
 }
