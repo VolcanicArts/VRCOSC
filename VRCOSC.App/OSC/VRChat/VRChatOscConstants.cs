@@ -16,4 +16,5 @@ public static class VRChatOSCConstants
     public const string ADDRESS_DOLLY_PLAYDELAYED = "/dolly/PlayDelayed";
     public const string ADDRESS_DOLLY_IMPORT = "/dolly/Import";
     public const string ADDRESS_DOLLY_EXPORT = "/dolly/Export";
+    public const string ADDRESS_USERCAMERA_PREFIX = "/usercamera";
 }

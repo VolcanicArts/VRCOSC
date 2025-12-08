@@ -262,6 +262,11 @@ internal class AppManager : IVRCClientEventHandler
                 DollyManager.GetInstance().HandleDollyEvent(message);
             }
 
+            if (message.IsUserCamera)
+            {
+                VRChatClient.UserCamera.HandleMessage(message);
+            }
+
             if (message.IsAvatarParameter)
             {
                 var parameter = new VRChatParameter(message);
@@ -512,6 +517,7 @@ internal class AppManager : IVRCClientEventHandler
         await RouterManager.GetInstance().Start();
         await VRChatOscClient.EnableSend();
         ChatBoxManager.GetInstance().Start();
+        await VRChatClient.UserCamera.RetrieveAllData();
         await VRChatClient.Player.RetrieveAll();
         await ModuleManager.GetInstance().StartAsync();
         await NodeManager.GetInstance().Start();

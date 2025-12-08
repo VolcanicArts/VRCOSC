@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
 
@@ -11,6 +10,7 @@ namespace VRCOSC.App.SDK.VRChat;
 public class VRChatClient
 {
     public readonly Player Player;
+    public readonly UserCamera UserCamera;
     public readonly Instance Instance;
 
     public bool LastKnownOpenState { get; private set; }
@@ -18,6 +18,7 @@ public class VRChatClient
     internal VRChatClient(VRChatOSCClient oscClient)
     {
         Player = new Player(oscClient);
+        UserCamera = new UserCamera(oscClient);
         Instance = new Instance();
     }
 
@@ -33,7 +34,7 @@ public class VRChatClient
 
     public bool HasOpenStateChanged(out bool openState)
     {
-        var newOpenState = Process.GetProcessesByName("vrchat").Any();
+        var newOpenState = Process.GetProcessesByName("vrchat").Length != 0;
 
         if (newOpenState == LastKnownOpenState)
         {

@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -56,6 +56,8 @@ public class PulseContext
     internal Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
 
     internal Instance GetInstance() => AppManager.GetInstance().VRChatClient.Instance;
+
+    internal UserCamera GetUserCamera() => AppManager.GetInstance().VRChatClient.UserCamera;
 
     internal async Task<VRChatParameter?> GetParameter<T>(string name)
     {
