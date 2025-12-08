@@ -54,3 +54,36 @@ public sealed class FireOnChangeMultiNode<T> : Node
         return inputs.Where((input, i) => !EqualityComparer<T>.Default.Equals(input, values[i])).Any();
     }
 }
+
+[Node("Fire On Change Enumerable", "Flow")]
+public sealed class FireOnChangeEnumerableNode<T> : Node, IActiveUpdateNode
+{
+    public int UpdateOffset => 0;
+
+    public FlowCall Next = new("Next");
+
+    public GlobalStore<IEnumerable<T>> EnumerableStore = new();
+
+    public ValueInput<IEnumerable<T>> Enumerable = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        EnumerableStore.Write(Enumerable.Read(c), c);
+        await Next.Execute(c);
+    }
+
+    public Task<bool> OnUpdate(PulseContext c)
+    {
+        var prevValues = EnumerableStore.Read(c);
+        var values = Enumerable.Read(c);
+
+        if (prevValues is null && values is null)
+            return Task.FromResult(false);
+
+        if (prevValues is null && values is not null
+            || prevValues is not null && values is null)
+            return Task.FromResult(true);
+
+        return Task.FromResult(!prevValues!.SequenceEqual(values!));
+    }
+}
