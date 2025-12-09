@@ -458,7 +458,7 @@ public class NodeGraph : IVRCClientEventHandler
     {
         foreach (var node in eventNodes)
         {
-            await startFlow(node, null, c => shouldHandleEvent.Invoke(c, (INodeEventHandler)node));
+            await StartFlow(node, null, c => shouldHandleEvent.Invoke(c, (INodeEventHandler)node));
         }
     }
 
@@ -482,7 +482,7 @@ public class NodeGraph : IVRCClientEventHandler
     public void OnUserLeft(VRChatClientEventUserLeft eventArgs) => handleNodeEvent((c, node) => node.HandleOnUserLeft(c, eventArgs)).Forget();
     public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs) => handleNodeEvent((c, node) => node.HandleOnAvatarPreChange(c, eventArgs)).Forget();
 
-    private async Task startFlow(Node node, PulseContext? baseContext = null, Func<PulseContext, Task<bool>>? onPreProcess = null)
+    public async Task StartFlow(Node node, PulseContext? baseContext = null, Func<PulseContext, Task<bool>>? onPreProcess = null)
     {
         if (!running) return;
 
@@ -599,7 +599,7 @@ public class NodeGraph : IVRCClientEventHandler
 
         if (sourceNode.Metadata.IsTrigger)
         {
-            await startFlow(sourceNode, baseContext, onPreProcess);
+            await StartFlow(sourceNode, baseContext, onPreProcess);
             return;
         }
 
@@ -637,7 +637,7 @@ public class NodeGraph : IVRCClientEventHandler
 
         foreach (var node in pathList.Select(path => path.First()).DistinctBy(node => node.Id))
         {
-            await startFlow(node, c);
+            await StartFlow(node, c);
         }
     }
 
