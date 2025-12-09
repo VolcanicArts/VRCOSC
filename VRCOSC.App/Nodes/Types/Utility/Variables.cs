@@ -19,7 +19,6 @@ public sealed class DriveVariableNode<T> : Node, IUpdateNode, IHasVariableRefere
     [NodeProperty("variable_id")]
     public Guid VariableId { get; set; }
 
-    [NodeReactive]
     public ValueInput<T> Value = new();
 
     protected override Task Process(PulseContext c)

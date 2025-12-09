@@ -23,7 +23,6 @@ public sealed class DisplayNode<T> : Node, IDisplayNode, INotifyPropertyChanged
         }
     } = default!;
 
-    [NodeReactive]
     public ValueInput<T> Input = new();
 
     protected override Task Process(PulseContext c)

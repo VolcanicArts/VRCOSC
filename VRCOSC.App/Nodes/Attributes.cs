@@ -61,24 +61,10 @@ public class NodeCollapsedAttribute : Attribute;
 
 /// <inheritdoc />
 /// <summary>
-/// Causes a node to trigger whenever the value changes. Should only be used on flow output only nodes
-/// </summary>
-[AttributeUsage(AttributeTargets.Field)]
-public class NodeReactiveAttribute : Attribute;
-
-/// <inheritdoc />
-/// <summary>
 /// Forces a node to reprocess when its outputs requested. Good for source nodes to act as a ref instead of value
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
 public class NodeForceReprocessAttribute : Attribute;
-
-/// <inheritdoc/>
-/// <summary>
-/// Changes a trigger node to allow for multiple flows from source. Good for API events
-/// </summary>
-[AttributeUsage(AttributeTargets.Class)]
-public class NodeMultiFlowAttribute : Attribute;
 
 public interface INodeAttribute
 {

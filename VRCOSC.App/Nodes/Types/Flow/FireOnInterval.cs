@@ -13,7 +13,7 @@ public sealed class FireOnIntervalNode : Node, IActiveUpdateNode
 
     private readonly GlobalStore<DateTime> lastUpdate = new();
 
-    public FlowCall Next = new();
+    public FlowContinuation Next = new();
 
     public ValueInput<int> DelayMilliseconds = new("Delay Milliseconds");
 

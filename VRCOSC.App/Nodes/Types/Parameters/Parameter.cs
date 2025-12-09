@@ -59,7 +59,6 @@ public sealed class DriveParameterNode<T> : Node, IUpdateNode, IHasTextProperty 
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    [NodeReactive]
     public ValueInput<T> Value = new();
 
     protected override Task Process(PulseContext c)

@@ -164,6 +164,9 @@ public class NodeGraph : IVRCClientEventHandler
         {
             Connections.TryRemove(connection.Id, out _);
             RemovedConnections.Add(connection);
+
+            if (connection.InputNodeId == nodeId) continue;
+
             nodesToTrigger.Add(connection.InputNodeId);
         }
 
@@ -178,11 +181,9 @@ public class NodeGraph : IVRCClientEventHandler
         Nodes.TryRemove(nodeId, out _);
         RemovedNodes.Add(node);
 
-        foreach (var nodeToTriggerId in nodesToTrigger.Distinct())
+        foreach (var nodeToTrigger in nodesToTrigger.Distinct().Select(nId => Nodes[nId]).Where(n => !n.Metadata.IsActiveUpdate))
         {
-            if (nodeToTriggerId == nodeId) continue;
-
-            TriggerTree(Nodes[nodeToTriggerId]).Forget();
+            TriggerTree(nodeToTrigger).Forget();
         }
     }
 
@@ -275,7 +276,7 @@ public class NodeGraph : IVRCClientEventHandler
             AddedConnections.Add(newConnection);
         }
 
-        if (newConnectionMade)
+        if (newConnectionMade && !inputNode.Metadata.IsActiveUpdate)
             TriggerTree(inputNode).Forget();
     }
 
@@ -285,7 +286,9 @@ public class NodeGraph : IVRCClientEventHandler
         RemovedConnections.Add(connection);
 
         var affectedNode = Nodes[connection.InputNodeId];
-        TriggerTree(affectedNode).Forget();
+
+        if (!affectedNode.Metadata.IsActiveUpdate)
+            TriggerTree(affectedNode).Forget();
     }
 
     public NodeGroup AddGroup(IEnumerable<Guid> initialNodes, Guid? id = null)
@@ -331,7 +334,7 @@ public class NodeGraph : IVRCClientEventHandler
 
     private async Task processAllTriggerNodes()
     {
-        foreach (var node in Nodes.Values.Where(node => triggerCriteria(node) && node.Metadata.Inputs.Any(input => input.IsReactive)))
+        foreach (var node in Nodes.Values.Where(node => node.Metadata.IsTrigger && !node.Metadata.IsActiveUpdate))
         {
             await TriggerTree(node);
         }
@@ -350,7 +353,7 @@ public class NodeGraph : IVRCClientEventHandler
 
     private IEnumerable<Node> updateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IUpdateNode))).OrderBy(node => ((IUpdateNode)node).UpdateOffset);
     private IEnumerable<Node> activeUpdateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IActiveUpdateNode))).OrderBy(node => ((IActiveUpdateNode)node).UpdateOffset);
-    private IEnumerable<Node> eventNodes => Nodes.Values.Where(node => node.Metadata.IsTrigger && node.GetType().IsAssignableTo(typeof(INodeEventHandler)));
+    private IEnumerable<Node> eventNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler)));
 
     private void startUpdate()
     {
@@ -449,13 +452,13 @@ public class NodeGraph : IVRCClientEventHandler
 
     private record FlowTask(Task Task, PulseContext Context);
 
-    private readonly ConcurrentDictionary<Node, FlowTask> tasks = [];
+    private readonly ConcurrentDictionary<Guid, FlowTask> tasks = [];
 
     private async Task handleNodeEvent(Func<PulseContext, INodeEventHandler, Task<bool>> shouldHandleEvent)
     {
         foreach (var node in eventNodes)
         {
-            await TriggerTree(node, new PulseContext(this), c => shouldHandleEvent.Invoke(c, (INodeEventHandler)node));
+            await startFlow(node, null, c => shouldHandleEvent.Invoke(c, (INodeEventHandler)node));
         }
     }
 
@@ -481,10 +484,12 @@ public class NodeGraph : IVRCClientEventHandler
 
     private async Task startFlow(Node node, PulseContext? baseContext = null, Func<PulseContext, Task<bool>>? onPreProcess = null)
     {
+        if (!running) return;
+
         var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this, new CancellationTokenSource());
 
         // display node, drive node, etc... Don't bother making a FlowTask
-        if (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput && !node.Metadata.IsFlow)
+        if (node.Metadata.IsTrigger && !node.Metadata.IsFlow)
         {
             await processNode(node, c, onPreProcess);
             return;
@@ -495,23 +500,19 @@ public class NodeGraph : IVRCClientEventHandler
 
         if (onPreProcess is not null && !await onPreProcess.Invoke(c)) return;
 
-        if (tasks.TryGetValue(node, out var existingTask))
+        if (tasks.TryGetValue(node.Id, out var existingTask))
         {
             await existingTask.Context.Source.CancelAsync();
             await existingTask.Task;
-            tasks.TryRemove(node, out _);
+            tasks.TryRemove(node.Id, out _);
         }
 
-        var newTask = Task.Run(async () =>
+        var newTask = Task.Run(() => node.InternalProcess(c)).ContinueWith(__ =>
         {
-            await node.InternalProcess(c);
+            tasks.TryRemove(node.Id, out _);
+        }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
-            if (!node.Metadata.MultiFlow)
-                tasks.TryRemove(node, out _);
-        });
-
-        if (!node.Metadata.MultiFlow)
-            tasks.TryAdd(node, new FlowTask(newTask, c));
+        tasks.TryAdd(node.Id, new FlowTask(newTask, c));
     }
 
     public Task ProcessNode(Guid nodeId, PulseContext c) => processNode(Nodes[nodeId], c);
@@ -529,6 +530,7 @@ public class NodeGraph : IVRCClientEventHandler
     /// </summary>
     private async Task<bool> processNode(Node node, PulseContext c, Func<PulseContext, Task<bool>>? onPreProcess = null)
     {
+        if (!running) return false;
         if (c.IsCancelled) return false;
         if (c.HasMemory(node.Id) && !node.Metadata.ForceReprocess) return false;
 
@@ -588,16 +590,14 @@ public class NodeGraph : IVRCClientEventHandler
         }
     }
 
-    private readonly Func<Node, bool> triggerCriteria = node => node.Metadata.IsTrigger || (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput && !node.Metadata.IsFlow);
-
     /// <summary>
-    /// Triggers the source node immediately if <see cref="triggerCriteria"/> applies, otherwise walks forward to get all the nodes that <see cref="triggerCriteria"/> applies to and triggers those
+    /// Triggers the source node immediately if <paramref name="sourceNode"/> is a trigger node, otherwise walks forward to get all the nodes that are trigger nodes and triggers those
     /// </summary>
     public async Task TriggerTree(Node sourceNode, PulseContext? baseContext = null, Func<PulseContext, Task<bool>>? onPreProcess = null)
     {
         if (!running) return;
 
-        if (triggerCriteria(sourceNode))
+        if (sourceNode.Metadata.IsTrigger)
         {
             await startFlow(sourceNode, baseContext, onPreProcess);
             return;
@@ -650,14 +650,14 @@ public class NodeGraph : IVRCClientEventHandler
             var inputNode = Nodes[connection.InputNodeId];
             var inputSlot = connection.InputSlot;
 
-            if (inputNode.Metadata.IsFlowInput)
+            if (inputNode.Metadata.IsFlowInput || inputNode.Metadata.IsActiveUpdate)
                 continue;
 
             if (inputSlot >= inputNode.Metadata.InputsCount) inputSlot = inputNode.Metadata.InputsCount - 1;
 
             currPath.Push(inputNode);
 
-            if (triggerCriteria(inputNode) && inputNode.Metadata.Inputs[inputSlot].IsReactive)
+            if (inputNode.Metadata.IsTrigger)
             {
                 nodeList.Add(currPath.ToArray());
                 continue;

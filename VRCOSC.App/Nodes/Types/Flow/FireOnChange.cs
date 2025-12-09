@@ -10,11 +10,10 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Fire On Change", "Flow")]
 public sealed class FireOnChangeNode<T> : Node
 {
-    public FlowCall Next = new("Next");
+    public FlowContinuation Next = new("Next");
 
     public GlobalStore<T> PrevValue = new();
 
-    [NodeReactive]
     public ValueInput<T> Value = new();
 
     protected override async Task Process(PulseContext c)
@@ -32,11 +31,10 @@ public sealed class FireOnChangeNode<T> : Node
 [Node("Fire On Change Multi", "Flow")]
 public sealed class FireOnChangeMultiNode<T> : Node
 {
-    public FlowCall Next = new("Next");
+    public FlowContinuation Next = new("Next");
 
     public GlobalStore<List<T>> PrevValues = new();
 
-    [NodeReactive]
     public ValueInputList<T> Values = new();
 
     protected override async Task Process(PulseContext c)
@@ -60,7 +58,7 @@ public sealed class FireOnChangeEnumerableNode<T> : Node, IActiveUpdateNode
 {
     public int UpdateOffset => 0;
 
-    public FlowCall Next = new("Next");
+    public FlowContinuation Next = new("Next");
 
     public GlobalStore<IEnumerable<T>> EnumerableStore = new();
 

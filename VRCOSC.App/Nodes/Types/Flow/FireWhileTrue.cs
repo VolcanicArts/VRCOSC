@@ -11,30 +11,23 @@ public sealed class FireWhileTrueNode : Node, IActiveUpdateNode
 {
     public int UpdateOffset => 0;
 
-    private readonly GlobalStore<DateTime> lastUpdate = new();
+    public GlobalStore<DateTime> LastUpdateStore = new();
 
-    public FlowCall Next = new();
+    public FlowContinuation Next = new();
 
     public ValueInput<int> DelayMilliseconds = new("Delay Milliseconds");
     public ValueInput<bool> Condition = new();
 
     protected override async Task Process(PulseContext c)
     {
+        LastUpdateStore.Write(DateTime.Now, c);
         await Next.Execute(c);
     }
 
     public Task<bool> OnUpdate(PulseContext c)
     {
         var delay = DelayMilliseconds.Read(c);
-        var dateTimeNow = DateTime.Now;
-        var shouldContinue = (dateTimeNow - lastUpdate.Read(c)).TotalMilliseconds >= delay;
-
-        if (shouldContinue && Condition.Read(c))
-        {
-            lastUpdate.Write(dateTimeNow, c);
-            return Task.FromResult(true);
-        }
-
-        return Task.FromResult(false);
+        var shouldContinue = (DateTime.Now - LastUpdateStore.Read(c)).TotalMilliseconds >= delay;
+        return Task.FromResult(shouldContinue && Condition.Read(c));
     }
 }

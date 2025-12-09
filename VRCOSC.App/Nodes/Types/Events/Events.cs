@@ -9,7 +9,7 @@ namespace VRCOSC.App.Nodes.Types.Events;
 [Node("On Start", "Events")]
 public sealed class OnStartNode : Node, INodeEventHandler
 {
-    public FlowCall OnStart = new("On Start");
+    public FlowContinuation OnStart = new("On Start");
 
     protected override async Task Process(PulseContext c)
     {
@@ -22,7 +22,7 @@ public sealed class OnStartNode : Node, INodeEventHandler
 [Node("On Stop", "Events")]
 public sealed class OnStopNode : Node, INodeEventHandler
 {
-    public FlowCall OnStop = new("On Stop");
+    public FlowContinuation OnStop = new("On Stop");
 
     protected override async Task Process(PulseContext c)
     {
@@ -35,7 +35,7 @@ public sealed class OnStopNode : Node, INodeEventHandler
 [Node("On Instance Joined", "Events")]
 public sealed class OnInstanceJoinedNode : Node, INodeEventHandler
 {
-    public FlowCall OnInstanceJoined = new();
+    public FlowContinuation OnInstanceJoined = new();
 
     public ValueOutput<string> WorldId = new("World Id");
 
@@ -54,7 +54,7 @@ public sealed class OnInstanceJoinedNode : Node, INodeEventHandler
 [Node("On Instance Left", "Events")]
 public sealed class OnInstanceLeftNode : Node, INodeEventHandler
 {
-    public FlowCall OnInstanceLeft = new();
+    public FlowContinuation OnInstanceLeft = new();
 
     protected override async Task Process(PulseContext c)
     {
@@ -67,7 +67,7 @@ public sealed class OnInstanceLeftNode : Node, INodeEventHandler
 [Node("On User Joined", "Events")]
 public sealed class OnUserJoinedNode : Node, INodeEventHandler
 {
-    public FlowCall OnUserJoined = new();
+    public FlowContinuation OnUserJoined = new();
 
     public ValueOutput<User> User = new("User");
 
@@ -86,7 +86,7 @@ public sealed class OnUserJoinedNode : Node, INodeEventHandler
 [Node("On User Left", "Events")]
 public sealed class OnUserLeftNode : Node, INodeEventHandler
 {
-    public FlowCall OnUserLeft = new();
+    public FlowContinuation OnUserLeft = new();
 
     public ValueOutput<User> User = new("User");
 
@@ -105,7 +105,7 @@ public sealed class OnUserLeftNode : Node, INodeEventHandler
 [Node("On Avatar PreChange", "Events")]
 public sealed class OnAvatarPreChangeNode : Node, INodeEventHandler
 {
-    public FlowCall OnAvatarPreChange = new();
+    public FlowContinuation OnAvatarPreChange = new();
 
     protected override async Task Process(PulseContext c)
     {
