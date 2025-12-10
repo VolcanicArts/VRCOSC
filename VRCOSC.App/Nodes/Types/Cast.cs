@@ -14,7 +14,16 @@ public sealed class CastNode<TFrom, TTo> : Node where TFrom : IConvertible
 
     protected override Task Process(PulseContext c)
     {
-        Output.Write((TTo)Convert.ChangeType(Input.Read(c), typeof(TTo)), c);
+        try
+        {
+            var result = (TTo)Convert.ChangeType(Input.Read(c), typeof(TTo));
+            Output.Write(result, c);
+        }
+        catch
+        {
+            Output.Write(default!, c);
+        }
+
         return Task.CompletedTask;
     }
 }

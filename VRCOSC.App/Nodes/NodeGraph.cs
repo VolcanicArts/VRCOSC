@@ -204,6 +204,19 @@ public class NodeGraph : IVRCClientEventHandler
         }
     }
 
+    private bool canConvertTypes(Type source, Type target)
+    {
+        try
+        {
+            _ = Convert.ChangeType(source.CreateDefault(), target);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public void CreateValueConnection(Guid outputNodeId, int outputValueSlot, Guid inputNodeId, int inputValueSlot)
     {
         if (outputNodeId == inputNodeId) return;
@@ -227,7 +240,7 @@ public class NodeGraph : IVRCClientEventHandler
         {
             var group = Groups.Values.SingleOrDefault(group => group.Nodes.Contains(outputNodeId) && group.Nodes.Contains(inputNodeId));
 
-            if (ConversionHelper.HasImplicitConversion(outputType, inputType))
+            if (canConvertTypes(outputType, inputType))
             {
                 var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
                 CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
@@ -251,15 +264,6 @@ public class NodeGraph : IVRCClientEventHandler
                 CreateValueConnection(outputNodeId, outputValueSlot, toStringNode.Id, 0);
                 CreateValueConnection(toStringNode.Id, 0, inputNodeId, inputValueSlot);
                 group?.Nodes.Add(toStringNode.Id);
-                newConnectionMade = true;
-            }
-
-            if (outputType == typeof(double) && inputType == typeof(float))
-            {
-                var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
-                CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
-                CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
-                group?.Nodes.Add(castNode.Id);
                 newConnectionMade = true;
             }
         }
