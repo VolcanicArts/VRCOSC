@@ -255,7 +255,7 @@ public sealed class PhysboneParameterSourceNode : UpdateNode<bool, bool, float, 
 }
 
 [Node("Wildcard Parameter Source", "Parameters/Receive/Wildcard")]
-public sealed class WildcardParameterSourceNode<T, W0> : UpdateNode<T>, IHasTextProperty where T : struct where W0 : struct
+public sealed class WildcardParameterSourceNode<T, W0> : UpdateNode<T>, IHasTextProperty where T : struct
 {
     public override int UpdateOffset => -2;
 
@@ -304,7 +304,7 @@ public sealed class WildcardParameterSourceNode<T, W0> : UpdateNode<T>, IHasText
 }
 
 [Node("Wildcard Parameter Source 2", "Parameters/Receive/Wildcard")]
-public sealed class WildcardParameterSourceNode<T, W0, W1> : UpdateNode<T>, IHasTextProperty where T : struct where W0 : struct where W1 : struct
+public sealed class WildcardParameterSourceNode<T, W0, W1> : UpdateNode<T>, IHasTextProperty where T : struct
 {
     public override int UpdateOffset => -2;
 
@@ -358,7 +358,7 @@ public sealed class WildcardParameterSourceNode<T, W0, W1> : UpdateNode<T>, IHas
 }
 
 [Node("Wildcard Parameter Source 3", "Parameters/Receive/Wildcard")]
-public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : UpdateNode<T>, IHasTextProperty where T : struct where W0 : struct where W1 : struct where W2 : struct
+public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : UpdateNode<T>, IHasTextProperty where T : struct
 {
     public override int UpdateOffset => -2;
 
@@ -415,7 +415,7 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : UpdateNode<T>, 
 }
 
 [Node("Wildcard Parameter Source 4", "Parameters/Receive/Wildcard")]
-public sealed class WildcardParameterSourceNode<T, W0, W1, W2, W3> : UpdateNode<T>, IHasTextProperty where T : struct where W0 : struct where W1 : struct where W2 : struct where W3 : struct
+public sealed class WildcardParameterSourceNode<T, W0, W1, W2, W3> : UpdateNode<T>, IHasTextProperty where T : struct
 {
     public override int UpdateOffset => -2;
 
