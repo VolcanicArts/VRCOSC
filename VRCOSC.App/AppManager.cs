@@ -89,9 +89,9 @@ internal class AppManager : IVRCClientEventHandler
         {
             audioEngine = new MiniAudioEngine(44100, Capability.Playback);
         }
-        catch
+        catch (Exception e)
         {
-            // if a user doesn't have any output
+            Logger.Error(e, $"Error initialising {nameof(MiniAudioEngine)}");
         }
 
         SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Subscribe(theme => ProxyTheme.Value = theme, true);
