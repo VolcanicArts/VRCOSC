@@ -419,17 +419,14 @@ public enum VRChatCameraInput
     Pose
 }
 
+// Can't set: GalleryPhoto, UserIcon, Sticker, Emoji
 public enum UserCameraMode
 {
     LocalPhoto = 1,
     Stream = 2,
-    Sticker = 3,
     MultiLayer = 4,
     Print = 5,
-    Drone = 6,
-    UserIcon = 7,
-    Emoji = 8,
-    GalleryPhoto = 9
+    Drone = 6
 }
 
 public enum UserCameraOrientation
