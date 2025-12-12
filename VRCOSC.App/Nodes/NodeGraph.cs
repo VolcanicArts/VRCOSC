@@ -240,21 +240,20 @@ public class NodeGraph : IVRCClientEventHandler
         {
             var group = Groups.Values.SingleOrDefault(group => group.Nodes.Contains(outputNodeId) && group.Nodes.Contains(inputNodeId));
 
-            if (canConvertTypes(outputType, inputType))
-            {
-                var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
-                CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
-                CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
-                group?.Nodes.Add(castNode.Id);
-                newConnectionMade = true;
-            }
-
             if (inputType == typeof(string))
             {
                 var toStringNode = AddNode(typeof(ToStringNode<>).MakeGenericType(outputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
                 CreateValueConnection(outputNodeId, outputValueSlot, toStringNode.Id, 0);
                 CreateValueConnection(toStringNode.Id, 0, inputNodeId, inputValueSlot);
                 group?.Nodes.Add(toStringNode.Id);
+                newConnectionMade = true;
+            }
+            else if (canConvertTypes(outputType, inputType))
+            {
+                var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
+                CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
+                CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
+                group?.Nodes.Add(castNode.Id);
                 newConnectionMade = true;
             }
         }
