@@ -249,3 +249,8 @@ internal interface IDisplayNode
 {
     public void Clear();
 }
+
+public interface IModuleNodeEventHandler
+{
+    public Task Write(object[] args, PulseContext c);
+}

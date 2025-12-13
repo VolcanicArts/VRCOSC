@@ -208,4 +208,14 @@ public class NodeManager
             graph.OnFinalSpeechResult(result);
         }
     }
+
+    public async Task TriggerModuleEvent(Type nodeType, object[] data)
+    {
+        if (!Loaded.Value) return;
+
+        foreach (var graph in Graphs)
+        {
+            await graph.TriggerModuleEvent(nodeType, data);
+        }
+    }
 }

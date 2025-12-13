@@ -39,6 +39,15 @@
         <PackageReference Include="Octokit" Version="14.0.0" />
         <PackageReference Include="Semver" Version="3.0.0" />
         <PackageReference Include="SoundFlow" Version="1.1.1" />
+        <PackageReference Include="TwitchLib.Api" Version="3.11.0-preview.215.86600fa" />
+        <PackageReference Include="TwitchLib.Api.Core" Version="3.11.0-preview.215.86600fa" />
+        <PackageReference Include="TwitchLib.Api.Core.Enums" Version="3.11.0-preview.215.86600fa" />
+        <PackageReference Include="TwitchLib.Api.Core.Interfaces" Version="3.11.0-preview.215.86600fa" />
+        <PackageReference Include="TwitchLib.Api.Core.Models" Version="3.11.0-preview.215.86600fa" />
+        <PackageReference Include="TwitchLib.Api.Helix" Version="3.11.0-preview.215.86600fa" />
+        <PackageReference Include="TwitchLib.Api.Helix.Models" Version="3.11.0-preview.215.86600fa" />
+        <PackageReference Include="TwitchLib.EventSub.Core" Version="3.1.0-preview.76.456b9d7" />
+        <PackageReference Include="TwitchLib.EventSub.Websockets" Version="0.8.0" />
         <PackageReference Include="Velopack" Version="0.0.1298" />
         <PackageReference Include="VolcanicArts.FastOSC" Version="2.0.0" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />

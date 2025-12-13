@@ -693,6 +693,21 @@ public class NodeGraph : IVRCClientEventHandler
             });
         }
     }
+
+    public async Task TriggerModuleEvent(Type nodeType, object[] data)
+    {
+        foreach (var node in Nodes.Values.Where(node => node.GetType() == nodeType && node.GetType().IsAssignableTo(typeof(IModuleNodeEventHandler))))
+        {
+            var handler = (IModuleNodeEventHandler)node;
+
+            // TODO: Change to StartFlow
+            await processNode(node, new PulseContext(this), async c =>
+            {
+                await handler.Write(data, c);
+                return true;
+            });
+        }
+    }
 }
 
 public record NodeConnection(Guid Id, ConnectionType ConnectionType, Guid OutputNodeId, int OutputSlot, Type? OutputType, Guid InputNodeId, int InputSlot, Type? InputType);
