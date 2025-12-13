@@ -66,6 +66,13 @@ public class NodeCollapsedAttribute : Attribute;
 [AttributeUsage(AttributeTargets.Class)]
 public class NodeForceReprocessAttribute : Attribute;
 
+/// <inheritdoc />
+/// <summary>
+/// Trigger nodes by default cancel an existing flow when processing. This stops that behaviour. Good for events coming from an API
+/// </summary>
+[AttributeUsage(AttributeTargets.Class)]
+public class NodeNoCancelAttribute : Attribute;
+
 public interface INodeAttribute
 {
     public int Index { get; internal set; }

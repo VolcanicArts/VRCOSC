@@ -84,9 +84,8 @@ public class NodeGraph : IVRCClientEventHandler
 
         try
         {
-            // TODO: Improve to know if a flow contains any nodes that loop, indefinitely, if so cancel and wait otherwise wait
-            await Task.WhenAll(tasks.Values.Select(t => t.Context.Source.CancelAsync()));
-            await Task.WhenAll(tasks.Values.Select(t => t.Task));
+            await Task.WhenAll(cancelTasks.Values.Concat(tasks.Values).Select(t => t.Context.Source.CancelAsync()));
+            await Task.WhenAll(cancelTasks.Values.Concat(tasks.Values).Select(t => t.Task));
         }
         catch (Exception e)
         {
@@ -96,7 +95,7 @@ public class NodeGraph : IVRCClientEventHandler
         await triggerOnStopNodes();
         clearDisplayNodes();
 
-        tasks.Clear();
+        cancelTasks.Clear();
         GlobalStores.Clear();
         GraphVariables.ForEach(v => v.Value.Reset());
         running = false;
@@ -208,7 +207,7 @@ public class NodeGraph : IVRCClientEventHandler
     {
         try
         {
-            _ = Convert.ChangeType(source.CreateDefault(), target);
+            _ = Convert.ChangeType(Activator.CreateInstance(source), target);
             return true;
         }
         catch
@@ -446,6 +445,10 @@ public class NodeGraph : IVRCClientEventHandler
 
     private record FlowTask(Task Task, PulseContext Context);
 
+    // node-id
+    private readonly ConcurrentDictionary<Guid, FlowTask> cancelTasks = [];
+
+    // flowtask-id
     private readonly ConcurrentDictionary<Guid, FlowTask> tasks = [];
 
     private async Task handleNodeEvent(Func<PulseContext, INodeEventHandler, Task<bool>> shouldHandleEvent)
@@ -494,19 +497,25 @@ public class NodeGraph : IVRCClientEventHandler
 
         if (onPreProcess is not null && !await onPreProcess.Invoke(c)) return;
 
-        if (tasks.TryGetValue(node.Id, out var existingTask))
+        if (cancelTasks.TryGetValue(node.Id, out var existingTask))
         {
             await existingTask.Context.Source.CancelAsync();
             await existingTask.Task;
-            tasks.TryRemove(node.Id, out _);
+            cancelTasks.TryRemove(node.Id, out _);
         }
 
-        var newTask = Task.Run(() => node.InternalProcess(c)).ContinueWith(__ =>
+        if (!node.Metadata.NoCancel)
         {
-            tasks.TryRemove(node.Id, out _);
-        }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            var newTask = Task.Run(() => node.InternalProcess(c)).ContinueWith(__ => { cancelTasks.TryRemove(node.Id, out _); }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
-        tasks.TryAdd(node.Id, new FlowTask(newTask, c));
+            cancelTasks.TryAdd(node.Id, new FlowTask(newTask, c));
+        }
+        else
+        {
+            var flowTaskId = Guid.NewGuid();
+            var newTask = Task.Run(() => node.InternalProcess(c)).ContinueWith(__ => { tasks.TryRemove(flowTaskId, out _); }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            tasks.TryAdd(flowTaskId, new FlowTask(newTask, c));
+        }
     }
 
     public Task ProcessNode(Guid nodeId, PulseContext c) => processNode(Nodes[nodeId], c);
@@ -700,8 +709,7 @@ public class NodeGraph : IVRCClientEventHandler
         {
             var handler = (IModuleNodeEventHandler)node;
 
-            // TODO: Change to StartFlow
-            await processNode(node, new PulseContext(this), async c =>
+            await StartFlow(node, null, async c =>
             {
                 await handler.Write(data, c);
                 return true;

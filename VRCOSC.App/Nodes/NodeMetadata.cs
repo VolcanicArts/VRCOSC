@@ -87,7 +87,8 @@ public static class NodeMetadataBuilder
             ValueOutputHasVariableSize = outputsHaveVariableSize,
             ForceReprocess = type.HasCustomAttribute<NodeForceReprocessAttribute>(),
             Properties = properties,
-            IsActiveUpdate = type.GetInterfaces().Any(i => i == typeof(IActiveUpdateNode))
+            IsActiveUpdate = type.GetInterfaces().Any(i => i == typeof(IActiveUpdateNode)),
+            NoCancel = type.HasCustomAttribute<NodeNoCancelAttribute>()
         };
 
         return metadata;
@@ -170,6 +171,7 @@ public sealed class NodeMetadata
     public bool ValueOutputHasVariableSize { get; internal set; }
     public bool ForceReprocess { get; internal set; }
     public bool IsActiveUpdate { get; internal set; }
+    public bool NoCancel { get; internal set; }
 
     public List<PropertyInfo> Properties { get; set; } = [];
 
