@@ -25,12 +25,19 @@ public class NodeAttribute : Attribute
         Icon = icon;
     }
 
-    public NodeAttribute(string title, EFontAwesomeIcon icon = EFontAwesomeIcon.None)
+    public NodeAttribute(string title)
     {
         if (string.IsNullOrWhiteSpace(title)) throw new Exception("A title must be provided for a node");
 
         Title = title;
-        Icon = icon;
+    }
+
+    public NodeAttribute(string title, string path)
+    {
+        if (string.IsNullOrWhiteSpace(title)) throw new Exception("A title must be provided for a node");
+
+        Title = title;
+        Path = path;
     }
 }
 
