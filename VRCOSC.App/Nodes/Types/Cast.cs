@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types;
 
 [Node("Cast")]
-public sealed class CastNode<TFrom, TTo> : Node where TFrom : IConvertible
+public sealed class CastNode<TFrom, TTo> : Node
 {
     public ValueInput<TFrom> Input = new();
     public ValueOutput<TTo> Output = new();
@@ -16,8 +16,7 @@ public sealed class CastNode<TFrom, TTo> : Node where TFrom : IConvertible
     {
         try
         {
-            var result = (TTo)Convert.ChangeType(Input.Read(c), typeof(TTo));
-            Output.Write(result, c);
+            Output.Write((TTo)Convert.ChangeType(Input.Read(c), typeof(TTo))!, c);
         }
         catch
         {

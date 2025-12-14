@@ -203,19 +203,6 @@ public class NodeGraph : IVRCClientEventHandler
         }
     }
 
-    private bool canConvertTypes(Type source, Type target)
-    {
-        try
-        {
-            _ = Convert.ChangeType(Activator.CreateInstance(source), target);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
     public void CreateValueConnection(Guid outputNodeId, int outputValueSlot, Guid inputNodeId, int inputValueSlot)
     {
         if (outputNodeId == inputNodeId) return;
@@ -247,7 +234,7 @@ public class NodeGraph : IVRCClientEventHandler
                 group?.Nodes.Add(toStringNode.Id);
                 newConnectionMade = true;
             }
-            else if (canConvertTypes(outputType, inputType))
+            else if (outputType.IsCastableTo(inputType))
             {
                 var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
                 CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);

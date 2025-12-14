@@ -281,6 +281,28 @@ public static class ParameterInfoExtensions
 
 public static class TypeExtensions
 {
+    public static bool IsCastableTo(this Type source, Type target)
+    {
+        if (source.IsAssignableTo(target))
+            return true;
+
+        if (source.IsPrimitive && target.IsPrimitive && source != typeof(bool) && target != typeof(bool))
+            return true;
+
+        if (source.IsEnum && source.GetEnumUnderlyingType() == target)
+            return true;
+
+        if (source.GetMethods(BindingFlags.Public | BindingFlags.Static).Any(m => m.ReturnType == target && m.Name is "op_Implicit" or "op_Explicit"))
+            return true;
+
+        var sourceAsRef = source.MakeByRefType();
+
+        if (target.GetMethods(BindingFlags.Public | BindingFlags.Static).Any(m => m.ReturnType == target && m.Name is "op_Implicit" or "op_Explicit" && m.GetParameters().Any(p => p.ParameterType == source || p.ParameterType == sourceAsRef)))
+            return true;
+
+        return false;
+    }
+
     public static object? CreateDefault(this Type type) => type.IsValueType && !type.IsAssignableTo(typeof(Nullable<>)) ? Activator.CreateInstance(type) : null;
 
     public static Type? GetConstructedGenericBase(this Type typeToCheck, Type genericDef)
