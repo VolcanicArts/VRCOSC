@@ -23,6 +23,7 @@ public class PulseContext
     internal readonly PulseContext? BaseContext;
     private Dictionary<Guid, IRef[]> memory { get; } = [];
     private Dictionary<Guid, Dictionary<IStore, IRef>> stores { get; } = [];
+    private Dictionary<string, IRef> keyedStores { get; } = [];
     private Stack<Node> nodes { get; } = [];
 
     internal PulseContext(NodeGraph graph)
@@ -167,6 +168,22 @@ public class PulseContext
 
         stores.TryAdd(current.Id, new Dictionary<IStore, IRef>());
         stores[current.Id][contextStore] = new Ref<T>(value);
+    }
+
+    internal void WriteKeyedStore<T>(string key, T value)
+    {
+        keyedStores[key] = new Ref<T>(value);
+    }
+
+    internal T ReadKeyedStore<T>(string key)
+    {
+        if (keyedStores.TryGetValue(key, out var @ref))
+            return @ref.GetValueType() == typeof(T) ? (T)@ref.GetValue()! : default!;
+
+        if (BaseContext is not null)
+            return BaseContext.ReadKeyedStore<T>(key);
+
+        return default!;
     }
 
     internal void CreateMemory(Node node)
