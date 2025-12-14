@@ -209,13 +209,13 @@ public class NodeManager
         }
     }
 
-    public async Task TriggerModuleEvent(Type nodeType, object[] data)
+    public async Task TriggerModuleNode(Type nodeType, object[] data)
     {
         if (!Loaded.Value) return;
 
         foreach (var graph in Graphs)
         {
-            await graph.TriggerModuleEvent(nodeType, data);
+            await graph.TriggerModuleNode(nodeType, data);
         }
     }
 }

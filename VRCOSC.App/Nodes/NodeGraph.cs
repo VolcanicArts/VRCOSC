@@ -703,7 +703,7 @@ public class NodeGraph : IVRCClientEventHandler
         }
     }
 
-    public async Task TriggerModuleEvent(Type nodeType, object[] data)
+    public async Task TriggerModuleNode(Type nodeType, object[] data)
     {
         foreach (var node in Nodes.Values.Where(node => node.GetType() == nodeType && node.GetType().IsAssignableTo(typeof(IModuleNodeEventHandler))))
         {

@@ -971,12 +971,12 @@ public abstract class Module
         return result;
     }
 
-    public async Task TriggerPulseEvent(Type nodeType, object[] data)
+    public async Task TriggerModuleNode(Type nodeType, object[] data)
     {
         if (!nodeType.IsAssignableTo(typeof(ModuleNode<>).MakeGenericType(GetType()))) throw new InvalidOperationException($"{nodeType.Name} is not a {nameof(ModuleNode<>)}");
         if (!nodeType.IsAssignableTo(typeof(IModuleNodeEventHandler))) throw new InvalidOperationException($"{nodeType.Name} is not a {nameof(IModuleNodeEventHandler)}");
 
-        await NodeManager.GetInstance().TriggerModuleEvent(nodeType, data);
+        await NodeManager.GetInstance().TriggerModuleNode(nodeType, data);
     }
 
     /// <summary>
