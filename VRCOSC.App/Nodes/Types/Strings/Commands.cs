@@ -14,13 +14,13 @@ public sealed class ParseCommandNode : Node, IFlowInput
     public FlowContinuation OnSuccess = new("On Success");
     public FlowContinuation OnFail = new("On Fail");
 
-    public ValueInput<string> Message = new();
+    public ValueInput<string> Text = new();
     public ValueInput<string> Command = new();
     public ValueInput<CultureInfo> CultureInfo = new("Culture Info", defaultValue: System.Globalization.CultureInfo.CurrentCulture);
 
     protected override async Task Process(PulseContext c)
     {
-        var message = Message.Read(c);
+        var message = Text.Read(c);
         var command = Command.Read(c);
         var cultureInfo = CultureInfo.Read(c);
 
@@ -37,10 +37,12 @@ public sealed class ParseCommandNode : Node, IFlowInput
 [Node("Parse Command With Data 1", "Strings/Commands")]
 public sealed class ParseCommandNode<T1> : Node, IFlowInput where T1 : IParsable<T1>
 {
+    public override string DisplayName => "Parse Command";
+
     public FlowContinuation OnSuccess = new("On Success");
     public FlowContinuation OnFail = new("On Fail");
 
-    public ValueInput<string> Message = new();
+    public ValueInput<string> Text = new();
     public ValueInput<string> Command = new();
     public ValueInput<CultureInfo> CultureInfo = new("Culture Info", defaultValue: System.Globalization.CultureInfo.CurrentCulture);
 
@@ -48,7 +50,7 @@ public sealed class ParseCommandNode<T1> : Node, IFlowInput where T1 : IParsable
 
     protected override async Task Process(PulseContext c)
     {
-        var message = Message.Read(c);
+        var message = Text.Read(c);
         var command = Command.Read(c);
         var cultureInfo = CultureInfo.Read(c);
 
@@ -83,10 +85,12 @@ public sealed class ParseCommandNode<T1> : Node, IFlowInput where T1 : IParsable
 [Node("Parse Command With Data 2", "Strings/Commands")]
 public sealed class ParseCommandNode<T1, T2> : Node, IFlowInput where T1 : IParsable<T1> where T2 : IParsable<T2>
 {
+    public override string DisplayName => "Parse Command";
+
     public FlowContinuation OnSuccess = new("On Success");
     public FlowContinuation OnFail = new("On Fail");
 
-    public ValueInput<string> Message = new();
+    public ValueInput<string> Text = new();
     public ValueInput<string> Command = new();
     public ValueInput<CultureInfo> CultureInfo = new("Culture Info", defaultValue: System.Globalization.CultureInfo.CurrentCulture);
 
@@ -95,7 +99,7 @@ public sealed class ParseCommandNode<T1, T2> : Node, IFlowInput where T1 : IPars
 
     protected override async Task Process(PulseContext c)
     {
-        var message = Message.Read(c);
+        var message = Text.Read(c);
         var command = Command.Read(c);
         var cultureInfo = CultureInfo.Read(c);
 
@@ -139,10 +143,12 @@ public sealed class ParseCommandNode<T1, T2> : Node, IFlowInput where T1 : IPars
 [Node("Parse Command With Data 3", "Strings/Commands")]
 public sealed class ParseCommandNode<T1, T2, T3> : Node, IFlowInput where T1 : IParsable<T1> where T2 : IParsable<T2> where T3 : IParsable<T3>
 {
+    public override string DisplayName => "Parse Command";
+
     public FlowContinuation OnSuccess = new("On Success");
     public FlowContinuation OnFail = new("On Fail");
 
-    public ValueInput<string> Message = new();
+    public ValueInput<string> Text = new();
     public ValueInput<string> Command = new();
     public ValueInput<CultureInfo> CultureInfo = new("Culture Info", defaultValue: System.Globalization.CultureInfo.CurrentCulture);
 
@@ -152,7 +158,7 @@ public sealed class ParseCommandNode<T1, T2, T3> : Node, IFlowInput where T1 : I
 
     protected override async Task Process(PulseContext c)
     {
-        var message = Message.Read(c);
+        var message = Text.Read(c);
         var command = Command.Read(c);
         var cultureInfo = CultureInfo.Read(c);
 
@@ -204,10 +210,12 @@ public sealed class ParseCommandNode<T1, T2, T3> : Node, IFlowInput where T1 : I
 [Node("Parse Command With Data 4", "Strings/Commands")]
 public sealed class ParseCommandNode<T1, T2, T3, T4> : Node, IFlowInput where T1 : IParsable<T1> where T2 : IParsable<T2> where T3 : IParsable<T3> where T4 : IParsable<T4>
 {
+    public override string DisplayName => "Parse Command";
+
     public FlowContinuation OnSuccess = new("On Success");
     public FlowContinuation OnFail = new("On Fail");
 
-    public ValueInput<string> Message = new();
+    public ValueInput<string> Text = new();
     public ValueInput<string> Command = new();
     public ValueInput<CultureInfo> CultureInfo = new("Culture Info", defaultValue: System.Globalization.CultureInfo.CurrentCulture);
 
@@ -218,7 +226,7 @@ public sealed class ParseCommandNode<T1, T2, T3, T4> : Node, IFlowInput where T1
 
     protected override async Task Process(PulseContext c)
     {
-        var message = Message.Read(c);
+        var message = Text.Read(c);
         var command = Command.Read(c);
         var cultureInfo = CultureInfo.Read(c);
 
