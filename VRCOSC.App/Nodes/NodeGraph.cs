@@ -601,64 +601,55 @@ public class NodeGraph : IVRCClientEventHandler
             if (!hasProcessed) return;
         }
 
-        var pathList = new List<Node[]>();
-        var currPath = new Stack<Node>();
+        var triggerList = new List<Node>();
+        var pathStack = new Stack<Node>();
 
-        currPath.Push(sourceNode);
+        pathStack.Push(sourceNode);
+        await processNode(sourceNode, c);
 
         for (var i = 0; i < sourceNode.VirtualValueOutputCount(); i++)
         {
-            await walkForward(pathList, currPath, sourceNode, i);
+            await walkForward(triggerList, pathStack, i, c);
         }
 
-        // we want to process every non-trigger node before processing the trigger nodes so that
-        // every non-trigger node in the tree only runs once, even if non-trigger node isn't part
-        // of the current path but will be down one of the trigger node's flows
-
-        foreach (var path in pathList)
-        {
-            // traverse backwards as ToArray on a stack reverses the order
-            for (var i = path.Length - 1; i > 0; i--)
-            {
-                var node = path[i];
-                await processNode(node, c);
-            }
-        }
-
-        foreach (var node in pathList.Select(path => path.First()).DistinctBy(node => node.Id))
+        foreach (var node in triggerList)
         {
             await StartFlow(node, c);
         }
     }
 
-    private async Task walkForward(List<Node[]> nodeList, Stack<Node> currPath, Node sourceNode, int outputValueSlot)
+    private async Task walkForward(List<Node> triggerList, Stack<Node> pathStack, int outputSlot, PulseContext c)
     {
-        var connections = Connections.Values.Where(con => con.ConnectionType == ConnectionType.Value && con.OutputNodeId == sourceNode.Id && con.OutputSlot == outputValueSlot);
+        var currentNode = pathStack.Peek();
+        var connections = Connections.Values.Where(con => con.ConnectionType == ConnectionType.Value && con.OutputNodeId == currentNode.Id && con.OutputSlot == outputSlot);
 
         foreach (var connection in connections)
         {
             var inputNode = Nodes[connection.InputNodeId];
             var inputSlot = connection.InputSlot;
 
-            if (inputNode.Metadata.IsFlowInput || inputNode.Metadata.IsActiveUpdate)
-                continue;
+            if (pathStack.Contains(inputNode)) continue;
+            if (inputNode.Metadata.IsFlowInput || inputNode.Metadata.IsActiveUpdate) continue;
 
             if (inputSlot >= inputNode.Metadata.InputsCount) inputSlot = inputNode.Metadata.InputsCount - 1;
 
-            currPath.Push(inputNode);
-
             if (inputNode.Metadata.IsTrigger)
             {
-                nodeList.Add(currPath.ToArray());
-                continue;
+                if (!triggerList.Contains(inputNode))
+                    triggerList.Add(inputNode);
             }
-
-            for (var i = 0; i < inputNode.VirtualValueOutputCount(); i++)
+            else
             {
-                await walkForward(nodeList, currPath, inputNode, i);
-            }
+                pathStack.Push(inputNode);
+                await processNode(inputNode, c);
 
-            currPath.Pop();
+                for (var i = 0; i < inputNode.VirtualValueOutputCount(); i++)
+                {
+                    await walkForward(triggerList, pathStack, i, c);
+                }
+
+                pathStack.Pop();
+            }
         }
     }
 
