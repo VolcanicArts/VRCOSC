@@ -509,9 +509,9 @@ public class NodeGraph : IVRCClientEventHandler
 
     private async Task<bool> checkShouldProcess(Node node, PulseContext c)
     {
+        c.CreateMemory(node);
         await backtrackNode(node, c);
         c.Push(node);
-        c.CreateMemory(node);
         return node.InternalShouldProcess(c);
     }
 
@@ -524,11 +524,11 @@ public class NodeGraph : IVRCClientEventHandler
         if (c.IsCancelled) return false;
         if (c.HasMemory(node.Id) && !node.Metadata.ForceReprocess) return false;
 
+        c.CreateMemory(node);
         await backtrackNode(node, c);
         if (c.IsCancelled) return false;
 
         c.Push(node);
-        c.CreateMemory(node);
         if (c.IsCancelled) return false;
 
         if (!node.InternalShouldProcess(c))
