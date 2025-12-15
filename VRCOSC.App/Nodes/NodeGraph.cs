@@ -180,7 +180,7 @@ public class NodeGraph : IVRCClientEventHandler
         Nodes.TryRemove(nodeId, out _);
         RemovedNodes.Add(node);
 
-        foreach (var nodeToTrigger in nodesToTrigger.Distinct().Select(nId => Nodes[nId]).Where(n => !n.Metadata.IsActiveUpdate))
+        foreach (var nodeToTrigger in nodesToTrigger.Distinct().Select(nId => Nodes[nId]).Where(n => !n.Metadata.IsActiveUpdate && !n.Metadata.IsFlowInput))
         {
             TriggerTree(nodeToTrigger).Forget();
         }
@@ -256,7 +256,7 @@ public class NodeGraph : IVRCClientEventHandler
             AddedConnections.Add(newConnection);
         }
 
-        if (newConnectionMade && !inputNode.Metadata.IsActiveUpdate)
+        if (newConnectionMade && !inputNode.Metadata.IsActiveUpdate && !inputNode.Metadata.IsFlowInput)
             TriggerTree(inputNode).Forget();
     }
 
@@ -267,7 +267,7 @@ public class NodeGraph : IVRCClientEventHandler
 
         var affectedNode = Nodes[connection.InputNodeId];
 
-        if (!affectedNode.Metadata.IsActiveUpdate)
+        if (!affectedNode.Metadata.IsActiveUpdate && !affectedNode.Metadata.IsFlowInput)
             TriggerTree(affectedNode).Forget();
     }
 
