@@ -112,7 +112,16 @@ public sealed class JsonObjectToDictionaryNode<T> : Node
 
         try
         {
-            var dict = input.ToDictionary(p => p.Key, p => p.Value!.GetValue<T>());
+            var dict = input.ToDictionary(p => p.Key, p =>
+            {
+                if (p.Value is null) return default!;
+
+                if (typeof(T) == typeof(JsonArray)) return (T)(object)p.Value.AsArray();
+                if (typeof(T) == typeof(JsonObject)) return (T)(object)p.Value.AsObject();
+
+                return p.Value.GetValue<T>();
+            });
+
             Output.Write(dict, c);
         }
         catch
@@ -136,16 +145,10 @@ public sealed class JsonArrayToEnumerableNode<T> : Node
 
         try
         {
-            if (typeof(T) == typeof(JsonArray))
-            {
-                var enumerable = input.OfType<T>();
-                Output.Write(enumerable, c);
-            }
+            if (typeof(T) == typeof(JsonArray) || typeof(T) == typeof(JsonObject))
+                Output.Write(input.OfType<T>(), c);
             else
-            {
-                var enumerable = input.GetValues<T>();
-                Output.Write(enumerable, c);
-            }
+                Output.Write(input.GetValues<T>(), c);
         }
         catch
         {
