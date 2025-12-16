@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Json;
 
-[Node("Json Parse Object", "Json")]
+[Node("Parse JsonObject", "Json")]
 public sealed class JsonParseObjectNode : Node, IFlowInput
 {
     private readonly JsonSerializerOptions options = new()
@@ -46,7 +46,7 @@ public sealed class JsonParseObjectNode : Node, IFlowInput
     }
 }
 
-[Node("Json Parse Array", "Json")]
+[Node("Parse JsonArray", "Json")]
 public sealed class JsonParseArrayNode : Node, IFlowInput
 {
     private readonly JsonSerializerOptions options = new()
@@ -83,7 +83,7 @@ public sealed class JsonParseArrayNode : Node, IFlowInput
     }
 }
 
-[Node("Json Node Metadata", "Json")]
+[Node("JsonNode Metadata", "Json")]
 public sealed class JsonNodeMetadataNode : Node
 {
     public ValueInput<JsonNode> Input = new();
@@ -99,7 +99,8 @@ public sealed class JsonNodeMetadataNode : Node
     }
 }
 
-[Node("Json Object To Dictionary", "Json")]
+[Node("JsonObject To Dictionary", "Json")]
+[NodeCollapsed]
 public sealed class JsonObjectToDictionaryNode<T> : Node
 {
     public ValueInput<JsonObject> Input = new();
@@ -132,7 +133,8 @@ public sealed class JsonObjectToDictionaryNode<T> : Node
     }
 }
 
-[Node("Json Array To Enumerable", "Json")]
+[Node("JsonArray To Enumerable", "Json")]
+[NodeCollapsed]
 public sealed class JsonArrayToEnumerableNode<T> : Node
 {
     public ValueInput<JsonArray> Input = new();
@@ -146,9 +148,9 @@ public sealed class JsonArrayToEnumerableNode<T> : Node
         try
         {
             if (typeof(T) == typeof(JsonArray) || typeof(T) == typeof(JsonObject))
-                Output.Write(input.OfType<T>(), c);
+                Output.Write(new List<T>(input.OfType<T>()), c);
             else
-                Output.Write(input.GetValues<T>(), c);
+                Output.Write(new List<T>(input.GetValues<T>()), c);
         }
         catch
         {
@@ -158,7 +160,41 @@ public sealed class JsonArrayToEnumerableNode<T> : Node
     }
 }
 
-[Node("Json Child Value", "Json")]
+[Node("JsonObject Get Value", "Json")]
+public sealed class JsonObjectGetValueNode<T> : Node, IHasTextProperty
+{
+    public ValueInput<JsonObject> Input = new();
+    public ValueOutput<T> Output = new();
+
+    [NodeProperty("key")]
+    public string Text { get; set; }
+
+    protected override Task Process(PulseContext c)
+    {
+        var input = Input.Read(c);
+        if (input is null || string.IsNullOrWhiteSpace(Text)) return Task.CompletedTask;
+
+        try
+        {
+            if (input.TryGetPropertyValue(Text, out var node) && node is not null)
+            {
+                if (typeof(T) == typeof(JsonArray))
+                    Output.Write((T)(object)node.AsArray(), c);
+                else if (typeof(T) == typeof(JsonObject))
+                    Output.Write((T)(object)node.AsObject(), c);
+                else
+                    Output.Write(node.GetValue<T>(), c);
+            }
+        }
+        catch
+        {
+        }
+
+        return Task.CompletedTask;
+    }
+}
+
+[Node("JsonObject Child Value")]
 public sealed class JsonValueNode<T> : Node, IHasTextProperty
 {
     public ValueInput<JsonObject> Input = new();
@@ -188,7 +224,7 @@ public sealed class JsonValueNode<T> : Node, IHasTextProperty
     }
 }
 
-[Node("Json Child Array", "Json")]
+[Node("JsonObject Child JsonArray")]
 public sealed class JsonArrayNode : Node, IHasTextProperty
 {
     public ValueInput<JsonObject> Input = new();
@@ -218,7 +254,7 @@ public sealed class JsonArrayNode : Node, IHasTextProperty
     }
 }
 
-[Node("Json Child Object", "Json")]
+[Node("JsonObject Child JsonObject")]
 public sealed class JsonObjectNode : Node, IHasTextProperty
 {
     public ValueInput<JsonObject> Input = new();
@@ -269,7 +305,7 @@ public sealed class JsonToStringNode : Node
     }
 }
 
-[Node("Dictionary To Json Object", "Json")]
+[Node("Dictionary To JsonObject", "Json")]
 public sealed class DictionaryToJsonObjectNode<T> : Node
 {
     private readonly JsonSerializerOptions options = new()
@@ -292,7 +328,7 @@ public sealed class DictionaryToJsonObjectNode<T> : Node
     }
 }
 
-[Node("Enumerable to Json Array", "Json")]
+[Node("Enumerable To JsonArray", "Json")]
 public sealed class EnumerableToJsonArrayNode<T> : Node
 {
     private readonly JsonSerializerOptions options = new()
