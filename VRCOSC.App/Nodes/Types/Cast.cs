@@ -7,14 +7,22 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types;
 
 [Node("Cast")]
-public sealed class CastNode<TFrom, TTo> : Node where TFrom : IConvertible
+public sealed class CastNode<TFrom, TTo> : Node
 {
     public ValueInput<TFrom> Input = new();
     public ValueOutput<TTo> Output = new();
 
     protected override Task Process(PulseContext c)
     {
-        Output.Write((TTo)Convert.ChangeType(Input.Read(c), typeof(TTo)), c);
+        try
+        {
+            Output.Write((TTo)Convert.ChangeType(Input.Read(c), typeof(TTo))!, c);
+        }
+        catch
+        {
+            Output.Write(default!, c);
+        }
+
         return Task.CompletedTask;
     }
 }

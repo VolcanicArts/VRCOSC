@@ -43,6 +43,7 @@ public sealed class CreateDictionaryNode<TKey, TValue> : Node where TKey : notnu
 }
 
 [Node("Create KeyValuePair", "Collections")]
+[NodeCollapsed]
 public sealed class CreateKeyValuePairNode<TKey, TValue> : Node where TKey : notnull
 {
     public ValueInput<TKey> Key = new();
@@ -52,6 +53,32 @@ public sealed class CreateKeyValuePairNode<TKey, TValue> : Node where TKey : not
     protected override Task Process(PulseContext c)
     {
         Output.Write(new KeyValuePair<TKey, TValue>(Key.Read(c), Value.Read(c)), c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Empty Dictionary", "Collections")]
+[NodeCollapsed]
+public sealed class EmptyDictionaryNode<TKey, TValue> : Node where TKey : notnull
+{
+    public ValueOutput<Dictionary<TKey, TValue>> Dictionary = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        Dictionary.Write(new Dictionary<TKey, TValue>(), c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Empty List", "Collections")]
+[NodeCollapsed]
+public sealed class EmptyListNode<T> : Node
+{
+    public ValueOutput<List<T>> List = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        List.Write(new List<T>(), c);
         return Task.CompletedTask;
     }
 }

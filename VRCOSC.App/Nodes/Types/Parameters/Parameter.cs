@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
@@ -10,7 +11,7 @@ namespace VRCOSC.App.Nodes.Types.Parameters;
 
 [Node("Indirect Send Parameter", "Parameters/Send")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public sealed class IndirectSendParameterNode<T> : Node, IFlowInput where T : unmanaged
+public sealed class IndirectSendParameterNode<T> : Node, IFlowInput where T : struct
 {
     public FlowContinuation Next = new("Next");
 
@@ -20,16 +21,17 @@ public sealed class IndirectSendParameterNode<T> : Node, IFlowInput where T : un
     protected override async Task Process(PulseContext c)
     {
         var name = Name.Read(c);
-        if (string.IsNullOrWhiteSpace(name)) return;
 
-        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", Value.Read(c));
+        if (!string.IsNullOrWhiteSpace(name))
+            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", Value.Read(c));
+
         await Next.Execute(c);
     }
 }
 
 [Node("Direct Send Parameter", "Parameters/Send")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public sealed class DirectSendParameterNode<T> : Node, IFlowInput, IHasTextProperty
+public sealed class DirectSendParameterNode<T> : Node, IFlowInput, IHasTextProperty where T : struct
 {
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
@@ -40,23 +42,23 @@ public sealed class DirectSendParameterNode<T> : Node, IFlowInput, IHasTextPrope
 
     protected override async Task Process(PulseContext c)
     {
-        if (string.IsNullOrWhiteSpace(Text)) return;
+        if (!string.IsNullOrWhiteSpace(Text))
+            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{Text}", Value.Read(c));
 
-        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{Text}", Value.Read(c));
         await Next.Execute(c);
     }
 }
 
 [Node("Drive Parameter", "Parameters/Send")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public sealed class DriveParameterNode<T> : Node, IUpdateNode, IHasTextProperty
+public sealed class DriveParameterNode<T> : Node, IUpdateNode, IHasTextProperty where T : struct
 {
+    public int UpdateOffset => 2;
     public GlobalStore<T> CurrValue = new();
 
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    [NodeReactive]
     public ValueInput<T> Value = new();
 
     protected override Task Process(PulseContext c)
@@ -72,34 +74,105 @@ public sealed class DriveParameterNode<T> : Node, IUpdateNode, IHasTextProperty
     }
 }
 
+[Node("Toggle Parameter", "Parameters/Send")]
+[NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
+public sealed class ToggleParameterNode<T> : Node, IFlowInput, IHasTextProperty where T : struct
+{
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
+
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<T> ValueOn;
+    public ValueInput<T> ValueOff = new("Off");
+
+    public ToggleParameterNode()
+    {
+        ValueOn = new ValueInput<T>("On", defaultValue: getOnValue());
+    }
+
+    protected override async Task Process(PulseContext c)
+    {
+        var valueOn = ValueOn.Read(c);
+        var valueOff = ValueOff.Read(c);
+
+        if (!string.IsNullOrWhiteSpace(Text))
+        {
+            var parameter = await c.GetParameter<T>(Text);
+
+            T sendValue = default!;
+
+            if (parameter is not null)
+            {
+                var currentValue = parameter.GetValue<T>();
+
+                if (EqualityComparer<T>.Default.Equals(currentValue, valueOn))
+                {
+                    sendValue = valueOff;
+                }
+                else if (EqualityComparer<T>.Default.Equals(currentValue, valueOff))
+                {
+                    sendValue = valueOn;
+                }
+                else
+                {
+                    sendValue = valueOn;
+                }
+            }
+
+            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{Text}", sendValue);
+        }
+
+        await Next.Execute(c);
+    }
+
+    private T getOnValue()
+    {
+        if (typeof(T) == typeof(bool))
+            return (T)(object)true;
+
+        if (typeof(T) == typeof(int))
+            return (T)(object)255;
+
+        if (typeof(T) == typeof(float))
+            return (T)(object)1f;
+
+        return default!;
+    }
+}
+
 [Node("Parameter Source", "Parameters/Receive")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public sealed class ParameterSourceNode<T> : Node, INodeEventHandler, IHasTextProperty
+public sealed class ParameterSourceNode<T> : UpdateNode<T>, IHasTextProperty where T : struct
 {
-    private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
+    public override int UpdateOffset => -2;
+    public GlobalStore<T> ValueStore = new();
 
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
     public ValueOutput<T> Value = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
-        var parameter = await c.GetParameter<T>(Text);
-        if (parameter is null) return;
-
-        Value.Write(parameter.GetValue<T>(), c);
+        Value.Write(ValueStore.Read(c), c);
+        return Task.CompletedTask;
     }
 
-    public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter)
+    protected override async Task<T> GetValue(PulseContext c)
     {
-        return !string.IsNullOrWhiteSpace(Text) && parameter.Name == Text && parameter.Type == parameterType;
+        if (string.IsNullOrWhiteSpace(Text)) return default;
+
+        var parameter = await c.GetParameter<T>(Text);
+        var value = parameter?.GetValue<T>() ?? default;
+        ValueStore.Write(value, c);
+        return value;
     }
 }
 
 [Node("Read Parameter", "Parameters/Receive")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
-public sealed class ReadParameterNode<T> : Node, IFlowInput
+public sealed class ReadParameterNode<T> : Node, IFlowInput where T : struct
 {
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
@@ -119,8 +192,10 @@ public sealed class ReadParameterNode<T> : Node, IFlowInput
 }
 
 [Node("Physbone Parameter Source", "Parameters/Receive")]
-public sealed class PhysboneParameterSourceNode : Node, INodeEventHandler, IHasTextProperty
+public sealed class PhysboneParameterSourceNode : UpdateNode<bool, bool, float, float, float>, IHasTextProperty
 {
+    public override int UpdateOffset => -2;
+
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
@@ -146,48 +221,43 @@ public sealed class PhysboneParameterSourceNode : Node, INodeEventHandler, IHasT
         return Task.CompletedTask;
     }
 
-    public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter)
+    protected override async Task<(bool, bool, float, float, float)> GetValues(PulseContext c)
     {
-        if (string.IsNullOrWhiteSpace(Text)) return false;
+        var isGrabbed = false;
+        var isPosed = false;
+        var angle = 0f;
+        var stretch = 0f;
+        var squish = 0f;
 
-        if (parameter.Name == $"{Text}_IsGrabbed" && parameter.Type == ParameterType.Bool)
-        {
-            GrabbedStore.Write(parameter.GetValue<bool>(), c);
-            return true;
-        }
+        var isGrabbedParameter = await c.GetParameter<bool>($"{Text}_IsGrabbed");
+        if (isGrabbedParameter is not null) isGrabbed = isGrabbedParameter.GetValue<bool>();
 
-        if (parameter.Name == $"{Text}_IsPosed" && parameter.Type == ParameterType.Bool)
-        {
-            PosedStore.Write(parameter.GetValue<bool>(), c);
-            return true;
-        }
+        var isPosedParameter = await c.GetParameter<bool>($"{Text}_IsPosed");
+        if (isPosedParameter is not null) isPosed = isPosedParameter.GetValue<bool>();
 
-        if (parameter.Name == $"{Text}_Angle" && parameter.Type == ParameterType.Float)
-        {
-            AngleStore.Write(parameter.GetValue<float>(), c);
-            return true;
-        }
+        var angleParameter = await c.GetParameter<bool>($"{Text}_Angle");
+        if (angleParameter is not null) angle = angleParameter.GetValue<float>();
 
-        if (parameter.Name == $"{Text}_Stretch" && parameter.Type == ParameterType.Float)
-        {
-            StretchStore.Write(parameter.GetValue<float>(), c);
-            return true;
-        }
+        var stretchParameter = await c.GetParameter<bool>($"{Text}_Stretch");
+        if (stretchParameter is not null) stretch = stretchParameter.GetValue<float>();
 
-        if (parameter.Name == $"{Text}_Squish" && parameter.Type == ParameterType.Float)
-        {
-            SquishStore.Write(parameter.GetValue<float>(), c);
-            return true;
-        }
+        var squishParameter = await c.GetParameter<bool>($"{Text}_Squish");
+        if (squishParameter is not null) squish = squishParameter.GetValue<float>();
 
-        return false;
+        GrabbedStore.Write(isGrabbed, c);
+        PosedStore.Write(isPosed, c);
+        AngleStore.Write(angle, c);
+        StretchStore.Write(stretch, c);
+        SquishStore.Write(squish, c);
+
+        return (isGrabbed, isPosed, angle, stretch, squish);
     }
 }
 
 [Node("Wildcard Parameter Source", "Parameters/Receive/Wildcard")]
-public sealed class WildcardParameterSourceNode<T, W0> : Node, INodeEventHandler, IHasTextProperty
+public sealed class WildcardParameterSourceNode<T, W0> : UpdateNode<T>, IHasTextProperty where T : struct
 {
-    private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
+    public override int UpdateOffset => -2;
 
     [NodeProperty("text")]
     public string Text
@@ -202,14 +272,14 @@ public sealed class WildcardParameterSourceNode<T, W0> : Node, INodeEventHandler
 
     private Regex textRegex = null!;
 
-    public GlobalStore<VRChatParameter> Parameter = new();
+    public GlobalStore<VRChatParameter> ParameterStore = new();
 
     public ValueOutput<T> Value = new();
     public ValueOutput<W0> Wildcard0 = new("Wildcard 0");
 
     protected override Task Process(PulseContext c)
     {
-        var parameter = Parameter.Read(c);
+        var parameter = ParameterStore.Read(c);
         if (parameter is null) return Task.CompletedTask;
 
         var templatedParameter = new TemplatedVRChatParameter(textRegex, parameter);
@@ -221,18 +291,23 @@ public sealed class WildcardParameterSourceNode<T, W0> : Node, INodeEventHandler
         return Task.CompletedTask;
     }
 
-    public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter)
+    protected override async Task<T> GetValue(PulseContext c)
     {
-        if (string.IsNullOrWhiteSpace(Text) || parameter.Type != parameterType) return false;
+        if (string.IsNullOrWhiteSpace(Text)) return default!;
 
-        Parameter.Write(parameter, c);
-        return true;
+        var parameter = await c.GetParameter<T>(Text);
+        if (parameter is null) return default!;
+
+        ParameterStore.Write(parameter, c);
+        return parameter.GetValue<T>();
     }
 }
 
 [Node("Wildcard Parameter Source 2", "Parameters/Receive/Wildcard")]
-public sealed class WildcardParameterSourceNode<T, W0, W1> : Node, INodeEventHandler, IHasTextProperty
+public sealed class WildcardParameterSourceNode<T, W0, W1> : UpdateNode<T>, IHasTextProperty where T : struct
 {
+    public override int UpdateOffset => -2;
+
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
     [NodeProperty("text")]
@@ -248,7 +323,7 @@ public sealed class WildcardParameterSourceNode<T, W0, W1> : Node, INodeEventHan
 
     private Regex textRegex = null!;
 
-    public GlobalStore<VRChatParameter> Parameter = new();
+    public GlobalStore<VRChatParameter> ParameterStore = new();
 
     public ValueOutput<T> Value = new();
     public ValueOutput<W0> Wildcard0 = new("Wildcard 0");
@@ -256,7 +331,7 @@ public sealed class WildcardParameterSourceNode<T, W0, W1> : Node, INodeEventHan
 
     protected override Task Process(PulseContext c)
     {
-        var parameter = Parameter.Read(c);
+        var parameter = ParameterStore.Read(c);
         if (parameter is null) return Task.CompletedTask;
 
         var templatedParameter = new TemplatedVRChatParameter(textRegex, parameter);
@@ -270,18 +345,23 @@ public sealed class WildcardParameterSourceNode<T, W0, W1> : Node, INodeEventHan
         return Task.CompletedTask;
     }
 
-    public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter)
+    protected override async Task<T> GetValue(PulseContext c)
     {
-        if (string.IsNullOrWhiteSpace(Text) || parameter.Type != parameterType) return false;
+        if (string.IsNullOrWhiteSpace(Text)) return default!;
 
-        Parameter.Write(parameter, c);
-        return true;
+        var parameter = await c.GetParameter<T>(Text);
+        if (parameter is null) return default!;
+
+        ParameterStore.Write(parameter, c);
+        return parameter.GetValue<T>();
     }
 }
 
 [Node("Wildcard Parameter Source 3", "Parameters/Receive/Wildcard")]
-public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : Node, INodeEventHandler, IHasTextProperty
+public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : UpdateNode<T>, IHasTextProperty where T : struct
 {
+    public override int UpdateOffset => -2;
+
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
     [NodeProperty("text")]
@@ -297,7 +377,7 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : Node, INodeEven
 
     private Regex textRegex = null!;
 
-    public GlobalStore<VRChatParameter> Parameter = new();
+    public GlobalStore<VRChatParameter> ParameterStore = new();
 
     public ValueOutput<T> Value = new();
     public ValueOutput<W0> Wildcard0 = new("Wildcard 0");
@@ -306,7 +386,7 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : Node, INodeEven
 
     protected override Task Process(PulseContext c)
     {
-        var parameter = Parameter.Read(c);
+        var parameter = ParameterStore.Read(c);
         if (parameter is null) return Task.CompletedTask;
 
         var templatedParameter = new TemplatedVRChatParameter(textRegex, parameter);
@@ -322,18 +402,23 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : Node, INodeEven
         return Task.CompletedTask;
     }
 
-    public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter)
+    protected override async Task<T> GetValue(PulseContext c)
     {
-        if (string.IsNullOrWhiteSpace(Text) || parameter.Type != parameterType) return false;
+        if (string.IsNullOrWhiteSpace(Text)) return default!;
 
-        Parameter.Write(parameter, c);
-        return true;
+        var parameter = await c.GetParameter<T>(Text);
+        if (parameter is null) return default!;
+
+        ParameterStore.Write(parameter, c);
+        return parameter.GetValue<T>();
     }
 }
 
 [Node("Wildcard Parameter Source 4", "Parameters/Receive/Wildcard")]
-public sealed class WildcardParameterSourceNode<T, W0, W1, W2, W3> : Node, INodeEventHandler, IHasTextProperty
+public sealed class WildcardParameterSourceNode<T, W0, W1, W2, W3> : UpdateNode<T>, IHasTextProperty where T : struct
 {
+    public override int UpdateOffset => -2;
+
     private readonly ParameterType parameterType = ParameterTypeFactory.CreateFrom<T>();
 
     [NodeProperty("text")]
@@ -349,7 +434,7 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2, W3> : Node, INode
 
     private Regex textRegex = null!;
 
-    public GlobalStore<VRChatParameter> Parameter = new();
+    public GlobalStore<VRChatParameter> ParameterStore = new();
 
     public ValueOutput<T> Value = new();
     public ValueOutput<W0> Wildcard0 = new("Wildcard 0");
@@ -359,7 +444,7 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2, W3> : Node, INode
 
     protected override Task Process(PulseContext c)
     {
-        var parameter = Parameter.Read(c);
+        var parameter = ParameterStore.Read(c);
         if (parameter is null) return Task.CompletedTask;
 
         var templatedParameter = new TemplatedVRChatParameter(textRegex, parameter);
@@ -377,11 +462,14 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2, W3> : Node, INode
         return Task.CompletedTask;
     }
 
-    public bool HandleParameterReceive(PulseContext c, VRChatParameter parameter)
+    protected override async Task<T> GetValue(PulseContext c)
     {
-        if (string.IsNullOrWhiteSpace(Text) || parameter.Type != parameterType) return false;
+        if (string.IsNullOrWhiteSpace(Text)) return default!;
 
-        Parameter.Write(parameter, c);
-        return true;
+        var parameter = await c.GetParameter<T>(Text);
+        if (parameter is null) return default!;
+
+        ParameterStore.Write(parameter, c);
+        return parameter.GetValue<T>();
     }
 }

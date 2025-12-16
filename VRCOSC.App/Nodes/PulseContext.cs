@@ -15,7 +15,7 @@ namespace VRCOSC.App.Nodes;
 public class PulseContext
 {
     internal CancellationTokenSource Source { get; }
-    public CancellationToken Token { get; }
+    public CancellationToken Token => Source.Token;
 
     public bool IsCancelled => Token.IsCancellationRequested;
 
@@ -23,20 +23,20 @@ public class PulseContext
     internal readonly PulseContext? BaseContext;
     private Dictionary<Guid, IRef[]> memory { get; } = [];
     private Dictionary<Guid, Dictionary<IStore, IRef>> stores { get; } = [];
+    private Dictionary<string, IRef> keyedStores { get; } = [];
     private Stack<Node> nodes { get; } = [];
 
     internal PulseContext(NodeGraph graph)
     {
         Graph = graph;
-
         Source = new CancellationTokenSource();
-        Token = Source.Token;
     }
 
-    internal PulseContext(PulseContext baseContext, NodeGraph graph)
-        : this(graph)
+    internal PulseContext(PulseContext baseContext, NodeGraph graph, CancellationTokenSource? source = null)
     {
+        Graph = graph;
         BaseContext = baseContext;
+        Source = source ?? baseContext.Source;
     }
 
     internal void Push(Node node) => nodes.Push(node);
@@ -57,12 +57,12 @@ public class PulseContext
 
     internal Instance GetInstance() => AppManager.GetInstance().VRChatClient.Instance;
 
+    internal UserCamera GetUserCamera() => AppManager.GetInstance().VRChatClient.UserCamera;
+
     internal async Task<VRChatParameter?> GetParameter<T>(string name)
     {
         var parameterDefinition = new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>());
-        var parameter = await AppManager.GetInstance().FindParameter(parameterDefinition, Token);
-
-        return parameter;
+        return await AppManager.GetInstance().FindParameter(parameterDefinition, Token);
     }
 
     private Task processNext(IFlow next, bool scope)
@@ -168,6 +168,22 @@ public class PulseContext
 
         stores.TryAdd(current.Id, new Dictionary<IStore, IRef>());
         stores[current.Id][contextStore] = new Ref<T>(value);
+    }
+
+    internal void WriteKeyedStore<T>(string key, T value)
+    {
+        keyedStores[key] = new Ref<T>(value);
+    }
+
+    internal T ReadKeyedStore<T>(string key)
+    {
+        if (keyedStores.TryGetValue(key, out var @ref))
+            return @ref.GetValueType() == typeof(T) ? (T)@ref.GetValue()! : default!;
+
+        if (BaseContext is not null)
+            return BaseContext.ReadKeyedStore<T>(key);
+
+        return default!;
     }
 
     internal void CreateMemory(Node node)

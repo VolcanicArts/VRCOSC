@@ -70,6 +70,29 @@ public static class ContextMenuBuilder
         GraphPresetContextSubMenu = new Lazy<ContextMenuSubMenu>(buildGraphPresetSubMenu);
     }
 
+    private static ObservableCollection<IContextMenuEntry> ensurePath(ObservableCollection<IContextMenuEntry> rootItems, string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return rootItems;
+
+        var currentList = rootItems;
+        var pathParts = path.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var part in pathParts)
+        {
+            var list = currentList;
+
+            var submenu = currentList
+                          .OfType<ContextMenuSubMenu>()
+                          .FirstOrDefault(sm => sm.Name == part)
+                          ?? new ContextMenuSubMenu(part).Also(sm => list.Add(sm));
+
+            currentList = submenu.Items;
+        }
+
+        return currentList;
+    }
+
     private static ContextMenuSubMenu buildCreateNodeContextMenu()
     {
         var createNodeSubMenu = new ContextMenuSubMenu("Create Node");
@@ -83,22 +106,8 @@ public static class ContextMenuBuilder
             if (attr == null || string.IsNullOrWhiteSpace(attr.Path))
                 continue;
 
-            var currentList = createNodeSubMenu.Items;
-            var pathParts = attr.Path.Split('/');
-
-            foreach (var part in pathParts)
-            {
-                var list = currentList;
-
-                var submenu = currentList
-                              .OfType<ContextMenuSubMenu>()
-                              .FirstOrDefault(sm => sm.Name == part)
-                              ?? new ContextMenuSubMenu(part).Also(sm => list.Add(sm));
-
-                currentList = submenu.Items;
-            }
-
-            addNodeEntry(currentList, type, attr);
+            var targetList = ensurePath(createNodeSubMenu.Items, attr.Path);
+            addNodeEntry(targetList, type, attr);
         }
 
         sortMenu(createNodeSubMenu.Items);
@@ -135,7 +144,9 @@ public static class ContextMenuBuilder
             foreach (var nodeType in moduleGroup)
             {
                 var attr = nodeType.GetCustomAttribute<NodeAttribute>()!;
-                addNodeEntry(moduleMenu.Items, nodeType, attr);
+
+                var targetList = ensurePath(moduleMenu.Items, attr.Path);
+                addNodeEntry(targetList, nodeType, attr);
             }
 
             sortMenu(moduleMenu.Items);
@@ -159,10 +170,7 @@ public static class ContextMenuBuilder
         return presetSubMenu;
     }
 
-    private static void addNodeEntry(
-        ObservableCollection<IContextMenuEntry> list,
-        Type nodeType,
-        NodeAttribute attr)
+    private static void addNodeEntry(ObservableCollection<IContextMenuEntry> list, Type nodeType, NodeAttribute attr)
     {
         var genAttr = nodeType.GetCustomAttribute<NodeGenericTypeFilterAttribute>();
 

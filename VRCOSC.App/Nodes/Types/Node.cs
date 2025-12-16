@@ -23,7 +23,7 @@ public abstract class Node : IEquatable<Node>
 
     public NodeMetadata Metadata => NodeGraph.GetMetadata(this);
 
-    protected Node()
+    internal void Init()
     {
         var type = GetType();
         var allFields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);

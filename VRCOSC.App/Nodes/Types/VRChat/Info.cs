@@ -19,7 +19,7 @@ public sealed class VRChatIsOpenNode : UpdateNode<bool>
         return Task.CompletedTask;
     }
 
-    protected override bool GetValue(PulseContext c) => AppManager.GetInstance().VRChatClient.LastKnownOpenState;
+    protected override Task<bool> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().VRChatClient.LastKnownOpenState);
 }
 
 [Node("User Source", "VRChat")]
@@ -33,11 +33,11 @@ public sealed class VRChatUserSourceNode : UpdateNode<User>
         return Task.CompletedTask;
     }
 
-    protected override User GetValue(PulseContext c) => c.GetPlayer().User;
+    protected override Task<User> GetValue(PulseContext c) => Task.FromResult(c.GetPlayer().User);
 }
 
 [Node("Avatar Source", "VRChat")]
-public sealed class VRChatAvatarSourceNode : Node, INodeEventHandler
+public sealed class VRChatAvatarSourceNode : UpdateNode<string?>
 {
     public ValueOutput<string?> AvatarId = new("Id");
     public ValueOutput<string> Name = new();
@@ -49,11 +49,11 @@ public sealed class VRChatAvatarSourceNode : Node, INodeEventHandler
         Name.Write(avatar?.Name ?? string.Empty, c);
     }
 
-    public bool HandleAvatarChange(PulseContext c, AvatarConfig? config) => true;
+    protected override async Task<string?> GetValue(PulseContext c) => (await c.GetCurrentAvatar())?.Id;
 }
 
 [Node("Instance Source", "VRChat")]
-public sealed class VRChatInstanceSourceNode : UpdateNode<string?, int>, INodeEventHandler
+public sealed class VRChatInstanceSourceNode : UpdateNode<string?, int>
 {
     public ValueOutput<string?> WorldId = new("World Id");
     public ValueOutput<IEnumerable<User>> Users = new();
@@ -67,7 +67,7 @@ public sealed class VRChatInstanceSourceNode : UpdateNode<string?, int>, INodeEv
         return Task.CompletedTask;
     }
 
-    protected override (string?, int) GetValues(PulseContext c) => (c.GetInstance().WorldId, c.GetInstance().Users.Count);
+    protected override Task<(string?, int)> GetValues(PulseContext c) => Task.FromResult((c.GetInstance().WorldId, c.GetInstance().Users.Count));
 }
 
 [Node("User To Data", "VRChat")]

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
@@ -14,7 +13,6 @@ using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Strings;
 using VRCOSC.App.SDK.Handlers;
-using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -86,9 +84,8 @@ public class NodeGraph : IVRCClientEventHandler
 
         try
         {
-            // TODO: Improve to know if a flow contains any nodes that loop, indefinitely, if so cancel and wait otherwise wait
-            await Task.WhenAll(tasks.Values.Select(t => t.Context.Source.CancelAsync()));
-            await Task.WhenAll(tasks.Values.Select(t => t.Task));
+            await Task.WhenAll(cancelTasks.Values.Concat(tasks.Values).Select(t => t.Context.Source.CancelAsync()));
+            await Task.WhenAll(cancelTasks.Values.Concat(tasks.Values).Select(t => t.Task));
         }
         catch (Exception e)
         {
@@ -98,7 +95,7 @@ public class NodeGraph : IVRCClientEventHandler
         await triggerOnStopNodes();
         clearDisplayNodes();
 
-        tasks.Clear();
+        cancelTasks.Clear();
         GlobalStores.Clear();
         GraphVariables.ForEach(v => v.Value.Reset());
         running = false;
@@ -128,6 +125,7 @@ public class NodeGraph : IVRCClientEventHandler
     public Node AddNode(Type nodeType, Point initialPosition, Guid? id = null)
     {
         var node = (Node)Activator.CreateInstance(nodeType)!;
+        node.Init();
         node.NodePosition = initialPosition;
 
         if (id.HasValue)
@@ -165,6 +163,9 @@ public class NodeGraph : IVRCClientEventHandler
         {
             Connections.TryRemove(connection.Id, out _);
             RemovedConnections.Add(connection);
+
+            if (connection.InputNodeId == nodeId) continue;
+
             nodesToTrigger.Add(connection.InputNodeId);
         }
 
@@ -179,11 +180,9 @@ public class NodeGraph : IVRCClientEventHandler
         Nodes.TryRemove(nodeId, out _);
         RemovedNodes.Add(node);
 
-        foreach (var nodeToTriggerId in nodesToTrigger.Distinct())
+        foreach (var nodeToTrigger in nodesToTrigger.Distinct().Select(nId => Nodes[nId]).Where(n => !n.Metadata.IsActiveUpdate && !n.Metadata.IsFlowInput))
         {
-            if (nodeToTriggerId == nodeId) continue;
-
-            TriggerTree(Nodes[nodeToTriggerId]).Forget();
+            TriggerTree(nodeToTrigger).Forget();
         }
     }
 
@@ -227,24 +226,6 @@ public class NodeGraph : IVRCClientEventHandler
         {
             var group = Groups.Values.SingleOrDefault(group => group.Nodes.Contains(outputNodeId) && group.Nodes.Contains(inputNodeId));
 
-            if (ConversionHelper.HasImplicitConversion(outputType, inputType))
-            {
-                var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
-                CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
-                CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
-                group?.Nodes.Add(castNode.Id);
-                newConnectionMade = true;
-            }
-
-            if (outputType.IsEnum && inputType == typeof(int))
-            {
-                var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
-                CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
-                CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
-                group?.Nodes.Add(castNode.Id);
-                newConnectionMade = true;
-            }
-
             if (inputType == typeof(string))
             {
                 var toStringNode = AddNode(typeof(ToStringNode<>).MakeGenericType(outputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
@@ -253,8 +234,7 @@ public class NodeGraph : IVRCClientEventHandler
                 group?.Nodes.Add(toStringNode.Id);
                 newConnectionMade = true;
             }
-
-            if (outputType == typeof(double) && inputType == typeof(float))
+            else if (outputType.IsCastableTo(inputType))
             {
                 var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
                 CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
@@ -276,7 +256,7 @@ public class NodeGraph : IVRCClientEventHandler
             AddedConnections.Add(newConnection);
         }
 
-        if (newConnectionMade)
+        if (newConnectionMade && !inputNode.Metadata.IsActiveUpdate && !inputNode.Metadata.IsFlowInput)
             TriggerTree(inputNode).Forget();
     }
 
@@ -286,7 +266,9 @@ public class NodeGraph : IVRCClientEventHandler
         RemovedConnections.Add(connection);
 
         var affectedNode = Nodes[connection.InputNodeId];
-        TriggerTree(affectedNode).Forget();
+
+        if (!affectedNode.Metadata.IsActiveUpdate && !affectedNode.Metadata.IsFlowInput)
+            TriggerTree(affectedNode).Forget();
     }
 
     public NodeGroup AddGroup(IEnumerable<Guid> initialNodes, Guid? id = null)
@@ -332,7 +314,7 @@ public class NodeGraph : IVRCClientEventHandler
 
     private async Task processAllTriggerNodes()
     {
-        foreach (var node in Nodes.Values.Where(node => triggerCriteria(node) && node.Metadata.Inputs.Any(input => input.IsReactive)))
+        foreach (var node in Nodes.Values.Where(node => node.Metadata.IsTrigger && !node.Metadata.IsActiveUpdate))
         {
             await TriggerTree(node);
         }
@@ -349,8 +331,9 @@ public class NodeGraph : IVRCClientEventHandler
     private Task? updateTask;
     private CancellationTokenSource? updateTokenSource;
 
-    private IEnumerable<Node> updateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IUpdateNode)));
-    private IEnumerable<Node> activeUpdateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IActiveUpdateNode)));
+    private IEnumerable<Node> updateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IUpdateNode))).OrderBy(node => ((IUpdateNode)node).UpdateOffset);
+    private IEnumerable<Node> activeUpdateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IActiveUpdateNode))).OrderBy(node => ((IActiveUpdateNode)node).UpdateOffset);
+    private IEnumerable<Node> eventNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler)));
 
     private void startUpdate()
     {
@@ -364,13 +347,7 @@ public class NodeGraph : IVRCClientEventHandler
                 {
                     foreach (var node in activeUpdateNodes)
                     {
-                        var c = new PulseContext(this);
-                        var hasProcessed = await processNode(node, c, () => ((IActiveUpdateNode)node).OnUpdate(c));
-
-                        if (!hasProcessed) continue;
-
-                        if (!node.Metadata.IsFlowOutput && node.Metadata.IsValueOutput)
-                            await TriggerTree(node, c);
+                        await TriggerTree(node, null, newC => ((IActiveUpdateNode)node).OnUpdate(newC));
                     }
 
                     foreach (var node in updateNodes)
@@ -455,153 +432,103 @@ public class NodeGraph : IVRCClientEventHandler
 
     private record FlowTask(Task Task, PulseContext Context);
 
-    private readonly ConcurrentDictionary<Node, FlowTask> tasks = [];
+    // node-id
+    private readonly ConcurrentDictionary<Guid, FlowTask> cancelTasks = [];
+
+    // flowtask-id
+    private readonly ConcurrentDictionary<Guid, FlowTask> tasks = [];
+
+    private async Task handleNodeEvent(Func<PulseContext, INodeEventHandler, Task<bool>> shouldHandleEvent)
+    {
+        foreach (var node in eventNodes)
+        {
+            await StartFlow(node, null, c => shouldHandleEvent.Invoke(c, (INodeEventHandler)node));
+        }
+    }
 
     private async Task triggerOnStartNodes()
     {
-        var startTasks = new List<Task>();
-
-        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
-        {
-            var c = new PulseContext(this);
-            var nodeTask = processNode(node, c, () => ((INodeEventHandler)node).HandleNodeStart(c));
-            startTasks.Add(nodeTask);
-        }
-
+        var startTasks = eventNodes.Select(node => processNode(node, new PulseContext(this), c => ((INodeEventHandler)node).HandleNodeStart(c)));
         await Task.WhenAll(startTasks);
     }
 
     private async Task triggerOnStopNodes()
     {
-        var stopTasks = new List<Task>();
-
-        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
-        {
-            var c = new PulseContext(this);
-            var nodeTask = processNode(node, c, () => ((INodeEventHandler)node).HandleNodeStop(c));
-            stopTasks.Add(nodeTask);
-        }
-
-        await Task.WhenAll(stopTasks);
+        var startTasks = eventNodes.Select(node => processNode(node, new PulseContext(this), c => ((INodeEventHandler)node).HandleNodeStop(c)));
+        await Task.WhenAll(startTasks);
     }
 
-    private async Task handleNodeEvent(Func<PulseContext, INodeEventHandler, bool> shouldHandleEvent)
+    public void OnPartialSpeechResult(string result) => handleNodeEvent((c, node) => node.HandlePartialSpeechResult(c, result)).Forget();
+    public void OnFinalSpeechResult(string result) => handleNodeEvent((c, node) => node.HandleFinalSpeechResult(c, result)).Forget();
+    public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs) => handleNodeEvent((c, node) => node.HandleOnInstanceJoined(c, eventArgs)).Forget();
+    public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs) => handleNodeEvent((c, node) => node.HandleOnInstanceLeft(c, eventArgs)).Forget();
+    public void OnUserJoined(VRChatClientEventUserJoined eventArgs) => handleNodeEvent((c, node) => node.HandleOnUserJoined(c, eventArgs)).Forget();
+    public void OnUserLeft(VRChatClientEventUserLeft eventArgs) => handleNodeEvent((c, node) => node.HandleOnUserLeft(c, eventArgs)).Forget();
+    public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs) => handleNodeEvent((c, node) => node.HandleOnAvatarPreChange(c, eventArgs)).Forget();
+
+    public async Task StartFlow(Node node, PulseContext? baseContext = null, Func<PulseContext, Task<bool>>? onPreProcess = null)
     {
-        Debug.Assert(running);
+        if (!running) return;
 
-        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(INodeEventHandler))))
-        {
-            var c = new PulseContext(this);
-            var hasProcessed = await processNode(node, c, () => shouldHandleEvent.Invoke(c, (INodeEventHandler)node));
-
-            if (!hasProcessed) continue;
-
-            if (!node.Metadata.IsFlowOutput)
-                await TriggerTree(node, c);
-        }
-    }
-
-    public void OnParameterReceived(VRChatParameter parameter)
-    {
-        handleNodeEvent((c, node) => node.HandleParameterReceive(c, parameter)).Forget();
-    }
-
-    public void OnAvatarChange(AvatarConfig? config)
-    {
-        handleNodeEvent((c, node) => node.HandleAvatarChange(c, config)).Forget();
-    }
-
-    public void OnPartialSpeechResult(string result)
-    {
-        handleNodeEvent((c, node) => node.HandlePartialSpeechResult(c, result)).Forget();
-    }
-
-    public void OnFinalSpeechResult(string result)
-    {
-        handleNodeEvent((c, node) => node.HandleFinalSpeechResult(c, result)).Forget();
-    }
-
-    public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
-    {
-        handleNodeEvent((c, node) => node.HandleOnInstanceJoined(c, eventArgs)).Forget();
-    }
-
-    public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs)
-    {
-        handleNodeEvent((c, node) => node.HandleOnInstanceLeft(c, eventArgs)).Forget();
-    }
-
-    public void OnUserJoined(VRChatClientEventUserJoined eventArgs)
-    {
-        handleNodeEvent((c, node) => node.HandleOnUserJoined(c, eventArgs)).Forget();
-    }
-
-    public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
-    {
-        handleNodeEvent((c, node) => node.HandleOnUserLeft(c, eventArgs)).Forget();
-    }
-
-    public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs)
-    {
-        handleNodeEvent((c, node) => node.HandleOnAvatarPreChange(c, eventArgs)).Forget();
-    }
-
-    private async Task startFlow(Node node, PulseContext? baseContext = null)
-    {
-        var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this);
+        var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this, new CancellationTokenSource());
 
         // display node, drive node, etc... Don't bother making a FlowTask
-        if (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput && !node.Metadata.IsFlow)
+        if (node.Metadata.IsTrigger && !node.Metadata.IsFlow)
         {
-            await processNode(node, c);
+            await processNode(node, c, onPreProcess);
             return;
         }
 
         var shouldProcess = await checkShouldProcess(node, c);
         if (!shouldProcess) return;
 
-        if (tasks.TryGetValue(node, out var existingTask))
+        if (onPreProcess is not null && !await onPreProcess.Invoke(c)) return;
+
+        if (cancelTasks.TryGetValue(node.Id, out var existingTask))
         {
             await existingTask.Context.Source.CancelAsync();
             await existingTask.Task;
-            tasks.TryRemove(node, out _);
+            cancelTasks.TryRemove(node.Id, out _);
         }
 
-        var newTask = Task.Run(async () =>
+        if (!node.Metadata.NoCancel)
         {
-            await node.InternalProcess(c);
+            var newTask = Task.Run(() => node.InternalProcess(c)).ContinueWith(__ => { cancelTasks.TryRemove(node.Id, out _); }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
-            if (!node.Metadata.MultiFlow)
-                tasks.TryRemove(node, out _);
-        });
-
-        if (!node.Metadata.MultiFlow)
-            tasks.TryAdd(node, new FlowTask(newTask, c));
+            cancelTasks.TryAdd(node.Id, new FlowTask(newTask, c));
+        }
+        else
+        {
+            var flowTaskId = Guid.NewGuid();
+            var newTask = Task.Run(() => node.InternalProcess(c)).ContinueWith(__ => { tasks.TryRemove(flowTaskId, out _); }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            tasks.TryAdd(flowTaskId, new FlowTask(newTask, c));
+        }
     }
 
     public Task ProcessNode(Guid nodeId, PulseContext c) => processNode(Nodes[nodeId], c);
 
     private async Task<bool> checkShouldProcess(Node node, PulseContext c)
     {
+        c.CreateMemory(node);
         await backtrackNode(node, c);
         c.Push(node);
-        c.CreateMemory(node);
         return node.InternalShouldProcess(c);
     }
 
     /// <summary>
     /// Processes a node, with an optional preprocess step after <see cref="Node.ShouldProcess"/> returns true
     /// </summary>
-    private async Task<bool> processNode(Node node, PulseContext c, Func<bool>? onPreProcess = null)
+    private async Task<bool> processNode(Node node, PulseContext c, Func<PulseContext, Task<bool>>? onPreProcess = null)
     {
+        if (!running) return false;
         if (c.IsCancelled) return false;
         if (c.HasMemory(node.Id) && !node.Metadata.ForceReprocess) return false;
 
+        c.CreateMemory(node);
         await backtrackNode(node, c);
         if (c.IsCancelled) return false;
 
         c.Push(node);
-        c.CreateMemory(node);
         if (c.IsCancelled) return false;
 
         if (!node.InternalShouldProcess(c))
@@ -612,10 +539,15 @@ public class NodeGraph : IVRCClientEventHandler
 
         if (c.IsCancelled) return false;
 
-        if (onPreProcess is not null && !onPreProcess.Invoke())
+        if (onPreProcess is not null)
         {
-            c.Pop();
-            return false;
+            var result = await onPreProcess.Invoke(c);
+
+            if (!result)
+            {
+                c.Pop();
+                return false;
+            }
         }
 
         if (c.IsCancelled) return false;
@@ -648,81 +580,76 @@ public class NodeGraph : IVRCClientEventHandler
         }
     }
 
-    private readonly Func<Node, bool> triggerCriteria = node => node.Metadata.IsTrigger || (node.Metadata.IsValueInput && !node.Metadata.IsValueOutput && !node.Metadata.IsFlow);
-
     /// <summary>
-    /// Triggers the source node immediately if <see cref="triggerCriteria"/> applies, otherwise walks forward to get all the nodes that <see cref="triggerCriteria"/> applies to and triggers those
+    /// Triggers the source node immediately if <paramref name="sourceNode"/> is a trigger node, otherwise walks forward to get all the nodes that are trigger nodes and triggers those
     /// </summary>
-    public async Task TriggerTree(Node sourceNode, PulseContext? baseContext = null)
+    public async Task TriggerTree(Node sourceNode, PulseContext? baseContext = null, Func<PulseContext, Task<bool>>? onPreProcess = null)
     {
         if (!running) return;
 
-        if (triggerCriteria(sourceNode))
+        if (sourceNode.Metadata.IsTrigger)
         {
-            await startFlow(sourceNode, baseContext);
+            await StartFlow(sourceNode, baseContext, onPreProcess);
             return;
         }
 
         var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this);
-        var pathList = new List<Node[]>();
-        var currPath = new Stack<Node>();
 
-        currPath.Push(sourceNode);
+        if (onPreProcess is not null)
+        {
+            var hasProcessed = await processNode(sourceNode, c, onPreProcess);
+            if (!hasProcessed) return;
+        }
+
+        var triggerList = new List<Node>();
+        var pathStack = new Stack<Node>();
+
+        pathStack.Push(sourceNode);
+        await processNode(sourceNode, c);
 
         for (var i = 0; i < sourceNode.VirtualValueOutputCount(); i++)
         {
-            await walkForward(pathList, currPath, sourceNode, i);
+            await walkForward(triggerList, pathStack, i, c);
         }
 
-        // we want to process every non-trigger node before processing the trigger nodes so that
-        // every non-trigger node in the tree only runs once, even if non-trigger node isn't part
-        // of the current path but will be down one of the trigger node's flows
-
-        foreach (var path in pathList)
+        foreach (var node in triggerList)
         {
-            // traverse backwards as ToArray on a stack reverses the order
-            for (var i = path.Length - 1; i > 0; i--)
-            {
-                var node = path[i];
-                await processNode(node, c);
-            }
-        }
-
-        foreach (var path in pathList.DistinctBy(path => path.First().Id))
-        {
-            var node = path.First();
-            await startFlow(node, c);
+            await StartFlow(node, c);
         }
     }
 
-    private async Task walkForward(List<Node[]> nodeList, Stack<Node> currPath, Node sourceNode, int outputValueSlot)
+    private async Task walkForward(List<Node> triggerList, Stack<Node> pathStack, int outputSlot, PulseContext c)
     {
-        var connections = Connections.Values.Where(con => con.ConnectionType == ConnectionType.Value && con.OutputNodeId == sourceNode.Id && con.OutputSlot == outputValueSlot);
+        var currentNode = pathStack.Peek();
+        var connections = Connections.Values.Where(con => con.ConnectionType == ConnectionType.Value && con.OutputNodeId == currentNode.Id && con.OutputSlot == outputSlot);
 
         foreach (var connection in connections)
         {
             var inputNode = Nodes[connection.InputNodeId];
             var inputSlot = connection.InputSlot;
 
-            if (inputNode.Metadata.IsFlowInput)
-                continue;
+            if (pathStack.Contains(inputNode)) continue;
+            if (inputNode.Metadata.IsFlowInput || inputNode.Metadata.IsActiveUpdate) continue;
 
             if (inputSlot >= inputNode.Metadata.InputsCount) inputSlot = inputNode.Metadata.InputsCount - 1;
 
-            currPath.Push(inputNode);
-
-            if (triggerCriteria(inputNode) && inputNode.Metadata.Inputs[inputSlot].IsReactive)
+            if (inputNode.Metadata.IsTrigger)
             {
-                nodeList.Add(currPath.ToArray());
-                continue;
+                if (!triggerList.Contains(inputNode))
+                    triggerList.Add(inputNode);
             }
-
-            for (var i = 0; i < inputNode.VirtualValueOutputCount(); i++)
+            else
             {
-                await walkForward(nodeList, currPath, inputNode, i);
-            }
+                pathStack.Push(inputNode);
+                await processNode(inputNode, c);
 
-            currPath.Pop();
+                for (var i = 0; i < inputNode.VirtualValueOutputCount(); i++)
+                {
+                    await walkForward(triggerList, pathStack, i, c);
+                }
+
+                pathStack.Pop();
+            }
         }
     }
 
@@ -746,9 +673,23 @@ public class NodeGraph : IVRCClientEventHandler
 
             var newC = new PulseContext(c, this);
 
-            await processNode(node, newC, () =>
+            await processNode(node, newC, newNewC =>
             {
-                impulseNode.WriteOutputs(definition.Values, c);
+                impulseNode.WriteOutputs(definition.Values, newNewC);
+                return Task.FromResult(true);
+            });
+        }
+    }
+
+    public async Task TriggerModuleNode(Type nodeType, object[] data)
+    {
+        foreach (var node in Nodes.Values.Where(node => node.GetType() == nodeType && node.GetType().IsAssignableTo(typeof(IModuleNodeEventHandler))))
+        {
+            var handler = (IModuleNodeEventHandler)node;
+
+            await StartFlow(node, null, async c =>
+            {
+                await handler.Write(data, c);
                 return true;
             });
         }

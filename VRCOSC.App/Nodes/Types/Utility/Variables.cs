@@ -9,6 +9,7 @@ namespace VRCOSC.App.Nodes.Types.Utility;
 [Node("Drive Variable")]
 public sealed class DriveVariableNode<T> : Node, IUpdateNode, IHasVariableReference
 {
+    public int UpdateOffset => 1;
     public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
 
     private GraphVariable<T> graphVariable => (GraphVariable<T>)NodeGraph.GraphVariables[VariableId];
@@ -18,7 +19,6 @@ public sealed class DriveVariableNode<T> : Node, IUpdateNode, IHasVariableRefere
     [NodeProperty("variable_id")]
     public Guid VariableId { get; set; }
 
-    [NodeReactive]
     public ValueInput<T> Value = new();
 
     protected override Task Process(PulseContext c)
@@ -95,6 +95,8 @@ public sealed class VariableReferenceNode<T> : Node, IHasVariableReference
 [NodeForceReprocess]
 public sealed class VariableReferenceToValueNode<T> : UpdateNode<T>
 {
+    public override int UpdateOffset => -1;
+
     public ValueInput<GraphVariable<T>> Reference = new();
 
     public ValueOutput<T> Value = new();
@@ -108,10 +110,10 @@ public sealed class VariableReferenceToValueNode<T> : UpdateNode<T>
         return Task.CompletedTask;
     }
 
-    protected override T GetValue(PulseContext c)
+    protected override Task<T> GetValue(PulseContext c)
     {
         var reference = Reference.Read(c);
-        return reference is null ? default! : reference.Value.Value;
+        return reference is null ? Task.FromResult(default(T)!) : Task.FromResult(reference.Value.Value);
     }
 }
 
@@ -119,6 +121,8 @@ public sealed class VariableReferenceToValueNode<T> : UpdateNode<T>
 [NodeForceReprocess]
 public sealed class VariableSourceNode<T> : UpdateNode<T>, IHasVariableReference
 {
+    public override int UpdateOffset => -1;
+
     public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
 
     private GraphVariable<T> graphVariable => (GraphVariable<T>)NodeGraph.GraphVariables[VariableId];
@@ -134,5 +138,5 @@ public sealed class VariableSourceNode<T> : UpdateNode<T>, IHasVariableReference
         return Task.CompletedTask;
     }
 
-    protected override T GetValue(PulseContext c) => graphVariable.Value.Value;
+    protected override Task<T> GetValue(PulseContext c) => Task.FromResult(graphVariable.Value.Value);
 }

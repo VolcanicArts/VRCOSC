@@ -17,11 +17,13 @@ using VRCOSC.App.ChatBox.Clips;
 using VRCOSC.App.ChatBox.Clips.Variables;
 using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.Modules;
+using VRCOSC.App.Nodes;
 using VRCOSC.App.OpenVR;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
 using VRCOSC.App.SDK.Modules.Attributes.Types;
+using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Parameters.Queryable;
 using VRCOSC.App.SDK.VRChat;
@@ -967,6 +969,14 @@ public abstract class Module
         }
 
         return result;
+    }
+
+    public async Task TriggerModuleNode(Type nodeType, object[] data)
+    {
+        if (!nodeType.IsAssignableTo(typeof(ModuleNode<>).MakeGenericType(GetType()))) throw new InvalidOperationException($"{nodeType.Name} is not a {nameof(ModuleNode<>)}");
+        if (!nodeType.IsAssignableTo(typeof(IModuleNodeEventHandler))) throw new InvalidOperationException($"{nodeType.Name} is not a {nameof(IModuleNodeEventHandler)}");
+
+        await NodeManager.GetInstance().TriggerModuleNode(nodeType, data);
     }
 
     /// <summary>

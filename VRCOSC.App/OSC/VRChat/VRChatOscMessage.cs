@@ -12,6 +12,7 @@ public record VRChatOSCMessage : OSCMessage
     public bool IsAvatarParameter => Address.StartsWith(VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX);
     public bool IsChatboxInput => Address == VRChatOSCConstants.ADDRESS_CHATBOX_INPUT;
     public bool IsDollyEvent => Address.StartsWith(VRChatOSCConstants.ADDRESS_DOLLY_PREFIX);
+    public bool IsUserCamera => Address.StartsWith(VRChatOSCConstants.ADDRESS_USERCAMERA_PREFIX);
 
     public string ParameterName
     {

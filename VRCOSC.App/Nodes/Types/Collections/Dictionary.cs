@@ -52,20 +52,23 @@ public sealed class DictionaryElementAddNode<TKey, TValue> : Node, IFlowInput wh
     public ValueInput<KeyValuePair<TKey, TValue>> Element = new();
     public ValueOutput<Dictionary<TKey, TValue>> Result = new();
 
-    protected override Task Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var dictionary = Dictionary.Read(c);
-        if (dictionary is null) return Task.CompletedTask;
+
+        if (dictionary is null)
+        {
+            await Next.Execute(c);
+            return;
+        }
 
         var element = Element.Read(c);
-        if (element.Key is null) return Task.CompletedTask;
 
         dictionary = dictionary.ToDictionary(pair => pair.Key, pair => pair.Value);
         dictionary.Add(element.Key, element.Value);
         Result.Write(dictionary, c);
 
-        Next.Execute(c);
-        return Task.CompletedTask;
+        await Next.Execute(c);
     }
 }
 
@@ -78,19 +81,22 @@ public sealed class DictionaryKeyRemoveNode<TKey, TValue> : Node, IFlowInput whe
     public ValueInput<TKey> Key = new();
     public ValueOutput<Dictionary<TKey, TValue>> Result = new();
 
-    protected override Task Process(PulseContext c)
+    protected override async Task Process(PulseContext c)
     {
         var dictionary = Dictionary.Read(c);
-        if (dictionary is null) return Task.CompletedTask;
+
+        if (dictionary is null)
+        {
+            await Next.Execute(c);
+            return;
+        }
 
         var key = Key.Read(c);
-        if (key is null) return Task.CompletedTask;
 
         dictionary = dictionary.ToDictionary(pair => pair.Key, pair => pair.Value);
         dictionary.Remove(key);
         Result.Write(dictionary, c);
 
-        Next.Execute(c);
-        return Task.CompletedTask;
+        await Next.Execute(c);
     }
 }

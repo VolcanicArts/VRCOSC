@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Numerics;
@@ -58,8 +58,6 @@ public sealed class DivideNode<T> : Node where T : INumber<T>
 
     protected override Task Process(PulseContext c)
     {
-        if (B.Read(c) == T.Zero) return Task.CompletedTask;
-
         Result.Write(A.Read(c) / B.Read(c), c);
         return Task.CompletedTask;
     }
@@ -74,8 +72,6 @@ public sealed class ModuloNode<T> : Node where T : INumber<T>
 
     protected override Task Process(PulseContext c)
     {
-        if (B.Read(c) == T.Zero) return Task.CompletedTask;
-
         Result.Write(A.Read(c) % B.Read(c), c);
         return Task.CompletedTask;
     }
@@ -160,7 +156,8 @@ public sealed class IncrementNode<T> : Node where T : INumber<T>
 
     protected override Task Process(PulseContext c)
     {
-        Output.Write(Input.Read(c) + T.One, c);
+        var input = Input.Read(c);
+        Output.Write(input++, c);
         return Task.CompletedTask;
     }
 }
@@ -174,12 +171,13 @@ public sealed class DecrementNode<T> : Node where T : INumber<T>
 
     protected override Task Process(PulseContext c)
     {
-        Output.Write(Input.Read(c) - T.One, c);
+        var input = Input.Read(c);
+        Output.Write(input--, c);
         return Task.CompletedTask;
     }
 }
 
-[Node("Floating Point To Number", "Operators/Numeric")]
+[Node("Floating Point To Number")]
 [NodeCollapsed]
 public sealed class FloatingPointToNumberNode<Tfp, Tn> : Node where Tfp : IFloatingPoint<Tfp> where Tn : INumber<Tn>
 {
@@ -188,9 +186,17 @@ public sealed class FloatingPointToNumberNode<Tfp, Tn> : Node where Tfp : IFloat
 
     protected override Task Process(PulseContext c)
     {
-        var input = Input.Read(c);
-        var output = Tn.CreateSaturating(input);
-        Output.Write(output, c);
+        try
+        {
+            var input = Input.Read(c);
+            var output = Tn.CreateChecked(input);
+            Output.Write(output, c);
+        }
+        catch
+        {
+            Output.Write(default!, c);
+        }
+
         return Task.CompletedTask;
     }
 }

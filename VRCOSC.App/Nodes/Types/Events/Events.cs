@@ -9,33 +9,33 @@ namespace VRCOSC.App.Nodes.Types.Events;
 [Node("On Start", "Events")]
 public sealed class OnStartNode : Node, INodeEventHandler
 {
-    public FlowCall OnStart = new("On Start");
+    public FlowContinuation OnStart = new("On Start");
 
     protected override async Task Process(PulseContext c)
     {
         await OnStart.Execute(c);
     }
 
-    public bool HandleNodeStart(PulseContext c) => true;
+    public Task<bool> HandleNodeStart(PulseContext c) => Task.FromResult(true);
 }
 
 [Node("On Stop", "Events")]
 public sealed class OnStopNode : Node, INodeEventHandler
 {
-    public FlowCall OnStop = new("On Stop");
+    public FlowContinuation OnStop = new("On Stop");
 
     protected override async Task Process(PulseContext c)
     {
         await OnStop.Execute(c);
     }
 
-    public bool HandleNodeStop(PulseContext c) => true;
+    public Task<bool> HandleNodeStop(PulseContext c) => Task.FromResult(true);
 }
 
 [Node("On Instance Joined", "Events")]
 public sealed class OnInstanceJoinedNode : Node, INodeEventHandler
 {
-    public FlowCall OnInstanceJoined = new();
+    public FlowContinuation OnInstanceJoined = new();
 
     public ValueOutput<string> WorldId = new("World Id");
 
@@ -44,30 +44,30 @@ public sealed class OnInstanceJoinedNode : Node, INodeEventHandler
         await OnInstanceJoined.Execute(c);
     }
 
-    public bool HandleOnInstanceJoined(PulseContext c, VRChatClientEventInstanceJoined eventArgs)
+    public Task<bool> HandleOnInstanceJoined(PulseContext c, VRChatClientEventInstanceJoined eventArgs)
     {
         WorldId.Write(eventArgs.WorldId, c);
-        return true;
+        return Task.FromResult(true);
     }
 }
 
 [Node("On Instance Left", "Events")]
 public sealed class OnInstanceLeftNode : Node, INodeEventHandler
 {
-    public FlowCall OnInstanceLeft = new();
+    public FlowContinuation OnInstanceLeft = new();
 
     protected override async Task Process(PulseContext c)
     {
         await OnInstanceLeft.Execute(c);
     }
 
-    public bool HandleOnInstanceLeft(PulseContext c, VRChatClientEventInstanceLeft eventArgs) => true;
+    public Task<bool> HandleOnInstanceLeft(PulseContext c, VRChatClientEventInstanceLeft eventArgs) => Task.FromResult(true);
 }
 
 [Node("On User Joined", "Events")]
 public sealed class OnUserJoinedNode : Node, INodeEventHandler
 {
-    public FlowCall OnUserJoined = new();
+    public FlowContinuation OnUserJoined = new();
 
     public ValueOutput<User> User = new("User");
 
@@ -76,17 +76,17 @@ public sealed class OnUserJoinedNode : Node, INodeEventHandler
         await OnUserJoined.Execute(c);
     }
 
-    public bool HandleOnUserJoined(PulseContext c, VRChatClientEventUserJoined eventArgs)
+    public Task<bool> HandleOnUserJoined(PulseContext c, VRChatClientEventUserJoined eventArgs)
     {
         User.Write(eventArgs.User, c);
-        return true;
+        return Task.FromResult(true);
     }
 }
 
 [Node("On User Left", "Events")]
 public sealed class OnUserLeftNode : Node, INodeEventHandler
 {
-    public FlowCall OnUserLeft = new();
+    public FlowContinuation OnUserLeft = new();
 
     public ValueOutput<User> User = new("User");
 
@@ -95,22 +95,22 @@ public sealed class OnUserLeftNode : Node, INodeEventHandler
         await OnUserLeft.Execute(c);
     }
 
-    public bool HandleOnUserLeft(PulseContext c, VRChatClientEventUserLeft eventArgs)
+    public Task<bool> HandleOnUserLeft(PulseContext c, VRChatClientEventUserLeft eventArgs)
     {
         User.Write(eventArgs.User, c);
-        return true;
+        return Task.FromResult(true);
     }
 }
 
 [Node("On Avatar PreChange", "Events")]
 public sealed class OnAvatarPreChangeNode : Node, INodeEventHandler
 {
-    public FlowCall OnAvatarPreChange = new();
+    public FlowContinuation OnAvatarPreChange = new();
 
     protected override async Task Process(PulseContext c)
     {
         await OnAvatarPreChange.Execute(c);
     }
 
-    public bool HandleOnAvatarPreChange(PulseContext c, VRChatClientEventAvatarPreChange eventArgs) => true;
+    public Task<bool> HandleOnAvatarPreChange(PulseContext c, VRChatClientEventAvatarPreChange eventArgs) => Task.FromResult(true);
 }

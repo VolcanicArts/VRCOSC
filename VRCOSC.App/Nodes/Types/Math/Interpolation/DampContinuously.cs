@@ -9,6 +9,7 @@ namespace VRCOSC.App.Nodes.Types.Math.Interpolation;
 [Node("Damp Continuously", "Math/Interpolation")]
 public sealed class DampContinuouslyNode<T> : Node, IActiveUpdateNode where T : IFloatingPointIeee754<T>
 {
+    public int UpdateOffset => 0;
     public GlobalStore<T> Current = new();
 
     public ValueInput<T> Target = new();
@@ -21,12 +22,12 @@ public sealed class DampContinuouslyNode<T> : Node, IActiveUpdateNode where T : 
         return Task.CompletedTask;
     }
 
-    public bool OnUpdate(PulseContext c)
+    public Task<bool> OnUpdate(PulseContext c)
     {
         var current = Current.Read(c);
         var result = Utils.Interpolation.DampContinuously(current, Target.Read(c), HalfTimeMilli.Read(c) / 2d, 1d / 100d * 1000d);
         Current.Write(result, c);
 
-        return current != result;
+        return Task.FromResult(current != result);
     }
 }

@@ -69,7 +69,7 @@ internal class AppManager : IVRCClientEventHandler
     public OpenVRManager OpenVRManager { get; private set; }
     public SteamVRManager SteamVRManager { get; private set; }
 
-    private AudioEngine audioEngine = null!;
+    private AudioEngine? audioEngine;
 
     private Repeater vrchatCheckTask = null!;
 
@@ -85,7 +85,14 @@ internal class AppManager : IVRCClientEventHandler
 
     public void Initialise()
     {
-        audioEngine = new MiniAudioEngine(44100, Capability.Playback);
+        try
+        {
+            audioEngine = new MiniAudioEngine(44100, Capability.Playback);
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, $"Error initialising {nameof(MiniAudioEngine)}");
+        }
 
         SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Subscribe(theme => ProxyTheme.Value = theme, true);
 
@@ -243,7 +250,6 @@ internal class AppManager : IVRCClientEventHandler
 
                 await VRChatClient.HandleAvatarChange();
                 ModuleManager.GetInstance().AvatarChange(currentAvatarConfig);
-                NodeManager.GetInstance().OnAvatarChange(currentAvatarConfig);
 
                 if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) return;
 
@@ -254,6 +260,11 @@ internal class AppManager : IVRCClientEventHandler
             if (message.IsDollyEvent)
             {
                 DollyManager.GetInstance().HandleDollyEvent(message);
+            }
+
+            if (message.IsUserCamera)
+            {
+                VRChatClient.UserCamera.HandleMessage(message);
             }
 
             if (message.IsAvatarParameter)
@@ -274,7 +285,6 @@ internal class AppManager : IVRCClientEventHandler
                 }
 
                 ModuleManager.GetInstance().OnParameterReceived(parameter);
-                NodeManager.GetInstance().OnParameterReceived(parameter);
             }
         }
         catch (Exception e)
@@ -507,6 +517,7 @@ internal class AppManager : IVRCClientEventHandler
         await RouterManager.GetInstance().Start();
         await VRChatOscClient.EnableSend();
         ChatBoxManager.GetInstance().Start();
+        await VRChatClient.UserCamera.RetrieveAllData();
         await VRChatClient.Player.RetrieveAll();
         await ModuleManager.GetInstance().StartAsync();
         await NodeManager.GetInstance().Start();
@@ -600,6 +611,8 @@ internal class AppManager : IVRCClientEventHandler
         VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
         await RouterManager.GetInstance().Stop();
+
+        parameterCache.Clear();
 
         State.Value = AppManagerState.Stopped;
 

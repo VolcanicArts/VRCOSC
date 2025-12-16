@@ -408,10 +408,17 @@ public class PiShockProvider
 
         foreach (var code in shareCodeList)
         {
-            var shocker = sharedShockers.SingleOrDefault(s => s.ShareCode == code);
-            if (shocker is null) return new PiShockResult(false, $"Sharecode {code} does not exist");
+            try
+            {
+                var shocker = sharedShockers.SingleOrDefault(s => s.ShareCode == code);
+                if (shocker is null) return new PiShockResult(false, $"Sharecode {code} does not exist");
 
-            shockers.Add(shocker);
+                shockers.Add(shocker);
+            }
+            catch
+            {
+                return new PiShockResult(false, $"Multiple shockers defined with the same sharecode {code}");
+            }
         }
 
         var channels = shockers.Select(shocker => $"c{shocker.ClientId}-sops-{shocker.ShareCode}").ToArray();

@@ -44,3 +44,9 @@ public sealed class FloatProgressVisualNode : Node
         return Task.CompletedTask;
     }
 }
+
+[Node("OwO", "Utility")]
+public sealed class OwONode : ConstantNode<string>
+{
+    protected override string GetValue() => "What's this?";
+}

@@ -10,11 +10,10 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Fire On Change", "Flow")]
 public sealed class FireOnChangeNode<T> : Node
 {
-    public FlowCall Next = new("Next");
+    public FlowContinuation Next = new("Next");
 
     public GlobalStore<T> PrevValue = new();
 
-    [NodeReactive]
     public ValueInput<T> Value = new();
 
     protected override async Task Process(PulseContext c)
@@ -32,11 +31,10 @@ public sealed class FireOnChangeNode<T> : Node
 [Node("Fire On Change Multi", "Flow")]
 public sealed class FireOnChangeMultiNode<T> : Node
 {
-    public FlowCall Next = new("Next");
+    public FlowContinuation Next = new("Next");
 
     public GlobalStore<List<T>> PrevValues = new();
 
-    [NodeReactive]
     public ValueInputList<T> Values = new();
 
     protected override async Task Process(PulseContext c)
@@ -52,5 +50,38 @@ public sealed class FireOnChangeMultiNode<T> : Node
         if (values is null || inputs.Count != values.Count) return true;
 
         return inputs.Where((input, i) => !EqualityComparer<T>.Default.Equals(input, values[i])).Any();
+    }
+}
+
+[Node("Fire On Change Enumerable", "Flow")]
+public sealed class FireOnChangeEnumerableNode<T> : Node, IActiveUpdateNode
+{
+    public int UpdateOffset => 0;
+
+    public FlowContinuation Next = new("Next");
+
+    public GlobalStore<IEnumerable<T>> EnumerableStore = new();
+
+    public ValueInput<IEnumerable<T>> Enumerable = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        EnumerableStore.Write(Enumerable.Read(c), c);
+        await Next.Execute(c);
+    }
+
+    public Task<bool> OnUpdate(PulseContext c)
+    {
+        var prevValues = EnumerableStore.Read(c);
+        var values = Enumerable.Read(c);
+
+        if (prevValues is null && values is null)
+            return Task.FromResult(false);
+
+        if (prevValues is null && values is not null
+            || prevValues is not null && values is null)
+            return Task.FromResult(true);
+
+        return Task.FromResult(!prevValues!.SequenceEqual(values!));
     }
 }
