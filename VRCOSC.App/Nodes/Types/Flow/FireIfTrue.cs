@@ -14,7 +14,8 @@ public sealed class FireIfTrueNode : Node
 
     protected override async Task Process(PulseContext c)
     {
-        if (Condition.Read(c))
-            await Next.Execute(c);
+        await Next.Execute(c);
     }
+
+    protected override bool ShouldProcess(PulseContext c) => Condition.Read(c);
 }
