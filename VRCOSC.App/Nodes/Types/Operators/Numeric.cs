@@ -1,6 +1,7 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using FontAwesome6;
@@ -173,6 +174,34 @@ public sealed class DecrementNode<T> : Node where T : INumber<T>
     {
         var input = Input.Read(c);
         Output.Write(input--, c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Minimum", "Operators/Numeric")]
+public sealed class MinimumNode<T> : Node where T : INumber<T>
+{
+    public ValueInputList<T> Inputs = new();
+    public ValueOutput<T> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var inputs = Inputs.Read(c);
+        Output.Write(inputs.Min()!, c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Maximum", "Operators/Numeric")]
+public sealed class MaximumNode<T> : Node where T : INumber<T>
+{
+    public ValueInputList<T> Inputs = new();
+    public ValueOutput<T> Output = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var inputs = Inputs.Read(c);
+        Output.Write(inputs.Max()!, c);
         return Task.CompletedTask;
     }
 }
