@@ -38,7 +38,7 @@ public sealed class DictionaryKeyToValueNode<TKey, TValue> : Node where TKey : n
         var key = Key.Read(c);
         if (key is null) return Task.CompletedTask;
 
-        Value.Write(dictionary[key], c);
+        Value.Write(dictionary.TryGetValue(key, out var value) ? value : default!, c);
         return Task.CompletedTask;
     }
 }
