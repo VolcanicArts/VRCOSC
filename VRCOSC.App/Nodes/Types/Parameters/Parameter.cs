@@ -235,13 +235,13 @@ public sealed class PhysboneParameterSourceNode : UpdateNode<bool, bool, float, 
         var isPosedParameter = await c.GetParameter<bool>($"{Text}_IsPosed");
         if (isPosedParameter is not null) isPosed = isPosedParameter.GetValue<bool>();
 
-        var angleParameter = await c.GetParameter<bool>($"{Text}_Angle");
+        var angleParameter = await c.GetParameter<float>($"{Text}_Angle");
         if (angleParameter is not null) angle = angleParameter.GetValue<float>();
 
-        var stretchParameter = await c.GetParameter<bool>($"{Text}_Stretch");
+        var stretchParameter = await c.GetParameter<float>($"{Text}_Stretch");
         if (stretchParameter is not null) stretch = stretchParameter.GetValue<float>();
 
-        var squishParameter = await c.GetParameter<bool>($"{Text}_Squish");
+        var squishParameter = await c.GetParameter<float>($"{Text}_Squish");
         if (squishParameter is not null) squish = squishParameter.GetValue<float>();
 
         GrabbedStore.Write(isGrabbed, c);
