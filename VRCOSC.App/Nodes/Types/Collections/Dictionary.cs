@@ -65,7 +65,7 @@ public sealed class DictionaryElementAddNode<TKey, TValue> : Node, IFlowInput wh
         var element = Element.Read(c);
 
         dictionary = dictionary.ToDictionary(pair => pair.Key, pair => pair.Value);
-        dictionary.Add(element.Key, element.Value);
+        dictionary.TryAdd(element.Key, element.Value);
         Result.Write(dictionary, c);
 
         await Next.Execute(c);
