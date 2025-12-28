@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.IO.Ports;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace VRCOSC.App.SDK.Providers.PiShock;
@@ -31,6 +32,21 @@ internal class PiShockSharedShocker
 
     [JsonPropertyName("shareCode")]
     public string ShareCode { get; set; } = null!;
+}
+
+internal class PiShockShareEntry
+{
+    public readonly string ShareCode;
+    public readonly int ClientId;
+    public readonly int[] Shockers;
+
+    public PiShockShareEntry(string shareCode, PiShockSharedShocker[] sharedShockers)
+    {
+        ShareCode = shareCode;
+        // sharecodes and client Ids *should* be linked, so this is safe
+        ClientId = sharedShockers[0].ClientId;
+        Shockers = sharedShockers.Select(s => s.ShockerId).ToArray();
+    }
 }
 
 internal record PiShockSerialInstance(PiShockSerialTerminalInfoResponse Info, SerialPort Serial);

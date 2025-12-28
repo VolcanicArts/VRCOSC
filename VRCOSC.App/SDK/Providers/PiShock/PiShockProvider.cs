@@ -36,9 +36,7 @@ public class PiShockProvider
     private WebSocketClient? webSocket;
     private TokenSourceTask? serialTask;
     private PiShockSerialInstance? serialInstance;
-
-    private List<PiShockSharedShocker> sharedShockers { get; } = [];
-
+    private List<PiShockShareEntry> shareEntries = [];
     private bool initialised;
     private int userId = -1;
     private int clientId = -1;
@@ -187,7 +185,7 @@ public class PiShockProvider
     {
         try
         {
-            sharedShockers.Clear();
+            shareEntries = [];
 
             var requestUri = $"{api_endpoint}/GetShareCodesByOwner?UserId={userId}&Token={apiKey}&api=true";
             var response = await httpClient.GetAsync(requestUri);
@@ -200,7 +198,7 @@ public class PiShockProvider
             // if we cannot get any shockers someone might be generating their first sharecode so return true
             if (devices is null || devices.Count == 0) return true;
 
-            sharedShockers.AddRange((await getShockersFromShareIds(devices.SelectMany(pair => pair.Value))).SelectMany(pair => pair.Value));
+            shareEntries = (await getShareEntriesFromShareIds(devices.SelectMany(pair => pair.Value))).ToList();
             return true;
         }
         catch (Exception e)
@@ -210,7 +208,7 @@ public class PiShockProvider
         }
     }
 
-    private async Task<Dictionary<string, List<PiShockSharedShocker>>> getShockersFromShareIds(IEnumerable<int> shareIds)
+    private async Task<IEnumerable<PiShockShareEntry>> getShareEntriesFromShareIds(IEnumerable<int> shareIds)
     {
         var requestUri = string.Join("&", new[] { $"{api_endpoint}/GetShockersByShareIds?UserId={userId}&Token={apiKey}&api=true" }.Concat(shareIds.Select(shareId => $"shareIds={shareId}")));
         var response = await httpClient.GetAsync(requestUri);
@@ -218,8 +216,14 @@ public class PiShockProvider
 
         var content = await response.Content.ReadAsStringAsync();
 
+        // owner's username - shared shocker
         var devices = JsonSerializer.Deserialize<Dictionary<string, List<PiShockSharedShocker>>>(content);
-        return devices ?? new Dictionary<string, List<PiShockSharedShocker>>();
+        if (devices is null) return [];
+
+        var sharedShockers = devices.SelectMany(p => p.Value);
+
+        // group by sharecode as a sharecode can be assigned to multiple shockers because of client sharing
+        return sharedShockers.GroupBy(s => s.ShareCode).Select(g => new PiShockShareEntry(g.Key, g.ToArray()));
     }
 
     private async Task scanSerialPorts()
@@ -388,7 +392,7 @@ public class PiShockProvider
         if (!initialised) return new PiShockResult(false, "Provider not initialised");
 
         var shareCodeList = shareCodes.ToArray();
-        var missingShareCodes = shareCodeList.Where(code => sharedShockers.All(shocker => shocker.ShareCode != code)).ToArray();
+        var missingShareCodes = shareCodeList.Where(code => shareEntries.All(shocker => shocker.ShareCode != code)).ToArray();
 
         foreach (var code in missingShareCodes)
         {
@@ -404,35 +408,22 @@ public class PiShockProvider
             if (!refreshResult) return new PiShockResult(false, $"{nameof(PiShockProvider)} cannot execute due to an error when refreshing shockers");
         }
 
-        var shockers = new List<PiShockSharedShocker>();
+        var entries = new List<PiShockShareEntry>();
 
         foreach (var code in shareCodeList)
         {
-            try
-            {
-                var shocker = sharedShockers.SingleOrDefault(s => s.ShareCode == code);
-                if (shocker is null) return new PiShockResult(false, $"Sharecode {code} does not exist");
+            var entry = shareEntries.SingleOrDefault(s => s.ShareCode == code);
+            if (entry is null) return new PiShockResult(false, $"Sharecode '{code}' does not exist");
 
-                shockers.Add(shocker);
-            }
-            catch
-            {
-                return new PiShockResult(false, $"Multiple shockers defined with the same sharecode {code}");
-            }
+            entries.Add(entry);
         }
 
-        var channels = shockers.Select(shocker => $"c{shocker.ClientId}-sops-{shocker.ShareCode}").ToArray();
-        var shockerIds = shockers.Select(shocker => shocker.ShockerId).ToArray();
-
-        foreach (var channel in channels)
-        {
-            await executeAsync(channel, shockerIds, mode, intensity, duration);
-        }
-
+        var tasks = entries.Select(entry => executeAsync($"c{entry.ClientId}-sops-{entry.ShareCode}", entry.Shockers, mode, intensity, duration));
+        await Task.WhenAll(tasks);
         return new PiShockResult(true, "Success");
     }
 
-    private async Task executeAsync(string channel, IEnumerable<int> shockerIds, PiShockMode mode, int intensity, int duration)
+    private async Task executeAsync(string channel, int[] shockerIds, PiShockMode mode, int intensity, int duration)
     {
         if (mode == PiShockMode.End)
         {
