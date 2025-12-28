@@ -36,6 +36,7 @@ public partial class BehaviourView
     public Observable<bool> VRChatAutoStop => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.VRCAutoStop);
     public Observable<bool> ShowPreReleasePackages => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AllowPreReleasePackages);
     public Observable<bool> AutoUpdatePackages => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AutoUpdatePackages);
+    public Observable<string> OSCQueryClientName => SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.OSCQueryClientName);
 
     private void ConnectingHelpButton_OnClick(object sender, RoutedEventArgs e)
     {
