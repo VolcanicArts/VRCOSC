@@ -91,29 +91,32 @@ public partial class ChatBoxClipEditWindow : IManagedWindow
         ReferenceClip.LinkedModules.Remove(module.FullID);
     }
 
+    private ClipVariableReference? draggingReference;
+
     private void VariableReferenceDragSource_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         var element = (FrameworkElement)sender;
         var variableReference = (ClipVariableReference)element.Tag;
 
-        DragDrop.DoDragDrop(element, variableReference, DragDropEffects.Copy);
+        draggingReference = variableReference;
+        Mouse.OverrideCursor = Cursors.Hand;
+        e.Handled = true;
     }
 
-    private void VariableReference_DropTarget(object sender, DragEventArgs e)
+    private void VariableReferenceDropTarget_MouseLeftButtonUp(object sender, MouseEventArgs e)
     {
         var element = (FrameworkElement)sender;
         var clipElement = (ClipElement)element.Tag;
 
-        if (!e.Data.GetDataPresent(typeof(ClipVariableReference))) return;
+        if (draggingReference is null) return;
 
-        var variableReference = (ClipVariableReference)e.Data.GetData(typeof(ClipVariableReference));
+        var variableReference = draggingReference;
         clipElement.Variables.Add(variableReference.CreateInstance());
         clipElement.UpdateUI();
-    }
 
-    private void VariableReference_DragEnter(object sender, DragEventArgs e)
-    {
-        e.Effects = e.Data.GetDataPresent(typeof(ClipVariableReference)) ? DragDropEffects.Copy : DragDropEffects.None;
+        draggingReference = null;
+        Mouse.OverrideCursor = null;
+        e.Handled = true;
     }
 
     private void VariableSettingButton_OnClick(object sender, RoutedEventArgs e)
