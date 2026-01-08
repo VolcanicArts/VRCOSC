@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using VRCOSC.App.OSC.VRChat;
@@ -12,14 +13,17 @@ namespace VRCOSC.App.UI.Views.Run.Tabs;
 
 public partial class AvatarParameterTabView
 {
-    public ObservableDictionary<string, object> OutgoingMessages { get; } = new();
-    public ObservableDictionary<string, object> IncomingMessages { get; } = new();
+    public ObservableDictionary<string, object> OutgoingMessagesStore { get; } = [];
+    public ObservableDictionary<string, object> IncomingMessagesStore { get; } = [];
+
+    public ObservableDictionary<string, object> OutgoingMessages { get; } = [];
+    public ObservableDictionary<string, object> IncomingMessages { get; } = [];
 
     private readonly Dictionary<string, object> outgoingLocal = new();
     private readonly Dictionary<string, object> incomingLocal = new();
 
-    private readonly object incomingLock = new();
-    private readonly object outgoingLock = new();
+    private readonly Lock incomingLock = new();
+    private readonly Lock outgoingLock = new();
 
     private readonly DispatcherTimer timer;
 
@@ -47,20 +51,38 @@ public partial class AvatarParameterTabView
         {
             foreach (var pair in outgoingLocal)
             {
-                OutgoingMessages[pair.Key] = pair.Value;
+                OutgoingMessagesStore[pair.Key] = pair.Value;
             }
 
             outgoingLocal.Clear();
+            OutgoingMessages.Clear();
+
+            foreach (var pair in OutgoingMessagesStore)
+            {
+                if (string.IsNullOrWhiteSpace(SearchTextBox.Text) || pair.Key.Contains(SearchTextBox.Text, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    OutgoingMessages[pair.Key] = pair.Value;
+                }
+            }
         }
 
         lock (incomingLock)
         {
             foreach (var pair in incomingLocal)
             {
-                IncomingMessages[pair.Key] = pair.Value;
+                IncomingMessagesStore[pair.Key] = pair.Value;
             }
 
             incomingLocal.Clear();
+            IncomingMessages.Clear();
+
+            foreach (var pair in IncomingMessagesStore)
+            {
+                if (string.IsNullOrWhiteSpace(SearchTextBox.Text) || pair.Key.Contains(SearchTextBox.Text, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    IncomingMessages[pair.Key] = pair.Value;
+                }
+            }
         }
     }
 
@@ -96,8 +118,8 @@ public partial class AvatarParameterTabView
     {
         if (newState == AppManagerState.Starting)
         {
-            OutgoingMessages.Clear();
-            IncomingMessages.Clear();
+            OutgoingMessagesStore.Clear();
+            IncomingMessagesStore.Clear();
         }
     });
 }
