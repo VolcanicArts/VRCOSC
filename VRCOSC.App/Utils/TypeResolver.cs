@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json.Nodes;
+using SoundFlow.Components;
 using VRCOSC.App.SDK.VRChat;
 
 // ReSharper disable InconsistentNaming
@@ -35,7 +36,8 @@ public static partial class TypeResolver
         { "jsonnode", typeof(JsonNode) },
         { "jsonobject", typeof(JsonObject) },
         { "user", typeof(User) },
-        { "instance", typeof(Instance) }
+        { "instance", typeof(Instance) },
+        { "soundplayer", typeof(SoundPlayer) }
     };
 
     private static Lazy<Dictionary<string, Type>> typeIndex = new(buildTypeIndex, true);
