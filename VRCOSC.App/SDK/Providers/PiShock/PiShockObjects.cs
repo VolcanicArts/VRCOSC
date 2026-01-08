@@ -45,7 +45,7 @@ internal class PiShockShareEntry
         ShareCode = shareCode;
         // sharecodes and client Ids *should* be linked, so this is safe
         ClientId = sharedShockers[0].ClientId;
-        Shockers = sharedShockers.Select(s => s.ShockerId).ToArray();
+        Shockers = sharedShockers.Select(s => s.ShockerId).Distinct().ToArray();
     }
 }
 
