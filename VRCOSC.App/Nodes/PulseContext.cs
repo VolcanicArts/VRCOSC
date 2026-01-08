@@ -53,6 +53,8 @@ public class PulseContext
 
     internal Task<AvatarConfig?> GetCurrentAvatar() => AppManager.GetInstance().FindCurrentAvatar(Token);
 
+    internal VRChatClient GetClient() => AppManager.GetInstance().VRChatClient;
+
     internal Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
 
     internal Instance GetInstance() => AppManager.GetInstance().VRChatClient.Instance;

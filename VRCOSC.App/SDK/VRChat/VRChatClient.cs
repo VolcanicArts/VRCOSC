@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.VRChat;
 
@@ -13,7 +14,16 @@ public class VRChatClient
     public readonly UserCamera UserCamera;
     public readonly Instance Instance;
 
-    public bool LastKnownOpenState { get; private set; }
+    public double FPS
+    {
+        get
+        {
+            var process = getVRChatProcess();
+            return process is null ? 0d : ProcessFPS.GetProcessFPS(process);
+        }
+    }
+
+    internal bool LastKnownOpenState { get; private set; }
 
     internal VRChatClient(VRChatOSCClient oscClient)
     {
@@ -22,17 +32,17 @@ public class VRChatClient
         Instance = new Instance();
     }
 
-    public void Teardown()
+    internal void Teardown()
     {
         Player.ResetAll();
     }
 
-    public async Task HandleAvatarChange()
+    internal async Task HandleAvatarChange()
     {
         await Player.RetrieveAll();
     }
 
-    public bool HasOpenStateChanged(out bool openState)
+    internal bool HasOpenStateChanged(out bool openState)
     {
         var newOpenState = Process.GetProcessesByName("vrchat").Length != 0;
 
@@ -44,5 +54,11 @@ public class VRChatClient
 
         openState = LastKnownOpenState = newOpenState;
         return true;
+    }
+
+    private Process? getVRChatProcess()
+    {
+        var processes = Process.GetProcessesByName("vrchat");
+        return processes.Length == 0 ? null : processes[0];
     }
 }

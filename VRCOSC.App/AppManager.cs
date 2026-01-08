@@ -600,6 +600,7 @@ internal class AppManager : IVRCClientEventHandler
         }
 
         await SpeechEngine.Teardown();
+        ProcessFPS.DisposeAll();
 
         await VRChatOscClient.DisableReceive();
         VRChatOscClient.OnVRChatOSCMessageReceived -= onVRChatOSCMessageReceived;
