@@ -48,6 +48,8 @@ public class NodeGraph : IVRCClientEventHandler
     public Func<Task>? OnMarkedDirty;
     public bool UILoaded { get; set; }
 
+    public string? CurrentSpeechText { get; private set; }
+
     public NodeGraph()
     {
         serialiser = new SerialisationManager();
@@ -70,6 +72,7 @@ public class NodeGraph : IVRCClientEventHandler
     public async Task Start()
     {
         running = true;
+        CurrentSpeechText = null;
         await triggerOnStartNodes();
         await processAllTriggerNodes();
         startUpdate();
@@ -458,8 +461,8 @@ public class NodeGraph : IVRCClientEventHandler
         await Task.WhenAll(startTasks);
     }
 
-    public void OnPartialSpeechResult(string result) => handleNodeEvent((c, node) => node.HandlePartialSpeechResult(c, result)).Forget();
-    public void OnFinalSpeechResult(string result) => handleNodeEvent((c, node) => node.HandleFinalSpeechResult(c, result)).Forget();
+    public void OnPartialSpeechResult(string result) => CurrentSpeechText = result;
+    public void OnFinalSpeechResult(string result) => CurrentSpeechText = result;
     public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs) => handleNodeEvent((c, node) => node.HandleOnInstanceJoined(c, eventArgs)).Forget();
     public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs) => handleNodeEvent((c, node) => node.HandleOnInstanceLeft(c, eventArgs)).Forget();
     public void OnUserJoined(VRChatClientEventUserJoined eventArgs) => handleNodeEvent((c, node) => node.HandleOnUserJoined(c, eventArgs)).Forget();

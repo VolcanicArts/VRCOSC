@@ -61,6 +61,8 @@ public class PulseContext
 
     internal UserCamera GetUserCamera() => AppManager.GetInstance().VRChatClient.UserCamera;
 
+    internal string GetSpeechText() => Graph.CurrentSpeechText;
+
     internal async Task<VRChatParameter?> GetParameter<T>(string name)
     {
         var parameterDefinition = new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>());
