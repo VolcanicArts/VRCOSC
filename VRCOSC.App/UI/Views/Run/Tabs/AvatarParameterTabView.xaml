@@ -31,12 +31,12 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0"
-                                           Text="{Binding Key, Mode=OneTime}"
+                                           Text="{Binding Name, Mode=OneTime}"
                                            Foreground="{DynamicResource CForeground2}"
                                            FontSize="14" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
                                            TextWrapping="NoWrap" />
                                 <TextBlock Grid.Column="2"
-                                           Text="{Binding Value, Mode=OneWay}"
+                                           Text="{Binding Value.Value, Mode=OneWay}"
                                            Foreground="{DynamicResource CForeground2}"
                                            FontSize="14" VerticalAlignment="Center"
                                            HorizontalAlignment="Right" />
@@ -59,7 +59,7 @@
         </Grid.RowDefinitions>
         <core:HeaderFooterListView Grid.Column="0"
                                    Grid.Row="0"
-                                   ItemsSource="{Binding OutgoingMessages, Mode=OneWay}"
+                                   ItemsSource="{Binding OutgoingFiltered, Mode=OneWay}"
                                    HorizontalAlignment="Stretch"
                                    Background="Transparent"
                                    BorderThickness="0"
@@ -78,7 +78,7 @@
         </core:HeaderFooterListView>
         <core:HeaderFooterListView Grid.Column="2"
                                    Grid.Row="0"
-                                   ItemsSource="{Binding IncomingMessages, Mode=OneWay}"
+                                   ItemsSource="{Binding IncomingFiltered, Mode=OneWay}"
                                    HorizontalAlignment="Stretch"
                                    Background="Transparent"
                                    BorderThickness="0"
@@ -106,7 +106,7 @@
                     <ColumnDefinition Width="36" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <fa6:ImageAwesome Grid.Row="0" Grid.Column="0" Icon="Solid_MagnifyingGlass" Margin="6"
+                <fa6:ImageAwesome Grid.Row="0" Grid.Column="0" Icon="Solid_MagnifyingGlass" Margin="8"
                                   PrimaryColor="{DynamicResource CForeground3}" VerticalAlignment="Center" />
                 <Grid Grid.Column="1">
                     <TextBlock Foreground="{DynamicResource CForeground3}" Text="Filter" FontSize="20"
