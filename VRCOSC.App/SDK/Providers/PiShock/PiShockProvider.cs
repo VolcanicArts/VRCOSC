@@ -137,6 +137,8 @@ public class PiShockProvider
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(content)) return false;
+
             var data = JsonSerializer.Deserialize<PiShockAuthenticationResponse>(content);
 
             if (data is null)
