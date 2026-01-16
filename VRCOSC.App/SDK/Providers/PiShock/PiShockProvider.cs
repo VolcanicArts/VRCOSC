@@ -82,6 +82,7 @@ public class PiShockProvider
             }
 
             webSocket = new WebSocketClient($"{broker_endpoint}?Username={username}&ApiKey={apiKey}", 2000, 3);
+            webSocket.OnWsDisconnected += () => initialised = false;
             await webSocket.ConnectAsync();
 
             var serialConnectionSource = new CancellationTokenSource();
