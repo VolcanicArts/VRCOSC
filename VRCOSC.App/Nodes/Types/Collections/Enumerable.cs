@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Collections;
 
 [Node("Enumerable Count", "Collections")]
+[NodeCollapsed]
 public sealed class EnumerableCountNode<T> : Node
 {
     public ValueInput<IEnumerable<T>> Enumerable = new();

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -84,4 +85,19 @@ public sealed class UserToDataNode : Node
         Username.Write(user.Username, c);
         return Task.CompletedTask;
     }
+}
+
+[Node("FPS", "VRChat")]
+[NodeCollapsed]
+public sealed class VRChatFPSNode : UpdateNode<int>
+{
+    public ValueOutput<int> FPS = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        FPS.Write((int)double.Round(c.GetClient().FPS, MidpointRounding.AwayFromZero), c);
+        return Task.CompletedTask;
+    }
+
+    protected override Task<int> GetValue(PulseContext c) => Task.FromResult((int)double.Round(c.GetClient().FPS, MidpointRounding.AwayFromZero));
 }

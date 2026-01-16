@@ -137,7 +137,7 @@ public sealed class UserCameraSetFocalDistanceNode : Node, IFlowInput
     }
 }
 
-[Node("User Camera Set Focal Distance", "VRChat/User Camera/Actions")]
+[Node("User Camera Set Aperture", "VRChat/User Camera/Actions")]
 public sealed class UserCameraSetApertureNode : Node, IFlowInput
 {
     public FlowContinuation Next = new("Next");

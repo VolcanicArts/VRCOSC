@@ -130,6 +130,18 @@
                                 </TextBox.Text>
                             </TextBox>
                         </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="250"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Style="{StaticResource LabelTextStyle}" Text="OSCQuery Client Name"/>
+                            <TextBox Grid.Column="1" Width="300">
+                                <TextBox.Text>
+                                    <Binding Path="OSCQueryClientName.Value" UpdateSourceTrigger="PropertyChanged"/>
+                                </TextBox.Text>
+                            </TextBox>
+                        </Grid>
                     </core:SpacedStackPanel>
                     <core:IconButton Icon="Regular_CircleQuestion" CornerRadius="20" Width="35" Height="35" ButtonColour="Blue" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5 0" Click="ConnectingHelpButton_OnClick"/>
                 </Grid>

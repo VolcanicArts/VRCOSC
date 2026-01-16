@@ -54,13 +54,13 @@ public partial class ChatBoxView
 
     private void onClipsCollectionChanged(IEnumerable<Clip> newItems, IEnumerable<Clip> oldItems)
     {
-        TimelineItems.RemoveIf(item => item is Clip clipItem && oldItems.Contains(clipItem));
+        TimelineItems.RemoveIf(oldItems.Contains);
         TimelineItems.AddRange(newItems);
     }
 
     private void onDroppableAreasCollectionChanged(IEnumerable<DroppableArea> newItems, IEnumerable<DroppableArea> oldItems)
     {
-        TimelineItems.RemoveIf(item => item is DroppableArea droppableAreaItem && oldItems.Contains(droppableAreaItem));
+        TimelineItems.RemoveIf(oldItems.Contains);
         TimelineItems.AddRange(newItems);
     }
 

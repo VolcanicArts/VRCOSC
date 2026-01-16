@@ -78,6 +78,7 @@ public class SettingsManager
         setDefault(VRCOSCSetting.SpeechTranslate, false);
         setDefault(VRCOSCSetting.SpeechGPU, 0);
         setDefault(VRCOSCSetting.GlobalKeyboardHook, false);
+        setDefault(VRCOSCSetting.OSCQueryClientName, "VRChat-Client");
 
         setDefault(VRCOSCMetadata.InstalledVersion, string.Empty);
         setDefault(VRCOSCMetadata.LastUpdateCheck, DateTime.Now);
@@ -149,7 +150,8 @@ public enum VRCOSCSetting
     SpeechMicVolumeAdjustment,
     SpeechTranslate,
     SpeechGPU,
-    GlobalKeyboardHook
+    GlobalKeyboardHook,
+    OSCQueryClientName
 }
 
 public enum VRCOSCMetadata

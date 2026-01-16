@@ -23,7 +23,6 @@ public class ConnectionManager
     private const int refresh_interval = 2500;
     private const string osc_service_name = "_osc._udp";
     private const string osc_query_service_name = "_oscjson._tcp";
-    private const string vrchat_client_name = "VRChat-Client";
 
     public bool IsConnected => VRChatIP is not null && VRChatQueryPort is not null && VRChatReceivePort is not null;
 
@@ -233,7 +232,9 @@ public class ConnectionManager
         var instanceName = domainName[0];
         var serviceName = string.Join(".", domainName.Skip(1));
 
-        if (!instanceName.Contains(vrchat_client_name)) return;
+        var clientName = SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.OSCQueryClientName);
+
+        if (string.IsNullOrWhiteSpace(clientName) || !instanceName.Contains(clientName)) return;
 
         var oscMode = SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode);
 

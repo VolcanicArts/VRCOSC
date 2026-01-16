@@ -6,31 +6,15 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Speech;
 
 [Node("Speech Source", "Speech")]
-public sealed class SpeechSourceNode : Node, INodeEventHandler
+public sealed class SpeechSourceNode : UpdateNode<string>
 {
-    private readonly GlobalStore<string> textStore = new();
-
     public ValueOutput<string> Text = new();
 
     protected override Task Process(PulseContext c)
     {
-        Text.Write(textStore.Read(c), c);
+        Text.Write(c.GetSpeechText(), c);
         return Task.CompletedTask;
     }
 
-    public Task<bool> HandlePartialSpeechResult(PulseContext c, string result)
-    {
-        if (result == textStore.Read(c)) return Task.FromResult(false);
-
-        textStore.Write(result, c);
-        return Task.FromResult(true);
-    }
-
-    public Task<bool> HandleFinalSpeechResult(PulseContext c, string result)
-    {
-        if (result == textStore.Read(c)) return Task.FromResult(false);
-
-        textStore.Write(result, c);
-        return Task.FromResult(true);
-    }
+    protected override Task<string> GetValue(PulseContext c) => Task.FromResult(c.GetSpeechText());
 }

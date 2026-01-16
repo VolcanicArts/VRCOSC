@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
+             xmlns:fa6="http://schemas.fontawesome.com/icons/fonts"
              mc:Ignorable="d"
              Background="Transparent"
              d:DesignWidth="900" d:DesignHeight="764">
@@ -30,12 +31,12 @@
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0"
-                                           Text="{Binding Key, Mode=OneTime}"
+                                           Text="{Binding Name, Mode=OneTime}"
                                            Foreground="{DynamicResource CForeground2}"
                                            FontSize="14" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
                                            TextWrapping="NoWrap" />
                                 <TextBlock Grid.Column="2"
-                                           Text="{Binding Value, Mode=OneWay}"
+                                           Text="{Binding Value.Value, Mode=OneWay}"
                                            Foreground="{DynamicResource CForeground2}"
                                            FontSize="14" VerticalAlignment="Center"
                                            HorizontalAlignment="Right" />
@@ -52,8 +53,13 @@
             <ColumnDefinition Width="5" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="36"/>
+        </Grid.RowDefinitions>
         <core:HeaderFooterListView Grid.Column="0"
-                                   ItemsSource="{Binding OutgoingMessages, Mode=OneWay}"
+                                   Grid.Row="0"
+                                   ItemsSource="{Binding OutgoingFiltered, Mode=OneWay}"
                                    HorizontalAlignment="Stretch"
                                    Background="Transparent"
                                    BorderThickness="0"
@@ -71,7 +77,8 @@
             </core:HeaderFooterListView.Footer>
         </core:HeaderFooterListView>
         <core:HeaderFooterListView Grid.Column="2"
-                                   ItemsSource="{Binding IncomingMessages, Mode=OneWay}"
+                                   Grid.Row="0"
+                                   ItemsSource="{Binding IncomingFiltered, Mode=OneWay}"
                                    HorizontalAlignment="Stretch"
                                    Background="Transparent"
                                    BorderThickness="0"
@@ -88,5 +95,45 @@
                 <Border Background="{DynamicResource CBackground1}" Height="5" />
             </core:HeaderFooterListView.Footer>
         </core:HeaderFooterListView>
+        <Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
+                Margin="2"
+            Background="{DynamicResource CBackground3}" CornerRadius="5">
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="36" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <fa6:ImageAwesome Grid.Row="0" Grid.Column="0" Icon="Solid_MagnifyingGlass" Margin="8"
+                                  PrimaryColor="{DynamicResource CForeground3}" VerticalAlignment="Center" />
+                <Grid Grid.Column="1">
+                    <TextBlock Foreground="{DynamicResource CForeground3}" Text="Filter" FontSize="20"
+                               VerticalAlignment="Center" Margin="2 -3 2 0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding Text, ElementName=SearchTextBox}"
+                                                       Value="" />
+                                            <Condition
+                                                Binding="{Binding IsKeyboardFocused, ElementName=SearchTextBox}"
+                                                Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBox x:Name="SearchTextBox" Grid.Row="0" FontSize="20" BorderThickness="0"
+                             Background="Transparent" VerticalAlignment="Center"
+                             Foreground="{DynamicResource CForeground2}" VerticalContentAlignment="Center" />
+                </Grid>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

@@ -78,7 +78,7 @@
                                                 <TextBlock Text="Runtime" TextAlignment="Center"
                                                            VerticalAlignment="Center"
                                                            Foreground="{DynamicResource CForeground1}" FontSize="16"
-                                                           FontWeight="Bold" />
+                                                           FontWeight="SemiBold" />
                                             </Border>
                                         </core:VRCOSCButton>
                                         <core:VRCOSCButton Click="AvatarParameterViewButton_Click">
@@ -86,7 +86,7 @@
                                                 <TextBlock Text="Avatar" TextAlignment="Center"
                                                            VerticalAlignment="Center"
                                                            Foreground="{DynamicResource CForeground1}" FontSize="16"
-                                                           FontWeight="Bold" />
+                                                           FontWeight="SemiBold" />
                                             </Border>
                                         </core:VRCOSCButton>
                                         <core:VRCOSCButton Click="ChatBoxViewButton_Click">
@@ -94,7 +94,7 @@
                                                 <TextBlock Text="ChatBox" TextAlignment="Center"
                                                            VerticalAlignment="Center"
                                                            Foreground="{DynamicResource CForeground1}" FontSize="16"
-                                                           FontWeight="Bold" />
+                                                           FontWeight="SemiBold" />
                                             </Border>
                                         </core:VRCOSCButton>
                                     </StackPanel>

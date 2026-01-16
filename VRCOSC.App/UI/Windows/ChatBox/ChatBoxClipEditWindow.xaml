@@ -226,8 +226,7 @@
                                                                 Background="{DynamicResource CBackground1}"
                                                                 Height="30"
                                                                 AllowDrop="True"
-                                                                Drop="VariableReference_DropTarget"
-                                                                DragEnter="VariableReference_DragEnter"
+                                                                PreviewMouseLeftButtonUp="VariableReferenceDropTarget_MouseLeftButtonUp"
                                                                 Tag="{Binding}">
                                                                 <TextBlock Text="Drop Variables Here"
                                                                     Foreground="{DynamicResource CForeground3}"
@@ -438,8 +437,7 @@
                                                                 Background="{DynamicResource CBackground1}"
                                                                 Height="30"
                                                                 AllowDrop="True"
-                                                                Drop="VariableReference_DropTarget"
-                                                                DragEnter="VariableReference_DragEnter"
+                                                                PreviewMouseLeftButtonUp="VariableReferenceDropTarget_MouseLeftButtonUp"
                                                                 Tag="{Binding}">
                                                                 <TextBlock Text="Drop Variables Here"
                                                                     Foreground="{DynamicResource CForeground3}"

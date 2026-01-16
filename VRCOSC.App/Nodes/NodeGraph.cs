@@ -48,6 +48,8 @@ public class NodeGraph : IVRCClientEventHandler
     public Func<Task>? OnMarkedDirty;
     public bool UILoaded { get; set; }
 
+    public string? CurrentSpeechText { get; private set; }
+
     public NodeGraph()
     {
         serialiser = new SerialisationManager();
@@ -70,6 +72,7 @@ public class NodeGraph : IVRCClientEventHandler
     public async Task Start()
     {
         running = true;
+        CurrentSpeechText = null;
         await triggerOnStartNodes();
         await processAllTriggerNodes();
         startUpdate();
@@ -458,8 +461,8 @@ public class NodeGraph : IVRCClientEventHandler
         await Task.WhenAll(startTasks);
     }
 
-    public void OnPartialSpeechResult(string result) => handleNodeEvent((c, node) => node.HandlePartialSpeechResult(c, result)).Forget();
-    public void OnFinalSpeechResult(string result) => handleNodeEvent((c, node) => node.HandleFinalSpeechResult(c, result)).Forget();
+    public void OnPartialSpeechResult(string result) => CurrentSpeechText = result;
+    public void OnFinalSpeechResult(string result) => CurrentSpeechText = result;
     public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs) => handleNodeEvent((c, node) => node.HandleOnInstanceJoined(c, eventArgs)).Forget();
     public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs) => handleNodeEvent((c, node) => node.HandleOnInstanceLeft(c, eventArgs)).Forget();
     public void OnUserJoined(VRChatClientEventUserJoined eventArgs) => handleNodeEvent((c, node) => node.HandleOnUserJoined(c, eventArgs)).Forget();
@@ -601,26 +604,38 @@ public class NodeGraph : IVRCClientEventHandler
             if (!hasProcessed) return;
         }
 
-        var triggerList = new List<Node>();
-        var pathStack = new Stack<Node>();
+        var pathList = new List<Node[]>();
+        var currPath = new Stack<Node>();
 
-        pathStack.Push(sourceNode);
-        await processNode(sourceNode, c);
+        currPath.Push(sourceNode);
 
         for (var i = 0; i < sourceNode.VirtualValueOutputCount(); i++)
         {
-            await walkForward(triggerList, pathStack, i, c);
+            await walkForward(pathList, currPath, sourceNode, i);
         }
 
-        foreach (var node in triggerList)
+        // we want to process every non-trigger node before processing the trigger nodes so that
+        // every non-trigger node in the tree only runs once, even if non-trigger node isn't part
+        // of the current path but will be down one of the trigger node's flows
+
+        foreach (var path in pathList)
+        {
+            // traverse backwards as ToArray on a stack reverses the order
+            for (var i = path.Length - 1; i > 0; i--)
+            {
+                var node = path[i];
+                await processNode(node, c);
+            }
+        }
+
+        foreach (var node in pathList.Select(path => path.First()).DistinctBy(node => node.Id))
         {
             await StartFlow(node, c);
         }
     }
 
-    private async Task walkForward(List<Node> triggerList, Stack<Node> pathStack, int outputSlot, PulseContext c)
+    private async Task walkForward(List<Node[]> triggerStacks, Stack<Node> pathStack, Node currentNode, int outputSlot)
     {
-        var currentNode = pathStack.Peek();
         var connections = Connections.Values.Where(con => con.ConnectionType == ConnectionType.Value && con.OutputNodeId == currentNode.Id && con.OutputSlot == outputSlot);
 
         foreach (var connection in connections)
@@ -633,23 +648,20 @@ public class NodeGraph : IVRCClientEventHandler
 
             if (inputSlot >= inputNode.Metadata.InputsCount) inputSlot = inputNode.Metadata.InputsCount - 1;
 
+            pathStack.Push(inputNode);
+
             if (inputNode.Metadata.IsTrigger)
             {
-                if (!triggerList.Contains(inputNode))
-                    triggerList.Add(inputNode);
+                triggerStacks.Add(pathStack.ToArray());
+                continue;
             }
-            else
+
+            for (var i = 0; i < inputNode.VirtualValueOutputCount(); i++)
             {
-                pathStack.Push(inputNode);
-                await processNode(inputNode, c);
-
-                for (var i = 0; i < inputNode.VirtualValueOutputCount(); i++)
-                {
-                    await walkForward(triggerList, pathStack, i, c);
-                }
-
-                pathStack.Pop();
+                await walkForward(triggerStacks, pathStack, inputNode, i);
             }
+
+            pathStack.Pop();
         }
     }
 

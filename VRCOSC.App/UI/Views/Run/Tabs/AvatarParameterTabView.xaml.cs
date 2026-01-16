@@ -2,7 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using VRCOSC.App.OSC.VRChat;
@@ -10,16 +12,28 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.Run.Tabs;
 
+public class AvatarParameterStore
+{
+    public string Name { get; }
+    public Observable<object?> Value { get; }
+
+    public AvatarParameterStore(string name, object? value)
+    {
+        Name = name;
+        Value = new Observable<object?>(value);
+    }
+}
+
 public partial class AvatarParameterTabView
 {
-    public ObservableDictionary<string, object> OutgoingMessages { get; } = new();
-    public ObservableDictionary<string, object> IncomingMessages { get; } = new();
+    private readonly ConcurrentDictionary<string, object> outgoingLocal = new();
+    private readonly ConcurrentDictionary<string, object> incomingLocal = new();
 
-    private readonly Dictionary<string, object> outgoingLocal = new();
-    private readonly Dictionary<string, object> incomingLocal = new();
+    public ObservableDictionary<string, AvatarParameterStore> OutgoingStore { get; } = [];
+    public ObservableDictionary<string, AvatarParameterStore> IncomingStore { get; } = [];
 
-    private readonly object incomingLock = new();
-    private readonly object outgoingLock = new();
+    public ObservableCollection<AvatarParameterStore> OutgoingFiltered { get; } = [];
+    public ObservableCollection<AvatarParameterStore> IncomingFiltered { get; } = [];
 
     private readonly DispatcherTimer timer;
 
@@ -39,65 +53,76 @@ public partial class AvatarParameterTabView
         timer.Start();
 
         DataContext = this;
+        SearchTextBox.TextChanged += (_, _) => filter(SearchTextBox.Text);
+        filter(string.Empty);
+    }
+
+    private void filter(string text)
+    {
+        OutgoingFiltered.Clear();
+        OutgoingFiltered.AddRange(OutgoingStore.Values.Where(s => string.IsNullOrWhiteSpace(text) || s.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase)).OrderBy(s => s.Name));
+        IncomingFiltered.Clear();
+        IncomingFiltered.AddRange(IncomingStore.Values.Where(s => string.IsNullOrWhiteSpace(text) || s.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase)).OrderBy(s => s.Name));
     }
 
     private void update(object? sender, EventArgs e)
     {
-        lock (outgoingLock)
-        {
-            foreach (var pair in outgoingLocal)
-            {
-                OutgoingMessages[pair.Key] = pair.Value;
-            }
+        var newStores = false;
 
-            outgoingLocal.Clear();
+        foreach (var pair in outgoingLocal)
+        {
+            if (OutgoingStore.TryGetValue(pair.Key, out var store))
+            {
+                store.Value.Value = pair.Value;
+            }
+            else
+            {
+                OutgoingStore[pair.Key] = new AvatarParameterStore(pair.Key, pair.Value);
+                newStores = true;
+            }
         }
 
-        lock (incomingLock)
-        {
-            foreach (var pair in incomingLocal)
-            {
-                IncomingMessages[pair.Key] = pair.Value;
-            }
+        outgoingLocal.Clear();
 
-            incomingLocal.Clear();
+        foreach (var pair in incomingLocal)
+        {
+            if (IncomingStore.TryGetValue(pair.Key, out var store))
+            {
+                store.Value.Value = pair.Value;
+            }
+            else
+            {
+                IncomingStore[pair.Key] = new AvatarParameterStore(pair.Key, pair.Value);
+                newStores = true;
+            }
         }
+
+        incomingLocal.Clear();
+
+        if (newStores)
+            filter(SearchTextBox.Text);
     }
 
     private void onVRChatOSCMessageSent(VRChatOSCMessage e)
     {
         if (!e.IsAvatarParameter) return;
 
-        Dispatcher.Invoke(() =>
-        {
-            lock (outgoingLock)
-            {
-                return outgoingLocal[e.ParameterName] = e.ParameterValue;
-            }
-        });
+        outgoingLocal[e.ParameterName] = e.ParameterValue;
     }
 
     private Task onVRChatOSCMessageReceived(VRChatOSCMessage e)
     {
         if (!e.IsAvatarParameter) return Task.CompletedTask;
 
-        Dispatcher.Invoke(() =>
-        {
-            lock (incomingLock)
-            {
-                return incomingLocal[e.ParameterName] = e.ParameterValue;
-            }
-        });
+        incomingLocal[e.ParameterName] = e.ParameterValue;
 
         return Task.CompletedTask;
     }
 
     private void OnAppManagerStateChange(AppManagerState newState) => Dispatcher.Invoke(() =>
     {
-        if (newState == AppManagerState.Starting)
-        {
-            OutgoingMessages.Clear();
-            IncomingMessages.Clear();
-        }
+        if (newState != AppManagerState.Starting) return;
+
+        filter(SearchTextBox.Text);
     });
 }
