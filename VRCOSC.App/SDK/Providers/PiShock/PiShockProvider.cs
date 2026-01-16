@@ -227,13 +227,15 @@ public class PiShockProvider
         return devices is null ? [] : devices.SelectMany(p => p.Value);
     }
 
+    private bool disableSerialScan;
+
     private async Task scanSerialPorts()
     {
         Debug.Assert(serialTask is not null);
 
         try
         {
-            while (!serialTask.Source.IsCancellationRequested)
+            while (!serialTask.Source.IsCancellationRequested && !disableSerialScan)
             {
                 if (serialInstance is not null) continue;
 
@@ -286,6 +288,7 @@ public class PiShockProvider
                             serial.Close();
 
                         serialInstance = null;
+                        disableSerialScan = true;
                     }
                     catch (IOException)
                     {
@@ -293,6 +296,15 @@ public class PiShockProvider
                             serial.Close();
 
                         serialInstance = null;
+                        disableSerialScan = true;
+                    }
+                    catch (TimeoutException)
+                    {
+                        if (!serial!.IsOpen)
+                            serial.Close();
+
+                        serialInstance = null;
+                        disableSerialScan = true;
                     }
                     catch (Exception e)
                     {
@@ -302,6 +314,7 @@ public class PiShockProvider
                             serial.Close();
 
                         serialInstance = null;
+                        disableSerialScan = true;
                     }
                 }
 
