@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Net.Http;
@@ -20,8 +19,6 @@ namespace VRCOSC.App.SDK.Providers.PiShock;
 
 public class PiShockProvider
 {
-    private const string auth_endpoint = "https://auth.pishock.com/Auth";
-    private const string api_endpoint = "https://ps.pishock.com/PiShock";
     private const string broker_endpoint = "wss://broker.pishock.com/v2";
 
     private readonly JsonSerializerOptions serialiserOptions = new()
@@ -37,7 +34,7 @@ public class PiShockProvider
     private WebSocketClient? webSocket;
     private TokenSourceTask? serialTask;
     private PiShockSerialInstance? serialInstance;
-    private List<PiShockSharedShocker> sharedShockers { get; } = [];
+    private List<PiShockShocker> availableShockers { get; } = [];
     private bool initialised;
     private int userId = -1;
     private int clientId = -1;
@@ -57,29 +54,14 @@ public class PiShockProvider
 
         try
         {
-            var authResult = await authenticate();
+            var authResult = await authenticateUser();
+            if (!authResult) return false;
 
-            if (!authResult)
-            {
-                initialised = false;
-                return false;
-            }
+            var refreshClientResult = await populateClientId();
+            if (!refreshClientResult) return false;
 
-            var refreshClientResult = await refreshClientId();
-
-            if (!refreshClientResult)
-            {
-                initialised = false;
-                return false;
-            }
-
-            var refreshShockersResult = await refreshShockers();
-
-            if (!refreshShockersResult)
-            {
-                initialised = false;
-                return false;
-            }
+            var refreshShockersResult = await populateAvailableShockers();
+            if (!refreshShockersResult) return false;
 
             webSocket = new WebSocketClient($"{broker_endpoint}?Username={username}&ApiKey={apiKey}", 2000, 3);
             webSocket.OnWsDisconnected += () => initialised = false;
@@ -94,7 +76,7 @@ public class PiShockProvider
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"{nameof(PiShockProvider)} has experienced an exception when initialising");
+            ExceptionHandler.Handle(e, $"{nameof(PiShockProvider)} has experienced an exception when initialising");
             initialised = false;
             return false;
         }
@@ -130,104 +112,84 @@ public class PiShockProvider
         }
     }
 
-    private async Task<bool> authenticate()
+    private async Task<bool> authenticateUser()
     {
-        try
+        var authResult = await PiShockRequestFactory.AuthenticateUser(username, apiKey);
+
+        if (!authResult)
         {
-            var response = await httpClient.GetAsync($"{auth_endpoint}/GetUserIfAPIKeyValid?apikey={apiKey}&username={username}");
-            response.EnsureSuccessStatusCode();
-
-            var content = await response.Content.ReadAsStringAsync();
-            if (string.IsNullOrWhiteSpace(content)) return false;
-
-            var data = JsonSerializer.Deserialize<PiShockAuthenticationResponse>(content);
-
-            if (data is null)
-            {
-                userId = -1;
-                return false;
-            }
-
-            userId = data.UserId;
-            return true;
-        }
-        catch (Exception e)
-        {
-            Logger.Error(e, $"{nameof(PiShockProvider)} has experienced an error when authenticating");
+            Logger.Error(authResult.Exception, $"Error in {nameof(PiShockProvider)}");
+            userId = -1;
             return false;
         }
+
+        var user = authResult.Value;
+        userId = user.UserId;
+        return true;
     }
 
-    private async Task<bool> refreshClientId()
+    private async Task<bool> populateClientId()
     {
-        try
+        var devicesResult = await PiShockRequestFactory.GetUserDevices(userId, apiKey);
+
+        if (!devicesResult)
         {
-            var requestUri = $"{api_endpoint}/GetUserDevices?UserId={userId}&Token={apiKey}&api=true";
-            var response = await httpClient.GetAsync(requestUri);
-            response.EnsureSuccessStatusCode();
-
-            var content = await response.Content.ReadAsStringAsync();
-            var devices = JsonSerializer.Deserialize<List<PiShockHub>>(content);
-
-            if (devices is null || devices.Count == 0)
-            {
-                clientId = -1;
-                return false;
-            }
-
-            clientId = devices[0].ClientId;
-            return true;
-        }
-        catch (Exception e)
-        {
-            Logger.Error(e, $"{nameof(PiShockProvider)} has experienced an error when refreshing client");
+            Logger.Error(devicesResult.Exception, $"Error in {nameof(PiShockProvider)}");
+            clientId = -1;
             return false;
         }
+
+        var devices = devicesResult.Value;
+        clientId = devices[0].ClientId;
+        return true;
     }
 
-    private async Task<bool> refreshShockers()
+    private async Task<bool> populateAvailableShockers()
     {
-        try
+        var shareIDResult = await PiShockRequestFactory.GetShareCodesByOwner(userId, apiKey);
+
+        if (!shareIDResult)
         {
-            var requestUri = $"{api_endpoint}/GetShareCodesByOwner?UserId={userId}&Token={apiKey}&api=true";
-            var response = await httpClient.GetAsync(requestUri);
-            response.EnsureSuccessStatusCode();
-
-            var content = await response.Content.ReadAsStringAsync();
-            // owner's username - shockers
-            var devices = JsonSerializer.Deserialize<Dictionary<string, List<int>>>(content);
-
-            // if we cannot get any shockers someone might be generating their first sharecode so return true
-            if (devices is null || devices.Count == 0) return true;
-
-            var sharedShockersLocal = await getShareEntriesFromShareIds(devices.SelectMany(pair => pair.Value));
-
-            lock (sharedShockersLock)
-            {
-                sharedShockers.Clear();
-                sharedShockers.AddRange(sharedShockersLocal);
-            }
-
-            return true;
-        }
-        catch (Exception e)
-        {
-            Logger.Error(e, $"{nameof(PiShockProvider)} has experienced an error when refreshing shockers");
+            Logger.Error(shareIDResult.Exception, $"Error in {nameof(PiShockProvider)}");
             return false;
         }
+
+        var shareIDs = shareIDResult.Value;
+
+        // if we cannot get any shockers someone might be generating their first sharecode so return true
+        if (shareIDs.Count == 0) return true;
+
+        var localAvailableShockersResult = await getShockersFromShareIds(shareIDs.SelectMany(pair => pair.Value));
+
+        if (!localAvailableShockersResult)
+        {
+            Logger.Error(localAvailableShockersResult.Exception, $"Error in {nameof(PiShockProvider)}");
+            return false;
+        }
+
+        var localAvailableShockers = localAvailableShockersResult.Value;
+
+        lock (sharedShockersLock)
+        {
+            availableShockers.Clear();
+            availableShockers.AddRange(localAvailableShockers);
+        }
+
+        return true;
     }
 
-    private async Task<IEnumerable<PiShockSharedShocker>> getShareEntriesFromShareIds(IEnumerable<int> shareIds)
+    private async Task<Result<PiShockShocker[]>> getShockersFromShareIds(IEnumerable<int> shareIds)
     {
-        var requestUri = string.Join("&", new[] { $"{api_endpoint}/GetShockersByShareIds?UserId={userId}&Token={apiKey}&api=true" }.Concat(shareIds.Select(shareId => $"shareIds={shareId}")));
-        var response = await httpClient.GetAsync(requestUri);
-        response.EnsureSuccessStatusCode();
+        var devicesResult = await PiShockRequestFactory.GetShockersByShareIDs(userId, apiKey, shareIds);
 
-        var content = await response.Content.ReadAsStringAsync();
+        if (!devicesResult)
+        {
+            Logger.Error(devicesResult.Exception, $"Error in {nameof(PiShockProvider)}");
+            return devicesResult.Exception;
+        }
 
-        // owner's username - shared shocker
-        var devices = JsonSerializer.Deserialize<Dictionary<string, List<PiShockSharedShocker>>>(content);
-        return devices is null ? [] : devices.SelectMany(p => p.Value);
+        var devices = devicesResult.Value;
+        return devices.SelectMany(p => p.Value).ToArray();
     }
 
     private bool disableSerialScan;
@@ -284,30 +246,6 @@ public class PiShockProvider
                             serial.Close();
                             serial = null;
                         }
-                    }
-                    catch (UnauthorizedAccessException)
-                    {
-                        if (serial!.IsOpen)
-                            serial.Close();
-
-                        serialInstance = null;
-                        disableSerialScan = true;
-                    }
-                    catch (IOException)
-                    {
-                        if (serial!.IsOpen)
-                            serial.Close();
-
-                        serialInstance = null;
-                        disableSerialScan = true;
-                    }
-                    catch (TimeoutException)
-                    {
-                        if (!serial!.IsOpen)
-                            serial.Close();
-
-                        serialInstance = null;
-                        disableSerialScan = true;
                     }
                     catch (Exception e)
                     {
@@ -389,7 +327,7 @@ public class PiShockProvider
         }
         catch (Exception e)
         {
-            Logger.Error(e, $"{nameof(PiShockProvider)} has experienced an error when executing serial");
+            ExceptionHandler.Handle(e, $"{nameof(PiShockProvider)} has experienced an error when executing serial");
             return Task.FromResult(new PiShockResult(false, "An error has occured writing to serial"));
         }
     }
@@ -407,7 +345,7 @@ public class PiShockProvider
         if (!initialised) return new PiShockResult(false, "Provider not initialised");
 
         var shareCodeArray = shareCodes.ToArray();
-        var missingShareCodes = shareCodeArray.Where(code => sharedShockers.All(shocker => shocker.ShareCode != code)).ToArray();
+        var missingShareCodes = shareCodeArray.Where(code => availableShockers.All(shocker => shocker.ShareCode != code)).ToArray();
 
         foreach (var code in missingShareCodes)
         {
@@ -417,16 +355,16 @@ public class PiShockProvider
 
         if (missingShareCodes.Length != 0)
         {
-            var refreshResult = await refreshShockers();
+            var refreshResult = await populateAvailableShockers();
             if (!refreshResult) return new PiShockResult(false, $"{nameof(PiShockProvider)} cannot execute due to an error when refreshing shockers");
         }
 
         foreach (var shareCode in shareCodeArray)
         {
-            if (sharedShockers.All(shocker => shocker.ShareCode != shareCode)) return new PiShockResult(false, $"Shocker for sharecode '{shareCode}' does not exist");
+            if (availableShockers.All(shocker => shocker.ShareCode != shareCode)) return new PiShockResult(false, $"Shocker for sharecode '{shareCode}' does not exist");
         }
 
-        var tasks = shareCodeArray.Select(shareCode => sharedShockers.Single(shocker => shocker.ShareCode == shareCode))
+        var tasks = shareCodeArray.Select(shareCode => availableShockers.Single(shocker => shocker.ShareCode == shareCode))
                                   .GroupBy(shocker => shocker.ClientId)
                                   .Select(group => executeAsync($"c{group.Key}-ops", group.Select(shocker => shocker.ShockerId), mode, intensity, duration));
 
@@ -470,6 +408,12 @@ public class PiShockProvider
                 }
             }).ToArray()
         }, serialiserOptions);
+
+        if (!webSocket!.IsConnected)
+        {
+            ExceptionHandler.Handle("User authenticated but websocket disconnected!\nLog out and log back in on PiShock's website");
+            return;
+        }
 
         await webSocket!.SendAsync(content);
     }
