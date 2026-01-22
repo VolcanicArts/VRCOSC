@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Media;
@@ -15,28 +13,15 @@ namespace VRCOSC.App.SDK.Providers.Media;
 
 public class WindowsMediaProvider
 {
+    private readonly ConcurrentBag<GlobalSystemMediaTransportControlsSession> cachedSessions = [];
+
+    public readonly ConcurrentDictionary<string, MediaState> SessionStates = [];
+
     private GlobalSystemMediaTransportControlsSessionManager? sessionManager;
-    private List<GlobalSystemMediaTransportControlsSession> cachedSessions = new();
-
-    public ObservableCollection<string> Sessions { get; } = new();
-    public ConcurrentDictionary<string, MediaState> States { get; } = new();
-
-    public MediaState CurrentState
-    {
-        get
-        {
-            if (CurrentSession is null) return new MediaState();
-            if (States.TryGetValue(CurrentSession.SourceAppUserModelId, out var state)) return state;
-
-            return new MediaState();
-        }
-    }
-
-    public GlobalSystemMediaTransportControlsSession? CurrentSession => cachedSessions.FirstOrDefault(session => session.SourceAppUserModelId == (focusedSessionId ?? currentSessionId));
-
     private string? focusedSessionId;
     private string? currentSessionId;
 
+    public Action? OnSessionsChanged;
     public Action? OnPlaybackStateChanged;
     public Action? OnTrackChanged;
     public Action? OnPlaybackPositionChanged;
@@ -57,8 +42,7 @@ public class WindowsMediaProvider
     {
         if (sessionManager is not null) throw new InvalidOperationException("Cannot initialise without terminating existing instance");
 
-        Sessions.Clear();
-        States.Clear();
+        SessionStates.Clear();
         cachedSessions.Clear();
         focusedSessionId = null;
 
@@ -81,7 +65,7 @@ public class WindowsMediaProvider
 
     public void Update(TimeSpan delta)
     {
-        foreach (var state in States.Values)
+        foreach (var state in SessionStates.Values)
         {
             if (!state.IsPlaying) continue;
 
@@ -93,7 +77,7 @@ public class WindowsMediaProvider
     {
         if (sessionManager is null) return;
 
-        foreach (var session in sessionManager.GetSessions().Where(session => Sessions.Contains(session.SourceAppUserModelId)))
+        foreach (var session in sessionManager.GetSessions().Where(session => SessionStates.ContainsKey(session.SourceAppUserModelId)))
         {
             session.MediaPropertiesChanged -= onAnyMediaPropertyChanged;
             session.PlaybackInfoChanged -= onAnyPlaybackStateChanged;
@@ -105,9 +89,23 @@ public class WindowsMediaProvider
         sessionManager = null;
     }
 
+    public MediaState GetCurrentState()
+    {
+        var currentSession = getCurrentSession();
+        if (currentSession is null || !SessionStates.TryGetValue(currentSession.SourceAppUserModelId, out var state)) return new MediaState();
+
+        return state;
+    }
+
+    private GlobalSystemMediaTransportControlsSession? getCurrentSession()
+    {
+        var localFocusedSessionId = focusedSessionId ?? currentSessionId;
+        return cachedSessions.FirstOrDefault(session => session.SourceAppUserModelId == localFocusedSessionId);
+    }
+
     private void updatePlaybackInfo(GlobalSystemMediaTransportControlsSession? session)
     {
-        if (session is null || !States.TryGetValue(session.SourceAppUserModelId, out var state)) return;
+        if (session is null || !SessionStates.TryGetValue(session.SourceAppUserModelId, out var state)) return;
 
         try
         {
@@ -123,7 +121,7 @@ public class WindowsMediaProvider
 
     private async Task updateMediaProperties(GlobalSystemMediaTransportControlsSession? session)
     {
-        if (session is null || !States.TryGetValue(session.SourceAppUserModelId, out var state)) return;
+        if (session is null || !SessionStates.TryGetValue(session.SourceAppUserModelId, out var state)) return;
 
         try
         {
@@ -144,7 +142,7 @@ public class WindowsMediaProvider
 
     private void updateTimeline(GlobalSystemMediaTransportControlsSession? session)
     {
-        if (session is null || !States.TryGetValue(session.SourceAppUserModelId, out var state)) return;
+        if (session is null || !SessionStates.TryGetValue(session.SourceAppUserModelId, out var state)) return;
 
         try
         {
@@ -209,44 +207,53 @@ public class WindowsMediaProvider
         updateCurrentSession().Forget();
     }
 
-    private void sessionsChanged(GlobalSystemMediaTransportControlsSessionManager? _, SessionsChangedEventArgs? _2)
+    private async void sessionsChanged(GlobalSystemMediaTransportControlsSessionManager? _, SessionsChangedEventArgs? _2)
     {
-        cachedSessions = sessionManager?.GetSessions().ToList() ?? new List<GlobalSystemMediaTransportControlsSession>();
-
-        foreach (var session in cachedSessions.Where(session => !Sessions.Contains(session.SourceAppUserModelId)))
+        try
         {
-            session.PlaybackInfoChanged += onAnyPlaybackStateChanged;
-            session.MediaPropertiesChanged += onAnyMediaPropertyChanged;
-            session.TimelinePropertiesChanged += onAnyTimelinePropertiesChanged;
+            var localSessions = sessionManager?.GetSessions() ?? [];
 
-            Sessions.Add(session.SourceAppUserModelId);
+            cachedSessions.Clear();
 
-            Logger.Log($"Adding new state for {session.SourceAppUserModelId}", LoggingTarget.Information);
-
-            States[session.SourceAppUserModelId] = new MediaState
+            foreach (var session in localSessions)
             {
-                ID = session.SourceAppUserModelId
-            };
+                cachedSessions.Add(session);
+            }
+
+            foreach (var session in cachedSessions.Where(session => !SessionStates.ContainsKey(session.SourceAppUserModelId)))
+            {
+                session.PlaybackInfoChanged += onAnyPlaybackStateChanged;
+                session.MediaPropertiesChanged += onAnyMediaPropertyChanged;
+                session.TimelinePropertiesChanged += onAnyTimelinePropertiesChanged;
+
+                SessionStates.TryAdd(session.SourceAppUserModelId, new MediaState
+                {
+                    ID = session.SourceAppUserModelId
+                });
+
+                updatePlaybackInfo(session);
+                await updateMediaProperties(session);
+                updateTimeline(session);
+
+                Logger.Log($"Adding new state for {session.SourceAppUserModelId}", LoggingTarget.Information);
+            }
+
+            SessionStates.RemoveIf(pair => !cachedSessions.Select(cachedSession => cachedSession.SourceAppUserModelId).Contains(pair.Key));
+
+            if (focusedSessionId is not null && !SessionStates.ContainsKey(focusedSessionId))
+                SetFocusedSession(null);
+
+            currentSessionId ??= sessionManager?.GetCurrentSession()?.SourceAppUserModelId;
+
+            if (currentSessionId is not null && !SessionStates.ContainsKey(currentSessionId))
+                currentSessionId = null;
         }
-
-        Sessions.RemoveIf(session => !cachedSessions.Select(cachedSession => cachedSession.SourceAppUserModelId).Contains(session));
-
-        var statesToRemove = States.Where(pair => !Sessions.Contains(pair.Key));
-
-        foreach (var pair in statesToRemove)
+        catch (Exception e)
         {
-            States.TryRemove(pair.Key, out var _);
+            ExceptionHandler.Handle(e, $"{nameof(WindowsMediaProvider)} has experienced an error on session change");
         }
 
-        if (focusedSessionId is not null && !Sessions.Contains(focusedSessionId))
-        {
-            SetFocusedSession(null);
-        }
-
-        if (currentSessionId is not null && !Sessions.Contains(currentSessionId))
-        {
-            currentSessionId = null;
-        }
+        OnSessionsChanged?.Invoke();
     }
 
     public void Play()
@@ -258,7 +265,7 @@ public class WindowsMediaProvider
         {
             try
             {
-                await CurrentSession?.TryPlayAsync();
+                await getCurrentSession()?.TryPlayAsync();
             }
             catch
             {
@@ -275,7 +282,7 @@ public class WindowsMediaProvider
         {
             try
             {
-                await CurrentSession?.TryPauseAsync();
+                await getCurrentSession()?.TryPauseAsync();
             }
             catch
             {
@@ -292,7 +299,7 @@ public class WindowsMediaProvider
         {
             try
             {
-                await CurrentSession?.TrySkipNextAsync();
+                await getCurrentSession()?.TrySkipNextAsync();
             }
             catch
             {
@@ -309,7 +316,7 @@ public class WindowsMediaProvider
         {
             try
             {
-                await CurrentSession?.TrySkipPreviousAsync();
+                await getCurrentSession()?.TrySkipPreviousAsync();
             }
             catch
             {
@@ -326,7 +333,7 @@ public class WindowsMediaProvider
         {
             try
             {
-                await CurrentSession?.TryChangeShuffleActiveAsync(active);
+                await getCurrentSession()?.TryChangeShuffleActiveAsync(active);
             }
             catch
             {
@@ -343,7 +350,7 @@ public class WindowsMediaProvider
         {
             try
             {
-                await CurrentSession?.TryChangePlaybackPositionAsync(playbackPosition.Ticks);
+                await getCurrentSession()?.TryChangePlaybackPositionAsync(playbackPosition.Ticks);
             }
             catch
             {
@@ -360,7 +367,7 @@ public class WindowsMediaProvider
         {
             try
             {
-                await CurrentSession?.TryChangeAutoRepeatModeAsync(mode);
+                await getCurrentSession()?.TryChangeAutoRepeatModeAsync(mode);
             }
             catch
             {
