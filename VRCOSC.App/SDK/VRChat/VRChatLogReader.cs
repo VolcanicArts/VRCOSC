@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -144,7 +145,7 @@ internal static class VRChatLogReader
         var foundDateTime = datetime_regex.Matches(line).LastOrDefault()?.Groups.Values.LastOrDefault()?.Value;
         if (foundDateTime is null) return null;
 
-        return DateTime.ParseExact(foundDateTime, "yyyy.MM.dd HH:mm:ss", null);
+        return DateTime.ParseExact(foundDateTime, "yyyy.MM.dd HH:mm:ss", CultureInfo.InvariantCulture);
     }
 
     private static void checkUserAuthenticated(LogLine logLine)
