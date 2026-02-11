@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -197,6 +197,7 @@ public class GraphItemsDataTemplateSelector : DataTemplateSelector
     public required DataTemplate? NodeWithTextBoxTemplate { get; set; }
     public required DataTemplate? DisplayNodeTemplate { get; set; }
     public required DataTemplate? PassthroughDisplayNodeTemplate { get; set; }
+    public required DataTemplate? KeybindSourceNodeTemplate { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
@@ -243,6 +244,8 @@ public class GraphItemsDataTemplateSelector : DataTemplateSelector
 
                 return NodeWithTextBoxTemplate;
             }
+
+            if (type.IsAssignableTo(typeof(IHasKeybindProperty))) return KeybindSourceNodeTemplate;
 
             if (type.HasCustomAttribute<NodeCollapsedAttribute>() || metadata.Icon != EFontAwesomeIcon.None)
             {

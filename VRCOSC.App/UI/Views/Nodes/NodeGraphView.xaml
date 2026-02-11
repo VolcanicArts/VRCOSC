@@ -235,6 +235,49 @@
             <StackPanel VerticalAlignment="Top"/>
         </ItemsPanelTemplate>
 
+        <DataTemplate x:Key="KeybindSourceNodeTemplate">
+            <Border Name="NodeContainer"
+                    CornerRadius="10"
+                    BorderThickness="2"
+                    BorderBrush="{DynamicResource CForeground3}"
+                    Width="252"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Tag="{Binding}"
+                    MouseDown="NodeContainer_OnMouseDown"
+                    Cursor="Hand"
+                    ContextMenu="{StaticResource NodeContextMenu}">
+                <Border.RenderTransform>
+                    <TranslateTransform X="{Binding PosX}" Y="{Binding PosY}"/>
+                </Border.RenderTransform>
+                <Grid>
+                    <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
+                    <StackPanel VerticalAlignment="Top" Margin="0 0 0 7">
+                        <ContentPresenter ContentTemplate="{StaticResource HeaderTemplate}"/>
+                        <Grid VerticalAlignment="Center" Margin="0 3 0 0"
+                              Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <core:KeybindPicker Grid.Column="0"
+                                                Keybind="{Binding Node.Keybind, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                FontSize="16" Margin="5 0 0 0"
+                                                Background="{StaticResource CBackground6}"/>
+                            <ItemsControl Grid.Column="1" ItemsSource="{Binding Converter={StaticResource ValueAmountConverterRight}}"
+                                          VerticalAlignment="Center" HorizontalAlignment="Right"
+                                          Name="ValueOutputItemsControl"
+                                          ItemTemplate="{StaticResource ValueOutputTemplate}"
+                                          ItemsPanel="{StaticResource ItemsPanelTemplate}">
+                                <ItemsControl.RenderTransform>
+                                    <TranslateTransform X="6"/>
+                                </ItemsControl.RenderTransform>
+                            </ItemsControl>
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
         <DataTemplate x:Key="TextBoxSourceNodeTemplate">
             <Border Name="NodeContainer"
                     CornerRadius="10"
@@ -1033,6 +1076,7 @@
                                               ButtonNodeTemplate="{StaticResource ButtonNodeTemplate}"
                                               CollapsedNodeTemplate="{StaticResource CollapsedTemplate}"
                                               CollapsedOutputOnlyNodeTemplate="{StaticResource CollapsedOutputOnlyTemplate}"
+                                              KeybindSourceNodeTemplate="{StaticResource KeybindSourceNodeTemplate}"
                                               TextBoxSourceNodeTemplate="{StaticResource TextBoxSourceNodeTemplate}"
                                               TextBoxDriveNodeTemplate="{StaticResource TextBoxDriveNodeTemplate}"
                                               NodeWithTextBoxTemplate="{StaticResource NodeWithTextBoxTemplate}"

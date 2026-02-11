@@ -60,43 +60,34 @@ public sealed class KeybindHoldReleaseNode : Node, IFlowInput
     }
 }
 
-[Node("On Keybind Pressed", "Keybind")]
-public sealed class OnKeybindPressedNode : Node, IActiveUpdateNode
+[Node("Keybind Source", "Keybind")]
+public sealed class KeybindSourceNode : Node, IActiveUpdateNode, IHasKeybindProperty
 {
     public int UpdateOffset => 0;
-    public GlobalStore<bool> Pressed = new();
 
-    public FlowContinuation OnPressed = new("On Pressed");
+    public GlobalStore<bool> DownStore = new();
 
-    public ValueInput<SDK.Utils.Keybind> Keybind = new();
-    public ValueInput<bool> AllowHold = new("Allow Hold");
+    [NodeProperty("keybind")]
+    public SDK.Utils.Keybind Keybind { get; set; } = new();
 
-    protected override async Task Process(PulseContext c)
+    public ValueOutput<bool> Down = new();
+
+    protected override Task Process(PulseContext c)
     {
-        await OnPressed.Execute(c);
+        var keybindDown = isKeybindDown();
+        Down.Write(keybindDown, c);
+        return Task.CompletedTask;
     }
 
     public Task<bool> OnUpdate(PulseContext c)
     {
-        var keybind = Keybind.Read(c);
-        if (keybind is null) return Task.FromResult(false);
+        var wasDown = DownStore.Read(c);
+        var isDown = isKeybindDown();
+        DownStore.Write(isDown, c);
 
-        var result = keybind.Keys.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key))
-                     && keybind.Modifiers.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key));
-
-        if (AllowHold.Read(c))
-        {
-            Pressed.Write(result, c);
-            return Task.FromResult(result);
-        }
-
-        if (result && !Pressed.Read(c))
-        {
-            Pressed.Write(result, c);
-            return Task.FromResult(true);
-        }
-
-        Pressed.Write(result, c);
-        return Task.FromResult(false);
+        return Task.FromResult(wasDown != isDown);
     }
+
+    private bool isKeybindDown() => Keybind.Keys.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key))
+                                    && Keybind.Modifiers.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key));
 }
