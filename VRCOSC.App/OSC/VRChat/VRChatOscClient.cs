@@ -10,6 +10,7 @@ using FastOSC;
 using Newtonsoft.Json;
 using VRCOSC.App.OSC.Query;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Utils;
 
@@ -131,11 +132,12 @@ public class VRChatOSCClient
         return new VRChatParameter(parameterName, parameterValue);
     }
 
-    public async Task<string?> FindCurrentAvatar(CancellationToken token)
+    public async Task<AvatarConfig?> FindCurrentAvatar(CancellationToken token)
     {
         var node = await FindAddress(VRChatOSCConstants.ADDRESS_AVATAR_CHANGE, token);
         if (node?.Value is null || node.Value.Length == 0) return null;
 
-        return Convert.ToString(node.Value[0]);
+        var avatarId = Convert.ToString(node.Value[0]);
+        return string.IsNullOrEmpty(avatarId) ? null : AvatarConfigLoader.LoadConfigFor(avatarId);
     }
 }

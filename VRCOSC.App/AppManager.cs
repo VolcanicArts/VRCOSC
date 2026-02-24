@@ -214,10 +214,7 @@ internal class AppManager : IVRCClientEventHandler
     {
         if (currentAvatarConfig is not null) return currentAvatarConfig;
 
-        var avatarId = await VRChatOscClient.FindCurrentAvatar(token);
-        if (avatarId is null) return null;
-
-        currentAvatarConfig = AvatarConfigLoader.LoadConfigFor(avatarId);
+        currentAvatarConfig = await VRChatOscClient.FindCurrentAvatar(token);
         return currentAvatarConfig;
     }
 
@@ -618,6 +615,8 @@ internal class AppManager : IVRCClientEventHandler
         State.Value = AppManagerState.Stopped;
 
         VRChatLogReader.Deregister(this);
+        parameterCache.Clear();
+        currentAvatarConfig = null;
     }
 
     #endregion
