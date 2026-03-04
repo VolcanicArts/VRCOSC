@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -880,7 +879,7 @@ public abstract class Module
     /// <param name="value">The value to set the parameter to</param>
     protected void SendParameter(string name, object value)
     {
-        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", value);
+        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{name}", value);
     }
 
     /// <summary>
@@ -1047,7 +1046,11 @@ public abstract class Module
         }
     }
 
-    protected Task<AvatarConfig?> FindCurrentAvatar() => AppManager.GetInstance().VRChatOscClient.FindCurrentAvatar(CancellationToken.None);
+    protected Task<AvatarConfig?> FindCurrentAvatar()
+    {
+        var currentAvatar = AppManager.GetInstance().GetCurrentAvatar();
+        return Task.FromResult(currentAvatar);
+    }
 
     /// <summary>
     /// Retrieves a parameter's value using OSCQuery
@@ -1059,7 +1062,11 @@ public abstract class Module
     /// Retrieves a parameter's value using OSCQuery
     /// </summary>
     /// <param name="parameterName">The name of the parameter</param>
-    protected Task<VRChatParameter?> FindParameter(string parameterName) => AppManager.GetInstance().VRChatOscClient.FindParameter(parameterName, CancellationToken.None);
+    protected Task<VRChatParameter?> FindParameter(string parameterName)
+    {
+        var parameter = AppManager.GetInstance().GetParameter(parameterName);
+        return Task.FromResult(parameter);
+    }
 
     internal void OnParameterReceived(VRChatParameter parameter)
     {

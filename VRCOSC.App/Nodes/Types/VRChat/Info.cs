@@ -43,14 +43,15 @@ public sealed class VRChatAvatarSourceNode : UpdateNode<string?>
     public ValueOutput<string?> AvatarId = new("Id");
     public ValueOutput<string> Name = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
-        var avatar = await c.GetCurrentAvatar();
+        var avatar = c.GetCurrentAvatar();
         AvatarId.Write(avatar?.Id, c);
         Name.Write(avatar?.Name ?? string.Empty, c);
+        return Task.CompletedTask;
     }
 
-    protected override async Task<string?> GetValue(PulseContext c) => (await c.GetCurrentAvatar())?.Id;
+    protected override Task<string?> GetValue(PulseContext c) => Task.FromResult(c.GetCurrentAvatar()?.Id);
 }
 
 [Node("Instance Source", "VRChat")]

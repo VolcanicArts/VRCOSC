@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Parameters;
@@ -48,22 +47,6 @@ public sealed class Player
     internal Player(VRChatOSCClient oscClient)
     {
         this.oscClient = oscClient;
-    }
-
-    internal async Task RetrieveAll()
-    {
-        foreach (var vrChatInputParameter in Enum.GetValues<VRChatAvatarParameter>())
-        {
-            await retrieve(vrChatInputParameter.ToString());
-        }
-    }
-
-    private async Task retrieve(string parameterName)
-    {
-        var parameter = await AppManager.GetInstance().VRChatOscClient.FindParameter(parameterName, CancellationToken.None);
-        if (parameter is null) return;
-
-        Update(parameter);
     }
 
     internal bool Update(VRChatParameter parameter)

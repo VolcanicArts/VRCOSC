@@ -2,17 +2,15 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using FastOSC;
 using Newtonsoft.Json;
 using VRCOSC.App.OSC.Query;
 using VRCOSC.App.SDK.Parameters;
-using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Settings;
-using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.OSC.VRChat;
 
@@ -33,7 +31,7 @@ public class VRChatOSCClient
 
     public VRChatOSCClient()
     {
-        client.Timeout = TimeSpan.FromMilliseconds(50);
+        client.Timeout = TimeSpan.FromSeconds(2);
 
         receiver.OnPacketReceived += async packet =>
         {
@@ -84,60 +82,70 @@ public class VRChatOSCClient
         this.connectionManager = connectionManager;
     }
 
-    public async Task<OSCQueryNode?> FindAddress(string address, CancellationToken token)
+    public async Task<OSCQueryNode?> RequestNode(string address)
     {
-        var oscMode = SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode);
+        var connectionMode = SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode);
 
         // OSCQuery from VRChat is only broadcast on loopback so we'll turn it off for non-local modes
-        if (oscMode != ConnectionMode.Local || !connectionManager.IsConnected) return null;
+        if (connectionMode != ConnectionMode.Local || !connectionManager.IsConnected) return null;
 
         address = address.Replace(" ", "%20");
         var url = $"http://{connectionManager.VRChatIP}:{connectionManager.VRChatQueryPort}{address}";
 
         try
         {
-            var response = await client.GetAsync(new Uri(url), token);
+            var response = await client.GetAsync(new Uri(url));
             if (!response.IsSuccessStatusCode) return null;
 
-            var content = await response.Content.ReadAsStringAsync(token);
-            var node = JsonConvert.DeserializeObject<OSCQueryNode>(content);
-
-            return node is null || node.Access == OSCQueryNodeAccess.NoValue ? null : node;
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<OSCQueryNode>(content);
         }
         catch (TaskCanceledException)
         {
             return null;
         }
-        catch (Exception e)
+    }
+
+    public async Task<IEnumerable<VRChatParameter>> RequestAllParameters()
+    {
+        var rootNode = await RequestNode(VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS);
+        if (rootNode is null) return [];
+
+        var parameters = new List<VRChatParameter>();
+        auditNode(rootNode, parameters);
+        return parameters;
+    }
+
+    private static void auditNode(OSCQueryNode node, List<VRChatParameter> parameters)
+    {
+        if (node.Value is not null)
         {
-            Logger.Error(e, $"Exception when trying to find parameter: {url}");
-            return null;
+            var rawName = node.FullPath[(VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS.Length + 1)..];
+
+            VRChatParameter parameter = node.OscType switch
+            {
+                "f" => new VRChatParameter(rawName, (float)(double)node.Value[0]),
+                "i" => new VRChatParameter(rawName, (int)(long)node.Value[0]),
+                "T" => new VRChatParameter(rawName, (bool)node.Value[0]), // T gets returned for true and false
+                _ => throw new InvalidOperationException($"Unknown type '{node.OscType}'")
+            };
+
+            parameters.Add(parameter);
+        }
+
+        if (node.Contents is null) return;
+
+        foreach (var innerNode in node.Contents.Values)
+        {
+            auditNode(innerNode, parameters);
         }
     }
 
-    public async Task<VRChatParameter?> FindParameter(string parameterName, CancellationToken token)
+    public async Task<string?> RequestCurrentAvatar()
     {
-        var node = await FindAddress(VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX + parameterName, token);
+        var node = await RequestNode(VRChatOSCConstants.ADDRESS_AVATAR_CHANGE);
         if (node?.Value is null || node.Value.Length == 0) return null;
 
-        object parameterValue = node.OscType switch
-        {
-            "f" => Convert.ToSingle(node.Value[0]),
-            "i" => Convert.ToInt32(node.Value[0]),
-            // T gets returned for true and false
-            "T" => Convert.ToBoolean(node.Value[0]),
-            _ => throw new InvalidOperationException($"Unknown type '{node.OscType}'")
-        };
-
-        return new VRChatParameter(parameterName, parameterValue);
-    }
-
-    public async Task<AvatarConfig?> FindCurrentAvatar(CancellationToken token)
-    {
-        var node = await FindAddress(VRChatOSCConstants.ADDRESS_AVATAR_CHANGE, token);
-        if (node?.Value is null || node.Value.Length == 0) return null;
-
-        var avatarId = Convert.ToString(node.Value[0]);
-        return string.IsNullOrEmpty(avatarId) ? null : AvatarConfigLoader.LoadConfigFor(avatarId);
+        return (string)node.Value[0];
     }
 }

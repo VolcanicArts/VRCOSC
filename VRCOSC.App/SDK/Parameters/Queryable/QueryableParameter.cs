@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using VRCOSC.App.SDK.Utils;
@@ -51,12 +50,12 @@ public class QueryableParameter : IEquatable<QueryableParameter>
 
     private bool previousValid;
 
-    public async Task Init()
+    public Task Init()
     {
         previousValid = false;
 
-        var parameter = await AppManager.GetInstance().VRChatOscClient.FindParameter(Name.Value, CancellationToken.None);
-        if (parameter is null) return;
+        var parameter = AppManager.GetInstance().GetParameter(Name.Value);
+        if (parameter is null) return Task.CompletedTask;
 
         switch (parameter.Type)
         {
@@ -78,6 +77,8 @@ public class QueryableParameter : IEquatable<QueryableParameter>
             default:
                 throw new ArgumentOutOfRangeException();
         }
+
+        return Task.CompletedTask;
     }
 
     public QueryResult Evaluate(VRChatParameter parameter)

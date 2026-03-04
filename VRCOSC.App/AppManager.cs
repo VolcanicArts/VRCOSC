@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -195,28 +196,10 @@ internal class AppManager : IVRCClientEventHandler
         VRChatClient.Instance.Users.RemoveIf(user => user == eventArgs.User);
     }
 
-    public async Task<VRChatParameter?> FindParameter(ParameterDefinition parameterDefinition, CancellationToken token)
-    {
-        if (parameterCache.TryGetValue(parameterDefinition, out var parameter)) return parameter;
+    public VRChatParameter? GetParameter<T>(string name) => parameterCache.GetValueOrDefault(new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>()));
+    public VRChatParameter? GetParameter(string name) => parameterCache.SingleOrDefault(p => p.Value.Name == name).Value;
 
-        parameter = await VRChatOscClient.FindParameter(parameterDefinition.Name, token);
-
-        if (parameter is not null && parameter.Type == parameterDefinition.Type)
-        {
-            parameterCache[parameterDefinition] = parameter;
-            return parameter;
-        }
-
-        return null;
-    }
-
-    public async Task<AvatarConfig?> FindCurrentAvatar(CancellationToken token)
-    {
-        if (currentAvatarConfig is not null) return currentAvatarConfig;
-
-        currentAvatarConfig = await VRChatOscClient.FindCurrentAvatar(token);
-        return currentAvatarConfig;
-    }
+    public AvatarConfig? GetCurrentAvatar() => currentAvatarConfig;
 
     public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
@@ -240,15 +223,10 @@ internal class AppManager : IVRCClientEventHandler
 
             if (message.IsAvatarChangeEvent)
             {
-                parameterCache.Clear();
-
-                var avatarId = (string)message.ParameterValue;
-                currentAvatarConfig = avatarId.StartsWith("local") ? null : AvatarConfigLoader.LoadConfigFor(avatarId);
-
-                await VRChatClient.HandleAvatarChange();
-                ModuleManager.GetInstance().AvatarChange(currentAvatarConfig);
-
                 if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) return;
+
+                await updateCaches();
+                ModuleManager.GetInstance().AvatarChange(currentAvatarConfig);
 
                 sendMetadataParameters();
                 sendControlParameters();
@@ -287,6 +265,26 @@ internal class AppManager : IVRCClientEventHandler
         catch (Exception e)
         {
             ExceptionHandler.Handle(e);
+        }
+    }
+
+    private async Task updateCaches()
+    {
+        var currentAvatarId = await VRChatOscClient.RequestCurrentAvatar();
+
+        if (currentAvatarId is null || currentAvatarId.StartsWith("local"))
+            currentAvatarConfig = null;
+        else
+            currentAvatarConfig = AvatarConfigLoader.LoadConfigFor(currentAvatarId);
+
+        var parameters = await VRChatOscClient.RequestAllParameters();
+
+        parameterCache.Clear();
+
+        foreach (var parameter in parameters)
+        {
+            parameterCache[parameter.GetDefinition()] = parameter;
+            VRChatClient.Player.Update(parameter);
         }
     }
 
@@ -334,7 +332,7 @@ internal class AppManager : IVRCClientEventHandler
 
     private void sendParameter(string parameterName, object value)
     {
-        VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{parameterName}", value);
+        VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{parameterName}", value);
     }
 
     #endregion
@@ -510,12 +508,13 @@ internal class AppManager : IVRCClientEventHandler
 
         State.Value = AppManagerState.Starting;
 
+        await updateCaches();
+
         StartupManager.GetInstance().OpenFileLocations();
         await RouterManager.GetInstance().Start();
         await VRChatOscClient.EnableSend();
         ChatBoxManager.GetInstance().Start();
         await VRChatClient.UserCamera.RetrieveAllData();
-        await VRChatClient.Player.RetrieveAll();
         await ModuleManager.GetInstance().StartAsync();
         await NodeManager.GetInstance().Start();
         VRChatLogReader.Start();
@@ -615,7 +614,6 @@ internal class AppManager : IVRCClientEventHandler
         State.Value = AppManagerState.Stopped;
 
         VRChatLogReader.Deregister(this);
-        parameterCache.Clear();
         currentAvatarConfig = null;
     }
 
