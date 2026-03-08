@@ -9,7 +9,7 @@ namespace VRCOSC.App.OSC.VRChat;
 public record VRChatOSCMessage : OSCMessage
 {
     public bool IsAvatarChangeEvent => Address == VRChatOSCConstants.ADDRESS_AVATAR_CHANGE;
-    public bool IsAvatarParameter => Address.StartsWith(VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX);
+    public bool IsAvatarParameter => Address.StartsWith(VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS);
     public bool IsChatboxInput => Address == VRChatOSCConstants.ADDRESS_CHATBOX_INPUT;
     public bool IsDollyEvent => Address.StartsWith(VRChatOSCConstants.ADDRESS_DOLLY_PREFIX);
     public bool IsUserCamera => Address.StartsWith(VRChatOSCConstants.ADDRESS_USERCAMERA_PREFIX);
@@ -20,7 +20,7 @@ public record VRChatOSCMessage : OSCMessage
         {
             try
             {
-                return field ??= Address[VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX.Length..];
+                return field ??= Address[(VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS.Length + 1)..];
             }
             // This should never be possible if ParameterName is only called after IsAvatarParameter, but sometimes there's a corrupt address?
             catch (Exception)

@@ -13,6 +13,8 @@ namespace VRCOSC.App.Nodes.Types.Input;
 [StructLayout(LayoutKind.Sequential)]
 public struct Gamepad
 {
+    public uint Index;
+
     public Vector2 LeftStickPos;
     public Vector2 RightStickPos;
 
@@ -69,6 +71,8 @@ public sealed class GamepadSourceNode : Node, IUpdateNode, IHasTextProperty
 
         var gamepad = new Gamepad
         {
+            Index = deviceIndex,
+
             A = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_A),
             B = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_B),
             X = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_X),
@@ -102,6 +106,33 @@ public sealed class GamepadSourceNode : Node, IUpdateNode, IHasTextProperty
     private static float remapStick(short value) => Interpolation.Map(value, short.MinValue, short.MaxValue, -1f, 1f);
     private static float remapTrigger(byte value) => Interpolation.Map(value, byte.MinValue, byte.MaxValue, 0f, 1f);
     private static bool hasFlag(XINPUT_GAMEPAD pad, XINPUT_GAMEPAD_BUTTON_FLAGS flag) => ((ushort)pad.wButtons & (ushort)flag) != 0;
+}
+
+[Node("Gamepad Set Vibration", "Input/Gamepad")]
+public sealed class GamepadSetVibrationNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<Gamepad> Gamepad = new();
+    public ValueInput<float> IntensityHeavy = new("Intensity Heavy");
+    public ValueInput<float> IntensityLight = new("Intensity Light");
+
+    protected override Task Process(PulseContext c)
+    {
+        var gamepad = Gamepad.Read(c);
+        var intensityHeavy = float.Clamp(IntensityHeavy.Read(c), 0f, 1f);
+        var intensityLight = float.Clamp(IntensityLight.Read(c), 0f, 1f);
+
+        var vibration = new XINPUT_VIBRATION
+        {
+            wLeftMotorSpeed = (ushort)(intensityHeavy * ushort.MaxValue),
+            wRightMotorSpeed = (ushort)(intensityLight * ushort.MaxValue)
+        };
+
+        PInvoke.XInputSetState(gamepad.Index, vibration);
+
+        return Next.Execute(c);
+    }
 }
 
 [Node("Gamepad Left Stick", "Input/Gamepad")]

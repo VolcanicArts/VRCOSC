@@ -23,7 +23,7 @@ public sealed class IndirectSendParameterNode<T> : Node, IFlowInput where T : st
         var name = Name.Read(c);
 
         if (!string.IsNullOrWhiteSpace(name))
-            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{name}", Value.Read(c));
+            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{name}", Value.Read(c));
 
         await Next.Execute(c);
     }
@@ -43,7 +43,7 @@ public sealed class DirectSendParameterNode<T> : Node, IFlowInput, IHasTextPrope
     protected override async Task Process(PulseContext c)
     {
         if (!string.IsNullOrWhiteSpace(Text))
-            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{Text}", Value.Read(c));
+            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{Text}", Value.Read(c));
 
         await Next.Execute(c);
     }
@@ -70,7 +70,7 @@ public sealed class DriveParameterNode<T> : Node, IUpdateNode, IHasTextProperty 
     public void OnUpdate(PulseContext c)
     {
         if (!string.IsNullOrWhiteSpace(Text))
-            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{Text}", CurrValue.Read(c));
+            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{Text}", CurrValue.Read(c));
     }
 }
 
@@ -98,7 +98,7 @@ public sealed class ToggleParameterNode<T> : Node, IFlowInput, IHasTextProperty 
 
         if (!string.IsNullOrWhiteSpace(Text))
         {
-            var parameter = await c.GetParameter<T>(Text);
+            var parameter = c.GetParameter<T>(Text);
 
             T sendValue = default!;
 
@@ -120,7 +120,7 @@ public sealed class ToggleParameterNode<T> : Node, IFlowInput, IHasTextProperty 
                 }
             }
 
-            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS_PREFIX}{Text}", sendValue);
+            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{Text}", sendValue);
         }
 
         await Next.Execute(c);
@@ -159,14 +159,14 @@ public sealed class ParameterSourceNode<T> : UpdateNode<T>, IHasTextProperty whe
         return Task.CompletedTask;
     }
 
-    protected override async Task<T> GetValue(PulseContext c)
+    protected override Task<T> GetValue(PulseContext c)
     {
-        if (string.IsNullOrWhiteSpace(Text)) return default;
+        if (string.IsNullOrWhiteSpace(Text)) return Task.FromResult(default(T));
 
-        var parameter = await c.GetParameter<T>(Text);
+        var parameter = c.GetParameter<T>(Text);
         var value = parameter?.GetValue<T>() ?? default;
         ValueStore.Write(value, c);
-        return value;
+        return Task.FromResult(value);
     }
 }
 
@@ -181,13 +181,13 @@ public sealed class ReadParameterNode<T> : Node, IFlowInput where T : struct
     public ValueInput<string> Name = new();
     public ValueOutput<T> Value = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
-        var parameter = await c.GetParameter<T>(Name.Read(c));
-        if (parameter is null || parameter.Type != parameterType) return;
+        var parameter = c.GetParameter<T>(Name.Read(c));
+        if (parameter is null || parameter.Type != parameterType) return Task.CompletedTask;
 
         Value.Write(parameter.GetValue<T>(), c);
-        await Next.Execute(c);
+        return Next.Execute(c);
     }
 }
 
@@ -221,7 +221,7 @@ public sealed class PhysboneParameterSourceNode : UpdateNode<bool, bool, float, 
         return Task.CompletedTask;
     }
 
-    protected override async Task<(bool, bool, float, float, float)> GetValues(PulseContext c)
+    protected override Task<(bool, bool, float, float, float)> GetValues(PulseContext c)
     {
         var isGrabbed = false;
         var isPosed = false;
@@ -229,19 +229,19 @@ public sealed class PhysboneParameterSourceNode : UpdateNode<bool, bool, float, 
         var stretch = 0f;
         var squish = 0f;
 
-        var isGrabbedParameter = await c.GetParameter<bool>($"{Text}_IsGrabbed");
+        var isGrabbedParameter = c.GetParameter<bool>($"{Text}_IsGrabbed");
         if (isGrabbedParameter is not null) isGrabbed = isGrabbedParameter.GetValue<bool>();
 
-        var isPosedParameter = await c.GetParameter<bool>($"{Text}_IsPosed");
+        var isPosedParameter = c.GetParameter<bool>($"{Text}_IsPosed");
         if (isPosedParameter is not null) isPosed = isPosedParameter.GetValue<bool>();
 
-        var angleParameter = await c.GetParameter<float>($"{Text}_Angle");
+        var angleParameter = c.GetParameter<float>($"{Text}_Angle");
         if (angleParameter is not null) angle = angleParameter.GetValue<float>();
 
-        var stretchParameter = await c.GetParameter<float>($"{Text}_Stretch");
+        var stretchParameter = c.GetParameter<float>($"{Text}_Stretch");
         if (stretchParameter is not null) stretch = stretchParameter.GetValue<float>();
 
-        var squishParameter = await c.GetParameter<float>($"{Text}_Squish");
+        var squishParameter = c.GetParameter<float>($"{Text}_Squish");
         if (squishParameter is not null) squish = squishParameter.GetValue<float>();
 
         GrabbedStore.Write(isGrabbed, c);
@@ -250,7 +250,7 @@ public sealed class PhysboneParameterSourceNode : UpdateNode<bool, bool, float, 
         StretchStore.Write(stretch, c);
         SquishStore.Write(squish, c);
 
-        return (isGrabbed, isPosed, angle, stretch, squish);
+        return Task.FromResult((isGrabbed, isPosed, angle, stretch, squish));
     }
 }
 
@@ -291,15 +291,15 @@ public sealed class WildcardParameterSourceNode<T, W0> : UpdateNode<T>, IHasText
         return Task.CompletedTask;
     }
 
-    protected override async Task<T> GetValue(PulseContext c)
+    protected override Task<T> GetValue(PulseContext c)
     {
-        if (string.IsNullOrWhiteSpace(Text)) return default!;
+        if (string.IsNullOrWhiteSpace(Text)) return Task.FromResult(default(T));
 
-        var parameter = await c.GetParameter<T>(Text);
-        if (parameter is null) return default!;
+        var parameter = c.GetParameter<T>(Text);
+        if (parameter is null) return Task.FromResult(default(T));
 
         ParameterStore.Write(parameter, c);
-        return parameter.GetValue<T>();
+        return Task.FromResult(parameter.GetValue<T>());
     }
 }
 
@@ -345,15 +345,15 @@ public sealed class WildcardParameterSourceNode<T, W0, W1> : UpdateNode<T>, IHas
         return Task.CompletedTask;
     }
 
-    protected override async Task<T> GetValue(PulseContext c)
+    protected override Task<T> GetValue(PulseContext c)
     {
-        if (string.IsNullOrWhiteSpace(Text)) return default!;
+        if (string.IsNullOrWhiteSpace(Text)) return Task.FromResult(default(T));
 
-        var parameter = await c.GetParameter<T>(Text);
-        if (parameter is null) return default!;
+        var parameter = c.GetParameter<T>(Text);
+        if (parameter is null) return Task.FromResult(default(T));
 
         ParameterStore.Write(parameter, c);
-        return parameter.GetValue<T>();
+        return Task.FromResult(parameter.GetValue<T>());
     }
 }
 
@@ -402,15 +402,15 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2> : UpdateNode<T>, 
         return Task.CompletedTask;
     }
 
-    protected override async Task<T> GetValue(PulseContext c)
+    protected override Task<T> GetValue(PulseContext c)
     {
-        if (string.IsNullOrWhiteSpace(Text)) return default!;
+        if (string.IsNullOrWhiteSpace(Text)) return Task.FromResult(default(T));
 
-        var parameter = await c.GetParameter<T>(Text);
-        if (parameter is null) return default!;
+        var parameter = c.GetParameter<T>(Text);
+        if (parameter is null) return Task.FromResult(default(T));
 
         ParameterStore.Write(parameter, c);
-        return parameter.GetValue<T>();
+        return Task.FromResult(parameter.GetValue<T>());
     }
 }
 
@@ -462,14 +462,14 @@ public sealed class WildcardParameterSourceNode<T, W0, W1, W2, W3> : UpdateNode<
         return Task.CompletedTask;
     }
 
-    protected override async Task<T> GetValue(PulseContext c)
+    protected override Task<T> GetValue(PulseContext c)
     {
-        if (string.IsNullOrWhiteSpace(Text)) return default!;
+        if (string.IsNullOrWhiteSpace(Text)) return Task.FromResult(default(T));
 
-        var parameter = await c.GetParameter<T>(Text);
-        if (parameter is null) return default!;
+        var parameter = c.GetParameter<T>(Text);
+        if (parameter is null) return Task.FromResult(default(T));
 
         ParameterStore.Write(parameter, c);
-        return parameter.GetValue<T>();
+        return Task.FromResult(parameter.GetValue<T>());
     }
 }

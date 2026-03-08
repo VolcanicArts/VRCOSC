@@ -6,13 +6,13 @@ using System.Text.Json.Serialization;
 
 namespace VRCOSC.App.SDK.Providers.PiShock;
 
-internal class PiShockAuthenticationResponse
+internal class PiShockUser
 {
     [JsonPropertyName("UserId")]
     public int UserId { get; set; }
 }
 
-internal class PiShockHub
+internal class PiShockClient
 {
     [JsonPropertyName("name")]
     public string Name { get; set; } = null!;
@@ -21,7 +21,7 @@ internal class PiShockHub
     public int ClientId { get; set; }
 }
 
-internal class PiShockSharedShocker
+internal class PiShockShocker
 {
     [JsonPropertyName("clientId")]
     public int ClientId { get; set; }

@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Diagnostics;
-using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Utils;
 
@@ -35,11 +34,6 @@ public class VRChatClient
     internal void Teardown()
     {
         Player.ResetAll();
-    }
-
-    internal async Task HandleAvatarChange()
-    {
-        await Player.RetrieveAll();
     }
 
     internal bool HasOpenStateChanged(out bool openState)

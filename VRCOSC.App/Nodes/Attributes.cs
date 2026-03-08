@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FontAwesome6;
+using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.SDK.VRChat;
 
 namespace VRCOSC.App.Nodes;
@@ -226,6 +227,11 @@ public class ValueOutputList<T> : IValueOutput
 public interface IHasTextProperty
 {
     public string Text { get; set; }
+}
+
+public interface IHasKeybindProperty
+{
+    public Keybind Keybind { get; set; }
 }
 
 public interface IFlowInput;

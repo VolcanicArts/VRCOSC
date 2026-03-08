@@ -51,7 +51,7 @@ public class PulseContext
 
     internal Task Execute(FlowContinuation continuation) => processNext(continuation, false);
 
-    internal Task<AvatarConfig?> GetCurrentAvatar() => AppManager.GetInstance().FindCurrentAvatar(Token);
+    internal AvatarConfig? GetCurrentAvatar() => AppManager.GetInstance().GetCurrentAvatar();
 
     internal VRChatClient GetClient() => AppManager.GetInstance().VRChatClient;
 
@@ -63,11 +63,7 @@ public class PulseContext
 
     internal string GetSpeechText() => Graph.CurrentSpeechText;
 
-    internal async Task<VRChatParameter?> GetParameter<T>(string name)
-    {
-        var parameterDefinition = new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>());
-        return await AppManager.GetInstance().FindParameter(parameterDefinition, Token);
-    }
+    internal VRChatParameter? GetParameter<T>(string name) => AppManager.GetInstance().GetParameter<T>(name);
 
     private Task processNext(IFlow next, bool scope)
     {

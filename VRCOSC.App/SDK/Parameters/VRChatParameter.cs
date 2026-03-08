@@ -41,14 +41,6 @@ public record ParameterDefinition
 
 public partial record VRChatParameter
 {
-    [GeneratedRegex(@"^(?:VF\d+_)?(.+)$")]
-    private static partial Regex NameRegex();
-
-    /// <summary>
-    /// The raw name of this parameter. This includes things like the VRCFury prefix
-    /// </summary>
-    public string RawName { get; }
-
     /// <summary>
     /// The name of this parameter
     /// </summary>
@@ -65,10 +57,9 @@ public partial record VRChatParameter
     /// <remarks>If you want to get this as a specific value, call <see cref="GetValue{T}"/></remarks>
     public object Value { get; }
 
-    internal VRChatParameter(string rawName, object value)
+    internal VRChatParameter(string name, object value)
     {
-        RawName = rawName;
-        Name = NameRegex().Match(rawName).Groups[1].Captures[0].Value;
+        Name = name;
         Type = ParameterTypeFactory.CreateFrom(value);
         Value = value;
     }

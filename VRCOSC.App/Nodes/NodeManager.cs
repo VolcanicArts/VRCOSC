@@ -44,8 +44,18 @@ public class NodeManager
         {
             if (Directory.Exists(graphsPath))
             {
-                var loadedGraphs = Directory.EnumerateFiles(graphsPath);
-                Graphs.AddRange(loadedGraphs.Select(field => new NodeGraph { Id = Guid.Parse(Path.GetFileNameWithoutExtension(new FileInfo(field).Name)) }).OrderBy(g => g.Name.Value));
+                var graphFiles = Directory.EnumerateFiles(graphsPath);
+                var localGraphs = new List<NodeGraph>();
+
+                foreach (var graphFilePath in graphFiles)
+                {
+                    if (Guid.TryParse(Path.GetFileNameWithoutExtension(new FileInfo(graphFilePath).Name), out var graphId))
+                    {
+                        localGraphs.Add(new NodeGraph { Id = graphId });
+                    }
+                }
+
+                Graphs.AddRange(localGraphs.OrderBy(g => g.Name.Value));
             }
 
             if (Graphs.Count == 0)
@@ -70,8 +80,18 @@ public class NodeManager
         {
             if (Directory.Exists(presetsPath))
             {
-                var loadedPresets = Directory.EnumerateFiles(presetsPath);
-                Presets.AddRange(loadedPresets.Select(presets => new NodePreset { Id = Guid.Parse(Path.GetFileNameWithoutExtension(new FileInfo(presets).Name)) }).OrderBy(p => p.Name.Value));
+                var presentFiles = Directory.EnumerateFiles(presetsPath);
+                var localPresets = new List<NodePreset>();
+
+                foreach (var presetFilePath in presentFiles)
+                {
+                    if (Guid.TryParse(Path.GetFileNameWithoutExtension(new FileInfo(presetFilePath).Name), out var presetId))
+                    {
+                        localPresets.Add(new NodePreset { Id = presetId });
+                    }
+                }
+
+                Presets.AddRange(localPresets.OrderBy(g => g.Name.Value));
             }
         }
         catch (Exception e)

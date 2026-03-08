@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Text.Json.Nodes;
 using SoundFlow.Components;
 using VRCOSC.App.SDK.VRChat;
@@ -198,8 +197,7 @@ public static partial class TypeResolver
     {
         var dict = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
-        // prioritise the system libraries
-        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies().OrderBy(a => a.FullName!.StartsWith("System")))
+        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
         {
             if (asm.IsDynamic) continue;
 
