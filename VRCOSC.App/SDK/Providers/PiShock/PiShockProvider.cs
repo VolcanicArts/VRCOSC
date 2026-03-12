@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.IO.Ports;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -61,7 +60,7 @@ public class PiShockProvider
             if (!refreshClientResult) return false;
 
             var refreshShockersResult = await populateAvailableShockers();
-            if (!refreshShockersResult) return false;
+            if (!refreshShockersResult.IsSuccess) return false;
 
             webSocket = new WebSocketClient($"{broker_endpoint}?Username={username}&ApiKey={apiKey}", 2000, 3);
             webSocket.OnWsDisconnected += () => initialised = false;
@@ -116,7 +115,7 @@ public class PiShockProvider
     {
         var authResult = await PiShockRequestFactory.AuthenticateUser(username, apiKey);
 
-        if (!authResult)
+        if (!authResult.IsSuccess)
         {
             Logger.Error(authResult.Exception, $"Error in {nameof(PiShockProvider)}");
             userId = -1;
@@ -132,7 +131,7 @@ public class PiShockProvider
     {
         var devicesResult = await PiShockRequestFactory.GetUserDevices(userId, apiKey);
 
-        if (!devicesResult)
+        if (!devicesResult.IsSuccess)
         {
             Logger.Error(devicesResult.Exception, $"Error in {nameof(PiShockProvider)}");
             clientId = -1;
@@ -144,14 +143,14 @@ public class PiShockProvider
         return true;
     }
 
-    private async Task<bool> populateAvailableShockers()
+    private async Task<Result> populateAvailableShockers()
     {
         var shareIDResult = await PiShockRequestFactory.GetShareCodesByOwner(userId, apiKey);
 
-        if (!shareIDResult)
+        if (!shareIDResult.IsSuccess)
         {
             Logger.Error(shareIDResult.Exception, $"Error in {nameof(PiShockProvider)}");
-            return false;
+            return shareIDResult.Exception;
         }
 
         var shareIDs = shareIDResult.Value;
@@ -161,10 +160,10 @@ public class PiShockProvider
 
         var localAvailableShockersResult = await getShockersFromShareIds(shareIDs.SelectMany(pair => pair.Value));
 
-        if (!localAvailableShockersResult)
+        if (!localAvailableShockersResult.IsSuccess)
         {
             Logger.Error(localAvailableShockersResult.Exception, $"Error in {nameof(PiShockProvider)}");
-            return false;
+            return localAvailableShockersResult.Exception;
         }
 
         var localAvailableShockers = localAvailableShockersResult.Value;
@@ -182,7 +181,7 @@ public class PiShockProvider
     {
         var devicesResult = await PiShockRequestFactory.GetShockersByShareIDs(userId, apiKey, shareIds);
 
-        if (!devicesResult)
+        if (!devicesResult.IsSuccess)
         {
             Logger.Error(devicesResult.Exception, $"Error in {nameof(PiShockProvider)}");
             return devicesResult.Exception;
@@ -347,16 +346,13 @@ public class PiShockProvider
         var shareCodeArray = shareCodes.ToArray();
         var missingShareCodes = shareCodeArray.Where(code => availableShockers.All(shocker => shocker.ShareCode != code)).ToArray();
 
-        foreach (var code in missingShareCodes)
-        {
-            var claimed = await claimShareCode(code);
-            if (!claimed.Success) return claimed;
-        }
-
         if (missingShareCodes.Length != 0)
         {
+            var claimed = await PiShockRequestFactory.ClaimSharecodes(username, apiKey, missingShareCodes);
+            if (!claimed.IsSuccess) return new PiShockResult(false, claimed.Exception.ToString());
+
             var refreshResult = await populateAvailableShockers();
-            if (!refreshResult) return new PiShockResult(false, $"{nameof(PiShockProvider)} cannot execute due to an error when refreshing shockers");
+            if (!refreshResult.IsSuccess) return new PiShockResult(false, $"{nameof(PiShockProvider)} cannot execute due to an error when refreshing shockers\n{refreshResult.Exception}");
         }
 
         foreach (var shareCode in shareCodeArray)
@@ -416,59 +412,5 @@ public class PiShockProvider
         }
 
         await webSocket!.SendAsync(content);
-    }
-
-    private async Task<PiShockResult> claimShareCode(string shareCode)
-    {
-        try
-        {
-            var shocker = await legacyRetrieveShockerInfo(shareCode);
-            if (shocker is null) return new PiShockResult(false, $"Shocker for sharecode '{shareCode}' does not exist");
-
-            var request = new LegacyPiShockVibrateActionRequest
-            {
-                Duration = "1",
-                Intensity = "1",
-                AppName = $"{AppManager.APP_NAME}-{username}",
-                Username = username,
-                ApiKey = apiKey,
-                ShareCode = shareCode
-            };
-
-            var response = await httpClient.PostAsync("https://ps.pishock.com/pishock/operate", new StringContent(JsonSerializer.Serialize(request, serialiserOptions), Encoding.UTF8, "application/json"));
-            response.EnsureSuccessStatusCode();
-
-            var responseString = await response.Content.ReadAsStringAsync();
-            return new PiShockResult(responseString.Contains("Succeeded") || responseString.Contains("Attempted"), responseString);
-        }
-        catch (Exception e)
-        {
-            Logger.Error(e, $"{nameof(PiShockProvider)} has experienced an exception when claiming sharecode '{shareCode}'");
-            return new PiShockResult(false, $"{nameof(PiShockProvider)} has experienced an exception when claiming sharecode '{shareCode}'");
-        }
-    }
-
-    private async Task<LegacyPiShockShocker?> legacyRetrieveShockerInfo(string shareCode)
-    {
-        try
-        {
-            var request = new LegacyPiShockShockerInfoRequest
-            {
-                Username = username,
-                ApiKey = apiKey,
-                ShareCode = shareCode
-            };
-
-            var response = await httpClient.PostAsync("https://do.pishock.com/api/GetShockerInfo", new StringContent(JsonSerializer.Serialize(request, serialiserOptions), Encoding.UTF8, "application/json"));
-            response.EnsureSuccessStatusCode();
-
-            var responseString = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<LegacyPiShockShocker>(responseString);
-        }
-        catch (Exception e)
-        {
-            Logger.Error(e, $"{nameof(PiShockProvider)} has experienced an exception when retrieving legacy shocker info for sharecode '{shareCode}'");
-            return null;
-        }
     }
 }
