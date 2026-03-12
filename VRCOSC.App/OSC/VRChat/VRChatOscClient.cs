@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using VRCOSC.App.OSC.Query;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Settings;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.OSC.VRChat;
 
@@ -122,15 +123,18 @@ public class VRChatOSCClient
         {
             var rawName = node.FullPath[(VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS.Length + 1)..];
 
-            VRChatParameter parameter = node.OscType switch
+            VRChatParameter? parameter = node.OscType switch
             {
                 "f" => new VRChatParameter(rawName, (float)(double)node.Value[0]),
                 "i" => new VRChatParameter(rawName, (int)(long)node.Value[0]),
                 "T" => new VRChatParameter(rawName, (bool)node.Value[0]), // T gets returned for true and false
-                _ => throw new InvalidOperationException($"Unknown type '{node.OscType}'")
+                _ => null
             };
 
-            parameters.Add(parameter);
+            if (parameter is null)
+                Logger.Error(new Exception($"Invalid type '{node.OscType}' for OSCQuery node {node.FullPath}"), "Error encountered when auditing nodes");
+            else
+                parameters.Add(parameter);
         }
 
         if (node.Contents is null) return;
