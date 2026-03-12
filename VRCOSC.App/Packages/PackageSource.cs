@@ -35,15 +35,27 @@ public class PackageSource
     public PackageSourceState State { get; private set; } = PackageSourceState.Unknown;
     public string? PackageID => Repository?.PackageFile?.PackageID;
     public string LatestVersion => LatestRelease.Version;
-    public PackageRelease LatestRelease => filterReleases(false, true).First();
+    public PackageRelease LatestRelease => filterReleases(true, true).First();
     public PackageRelease? InstalledRelease => FilteredReleases.SingleOrDefault(packageRelease => packageRelease.Version == InstalledVersion);
 
     public List<PackageRelease> FilteredReleases => filterReleases(true, true);
 
-    private List<PackageRelease> filterReleases(bool includeInstalledRelease, bool includePreReleases) =>
-        Repository!.Releases.Where(packageRelease => SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages) && packageRelease.IsPreRelease && includePreReleases
-                                                     || !packageRelease.IsPreRelease
-                                                     || packageRelease.Version == InstalledVersion && includeInstalledRelease).ToList();
+    private List<PackageRelease> filterReleases(bool includeInstalledRelease, bool includePreReleases)
+    {
+        var allowPreReleasePackages = SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AllowPreReleasePackages);
+        var installedVersion = InstalledVersion;
+
+        return Repository!.Releases.Where(release =>
+        {
+            if (release.Version == installedVersion && !includeInstalledRelease)
+                return false;
+
+            if (release.IsPreRelease && !(allowPreReleasePackages && includePreReleases))
+                return false;
+
+            return true;
+        }).ToList();
+    }
 
     public bool IsInstalled() => PackageManager.GetInstance().IsInstalled(this);
 
@@ -56,7 +68,7 @@ public class PackageSource
         return SemVersion.ComparePrecedence(latestVersion, installedVersion) == 1;
     }
 
-    public PackageRelease? GetLatestPackages(bool includePreRelease)
+    public PackageRelease? GetUpdateRelease(bool includePreRelease)
     {
         var latestRelease = filterReleases(true, includePreRelease).FirstOrDefault();
         if (latestRelease is null) return null;

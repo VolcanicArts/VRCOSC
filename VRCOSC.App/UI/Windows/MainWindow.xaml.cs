@@ -178,10 +178,7 @@ public partial class MainWindow
         if (updateCheckExpired)
         {
             SettingsManager.GetInstance().GetObservable<DateTime>(VRCOSCMetadata.LastUpdateCheck).Value = DateTime.Now;
-        }
 
-        if (updateCheckExpired)
-        {
             var isUpdating = await checkForUpdates();
             if (isUpdating) return;
         }
@@ -205,29 +202,31 @@ public partial class MainWindow
 
         var isBeta = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCMetadata.InstalledUpdateChannel) == UpdateChannel.Beta;
 
-        await PackageManager.GetInstance().Load();
+        var packageManager = PackageManager.GetInstance();
+        await packageManager.Load();
 
         var appVersionChanged = hasAppVersionChanged();
 
         if (appVersionChanged)
         {
             SettingsManager.GetInstance().GetObservable<string>(VRCOSCMetadata.InstalledVersion).Value = AppManager.Version;
+
+            // force install official modules each update
+            await packageManager.InstallPackage(packageManager.OfficialModulesSource, reloadAll: false, refreshBeforeInstall: true, closeWindows: false);
         }
 
-        if (appVersionChanged || (PackageManager.GetInstance().IsCacheOutdated && updateCheckExpired))
+        if (appVersionChanged || packageManager.IsCacheOutdated)
         {
-            await PackageManager.GetInstance().RefreshAllSources(true);
+            await packageManager.RefreshAllSources(true);
 
-            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages) && PackageManager.GetInstance().AnyInstalledPackageUpdates(isBeta))
+            if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.AutoUpdatePackages))
             {
-                await PackageManager.GetInstance().UpdateAllInstalledPackages(isBeta);
+                await packageManager.UpdateAllInstalledPackages(isBeta);
             }
         }
 
         if (!SettingsManager.GetInstance().GetValue<bool>(VRCOSCMetadata.FirstTimeSetupComplete))
         {
-            await PackageManager.GetInstance().InstallPackage(PackageManager.GetInstance().OfficialModulesSource, reloadAll: false, refreshBeforeInstall: false);
-
             var ftsWindow = new FirstTimeInstallWindow();
 
             ftsWindow.SourceInitialized += (_, _) =>
@@ -240,6 +239,8 @@ public partial class MainWindow
 
             SettingsManager.GetInstance().GetObservable<bool>(VRCOSCMetadata.FirstTimeSetupComplete).Value = true;
         }
+
+        packageManager.Serialise();
 
         ProfileManager.GetInstance().Load();
         ModuleManager.GetInstance().LoadAllModules();
