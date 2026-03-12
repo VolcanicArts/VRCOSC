@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using VRCOSC.App.Utils;
 
@@ -16,6 +17,7 @@ internal static class PiShockRequestFactory
 
     private const string auth_endpoint = "https://auth.pishock.com/Auth";
     private const string api_endpoint = "https://ps.pishock.com/PiShock";
+    private const string claim_endpoint = "https://api.pishock.com/Share";
 
     private static void validateArguments(int userId, string apiKey)
     {
@@ -43,7 +45,7 @@ internal static class PiShockRequestFactory
 
         var deserializeResult = JsonSerializerSafe.TryDeserialize<PiShockUser>(content);
 
-        if (!deserializeResult)
+        if (!deserializeResult.IsSuccess)
             return new Exception("Failed to authenticate user. Response content contains invalid JSON");
 
         var data = deserializeResult.Value;
@@ -70,7 +72,7 @@ internal static class PiShockRequestFactory
 
         var deserializeResult = JsonSerializerSafe.TryDeserialize<PiShockClient[]>(content);
 
-        if (!deserializeResult)
+        if (!deserializeResult.IsSuccess)
             return new Exception("Failed to get user devices. Response content contains invalid JSON");
 
         var data = deserializeResult.Value;
@@ -104,7 +106,7 @@ internal static class PiShockRequestFactory
 
         var deserializeResult = JsonSerializerSafe.TryDeserialize<Dictionary<string, int[]>>(content);
 
-        if (!deserializeResult)
+        if (!deserializeResult.IsSuccess)
             return new Exception("Failed to get sharecodes by owner. Response content contains invalid JSON");
 
         var data = deserializeResult.Value;
@@ -135,11 +137,31 @@ internal static class PiShockRequestFactory
 
         var deserializeResult = JsonSerializerSafe.TryDeserialize<Dictionary<string, PiShockShocker[]>>(content);
 
-        if (!deserializeResult)
+        if (!deserializeResult.IsSuccess)
             return new Exception("Failed to get shockers from share IDs. Response content contains invalid JSON");
 
         var data = deserializeResult.Value;
 
         return data;
+    }
+
+    public static async Task<Result> ClaimSharecodes(string username, string apiKey, string[] sharecodes)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(username);
+        ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
+        ArgumentOutOfRangeException.ThrowIfEqual(sharecodes.Length, 0, nameof(sharecodes));
+
+        var requestUri = new Uri(claim_endpoint);
+        var request = new HttpRequestMessage(HttpMethod.Put, requestUri);
+        request.Headers.Add("X-PiShock-Username", username);
+        request.Headers.Add("X-PiShock-Api-Key", apiKey);
+        request.Content = JsonContent.Create(new { Shares = sharecodes });
+
+        var response = await http_client.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+            return new Exception($"Failed to claim sharecodes. Response status code: {response.StatusCode}");
+
+        return true;
     }
 }

@@ -58,9 +58,6 @@ public class PackageManager
         SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.AllowPreReleasePackages).Subscribe(() => MainWindow.GetInstance().PackagesView.Refresh());
     }
 
-    public PackageSource? GetPackage(string packageID) => Sources.FirstOrDefault(packageSource => packageSource.PackageID == packageID);
-    public PackageSource? GetPackageSourceForRelease(PackageRelease packageRelease) => Sources.FirstOrDefault(packageSource => packageSource.FilteredReleases.Contains(packageRelease));
-
     public async Task Load()
     {
         builtinSources.ForEach(source => Sources.Add(source));
@@ -86,24 +83,20 @@ public class PackageManager
         await Task.WhenAll(tasks);
 
         if (forceRemoteGrab) CacheExpireTime = DateTime.Now + TimeSpan.FromDays(1);
-        serialisationManager.Serialise();
-        MainWindow.GetInstance().PackagesView.Refresh();
     }
-
-    public bool AnyInstalledPackageUpdates(bool includePreRelease) => Sources.Where(source => source.IsInstalled()).Any(packageSource => packageSource.GetLatestPackages(includePreRelease) is not null);
 
     public async Task UpdateAllInstalledPackages(bool includePreRelease)
     {
         var tasks = Sources.Where(source => source.IsInstalled()).Select(packageSource =>
         {
-            var latestRelease = packageSource.GetLatestPackages(includePreRelease);
-            return latestRelease is null ? Task.CompletedTask : InstallPackage(packageSource, latestRelease, false, false);
+            var updateRelease = packageSource.GetUpdateRelease(includePreRelease);
+            return updateRelease is null ? Task.CompletedTask : InstallPackage(packageSource, updateRelease, false, false, false);
         });
 
         await Task.WhenAll(tasks);
-
-        serialisationManager.Serialise();
     }
+
+    public void Serialise() => serialisationManager.Serialise();
 
     public async Task<bool> InstallPackage(PackageSource packageSource, PackageRelease? packageRelease = null, bool reloadAll = true, bool refreshBeforeInstall = true, bool closeWindows = true)
     {
@@ -117,7 +110,7 @@ public class PackageManager
             }
         }
 
-        if (IsInstalled(packageSource)) storage.DeleteDirectory(packageSource.PackageID!);
+        storage.DeleteDirectory(packageSource.PackageID!);
         if (refreshBeforeInstall) await packageSource.Refresh(true);
 
         var targetDirectory = storage.GetStorageForDirectory(packageSource.PackageID!);
@@ -126,8 +119,7 @@ public class PackageManager
         Logger.Log($"Installing {packageSource.InternalReference}");
 
         await downloadRelease(packageSource, release, targetDirectory);
-
-        InstalledPackages[packageSource.PackageID!] = packageRelease?.Version ?? packageSource.LatestVersion;
+        InstalledPackages[packageSource.PackageID!] = release.Version;
 
         if (reloadAll)
         {

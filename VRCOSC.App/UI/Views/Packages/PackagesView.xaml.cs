@@ -52,9 +52,12 @@ public sealed partial class PackagesView
             if (app.State.Value is AppManagerState.Starting or AppManagerState.Started)
                 await app.StopAsync();
 
-            await MainWindow.GetInstance().ShowLoadingOverlay(
-                new CallbackProgressAction("Refreshing All Packages",
-                    () => PackageManager.GetInstance().RefreshAllSources(true)));
+            await MainWindow.GetInstance().ShowLoadingOverlay(new CallbackProgressAction("Refreshing All Packages", async () =>
+            {
+                await PackageManager.GetInstance().RefreshAllSources(true);
+                PackageManager.GetInstance().Serialise();
+                Refresh();
+            }));
         }
     }
 
