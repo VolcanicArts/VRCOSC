@@ -52,6 +52,10 @@
                                                 </Border.Background>
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="30"/>
+                                                        <ColumnDefinition Width="5"/>
+                                                        <ColumnDefinition Width="30"/>
+                                                        <ColumnDefinition Width="5"/>
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="5"/>
                                                         <ColumnDefinition Width="*"/>
@@ -59,6 +63,18 @@
                                                         <ColumnDefinition Width="30"/>
                                                     </Grid.ColumnDefinitions>
                                                     <Grid Grid.Column="0">
+                                                        <core:VRCOSCCheckBox IsChecked="{Binding Enabled.Value}" Width="30" Height="30"/>
+                                                    </Grid>
+                                                    <Grid Grid.Column="2">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="Auto"/>
+                                                            <RowDefinition Height="2"/>
+                                                            <RowDefinition Height="Auto"/>
+                                                        </Grid.RowDefinitions>
+                                                        <core:IconButton Grid.Row="0" Width="28" Height="14" Icon="Solid_ChevronUp" ButtonColour="Blue" Click="OrderUp_OnClick" Tag="{Binding}"/>
+                                                        <core:IconButton Grid.Row="2" Width="28" Height="14" Icon="Solid_ChevronDown" ButtonColour="Blue" Click="OrderDown_OnClick" Tag="{Binding}"/>
+                                                    </Grid>
+                                                    <Grid Grid.Column="4">
                                                         <TextBox x:Name="FileLocationTextBox" Text="{Binding FileLocation.Value}" FontSize="16" VerticalAlignment="Center" Foreground="{DynamicResource CForeground1}" VerticalContentAlignment="Center" />
                                                         <TextBlock Foreground="{DynamicResource CForeground3}" Text="C:\Some\File\Location.exe" FontSize="16" FontWeight="Regular"
                                                                    VerticalAlignment="Center" Margin="2 -2 2 0" IsHitTestVisible="False">
@@ -81,7 +97,7 @@
                                                             </TextBlock.Style>
                                                         </TextBlock>
                                                     </Grid>
-                                                    <Grid Grid.Column="2">
+                                                    <Grid Grid.Column="6">
                                                         <TextBox x:Name="ArgumentsTextBox" Text="{Binding Arguments.Value}" FontSize="16" VerticalAlignment="Center" Foreground="{DynamicResource CForeground1}" VerticalContentAlignment="Center" />
                                                         <TextBlock Foreground="{DynamicResource CForeground3}" Text="--some-argument" FontSize="16" FontWeight="Regular"
                                                                    VerticalAlignment="Center" Margin="2 -2 2 0" IsHitTestVisible="False">
@@ -104,7 +120,7 @@
                                                             </TextBlock.Style>
                                                         </TextBlock>
                                                     </Grid>
-                                                    <core:IconButton Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center" ButtonColour="Red" Icon="Solid_Minus" Width="28" Height="28" Click="RemoveInstance_OnClick" Tag="{Binding}"/>
+                                                    <core:IconButton Grid.Column="8" HorizontalAlignment="Center" VerticalAlignment="Center" ButtonColour="Red" Icon="Solid_Minus" Width="28" Height="28" Click="RemoveInstance_OnClick" Tag="{Binding}"/>
                                                 </Grid>
                                             </Border>
                                         </ControlTemplate>

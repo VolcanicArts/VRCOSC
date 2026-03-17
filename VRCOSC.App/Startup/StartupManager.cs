@@ -5,6 +5,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Startup.Serialisation;
 using VRCOSC.App.Utils;
@@ -29,10 +30,12 @@ public class StartupManager
 
         Instances.OnCollectionChanged((newItems, _) =>
         {
-            foreach (var newInstance in newItems)
+            foreach (var newInstance in newItems.Where(i => !i.Hooked))
             {
+                newInstance.Enabled.Subscribe(_ => serialisationManager.Serialise());
                 newInstance.FileLocation.Subscribe(_ => serialisationManager.Serialise());
                 newInstance.Arguments.Subscribe(_ => serialisationManager.Serialise());
+                newInstance.Hooked = true;
             }
         }, true);
 
@@ -41,7 +44,7 @@ public class StartupManager
 
     public void OpenFileLocations()
     {
-        foreach (var startupInstance in Instances)
+        foreach (var startupInstance in Instances.Where(i => i.Enabled.Value))
         {
             var fileLocation = startupInstance.FileLocation.Value;
             var arguments = startupInstance.Arguments.Value;
@@ -49,12 +52,7 @@ public class StartupManager
             try
             {
                 if (string.IsNullOrEmpty(fileLocation)) continue;
-
-                if (!File.Exists(fileLocation))
-                {
-                    ExceptionHandler.Handle($"File location '{fileLocation}' does not exist when attempting to startup");
-                    continue;
-                }
+                if (!File.Exists(fileLocation)) continue;
 
                 if (fileLocation.EndsWith(".exe"))
                 {
@@ -78,6 +76,9 @@ public class StartupManager
 
 public class StartupInstance
 {
+    public bool Hooked { get; set; }
+
+    public Observable<bool> Enabled { get; } = new(true);
     public Observable<string> FileLocation { get; } = new(string.Empty);
     public Observable<string> Arguments { get; } = new(string.Empty);
 }

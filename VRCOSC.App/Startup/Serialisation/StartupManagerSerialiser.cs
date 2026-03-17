@@ -22,6 +22,7 @@ public class StartupManagerSerialiser : Serialiser<StartupManager, SerialisableS
         {
             Reference.Instances.Add(new StartupInstance
             {
+                Enabled = { Value = serialisableStartupInstance.Enabled },
                 FileLocation = { Value = serialisableStartupInstance.FileLocation },
                 Arguments = { Value = serialisableStartupInstance.Arguments }
             });

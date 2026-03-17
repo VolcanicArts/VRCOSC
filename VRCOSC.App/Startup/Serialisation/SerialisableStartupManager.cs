@@ -30,6 +30,9 @@ public class SerialisableStartupManager : SerialisableVersion
 [JsonObject]
 public class SerialisableStartupInstance
 {
+    [JsonProperty("enabled")]
+    public bool Enabled { get; set; } = true;
+
     [JsonProperty("file_location")]
     public string FileLocation { get; set; } = string.Empty;
 
@@ -43,6 +46,7 @@ public class SerialisableStartupInstance
 
     public SerialisableStartupInstance(StartupInstance startupInstance)
     {
+        Enabled = startupInstance.Enabled.Value;
         FileLocation = startupInstance.FileLocation.Value;
         Arguments = startupInstance.Arguments.Value;
     }

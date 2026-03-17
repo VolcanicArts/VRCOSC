@@ -28,4 +28,30 @@ public partial class StartupView
 
         StartupManager.GetInstance().Instances.Remove(instance);
     }
+
+    private void OrderUp_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (IconButton)sender;
+        var instance = (StartupInstance)element.Tag;
+
+        var instances = StartupManager.GetInstance().Instances;
+
+        var index = instances.IndexOf(instance);
+        if (index == 0) return;
+
+        instances.Move(index, --index);
+    }
+
+    private void OrderDown_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (IconButton)sender;
+        var instance = (StartupInstance)element.Tag;
+
+        var instances = StartupManager.GetInstance().Instances;
+
+        var index = instances.IndexOf(instance);
+        if (index == instances.Count - 1) return;
+
+        instances.Move(index, ++index);
+    }
 }
