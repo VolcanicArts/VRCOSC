@@ -63,6 +63,20 @@ public sealed class PlayerJumpNode : Node, IFlowInput
     }
 }
 
+[Node("Look Vertical", "VRChat/Player/Actions")]
+public sealed class PlayerLookVerticalNode : Node, IFlowInput
+{
+    public FlowContinuation Next = new("Next");
+
+    public ValueInput<float> Angle = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        c.GetPlayer().LookVertical(Angle.Read(c));
+        await Next.Execute(c);
+    }
+}
+
 [Node("Look Horizontal", "VRChat/Player/Actions")]
 public sealed class PlayerLookHorizontalNode : Node, IFlowInput
 {
