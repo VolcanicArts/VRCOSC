@@ -106,3 +106,19 @@ public sealed class Vector3DeltaNode : Node
         return Task.CompletedTask;
     }
 }
+
+[Node("Length", "Math/Vector3")]
+[NodeCollapsed]
+public sealed class Vector3LengthNode : Node
+{
+    public ValueInput<Vector3> Input = new();
+    public ValueOutput<float> Length = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        var input = Input.Read(c);
+
+        Length.Write(input.Length(), c);
+        return Task.CompletedTask;
+    }
+}
