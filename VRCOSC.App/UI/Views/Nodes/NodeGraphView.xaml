@@ -785,6 +785,7 @@
                             <fa6:FontAwesome Icon="{Binding Node.Metadata.Icon}" FontSize="20"
                                              VerticalAlignment="Center"
                                              HorizontalAlignment="Center"
+                                             Margin="0 5"
                                              Foreground="{DynamicResource CForeground2}"
                                              TextAlignment="Center"
                                              FontWeight="SemiBold"/>
@@ -837,6 +838,7 @@
                             <fa6:FontAwesome Icon="{Binding Node.Metadata.Icon}" FontSize="20"
                                              VerticalAlignment="Center"
                                              HorizontalAlignment="Center"
+                                             Margin="0 5"
                                              Foreground="{DynamicResource CForeground2}"
                                              TextAlignment="Center"
                                              FontWeight="SemiBold"/>
