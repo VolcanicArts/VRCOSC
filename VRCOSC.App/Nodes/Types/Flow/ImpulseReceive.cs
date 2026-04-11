@@ -14,10 +14,7 @@ public sealed class ImpulseReceiveNode : Node, IImpulseReceiver
 
     public FlowContinuation OnCall = new("On Call");
 
-    protected override async Task Process(PulseContext c)
-    {
-        await OnCall.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => OnCall.Execute(c);
 
     public void WriteOutputs(object[] values, PulseContext c)
     {
@@ -34,10 +31,7 @@ public sealed class ImpulseReceiveNode<T1> : Node, IImpulseReceiver
 
     public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
 
-    protected override async Task Process(PulseContext c)
-    {
-        await OnCall.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => OnCall.Execute(c);
 
     public void WriteOutputs(object[] values, PulseContext c)
     {
@@ -56,10 +50,7 @@ public sealed class ImpulseReceiveNode<T1, T2> : Node, IImpulseReceiver
     public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
     public ValueOutput<T2> Second = new(typeof(T2).GetFriendlyName());
 
-    protected override async Task Process(PulseContext c)
-    {
-        await OnCall.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => OnCall.Execute(c);
 
     public void WriteOutputs(object[] values, PulseContext c)
     {
@@ -80,10 +71,7 @@ public sealed class ImpulseReceiveNode<T1, T2, T3> : Node, IImpulseReceiver
     public ValueOutput<T2> Second = new(typeof(T2).GetFriendlyName());
     public ValueOutput<T3> Third = new(typeof(T3).GetFriendlyName());
 
-    protected override async Task Process(PulseContext c)
-    {
-        await OnCall.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => OnCall.Execute(c);
 
     public void WriteOutputs(object[] values, PulseContext c)
     {
@@ -106,10 +94,7 @@ public sealed class ImpulseReceiveNode<T1, T2, T3, T4> : Node, IImpulseReceiver
     public ValueOutput<T3> Third = new(typeof(T3).GetFriendlyName());
     public ValueOutput<T4> Fourth = new(typeof(T4).GetFriendlyName());
 
-    protected override async Task Process(PulseContext c)
-    {
-        await OnCall.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => OnCall.Execute(c);
 
     public void WriteOutputs(object[] values, PulseContext c)
     {

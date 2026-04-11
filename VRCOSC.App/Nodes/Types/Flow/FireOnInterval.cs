@@ -17,10 +17,7 @@ public sealed class FireOnIntervalNode : Node, IActiveUpdateNode
 
     public ValueInput<int> DelayMilliseconds = new("Delay Milliseconds");
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => Next.Execute(c);
 
     public Task<bool> OnUpdate(PulseContext c)
     {

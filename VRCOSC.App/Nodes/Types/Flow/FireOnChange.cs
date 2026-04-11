@@ -16,16 +16,13 @@ public sealed class FireOnChangeNode<T> : Node
 
     public ValueInput<T> Value = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         PrevValue.Write(Value.Read(c), c);
-        await Next.Execute(c);
+        return Next.Execute(c);
     }
 
-    protected override bool ShouldProcess(PulseContext c)
-    {
-        return !EqualityComparer<T>.Default.Equals(Value.Read(c), PrevValue.Read(c));
-    }
+    protected override bool ShouldProcess(PulseContext c) => !EqualityComparer<T>.Default.Equals(Value.Read(c), PrevValue.Read(c));
 }
 
 [Node("Fire On Change Multi", "Flow")]
@@ -37,10 +34,10 @@ public sealed class FireOnChangeMultiNode<T> : Node
 
     public ValueInputList<T> Values = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         PrevValues.Write(Values.Read(c), c);
-        await Next.Execute(c);
+        return Next.Execute(c);
     }
 
     protected override bool ShouldProcess(PulseContext c)
@@ -64,10 +61,10 @@ public sealed class FireOnChangeEnumerableNode<T> : Node, IActiveUpdateNode
 
     public ValueInput<IEnumerable<T>> Enumerable = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         EnumerableStore.Write(Enumerable.Read(c), c);
-        await Next.Execute(c);
+        return Next.Execute(c);
     }
 
     public Task<bool> OnUpdate(PulseContext c)

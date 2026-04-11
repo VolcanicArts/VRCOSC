@@ -10,24 +10,24 @@ public sealed class FireOnFalseNode : Node
 {
     public FlowContinuation Next = new("Next");
 
-    public GlobalStore<bool> PreviousValue = new();
+    public GlobalStore<bool> PrevCondition = new();
 
     public ValueInput<bool> Condition = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => Next.Execute(c);
 
     protected override bool ShouldProcess(PulseContext c)
     {
-        if (!Condition.Read(c) && PreviousValue.Read(c))
+        var condition = Condition.Read(c);
+        var prevCondition = PrevCondition.Read(c);
+
+        if (!condition && prevCondition)
         {
-            PreviousValue.Write(Condition.Read(c), c);
+            PrevCondition.Write(condition, c);
             return true;
         }
 
-        PreviousValue.Write(Condition.Read(c), c);
+        PrevCondition.Write(condition, c);
         return false;
     }
 }
