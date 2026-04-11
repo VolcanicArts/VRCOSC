@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using System.Text.Json.Nodes;
 using SoundFlow.Components;
 using VRCOSC.App.SDK.VRChat;
@@ -36,7 +37,10 @@ public static partial class TypeResolver
         { "jsonobject", typeof(JsonObject) },
         { "user", typeof(User) },
         { "instance", typeof(Instance) },
-        { "soundplayer", typeof(SoundPlayer) }
+        { "soundplayer", typeof(SoundPlayer) },
+        { "vector2", typeof(Vector2) },
+        { "vector3", typeof(Vector3) },
+        { "quaternion", typeof(Quaternion) }
     };
 
     private static Lazy<Dictionary<string, Type>> typeIndex = new(buildTypeIndex, true);
