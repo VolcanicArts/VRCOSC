@@ -254,6 +254,53 @@ public sealed class PhysboneParameterSourceNode : UpdateNode<bool, bool, float, 
     }
 }
 
+[Node("Raycast Parameter Source", "Parameters/Receive")]
+public sealed class RaycastParameterSourceNode : UpdateNode<bool, float, float>, IHasTextProperty
+{
+    public override int UpdateOffset => -2;
+
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
+
+    public GlobalStore<bool> HitStore = new();
+    public GlobalStore<float> RatioStore = new();
+    public GlobalStore<float> DistanceStore = new();
+
+    public ValueOutput<bool> Hit = new();
+    public ValueOutput<float> Ratio = new();
+    public ValueOutput<float> Distance = new();
+
+    protected override Task Process(PulseContext c)
+    {
+        Hit.Write(HitStore.Read(c), c);
+        Ratio.Write(RatioStore.Read(c), c);
+        Distance.Write(DistanceStore.Read(c), c);
+        return Task.CompletedTask;
+    }
+
+    protected override Task<(bool, float, float)> GetValues(PulseContext c)
+    {
+        var hit = false;
+        var ratio = 0f;
+        var distance = 0f;
+
+        var hitParameter = c.GetParameter<bool>($"{Text}_Hit");
+        if (hitParameter is not null) hit = hitParameter.GetValue<bool>();
+
+        var ratioParameter = c.GetParameter<float>($"{Text}_Ratio");
+        if (ratioParameter is not null) ratio = ratioParameter.GetValue<float>();
+
+        var distanceParameter = c.GetParameter<float>($"{Text}_Distance");
+        if (distanceParameter is not null) distance = distanceParameter.GetValue<float>();
+
+        HitStore.Write(hit, c);
+        RatioStore.Write(ratio, c);
+        DistanceStore.Write(distance, c);
+
+        return Task.FromResult((hit, ratio, distance));
+    }
+}
+
 [Node("Wildcard Parameter Source", "Parameters/Receive/Wildcard")]
 public sealed class WildcardParameterSourceNode<T, W0> : UpdateNode<T>, IHasTextProperty where T : struct
 {
