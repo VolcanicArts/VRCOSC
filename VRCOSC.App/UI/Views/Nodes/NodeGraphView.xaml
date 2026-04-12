@@ -35,6 +35,7 @@
         <nodes:ValueVariableSizeControlVisibilityConverter x:Key="InputValueVariableSizeControlVisibilityConverter"/>
         <nodes:ValueVariableSizeControlVisibilityConverter x:Key="OutputValueVariableSizeControlVisibilityConverter" CheckOutput="True"/>
         <nodes:NodeIconToTitleVisibilityConverter x:Key="NodeIconToTitleVisibilityConverter"/>
+        <nodes:NodeIconToIconVisibilityConverter x:Key="NodeIconToIconVisibilityConverter"/>
 
         <system:Double x:Key="PaddedWidth">54000</system:Double>
         <system:Double x:Key="PaddedHeight">54000</system:Double>
@@ -615,7 +616,7 @@
                 </Border.RenderTransform>
                 <Grid>
                     <ContentPresenter ContentTemplate="{StaticResource BackgroundTemplate}"/>
-                    <Grid VerticalAlignment="Top" Margin="0 5"
+                    <Grid VerticalAlignment="Top" Margin="0 2"
                           Visibility="{Binding ContentVisible, Mode=OneWay, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -773,9 +774,10 @@
                             </ItemsControl.RenderTransform>
                         </ItemsControl>
                         <Grid Grid.Column="1" VerticalAlignment="Center">
-                            <Viewbox Stretch="Uniform" Margin="0 -1 0 0">
+                            <Viewbox Stretch="Uniform" Margin="0 -2 0 0">
                                 <TextBlock Foreground="{DynamicResource CForeground2}"
                                            Text="{Binding Node.DisplayName}" FontSize="15"
+                                           Margin="0 2"
                                            VerticalAlignment="Center"
                                            HorizontalAlignment="Center"
                                            TextAlignment="Center"
@@ -783,6 +785,7 @@
                                            Visibility="{Binding Node.Metadata.Icon, Converter={StaticResource NodeIconToTitleVisibilityConverter}}"/>
                             </Viewbox>
                             <fa6:FontAwesome Icon="{Binding Node.Metadata.Icon}" FontSize="20"
+                                             Visibility="{Binding Node.Metadata.Icon, Converter={StaticResource NodeIconToIconVisibilityConverter}}"
                                              VerticalAlignment="Center"
                                              HorizontalAlignment="Center"
                                              Margin="0 5"
@@ -826,9 +829,10 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <Grid Grid.Column="0" VerticalAlignment="Center">
-                            <Viewbox Stretch="Uniform" Margin="6 -1 0 0">
+                            <Viewbox Stretch="Uniform" Margin="6 -2 0 0">
                                 <TextBlock Foreground="{DynamicResource CForeground2}"
                                            Text="{Binding Node.DisplayName}" FontSize="15"
+                                           Margin="0 2"
                                            VerticalAlignment="Center"
                                            HorizontalAlignment="Center"
                                            TextAlignment="Center"
@@ -836,6 +840,7 @@
                                            Visibility="{Binding Node.Metadata.Icon, Converter={StaticResource NodeIconToTitleVisibilityConverter}}"/>
                             </Viewbox>
                             <fa6:FontAwesome Icon="{Binding Node.Metadata.Icon}" FontSize="20"
+                                             Visibility="{Binding Node.Metadata.Icon, Converter={StaticResource NodeIconToIconVisibilityConverter}}"
                                              VerticalAlignment="Center"
                                              HorizontalAlignment="Center"
                                              Margin="0 5"
