@@ -474,7 +474,7 @@ public static class TypeExtensions
 
 public static class ProcessExtensions
 {
-    public static unsafe string? GetActiveWindowTitle()
+    public static unsafe Process? GetForegroundProcess()
     {
         var foregroundWindowHandle = PInvoke.GetForegroundWindow();
         if (foregroundWindowHandle == IntPtr.Zero) return null;
@@ -485,13 +485,15 @@ public static class ProcessExtensions
 
         try
         {
-            return Process.GetProcessById((int)processId).ProcessName;
+            return Process.GetProcessById((int)processId);
         }
         catch (ArgumentException)
         {
             return null;
         }
     }
+
+    public static string? GetActiveWindowTitle() => GetForegroundProcess()?.ProcessName;
 
     private static SimpleAudioVolume? getProcessAudioVolume(string? processName)
     {
