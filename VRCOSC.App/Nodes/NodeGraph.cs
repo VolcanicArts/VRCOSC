@@ -237,7 +237,7 @@ public class NodeGraph : IVRCClientEventHandler
                 group?.Nodes.Add(toStringNode.Id);
                 newConnectionMade = true;
             }
-            else if (outputType.IsCastableTo(inputType))
+            else if (outputType.TryCreateConverter(inputType, out _))
             {
                 var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
                 CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
