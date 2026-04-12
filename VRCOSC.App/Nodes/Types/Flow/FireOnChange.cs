@@ -25,9 +25,11 @@ public sealed class FireOnChangeNode<T> : Node
     protected override bool ShouldProcess(PulseContext c) => !EqualityComparer<T>.Default.Equals(Value.Read(c), PrevValue.Read(c));
 }
 
-[Node("Fire On Change Multi", "Flow")]
+[Node("Fire On Change (Multi)", "Flow")]
 public sealed class FireOnChangeMultiNode<T> : Node
 {
+    public override string DisplayName => "Fire On Change";
+
     public FlowContinuation Next = new("Next");
 
     public GlobalStore<List<T>> PrevValues = new();
@@ -50,9 +52,11 @@ public sealed class FireOnChangeMultiNode<T> : Node
     }
 }
 
-[Node("Fire On Change Enumerable", "Flow")]
+[Node("Fire On Change (Enumerable)", "Flow")]
 public sealed class FireOnChangeEnumerableNode<T> : Node, IActiveUpdateNode
 {
+    public override string DisplayName => "Fire On Change";
+
     public int UpdateOffset => 0;
 
     public FlowContinuation Next = new("Next");
