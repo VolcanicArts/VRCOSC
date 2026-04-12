@@ -11,6 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Win32;
@@ -146,9 +147,20 @@ public static class UriExtensions
     public static void OpenExternally(this Uri uri) => Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
 }
 
-public static class StringExtensions
+public static partial class StringExtensions
 {
-    public static string Pluralise(this string str) => str + (str.EndsWith('s') ? "'" : "'s");
+    extension(string str)
+    {
+        public string ToFriendlyName() => toFriendlyNameRegex().Replace(str, " $1");
+        public string ToSentence() => toSentenceRegex().Replace(str, " $0");
+        public string Pluralise() => str + (str.EndsWith('s') ? "'" : "'s");
+    }
+
+    [GeneratedRegex("(?<=.)([A-Z])")]
+    private static partial Regex toFriendlyNameRegex();
+
+    [GeneratedRegex(@"((?<!\s)(?<=\p{Ll})\p{Lu})|((?<!\s)(?!\A)\p{Lu}(?>\p{Ll}))")]
+    private static partial Regex toSentenceRegex();
 }
 
 public static class IntegerExtensions
