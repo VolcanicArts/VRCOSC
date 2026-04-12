@@ -68,6 +68,7 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
                         propertyInfo.SetValue(clipVariable, parsedValue);
                     }
 
+                    clipVariable.OnDeserialised();
                     clipState.Variables.Add(clipVariable);
                 });
             });
@@ -104,6 +105,7 @@ public class ChatBoxSerialiser : ProfiledSerialiser<ChatBoxManager, Serialisable
                         propertyInfo.SetValue(clipVariable, parsedValue);
                     }
 
+                    clipVariable.OnDeserialised();
                     clipEvent.Variables.Add(clipVariable);
                 });
             });

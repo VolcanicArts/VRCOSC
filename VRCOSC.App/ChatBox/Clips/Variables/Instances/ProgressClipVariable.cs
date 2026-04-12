@@ -22,8 +22,11 @@ public class ProgressClipVariable : ClipVariable
     [ClipVariableOption("visual_resolution", "Visual Resolution", "What resolution should the visual be at?")]
     public int VisualResolution { get; set; } = 10;
 
-    [ClipVariableOption("visual_line", "Visual Line", "The character to be shown on the visual where the position isn't")]
+    [ClipVariableOption("visual_line", "Visual Line", "The character to be shown on the visual infront of the position")]
     public string VisualLine { get; set; } = "\u2501";
+
+    [ClipVariableOption("visual_line_complete", "Visual Line Complete", "The character to be shown on the visual behind the position")]
+    public string VisualLineComplete { get; set; } = string.Empty;
 
     [ClipVariableOption("visual_position", "Visual Position", "The character to be shown on the visual where the position is")]
     public string VisualPosition { get; set; } = "\u25CF";
@@ -34,7 +37,12 @@ public class ProgressClipVariable : ClipVariable
     [ClipVariableOption("visual_end", "Visual End", "The character to be shown at the end of the visual")]
     public string VisualEnd { get; set; } = "\u252B";
 
-    public override bool IsDefault() => base.IsDefault() && UseVisual && VisualResolution == 10 && VisualLine == "\u2501" && VisualPosition == "\u25CF" && VisualStart == "\u2523" && VisualEnd == "\u252B";
+    public override bool IsDefault() => base.IsDefault() && UseVisual && VisualResolution == 10 && VisualLine == "\u2501" && VisualLineComplete == "\u2501" && VisualPosition == "\u25CF" && VisualStart == "\u2523" && VisualEnd == "\u252B";
+
+    public override void OnDeserialised()
+    {
+        if (VisualLineComplete == string.Empty) VisualLineComplete = VisualLine;
+    }
 
     public override ProgressClipVariable Clone()
     {
@@ -52,20 +60,30 @@ public class ProgressClipVariable : ClipVariable
 
     protected override string Format(object value)
     {
-        var floatValue = (float)value;
-        floatValue = MathF.Max(0, floatValue);
-        floatValue = MathF.Min(1, floatValue);
+        var floatValue = float.Clamp((float)value, 0f, 1f);
 
         if (UseVisual)
         {
-            var dotPosition = VisualResolution * floatValue;
+            var dotPosition = (int)float.Round((VisualResolution - 1) * floatValue);
 
             var visual = string.Empty;
             visual += VisualStart;
 
             for (var i = 0; i < VisualResolution; i++)
             {
-                visual += (i <= dotPosition && i + 1 > dotPosition) ? VisualPosition : VisualLine;
+                if (i < dotPosition)
+                {
+                    visual += VisualLineComplete;
+                    continue;
+                }
+
+                if (i > dotPosition)
+                {
+                    visual += VisualLine;
+                    continue;
+                }
+
+                visual += VisualPosition;
             }
 
             visual += VisualEnd;

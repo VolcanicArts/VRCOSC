@@ -97,6 +97,10 @@ public abstract class ClipVariable
         previousOnlyScrollWhenTruncated = OnlyScrollWhenTruncated;
     }
 
+    public virtual void OnDeserialised()
+    {
+    }
+
     public virtual ClipVariable Clone()
     {
         var clone = (ClipVariable)Activator.CreateInstance(GetType())!;
