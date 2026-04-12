@@ -39,7 +39,7 @@
         <PackageReference Include="Octokit" Version="14.0.0" />
         <PackageReference Include="PresentMonFps" Version="2.0.5" />
         <PackageReference Include="Semver" Version="3.0.0" />
-        <PackageReference Include="SoundFlow" Version="1.1.1" />
+        <PackageReference Include="SoundFlow" Version="1.4.0" />
         <PackageReference Include="TwitchLib.Api" Version="3.11.0-preview.215.86600fa" />
         <PackageReference Include="TwitchLib.Api.Core" Version="3.11.0-preview.215.86600fa" />
         <PackageReference Include="TwitchLib.Api.Core.Enums" Version="3.11.0-preview.215.86600fa" />

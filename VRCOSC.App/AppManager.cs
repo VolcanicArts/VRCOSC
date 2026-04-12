@@ -13,9 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using org.mariuszgromada.math.mxparser;
-using SoundFlow.Abstracts;
-using SoundFlow.Backends.MiniAudio;
-using SoundFlow.Enums;
 using VRCOSC.App.Actions;
 using VRCOSC.App.Audio;
 using VRCOSC.App.Audio.Whisper;
@@ -70,8 +67,6 @@ internal class AppManager : IVRCClientEventHandler
     public OpenVRManager OpenVRManager { get; private set; }
     public SteamVRManager SteamVRManager { get; private set; }
 
-    private AudioEngine? audioEngine;
-
     private Repeater vrchatCheckTask = null!;
 
     private ConcurrentDictionary<ParameterDefinition, VRChatParameter> parameterCache { get; } = [];
@@ -86,15 +81,6 @@ internal class AppManager : IVRCClientEventHandler
 
     public void Initialise()
     {
-        try
-        {
-            audioEngine = new MiniAudioEngine(44100, Capability.Playback);
-        }
-        catch (Exception e)
-        {
-            Logger.Error(e, $"Error initialising {nameof(MiniAudioEngine)}");
-        }
-
         SettingsManager.GetInstance().GetObservable<Theme>(VRCOSCSetting.Theme).Subscribe(theme => ProxyTheme.Value = theme, true);
 
         ConnectionManager = new ConnectionManager();
@@ -510,6 +496,7 @@ internal class AppManager : IVRCClientEventHandler
 
         await updateCaches();
 
+        await AudioManager.GetInstance().Init();
         StartupManager.GetInstance().OpenFileLocations();
         await RouterManager.GetInstance().Start();
         await VRChatOscClient.EnableSend();
@@ -608,6 +595,7 @@ internal class AppManager : IVRCClientEventHandler
         VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
         await RouterManager.GetInstance().Stop();
+        await AudioManager.GetInstance().Stop();
 
         parameterCache.Clear();
 

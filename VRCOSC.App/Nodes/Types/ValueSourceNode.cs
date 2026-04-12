@@ -16,7 +16,7 @@ public abstract class ValueSourceNode<T1> : ValueComputeNode<T1>, IActiveUpdateN
 
     protected ValueSourceNode(Func<T1> func) => _func = func;
 
-    protected override T1 ComputeValue(PulseContext c) => prevValue.Read(c);
+    protected override T1 ComputeValue(PulseContext c) => _func();
 
     public Task<bool> OnUpdate(PulseContext c)
     {
