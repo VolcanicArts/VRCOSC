@@ -46,7 +46,4 @@ public sealed class FloatProgressVisualNode : Node
 }
 
 [Node("OwO", "Utility")]
-public sealed class OwONode : ConstantNode<string>
-{
-    protected override string GetValue() => "What's this?";
-}
+public sealed class OwONode() : ConstantNode<string>("What's this?");

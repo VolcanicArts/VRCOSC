@@ -85,17 +85,4 @@ public sealed class PathGetExtensionNode : Node
 }
 
 [Node("Temp Path", "Files")]
-public sealed class PathTempPathConstantNode : ConstantNode<string>
-{
-    protected override string GetValue()
-    {
-        try
-        {
-            return Path.GetTempPath();
-        }
-        catch
-        {
-            return null!;
-        }
-    }
-}
+public sealed class PathTempPathConstantNode() : ConstantNode<string>(Path.GetTempPath());

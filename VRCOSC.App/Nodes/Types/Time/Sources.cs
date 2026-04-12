@@ -52,7 +52,4 @@ public sealed class DateTimeUtcNowSourceNode : UpdateNode<DateTime>
 }
 
 [Node("Unix Epoch", "Date & Time")]
-public sealed class DateTimeUnixEpochConstantNode : ConstantNode<DateTime>
-{
-    protected override DateTime GetValue() => DateTime.UnixEpoch;
-}
+public sealed class DateTimeUnixEpochConstantNode() : ConstantNode<DateTime>(DateTime.UnixEpoch);

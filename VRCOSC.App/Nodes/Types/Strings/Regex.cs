@@ -17,7 +17,7 @@ public sealed class RegexMatchNode : Node, IFlowInput, IHasTextProperty
     public FlowContinuation OnMatchHit = new("On Match Hit");
     public FlowContinuation OnMatchMiss = new("On Match Miss");
 
-    public ValueInput<string> StrInput = new("String");
+    public ValueInput<string?> StrInput = new("String");
     public ValueOutput<Match> Result = new();
 
     protected override Task Process(PulseContext c)
