@@ -10,8 +10,8 @@ namespace VRCOSC.App.Nodes.Types.Strings;
 [Node("Compare", "Strings")]
 public sealed class StringCompareNode : Node
 {
-    public ValueInput<string> A = new();
-    public ValueInput<string> B = new();
+    public ValueInput<string?> A = new();
+    public ValueInput<string?> B = new();
     public ValueInput<StringComparison> Comparison = new();
     public ValueOutput<int> Result = new();
 
@@ -25,8 +25,8 @@ public sealed class StringCompareNode : Node
 [Node("Join", "Strings")]
 public sealed class StringJoinNode : Node
 {
-    public ValueInput<string> Separator = new(defaultValue: string.Empty);
-    public ValueInputList<string> Inputs = new();
+    public ValueInput<string?> Separator = new();
+    public ValueInputList<string?> Inputs = new();
     public ValueOutput<string> Output = new();
 
     protected override Task Process(PulseContext c)
@@ -39,8 +39,8 @@ public sealed class StringJoinNode : Node
 [Node("Contains", "Strings")]
 public sealed class StringContainsNode : Node
 {
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
-    public ValueInput<string> Value = new(defaultValue: string.Empty);
+    public ValueInput<string?> Input = new();
+    public ValueInput<string?> Value = new();
     public ValueInput<StringComparison> Comparison = new();
     public ValueOutput<bool> Result = new();
 
@@ -60,12 +60,13 @@ public sealed class StringContainsNode : Node
 [NodeCollapsed]
 public sealed class StringToUpperNode : Node
 {
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
-    public ValueOutput<string> Result = new();
+    public ValueInput<string?> Input = new();
+    public ValueOutput<string?> Result = new();
 
     protected override Task Process(PulseContext c)
     {
-        Result.Write(Input.Read(c).ToUpper(), c);
+        var input = Input.Read(c);
+        Result.Write(input?.ToUpper(), c);
         return Task.CompletedTask;
     }
 }
@@ -74,12 +75,13 @@ public sealed class StringToUpperNode : Node
 [NodeCollapsed]
 public sealed class StringToLowerNode : Node
 {
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
-    public ValueOutput<string> Result = new();
+    public ValueInput<string?> Input = new();
+    public ValueOutput<string?> Result = new();
 
     protected override Task Process(PulseContext c)
     {
-        Result.Write(Input.Read(c).ToLower(), c);
+        var input = Input.Read(c);
+        Result.Write(input?.ToLower(), c);
         return Task.CompletedTask;
     }
 }
@@ -88,7 +90,7 @@ public sealed class StringToLowerNode : Node
 [NodeCollapsed]
 public sealed class StringIsNullOrEmptyNode : Node
 {
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
+    public ValueInput<string?> Input = new();
     public ValueOutput<bool> Result = new();
 
     protected override Task Process(PulseContext c)
@@ -102,7 +104,7 @@ public sealed class StringIsNullOrEmptyNode : Node
 [NodeCollapsed]
 public sealed class StringIsNullOrWhiteSpaceNode : Node
 {
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
+    public ValueInput<string?> Input = new();
     public ValueOutput<bool> Result = new();
 
     protected override Task Process(PulseContext c)
@@ -116,12 +118,13 @@ public sealed class StringIsNullOrWhiteSpaceNode : Node
 [NodeCollapsed]
 public sealed class StringLengthNode : Node
 {
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
+    public ValueInput<string?> Input = new();
     public ValueOutput<int> Length = new();
 
     protected override Task Process(PulseContext c)
     {
-        Length.Write(Input.Read(c).Length, c);
+        var input = Input.Read(c);
+        Length.Write(input?.Length ?? 0, c);
         return Task.CompletedTask;
     }
 }
@@ -129,11 +132,11 @@ public sealed class StringLengthNode : Node
 [Node("Substring", "Strings")]
 public sealed class StringSubstringNode : Node
 {
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
+    public ValueInput<string?> Input = new();
     public ValueInput<int> Index = new();
     public ValueInput<int> Length = new();
 
-    public ValueOutput<string> Output = new();
+    public ValueOutput<string?> Output = new();
 
     protected override Task Process(PulseContext c)
     {
@@ -141,13 +144,15 @@ public sealed class StringSubstringNode : Node
         var index = Index.Read(c);
         var length = Length.Read(c);
 
+        if (string.IsNullOrEmpty(input)) return Task.CompletedTask;
+
         try
         {
-            Output.Write(length == 0 ? input.Substring(index) : input.Substring(index, length), c);
+            Output.Write(length == 0 ? input[index..] : input.Substring(index, length), c);
         }
         catch
         {
-            Output.Write(string.Empty, c);
+            Output.Write(null, c);
         }
 
         return Task.CompletedTask;
@@ -157,8 +162,8 @@ public sealed class StringSubstringNode : Node
 [Node("Ends With", "Strings")]
 public sealed class StringEndsWithNode : Node
 {
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
-    public ValueInput<string> Check = new(defaultValue: string.Empty);
+    public ValueInput<string?> Input = new();
+    public ValueInput<string?> Check = new();
     public ValueInput<StringComparison> Comparison = new();
 
     public ValueOutput<bool> Output = new();
@@ -168,6 +173,8 @@ public sealed class StringEndsWithNode : Node
         var input = Input.Read(c);
         var check = Check.Read(c);
         var comparison = Comparison.Read(c);
+
+        if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(check)) return Task.CompletedTask;
 
         Output.Write(input.EndsWith(check, comparison), c);
 
@@ -178,8 +185,8 @@ public sealed class StringEndsWithNode : Node
 [Node("Starts With", "Strings")]
 public sealed class StringStartsWithNode : Node
 {
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
-    public ValueInput<string> Check = new(defaultValue: string.Empty);
+    public ValueInput<string?> Input = new();
+    public ValueInput<string?> Check = new();
     public ValueInput<StringComparison> Comparison = new();
 
     public ValueOutput<bool> Output = new();
@@ -189,6 +196,8 @@ public sealed class StringStartsWithNode : Node
         var input = Input.Read(c);
         var check = Check.Read(c);
         var comparison = Comparison.Read(c);
+
+        if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(check)) return Task.CompletedTask;
 
         Output.Write(input.StartsWith(check, comparison), c);
 
@@ -202,21 +211,19 @@ public sealed class StringParseNode<T> : Node, IFlowInput where T : IParsable<T>
     public FlowContinuation Success = new("On Success");
     public FlowContinuation Failed = new("On Failed");
 
-    public ValueInput<string> Input = new();
+    public ValueInput<string?> Input = new();
     public ValueInput<CultureInfo> Culture = new("Culture", CultureInfo.CurrentCulture);
     public ValueOutput<T> Output = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         if (T.TryParse(Input.Read(c), Culture.Read(c), out var parsedInput))
         {
             Output.Write(parsedInput, c);
-            await Success.Execute(c);
+            return Success.Execute(c);
         }
-        else
-        {
-            Output.Write(default!, c);
-            await Failed.Execute(c);
-        }
+
+        Output.Write(default!, c);
+        return Failed.Execute(c);
     }
 }
