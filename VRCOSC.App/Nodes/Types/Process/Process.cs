@@ -3,6 +3,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Management;
 using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Process;
@@ -41,7 +43,8 @@ public sealed class ProcessStartNode : Node, IFlowInput
     public FlowContinuation OnStart = new();
     public FlowContinuation OnFail = new();
 
-    public ValueInput<string> Name = new();
+    public ValueInput<string?> Name = new();
+    public ValueOutput<System.Diagnostics.Process?> ProcessOutput = new("Process");
 
     protected override async Task Process(PulseContext c)
     {
@@ -64,6 +67,24 @@ public sealed class ProcessStartNode : Node, IFlowInput
                 };
 
                 process.Start();
+                await process.WaitForExitAsync();
+
+                using var searcher = new ManagementObjectSearcher(
+                    $"SELECT * FROM Win32_Process WHERE Name LIKE '%{name}%'"
+                );
+
+                var result = searcher.Get()
+                                     .Cast<ManagementObject>()
+                                     .OrderByDescending(p => p["CreationDate"]?.ToString() ?? "0")
+                                     .FirstOrDefault();
+
+                if (result != null)
+                {
+                    var pid = (int)(uint)result["ProcessId"];
+                    var target = System.Diagnostics.Process.GetProcessById(pid);
+                    ProcessOutput.Write(target, c);
+                }
+
                 await OnStart.Execute(c);
                 return;
             }
