@@ -158,7 +158,7 @@ public sealed class IncrementNode<T> : Node where T : INumber<T>
     protected override Task Process(PulseContext c)
     {
         var input = Input.Read(c);
-        Output.Write(input++, c);
+        Output.Write(++input, c);
         return Task.CompletedTask;
     }
 }
@@ -173,7 +173,7 @@ public sealed class DecrementNode<T> : Node where T : INumber<T>
     protected override Task Process(PulseContext c)
     {
         var input = Input.Read(c);
-        Output.Write(input--, c);
+        Output.Write(--input, c);
         return Task.CompletedTask;
     }
 }
