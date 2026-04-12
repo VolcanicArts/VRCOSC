@@ -170,7 +170,7 @@ public sealed class ParameterSourceNode<T> : UpdateNode<T>, IHasTextProperty whe
     }
 }
 
-[Node("Read Parameter", "Parameters/Receive")]
+[Node("Read Parameter")]
 [NodeGenericTypeFilter([typeof(bool), typeof(int), typeof(float)])]
 public sealed class ReadParameterNode<T> : Node, IFlowInput where T : struct
 {
