@@ -45,7 +45,7 @@ public class IntClipVariable : ClipVariable
         if (Mode == IntVariableMode.Symbol)
         {
             var convertedInt = Math.Min(Math.Max(intValue, MinValue), MaxValue);
-            var progress = (float)Interpolation.Map(convertedInt, MinValue, MaxValue, 0, 1);
+            var progress = Interpolation.Map(convertedInt, MinValue, MaxValue, 0f, 1f);
             return getSymbol(progress);
         }
 

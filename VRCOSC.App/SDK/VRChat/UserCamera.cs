@@ -276,7 +276,7 @@ public class UserCamera
         if (address is null) return 0f;
 
         var value = address.Value![0];
-        return value is "NaN" ? 0.15f : Interpolation.Map((float)(double)value, 0f, 100f, 0f, 1f);
+        return value is "NaN" ? 0.15f : Interpolation.Map((double)value, 0d, 100d, 0f, 1f);
     }
 
     private async Task<ColorHSL> retrieveGreenScreenBackground()
@@ -285,10 +285,10 @@ public class UserCamera
         var hue = hueAddress is null ? 0 : (int)(double)hueAddress.Value![0];
 
         var saturationAddress = await oscClient.RequestNode(inputToAddress(VRChatCameraInput.Saturation));
-        var saturation = saturationAddress is null ? 0f : (float)Interpolation.Map((double)saturationAddress.Value![0], 0f, 100f, 0f, 1f);
+        var saturation = saturationAddress is null ? 0f : Interpolation.Map((double)saturationAddress.Value![0], 0d, 100d, 0f, 1f);
 
         var lightnessAddress = await oscClient.RequestNode(inputToAddress(VRChatCameraInput.Lightness));
-        var lightness = lightnessAddress is null ? 0f : (float)Interpolation.Map((double)lightnessAddress.Value![0], 0f, 100f, 0f, 1f);
+        var lightness = lightnessAddress is null ? 0f : Interpolation.Map((double)lightnessAddress.Value![0], 0d, 100d, 0f, 1f);
 
         return new ColorHSL(hue, saturation, lightness);
     }
