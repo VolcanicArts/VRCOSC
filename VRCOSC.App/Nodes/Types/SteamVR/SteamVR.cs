@@ -12,55 +12,22 @@ namespace VRCOSC.App.Nodes.Types.SteamVR;
 
 [Node("Is Dashboard Visible", "SteamVR")]
 [NodeCollapsed]
-public sealed class SteamVRIsDashboardVisibleNode : UpdateNode<bool>
-{
-    public ValueOutput<bool> IsVisible = new("Is Visible");
-
-    protected override Task Process(PulseContext c)
-    {
-        IsVisible.Write(AppManager.GetInstance().OpenVRManager.IsDashboardVisible, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<bool> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.IsDashboardVisible);
-}
+public sealed class SteamVRIsDashboardVisibleNode() : ValueSourceNode<bool>(() => AppManager.GetInstance().OpenVRManager.IsDashboardVisible, "Is Visible");
 
 [Node("Is User Present", "SteamVR")]
 [NodeCollapsed]
-public sealed class SteamVRIsUserPresentNode : UpdateNode<bool>
-{
-    public ValueOutput<bool> IsPresent = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        IsPresent.Write(AppManager.GetInstance().OpenVRManager.IsUserPresent, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<bool> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.IsUserPresent);
-}
+public sealed class SteamVRIsUserPresentNode() : ValueSourceNode<bool>(() => AppManager.GetInstance().OpenVRManager.IsUserPresent, "Is Present");
 
 [Node("VR FPS", "SteamVR")]
 [NodeCollapsed]
-public sealed class SteamVRFPSNode : UpdateNode<float>
-{
-    public ValueOutput<float> FPS = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        FPS.Write(AppManager.GetInstance().OpenVRManager.FPS, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<float> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.FPS);
-}
+public sealed class SteamVRFPSNode() : ValueSourceNode<float>(() => AppManager.GetInstance().OpenVRManager.FPS, "FPS");
 
 [Node("Device Info", "SteamVR")]
 public sealed class SteamVRDeviceInfoNode : UpdateNode<bool, bool, float>
 {
     public ValueInput<TrackedDevice> Device = new();
-    public ValueOutput<bool> IsConnected = new("Is Connected");
-    public ValueOutput<bool> IsCharging = new("Is Charging");
+    public ValueOutput<bool> IsConnected = new();
+    public ValueOutput<bool> IsCharging = new();
     public ValueOutput<float> Battery = new();
 
     protected override Task Process(PulseContext c)

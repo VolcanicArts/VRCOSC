@@ -17,8 +17,8 @@ public sealed class JsonParseObjectNode : Node, IFlowInput
         AllowTrailingCommas = true
     };
 
-    public FlowContinuation OnSuccess = new("On Success");
-    public FlowContinuation OnFail = new("On Fail");
+    public FlowContinuation OnSuccess = new();
+    public FlowContinuation OnFail = new();
 
     public ValueInput<string> Input = new();
     public ValueOutput<JsonObject> Json = new();
@@ -54,8 +54,8 @@ public sealed class JsonParseArrayNode : Node, IFlowInput
         AllowTrailingCommas = true
     };
 
-    public FlowContinuation OnSuccess = new("On Success");
-    public FlowContinuation OnFail = new("On Fail");
+    public FlowContinuation OnSuccess = new();
+    public FlowContinuation OnFail = new();
 
     public ValueInput<string> Input = new();
     public ValueOutput<JsonArray> Json = new();

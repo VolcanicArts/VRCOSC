@@ -14,7 +14,7 @@ public abstract class ValueSourceNode<T1> : ValueComputeNode<T1>, IActiveUpdateN
 
     private readonly Func<T1> _func;
 
-    protected ValueSourceNode(Func<T1> func) => _func = func;
+    protected ValueSourceNode(Func<T1> func, string resultName = "") : base(resultName) => _func = func;
 
     protected override T1 ComputeValue(PulseContext c) => _func();
 

@@ -12,17 +12,17 @@ public sealed class SteamVRTriggerHapticNode : Node, IFlowInput
     public FlowContinuation Next = new();
 
     public ValueInput<TrackedDevice> Device = new();
-    public ValueInput<float> DurationSeconds = new("Duration Seconds");
+    public ValueInput<float> DurationSeconds = new();
     public ValueInput<float> Frequency = new();
     public ValueInput<float> Amplitude = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var device = Device.Read(c);
-        if (device is null) return;
+        if (device is null) return Task.CompletedTask;
 
         var duration = DurationSeconds.Read(c);
-        if (duration == 0) return;
+        if (duration == 0) return Task.CompletedTask;
 
         var frequency = Frequency.Read(c);
         frequency = float.Clamp(frequency, 0f, 1f);
@@ -32,7 +32,7 @@ public sealed class SteamVRTriggerHapticNode : Node, IFlowInput
         amplitude = float.Clamp(amplitude, 0f, 1f);
 
         AppManager.GetInstance().OpenVRManager.TriggerHaptic(device, duration, frequency, amplitude);
-        await Next.Execute(c);
+        return Next.Execute(c);
     }
 }
 
@@ -43,12 +43,12 @@ public sealed class SteamVRShutdownDeviceNode : Node, IFlowInput
 
     public ValueInput<TrackedDevice> Device = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var device = Device.Read(c);
-        if (device is null) return;
+        if (device is null) return Task.CompletedTask;
 
         AppManager.GetInstance().SteamVRManager.ShutdownDevice(device);
-        await Next.Execute(c);
+        return Next.Execute(c);
     }
 }

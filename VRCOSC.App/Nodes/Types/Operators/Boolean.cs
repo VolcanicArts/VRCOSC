@@ -5,15 +5,13 @@ using System.Linq;
 
 namespace VRCOSC.App.Nodes.Types.Operators;
 
+[Node("NOT", "Operators/Boolean")]
+[NodeCollapsed]
+public sealed class BooleanNotNode() : SimpleValueTransformNode<bool>(v => !v);
+
 [Node("AND", "Operators/Boolean")]
 [NodeCollapsed]
-public sealed class BooleanAndNode : ValueComputeNode<bool>
-{
-    public ValueInput<bool> A = new();
-    public ValueInput<bool> B = new();
-
-    protected override bool ComputeValue(PulseContext c) => A.Read(c) && B.Read(c);
-}
+public sealed class BooleanAndNode() : SimpleResultComputeNode<bool>((a, b) => a && b);
 
 [Node("AND (Multi)", "Operators/Boolean")]
 public sealed class BooleanMultiAndNode : ValueComputeNode<bool>
@@ -27,13 +25,7 @@ public sealed class BooleanMultiAndNode : ValueComputeNode<bool>
 
 [Node("OR", "Operators/Boolean")]
 [NodeCollapsed]
-public sealed class BooleanOrNode : ValueComputeNode<bool>
-{
-    public ValueInput<bool> A = new();
-    public ValueInput<bool> B = new();
-
-    protected override bool ComputeValue(PulseContext c) => A.Read(c) || B.Read(c);
-}
+public sealed class BooleanOrNode() : SimpleResultComputeNode<bool>((a, b) => a || b);
 
 [Node("OR (Multi)", "Operators/Boolean")]
 public sealed class BooleanMultiOrNode : ValueComputeNode<bool>
@@ -45,24 +37,9 @@ public sealed class BooleanMultiOrNode : ValueComputeNode<bool>
     protected override bool ComputeValue(PulseContext c) => Values.Read(c).Any(v => v);
 }
 
-[Node("NOT", "Operators/Boolean")]
-[NodeCollapsed]
-public sealed class BooleanNotNode : ValueComputeNode<bool>
-{
-    public ValueInput<bool> Input = new();
-
-    protected override bool ComputeValue(PulseContext c) => !Input.Read(c);
-}
-
 [Node("NAND", "Operators/Boolean")]
 [NodeCollapsed]
-public sealed class BooleanNandNode : ValueComputeNode<bool>
-{
-    public ValueInput<bool> A = new();
-    public ValueInput<bool> B = new();
-
-    protected override bool ComputeValue(PulseContext c) => !(A.Read(c) && B.Read(c));
-}
+public sealed class BooleanNandNode() : SimpleResultComputeNode<bool>((a, b) => !(a && b));
 
 [Node("NAND (Multi)", "Operators/Boolean")]
 public sealed class BooleanMultiNandNode : ValueComputeNode<bool>
@@ -76,13 +53,7 @@ public sealed class BooleanMultiNandNode : ValueComputeNode<bool>
 
 [Node("NOR", "Operators/Boolean")]
 [NodeCollapsed]
-public sealed class BooleanNorNode : ValueComputeNode<bool>
-{
-    public ValueInput<bool> A = new();
-    public ValueInput<bool> B = new();
-
-    protected override bool ComputeValue(PulseContext c) => !(A.Read(c) || B.Read(c));
-}
+public sealed class BooleanNorNode() : SimpleResultComputeNode<bool>((a, b) => !(a || b));
 
 [Node("NOR (Multi)", "Operators/Boolean")]
 public sealed class BooleanMultiNorNode : ValueComputeNode<bool>
@@ -96,13 +67,7 @@ public sealed class BooleanMultiNorNode : ValueComputeNode<bool>
 
 [Node("XOR", "Operators/Boolean")]
 [NodeCollapsed]
-public sealed class BooleanXorNode : ValueComputeNode<bool>
-{
-    public ValueInput<bool> A = new();
-    public ValueInput<bool> B = new();
-
-    protected override bool ComputeValue(PulseContext c) => A.Read(c) ^ B.Read(c);
-}
+public sealed class BooleanXorNode() : SimpleResultComputeNode<bool>((a, b) => a ^ b);
 
 [Node("XOR (Multi)", "Operators/Boolean")]
 public sealed class BooleanMultiXorNode : ValueComputeNode<bool>
@@ -116,13 +81,7 @@ public sealed class BooleanMultiXorNode : ValueComputeNode<bool>
 
 [Node("XNOR", "Operators/Boolean")]
 [NodeCollapsed]
-public sealed class BooleanXnorNode : ValueComputeNode<bool>
-{
-    public ValueInput<bool> A = new();
-    public ValueInput<bool> B = new();
-
-    protected override bool ComputeValue(PulseContext c) => !(A.Read(c) ^ B.Read(c));
-}
+public sealed class BooleanXnorNode() : SimpleResultComputeNode<bool>((a, b) => !(a ^ b));
 
 [Node("XNOR (Multi)", "Operators/Boolean")]
 public sealed class BooleanMultiXnorNode : ValueComputeNode<bool>

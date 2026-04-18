@@ -8,19 +8,12 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Math.Vectors;
 
 [Node("Pack Vector2", "Math/Vector2")]
-public sealed class PackVector2Node : Node
+public sealed class PackVector2Node : ValueComputeNode<Vector2>
 {
     public ValueInput<float> X = new();
     public ValueInput<float> Y = new();
-    public ValueOutput<Vector2> Result = new();
 
-    protected override Task Process(PulseContext c)
-    {
-        var x = X.Read(c);
-        var y = Y.Read(c);
-        Result.Write(new Vector2(x, y), c);
-        return Task.CompletedTask;
-    }
+    protected override Vector2 ComputeValue(PulseContext c) => new(X.Read(c), Y.Read(c));
 }
 
 [Node("Unpack Vector2", "Math/Vector2")]
@@ -41,18 +34,7 @@ public sealed class UnpackVector2Node : Node
 
 [Node("Distance", "Math/Vector2")]
 [NodeCollapsed]
-public sealed class Vector2DistanceNode : Node
-{
-    public ValueInput<Vector2> A = new();
-    public ValueInput<Vector2> B = new();
-    public ValueOutput<float> Distance = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Distance.Write(Vector2.Distance(A.Read(c), B.Read(c)), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class Vector2DistanceNode() : SimpleResultComputeNode<Vector2, float>(Vector2.Distance);
 
 [Node("Contains", "Math/Vector2")]
 public sealed class Vector2ContainsNode : Node
@@ -102,16 +84,4 @@ public sealed class Vector2DeltaNode : Node
 
 [Node("Length", "Math/Vector2")]
 [NodeCollapsed]
-public sealed class Vector2LengthNode : Node
-{
-    public ValueInput<Vector2> Input = new();
-    public ValueOutput<float> Length = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var input = Input.Read(c);
-
-        Length.Write(input.Length(), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class Vector2LengthNode() : SimpleValueTransformNode<Vector2, float>(v => v.Length());

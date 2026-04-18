@@ -27,7 +27,7 @@ public sealed class EnumHasFlagNode<T> : Node where T : struct, Enum
 {
     public ValueInput<T> Flags = new();
     public ValueInput<T> Flag = new();
-    public ValueOutput<bool> HasFlag = new("Has Flag");
+    public ValueOutput<bool> HasFlag = new();
 
     protected override Task Process(PulseContext c)
     {
@@ -41,10 +41,10 @@ public sealed class EnumHasFlagNode<T> : Node where T : struct, Enum
 [Node("Flag Add", "Operators/Enum")]
 public sealed class EnumFlagAddNode<T> : Node, IFlowInput where T : struct, Enum
 {
-    public FlowContinuation Next = new("Next");
+    public FlowContinuation Next = new();
 
     public ValueInput<T> Flags = new();
-    public ValueInput<T> NewFlag = new("New Flag");
+    public ValueInput<T> NewFlag = new();
 
     public ValueOutput<T> CreatedFlag = new("Created");
 
@@ -62,10 +62,10 @@ public sealed class EnumFlagAddNode<T> : Node, IFlowInput where T : struct, Enum
 [Node("Flag Remove", "Operators/Enum")]
 public sealed class EnumFlagRemoveNode<T> : Node, IFlowInput where T : struct, Enum
 {
-    public FlowContinuation Next = new("Next");
+    public FlowContinuation Next = new();
 
     public ValueInput<T> Flags = new();
-    public ValueInput<T> OldFlag = new("Old Flag");
+    public ValueInput<T> OldFlag = new();
 
     public ValueOutput<T> CreatedFlag = new("Created");
 
@@ -83,7 +83,7 @@ public sealed class EnumFlagRemoveNode<T> : Node, IFlowInput where T : struct, E
 [Node("Flag Toggle", "Operators/Enum")]
 public sealed class EnumFlagToggleNode<T> : Node, IFlowInput where T : struct, Enum
 {
-    public FlowContinuation Next = new("Next");
+    public FlowContinuation Next = new();
 
     public ValueInput<T> Flags = new();
     public ValueInput<T> Flag = new();

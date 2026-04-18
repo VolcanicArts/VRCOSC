@@ -1,12 +1,10 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading.Tasks;
-
 namespace VRCOSC.App.Nodes.Types.Utility;
 
 [Node("Float Progress Visual", "Utility")]
-public sealed class FloatProgressVisualNode : Node
+public sealed class FloatProgressVisualNode : ValueComputeNode<string>
 {
     public ValueInput<float> Input = new();
     public ValueInput<int> Resolution = new(defaultValue: 10);
@@ -15,9 +13,7 @@ public sealed class FloatProgressVisualNode : Node
     public ValueInput<string> Start = new(defaultValue: "\u2523");
     public ValueInput<string> End = new(defaultValue: "\u252B");
 
-    public ValueOutput<string> Result = new();
-
-    protected override Task Process(PulseContext c)
+    protected override string ComputeValue(PulseContext c)
     {
         var input = Input.Read(c);
         var resolution = Resolution.Read(c);
@@ -39,9 +35,7 @@ public sealed class FloatProgressVisualNode : Node
         }
 
         visual += end;
-
-        Result.Write(visual, c);
-        return Task.CompletedTask;
+        return visual;
     }
 }
 

@@ -15,7 +15,7 @@ public sealed class ProcessIsOpenNode : Node, IFlowInput
     public FlowContinuation Next = new();
 
     public ValueInput<string> Name = new();
-    public ValueOutput<bool> IsOpen = new("Is Open");
+    public ValueOutput<bool> IsOpen = new();
 
     protected override async Task Process(PulseContext c)
     {

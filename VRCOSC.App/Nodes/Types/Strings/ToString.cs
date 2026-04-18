@@ -2,66 +2,44 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Strings;
 
 [Node("To String", "Strings")]
-public sealed class ToStringNode<T> : Node
+public sealed class ToStringNode<T> : ValueComputeNode<string>
 {
     public ValueInput<T> Value = new();
     public ValueInput<string> Format = new();
-    public ValueInput<IFormatProvider> FormatProvider = new("Format Provider");
-    public ValueOutput<string> Result = new();
+    public ValueInput<IFormatProvider> FormatProvider = new();
 
-    protected override Task Process(PulseContext c)
+    protected override string ComputeValue(PulseContext c)
     {
         var value = Value.Read(c);
         var format = Format.Read(c);
         var formatProvider = FormatProvider.Read(c);
 
-        if (value is null)
-        {
-            Result.Write("null", c);
-            return Task.CompletedTask;
-        }
+        if (value is null) return "null";
+        if (value is IFormattable formattable) return formattable.ToString(format, formatProvider);
 
-        try
-        {
-            if (value is IFormattable formattable)
-            {
-                Result.Write(formattable.ToString(format, formatProvider), c);
-                return Task.CompletedTask;
-            }
-        }
-        catch
-        {
-            return Task.CompletedTask;
-        }
-
-        Result.Write(value.ToString() ?? "UNKNOWN", c);
-        return Task.CompletedTask;
+        return value.ToString() ?? "UNKNOWN";
     }
 }
 
 [Node("String Format", "Strings")]
-public sealed class StringFormatNode : Node
+public sealed class StringFormatNode : ValueComputeNode<string>
 {
     public ValueInput<string?> Format = new();
     public ValueInputList<object?> Values = new();
-    public ValueOutput<string> Result = new();
 
-    protected override Task Process(PulseContext c)
+    protected override string ComputeValue(PulseContext c)
     {
         try
         {
-            Result.Write(string.Format(Format.Read(c) ?? string.Empty, Values.Read(c).ToArray()), c);
+            return string.Format(Format.Read(c) ?? string.Empty, Values.Read(c).ToArray());
         }
         catch (Exception e)
         {
-            Result.Write(e.Message, c);
+            return e.Message;
         }
-
-        return Task.CompletedTask;
     }
 }

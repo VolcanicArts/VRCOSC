@@ -10,7 +10,7 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Fire On Change", "Flow")]
 public sealed class FireOnChangeNode<T> : Node
 {
-    public FlowContinuation Next = new("Next");
+    public FlowContinuation Next = new();
 
     public GlobalStore<T> PrevValue = new();
 

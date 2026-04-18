@@ -14,8 +14,8 @@ public sealed class RegexMatchNode : Node, IFlowInput, IHasTextProperty
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public FlowContinuation OnMatchHit = new("On Match Hit");
-    public FlowContinuation OnMatchMiss = new("On Match Miss");
+    public FlowContinuation OnMatchHit = new();
+    public FlowContinuation OnMatchMiss = new();
 
     public ValueInput<string?> StrInput = new("String");
     public ValueOutput<Match> Result = new();
@@ -39,42 +39,22 @@ public sealed class RegexMatchNode : Node, IFlowInput, IHasTextProperty
 }
 
 [Node("Regex Match Groups", "Strings/Regex")]
-public sealed class RegexMatchGroupsNode : Node
+public sealed class RegexMatchGroupsNode() : ValueTransformNode<Match?, IReadOnlyList<Group>>("Match", "Groups")
 {
-    public ValueInput<Match> Match = new();
-    public ValueOutput<IReadOnlyList<Group>> Groups = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var match = Match.Read(c);
-        if (match is null) return Task.CompletedTask;
-
-        Groups.Write(match.Groups, c);
-        return Task.CompletedTask;
-    }
+    protected override IReadOnlyList<Group> TransformValue(Match? value) => value is not null ? value.Groups : new List<Group>();
 }
 
 [Node("Regex Group Captures", "Strings/Regex")]
-public sealed class RegexGroupCapturesNode : Node
+public sealed class RegexGroupCapturesNode() : ValueTransformNode<Group?, IReadOnlyList<Capture>>("Group", "Captures")
 {
-    public ValueInput<Group> Group = new();
-    public ValueOutput<IReadOnlyList<Capture>> Captures = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var group = Group.Read(c);
-        if (group is null) return Task.CompletedTask;
-
-        Captures.Write(group.Captures, c);
-        return Task.CompletedTask;
-    }
+    protected override IReadOnlyList<Capture> TransformValue(Group? value) => value is not null ? value.Captures : new List<Capture>();
 }
 
 [Node("Regex Capture Value", "Strings/Regex")]
 public sealed class RegexCaptureValueNode<T> : Node, IFlowInput
 {
-    public FlowContinuation OnSuccess = new("On Success");
-    public FlowContinuation OnFail = new("On Fail");
+    public FlowContinuation OnSuccess = new();
+    public FlowContinuation OnFail = new();
 
     public ValueInput<Capture> Capture = new();
     public ValueOutput<T> Value = new();

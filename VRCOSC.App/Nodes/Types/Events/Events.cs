@@ -9,12 +9,9 @@ namespace VRCOSC.App.Nodes.Types.Events;
 [Node("On Start", "Events")]
 public sealed class OnStartNode : Node, INodeEventHandler
 {
-    public FlowContinuation OnStart = new("On Start");
+    public FlowContinuation OnStart = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await OnStart.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => OnStart.Execute(c);
 
     public Task<bool> HandleNodeStart(PulseContext c) => Task.FromResult(true);
 }
@@ -22,12 +19,9 @@ public sealed class OnStartNode : Node, INodeEventHandler
 [Node("On Stop", "Events")]
 public sealed class OnStopNode : Node, INodeEventHandler
 {
-    public FlowContinuation OnStop = new("On Stop");
+    public FlowContinuation OnStop = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await OnStop.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => OnStop.Execute(c);
 
     public Task<bool> HandleNodeStop(PulseContext c) => Task.FromResult(true);
 }
@@ -37,12 +31,9 @@ public sealed class OnInstanceJoinedNode : Node, INodeEventHandler
 {
     public FlowContinuation OnInstanceJoined = new();
 
-    public ValueOutput<string> WorldId = new("World Id");
+    public ValueOutput<string> WorldId = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await OnInstanceJoined.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => OnInstanceJoined.Execute(c);
 
     public Task<bool> HandleOnInstanceJoined(PulseContext c, VRChatClientEventInstanceJoined eventArgs)
     {
@@ -56,10 +47,7 @@ public sealed class OnInstanceLeftNode : Node, INodeEventHandler
 {
     public FlowContinuation OnInstanceLeft = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await OnInstanceLeft.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => OnInstanceLeft.Execute(c);
 
     public Task<bool> HandleOnInstanceLeft(PulseContext c, VRChatClientEventInstanceLeft eventArgs) => Task.FromResult(true);
 }
@@ -69,12 +57,9 @@ public sealed class OnUserJoinedNode : Node, INodeEventHandler
 {
     public FlowContinuation OnUserJoined = new();
 
-    public ValueOutput<User> User = new("User");
+    public ValueOutput<User> User = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await OnUserJoined.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => OnUserJoined.Execute(c);
 
     public Task<bool> HandleOnUserJoined(PulseContext c, VRChatClientEventUserJoined eventArgs)
     {
@@ -88,12 +73,9 @@ public sealed class OnUserLeftNode : Node, INodeEventHandler
 {
     public FlowContinuation OnUserLeft = new();
 
-    public ValueOutput<User> User = new("User");
+    public ValueOutput<User> User = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await OnUserLeft.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => OnUserLeft.Execute(c);
 
     public Task<bool> HandleOnUserLeft(PulseContext c, VRChatClientEventUserLeft eventArgs)
     {
@@ -107,10 +89,7 @@ public sealed class OnAvatarPreChangeNode : Node, INodeEventHandler
 {
     public FlowContinuation OnAvatarPreChange = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await OnAvatarPreChange.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => OnAvatarPreChange.Execute(c);
 
     public Task<bool> HandleOnAvatarPreChange(PulseContext c, VRChatClientEventAvatarPreChange eventArgs) => Task.FromResult(true);
 }

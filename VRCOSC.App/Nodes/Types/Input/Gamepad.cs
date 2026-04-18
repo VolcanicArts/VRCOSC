@@ -42,7 +42,7 @@ public struct Gamepad
 }
 
 [Node("Gamepad Source", "Input/Gamepad")]
-public sealed class GamepadSourceNode : Node, IUpdateNode, IHasTextProperty
+public sealed class GamepadSourceNode() : ValueComputeNode<Gamepad>("Gamepad"), IUpdateNode, IHasTextProperty
 {
     public int UpdateOffset => 0;
 
@@ -51,13 +51,7 @@ public sealed class GamepadSourceNode : Node, IUpdateNode, IHasTextProperty
 
     public GlobalStore<Gamepad> GamepadStore = new();
 
-    public ValueOutput<Gamepad> Gamepad = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Gamepad.Write(GamepadStore.Read(c), c);
-        return Task.CompletedTask;
-    }
+    protected override Gamepad ComputeValue(PulseContext c) => GamepadStore.Read(c);
 
     public void OnUpdate(PulseContext c)
     {
@@ -111,11 +105,11 @@ public sealed class GamepadSourceNode : Node, IUpdateNode, IHasTextProperty
 [Node("Gamepad Set Vibration", "Input/Gamepad")]
 public sealed class GamepadSetVibrationNode : Node, IFlowInput
 {
-    public FlowContinuation Next = new("Next");
+    public FlowContinuation Next = new();
 
     public ValueInput<Gamepad> Gamepad = new();
-    public ValueInput<float> IntensityHeavy = new("Intensity Heavy");
-    public ValueInput<float> IntensityLight = new("Intensity Light");
+    public ValueInput<float> IntensityHeavy = new();
+    public ValueInput<float> IntensityLight = new();
 
     protected override Task Process(PulseContext c)
     {

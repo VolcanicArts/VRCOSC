@@ -9,7 +9,7 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Fire On Burst", "Flow")]
 public sealed class FireOnBurstNode : Node
 {
-    public FlowContinuation Next = new("Next");
+    public FlowContinuation Next = new();
 
     public GlobalStore<int> BecameTrue = new();
     public GlobalStore<DateTime> TrueTime = new();

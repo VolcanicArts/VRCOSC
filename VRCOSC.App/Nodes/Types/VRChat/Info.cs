@@ -10,18 +10,7 @@ using VRCOSC.App.SDK.VRChat;
 namespace VRCOSC.App.Nodes.Types.VRChat;
 
 [Node("Is VRChat Open", "VRChat")]
-public sealed class VRChatIsOpenNode : UpdateNode<bool>
-{
-    public ValueOutput<bool> IsOpen = new("Is Open");
-
-    protected override Task Process(PulseContext c)
-    {
-        IsOpen.Write(AppManager.GetInstance().VRChatClient.LastKnownOpenState, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<bool> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().VRChatClient.LastKnownOpenState);
-}
+public sealed class VRChatIsOpenNode() : ValueSourceNode<bool>(() => AppManager.GetInstance().VRChatClient.LastKnownOpenState, "Is Open");
 
 [Node("User Source", "VRChat")]
 public sealed class VRChatUserSourceNode : UpdateNode<User>

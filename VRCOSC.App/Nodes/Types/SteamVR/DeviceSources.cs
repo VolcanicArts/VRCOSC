@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Threading.Tasks;
 using VRCOSC.App.OpenVR.Device;
 
@@ -8,159 +9,40 @@ using VRCOSC.App.OpenVR.Device;
 
 namespace VRCOSC.App.Nodes.Types.SteamVR;
 
+public abstract class SteamVRDeviceSourceNode<T>(Func<T> func) : ValueSourceNode<T>(func, "Device") where T : TrackedDevice?;
+
 [Node("HMD", "SteamVR/Devices")]
-public sealed class SteamVRHMDSourceNode : UpdateNode<HMD?>
-{
-    public ValueOutput<HMD?> Device = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Device.Write(AppManager.GetInstance().OpenVRManager.GetHMD(), c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<HMD?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetHMD());
-}
+public sealed class SteamVRHMDSourceNode() : SteamVRDeviceSourceNode<HMD?>(() => AppManager.GetInstance().OpenVRManager.GetHMD());
 
 [Node("Left Controller", "SteamVR/Devices")]
-public sealed class SteamVRLeftControllerSourceNode : UpdateNode<Controller?>
-{
-    public ValueOutput<Controller?> Device = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Device.Write(AppManager.GetInstance().OpenVRManager.GetLeftController(), c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<Controller?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetLeftController());
-}
+public sealed class SteamVRLeftControllerSourceNode() : SteamVRDeviceSourceNode<Controller?>(() => AppManager.GetInstance().OpenVRManager.GetLeftController());
 
 [Node("Right Controller", "SteamVR/Devices")]
-public sealed class SteamVRRightControllerSourceNode : UpdateNode<Controller?>
-{
-    public ValueOutput<Controller?> Device = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Device.Write(AppManager.GetInstance().OpenVRManager.GetRightController(), c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<Controller?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetRightController());
-}
+public sealed class SteamVRRightControllerSourceNode() : SteamVRDeviceSourceNode<Controller?>(() => AppManager.GetInstance().OpenVRManager.GetRightController());
 
 [Node("Chest Tracker", "SteamVR/Devices")]
-public sealed class SteamVRChestSourceNode : UpdateNode<TrackedDevice?>
-{
-    public ValueOutput<TrackedDevice?> Device = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Device.Write(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.Chest), c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.Chest));
-}
+public sealed class SteamVRChestSourceNode() : SteamVRDeviceSourceNode<TrackedDevice?>(() => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.Chest));
 
 [Node("Waist Tracker", "SteamVR/Devices")]
-public sealed class SteamVRWaistSourceNode : UpdateNode<TrackedDevice?>
-{
-    public ValueOutput<TrackedDevice?> Device = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Device.Write(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.Waist), c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.Waist));
-}
+public sealed class SteamVRWaistSourceNode() : SteamVRDeviceSourceNode<TrackedDevice?>(() => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.Waist));
 
 [Node("Left Elbow Tracker", "SteamVR/Devices")]
-public sealed class SteamVRLeftElbowSourceNode : UpdateNode<TrackedDevice?>
-{
-    public ValueOutput<TrackedDevice?> Device = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Device.Write(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftElbow), c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftElbow));
-}
+public sealed class SteamVRLeftElbowSourceNode() : SteamVRDeviceSourceNode<TrackedDevice?>(() => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftElbow));
 
 [Node("Right Elbow Tracker", "SteamVR/Devices")]
-public sealed class SteamVRRightElbowSourceNode : UpdateNode<TrackedDevice?>
-{
-    public ValueOutput<TrackedDevice?> Device = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Device.Write(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightElbow), c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightElbow));
-}
+public sealed class SteamVRRightElbowSourceNode() : SteamVRDeviceSourceNode<TrackedDevice?>(() => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightElbow));
 
 [Node("Left Knee Tracker", "SteamVR/Devices")]
-public sealed class SteamVRLeftKneeSourceNode : UpdateNode<TrackedDevice?>
-{
-    public ValueOutput<TrackedDevice?> Device = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Device.Write(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftKnee), c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftKnee));
-}
+public sealed class SteamVRLeftKneeSourceNode() : SteamVRDeviceSourceNode<TrackedDevice?>(() => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftKnee));
 
 [Node("Right Knee Tracker", "SteamVR/Devices")]
-public sealed class SteamVRRightKneeSourceNode : UpdateNode<TrackedDevice?>
-{
-    public ValueOutput<TrackedDevice?> Device = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Device.Write(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightKnee), c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightKnee));
-}
+public sealed class SteamVRRightKneeSourceNode() : SteamVRDeviceSourceNode<TrackedDevice?>(() => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightKnee));
 
 [Node("Left Foot Tracker", "SteamVR/Devices")]
-public sealed class SteamVRLeftFootSourceNode : UpdateNode<TrackedDevice?>
-{
-    public ValueOutput<TrackedDevice?> Device = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Device.Write(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftFoot), c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftFoot));
-}
+public sealed class SteamVRLeftFootSourceNode() : SteamVRDeviceSourceNode<TrackedDevice?>(() => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.LeftFoot));
 
 [Node("Right Foot Tracker", "SteamVR/Devices")]
-public sealed class SteamVRRightFootSourceNode : UpdateNode<TrackedDevice?>
-{
-    public ValueOutput<TrackedDevice?> Device = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Device.Write(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightFoot), c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightFoot));
-}
+public sealed class SteamVRRightFootSourceNode() : SteamVRDeviceSourceNode<TrackedDevice?>(() => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightFoot));
 
 [Node("Tracked Device", "SteamVR/Devices")]
 public sealed class SteamVRTrackedDeviceSourceNode : UpdateNode<TrackedDevice?>, IHasTextProperty

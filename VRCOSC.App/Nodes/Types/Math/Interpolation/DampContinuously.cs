@@ -13,7 +13,7 @@ public sealed class DampContinuouslyNode<T> : Node, IActiveUpdateNode where T : 
     public GlobalStore<T> Current = new();
 
     public ValueInput<T> Target = new();
-    public ValueInput<double> HalfTimeMilli = new("Half Time Milli");
+    public ValueInput<double> HalfTimeMilli = new();
     public ValueOutput<T> Result = new();
 
     protected override Task Process(PulseContext c)
