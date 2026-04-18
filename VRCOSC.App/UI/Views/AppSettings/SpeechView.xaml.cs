@@ -164,8 +164,8 @@ public partial class SpeechView
 
     public float VolumeAdjustmentSliderValue
     {
-        get => (float)Interpolation.Map(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value, 0, 3, 0, 300);
-        set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value = (float)Interpolation.Map(value, 0, 300, 0, 3);
+        get => Interpolation.Map(SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value, 0f, 3f, 0f, 300f);
+        set => SettingsManager.GetInstance().GetObservable<float>(VRCOSCSetting.SpeechMicVolumeAdjustment).Value = Interpolation.Map(value, 0f, 300f, 0f, 3f);
     }
 }
 

@@ -219,7 +219,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     {
         if (GetSettingValue<bool>(HeartrateSetting.SmoothValue))
         {
-            currentValue = (float)Interpolation.DampContinuously(currentValue, TargetValue, GetSettingValue<int>(HeartrateSetting.SmoothValueLength) / 2f, 50f);
+            currentValue = Interpolation.DampContinuously(currentValue, TargetValue, GetSettingValue<int>(HeartrateSetting.SmoothValueLength) / 2f, 50f);
         }
         else
         {
@@ -248,7 +248,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 
         if (GetSettingValue<bool>(HeartrateSetting.SmoothAverage))
         {
-            currentAverage = (float)Interpolation.DampContinuously(currentAverage, targetAverage, GetSettingValue<int>(HeartrateSetting.SmoothAverageLength) / 2f, 50f);
+            currentAverage = Interpolation.DampContinuously(currentAverage, targetAverage, GetSettingValue<int>(HeartrateSetting.SmoothAverageLength) / 2f, 50f);
         }
         else
         {
@@ -263,7 +263,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 
         if (isReceiving)
         {
-            var normalisedHeartRate = (float)Interpolation.Map(currentValue, GetSettingValue<int>(HeartrateSetting.NormalisedLowerbound), GetSettingValue<int>(HeartrateSetting.NormalisedUpperbound), 0, 1);
+            var normalisedHeartRate = Interpolation.Map(currentValue, GetSettingValue<int>(HeartrateSetting.NormalisedLowerbound), GetSettingValue<int>(HeartrateSetting.NormalisedUpperbound), 0f, 1f);
 
             SendParameter(HeartrateParameter.Normalised, normalisedHeartRate);
             SendParameter(HeartrateParameter.Value, (int)MathF.Round(currentValue));
