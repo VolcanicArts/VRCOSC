@@ -26,28 +26,28 @@
         <PackageReference Include="CommandLineParser" Version="2.9.1" />
         <PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
         <PackageReference Include="FontAwesome6.Fonts" Version="2.5.1" />
-        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
+        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.7-pre674" />
         <PackageReference Include="MathParser.org-mXparser" Version="6.1.0" />
         <PackageReference Include="MeaMod.DNS" Version="1.0.71" />
-        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.269">
+        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.275">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
-        <PackageReference Include="NAudio" Version="2.2.1" />
+        <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.142" />
+        <PackageReference Include="NAudio" Version="2.3.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Octokit" Version="14.0.0" />
-        <PackageReference Include="PresentMonFps" Version="2.0.5" />
+        <PackageReference Include="PresentMonFps" Version="2.0.6" />
         <PackageReference Include="Semver" Version="3.0.0" />
         <PackageReference Include="SoundFlow" Version="1.4.0" />
-        <PackageReference Include="TwitchLib.Api" Version="3.11.0-preview.215.86600fa" />
-        <PackageReference Include="TwitchLib.Api.Core" Version="3.11.0-preview.215.86600fa" />
-        <PackageReference Include="TwitchLib.Api.Core.Enums" Version="3.11.0-preview.215.86600fa" />
-        <PackageReference Include="TwitchLib.Api.Core.Interfaces" Version="3.11.0-preview.215.86600fa" />
-        <PackageReference Include="TwitchLib.Api.Core.Models" Version="3.11.0-preview.215.86600fa" />
-        <PackageReference Include="TwitchLib.Api.Helix" Version="3.11.0-preview.215.86600fa" />
-        <PackageReference Include="TwitchLib.Api.Helix.Models" Version="3.11.0-preview.215.86600fa" />
-        <PackageReference Include="TwitchLib.EventSub.Core" Version="3.1.0-preview.76.456b9d7" />
+        <PackageReference Include="TwitchLib.Api" Version="3.11.0-preview.217.ebcd12b" />
+        <PackageReference Include="TwitchLib.Api.Core" Version="3.11.0-preview.217.ebcd12b" />
+        <PackageReference Include="TwitchLib.Api.Core.Enums" Version="3.11.0-preview.217.ebcd12b" />
+        <PackageReference Include="TwitchLib.Api.Core.Interfaces" Version="3.11.0-preview.217.ebcd12b" />
+        <PackageReference Include="TwitchLib.Api.Core.Models" Version="3.11.0-preview.217.ebcd12b" />
+        <PackageReference Include="TwitchLib.Api.Helix" Version="3.11.0-preview.217.ebcd12b" />
+        <PackageReference Include="TwitchLib.Api.Helix.Models" Version="3.11.0-preview.217.ebcd12b" />
+        <PackageReference Include="TwitchLib.EventSub.Core" Version="3.1.0-preview.78.61821c3" />
         <PackageReference Include="TwitchLib.EventSub.Websockets" Version="0.8.0" />
         <PackageReference Include="Velopack" Version="0.0.1298" />
         <PackageReference Include="VolcanicArts.FastOSC" Version="2.0.0" />
