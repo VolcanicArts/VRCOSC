@@ -8,8 +8,10 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Win32;
@@ -145,9 +147,20 @@ public static class UriExtensions
     public static void OpenExternally(this Uri uri) => Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
 }
 
-public static class StringExtensions
+public static partial class StringExtensions
 {
-    public static string Pluralise(this string str) => str + (str.EndsWith('s') ? "'" : "'s");
+    extension(string str)
+    {
+        public string ToFriendlyName() => toFriendlyNameRegex().Replace(str, " $1");
+        public string ToSentence() => toSentenceRegex().Replace(str, " $0");
+        public string Pluralise() => str + (str.EndsWith('s') ? "'" : "'s");
+    }
+
+    [GeneratedRegex("(?<=.)([A-Z])")]
+    private static partial Regex toFriendlyNameRegex();
+
+    [GeneratedRegex(@"((?<!\s)(?<=\p{Ll})\p{Lu})|((?<!\s)(?!\A)\p{Lu}(?>\p{Ll}))")]
+    private static partial Regex toSentenceRegex();
 }
 
 public static class IntegerExtensions
@@ -281,26 +294,43 @@ public static class ParameterInfoExtensions
 
 public static class TypeExtensions
 {
-    public static bool IsCastableTo(this Type source, Type target)
+    extension(Type type)
     {
-        if (source.IsAssignableTo(target))
-            return true;
+        public bool TryCreateConverter(Type toType, [NotNullWhen(true)] out Delegate? converter)
+        {
+            try
+            {
+                converter = type.CreateConverter(toType);
+                return true;
+            }
+            catch
+            {
+                converter = null;
+                return false;
+            }
+        }
 
-        if (source.IsPrimitive && target.IsPrimitive && source != typeof(bool) && target != typeof(bool))
-            return true;
+        public Delegate CreateConverter(Type toType)
+        {
+            ArgumentNullException.ThrowIfNull(type);
+            ArgumentNullException.ThrowIfNull(toType);
 
-        if (source.IsEnum && source.GetEnumUnderlyingType() == target)
-            return true;
+            // (TFrom x) => (TTo)x
+            // This uses implicit/explicit conversion operators when available,
+            // and also allows reference/interface casts when valid.
 
-        if (source.GetMethods(BindingFlags.Public | BindingFlags.Static).Any(m => m.ReturnType == target && m.Name is "op_Implicit" or "op_Explicit"))
-            return true;
-
-        var sourceAsRef = source.MakeByRefType();
-
-        if (target.GetMethods(BindingFlags.Public | BindingFlags.Static).Any(m => m.ReturnType == target && m.Name is "op_Implicit" or "op_Explicit" && m.GetParameters().Any(p => p.ParameterType == source || p.ParameterType == sourceAsRef)))
-            return true;
-
-        return false;
+            try
+            {
+                var arg = Expression.Parameter(type);
+                var body = Expression.Convert(arg, toType);
+                var funcType = typeof(Func<,>).MakeGenericType(type, toType);
+                return Expression.Lambda(funcType, body, arg).Compile();
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new InvalidOperationException($"No conversion exists from {type.GetFriendlyName()} to {toType.GetFriendlyName()}.", e);
+            }
+        }
     }
 
     public static object? CreateDefault(this Type type) => type.IsValueType && !type.IsAssignableTo(typeof(Nullable<>)) ? Activator.CreateInstance(type) : null;
@@ -444,7 +474,7 @@ public static class TypeExtensions
 
 public static class ProcessExtensions
 {
-    public static unsafe string? GetActiveWindowTitle()
+    public static unsafe Process? GetForegroundProcess()
     {
         var foregroundWindowHandle = PInvoke.GetForegroundWindow();
         if (foregroundWindowHandle == IntPtr.Zero) return null;
@@ -455,13 +485,15 @@ public static class ProcessExtensions
 
         try
         {
-            return Process.GetProcessById((int)processId).ProcessName;
+            return Process.GetProcessById((int)processId);
         }
         catch (ArgumentException)
         {
             return null;
         }
     }
+
+    public static string? GetActiveWindowTitle() => GetForegroundProcess()?.ProcessName;
 
     private static SimpleAudioVolume? getProcessAudioVolume(string? processName)
     {

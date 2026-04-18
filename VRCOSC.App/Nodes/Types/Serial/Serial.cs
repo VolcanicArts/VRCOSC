@@ -10,45 +10,46 @@ namespace VRCOSC.App.Nodes.Types.Serial;
 [Node("Serial Write", "Serial")]
 public sealed class SerialWriteNode : Node, IFlowInput
 {
-    public FlowContinuation OnSuccess = new("On Success");
-    public FlowContinuation OnFail = new("On Fail");
+    public FlowContinuation OnSuccess = new();
+    public FlowContinuation OnFail = new();
 
-    public ValueInput<string> PortName = new("Port Name");
-    public ValueInput<int> BaudRate = new("Baud Rate");
+    public ValueInput<string?> PortName = new();
+    public ValueInput<int> BaudRate = new();
     public ValueInput<Parity> Parity = new();
-    public ValueInput<int> DataBits = new("Data Bits");
-    public ValueInput<StopBits> StopBits = new("Stop Bits");
-    public ValueInput<string> Command = new();
+    public ValueInput<int> DataBits = new();
+    public ValueInput<StopBits> StopBits = new();
+    public ValueInput<string?> Command = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var portName = PortName.Read(c);
-        if (string.IsNullOrWhiteSpace(portName)) return;
+        if (string.IsNullOrWhiteSpace(portName)) return Task.CompletedTask;
 
-        using SerialPort serial = new SerialPort(portName, BaudRate.Read(c), Parity.Read(c), DataBits.Read(c), StopBits.Read(c));
-        var command = Command.Read(c);
+        SerialPort? serial;
 
-        if (string.IsNullOrWhiteSpace(command))
+        try
         {
-            await OnFail.Execute(c);
-            return;
+            serial = new SerialPort(portName, BaudRate.Read(c), Parity.Read(c), DataBits.Read(c), StopBits.Read(c));
         }
+        catch (Exception)
+        {
+            return OnFail.Execute(c);
+        }
+
+        var command = Command.Read(c);
+        if (command is null) return OnFail.Execute(c);
 
         try
         {
             serial.Open();
             serial.WriteLine(command);
+            serial.Close();
+            return OnSuccess.Execute(c);
         }
         catch (Exception)
         {
-            await OnFail.Execute(c);
-            return;
-        }
-        finally
-        {
             serial.Close();
+            return OnFail.Execute(c);
         }
-
-        await OnSuccess.Execute(c);
     }
 }

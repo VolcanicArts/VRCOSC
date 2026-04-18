@@ -9,18 +9,16 @@ namespace VRCOSC.App.Utils;
 
 public class PerlinNoise
 {
-    // Classic 12-vector gradient set
-    private static readonly Vector3[] gradients = new[]
+    private static readonly Vector3[] gradients = new Vector3[]
     {
-        new Vector3(1, 1, 0), new Vector3(-1, 1, 0),
-        new Vector3(1, -1, 0), new Vector3(-1, -1, 0),
-        new Vector3(1, 0, 1), new Vector3(-1, 0, 1),
-        new Vector3(1, 0, -1), new Vector3(-1, 0, -1),
-        new Vector3(0, 1, 1), new Vector3(0, -1, 1),
-        new Vector3(0, 1, -1), new Vector3(0, -1, -1),
+        new(1, 1, 0), new(-1, 1, 0),
+        new(1, -1, 0), new(-1, -1, 0),
+        new(1, 0, 1), new(-1, 0, 1),
+        new(1, 0, -1), new(-1, 0, -1),
+        new(0, 1, 1), new(0, -1, 1),
+        new(0, 1, -1), new(0, -1, -1)
     };
 
-    // Default 512-entry permutation table (two copies of 0–255)
     private static readonly int[] default_perm = new[]
     {
         151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225,
@@ -59,149 +57,69 @@ public class PerlinNoise
     };
 
     private readonly int[] _pt;
-    private readonly Func<double, double> _smooth;
 
-    /// <summary>
-    /// Create a PerlinNoise generator.
-    /// </summary>
-    /// <param name="seed">
-    /// If non-null, used to seed a shuffle of 0..255; the resulting table is duplicated to 512 entries.
-    /// If null, uses the built-in classic table.
-    /// </param>
-    /// <param name="smoothingFunction">
-    /// Optional fade curve (defaults to 6t⁵–15t⁴+10t³).
-    /// </param>
-    public PerlinNoise(int? seed = null, Func<double, double>? smoothingFunction = null)
+    public PerlinNoise(int seed = 0)
     {
-        _smooth = smoothingFunction ?? smoothToSCurve;
+        var rnd = new Random(seed);
+        var p = Enumerable.Range(0, 256).ToArray();
 
-        if (seed.HasValue)
+        for (var i = p.Length - 1; i > 0; i--)
         {
-            // create a reproducible 0..255 sequence
-            var rnd = new Random(seed.Value);
-            var p = Enumerable.Range(0, 256).ToArray();
-
-            // Fisher–Yates shuffle
-            for (var i = p.Length - 1; i > 0; i--)
-            {
-                var j = rnd.Next(i + 1);
-                (p[i], p[j]) = (p[j], p[i]);
-            }
-
-            // duplicate to 512
-            _pt = p.Concat(p).ToArray();
+            var j = rnd.Next(i + 1);
+            (p[i], p[j]) = (p[j], p[i]);
         }
-        else
-        {
-            _pt = default_perm;
-        }
+
+        _pt = p.Concat(p).ToArray();
     }
 
-    public double Noise(double x, double y = 0d, double z = 0d)
+    public float Noise(float value) => Noise(new Vector3(value, 0f, 0f));
+
+    public float Noise(Vector2 value) => Noise(new Vector3(value.X, value.Y, 0f));
+
+    public float Noise(Vector3 value)
     {
-        // --- FIND UNIT CUBE CORNERS ---
-        int xi = (int)Math.Floor(x) & 255;
-        int yi = (int)Math.Floor(y) & 255;
-        int zi = (int)Math.Floor(z) & 255;
+        var fx = float.Floor(value.X);
+        var fy = float.Floor(value.Y);
+        var fz = float.Floor(value.Z);
 
-        // --- RELATIVE COORDINATES IN CUBE ---
-        double xf = x - Math.Floor(x);
-        double yf = y - Math.Floor(y);
-        double zf = z - Math.Floor(z);
+        var xi = int.CreateChecked(fx) & 255;
+        var yi = int.CreateChecked(fy) & 255;
+        var zi = int.CreateChecked(fz) & 255;
 
-        // --- FADE (S-CURVE) ---
-        double u = _smooth(xf);
-        double v = _smooth(yf);
-        double w = _smooth(zf);
+        var xf = value.X - fx;
+        var yf = value.Y - fy;
+        var zf = value.Z - fz;
 
-        // --- PERMUTE THREE TIMES FOR EACH CORNER ---
-        int aaa = _pt[_pt[_pt[xi] + yi] + zi];
-        int aba = _pt[_pt[_pt[xi] + yi + 1] + zi];
-        int aab = _pt[_pt[_pt[xi] + yi] + zi + 1];
-        int abb = _pt[_pt[_pt[xi] + yi + 1] + zi + 1];
-        int baa = _pt[_pt[_pt[xi + 1] + yi] + zi];
-        int bba = _pt[_pt[_pt[xi + 1] + yi + 1] + zi];
-        int bab = _pt[_pt[_pt[xi + 1] + yi] + zi + 1];
-        int bbb = _pt[_pt[_pt[xi + 1] + yi + 1] + zi + 1];
+        var u = smooth(xf);
+        var v = smooth(yf);
+        var w = smooth(zf);
 
-        // --- GRADIENT DOTS & INTERPOLATE ---
-        double x1 = Lerp(GradDot(aaa, xf, yf, zf),
-            GradDot(baa, xf - 1, yf, zf), u);
+        var aaa = _pt[_pt[_pt[xi] + yi] + zi];
+        var aba = _pt[_pt[_pt[xi] + yi + 1] + zi];
+        var aab = _pt[_pt[_pt[xi] + yi] + zi + 1];
+        var abb = _pt[_pt[_pt[xi] + yi + 1] + zi + 1];
+        var baa = _pt[_pt[_pt[xi + 1] + yi] + zi];
+        var bba = _pt[_pt[_pt[xi + 1] + yi + 1] + zi];
+        var bab = _pt[_pt[_pt[xi + 1] + yi] + zi + 1];
+        var bbb = _pt[_pt[_pt[xi + 1] + yi + 1] + zi + 1];
 
-        double x2 = Lerp(GradDot(aba, xf, yf - 1, zf),
-            GradDot(bba, xf - 1, yf - 1, zf), u);
-        double y1 = Lerp(x1, x2, v);
+        const float one = 1f;
 
-        double x3 = Lerp(GradDot(aab, xf, yf, zf - 1),
-            GradDot(bab, xf - 1, yf, zf - 1), u);
+        var x1 = float.Lerp(gradDot(aaa, xf, yf, zf), gradDot(baa, xf - one, yf, zf), u);
+        var x2 = float.Lerp(gradDot(aba, xf, yf - one, zf), gradDot(bba, xf - one, yf - one, zf), u);
+        var y1 = float.Lerp(x1, x2, v);
+        var x3 = float.Lerp(gradDot(aab, xf, yf, zf - one), gradDot(bab, xf - one, yf, zf - one), u);
+        var x4 = float.Lerp(gradDot(abb, xf, yf - one, zf - one), gradDot(bbb, xf - one, yf - one, zf - one), u);
+        var y2 = float.Lerp(x3, x4, v);
 
-        double x4 = Lerp(GradDot(abb, xf, yf - 1, zf - 1),
-            GradDot(bbb, xf - 1, yf - 1, zf - 1), u);
-        double y2 = Lerp(x3, x4, v);
-
-        return Lerp(y1, y2, w);
+        return float.Lerp(y1, y2, w);
     }
 
-    public double NoiseTiled(double x, double y = 0, double z = 0, int tileRegion = 2)
+    private static float gradDot(int hash, float x, float y, float z)
     {
-        // --- COMPUTE FLOOR AND WRAP AT tileRegion ---
-        int fx = (int)Math.Floor(x), fy = (int)Math.Floor(y), fz = (int)Math.Floor(z);
-        int xi0 = (fx % tileRegion + tileRegion) % tileRegion;
-        int yi0 = (fy % tileRegion + tileRegion) % tileRegion;
-        int zi0 = (fz % tileRegion + tileRegion) % tileRegion;
-        int xi1 = (xi0 + 1) % tileRegion;
-        int yi1 = (yi0 + 1) % tileRegion;
-        int zi1 = (zi0 + 1) % tileRegion;
-
-        // --- RELATIVE FRACTIONS ---
-        double xf = x - fx;
-        double yf = y - fy;
-        double zf = z - fz;
-
-        // --- FADE ---
-        double u = _smooth(xf);
-        double v = _smooth(yf);
-        double w = _smooth(zf);
-
-        // --- PERMUTE (3 deep) FOR TILED COORDS ---
-        int aaa = _pt[_pt[_pt[xi0] + yi0] + zi0];
-        int aba = _pt[_pt[_pt[xi0] + yi1] + zi0];
-        int aab = _pt[_pt[_pt[xi0] + yi0] + zi1];
-        int abb = _pt[_pt[_pt[xi0] + yi1] + zi1];
-        int baa = _pt[_pt[_pt[xi1] + yi0] + zi0];
-        int bba = _pt[_pt[_pt[xi1] + yi1] + zi0];
-        int bab = _pt[_pt[_pt[xi1] + yi0] + zi1];
-        int bbb = _pt[_pt[_pt[xi1] + yi1] + zi1];
-
-        // --- DOT + INTERPOLATE ---
-        double x1 = Lerp(GradDot(aaa, xf, yf, zf),
-            GradDot(baa, xf - 1, yf, zf), u);
-
-        double x2 = Lerp(GradDot(aba, xf, yf - 1, zf),
-            GradDot(bba, xf - 1, yf - 1, zf), u);
-        double y1 = Lerp(x1, x2, v);
-
-        double x3 = Lerp(GradDot(aab, xf, yf, zf - 1),
-            GradDot(bab, xf - 1, yf, zf - 1), u);
-
-        double x4 = Lerp(GradDot(abb, xf, yf - 1, zf - 1),
-            GradDot(bbb, xf - 1, yf - 1, zf - 1), u);
-        double y2 = Lerp(x3, x4, v);
-
-        return Lerp(y1, y2, w);
-    }
-
-    // Helper methods (make sure you still have these in your class):
-    private static double Lerp(double a, double b, double t) => a + t * (b - a);
-
-    private double GradDot(int hash, double x, double y, double z)
-    {
-        // safe modulo into the 12-gradient table
         var g = gradients[hash % gradients.Length];
         return g.X * x + g.Y * y + g.Z * z;
     }
 
-    private static double smoothToSCurve(double t) => t * t * t * (t * (t * 6 - 15) + 10);
-
-    private static int mod(int x, int m) => (x % m + m) % m;
+    private static float smooth(float t) => t * t * t * (t * (t * 6f - 15f) + 10f);
 }

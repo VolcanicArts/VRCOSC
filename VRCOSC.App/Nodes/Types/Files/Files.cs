@@ -10,10 +10,10 @@ namespace VRCOSC.App.Nodes.Types.Files;
 [Node("Write Text To File", "Files")]
 public sealed class WriteTextToFileNode : Node, IFlowInput
 {
-    public FlowContinuation OnSuccess = new("On Finished");
-    public FlowContinuation OnFailed = new("On Failed");
+    public FlowContinuation OnSuccess = new();
+    public FlowContinuation OnFailed = new();
 
-    public ValueInput<string> FilePath = new("File Path");
+    public ValueInput<string> FilePath = new();
     public ValueInput<string> Text = new();
 
     protected override async Task Process(PulseContext c)
@@ -42,10 +42,10 @@ public sealed class WriteTextToFileNode : Node, IFlowInput
 [Node("Read Text From File", "Files")]
 public sealed class ReadTextFromFileNode : Node, IFlowInput
 {
-    public FlowContinuation OnSuccess = new("On Success");
-    public FlowContinuation OnFailed = new("On Failed");
+    public FlowContinuation OnSuccess = new();
+    public FlowContinuation OnFailed = new();
 
-    public ValueInput<string> FilePath = new("File Path");
+    public ValueInput<string> FilePath = new();
     public ValueOutput<string> Text = new();
 
     protected override async Task Process(PulseContext c)

@@ -1,13 +1,12 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading.Tasks;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Inputs;
 
 [Node("Value")]
-public class ValueNode<T> : Node
+public class ValueNode<T> : ValueComputeNode<T>
 {
     [NodeProperty("value")]
     public T Value
@@ -20,11 +19,5 @@ public class ValueNode<T> : Node
         }
     } = default!;
 
-    public ValueOutput<T> Output = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Output.Write(Value, c);
-        return Task.CompletedTask;
-    }
+    protected override T ComputeValue(PulseContext c) => Value;
 }

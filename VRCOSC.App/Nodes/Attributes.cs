@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FontAwesome6;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.SDK.VRChat;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
 
@@ -94,9 +96,9 @@ public class FlowCall : IFlow
     public int Index { get; set; }
     public string Name { get; init; }
 
-    public FlowCall(string name = "")
+    public FlowCall([CallerMemberName] string name = "")
     {
-        Name = name;
+        Name = name.ToSentence();
     }
 
     public Task Execute(PulseContext context) => context.Execute(this);
@@ -107,9 +109,9 @@ public class FlowContinuation : IFlow
     public int Index { get; set; }
     public string Name { get; init; }
 
-    public FlowContinuation(string name = "")
+    public FlowContinuation([CallerMemberName] string name = "")
     {
-        Name = name;
+        Name = name.ToSentence();
     }
 
     public Task Execute(PulseContext context) => context.Execute(this);
@@ -158,9 +160,9 @@ public class ValueInput<T> : IValueInput
     internal T DefaultValue { get; }
     public object? GetDefaultValue() => DefaultValue;
 
-    public ValueInput(string name = "", T defaultValue = default!)
+    public ValueInput([CallerMemberName] string name = "", T defaultValue = default!)
     {
-        Name = name;
+        Name = name.ToSentence();
         DefaultValue = defaultValue;
     }
 
@@ -175,9 +177,9 @@ public class ValueOutput<T> : IValueOutput
     public int Index { get; set; }
     public string Name { get; init; }
 
-    public ValueOutput(string name = "")
+    public ValueOutput([CallerMemberName] string name = "")
     {
-        Name = name;
+        Name = name.ToSentence();
     }
 
     public void Write(T value, PulseContext c)
@@ -192,9 +194,9 @@ public class ValueInputList<T> : IValueInput
     public string Name { get; init; }
     public object? GetDefaultValue() => null;
 
-    public ValueInputList(string name = "")
+    public ValueInputList([CallerMemberName] string name = "")
     {
-        Name = name;
+        Name = name.ToSentence();
     }
 
     public List<T> Read(PulseContext c)
@@ -208,9 +210,9 @@ public class ValueOutputList<T> : IValueOutput
     public int Index { get; set; }
     public string Name { get; init; }
 
-    public ValueOutputList(string name = "")
+    public ValueOutputList([CallerMemberName] string name = "")
     {
-        Name = name;
+        Name = name.ToSentence();
     }
 
     public int Length(PulseContext c)

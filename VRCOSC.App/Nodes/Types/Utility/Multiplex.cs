@@ -6,18 +6,13 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Utility;
 
 [Node("Conditional", "Utility")]
-public sealed class ConditionalNode<T> : Node
+public sealed class ConditionalNode<T> : ValueComputeNode<T>
 {
     public ValueInput<bool> Condition = new();
     public ValueInput<T> True = new();
     public ValueInput<T> False = new();
-    public ValueOutput<T> Result = new();
 
-    protected override Task Process(PulseContext c)
-    {
-        Result.Write(Condition.Read(c) ? True.Read(c) : False.Read(c), c);
-        return Task.CompletedTask;
-    }
+    protected override T ComputeValue(PulseContext c) => Condition.Read(c) ? True.Read(c) : False.Read(c);
 }
 
 [Node("Multiplex", "Utility")]
@@ -26,7 +21,7 @@ public sealed class MultiplexNode<T> : Node
     public ValueInput<int> Index = new();
     public ValueInputList<T> Inputs = new();
     public ValueOutput<T> Element = new();
-    public ValueOutput<int> InputCount = new("Input Count");
+    public ValueOutput<int> InputCount = new();
 
     protected override Task Process(PulseContext c)
     {
@@ -46,7 +41,7 @@ public sealed class DemultiplexNode<T> : Node
 {
     public ValueInput<int> Index = new();
     public ValueInput<T> Value = new();
-    public ValueInput<T> DefaultValue = new("Default Value");
+    public ValueInput<T> DefaultValue = new();
     public ValueOutputList<T> Outputs = new();
 
     protected override Task Process(PulseContext c)

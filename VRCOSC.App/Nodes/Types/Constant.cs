@@ -8,13 +8,18 @@ namespace VRCOSC.App.Nodes.Types;
 [NodeCollapsed]
 public abstract class ConstantNode<T> : Node
 {
+    private readonly T value;
+
     public ValueOutput<T> Output = new();
+
+    protected ConstantNode(T value)
+    {
+        this.value = value;
+    }
 
     protected override Task Process(PulseContext c)
     {
-        Output.Write(GetValue(), c);
+        Output.Write(value, c);
         return Task.CompletedTask;
     }
-
-    protected abstract T GetValue();
 }

@@ -38,17 +38,4 @@ public sealed class TransformPackNode : Node
 }
 
 [Node("Transform Relative To", "Math/Transform")]
-public sealed class TransformRelativeToNode : Node
-{
-    public ValueInput<Utils.Transform> Source = new();
-    public ValueInput<Utils.Transform> Parent = new();
-
-    public ValueOutput<Utils.Transform> RelativeSource = new("Relative Source");
-
-    protected override Task Process(PulseContext c)
-    {
-        var relative = Source.Read(c).RelativeTo(Parent.Read(c));
-        RelativeSource.Write(relative, c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class TransformRelativeToNode() : SimpleResultComputeNode<Utils.Transform>((s, p) => s.RelativeTo(p), "Source", "Parent");

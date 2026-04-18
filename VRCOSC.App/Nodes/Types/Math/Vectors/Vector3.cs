@@ -8,21 +8,13 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Math.Vectors;
 
 [Node("Pack Vector3", "Math/Vector3")]
-public sealed class PackVector3Node : Node
+public sealed class PackVector3Node : ValueComputeNode<Vector3>
 {
     public ValueInput<float> X = new();
     public ValueInput<float> Y = new();
     public ValueInput<float> Z = new();
-    public ValueOutput<Vector3> Result = new();
 
-    protected override Task Process(PulseContext c)
-    {
-        var x = X.Read(c);
-        var y = Y.Read(c);
-        var z = Z.Read(c);
-        Result.Write(new Vector3(x, y, z), c);
-        return Task.CompletedTask;
-    }
+    protected override Vector3 ComputeValue(PulseContext c) => new(X.Read(c), Y.Read(c), Z.Read(c));
 }
 
 [Node("Unpack Vector3", "Math/Vector3")]
@@ -45,18 +37,7 @@ public sealed class UnpackVector3Node : Node
 
 [Node("Distance", "Math/Vector3")]
 [NodeCollapsed]
-public sealed class Vector3DistanceNode : Node
-{
-    public ValueInput<Vector3> A = new();
-    public ValueInput<Vector3> B = new();
-    public ValueOutput<float> Distance = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Distance.Write(Vector3.Distance(A.Read(c), B.Read(c)), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class Vector3DistanceNode() : SimpleResultComputeNode<Vector3, float>(Vector3.Distance);
 
 [Node("Contains", "Math/Vector3")]
 public sealed class Vector3ContainsNode : Node
@@ -106,3 +87,7 @@ public sealed class Vector3DeltaNode : Node
         return Task.CompletedTask;
     }
 }
+
+[Node("Length", "Math/Vector3")]
+[NodeCollapsed]
+public sealed class Vector3LengthNode() : SimpleValueTransformNode<Vector3, float>(v => v.Length());

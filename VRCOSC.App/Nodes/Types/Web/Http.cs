@@ -16,12 +16,12 @@ public sealed class HttpGetNode : Node, IFlowInput
 {
     private readonly HttpClient client = new();
 
-    public FlowContinuation OnSuccess = new("On Success");
-    public FlowContinuation OnFail = new("On Fail");
+    public FlowContinuation OnSuccess = new();
+    public FlowContinuation OnFail = new();
 
     public ValueInput<string> URL = new();
     public ValueInput<Dictionary<string, string>> Headers = new();
-    public ValueOutput<HttpStatusCode> StatusCode = new("Status Code");
+    public ValueOutput<HttpStatusCode> StatusCode = new();
     public ValueOutput<string> Content = new();
 
     protected override async Task Process(PulseContext c)
@@ -65,13 +65,13 @@ public sealed class HttpPostNode : Node, IFlowInput
 {
     private readonly HttpClient client = new();
 
-    public FlowContinuation OnSuccess = new("On Success");
-    public FlowContinuation OnFail = new("On Fail");
+    public FlowContinuation OnSuccess = new();
+    public FlowContinuation OnFail = new();
 
     public ValueInput<string> URL = new();
     public ValueInput<Dictionary<string, string>> Headers = new();
     public ValueInput<string> Content = new();
-    public ValueOutput<HttpStatusCode> StatusCode = new("Status Code");
+    public ValueOutput<HttpStatusCode> StatusCode = new();
 
     protected override async Task Process(PulseContext c)
     {

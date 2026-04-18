@@ -10,18 +10,16 @@ namespace VRCOSC.App.Nodes.Types.Debug;
 [Node("Log", "Debug")]
 public sealed class LogNode : Node, IFlowInput
 {
-    public FlowContinuation Next = new("Next");
+    public FlowContinuation Next = new();
 
     public ValueInput<string> Text = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var text = Text.Read(c);
+        if (text is not null) Logger.Log(text, LoggingTarget.Information);
 
-        if (text is not null)
-            Logger.Log(text, LoggingTarget.Information);
-
-        await Next.Execute(c);
+        return Next.Execute(c);
     }
 }
 #endif

@@ -106,12 +106,19 @@ public partial class SpeechView
 
     private void startAudioCapture(string selectedMicrophoneId)
     {
-        var device = string.IsNullOrEmpty(selectedMicrophoneId) ? WasapiCapture.GetDefaultCaptureDevice() : AudioDeviceHelper.GetDeviceByID(selectedMicrophoneId);
-        if (device is null) return;
+        try
+        {
+            var device = string.IsNullOrEmpty(selectedMicrophoneId) ? WasapiCapture.GetDefaultCaptureDevice() : AudioDeviceHelper.GetDeviceByID(selectedMicrophoneId);
+            if (device is null) return;
 
-        audioCapture = new AudioCapture(device);
-        audioCapture.OnNewDataAvailable += onAudioDataAvailable;
-        audioCapture.StartCapture();
+            audioCapture = new AudioCapture(device);
+            audioCapture.OnNewDataAvailable += onAudioDataAvailable;
+            audioCapture.StartCapture();
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "Unable to start preview audio capture");
+        }
     }
 
     private void onAudioDataAvailable()

@@ -10,8 +10,5 @@ public sealed class ButtonNode : Node
 {
     public FlowContinuation Next = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        await Next.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => Next.Execute(c);
 }

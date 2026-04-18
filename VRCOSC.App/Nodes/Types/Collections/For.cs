@@ -8,15 +8,17 @@ namespace VRCOSC.App.Nodes.Types.Collections;
 [Node("For", "Collections")]
 public sealed class ForNode : Node, IFlowInput
 {
-    public FlowCall OnIteration = new("On Iteration");
-    public FlowContinuation OnEnd = new("On End");
+    public FlowCall OnIteration = new();
+    public FlowContinuation OnEnd = new();
 
     public ValueInput<int> Count = new();
     public ValueOutput<int> Index = new();
 
     protected override async Task Process(PulseContext c)
     {
-        for (var i = 0; i < Count.Read(c); i++)
+        var count = Count.Read(c);
+
+        for (var i = 0; i < count; i++)
         {
             Index.Write(i, c);
             await OnIteration.Execute(c);

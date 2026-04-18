@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Time;
 
 [Node("TimeSpan Construct", "Date & Time")]
-public sealed class TimeSpanConstructNode : Node
+public sealed class TimeSpanConstructNode : ValueComputeNode<TimeSpan>
 {
     public ValueInput<float> Days = new();
     public ValueInput<float> Hours = new();
@@ -16,9 +16,7 @@ public sealed class TimeSpanConstructNode : Node
     public ValueInput<float> Milliseconds = new();
     public ValueInput<float> Microseconds = new();
 
-    public ValueOutput<TimeSpan> Output = new();
-
-    protected override Task Process(PulseContext c)
+    protected override TimeSpan ComputeValue(PulseContext c)
     {
         try
         {
@@ -29,13 +27,12 @@ public sealed class TimeSpanConstructNode : Node
             timeSpan += TimeSpan.FromSeconds(Seconds.Read(c));
             timeSpan += TimeSpan.FromMilliseconds(Milliseconds.Read(c));
             timeSpan += TimeSpan.FromMicroseconds(Microseconds.Read(c));
-            Output.Write(timeSpan, c);
+            return timeSpan;
         }
         catch
         {
+            return TimeSpan.Zero;
         }
-
-        return Task.CompletedTask;
     }
 }
 
@@ -98,7 +95,7 @@ public sealed class TimeSpanExtractTotalNode : Node
 }
 
 [Node("DateTime Construct", "Date & Time")]
-public sealed class DateTimeConstructNode : Node
+public sealed class DateTimeConstructNode : ValueComputeNode<DateTime>
 {
     public ValueInput<float> Days = new();
     public ValueInput<float> Hours = new();
@@ -107,9 +104,7 @@ public sealed class DateTimeConstructNode : Node
     public ValueInput<float> Milliseconds = new();
     public ValueInput<float> Microseconds = new();
 
-    public ValueOutput<DateTime> Output = new();
-
-    protected override Task Process(PulseContext c)
+    protected override DateTime ComputeValue(PulseContext c)
     {
         try
         {
@@ -120,13 +115,12 @@ public sealed class DateTimeConstructNode : Node
             dateTime += TimeSpan.FromSeconds(Seconds.Read(c));
             dateTime += TimeSpan.FromMilliseconds(Milliseconds.Read(c));
             dateTime += TimeSpan.FromMicroseconds(Microseconds.Read(c));
-            Output.Write(dateTime, c);
+            return dateTime;
         }
         catch
         {
+            return DateTime.UnixEpoch;
         }
-
-        return Task.CompletedTask;
     }
 }
 
@@ -135,7 +129,7 @@ public sealed class DateTimeExtractNode : Node
 {
     public ValueInput<DateTime> DateTime = new();
 
-    public ValueOutput<int> DayOfYear = new("Day Of Year");
+    public ValueOutput<int> DayOfYear = new();
     public ValueOutput<int> Year = new();
     public ValueOutput<int> Month = new();
     public ValueOutput<int> Day = new();
@@ -166,111 +160,16 @@ public sealed class DateTimeExtractNode : Node
 }
 
 [Node("DateTime Difference", "Date & Time")]
-public sealed class DateTimeDifferenceNode : Node
-{
-    public ValueInput<DateTime> InputA = new("A");
-    public ValueInput<DateTime> InputB = new("B");
-
-    public ValueOutput<TimeSpan> Output = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        try
-        {
-            Output.Write(InputA.Read(c) - InputB.Read(c), c);
-        }
-        catch
-        {
-        }
-
-        return Task.CompletedTask;
-    }
-}
+public sealed class DateTimeDifferenceNode() : SimpleResultComputeNode<DateTime, TimeSpan>((a, b) => a - b);
 
 [Node("DateTime Add", "Date & Time")]
-public sealed class DateTimeAddNode : Node
-{
-    public ValueInput<DateTime> DateTime = new();
-    public ValueInput<TimeSpan> TimeSpan = new();
-
-    public ValueOutput<DateTime> Output = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        try
-        {
-            Output.Write(DateTime.Read(c).Add(TimeSpan.Read(c)), c);
-        }
-        catch
-        {
-        }
-
-        return Task.CompletedTask;
-    }
-}
+public sealed class DateTimeAddNode() : SimpleResultComputeNode<DateTime, TimeSpan, DateTime>((a, b) => a.Add(b), "DateTime", "TimeSpan");
 
 [Node("DateTime Subtract", "Date & Time")]
-public sealed class DateTimeSubtractNode : Node
-{
-    public ValueInput<DateTime> DateTime = new();
-    public ValueInput<TimeSpan> TimeSpan = new();
-
-    public ValueOutput<DateTime> Output = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        try
-        {
-            Output.Write(DateTime.Read(c).Subtract(TimeSpan.Read(c)), c);
-        }
-        catch
-        {
-        }
-
-        return Task.CompletedTask;
-    }
-}
+public sealed class DateTimeSubtractNode() : SimpleResultComputeNode<DateTime, TimeSpan, DateTime>((a, b) => a.Subtract(b), "DateTime", "TimeSpan");
 
 [Node("TimeSpan Add", "Date & Time")]
-public sealed class TimeSpanAddNode : Node
-{
-    public ValueInput<TimeSpan> Source = new();
-    public ValueInput<TimeSpan> Value = new();
-
-    public ValueOutput<TimeSpan> Output = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        try
-        {
-            Output.Write(Source.Read(c).Add(Value.Read(c)), c);
-        }
-        catch
-        {
-        }
-
-        return Task.CompletedTask;
-    }
-}
+public sealed class TimeSpanAddNode() : SimpleResultComputeNode<TimeSpan>((a, b) => a.Add(b), "Source", "Value");
 
 [Node("TimeSpan Subtract", "Date & Time")]
-public sealed class TimeSpanSubtractNode : Node
-{
-    public ValueInput<TimeSpan> Source = new();
-    public ValueInput<TimeSpan> Value = new();
-
-    public ValueOutput<TimeSpan> Output = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        try
-        {
-            Output.Write(Source.Read(c).Subtract(Value.Read(c)), c);
-        }
-        catch
-        {
-        }
-
-        return Task.CompletedTask;
-    }
-}
+public sealed class TimeSpanSubtractNode() : SimpleResultComputeNode<TimeSpan>((a, b) => a.Subtract(b), "Source", "Value");

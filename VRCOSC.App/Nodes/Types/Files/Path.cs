@@ -22,80 +22,34 @@ public sealed class PathJoinNode : Node
 
 [Node("Path Exists", "Files")]
 [NodeCollapsed]
-public sealed class PathExistsNode : Node
-{
-    public ValueInput<string> Path = new();
-    public ValueOutput<bool> Exists = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Exists.Write(System.IO.Path.Exists(Path.Read(c)), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class PathExistsNode() : SimpleValueTransformNode<string, bool>(Path.Exists);
 
 [Node("Get File Name", "Files")]
 [NodeCollapsed]
-public sealed class PathGetFileNameNode : Node
-{
-    public ValueInput<string> Path = new();
-    public ValueOutput<string> Name = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Name.Write(System.IO.Path.GetFileName(Path.Read(c)), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class PathGetFileNameNode() : SimpleValueTransformNode<string>(Path.GetFileName);
 
 [Node("Get Directory Name", "Files")]
 [NodeCollapsed]
-public sealed class PathGetDirectoryNameNode : Node
+public sealed class PathGetDirectoryNameNode : ValueComputeNode<string?>
 {
     public ValueInput<string> Path = new();
-    public ValueOutput<string> Name = new();
 
-    protected override Task Process(PulseContext c)
+    protected override string? ComputeValue(PulseContext c)
     {
         try
         {
-            Name.Write(System.IO.Path.GetDirectoryName(Path.Read(c))!, c);
+            return System.IO.Path.GetDirectoryName(Path.Read(c));
         }
         catch
         {
-            Name.Write(null!, c);
+            return null;
         }
-
-        return Task.CompletedTask;
     }
 }
 
 [Node("Get Extension", "Files")]
 [NodeCollapsed]
-public sealed class PathGetExtensionNode : Node
-{
-    public ValueInput<string> Path = new();
-    public ValueOutput<string> Extension = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Extension.Write(System.IO.Path.GetExtension(Path.Read(c)), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class PathGetExtensionNode() : SimpleValueTransformNode<string>(Path.GetExtension);
 
 [Node("Temp Path", "Files")]
-public sealed class PathTempPathConstantNode : ConstantNode<string>
-{
-    protected override string GetValue()
-    {
-        try
-        {
-            return Path.GetTempPath();
-        }
-        catch
-        {
-            return null!;
-        }
-    }
-}
+public sealed class PathTempPathConstantNode() : ConstantNode<string>(Path.GetTempPath());

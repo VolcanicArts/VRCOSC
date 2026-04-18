@@ -23,14 +23,4 @@ public sealed class ClampNode<T> : Node where T : INumber<T>
 
 [Node("Clamp 0,1", "Math/Clamp")]
 [NodeCollapsed]
-public sealed class Clamp01Node<T> : Node where T : INumber<T>
-{
-    public ValueInput<T> Input = new();
-    public ValueOutput<T> Output = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Output.Write(T.Clamp(Input.Read(c), T.Zero, T.One), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class Clamp01Node<T>() : SimpleValueTransformNode<T>(v => T.Clamp(v, T.Zero, T.One)) where T : INumber<T>;

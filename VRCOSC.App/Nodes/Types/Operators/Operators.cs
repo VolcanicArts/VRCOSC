@@ -2,35 +2,12 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using FontAwesome6;
 
 namespace VRCOSC.App.Nodes.Types.Operators;
 
 [Node("Equals", "Operators", EFontAwesomeIcon.Solid_Equals)]
-public sealed class EqualsNode<T> : Node
-{
-    public ValueInput<T> A = new();
-    public ValueInput<T> B = new();
-    public ValueOutput<bool> Result = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Result.Write(EqualityComparer<T>.Default.Equals(A.Read(c), B.Read(c)), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class EqualsNode<T>() : SimpleResultComputeNode<T, bool>(EqualityComparer<T>.Default.Equals);
 
 [Node("Not Equals", "Operators", EFontAwesomeIcon.Solid_NotEqual)]
-public sealed class NotEqualsNode<T> : Node
-{
-    public ValueInput<T> A = new();
-    public ValueInput<T> B = new();
-    public ValueOutput<bool> Result = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Result.Write(!EqualityComparer<T>.Default.Equals(A.Read(c), B.Read(c)), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class NotEqualsNode<T>() : SimpleResultComputeNode<T, bool>((a, b) => !EqualityComparer<T>.Default.Equals(a, b));

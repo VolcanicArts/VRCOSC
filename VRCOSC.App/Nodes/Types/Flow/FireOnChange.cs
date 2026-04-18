@@ -10,37 +10,36 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Fire On Change", "Flow")]
 public sealed class FireOnChangeNode<T> : Node
 {
-    public FlowContinuation Next = new("Next");
+    public FlowContinuation Next = new();
 
     public GlobalStore<T> PrevValue = new();
 
     public ValueInput<T> Value = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         PrevValue.Write(Value.Read(c), c);
-        await Next.Execute(c);
+        return Next.Execute(c);
     }
 
-    protected override bool ShouldProcess(PulseContext c)
-    {
-        return !EqualityComparer<T>.Default.Equals(Value.Read(c), PrevValue.Read(c));
-    }
+    protected override bool ShouldProcess(PulseContext c) => !EqualityComparer<T>.Default.Equals(Value.Read(c), PrevValue.Read(c));
 }
 
-[Node("Fire On Change Multi", "Flow")]
+[Node("Fire On Change (Multi)", "Flow")]
 public sealed class FireOnChangeMultiNode<T> : Node
 {
+    public override string DisplayName => "Fire On Change";
+
     public FlowContinuation Next = new("Next");
 
     public GlobalStore<List<T>> PrevValues = new();
 
     public ValueInputList<T> Values = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         PrevValues.Write(Values.Read(c), c);
-        await Next.Execute(c);
+        return Next.Execute(c);
     }
 
     protected override bool ShouldProcess(PulseContext c)
@@ -53,9 +52,11 @@ public sealed class FireOnChangeMultiNode<T> : Node
     }
 }
 
-[Node("Fire On Change Enumerable", "Flow")]
+[Node("Fire On Change (Enumerable)", "Flow")]
 public sealed class FireOnChangeEnumerableNode<T> : Node, IActiveUpdateNode
 {
+    public override string DisplayName => "Fire On Change";
+
     public int UpdateOffset => 0;
 
     public FlowContinuation Next = new("Next");
@@ -64,10 +65,10 @@ public sealed class FireOnChangeEnumerableNode<T> : Node, IActiveUpdateNode
 
     public ValueInput<IEnumerable<T>> Enumerable = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         EnumerableStore.Write(Enumerable.Read(c), c);
-        await Next.Execute(c);
+        return Next.Execute(c);
     }
 
     public Task<bool> OnUpdate(PulseContext c)

@@ -13,7 +13,7 @@ public sealed class KeybindPressNode : Node, IFlowInput
     public FlowContinuation Next = new();
 
     public ValueInput<SDK.Utils.Keybind> Keybind = new();
-    public ValueInput<int> DurationMilliseconds = new("Duration Milliseconds");
+    public ValueInput<int> DurationMilliseconds = new();
 
     protected override async Task Process(PulseContext c)
     {
@@ -30,7 +30,7 @@ public sealed class KeybindHoldReleaseNode : Node, IFlowInput
 {
     public GlobalStore<bool> PrevCondition = new();
 
-    public FlowContinuation Next = new("Next");
+    public FlowContinuation Next = new();
 
     public ValueInput<SDK.Utils.Keybind> Keybind = new();
     public ValueInput<bool> Condition = new();

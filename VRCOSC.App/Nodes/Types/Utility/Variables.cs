@@ -43,32 +43,32 @@ public sealed class DirectWriteVariableNode<T> : Node, IFlowInput, IHasVariableR
     [NodeProperty("variable_id")]
     public Guid VariableId { get; set; }
 
-    public FlowContinuation OnWrite = new("On Write");
+    public FlowContinuation OnWrite = new();
 
     public ValueInput<T> Value = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         graphVariable.Write(Value.Read(c));
-        await OnWrite.Execute(c);
+        return OnWrite.Execute(c);
     }
 }
 
 [Node("Indirect Write Variable", "Variables")]
 public sealed class IndirectWriteVariableNode<T> : Node, IFlowInput
 {
-    public FlowContinuation OnWrite = new("On Write");
+    public FlowContinuation OnWrite = new();
 
     public ValueInput<GraphVariable<T>> Reference = new();
     public ValueInput<T> Value = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         var reference = Reference.Read(c);
-        if (reference is null) return;
+        if (reference is null) return Task.CompletedTask;
 
         reference.Write(Value.Read(c));
-        await OnWrite.Execute(c);
+        return OnWrite.Execute(c);
     }
 }
 

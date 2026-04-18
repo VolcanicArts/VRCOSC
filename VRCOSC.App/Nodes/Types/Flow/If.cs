@@ -13,11 +13,5 @@ public sealed class IfNode : Node, IFlowInput
 
     public ValueInput<bool> Condition = new();
 
-    protected override async Task Process(PulseContext c)
-    {
-        if (Condition.Read(c))
-            await OnTrue.Execute(c);
-        else
-            await OnFalse.Execute(c);
-    }
+    protected override Task Process(PulseContext c) => Condition.Read(c) ? OnTrue.Execute(c) : OnFalse.Execute(c);
 }

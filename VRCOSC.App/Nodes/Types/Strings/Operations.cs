@@ -8,191 +8,123 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Strings;
 
 [Node("Compare", "Strings")]
-public sealed class StringCompareNode : Node
+public sealed class StringCompareNode : ValueComputeNode<int>
 {
-    public ValueInput<string> A = new();
-    public ValueInput<string> B = new();
+    public ValueInput<string?> A = new();
+    public ValueInput<string?> B = new();
     public ValueInput<StringComparison> Comparison = new();
-    public ValueOutput<int> Result = new();
 
-    protected override Task Process(PulseContext c)
-    {
-        Result.Write(string.Compare(A.Read(c), B.Read(c), Comparison.Read(c)), c);
-        return Task.CompletedTask;
-    }
+    protected override int ComputeValue(PulseContext c) => string.Compare(A.Read(c), B.Read(c), Comparison.Read(c));
 }
 
 [Node("Join", "Strings")]
-public sealed class StringJoinNode : Node
+public sealed class StringJoinNode : ValueComputeNode<string>
 {
-    public ValueInput<string> Separator = new(defaultValue: string.Empty);
-    public ValueInputList<string> Inputs = new();
-    public ValueOutput<string> Output = new();
+    public ValueInput<string?> Separator = new();
+    public ValueInputList<string?> Inputs = new();
 
-    protected override Task Process(PulseContext c)
-    {
-        Output.Write(string.Join(Separator.Read(c), Inputs.Read(c)), c);
-        return Task.CompletedTask;
-    }
+    protected override string ComputeValue(PulseContext c) => string.Join(Separator.Read(c), Inputs.Read(c));
 }
 
 [Node("Contains", "Strings")]
-public sealed class StringContainsNode : Node
+public sealed class StringContainsNode : ValueComputeNode<bool>
 {
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
-    public ValueInput<string> Value = new(defaultValue: string.Empty);
+    public ValueInput<string?> Input = new();
+    public ValueInput<string?> Value = new();
     public ValueInput<StringComparison> Comparison = new();
-    public ValueOutput<bool> Result = new();
 
-    protected override Task Process(PulseContext c)
+    protected override bool ComputeValue(PulseContext c)
     {
         var input = Input.Read(c);
         var value = Value.Read(c);
 
-        if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(value)) return Task.CompletedTask;
+        if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(value)) return false;
 
-        Result.Write(input.Contains(value, Comparison.Read(c)), c);
-        return Task.CompletedTask;
+        return input.Contains(value, Comparison.Read(c));
     }
 }
 
 [Node("To Upper", "Strings")]
 [NodeCollapsed]
-public sealed class StringToUpperNode : Node
-{
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
-    public ValueOutput<string> Result = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Result.Write(Input.Read(c).ToUpper(), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class StringToUpperNode() : SimpleValueTransformNode<string?>(v => v?.ToUpper());
 
 [Node("To Lower", "Strings")]
 [NodeCollapsed]
-public sealed class StringToLowerNode : Node
-{
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
-    public ValueOutput<string> Result = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Result.Write(Input.Read(c).ToLower(), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class StringToLowerNode() : SimpleValueTransformNode<string?>(v => v?.ToLower());
 
 [Node("Is Null Or Empty", "Strings")]
 [NodeCollapsed]
-public sealed class StringIsNullOrEmptyNode : Node
-{
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
-    public ValueOutput<bool> Result = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Result.Write(string.IsNullOrEmpty(Input.Read(c)), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class StringIsNullOrEmptyNode() : SimpleValueTransformNode<string?, bool>(string.IsNullOrEmpty);
 
 [Node("Is Null Or WhiteSpace", "Strings")]
 [NodeCollapsed]
-public sealed class StringIsNullOrWhiteSpaceNode : Node
-{
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
-    public ValueOutput<bool> Result = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Result.Write(string.IsNullOrWhiteSpace(Input.Read(c)), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class StringIsNullOrWhiteSpaceNode() : SimpleValueTransformNode<string?, bool>(string.IsNullOrWhiteSpace);
 
 [Node("Length", "Strings")]
 [NodeCollapsed]
-public sealed class StringLengthNode : Node
-{
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
-    public ValueOutput<int> Length = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Length.Write(Input.Read(c).Length, c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class StringLengthNode() : SimpleValueTransformNode<string?, int>(v => v?.Length ?? 0);
 
 [Node("Substring", "Strings")]
-public sealed class StringSubstringNode : Node
+public sealed class StringSubstringNode : ValueComputeNode<string?>
 {
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
+    public ValueInput<string?> Input = new();
     public ValueInput<int> Index = new();
     public ValueInput<int> Length = new();
 
-    public ValueOutput<string> Output = new();
-
-    protected override Task Process(PulseContext c)
+    protected override string? ComputeValue(PulseContext c)
     {
         var input = Input.Read(c);
         var index = Index.Read(c);
         var length = Length.Read(c);
 
+        if (string.IsNullOrEmpty(input)) return input;
+
         try
         {
-            Output.Write(length == 0 ? input.Substring(index) : input.Substring(index, length), c);
+            return length == 0 ? input[index..] : input.Substring(index, length);
         }
         catch
         {
-            Output.Write(string.Empty, c);
+            return null;
         }
-
-        return Task.CompletedTask;
     }
 }
 
 [Node("Ends With", "Strings")]
-public sealed class StringEndsWithNode : Node
+public sealed class StringEndsWithNode : ValueComputeNode<bool>
 {
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
-    public ValueInput<string> Check = new(defaultValue: string.Empty);
+    public ValueInput<string?> Input = new();
+    public ValueInput<string?> Check = new();
     public ValueInput<StringComparison> Comparison = new();
 
-    public ValueOutput<bool> Output = new();
-
-    protected override Task Process(PulseContext c)
+    protected override bool ComputeValue(PulseContext c)
     {
         var input = Input.Read(c);
         var check = Check.Read(c);
         var comparison = Comparison.Read(c);
 
-        Output.Write(input.EndsWith(check, comparison), c);
+        if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(check)) return false;
 
-        return Task.CompletedTask;
+        return input.EndsWith(check, comparison);
     }
 }
 
 [Node("Starts With", "Strings")]
-public sealed class StringStartsWithNode : Node
+public sealed class StringStartsWithNode : ValueComputeNode<bool>
 {
-    public ValueInput<string> Input = new(defaultValue: string.Empty);
-    public ValueInput<string> Check = new(defaultValue: string.Empty);
+    public ValueInput<string?> Input = new();
+    public ValueInput<string?> Check = new();
     public ValueInput<StringComparison> Comparison = new();
 
-    public ValueOutput<bool> Output = new();
-
-    protected override Task Process(PulseContext c)
+    protected override bool ComputeValue(PulseContext c)
     {
         var input = Input.Read(c);
         var check = Check.Read(c);
         var comparison = Comparison.Read(c);
 
-        Output.Write(input.StartsWith(check, comparison), c);
+        if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(check)) return false;
 
-        return Task.CompletedTask;
+        return input.StartsWith(check, comparison);
     }
 }
 
@@ -202,21 +134,19 @@ public sealed class StringParseNode<T> : Node, IFlowInput where T : IParsable<T>
     public FlowContinuation Success = new("On Success");
     public FlowContinuation Failed = new("On Failed");
 
-    public ValueInput<string> Input = new();
+    public ValueInput<string?> Input = new();
     public ValueInput<CultureInfo> Culture = new("Culture", CultureInfo.CurrentCulture);
     public ValueOutput<T> Output = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         if (T.TryParse(Input.Read(c), Culture.Read(c), out var parsedInput))
         {
             Output.Write(parsedInput, c);
-            await Success.Execute(c);
+            return Success.Execute(c);
         }
-        else
-        {
-            Output.Write(default!, c);
-            await Failed.Execute(c);
-        }
+
+        Output.Write(default!, c);
+        return Failed.Execute(c);
     }
 }

@@ -15,13 +15,13 @@ public sealed class FireWhileFalseNode : Node, IActiveUpdateNode
 
     public FlowContinuation Next = new();
 
-    public ValueInput<int> DelayMilliseconds = new("Delay Milliseconds");
+    public ValueInput<int> DelayMilliseconds = new();
     public ValueInput<bool> Condition = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Task Process(PulseContext c)
     {
         LastUpdateStore.Write(DateTime.Now, c);
-        await Next.Execute(c);
+        return Next.Execute(c);
     }
 
     public Task<bool> OnUpdate(PulseContext c)

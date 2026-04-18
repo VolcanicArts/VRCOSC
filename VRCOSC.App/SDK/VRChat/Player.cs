@@ -212,9 +212,10 @@ public sealed class Player
         StopLookLeft();
         StopLookRight();
         StopRun();
-        MoveHorizontal(0);
-        MoveVertical(0);
-        LookHorizontal(0);
+        MoveHorizontal(0f);
+        MoveVertical(0f);
+        LookHorizontal(0f);
+        LookVertical(0f);
     }
 
     public void MoveForward()
@@ -395,6 +396,12 @@ public sealed class Player
         oscClient.Send(actionToAddress(VRChatAxesInput.LookHorizontal), value);
         hasChanged = true;
     }
+
+    public void LookVertical(float value)
+    {
+        oscClient.Send(actionToAddress(VRChatAxesInput.LookVertical), value);
+        hasChanged = true;
+    }
 }
 
 public enum VRChatButtonInput
@@ -425,6 +432,7 @@ public enum VRChatAxesInput
 {
     Vertical,
     Horizontal,
+    LookVertical,
     LookHorizontal
 }
 

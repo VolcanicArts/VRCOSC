@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using System.Text.Json.Nodes;
 using SoundFlow.Components;
+using SoundFlow.Interfaces;
 using VRCOSC.App.SDK.VRChat;
 
 // ReSharper disable InconsistentNaming
@@ -36,7 +38,11 @@ public static partial class TypeResolver
         { "jsonobject", typeof(JsonObject) },
         { "user", typeof(User) },
         { "instance", typeof(Instance) },
-        { "soundplayer", typeof(SoundPlayer) }
+        { "soundplayer", typeof(SoundPlayer) },
+        { "isoundplayer", typeof(ISoundPlayer) },
+        { "vector2", typeof(Vector2) },
+        { "vector3", typeof(Vector3) },
+        { "quaternion", typeof(Quaternion) }
     };
 
     private static Lazy<Dictionary<string, Type>> typeIndex = new(buildTypeIndex, true);
@@ -214,7 +220,7 @@ public static partial class TypeResolver
 
             foreach (var t in types)
             {
-                if (t.IsAbstract) continue;
+                if (t.IsAbstract && !t.IsInterface) continue;
 
                 if (t.FullName != null) dict[t.FullName] = t;
 
