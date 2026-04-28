@@ -246,12 +246,8 @@ internal class AppManager : IVRCClientEventHandler
                 var parameter = new VRChatParameter(message);
                 parameterCache[parameter.GetDefinition()] = parameter;
 
-                var wasPlayerUpdated = VRChatClient.Player.UpdateParameter(parameter);
-
-                if (wasPlayerUpdated)
-                {
+                if (Enum.TryParse<VRChatAvatarParameter>(parameter.Name, out _))
                     ModuleManager.GetInstance().PlayerUpdate();
-                }
 
                 if (parameter.Name.StartsWith("VRCOSC/Controls"))
                 {
@@ -278,7 +274,6 @@ internal class AppManager : IVRCClientEventHandler
         foreach (var parameter in parameters)
         {
             parameterCache[parameter.GetDefinition()] = parameter;
-            VRChatClient.Player.UpdateParameter(parameter);
         }
 
         VRChatClient.UpdateAvatar(avatarId is null ? null : new Avatar(avatarId, avatarConfig?.Name ?? "No Name", parameters.Select(x => x.GetDefinition()).ToArray()));
