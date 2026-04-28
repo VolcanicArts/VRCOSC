@@ -26,6 +26,7 @@ using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.Parameters.Queryable;
 using VRCOSC.App.SDK.VRChat;
+using VRCOSC.App.SDK.VRChat.Logs;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Settings;
 using VRCOSC.App.SteamVR;
@@ -267,7 +268,7 @@ public abstract class Module
 
         if (GetType().IsAssignableTo(typeof(IVRCClientEventHandler)))
         {
-            VRChatLogReader.Deregister((IVRCClientEventHandler)this);
+            VRChatLogReader.DeRegister((IVRCClientEventHandler)this);
         }
 
         foreach (var updateTask in updateTasks) await updateTask.StopAsync();
@@ -327,8 +328,10 @@ public abstract class Module
     /// <summary>
     /// Retrieves the player instance that gives you information about the local player, their built-in avatar parameters, and input controls
     /// </summary>
+    [Obsolete("Use GetClient().Player instead")]
     public Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
 
+    [Obsolete("Use GetClient().Instance instead")]
     public Instance GetInstance() => AppManager.GetInstance().VRChatClient.Instance;
 
     public VRChatClient GetClient() => AppManager.GetInstance().VRChatClient;
@@ -365,7 +368,7 @@ public abstract class Module
     {
     }
 
-    protected virtual void OnAvatarChange(AvatarConfig? avatarConfig)
+    protected virtual void OnAvatarChange(Avatar? avatar)
     {
     }
 
@@ -1046,9 +1049,10 @@ public abstract class Module
         }
     }
 
-    protected Task<AvatarConfig?> FindCurrentAvatar()
+    [Obsolete("Use GetClient().Avatar instead")]
+    protected Task<Avatar?> FindCurrentAvatar()
     {
-        var currentAvatar = AppManager.GetInstance().GetCurrentAvatar();
+        var currentAvatar = GetClient().Avatar;
         return Task.FromResult(currentAvatar);
     }
 
@@ -1141,11 +1145,11 @@ public abstract class Module
         }
     }
 
-    internal void InvokeAvatarChange(AvatarConfig? avatarConfig)
+    internal void InvokeAvatarChange(Avatar? avatar)
     {
         try
         {
-            OnAvatarChange(avatarConfig);
+            OnAvatarChange(avatar);
         }
         catch (Exception e)
         {

@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.VRChat;
+using VRCOSC.App.SDK.VRChat.Logs.Handlers;
 
 namespace VRCOSC.App.Nodes.Types.Events;
 
@@ -31,13 +32,13 @@ public sealed class OnInstanceJoinedNode : Node, INodeEventHandler
 {
     public FlowContinuation OnInstanceJoined = new();
 
-    public ValueOutput<string> WorldId = new();
+    public ValueOutput<Instance> Instance = new();
 
     protected override Task Process(PulseContext c) => OnInstanceJoined.Execute(c);
 
-    public Task<bool> HandleOnInstanceJoined(PulseContext c, VRChatClientEventInstanceJoined eventArgs)
+    public Task<bool> HandleOnInstanceJoined(PulseContext c, InstanceJoinedClientEvent eventArgs)
     {
-        WorldId.Write(eventArgs.WorldId, c);
+        Instance.Write(eventArgs.Instance, c);
         return Task.FromResult(true);
     }
 }
@@ -47,9 +48,15 @@ public sealed class OnInstanceLeftNode : Node, INodeEventHandler
 {
     public FlowContinuation OnInstanceLeft = new();
 
+    public ValueOutput<Instance> Instance = new();
+
     protected override Task Process(PulseContext c) => OnInstanceLeft.Execute(c);
 
-    public Task<bool> HandleOnInstanceLeft(PulseContext c, VRChatClientEventInstanceLeft eventArgs) => Task.FromResult(true);
+    public Task<bool> HandleOnInstanceLeft(PulseContext c, InstanceLeftClientEvent eventArgs)
+    {
+        Instance.Write(eventArgs.Instance, c);
+        return Task.FromResult(true);
+    }
 }
 
 [Node("On User Joined", "Events")]
@@ -61,7 +68,7 @@ public sealed class OnUserJoinedNode : Node, INodeEventHandler
 
     protected override Task Process(PulseContext c) => OnUserJoined.Execute(c);
 
-    public Task<bool> HandleOnUserJoined(PulseContext c, VRChatClientEventUserJoined eventArgs)
+    public Task<bool> HandleOnUserJoined(PulseContext c, UserJoinedClientEvent eventArgs)
     {
         User.Write(eventArgs.User, c);
         return Task.FromResult(true);
@@ -77,7 +84,7 @@ public sealed class OnUserLeftNode : Node, INodeEventHandler
 
     protected override Task Process(PulseContext c) => OnUserLeft.Execute(c);
 
-    public Task<bool> HandleOnUserLeft(PulseContext c, VRChatClientEventUserLeft eventArgs)
+    public Task<bool> HandleOnUserLeft(PulseContext c, UserLeftClientEvent eventArgs)
     {
         User.Write(eventArgs.User, c);
         return Task.FromResult(true);
@@ -91,5 +98,5 @@ public sealed class OnAvatarPreChangeNode : Node, INodeEventHandler
 
     protected override Task Process(PulseContext c) => OnAvatarPreChange.Execute(c);
 
-    public Task<bool> HandleOnAvatarPreChange(PulseContext c, VRChatClientEventAvatarPreChange eventArgs) => Task.FromResult(true);
+    public Task<bool> HandleOnAvatarPreChange(PulseContext c, AvatarPreChangeClientEvent eventArgs) => Task.FromResult(true);
 }

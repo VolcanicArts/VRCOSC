@@ -13,7 +13,8 @@ using VRCOSC.App.Nodes.Serialisation;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Strings;
 using VRCOSC.App.SDK.Handlers;
-using VRCOSC.App.SDK.VRChat;
+using VRCOSC.App.SDK.VRChat.Logs;
+using VRCOSC.App.SDK.VRChat.Logs.Handlers;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -81,7 +82,7 @@ public class NodeGraph : IVRCClientEventHandler
 
     public async Task Stop()
     {
-        VRChatLogReader.Deregister(this);
+        VRChatLogReader.DeRegister(this);
         await updateTokenSource!.CancelAsync();
         await updateTask!;
 
@@ -463,11 +464,32 @@ public class NodeGraph : IVRCClientEventHandler
 
     public void OnPartialSpeechResult(string result) => CurrentSpeechText = result;
     public void OnFinalSpeechResult(string result) => CurrentSpeechText = result;
-    public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs) => handleNodeEvent((c, node) => node.HandleOnInstanceJoined(c, eventArgs)).Forget();
-    public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs) => handleNodeEvent((c, node) => node.HandleOnInstanceLeft(c, eventArgs)).Forget();
-    public void OnUserJoined(VRChatClientEventUserJoined eventArgs) => handleNodeEvent((c, node) => node.HandleOnUserJoined(c, eventArgs)).Forget();
-    public void OnUserLeft(VRChatClientEventUserLeft eventArgs) => handleNodeEvent((c, node) => node.HandleOnUserLeft(c, eventArgs)).Forget();
-    public void OnAvatarPreChange(VRChatClientEventAvatarPreChange eventArgs) => handleNodeEvent((c, node) => node.HandleOnAvatarPreChange(c, eventArgs)).Forget();
+
+    public void HandleClientEvent(IVRChatClientEvent @event)
+    {
+        switch (@event)
+        {
+            case InstanceJoinedClientEvent instanceJoinedClientEvent:
+                handleNodeEvent((c, node) => node.HandleOnInstanceJoined(c, instanceJoinedClientEvent)).Forget();
+                break;
+
+            case InstanceLeftClientEvent instanceLeftClientEvent:
+                handleNodeEvent((c, node) => node.HandleOnInstanceLeft(c, instanceLeftClientEvent)).Forget();
+                break;
+
+            case UserJoinedClientEvent userJoinedClientEvent:
+                handleNodeEvent((c, node) => node.HandleOnUserJoined(c, userJoinedClientEvent)).Forget();
+                break;
+
+            case UserLeftClientEvent userLeftClientEvent:
+                handleNodeEvent((c, node) => node.HandleOnUserLeft(c, userLeftClientEvent)).Forget();
+                break;
+
+            case AvatarPreChangeClientEvent avatarPreChangeClientEvent:
+                handleNodeEvent((c, node) => node.HandleOnAvatarPreChange(c, avatarPreChangeClientEvent)).Forget();
+                break;
+        }
+    }
 
     public async Task StartFlow(Node node, PulseContext? baseContext = null, Func<PulseContext, Task<bool>>? onPreProcess = null)
     {

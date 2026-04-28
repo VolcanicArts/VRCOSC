@@ -82,9 +82,9 @@ internal class ModuleManager : INotifyPropertyChanged
         RunningModules.ForEach(module => module.InvokeChatBoxUpdate());
     }
 
-    public void AvatarChange(AvatarConfig? avatarConfig)
+    public void AvatarChange(Avatar? avatar)
     {
-        RunningModules.ForEach(module => module.InvokeAvatarChange(avatarConfig));
+        RunningModules.ForEach(module => module.InvokeAvatarChange(avatar));
     }
 
     #endregion

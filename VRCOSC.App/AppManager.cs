@@ -28,6 +28,8 @@ using VRCOSC.App.Router;
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.SDK.VRChat;
+using VRCOSC.App.SDK.VRChat.Logs;
+using VRCOSC.App.SDK.VRChat.Logs.Handlers;
 using VRCOSC.App.Settings;
 using VRCOSC.App.Startup;
 using VRCOSC.App.SteamVR;
@@ -70,7 +72,6 @@ internal class AppManager : IVRCClientEventHandler
     private Repeater vrchatCheckTask = null!;
 
     private ConcurrentDictionary<ParameterDefinition, VRChatParameter> parameterCache { get; } = [];
-    private AvatarConfig? currentAvatarConfig { get; set; }
 
     public AppManager()
     {
@@ -155,37 +156,44 @@ internal class AppManager : IVRCClientEventHandler
         SteamVRManager = new SteamVRManager();
     }
 
-    public void OnUserAuthenticated(VRChatClientEventUserAuthenticated eventArgs)
+    public async void HandleClientEvent(IVRChatClientEvent @event)
     {
-        VRChatClient.Player.User = eventArgs.User;
-    }
+        switch (@event)
+        {
+            case UserAuthenticatedClientEvent userAuthenticatedClientEvent:
+                VRChatClient.UpdateUser(userAuthenticatedClientEvent.User);
+                break;
 
-    public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
-    {
-        VRChatClient.Instance.WorldId = eventArgs.WorldId;
-        VRChatClient.Instance.Users.Clear();
-    }
+            case InstanceJoinedClientEvent instanceJoinedClientEvent:
+                VRChatClient.UpdateInstance(instanceJoinedClientEvent.Instance);
+                await updateCaches();
+                break;
 
-    public void OnInstanceLeft(VRChatClientEventInstanceLeft eventArgs)
-    {
-        VRChatClient.Instance.WorldId = null;
-        VRChatClient.Instance.Users.Clear();
-    }
+            case InstanceLeftClientEvent:
+                VRChatClient.UpdateInstance(null);
+                VRChatClient.UpdateAvatar(null);
+                break;
 
-    public void OnUserJoined(VRChatClientEventUserJoined eventArgs)
-    {
-        VRChatClient.Instance.Users.Add(eventArgs.User);
-    }
+            case UserJoinedClientEvent userJoinedClientEvent:
+            {
+                if (!VRChatClient.IsInInstance) return;
 
-    public void OnUserLeft(VRChatClientEventUserLeft eventArgs)
-    {
-        VRChatClient.Instance.Users.RemoveIf(user => user == eventArgs.User);
+                VRChatClient.Instance.Users.Add(userJoinedClientEvent.User);
+                break;
+            }
+
+            case UserLeftClientEvent userLeftClientEvent:
+            {
+                if (!VRChatClient.IsInInstance) return;
+
+                VRChatClient.Instance.Users.RemoveIf(user => user == userLeftClientEvent.User);
+                break;
+            }
+        }
     }
 
     public VRChatParameter? GetParameter<T>(string name) => parameterCache.GetValueOrDefault(new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>()));
     public VRChatParameter? GetParameter(string name) => parameterCache.SingleOrDefault(p => p.Value.Name == name).Value;
-
-    public AvatarConfig? GetCurrentAvatar() => currentAvatarConfig;
 
     public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
@@ -212,7 +220,7 @@ internal class AppManager : IVRCClientEventHandler
                 if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) return;
 
                 await updateCaches();
-                ModuleManager.GetInstance().AvatarChange(currentAvatarConfig);
+                ModuleManager.GetInstance().AvatarChange(VRChatClient.Avatar);
 
                 sendMetadataParameters();
                 sendControlParameters();
@@ -228,12 +236,17 @@ internal class AppManager : IVRCClientEventHandler
                 VRChatClient.UserCamera.HandleMessage(message);
             }
 
+            if (message.IsAvatarEyeHeight && VRChatClient.IsInAvatar)
+            {
+                VRChatClient.Avatar.HandleOSCMessage(message);
+            }
+
             if (message.IsAvatarParameter)
             {
                 var parameter = new VRChatParameter(message);
                 parameterCache[parameter.GetDefinition()] = parameter;
 
-                var wasPlayerUpdated = VRChatClient.Player.Update(parameter);
+                var wasPlayerUpdated = VRChatClient.Player.UpdateParameter(parameter);
 
                 if (wasPlayerUpdated)
                 {
@@ -256,21 +269,31 @@ internal class AppManager : IVRCClientEventHandler
 
     private async Task updateCaches()
     {
-        var currentAvatarId = await VRChatOscClient.RequestCurrentAvatar();
-
-        if (currentAvatarId is null || currentAvatarId.StartsWith("local"))
-            currentAvatarConfig = null;
-        else
-            currentAvatarConfig = AvatarConfigLoader.LoadConfigFor(currentAvatarId);
-
-        var parameters = await VRChatOscClient.RequestAllParameters();
+        var avatarId = await VRChatOscClient.RequestCurrentAvatar();
+        var avatarConfig = avatarId is null || avatarId.StartsWith("local") ? null : AvatarConfigLoader.LoadConfigFor(avatarId);
+        var parameters = (await VRChatOscClient.RequestAllParameters()).ToList();
 
         parameterCache.Clear();
 
         foreach (var parameter in parameters)
         {
             parameterCache[parameter.GetDefinition()] = parameter;
-            VRChatClient.Player.Update(parameter);
+            VRChatClient.Player.UpdateParameter(parameter);
+        }
+
+        VRChatClient.UpdateAvatar(avatarId is null ? null : new Avatar(avatarId, avatarConfig?.Name ?? "No Name", parameters.Select(x => x.GetDefinition()).ToArray()));
+
+        if (VRChatClient.IsInAvatar)
+        {
+            var eyeHeight = (float)(double)(await VRChatOscClient.RequestNode(VRChatOSCConstants.ADDRESS_AVATAR_EYEHEIGHT))?.Value?[0]!;
+            var eyeHeightMin = (float)(double)(await VRChatOscClient.RequestNode($"{VRChatOSCConstants.ADDRESS_AVATAR_EYEHEIGHT}min"))?.Value?[0]!;
+            var eyeHeightMax = (float)(double)(await VRChatOscClient.RequestNode($"{VRChatOSCConstants.ADDRESS_AVATAR_EYEHEIGHT}max"))?.Value?[0]!;
+            var eyeHeightScalingAllowed = (bool)(await VRChatOscClient.RequestNode($"{VRChatOSCConstants.ADDRESS_AVATAR_EYEHEIGHT}scalingallowed"))?.Value?[0]!;
+
+            VRChatClient.Avatar.EyeHeight = eyeHeight;
+            VRChatClient.Avatar.EyeHeightMin = eyeHeightMin;
+            VRChatClient.Avatar.EyeHeightMax = eyeHeightMax;
+            VRChatClient.Avatar.EyeHeightScalingAllowed = eyeHeightScalingAllowed;
         }
     }
 
@@ -490,9 +513,8 @@ internal class AppManager : IVRCClientEventHandler
             SpeechEngine.Initialise();
         }
 
-        VRChatLogReader.Register(this);
-
         State.Value = AppManagerState.Starting;
+        VRChatLogReader.Register(this);
 
         await updateCaches();
 
@@ -592,17 +614,18 @@ internal class AppManager : IVRCClientEventHandler
         await NodeManager.GetInstance().Stop();
         await ModuleManager.GetInstance().StopAsync();
         await ChatBoxManager.GetInstance().Stop();
-        VRChatClient.Teardown();
         VRChatOscClient.DisableSend();
         await RouterManager.GetInstance().Stop();
         await AudioManager.GetInstance().Stop();
 
         parameterCache.Clear();
+        VRChatLogReader.DeRegister(this);
+
+        VRChatClient.UpdateAvatar(null);
+        VRChatClient.UpdateInstance(null);
+        VRChatClient.UpdateUser(null);
 
         State.Value = AppManagerState.Stopped;
-
-        VRChatLogReader.Deregister(this);
-        currentAvatarConfig = null;
     }
 
     #endregion

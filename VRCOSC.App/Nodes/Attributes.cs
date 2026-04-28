@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FontAwesome6;
 using VRCOSC.App.SDK.Utils;
-using VRCOSC.App.SDK.VRChat;
+using VRCOSC.App.SDK.VRChat.Logs.Handlers;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
@@ -260,11 +260,11 @@ internal interface INodeEventHandler
     public Task<bool> HandleNodeStop(PulseContext c) => Task.FromResult(false);
     public Task<bool> HandlePartialSpeechResult(PulseContext c, string result) => Task.FromResult(false);
     public Task<bool> HandleFinalSpeechResult(PulseContext c, string result) => Task.FromResult(false);
-    public Task<bool> HandleOnInstanceJoined(PulseContext c, VRChatClientEventInstanceJoined eventArgs) => Task.FromResult(false);
-    public Task<bool> HandleOnInstanceLeft(PulseContext c, VRChatClientEventInstanceLeft eventArgs) => Task.FromResult(false);
-    public Task<bool> HandleOnUserJoined(PulseContext c, VRChatClientEventUserJoined eventArgs) => Task.FromResult(false);
-    public Task<bool> HandleOnUserLeft(PulseContext c, VRChatClientEventUserLeft eventArgs) => Task.FromResult(false);
-    public Task<bool> HandleOnAvatarPreChange(PulseContext c, VRChatClientEventAvatarPreChange eventArgs) => Task.FromResult(false);
+    public Task<bool> HandleOnInstanceJoined(PulseContext c, InstanceJoinedClientEvent eventArgs) => Task.FromResult(false);
+    public Task<bool> HandleOnInstanceLeft(PulseContext c, InstanceLeftClientEvent eventArgs) => Task.FromResult(false);
+    public Task<bool> HandleOnUserJoined(PulseContext c, UserJoinedClientEvent eventArgs) => Task.FromResult(false);
+    public Task<bool> HandleOnUserLeft(PulseContext c, UserLeftClientEvent eventArgs) => Task.FromResult(false);
+    public Task<bool> HandleOnAvatarPreChange(PulseContext c, AvatarPreChangeClientEvent eventArgs) => Task.FromResult(false);
 }
 
 internal interface IDisplayNode
