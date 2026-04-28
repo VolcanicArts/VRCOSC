@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -49,7 +49,7 @@ public class NodeGenericTypeFilterAttribute : Attribute
 {
     public Type[] Types { get; }
 
-    public NodeGenericTypeFilterAttribute(Type[] types)
+    public NodeGenericTypeFilterAttribute(params Type[] types)
     {
         Types = types;
     }
