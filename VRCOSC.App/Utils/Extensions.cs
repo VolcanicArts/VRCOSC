@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -330,6 +331,32 @@ public static class TypeExtensions
             {
                 throw new InvalidOperationException($"No conversion exists from {type.GetFriendlyName()} to {toType.GetFriendlyName()}.", e);
             }
+        }
+
+        /// <summary>
+        /// Gets all the fields in a type that are assignable to <paramref name="fieldType"/>, ordered by base type to <paramref name="type"/>
+        /// </summary>
+        public IEnumerable<FieldInfo> GetFieldsByType(Type fieldType)
+        {
+            var fields = new List<FieldInfo>();
+            var hierarchy = new Stack<Type>();
+
+            var lookingType = type;
+
+            while (lookingType != null && lookingType != typeof(object))
+            {
+                hierarchy.Push(lookingType);
+                lookingType = lookingType.BaseType;
+            }
+
+            while (hierarchy.Count > 0)
+            {
+                var currentType = hierarchy.Pop();
+                var currentFields = currentType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Where(f => f.FieldType.IsAssignableTo(fieldType));
+                fields.AddRange(currentFields);
+            }
+
+            return fields;
         }
     }
 
