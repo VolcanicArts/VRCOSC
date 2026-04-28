@@ -3,107 +3,118 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 // ReSharper disable InconsistentNaming
 
 namespace VRCOSC.App.Nodes.Types.Web;
 
-[Node("HTTP GET", "Web")]
-public sealed class HttpGetNode : Node, IFlowInput
+public abstract class HttpNode(HttpMethod method) : TryActionNode
 {
     private readonly HttpClient client = new();
 
-    public FlowContinuation OnSuccess = new();
-    public FlowContinuation OnFail = new();
-
     public ValueInput<string> URL = new();
     public ValueInput<Dictionary<string, string>> Headers = new();
+    public ValueInput<TimeSpan> Timeout = new(defaultValue: TimeSpan.FromMilliseconds(1000));
     public ValueOutput<HttpStatusCode> StatusCode = new();
-    public ValueOutput<string> Content = new();
+    public ValueOutput<string> ErrorMessage = new();
+    public ValueOutput<Dictionary<string, string>> ResponseHeaders = new("Headers");
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task<bool> TryTask(PulseContext c)
     {
         var url = URL.Read(c);
         var headers = Headers.Read(c);
 
-        if (string.IsNullOrEmpty(url))
-        {
-            await OnFail.Execute(c);
-            return;
-        }
+        if (string.IsNullOrEmpty(url)) return false;
 
         headers ??= new Dictionary<string, string>();
 
         try
         {
-            using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(url));
+            using var request = new HttpRequestMessage(method, new Uri(url));
+            await ModifyRequest(request, c);
 
-            foreach (var header in headers) request.Headers.Add(header.Key, header.Value);
+            foreach (var header in headers)
+                request.Headers.Add(header.Key, header.Value);
 
-            var result = await client.SendAsync(request, c.Token);
-            StatusCode.Write(result.StatusCode, c);
+            var response = await client.SendAsync(request).WaitAsync(Timeout.Read(c));
+            StatusCode.Write(response.StatusCode, c);
 
-            result.EnsureSuccessStatusCode();
+            var responseHeaders = response.Headers.ToDictionary(h => h.Key, h => string.Join(", ", h.Value));
+            ResponseHeaders.Write(responseHeaders, c);
 
-            var content = await result.Content.ReadAsStringAsync(c.Token);
-            Content.Write(content, c);
+            response.EnsureSuccessStatusCode();
 
-            await OnSuccess.Execute(c);
+            await HandleResponse(response, c);
+            return true;
         }
-        catch
+        catch (Exception ex)
         {
-            await OnFail.Execute(c);
+            ErrorMessage.Write(ex.Message, c);
+            return false;
         }
+    }
+
+    protected virtual Task ModifyRequest(HttpRequestMessage request, PulseContext c) => Task.CompletedTask;
+    protected virtual Task HandleResponse(HttpResponseMessage response, PulseContext c) => Task.CompletedTask;
+}
+
+public abstract class HttpReadNode(HttpMethod method) : HttpNode(method)
+{
+    public ValueOutput<string> ResponseContentType = new("Content Type");
+    public ValueOutput<string> ResponseBody = new("Body");
+
+    protected override async Task HandleResponse(HttpResponseMessage response, PulseContext c)
+    {
+        var body = await response.Content.ReadAsStringAsync().WaitAsync(c.Token);
+        ResponseBody.Write(body, c);
+        ResponseContentType.Write(response.Content.Headers.ContentType?.MediaType ?? string.Empty, c);
     }
 }
 
-[Node("HTTP POST", "Web")]
-public sealed class HttpPostNode : Node, IFlowInput
+public abstract class HttpWriteNode(HttpMethod method) : HttpReadNode(method)
 {
-    private readonly HttpClient client = new();
+    public ValueInput<string> ContentType = new(defaultValue: "text/plain");
+    public ValueInput<string> RequestBody = new("Body");
 
-    public FlowContinuation OnSuccess = new();
-    public FlowContinuation OnFail = new();
-
-    public ValueInput<string> URL = new();
-    public ValueInput<Dictionary<string, string>> Headers = new();
-    public ValueInput<string> Content = new();
-    public ValueOutput<HttpStatusCode> StatusCode = new();
-
-    protected override async Task Process(PulseContext c)
+    protected override Task ModifyRequest(HttpRequestMessage request, PulseContext c)
     {
-        var url = URL.Read(c);
-        var content = Content.Read(c);
-        var headers = Headers.Read(c);
+        request.Content = new StringContent(RequestBody.Read(c), Encoding.UTF8, ContentType.Read(c));
+        return Task.CompletedTask;
+    }
+}
 
-        if (string.IsNullOrEmpty(url))
-        {
-            await OnFail.Execute(c);
-            return;
-        }
+[Node("HTTP GET", "Web")]
+public sealed class HttpGetNode() : HttpReadNode(HttpMethod.Get);
 
-        headers ??= new Dictionary<string, string>();
+[Node("HTTP POST", "Web")]
+public sealed class HttpPostNode() : HttpWriteNode(HttpMethod.Post);
 
-        try
-        {
-            using var request = new HttpRequestMessage(HttpMethod.Post, new Uri(url));
-            request.Content = new StringContent(content);
+[Node("HTTP PUT", "Web")]
+public sealed class HttpPutNode() : HttpWriteNode(HttpMethod.Put);
 
-            foreach (var header in headers) request.Headers.Add(header.Key, header.Value);
+[Node("HTTP PATCH", "Web")]
+public sealed class HttpPatchNode() : HttpWriteNode(HttpMethod.Patch);
 
-            var result = await client.SendAsync(request, c.Token);
-            StatusCode.Write(result.StatusCode, c);
+[Node("HTTP DELETE", "Web")]
+public sealed class HttpDeleteNode() : HttpReadNode(HttpMethod.Delete);
 
-            result.EnsureSuccessStatusCode();
+[Node("HTTP HEAD", "Web")]
+public sealed class HttpHeadNode() : HttpNode(HttpMethod.Head);
 
-            await OnSuccess.Execute(c);
-        }
-        catch
-        {
-            await OnFail.Execute(c);
-        }
+[Node("HTTP OPTIONS", "Web")]
+public sealed class HttpOptionsNode() : HttpNode(HttpMethod.Options)
+{
+    public ValueOutput<string> Allow = new();
+
+    protected override Task HandleResponse(HttpResponseMessage response, PulseContext c)
+    {
+        if (response.Content.Headers.TryGetValues("Allow", out var values))
+            Allow.Write(string.Join(", ", values), c);
+        return Task.CompletedTask;
     }
 }

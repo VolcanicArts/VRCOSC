@@ -28,3 +28,21 @@ public abstract class SimpleActionNode : ActionNode
 
     protected abstract void DoAction(PulseContext c);
 }
+
+public abstract class TryActionNode : Node, IFlowInput
+{
+    public FlowContinuation OnSuccess = new();
+    public FlowContinuation OnFail = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        var result = await TryTask(c);
+
+        if (result)
+            await OnSuccess.Execute(c);
+        else
+            await OnFail.Execute(c);
+    }
+
+    protected abstract Task<bool> TryTask(PulseContext c);
+}
