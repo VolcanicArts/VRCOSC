@@ -202,12 +202,12 @@ internal class AppManager : IVRCClientEventHandler
 
     private async Task checkForVRChatAutoStart()
     {
-        if (!VRChatClient.HasOpenStateChanged(out var clientOpenState)) return;
+        if (!VRChatClient.CheckIfOpenChanged()) return;
 
         await ConnectionManager.Stop();
 
-        if (clientOpenState && State.Value == AppManagerState.Stopped && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStart)) await RequestStart();
-        if (!clientOpenState && State.Value == AppManagerState.Started && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStop)) await StopAsync();
+        if (VRChatClient.IsOpen && State.Value == AppManagerState.Stopped && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStart)) await RequestStart();
+        if (!VRChatClient.IsOpen && State.Value == AppManagerState.Started && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.VRCAutoStop)) await StopAsync();
     }
 
     #region OSC

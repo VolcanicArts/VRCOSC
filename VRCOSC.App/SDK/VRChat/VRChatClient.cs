@@ -31,27 +31,25 @@ public class VRChatClient
 
     public double FPS => clientProcess is null ? 0d : ProcessFPS.GetProcessFPS(clientProcess);
 
-    internal bool HasOpenStateChanged(out bool openState)
+    internal bool CheckIfOpenChanged()
     {
         var processes = Process.GetProcessesByName("vrchat");
 
-        if (processes.Length != 1)
+        if (processes.Length == 0 && IsOpen)
         {
-            openState = false;
-            return false;
+            clientProcess = null;
+            IsOpen = false;
+            return true;
         }
 
-        clientProcess = processes[0];
-        var newOpenState = clientProcess is not null;
-
-        if (newOpenState == IsOpen)
+        if (processes.Length > 0 && !IsOpen)
         {
-            openState = IsOpen;
-            return false;
+            clientProcess = processes[0];
+            IsOpen = true;
+            return true;
         }
 
-        openState = IsOpen = newOpenState;
-        return true;
+        return false;
     }
 
     internal VRChatClient(VRChatOSCClient client)
