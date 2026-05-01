@@ -104,6 +104,10 @@ public class VRChatOSCClient
             }.Uri;
 
             var response = await client.GetAsync(url, token);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
+
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync(token);
