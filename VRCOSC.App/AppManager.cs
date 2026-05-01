@@ -167,14 +167,17 @@ internal class AppManager : IVRCClientEventHandler
             case InstanceJoinedClientEvent instanceJoinedClientEvent:
                 VRChatClient.UpdateInstance(instanceJoinedClientEvent.Instance);
 
-                // Make sure the event happened recently, otherwise we update the client data twice on module start
+                // we only want to update client data on instance events if it was recent
                 if (@event.Timestamp >= DateTime.Now - TimeSpan.FromSeconds(1))
                     await updateClientData();
                 break;
 
             case InstanceLeftClientEvent:
                 VRChatClient.UpdateInstance(null);
-                VRChatClient.UpdateAvatar(null);
+
+                // we only want to update client data on instance events if it was recent
+                if (@event.Timestamp >= DateTime.Now - TimeSpan.FromSeconds(1))
+                    await updateClientData();
                 break;
 
             case UserJoinedClientEvent userJoinedClientEvent:
