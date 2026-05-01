@@ -24,8 +24,6 @@ public static class AvatarConfigLoader
 
     public static AvatarConfig? LoadConfigFor(string avatarId)
     {
-        Logger.Log($"Attempting to load avatar {avatarId}...");
-
         if (!Directory.Exists(vr_chat_osc_folder_path))
         {
             Logger.Log("OSC folder unavailable");

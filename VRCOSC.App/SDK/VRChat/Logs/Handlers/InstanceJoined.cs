@@ -8,7 +8,7 @@ namespace VRCOSC.App.SDK.VRChat.Logs.Handlers;
 
 public class InstanceJoinedLogLineHandler : VRChatLogLineHandler
 {
-    public override Regex Regex => new("^.+Successfully joined room$");
+    public override Regex Regex => new("^.+Finished entering world.+$");
 
     public override IVRChatClientEvent HandleMatch(LogReaderState state, VRChatLogLineMatch logLine)
     {

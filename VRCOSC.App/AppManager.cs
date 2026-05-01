@@ -166,7 +166,10 @@ internal class AppManager : IVRCClientEventHandler
 
             case InstanceJoinedClientEvent instanceJoinedClientEvent:
                 VRChatClient.UpdateInstance(instanceJoinedClientEvent.Instance);
-                await updateCaches();
+
+                // Make sure the event happened recently, otherwise we update the client data twice on module start
+                if (@event.Timestamp >= DateTime.Now - TimeSpan.FromSeconds(1))
+                    await updateClientData();
                 break;
 
             case InstanceLeftClientEvent:
@@ -219,7 +222,7 @@ internal class AppManager : IVRCClientEventHandler
             {
                 if (ProfileManager.GetInstance().AvatarChange((string)message.ParameterValue)) return;
 
-                await updateCaches();
+                await updateClientData();
                 ModuleManager.GetInstance().AvatarChange(VRChatClient.Avatar);
 
                 sendMetadataParameters();
@@ -263,11 +266,18 @@ internal class AppManager : IVRCClientEventHandler
         }
     }
 
-    private async Task updateCaches()
+    private async Task updateClientData()
     {
+        Logger.Log("Updating client data");
+
         var avatarId = await VRChatOscClient.RequestCurrentAvatar();
         var avatarConfig = avatarId is null || avatarId.StartsWith("local") ? null : AvatarConfigLoader.LoadConfigFor(avatarId);
         var parameters = (await VRChatOscClient.RequestAllParameters()).ToList();
+
+        if (avatarId is null || avatarConfig is null)
+            Logger.Log("Unable to load data for current avatar");
+        else
+            Logger.Log($"Found avatar {avatarId} ({avatarConfig.Name}) with {parameters.Count} parameters");
 
         parameterCache.Clear();
 
@@ -511,7 +521,7 @@ internal class AppManager : IVRCClientEventHandler
         State.Value = AppManagerState.Starting;
         VRChatLogReader.Register(this);
 
-        await updateCaches();
+        await updateClientData();
 
         await AudioManager.GetInstance().Init();
         StartupManager.GetInstance().OpenFileLocations();
