@@ -7,6 +7,7 @@ using System.Linq;
 namespace VRCOSC.App.Nodes.Types.Collections;
 
 [Node("Enumerable Count", "Collections/Enumerable")]
+[NodeCollapsed]
 public sealed class EnumerableCountNode<T>() : ValueComputeNode<int>("Count")
 {
     public ValueInput<IEnumerable<T>?> Enumerable = new();
@@ -50,6 +51,7 @@ public sealed class EnumerableElementAtNode<T>() : ValueComputeNode<T>("Element"
 }
 
 [Node("Enumerable First", "Collections/Enumerable")]
+[NodeCollapsed]
 public sealed class EnumerableFirstNode<T>() : ValueComputeNode<T>("Element")
 {
     public ValueInput<IEnumerable<T>?> Enumerable = new();
@@ -62,6 +64,7 @@ public sealed class EnumerableFirstNode<T>() : ValueComputeNode<T>("Element")
 }
 
 [Node("Enumerable Last", "Collections/Enumerable")]
+[NodeCollapsed]
 public sealed class EnumerableLastNode<T>() : ValueComputeNode<T>("Element")
 {
     public ValueInput<IEnumerable<T>?> Enumerable = new();
@@ -74,6 +77,7 @@ public sealed class EnumerableLastNode<T>() : ValueComputeNode<T>("Element")
 }
 
 [Node("Enumerable Any", "Collections/Enumerable")]
+[NodeCollapsed]
 public sealed class EnumerableAnyNode<T>() : ValueComputeNode<bool>("Any")
 {
     public ValueInput<IEnumerable<T>?> Enumerable = new();
@@ -86,6 +90,7 @@ public sealed class EnumerableAnyNode<T>() : ValueComputeNode<bool>("Any")
 }
 
 [Node("Enumerable Is Empty", "Collections/Enumerable")]
+[NodeCollapsed]
 public sealed class EnumerableIsEmptyNode<T>() : ValueComputeNode<bool>("IsEmpty")
 {
     public ValueInput<IEnumerable<T>?> Enumerable = new();
@@ -98,6 +103,7 @@ public sealed class EnumerableIsEmptyNode<T>() : ValueComputeNode<bool>("IsEmpty
 }
 
 [Node("Enumerable Reverse", "Collections/Enumerable")]
+[NodeCollapsed]
 public sealed class EnumerableReverseNode<T>() : ValueComputeNode<IEnumerable<T>?>("Reversed")
 {
     public ValueInput<IEnumerable<T>?> Enumerable = new();
@@ -110,6 +116,7 @@ public sealed class EnumerableReverseNode<T>() : ValueComputeNode<IEnumerable<T>
 }
 
 [Node("Enumerable Distinct", "Collections/Enumerable")]
+[NodeCollapsed]
 public sealed class EnumerableDistinctNode<T>() : ValueComputeNode<IEnumerable<T>?>("Distinct")
 {
     public ValueInput<IEnumerable<T>?> Enumerable = new();
