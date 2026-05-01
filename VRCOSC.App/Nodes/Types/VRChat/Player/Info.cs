@@ -16,7 +16,7 @@ public sealed class PlayerMovementNode : UpdateNode<Vector3, float, float>
 
     protected override Task Process(PulseContext c)
     {
-        var player = c.GetPlayer();
+        var player = c.GetClient().Player;
 
         Velocity.Write(new Vector3(player.VelocityX, player.VelocityY, player.VelocityZ), c);
         AngularY.Write(player.AngularY, c);
@@ -26,7 +26,7 @@ public sealed class PlayerMovementNode : UpdateNode<Vector3, float, float>
 
     protected override Task<(Vector3, float, float)> GetValues(PulseContext c)
     {
-        var p = c.GetPlayer();
+        var p = c.GetClient().Player;
         return Task.FromResult((new Vector3(p.VelocityX, p.VelocityY, p.VelocityZ), p.AngularY, p.Upright));
     }
 }
@@ -41,7 +41,7 @@ public sealed class PlayerGestureNode : UpdateNode<GestureType, float, GestureTy
 
     protected override Task Process(PulseContext c)
     {
-        var player = c.GetPlayer();
+        var player = c.GetClient().Player;
 
         LeftType.Write(player.GestureTypeLeft, c);
         RightType.Write(player.GestureTypeRight, c);
@@ -52,7 +52,7 @@ public sealed class PlayerGestureNode : UpdateNode<GestureType, float, GestureTy
 
     protected override Task<(GestureType, float, GestureType, float)> GetValues(PulseContext c)
     {
-        var p = c.GetPlayer();
+        var p = c.GetClient().Player;
         return Task.FromResult((p.GestureTypeLeft, p.GestureLeftWeight, p.GestureTypeRight, p.GestureRightWeight));
     }
 }
@@ -65,7 +65,7 @@ public sealed class PlayerVoiceNode : UpdateNode<Viseme, float>
 
     protected override Task Process(PulseContext c)
     {
-        var player = c.GetPlayer();
+        var player = c.GetClient().Player;
 
         Viseme.Write(player.Viseme, c);
         Voice.Write(player.Voice, c);
@@ -74,7 +74,7 @@ public sealed class PlayerVoiceNode : UpdateNode<Viseme, float>
 
     protected override Task<(Viseme, float)> GetValues(PulseContext c)
     {
-        var p = c.GetPlayer();
+        var p = c.GetClient().Player;
         return Task.FromResult((p.Viseme, p.Voice));
     }
 }
@@ -93,7 +93,7 @@ public sealed class PlayerIdentityNode : UpdateNode<bool, bool, bool, bool, bool
 
     protected override Task Process(PulseContext c)
     {
-        var player = c.GetPlayer();
+        var player = c.GetClient().Player;
 
         IsVR.Write(player.IsVR, c);
         IsMuted.Write(player.IsMuted, c);
@@ -108,7 +108,7 @@ public sealed class PlayerIdentityNode : UpdateNode<bool, bool, bool, bool, bool
 
     protected override Task<(bool, bool, bool, bool, bool, bool, bool, TrackingType)> GetValues(PulseContext c)
     {
-        var p = c.GetPlayer();
+        var p = c.GetClient().Player;
         return Task.FromResult((p.IsVR, p.IsMuted, p.Earmuffs, p.AFK, p.InStation, p.Seated, p.Grounded, p.TrackingType));
     }
 }
@@ -124,7 +124,7 @@ public sealed class PlayerSizeNode : UpdateNode<bool, float, float, float, float
 
     protected override Task Process(PulseContext c)
     {
-        var player = c.GetPlayer();
+        var player = c.GetClient().Player;
 
         ScaleModified.Write(player.ScaleModified, c);
         ScaleFactor.Write(player.ScaleFactor, c);
@@ -136,7 +136,7 @@ public sealed class PlayerSizeNode : UpdateNode<bool, float, float, float, float
 
     protected override Task<(bool, float, float, float, float)> GetValues(PulseContext c)
     {
-        var p = c.GetPlayer();
+        var p = c.GetClient().Player;
         return Task.FromResult((p.ScaleModified, p.ScaleFactor, p.ScaleFactorInverse, p.EyeHeightAsMeters, p.EyeHeightAsPercent));
     }
 }

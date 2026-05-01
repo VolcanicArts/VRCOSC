@@ -8,7 +8,8 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using VRCOSC.App.SDK.Handlers;
-using VRCOSC.App.SDK.VRChat;
+using VRCOSC.App.SDK.VRChat.Logs;
+using VRCOSC.App.SDK.VRChat.Logs.Handlers;
 
 namespace VRCOSC.App.Utils;
 
@@ -53,14 +54,20 @@ internal class ChatBoxWorldBlacklist : IVRCClientEventHandler
         }
     }
 
-    public void OnInstanceJoined(VRChatClientEventInstanceJoined eventArgs)
+    public void HandleClientEvent(IVRChatClientEvent @event)
     {
-        run().Forget();
-        return;
-
-        async Task run()
+        switch (@event)
         {
-            await updateCurrentWorld(eventArgs.WorldId);
+            case InstanceJoinedClientEvent instanceJoinedClientEvent:
+            {
+                run().Forget();
+                return;
+
+                async Task run()
+                {
+                    await updateCurrentWorld(instanceJoinedClientEvent.Instance.World.Id);
+                }
+            }
         }
     }
 }

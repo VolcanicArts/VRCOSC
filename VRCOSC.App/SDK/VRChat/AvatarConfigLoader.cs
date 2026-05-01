@@ -9,6 +9,15 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.SDK.VRChat;
 
+public class AvatarConfig
+{
+    [JsonProperty("id")]
+    public string Id = null!;
+
+    [JsonProperty("name")]
+    public string Name = null!;
+}
+
 public static class AvatarConfigLoader
 {
     private static readonly string vr_chat_osc_folder_path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).Replace("Roaming", "LocalLow"), "VRChat", "VRChat", "OSC");
@@ -65,10 +74,7 @@ public static class AvatarConfigLoader
 
         var avatarFile = avatarIdFiles.First();
 
-        var data = JsonConvert.DeserializeObject<AvatarConfig>(File.ReadAllText(avatarFile));
-
-        if (data is not null) Logger.Log($"Successfully loaded config for avatar {data.Name} containing {data.Parameters.Count} parameters");
-        return data;
+        return JsonConvert.DeserializeObject<AvatarConfig>(File.ReadAllText(avatarFile));
     }
 
     /// <summary>

@@ -1,9 +1,29 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types;
+
+public abstract class TryValueComputeNode<T> : TryActionNode
+{
+    public ValueOutput<T> Result;
+
+    protected TryValueComputeNode(string resultName = "")
+    {
+        Result = new ValueOutput<T>(resultName);
+    }
+
+    protected override Task<bool> TryTask(PulseContext c)
+    {
+        if (!TryComputeValue(out var value, c)) return Task.FromResult(false);
+
+        Result.Write(value, c);
+        return Task.FromResult(true);
+    }
+
+    protected abstract bool TryComputeValue(out T value, PulseContext c);
+}
 
 public abstract class ValueComputeNode<T1> : Node
 {

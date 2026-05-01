@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -11,6 +12,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -18,6 +21,7 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.Input.KeyboardAndMouse;
 using Windows.Win32.UI.WindowsAndMessaging;
+using Json.Path;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 
@@ -331,6 +335,32 @@ public static class TypeExtensions
                 throw new InvalidOperationException($"No conversion exists from {type.GetFriendlyName()} to {toType.GetFriendlyName()}.", e);
             }
         }
+
+        /// <summary>
+        /// Gets all the fields in a type that are assignable to <paramref name="fieldType"/>, ordered by base type to <paramref name="type"/>
+        /// </summary>
+        public IEnumerable<FieldInfo> GetFieldsByType(Type fieldType)
+        {
+            var fields = new List<FieldInfo>();
+            var hierarchy = new Stack<Type>();
+
+            var lookingType = type;
+
+            while (lookingType != null && lookingType != typeof(object))
+            {
+                hierarchy.Push(lookingType);
+                lookingType = lookingType.BaseType;
+            }
+
+            while (hierarchy.Count > 0)
+            {
+                var currentType = hierarchy.Pop();
+                var currentFields = currentType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Where(f => f.FieldType.IsAssignableTo(fieldType));
+                fields.AddRange(currentFields);
+            }
+
+            return fields;
+        }
     }
 
     public static object? CreateDefault(this Type type) => type.IsValueType && !type.IsAssignableTo(typeof(Nullable<>)) ? Activator.CreateInstance(type) : null;
@@ -559,5 +589,112 @@ public static class ProcessExtensions
     private static void logResult(BOOL result, string message)
     {
         if (!result) Logger.Log($"{message}. Error code: {Marshal.GetLastWin32Error()}");
+    }
+}
+
+public static class JsonPathExtensions
+{
+    extension(PathResult result)
+    {
+        public T? As<T>(JsonSerializerOptions? options = null) => (T?)result.As(typeof(T), options);
+
+        public object? As(Type destinationType, JsonSerializerOptions? options = null)
+        {
+            if (destinationType is null) throw new ArgumentNullException(nameof(destinationType));
+
+            var matches = (result.Matches ?? Enumerable.Empty<Node>()).ToList();
+            var count = matches.Count;
+
+            if (count == 0)
+            {
+                return destinationType.IsValueType && Nullable.GetUnderlyingType(destinationType) is null
+                    ? throw new InvalidOperationException($"JSONPath returned 0 matches; cannot assign to non-nullable {destinationType.Name}.")
+                    : null;
+            }
+
+            if (count == 1)
+            {
+                var node = matches[0].Value;
+                return node is null ? null : deserializeNode(node, destinationType, options);
+            }
+
+            if (!isEnumerableDestination(destinationType))
+                throw new InvalidOperationException($"JSONPath returned {count} matches; expected 1 match for {destinationType.Name}.");
+
+            return deserializeMany(matches, destinationType, options);
+        }
+    }
+
+    private static object? deserializeNode(JsonNode node, Type destinationType, JsonSerializerOptions? options)
+    {
+        return destinationType.IsAssignableFrom(node.GetType()) ? node : node.Deserialize(destinationType, options);
+    }
+
+    private static object deserializeMany(List<Node> matches, Type destinationType, JsonSerializerOptions? options)
+    {
+        if (destinationType == typeof(JsonArray))
+        {
+            return new JsonArray(matches.Select(m => m.Value.DeepClone()).ToArray());
+        }
+
+        var elementType =
+            destinationType.IsArray ? destinationType.GetElementType()! : getEnumerableElementType(destinationType) ?? typeof(JsonNode);
+
+        var listType = typeof(List<>).MakeGenericType(elementType);
+        var list = (IList)Activator.CreateInstance(listType)!;
+
+        foreach (var m in matches)
+        {
+            var node = m.Value;
+
+            object? element = null;
+
+            if (node is not null)
+            {
+                if (elementType == typeof(JsonNode) || elementType == typeof(object) || elementType.IsInstanceOfType(node))
+                    element = node;
+                else
+                    element = node.Deserialize(elementType, options);
+            }
+
+            list.Add(element);
+        }
+
+        if (destinationType.IsArray)
+            return listType.GetMethod("ToArray")!.Invoke(list, null)!;
+
+        if (destinationType.IsAssignableFrom(listType))
+            return list;
+
+        var enumerableOfT = typeof(IEnumerable<>).MakeGenericType(elementType);
+        var ctor = destinationType.GetConstructor(new[] { enumerableOfT });
+
+        if (ctor != null)
+            return ctor.Invoke(new object[] { list });
+
+        if (typeof(IEnumerable).IsAssignableFrom(destinationType))
+            return list;
+
+        throw new NotSupportedException($"Don't know how to build {destinationType.FullName} from multiple JSONPath matches.");
+    }
+
+    private static bool isEnumerableDestination(Type t)
+    {
+        if (t == typeof(string)) return false;
+        if (t == typeof(JsonObject)) return false;
+        if (typeof(IDictionary).IsAssignableFrom(t)) return false;
+
+        return typeof(IEnumerable).IsAssignableFrom(t);
+    }
+
+    private static Type? getEnumerableElementType(Type t)
+    {
+        if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            return t.GetGenericArguments()[0];
+
+        var iface = t.GetInterfaces()
+                     .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+
+        return iface?.GetGenericArguments()[0];
     }
 }

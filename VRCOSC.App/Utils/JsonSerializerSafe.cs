@@ -8,11 +8,11 @@ namespace VRCOSC.App.Utils;
 
 public static class JsonSerializerSafe
 {
-    public static Result<T> TryDeserialize<T>(string content)
+    public static Result<T> TryDeserialize<T>(string content, JsonSerializerOptions? options = null)
     {
         try
         {
-            var data = JsonSerializer.Deserialize<T>(content);
+            var data = JsonSerializer.Deserialize<T>(content, options);
             return data is not null ? data : new JsonException("Null data has been deserialized");
         }
         catch (Exception e)

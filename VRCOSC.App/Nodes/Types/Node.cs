@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using VRCOSC.App.Utils;
@@ -26,7 +25,6 @@ public abstract class Node : IEquatable<Node>
     internal void Init()
     {
         var type = GetType();
-        var allFields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
 
         var attributeGroups = new List<Type>
         {
@@ -37,9 +35,9 @@ public abstract class Node : IEquatable<Node>
 
         foreach (var attributeGroup in attributeGroups)
         {
-            var fieldGroup = allFields.Where(f => f.FieldType.IsAssignableTo(attributeGroup)).ToList();
+            var fieldGroup = type.GetFieldsByType(attributeGroup).ToArray();
 
-            for (int i = 0; i < fieldGroup.Count; i++)
+            for (int i = 0; i < fieldGroup.Length; i++)
             {
                 var field = fieldGroup[i];
                 var instance = (INodeAttribute)field.GetValue(this)!;

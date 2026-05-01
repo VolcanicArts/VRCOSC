@@ -3,20 +3,20 @@
 
 namespace VRCOSC.App.SDK.VRChat;
 
-public record User
+public record World
 {
     public readonly string Id;
-    public readonly string Username;
+    public readonly string Name;
 
-    public User(string id, string username)
+    public World(string id, string name)
     {
         Id = id;
-        Username = username;
+        Name = name;
     }
 
-    public override string ToString() => $"{Id} ({Username})";
+    public override string ToString() => $"{Id} ({Name})";
 
     public override int GetHashCode() => Id.GetHashCode();
 
-    public virtual bool Equals(User? other) => Id == other?.Id;
+    public virtual bool Equals(World? other) => Id == other?.Id;
 }

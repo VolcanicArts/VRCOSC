@@ -9,6 +9,7 @@ public static class VRChatOSCConstants
 {
     public const string ADDRESS_AVATAR_PARAMETERS = "/avatar/parameters";
     public const string ADDRESS_AVATAR_CHANGE = "/avatar/change";
+    public const string ADDRESS_AVATAR_EYEHEIGHT = "/avatar/eyeheight";
     public const string ADDRESS_CHATBOX_INPUT = "/chatbox/input";
     public const string ADDRESS_CHATBOX_TYPING = "/chatbox/typing";
     public const string ADDRESS_DOLLY_PREFIX = "/dolly/";

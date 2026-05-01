@@ -1,10 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
-using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
 // ReSharper disable UnusedMember.Global
@@ -14,160 +12,41 @@ namespace VRCOSC.App.SDK.VRChat;
 
 public sealed class Player
 {
-    public Viseme Viseme { get; private set; }
-    public float Voice { get; private set; }
-    public GestureType GestureTypeLeft { get; private set; }
-    public GestureType GestureTypeRight { get; private set; }
-    public float GestureLeftWeight { get; private set; }
-    public float GestureRightWeight { get; private set; }
-    public float AngularY { get; private set; }
-    public float VelocityX { get; private set; }
-    public float VelocityY { get; private set; }
-    public float VelocityZ { get; private set; }
-    public float Upright { get; private set; }
-    public bool Grounded { get; private set; }
-    public bool Seated { get; private set; }
-    public bool AFK { get; private set; }
-    public TrackingType TrackingType { get; private set; }
-    public bool IsVR { get; private set; }
-    public bool IsMuted { get; private set; }
-    public bool InStation { get; private set; }
-    public bool Earmuffs { get; private set; }
-    public bool ScaleModified { get; private set; }
-    public float ScaleFactor { get; private set; }
-    public float ScaleFactorInverse { get; private set; }
-    public float EyeHeightAsMeters { get; private set; }
-    public float EyeHeightAsPercent { get; private set; }
-
-    public User User { get; internal set; } = new(string.Empty, string.Empty);
+    public Viseme Viseme => (Viseme)getParameter<int>(VRChatAvatarParameter.Viseme);
+    public float Voice => getParameter<float>(VRChatAvatarParameter.Voice);
+    public GestureType GestureTypeLeft => (GestureType)getParameter<int>(VRChatAvatarParameter.GestureLeft);
+    public GestureType GestureTypeRight => (GestureType)getParameter<int>(VRChatAvatarParameter.GestureRight);
+    public float GestureLeftWeight => getParameter<float>(VRChatAvatarParameter.GestureLeftWeight);
+    public float GestureRightWeight => getParameter<float>(VRChatAvatarParameter.GestureRightWeight);
+    public float AngularY => getParameter<float>(VRChatAvatarParameter.AngularY);
+    public float VelocityX => getParameter<float>(VRChatAvatarParameter.VelocityX);
+    public float VelocityY => getParameter<float>(VRChatAvatarParameter.VelocityY);
+    public float VelocityZ => getParameter<float>(VRChatAvatarParameter.VelocityZ);
+    public float Upright => getParameter<float>(VRChatAvatarParameter.Upright);
+    public bool Grounded => getParameter<bool>(VRChatAvatarParameter.Grounded);
+    public bool Seated => getParameter<bool>(VRChatAvatarParameter.Seated);
+    public bool AFK => getParameter<bool>(VRChatAvatarParameter.AFK);
+    public TrackingType TrackingType => (TrackingType)getParameter<int>(VRChatAvatarParameter.TrackingType);
+    public bool IsVR => getParameter<int>(VRChatAvatarParameter.VRMode) == 1;
+    public bool IsMuted => getParameter<bool>(VRChatAvatarParameter.MuteSelf);
+    public bool InStation => getParameter<bool>(VRChatAvatarParameter.InStation);
+    public bool Earmuffs => getParameter<bool>(VRChatAvatarParameter.Earmuffs);
+    public bool ScaleModified => getParameter<bool>(VRChatAvatarParameter.ScaleModified);
+    public float ScaleFactor => getParameter<float>(VRChatAvatarParameter.ScaleFactor);
+    public float ScaleFactorInverse => getParameter<float>(VRChatAvatarParameter.ScaleFactorInverse);
+    public float EyeHeightAsMeters => getParameter<float>(VRChatAvatarParameter.EyeHeightAsMeters);
+    public float EyeHeightAsPercent => getParameter<float>(VRChatAvatarParameter.EyeHeightAsPercent);
 
     private readonly VRChatOSCClient oscClient;
-    private bool hasChanged;
 
     internal Player(VRChatOSCClient oscClient)
     {
         this.oscClient = oscClient;
     }
 
-    internal bool Update(VRChatParameter parameter)
-    {
-        try
-        {
-            if (!Enum.TryParse(parameter.Name, out VRChatAvatarParameter vrChatInputParameter)) return false;
-
-            switch (vrChatInputParameter)
-            {
-                case VRChatAvatarParameter.Viseme:
-                    Viseme = (Viseme)(int)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.Voice:
-                    Voice = (float)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.GestureLeft:
-                    GestureTypeLeft = (GestureType)(int)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.GestureRight:
-                    GestureTypeRight = (GestureType)(int)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.GestureLeftWeight:
-                    GestureLeftWeight = (float)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.GestureRightWeight:
-                    GestureRightWeight = (float)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.AngularY:
-                    AngularY = (float)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.VelocityX:
-                    VelocityX = (float)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.VelocityY:
-                    VelocityY = (float)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.VelocityZ:
-                    VelocityZ = (float)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.Upright:
-                    Upright = (float)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.Grounded:
-                    Grounded = (bool)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.Seated:
-                    Seated = (bool)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.AFK:
-                    AFK = (bool)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.TrackingType:
-                    TrackingType = (TrackingType)(int)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.VRMode:
-                    IsVR = (int)parameter.Value == 1;
-                    break;
-
-                case VRChatAvatarParameter.MuteSelf:
-                    IsMuted = (bool)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.InStation:
-                    InStation = (bool)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.Earmuffs:
-                    Earmuffs = (bool)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.ScaleModified:
-                    ScaleModified = (bool)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.ScaleFactor:
-                    ScaleFactor = (float)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.ScaleFactorInverse:
-                    ScaleFactorInverse = (float)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.EyeHeightAsMeters:
-                    EyeHeightAsMeters = (float)parameter.Value;
-                    break;
-
-                case VRChatAvatarParameter.EyeHeightAsPercent:
-                    EyeHeightAsPercent = (float)parameter.Value;
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(vrChatInputParameter), vrChatInputParameter.ToString(), $"Unknown {nameof(VRChatAvatarParameter)}");
-            }
-
-            return true;
-        }
-        catch (Exception e)
-        {
-            Logger.Error(e, $"Error while processing default parameter {parameter.Name}. Type {parameter.Value.GetType().GetFriendlyName()}. Value {parameter.Value}");
-            return false;
-        }
-    }
-
     private static string actionToAddress(VRChatButtonInput action) => $"/input/{action}";
     private static string actionToAddress(VRChatAxesInput action) => $"/input/{action}";
+    private static T getParameter<T>(VRChatAvatarParameter parameterName) where T : unmanaged => AppManager.GetInstance().GetParameter<T>(parameterName.ToString())?.GetValue<T>() ?? default;
 
     private async Task sendAndReset(VRChatButtonInput action)
     {
@@ -178,33 +57,6 @@ public sealed class Player
 
     internal void ResetAll()
     {
-        Viseme = default;
-        Voice = 0;
-        GestureTypeLeft = default;
-        GestureTypeRight = default;
-        GestureLeftWeight = 0;
-        GestureRightWeight = 0;
-        AngularY = 0;
-        VelocityX = 0;
-        VelocityY = 0;
-        VelocityZ = 0;
-        Upright = 0;
-        Grounded = false;
-        Seated = false;
-        AFK = false;
-        TrackingType = default;
-        IsVR = false;
-        IsMuted = false;
-        InStation = false;
-        Earmuffs = false;
-        ScaleModified = false;
-        ScaleFactor = 0;
-        ScaleFactorInverse = 0;
-        EyeHeightAsMeters = 0;
-        EyeHeightAsPercent = 0;
-
-        if (!hasChanged) return;
-
         StopMoveForward();
         StopMoveBackward();
         StopMoveLeft();
@@ -218,147 +70,47 @@ public sealed class Player
         LookVertical(0f);
     }
 
-    public void MoveForward()
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.MoveForward), 1);
-        hasChanged = true;
-    }
+    public void MoveForward() => oscClient.Send(actionToAddress(VRChatButtonInput.MoveForward), 1);
+    public void StopMoveForward() => oscClient.Send(actionToAddress(VRChatButtonInput.MoveForward), 0);
 
-    public void StopMoveForward()
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.MoveForward), 0);
-    }
+    public void MoveBackward() => oscClient.Send(actionToAddress(VRChatButtonInput.MoveBackward), 1);
+    public void StopMoveBackward() => oscClient.Send(actionToAddress(VRChatButtonInput.MoveBackward), 0);
 
-    public void MoveBackward()
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.MoveBackward), 1);
-        hasChanged = true;
-    }
+    public void MoveLeft() => oscClient.Send(actionToAddress(VRChatButtonInput.MoveLeft), 1);
+    public void StopMoveLeft() => oscClient.Send(actionToAddress(VRChatButtonInput.MoveLeft), 0);
 
-    public void StopMoveBackward()
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.MoveBackward), 0);
-    }
+    public void MoveRight() => oscClient.Send(actionToAddress(VRChatButtonInput.MoveRight), 1);
+    public void StopMoveRight() => oscClient.Send(actionToAddress(VRChatButtonInput.MoveRight), 0);
 
-    public void MoveLeft()
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.MoveLeft), 1);
-        hasChanged = true;
-    }
+    public void LookLeft() => oscClient.Send(actionToAddress(VRChatButtonInput.LookLeft), 1);
+    public void StopLookLeft() => oscClient.Send(actionToAddress(VRChatButtonInput.LookLeft), 0);
 
-    public void StopMoveLeft()
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.MoveLeft), 0);
-    }
+    public void LookRight() => oscClient.Send(actionToAddress(VRChatButtonInput.LookRight), 1);
+    public void StopLookRight() => oscClient.Send(actionToAddress(VRChatButtonInput.LookRight), 0);
 
-    public void MoveRight()
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.MoveRight), 1);
-        hasChanged = true;
-    }
+    public void Jump() => sendAndReset(VRChatButtonInput.Jump).Forget();
 
-    public void StopMoveRight()
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.MoveRight), 0);
-    }
+    public void Run() => oscClient.Send(actionToAddress(VRChatButtonInput.Run), 1);
+    public void StopRun() => oscClient.Send(actionToAddress(VRChatButtonInput.Run), 0);
 
-    public void LookLeft()
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.LookLeft), 1);
-        hasChanged = true;
-    }
+    public void ComfortLeft() => sendAndReset(VRChatButtonInput.ComfortLeft).Forget();
+    public void ComfortRight() => sendAndReset(VRChatButtonInput.ComfortRight).Forget();
 
-    public void StopLookLeft()
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.LookLeft), 0);
-    }
+    public void DropRight() => sendAndReset(VRChatButtonInput.DropRight).Forget();
+    public void UseRight() => sendAndReset(VRChatButtonInput.UseRight).Forget();
+    public void GrabRight() => sendAndReset(VRChatButtonInput.GrabRight).Forget();
 
-    public void LookRight()
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.LookRight), 1);
-        hasChanged = true;
-    }
+    public void DropLeft() => sendAndReset(VRChatButtonInput.DropLeft).Forget();
+    public void UseLeft() => sendAndReset(VRChatButtonInput.UseLeft).Forget();
+    public void GrabLeft() => sendAndReset(VRChatButtonInput.GrabLeft).Forget();
 
-    public void StopLookRight()
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.LookRight), 0);
-    }
+    public void EnableSafeMode() => sendAndReset(VRChatButtonInput.PanicButton).Forget();
 
-    public void Jump()
-    {
-        sendAndReset(VRChatButtonInput.Jump).Forget();
-    }
+    public void ToggleLeftQuickMenu() => sendAndReset(VRChatButtonInput.QuickMenuToggleLeft).Forget();
+    public void ToggleRightQuickMenu() => sendAndReset(VRChatButtonInput.QuickMenuToggleRight).Forget();
 
-    public void Run()
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.Run), 1);
-        hasChanged = true;
-    }
-
-    public void StopRun()
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.Run), 0);
-    }
-
-    public void ComfortLeft()
-    {
-        sendAndReset(VRChatButtonInput.ComfortLeft).Forget();
-    }
-
-    public void ComfortRight()
-    {
-        sendAndReset(VRChatButtonInput.ComfortRight).Forget();
-    }
-
-    public void DropRight()
-    {
-        sendAndReset(VRChatButtonInput.DropRight).Forget();
-    }
-
-    public void UseRight()
-    {
-        sendAndReset(VRChatButtonInput.UseRight).Forget();
-    }
-
-    public void GrabRight()
-    {
-        sendAndReset(VRChatButtonInput.GrabRight).Forget();
-    }
-
-    public void DropLeft()
-    {
-        sendAndReset(VRChatButtonInput.DropLeft).Forget();
-    }
-
-    public void UseLeft()
-    {
-        sendAndReset(VRChatButtonInput.UseLeft).Forget();
-    }
-
-    public void GrabLeft()
-    {
-        sendAndReset(VRChatButtonInput.GrabLeft).Forget();
-    }
-
-    public void EnableSafeMode()
-    {
-        sendAndReset(VRChatButtonInput.PanicButton).Forget();
-    }
-
-    public void ToggleLeftQuickMenu()
-    {
-        sendAndReset(VRChatButtonInput.QuickMenuToggleLeft).Forget();
-    }
-
-    public void ToggleRightQuickMenu()
-    {
-        sendAndReset(VRChatButtonInput.QuickMenuToggleRight).Forget();
-    }
-
-    public void ToggleVoice()
-    {
-        sendAndReset(VRChatButtonInput.Voice).Forget();
-    }
+    public void ToggleVoice() => sendAndReset(VRChatButtonInput.Voice).Forget();
+    public void PushToTalk(bool active) => oscClient.Send(actionToAddress(VRChatButtonInput.Voice), active ? 1 : 0);
 
     public void Mute()
     {
@@ -374,34 +126,10 @@ public sealed class Player
         ToggleVoice();
     }
 
-    public void PushToTalk(bool active)
-    {
-        oscClient.Send(actionToAddress(VRChatButtonInput.Voice), active ? 1 : 0);
-    }
-
-    public void MoveVertical(float value)
-    {
-        oscClient.Send(actionToAddress(VRChatAxesInput.Vertical), value);
-        hasChanged = true;
-    }
-
-    public void MoveHorizontal(float value)
-    {
-        oscClient.Send(actionToAddress(VRChatAxesInput.Horizontal), value);
-        hasChanged = true;
-    }
-
-    public void LookHorizontal(float value)
-    {
-        oscClient.Send(actionToAddress(VRChatAxesInput.LookHorizontal), value);
-        hasChanged = true;
-    }
-
-    public void LookVertical(float value)
-    {
-        oscClient.Send(actionToAddress(VRChatAxesInput.LookVertical), value);
-        hasChanged = true;
-    }
+    public void MoveVertical(float value) => oscClient.Send(actionToAddress(VRChatAxesInput.Vertical), value);
+    public void MoveHorizontal(float value) => oscClient.Send(actionToAddress(VRChatAxesInput.Horizontal), value);
+    public void LookHorizontal(float value) => oscClient.Send(actionToAddress(VRChatAxesInput.LookHorizontal), value);
+    public void LookVertical(float value) => oscClient.Send(actionToAddress(VRChatAxesInput.LookVertical), value);
 }
 
 public enum VRChatButtonInput

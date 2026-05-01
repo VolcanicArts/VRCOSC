@@ -15,14 +15,14 @@ public sealed class UserCameraMaskSourceNode : UpdateNode<UserCameraMask>
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         Mask.Write(uc.Mask, c);
         return Task.CompletedTask;
     }
 
     protected override Task<UserCameraMask> GetValue(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult(uc.Mask);
     }
 }
@@ -34,14 +34,14 @@ public sealed class UserCameraLockedSourceNode : UpdateNode<bool>
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         Locked.Write(uc.IsLocked, c);
         return Task.CompletedTask;
     }
 
     protected override Task<bool> GetValue(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult(uc.IsLocked);
     }
 }
@@ -54,7 +54,7 @@ public sealed class UserCameraSmoothingSourceNode : UpdateNode<bool, float>
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         Enabled.Write(uc.SmoothMovement, c);
         Strength.Write(uc.SmoothingStrength, c);
         return Task.CompletedTask;
@@ -62,7 +62,7 @@ public sealed class UserCameraSmoothingSourceNode : UpdateNode<bool, float>
 
     protected override Task<(bool, float)> GetValues(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult((uc.SmoothMovement, uc.SmoothingStrength));
     }
 }
@@ -75,7 +75,7 @@ public sealed class UserCameraDirectionSourceNode : UpdateNode<UserCameraDirecti
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         Direction.Write(uc.Direction, c);
         UserDirectionOffset.Write(uc.UserDirectionOffset, c);
         return Task.CompletedTask;
@@ -83,7 +83,7 @@ public sealed class UserCameraDirectionSourceNode : UpdateNode<UserCameraDirecti
 
     protected override Task<(UserCameraDirection, Vector2)> GetValues(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult((uc.Direction, uc.UserDirectionOffset));
     }
 }
@@ -95,14 +95,14 @@ public sealed class UserCameraAutoLevelSourceNode : UpdateNode<UserCameraAutoLev
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         Flags.Write(uc.AutoLevel, c);
         return Task.CompletedTask;
     }
 
     protected override Task<UserCameraAutoLevel> GetValue(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult(uc.AutoLevel);
     }
 }
@@ -116,7 +116,7 @@ public sealed class UserCameraFlyingSourceNode : UpdateNode<bool, float, bool>
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         IsFlying.Write(uc.IsFlying, c);
         Speed.Write(uc.FlySpeed, c);
         CanRoll.Write(uc.RollWhileFlying, c);
@@ -125,7 +125,7 @@ public sealed class UserCameraFlyingSourceNode : UpdateNode<bool, float, bool>
 
     protected override Task<(bool, float, bool)> GetValues(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult((uc.IsFlying, uc.FlySpeed, uc.RollWhileFlying));
     }
 }
@@ -140,7 +140,7 @@ public sealed class UserCameraTogglesSourceNode : UpdateNode<bool, bool, bool, b
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         TriggerTakesPhotos.Write(uc.TriggerTakesPhotos, c);
         DollyPathsStayVisible.Write(uc.DollyPathsStayVisible, c);
         ShowFocus.Write(uc.ShowFocus, c);
@@ -150,7 +150,7 @@ public sealed class UserCameraTogglesSourceNode : UpdateNode<bool, bool, bool, b
 
     protected override Task<(bool, bool, bool, bool)> GetValues(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult((uc.TriggerTakesPhotos, uc.DollyPathsStayVisible, uc.ShowFocus, uc.IsStreaming));
     }
 }
@@ -165,7 +165,7 @@ public sealed class UserCameraLensSourceNode : UpdateNode<float, float, float, f
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         Zoom.Write(uc.Zoom, c);
         Exposure.Write(uc.Exposure, c);
         FocalDistance.Write(uc.FocalDistance, c);
@@ -175,7 +175,7 @@ public sealed class UserCameraLensSourceNode : UpdateNode<float, float, float, f
 
     protected override Task<(float, float, float, float)> GetValues(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult((uc.Zoom, uc.Exposure, uc.FocalDistance, uc.Aperture));
     }
 }
@@ -187,14 +187,14 @@ public sealed class UserCameraTurnSpeedSourceNode : UpdateNode<float>
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         TurnSpeed.Write(uc.TurnSpeed, c);
         return Task.CompletedTask;
     }
 
     protected override Task<float> GetValue(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult(uc.TurnSpeed);
     }
 }
@@ -206,14 +206,14 @@ public sealed class UserCameraPhotoRateSourceNode : UpdateNode<float>
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         PhotoRate.Write(uc.PhotoRate, c);
         return Task.CompletedTask;
     }
 
     protected override Task<float> GetValue(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult(uc.PhotoRate);
     }
 }
@@ -225,14 +225,14 @@ public sealed class UserCameraDurationSourceNode : UpdateNode<float>
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         Duration.Write(uc.Duration, c);
         return Task.CompletedTask;
     }
 
     protected override Task<float> GetValue(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult(uc.Duration);
     }
 }
@@ -244,14 +244,14 @@ public sealed class UserCameraModeSourceNode : UpdateNode<UserCameraMode>
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         Mode.Write(uc.Mode, c);
         return Task.CompletedTask;
     }
 
     protected override Task<UserCameraMode> GetValue(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult(uc.Mode);
     }
 }
@@ -263,14 +263,14 @@ public sealed class UserCameraTransformSourceNode : UpdateNode<Transform>
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         Transform.Write(uc.Transform, c);
         return Task.CompletedTask;
     }
 
     protected override Task<Transform> GetValue(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult(uc.Transform);
     }
 }
@@ -282,14 +282,14 @@ public sealed class UserCameraGreenScreenBackgroundSourceNode : UpdateNode<Color
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         Color.Write(uc.GreenScreenBackground, c);
         return Task.CompletedTask;
     }
 
     protected override Task<ColorHSL> GetValue(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult(uc.GreenScreenBackground);
     }
 }
@@ -301,14 +301,14 @@ public sealed class UserCameraOrientationSourceNode : UpdateNode<UserCameraOrien
 
     protected override Task Process(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         Orientation.Write(uc.Orientation, c);
         return Task.CompletedTask;
     }
 
     protected override Task<UserCameraOrientation> GetValue(PulseContext c)
     {
-        var uc = c.GetUserCamera();
+        var uc = c.GetClient().UserCamera;
         return Task.FromResult(uc.Orientation);
     }
 }

@@ -14,16 +14,16 @@ public sealed class PlayerMuteSetNode : SimpleActionNode
     protected override void DoAction(PulseContext c)
     {
         if (Muted.Read(c))
-            c.GetPlayer().Mute();
+            c.GetClient().Player.Mute();
         else
-            c.GetPlayer().UnMute();
+            c.GetClient().Player.UnMute();
     }
 }
 
 [Node("Mute Toggle", "VRChat/Player/Actions")]
 public sealed class PlayerMuteToggleNode : SimpleActionNode
 {
-    protected override void DoAction(PulseContext c) => c.GetPlayer().ToggleVoice();
+    protected override void DoAction(PulseContext c) => c.GetClient().Player.ToggleVoice();
 }
 
 [Node("Push To Talk", "VRChat/Player/Actions")]
@@ -31,13 +31,13 @@ public sealed class PlayerPushToTalkNode : SimpleActionNode
 {
     public ValueInput<bool> Active = new();
 
-    protected override void DoAction(PulseContext c) => c.GetPlayer().PushToTalk(Active.Read(c));
+    protected override void DoAction(PulseContext c) => c.GetClient().Player.PushToTalk(Active.Read(c));
 }
 
 [Node("Jump", "VRChat/Player/Actions")]
 public sealed class PlayerJumpNode : SimpleActionNode
 {
-    protected override void DoAction(PulseContext c) => c.GetPlayer().Jump();
+    protected override void DoAction(PulseContext c) => c.GetClient().Player.Jump();
 }
 
 [Node("Look Vertical", "VRChat/Player/Actions")]
@@ -45,7 +45,7 @@ public sealed class PlayerLookVerticalNode : SimpleActionNode
 {
     public ValueInput<float> Angle = new();
 
-    protected override void DoAction(PulseContext c) => c.GetPlayer().LookVertical(Angle.Read(c));
+    protected override void DoAction(PulseContext c) => c.GetClient().Player.LookVertical(Angle.Read(c));
 }
 
 [Node("Look Horizontal", "VRChat/Player/Actions")]
@@ -53,7 +53,7 @@ public sealed class PlayerLookHorizontalNode : SimpleActionNode
 {
     public ValueInput<float> Angle = new();
 
-    protected override void DoAction(PulseContext c) => c.GetPlayer().LookHorizontal(Angle.Read(c));
+    protected override void DoAction(PulseContext c) => c.GetClient().Player.LookHorizontal(Angle.Read(c));
 }
 
 [Node("Move Vertical", "VRChat/Player/Actions")]
@@ -61,7 +61,7 @@ public sealed class PlayerMoveVerticalNode : SimpleActionNode
 {
     public ValueInput<float> Amount = new();
 
-    protected override void DoAction(PulseContext c) => c.GetPlayer().MoveVertical(float.Clamp(Amount.Read(c), -1f, 1f));
+    protected override void DoAction(PulseContext c) => c.GetClient().Player.MoveVertical(float.Clamp(Amount.Read(c), -1f, 1f));
 }
 
 [Node("Move Horizontal", "VRChat/Player/Actions")]
@@ -69,7 +69,7 @@ public sealed class PlayerMoveHorizontalNode : SimpleActionNode
 {
     public ValueInput<float> Amount = new();
 
-    protected override void DoAction(PulseContext c) => c.GetPlayer().MoveHorizontal(float.Clamp(Amount.Read(c), -1f, 1f));
+    protected override void DoAction(PulseContext c) => c.GetClient().Player.MoveHorizontal(float.Clamp(Amount.Read(c), -1f, 1f));
 }
 
 [Node("Set Run", "VRChat/Player/Actions")]
@@ -80,9 +80,9 @@ public sealed class PlayerSetRunNode : SimpleActionNode
     protected override void DoAction(PulseContext c)
     {
         if (Run.Read(c))
-            c.GetPlayer().Run();
+            c.GetClient().Player.Run();
         else
-            c.GetPlayer().StopRun();
+            c.GetClient().Player.StopRun();
     }
 }
 
@@ -110,9 +110,9 @@ public sealed class PlayerGrabNode : SimpleActionNode
     protected override void DoAction(PulseContext c)
     {
         if (Chirality.Read(c) == Utils.Chirality.Left)
-            c.GetPlayer().GrabLeft();
+            c.GetClient().Player.GrabLeft();
         else
-            c.GetPlayer().GrabRight();
+            c.GetClient().Player.GrabRight();
     }
 }
 
@@ -124,9 +124,9 @@ public sealed class PlayerDropNode : SimpleActionNode
     protected override void DoAction(PulseContext c)
     {
         if (Chirality.Read(c) == Utils.Chirality.Left)
-            c.GetPlayer().DropLeft();
+            c.GetClient().Player.DropLeft();
         else
-            c.GetPlayer().DropRight();
+            c.GetClient().Player.DropRight();
     }
 }
 
@@ -138,16 +138,16 @@ public sealed class PlayerUseNode : SimpleActionNode
     protected override void DoAction(PulseContext c)
     {
         if (Chirality.Read(c) == Utils.Chirality.Left)
-            c.GetPlayer().UseLeft();
+            c.GetClient().Player.UseLeft();
         else
-            c.GetPlayer().UseRight();
+            c.GetClient().Player.UseRight();
     }
 }
 
 [Node("Enter Safe Mode", "VRChat/Player/Actions")]
 public sealed class PlayerEnterSafeModeNode : SimpleActionNode
 {
-    protected override void DoAction(PulseContext c) => c.GetPlayer().EnableSafeMode();
+    protected override void DoAction(PulseContext c) => c.GetClient().Player.EnableSafeMode();
 }
 
 [Node("Toggle Quick Menu", "VRChat/Player/Actions")]
@@ -158,8 +158,8 @@ public sealed class PlayerToggleQuickMenuNode : SimpleActionNode
     protected override void DoAction(PulseContext c)
     {
         if (Chirality.Read(c) == Utils.Chirality.Left)
-            c.GetPlayer().ToggleLeftQuickMenu();
+            c.GetClient().Player.ToggleLeftQuickMenu();
         else
-            c.GetPlayer().ToggleRightQuickMenu();
+            c.GetClient().Player.ToggleRightQuickMenu();
     }
 }

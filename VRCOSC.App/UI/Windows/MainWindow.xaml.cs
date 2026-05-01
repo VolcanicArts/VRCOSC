@@ -211,8 +211,10 @@ public partial class MainWindow
         {
             SettingsManager.GetInstance().GetObservable<string>(VRCOSCMetadata.InstalledVersion).Value = AppManager.Version;
 
+#if !DEBUG
             // force install official modules each update
             await packageManager.InstallPackage(packageManager.OfficialModulesSource, reloadAll: false, refreshBeforeInstall: true, closeWindows: false);
+#endif
         }
 
         if (appVersionChanged || packageManager.IsCacheOutdated)

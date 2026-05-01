@@ -51,15 +51,7 @@ public class PulseContext
 
     internal Task Execute(FlowContinuation continuation) => processNext(continuation, false);
 
-    internal AvatarConfig? GetCurrentAvatar() => AppManager.GetInstance().GetCurrentAvatar();
-
     internal VRChatClient GetClient() => AppManager.GetInstance().VRChatClient;
-
-    internal Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
-
-    internal Instance GetInstance() => AppManager.GetInstance().VRChatClient.Instance;
-
-    internal UserCamera GetUserCamera() => AppManager.GetInstance().VRChatClient.UserCamera;
 
     internal string GetSpeechText() => Graph.CurrentSpeechText;
 

@@ -3,141 +3,297 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Collections;
 
-[Node("Enumerable Count", "Collections")]
+[Node("Enumerable Count", "Collections/Enumerable")]
 [NodeCollapsed]
-public sealed class EnumerableCountNode<T> : Node
+public sealed class EnumerableCountNode<T>() : ValueComputeNode<int>("Count")
 {
-    public ValueInput<IEnumerable<T>> Enumerable = new();
-    public ValueOutput<int> Count = new();
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
 
-    protected override Task Process(PulseContext c)
+    protected override int ComputeValue(PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
-        if (enumerable is null) return Task.CompletedTask;
-
-        Count.Write(enumerable.Count(), c);
-        return Task.CompletedTask;
+        return enumerable?.Count() ?? 0;
     }
 }
 
-[Node("Enumerable Element At", "Collections")]
-public sealed class EnumerableElementAtNode<T> : Node
+[Node("Enumerable Contains", "Collections/Enumerable")]
+public sealed class EnumerableContainsNode<T>() : ValueComputeNode<bool>("Contains")
+{
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
+    public ValueInput<T> Item = new();
+
+    protected override bool ComputeValue(PulseContext c)
+    {
+        var enumerable = Enumerable.Read(c);
+        return enumerable?.Contains(Item.Read(c)) ?? false;
+    }
+}
+
+[Node("Enumerable Element At", "Collections/Enumerable")]
+public sealed class EnumerableElementAtNode<T>() : ValueComputeNode<T>("Element")
 {
     public ValueInput<IEnumerable<T>> Enumerable = new();
     public ValueInput<int> Index = new();
-    public ValueOutput<T> Element = new();
 
-    protected override Task Process(PulseContext c)
+    protected override T ComputeValue(PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
-        if (enumerable is null) return Task.CompletedTask;
+        if (enumerable is null) return default!;
 
         var index = Index.Read(c);
-        if (index < 0 || index >= enumerable.Count()) return Task.CompletedTask;
+        if (index < 0 || index >= enumerable.Count()) return default!;
 
-        Element.Write(enumerable.ElementAt(index), c);
-        return Task.CompletedTask;
+        return enumerable.ElementAt(index);
     }
 }
 
-[Node("Enumerable Insert Element", "Collections")]
-public sealed class EnumerableElementInsertNode<T> : Node, IFlowInput
+[Node("Enumerable First", "Collections/Enumerable")]
+[NodeCollapsed]
+public sealed class EnumerableFirstNode<T>() : ValueComputeNode<T>("Element")
 {
-    public FlowContinuation Next = new("Next");
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
 
-    public ValueInput<IEnumerable<T>> Enumerable = new();
-    public ValueInput<int> Index = new();
-    public ValueInput<T> Element = new();
-    public ValueOutput<IEnumerable<T>> Result = new();
-
-    protected override async Task Process(PulseContext c)
+    protected override T ComputeValue(PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
-        if (enumerable is null) return;
+        return enumerable is null ? default! : enumerable.FirstOrDefault()!;
+    }
+}
+
+[Node("Enumerable Last", "Collections/Enumerable")]
+[NodeCollapsed]
+public sealed class EnumerableLastNode<T>() : ValueComputeNode<T>("Element")
+{
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
+
+    protected override T ComputeValue(PulseContext c)
+    {
+        var enumerable = Enumerable.Read(c);
+        return enumerable is null ? default! : enumerable.LastOrDefault()!;
+    }
+}
+
+[Node("Enumerable Any", "Collections/Enumerable")]
+[NodeCollapsed]
+public sealed class EnumerableAnyNode<T>() : ValueComputeNode<bool>("Any")
+{
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
+
+    protected override bool ComputeValue(PulseContext c)
+    {
+        var enumerable = Enumerable.Read(c);
+        return enumerable?.Any() ?? false;
+    }
+}
+
+[Node("Enumerable Is Empty", "Collections/Enumerable")]
+[NodeCollapsed]
+public sealed class EnumerableIsEmptyNode<T>() : ValueComputeNode<bool>("IsEmpty")
+{
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
+
+    protected override bool ComputeValue(PulseContext c)
+    {
+        var enumerable = Enumerable.Read(c);
+        return enumerable is null || !enumerable.Any();
+    }
+}
+
+[Node("Enumerable Reverse", "Collections/Enumerable")]
+[NodeCollapsed]
+public sealed class EnumerableReverseNode<T>() : ValueComputeNode<IEnumerable<T>?>("Reversed")
+{
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
+
+    protected override IEnumerable<T>? ComputeValue(PulseContext c)
+    {
+        var enumerable = Enumerable.Read(c);
+        return enumerable?.Reverse();
+    }
+}
+
+[Node("Enumerable Distinct", "Collections/Enumerable")]
+[NodeCollapsed]
+public sealed class EnumerableDistinctNode<T>() : ValueComputeNode<IEnumerable<T>?>("Distinct")
+{
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
+
+    protected override IEnumerable<T>? ComputeValue(PulseContext c)
+    {
+        var enumerable = Enumerable.Read(c);
+        return enumerable?.Distinct();
+    }
+}
+
+[Node("Enumerable Concat", "Collections/Enumerable")]
+public sealed class EnumerableConcatNode<T> : ValueComputeNode<IEnumerable<T>>
+{
+    public ValueInput<IEnumerable<T>?> First = new();
+    public ValueInput<IEnumerable<T>?> Second = new();
+
+    protected override IEnumerable<T> ComputeValue(PulseContext c)
+    {
+        var first = First.Read(c) ?? Enumerable.Empty<T>();
+        var second = Second.Read(c) ?? Enumerable.Empty<T>();
+        return first.Concat(second);
+    }
+}
+
+[Node("Enumerable Skip", "Collections/Enumerable")]
+public sealed class EnumerableSkipNode<T> : ValueComputeNode<IEnumerable<T>?>
+{
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
+    public ValueInput<int> Count = new();
+
+    protected override IEnumerable<T>? ComputeValue(PulseContext c)
+    {
+        var enumerable = Enumerable.Read(c);
+        return enumerable?.Skip(Count.Read(c));
+    }
+}
+
+[Node("Enumerable Take", "Collections/Enumerable")]
+public sealed class EnumerableTakeNode<T> : ValueComputeNode<IEnumerable<T>?>
+{
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
+    public ValueInput<int> Count = new();
+
+    protected override IEnumerable<T>? ComputeValue(PulseContext c)
+    {
+        var enumerable = Enumerable.Read(c);
+        return enumerable?.Take(Count.Read(c));
+    }
+}
+
+[Node("Enumerable Insert Element", "Collections/Enumerable/Modifiers")]
+public sealed class EnumerableElementInsertNode<T> : TryValueComputeNode<IEnumerable<T>?>
+{
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
+    public ValueInput<int> Index = new();
+    public ValueInput<T> Element = new();
+
+    protected override bool TryComputeValue(out IEnumerable<T>? value, PulseContext c)
+    {
+        var enumerable = Enumerable.Read(c);
+
+        if (enumerable is null)
+        {
+            value = null;
+            return false;
+        }
 
         var index = Index.Read(c);
         var element = Element.Read(c);
 
-        var list = enumerable.ToList();
-        list.Insert(index, element);
-        Result.Write(list, c);
+        if (element is null)
+        {
+            value = null;
+            return false;
+        }
 
-        await Next.Execute(c);
+        var list = enumerable.ToList();
+
+        try
+        {
+            list.Insert(index, element);
+        }
+        catch
+        {
+            value = null;
+            return false;
+        }
+
+        value = list;
+        return true;
     }
 }
 
-[Node("Enumerable Add Element", "Collections")]
-public sealed class EnumerableElementAddNode<T> : Node, IFlowInput
+[Node("Enumerable Add Element", "Collections/Enumerable/Modifiers")]
+public sealed class EnumerableElementAddNode<T> : TryValueComputeNode<IEnumerable<T>?>
 {
-    public FlowContinuation Next = new("Next");
-
-    public ValueInput<IEnumerable<T>> Enumerable = new();
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
     public ValueInput<T> Element = new();
-    public ValueOutput<IEnumerable<T>> Result = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override bool TryComputeValue(out IEnumerable<T>? value, PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
-        if (enumerable is null) return;
+
+        if (enumerable is null)
+        {
+            value = null;
+            return false;
+        }
 
         var element = Element.Read(c);
 
         var list = enumerable.ToList();
         list.Add(element);
-        Result.Write(list, c);
 
-        await Next.Execute(c);
+        value = list;
+        return true;
     }
 }
 
-[Node("Enumerable Remove Element", "Collections")]
-public sealed class EnumerableElementRemoveNode<T> : Node, IFlowInput
+[Node("Enumerable Remove Element", "Collections/Enumerable/Modifiers")]
+public sealed class EnumerableElementRemoveNode<T> : TryValueComputeNode<IEnumerable<T>?>
 {
-    public FlowContinuation Next = new("Next");
-
-    public ValueInput<IEnumerable<T>> Enumerable = new();
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
     public ValueInput<T> Element = new();
-    public ValueOutput<IEnumerable<T>> Result = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override bool TryComputeValue(out IEnumerable<T>? value, PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
-        if (enumerable is null) return;
+
+        if (enumerable is null)
+        {
+            value = null;
+            return false;
+        }
 
         var element = Element.Read(c);
 
         var list = enumerable.ToList();
-        list.Remove(element);
-        Result.Write(list, c);
+        var result = list.Remove(element);
 
-        await Next.Execute(c);
+        value = result ? list : enumerable;
+        return result;
     }
 }
 
-[Node("Enumerable Remove Index", "Collections")]
-public sealed class EnumerableIndexRemoveNode<T> : Node, IFlowInput
+[Node("Enumerable Remove Index", "Collections/Enumerable/Modifiers")]
+public sealed class EnumerableIndexRemoveNode<T> : TryValueComputeNode<IEnumerable<T>?>
 {
-    public FlowContinuation Next = new("Next");
-
-    public ValueInput<IEnumerable<T>> Enumerable = new();
+    public ValueInput<IEnumerable<T>?> Enumerable = new();
     public ValueInput<int> Index = new();
-    public ValueOutput<IEnumerable<T>> Result = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override bool TryComputeValue(out IEnumerable<T>? value, PulseContext c)
     {
         var enumerable = Enumerable.Read(c);
-        if (enumerable is null) return;
+
+        if (enumerable is null)
+        {
+            value = null;
+            return false;
+        }
 
         var index = Index.Read(c);
 
         var list = enumerable.ToList();
-        list.RemoveAt(index);
-        Result.Write(list, c);
 
-        await Next.Execute(c);
+        try
+        {
+            list.RemoveAt(index);
+        }
+        catch
+        {
+            value = null;
+            return false;
+        }
+
+        value = list;
+        return true;
     }
 }
