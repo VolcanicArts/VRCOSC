@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using FastOSC;
 using Newtonsoft.Json;
@@ -83,26 +84,38 @@ public class VRChatOSCClient
         this.connectionManager = connectionManager;
     }
 
-    public async Task<OSCQueryNode?> RequestNode(string address)
+    public Task<OSCQueryNode?> RequestNode(string address) => RequestNode(address, CancellationToken.None);
+
+    public async Task<OSCQueryNode?> RequestNode(string address, CancellationToken token)
     {
         var connectionMode = SettingsManager.GetInstance().GetValue<ConnectionMode>(VRCOSCSetting.ConnectionMode);
 
         // OSCQuery from VRChat is only broadcast on loopback so we'll turn it off for non-local modes
         if (connectionMode != ConnectionMode.Local || !connectionManager.IsConnected) return null;
 
-        address = address.Replace(" ", "%20");
-        var url = $"http://{connectionManager.VRChatIP}:{connectionManager.VRChatQueryPort}{address}";
-
         try
         {
-            var response = await client.GetAsync(new Uri(url));
-            if (!response.IsSuccessStatusCode) return null;
+            var url = new UriBuilder
+            {
+                Scheme = "http",
+                Host = connectionManager.VRChatIP!.ToString(),
+                Port = connectionManager.VRChatQueryPort!.Value,
+                Path = address
+            }.Uri;
 
-            var content = await response.Content.ReadAsStringAsync();
+            var response = await client.GetAsync(url, token);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync(token);
             return JsonConvert.DeserializeObject<OSCQueryNode>(content);
         }
         catch (TaskCanceledException)
         {
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, $"An issue occured when requesting node at address: {address}");
             return null;
         }
     }
