@@ -124,6 +124,28 @@ public class VRChatOSCClient
         }
     }
 
+    public async Task<AvatarHeightOSCQueryData> RequestAvatarHeight()
+    {
+        var eyeHeightNode = await RequestNode(VRChatOSCConstants.ADDRESS_AVATAR_EYEHEIGHT);
+        if (eyeHeightNode is null) return new AvatarHeightOSCQueryData();
+
+        var eyeHeightMinNode = await RequestNode($"{VRChatOSCConstants.ADDRESS_AVATAR_EYEHEIGHT}min");
+        if (eyeHeightMinNode is null) return new AvatarHeightOSCQueryData();
+
+        var eyeHeightMaxNode = await RequestNode($"{VRChatOSCConstants.ADDRESS_AVATAR_EYEHEIGHT}max");
+        if (eyeHeightMaxNode is null) return new AvatarHeightOSCQueryData();
+
+        var eyeHeightScalingAllowedNode = await RequestNode($"{VRChatOSCConstants.ADDRESS_AVATAR_EYEHEIGHT}scalingallowed");
+        if (eyeHeightScalingAllowedNode is null) return new AvatarHeightOSCQueryData();
+
+        var eyeHeight = (float)(double)(eyeHeightNode.Value?[0] ?? 0d);
+        var eyeHeightMin = (float)(double)(eyeHeightNode.Value?[0] ?? 0d);
+        var eyeHeightMax = (float)(double)(eyeHeightNode.Value?[0] ?? 0d);
+        var eyeHeightScalingAllowed = (bool)(eyeHeightScalingAllowedNode.Value?[0] ?? false);
+
+        return new AvatarHeightOSCQueryData(eyeHeight, eyeHeightMin, eyeHeightMax, eyeHeightScalingAllowed);
+    }
+
     public async Task<IEnumerable<VRChatParameter>> RequestAllParameters()
     {
         var rootNode = await RequestNode(VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS);
@@ -168,5 +190,21 @@ public class VRChatOSCClient
         if (node?.Value is null || node.Value.Length == 0) return null;
 
         return (string)node.Value[0];
+    }
+}
+
+public readonly struct AvatarHeightOSCQueryData
+{
+    public readonly float EyeHeight;
+    public readonly float EyeHeightMin;
+    public readonly float EyeHeightMax;
+    public readonly bool EyeHeightScalingAllowed;
+
+    public AvatarHeightOSCQueryData(float eyeHeight, float eyeHeightMin, float eyeHeightMax, bool eyeHeightScalingAllowed)
+    {
+        EyeHeight = eyeHeight;
+        EyeHeightMin = eyeHeightMin;
+        EyeHeightMax = eyeHeightMax;
+        EyeHeightScalingAllowed = eyeHeightScalingAllowed;
     }
 }

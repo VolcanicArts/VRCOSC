@@ -274,31 +274,31 @@ internal class AppManager : IVRCClientEventHandler
         var avatarConfig = avatarId is null || avatarId.StartsWith("local") ? null : AvatarConfigLoader.LoadConfigFor(avatarId);
         var parameters = (await VRChatOscClient.RequestAllParameters()).ToList();
 
-        if (avatarId is null || avatarConfig is null)
-            Logger.Log("Unable to load data for current avatar");
-        else
-            Logger.Log($"Found avatar {avatarId} ({avatarConfig.Name}) with {parameters.Count} parameters");
-
         parameterCache.Clear();
 
-        foreach (var parameter in parameters)
+        if (avatarId is not null && avatarConfig is not null)
         {
-            parameterCache[parameter.GetDefinition()] = parameter;
-        }
+            Logger.Log($"Found avatar {avatarId} ({avatarConfig.Name}) with {parameters.Count} parameters");
 
-        VRChatClient.UpdateAvatar(avatarId is null ? null : new Avatar(avatarId, avatarConfig?.Name ?? "No Name", parameters.Select(x => x.GetDefinition()).ToArray()));
+            foreach (var parameter in parameters)
+            {
+                parameterCache[parameter.GetDefinition()] = parameter;
+            }
+
+            VRChatClient.UpdateAvatar(new Avatar(avatarId, avatarConfig.Name, parameters.Select(x => x.GetDefinition()).ToArray()));
+        }
+        else
+        {
+            VRChatClient.UpdateAvatar(null);
+        }
 
         if (VRChatClient.IsInAvatar)
         {
-            var eyeHeight = (float)(double)(await VRChatOscClient.RequestNode(VRChatOSCConstants.ADDRESS_AVATAR_EYEHEIGHT))?.Value?[0]!;
-            var eyeHeightMin = (float)(double)(await VRChatOscClient.RequestNode($"{VRChatOSCConstants.ADDRESS_AVATAR_EYEHEIGHT}min"))?.Value?[0]!;
-            var eyeHeightMax = (float)(double)(await VRChatOscClient.RequestNode($"{VRChatOSCConstants.ADDRESS_AVATAR_EYEHEIGHT}max"))?.Value?[0]!;
-            var eyeHeightScalingAllowed = (bool)(await VRChatOscClient.RequestNode($"{VRChatOSCConstants.ADDRESS_AVATAR_EYEHEIGHT}scalingallowed"))?.Value?[0]!;
-
-            VRChatClient.Avatar.EyeHeight = eyeHeight;
-            VRChatClient.Avatar.EyeHeightMin = eyeHeightMin;
-            VRChatClient.Avatar.EyeHeightMax = eyeHeightMax;
-            VRChatClient.Avatar.EyeHeightScalingAllowed = eyeHeightScalingAllowed;
+            var avatarHeight = await VRChatOscClient.RequestAvatarHeight();
+            VRChatClient.Avatar.EyeHeight = avatarHeight.EyeHeight;
+            VRChatClient.Avatar.EyeHeightMin = avatarHeight.EyeHeightMin;
+            VRChatClient.Avatar.EyeHeightMax = avatarHeight.EyeHeightMax;
+            VRChatClient.Avatar.EyeHeightScalingAllowed = avatarHeight.EyeHeightScalingAllowed;
         }
     }
 
