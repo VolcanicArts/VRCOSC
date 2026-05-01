@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Generic;
 using FastOSC;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Parameters;
@@ -11,7 +12,7 @@ public record Avatar
 {
     public readonly string Id;
     public readonly string Name;
-    public readonly ParameterDefinition[] Parameters;
+    public readonly IReadOnlyCollection<ParameterDefinition> Parameters;
 
     public float EyeHeight { get; internal set; }
     public float EyeHeightMin { get; internal set; }
