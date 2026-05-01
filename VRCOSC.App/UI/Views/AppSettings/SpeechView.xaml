@@ -91,8 +91,8 @@
                         To make sure the speech engine can hear you, speak normally into your selected microphone and check that the line goes over the activation threshold.
                     </TextBlock>
                     <Grid>
-                        <ProgressBar Name="MicrophoneDebugProgressBar" Height="5" Minimum="0" Maximum="1"/>
-                        <Border Background="{DynamicResource CGreen}" Height="20" Width="3" VerticalAlignment="Top" HorizontalAlignment="Left">
+                        <ProgressBar Name="MicrophoneDebugProgressBar" Height="5" Minimum="0" Maximum="1" Foreground="{DynamicResource CBlueL}"/>
+                        <Border Background="{DynamicResource CGreen}" Height="25" Width="3" VerticalAlignment="Top" HorizontalAlignment="Left">
                             <Border.RenderTransform>
                                 <TranslateTransform>
                                     <TranslateTransform.X>
@@ -137,11 +137,11 @@
                     <TextBlock Style="{StaticResource NoteTextStyle}">
                         Here is where you select the speech model to use.
                         <LineBreak/>
-                        Tiny is recommended if you have a GPU that doesn't support Vulkan, or you're having performance issues in game like stuttering or low VRAM warnings.
+                        Tiny is recommended if you have a GPU that doesn't support Vulkan, or you're having performance issues in-game like stuttering or low VRAM warnings.
                         <LineBreak/>
                         Small is recommended if you want a better recognition quality.
                         <LineBreak/>
-                        If you want to install a custom model, select custom and change the model location to wherever you've downloaded the file.
+                        If you want to install a custom model, select custom and change the model location to wherever you've downloaded the Whisper-compatible model file.
                     </TextBlock>
                         <core:SpacedStackPanel Spacing="7">
                             <Grid>

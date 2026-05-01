@@ -43,6 +43,7 @@
                 <core:SpacedStackPanel Spacing="10" Margin="7">
                     <TextBlock Style="{StaticResource NoteTextStyle}">
                         Here you can change the security of VRCOSC.
+                        <LineBreak/>
                         The global keyboard hook allows Pulse to listen for keybinds.
                     </TextBlock>
                     <Grid Width="400" HorizontalAlignment="Left">
@@ -59,6 +60,10 @@
                 <core:SpacedStackPanel Spacing="10" Margin="7">
                     <TextBlock Style="{StaticResource NoteTextStyle}">
                         Here you can change what happens to the modules when VRChat opens and closes.
+                        <LineBreak/>
+                        'Run With VRChat' will run the modules when VRChat opens and a connection is established.
+                        <LineBreak/>
+                        'Stop With VRChat' will stop the modules when VRChat closes.
                     </TextBlock>
                     <Grid Width="400" HorizontalAlignment="Left">
                         <Grid.ColumnDefinitions>
@@ -89,6 +94,8 @@
                             If you're using VRCOSC on a different computer, or wanting to connect to standalone Quest, use LAN.
                             <LineBreak/>
                             Custom is for very specific circumstances. Please ask in the Discord server if you're unsure how to connect using your setup.
+                            <LineBreak/>
+                            OSCQuery Client Name is for changing the client name that VRCOSC looks for. If you're only using VRChat then leave this as 'VRChat-Client'.
                         </TextBlock>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -151,7 +158,9 @@
                     <TextBlock Style="{StaticResource NoteTextStyle}">
                         Here you can configure the packages settings.
                         <LineBreak/>
-                        When Auto Update Packages is enabled, VRCOSC will attempt to update any packages to their latest, non-pre-release, release. This is enabled by default to keep the official modules up-to-date automatically.
+                        When 'Auto Update Packages' is enabled, VRCOSC will attempt to update any packages to their latest, release. This is enabled by default to keep the official modules up-to-date automatically.
+                        <LineBreak/>
+                        If 'Show Pre-Release Packages' is enabled, VRCOSC will show pre-release-marked releases in the package list, and will attempt to update any packages to their pre-release-marked releases if 'Auto Update Packages' is enabled.
                     </TextBlock>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -176,7 +185,9 @@
                     <TextBlock Style="{StaticResource NoteTextStyle}">
                         Here you can configure how the app updates.
                         <LineBreak/>
-                        Whenever risky features are tested the beta channel is used and is announced on the Discord server.
+                        Leave this on 'Live' if you don't intend to test risky features.
+                        <LineBreak/>
+                        If you'd like to know when risky features are being tested, join the Discord server.
                     </TextBlock>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -193,10 +204,10 @@
                     <TextBlock Style="{StaticResource NoteTextStyle}">
                         Here you can configure the global ChatBox settings.
                         <LineBreak/>
-                        The world blocklist is a community-created list that blocks VRCOSC from writing to the ChatBox in popular club worlds out of respect to the performers.
-                        This is on by default, but not forced on users. We recommend you keep it enabled.
+                        The world blocklist is a community-created list that blocks VRCOSC from writing to the ChatBox in listed worlds out of respect to world authors and performers.
+                        This is on by default, but not forced on users. It's recommended to keep it enabled.
                         <LineBreak/>
-                        The send interval is the time between each ChatBox update. VRChat's minimum is 1500. If you're having timeout issues raise this number.
+                        The send interval is the time in milliseconds between each ChatBox update. VRChat's minimum is 1500. If you're having timeout issues increase this number.
                     </TextBlock>
                     <Grid>
                         <Grid.ColumnDefinitions>

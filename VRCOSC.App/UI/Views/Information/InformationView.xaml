@@ -21,7 +21,7 @@
                 </core:SpacedStackPanel>
             </core:SpacedStackPanel>
             <core:SpacedStackPanel Spacing="5" HorizontalAlignment="Center" VerticalAlignment="Bottom">
-                <TextBlock Text="Copyright VolcanicArts 2025" Foreground="{DynamicResource CForeground2}" FontSize="15" HorizontalAlignment="Center" TextAlignment="Center"/>
+                <TextBlock Text="Copyright VolcanicArts 2026" Foreground="{DynamicResource CForeground2}" FontSize="15" HorizontalAlignment="Center" TextAlignment="Center"/>
                 <TextBlock Text="See license file in repository root for more information" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource CForeground2}" FontSize="15"/>
             </core:SpacedStackPanel>
         </Grid>

@@ -40,9 +40,13 @@
                         <TextBlock Style="{StaticResource NoteTextStyle}">
                             Here you can configure router instances.
                             <LineBreak/>
+                            Do not add instances if you aren't using other apps that require receiving from VRChat that don't use OSCQuery.
+                            <LineBreak/>
                             Send mode means that VRCOSC will take all data from VRChat and forward it to the configured endpoint.
                             <LineBreak/>
                             Receive mode means that VRCOSC will take all data from the configured endpoint and forward it to VRChat.
+                            <LineBreak/>
+                            When configuring a receive instance the IP should be set to the LAN IP of the PC that VRCOSC is running on. This can be found in the 'Debug' section on the left.
                         </TextBlock>
                         <core:HeaderFooterListView HideHeaderWhenEmpty="True" ShouldTruncateHeight="False" ItemsSource="{Binding RouterManager.Routes, Mode=OneWay}" AlternationCount="2">
                             <core:HeaderFooterListView.Header>

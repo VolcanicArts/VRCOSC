@@ -8,9 +8,6 @@
              d:DesignWidth="1366" d:DesignHeight="748"
              Background="Transparent">
     <UserControl.Resources>
-        <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
-        <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
-        <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
         <Style TargetType="GroupBox" BasedOn="{StaticResource {x:Type GroupBox}}">
             <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
             <Setter Property="FontSize" Value="17"/>
@@ -44,7 +41,7 @@
                     <TextBlock Style="{StaticResource NoteTextStyle}">
                         Here you can change what happens to the app when SteamVR opens and closes.
                         <LineBreak/>
-                        When enabling Open With SteamVR for the first time SteamVR must be open to receive the command.
+                        When enabling 'Open With SteamVR' for the first time, SteamVR must be running to receive the command.
                     </TextBlock>
                     <Grid Width="400" HorizontalAlignment="Left">
                         <Grid.ColumnDefinitions>
