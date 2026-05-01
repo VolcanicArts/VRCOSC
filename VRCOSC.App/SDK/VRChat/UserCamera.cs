@@ -42,7 +42,7 @@ public class UserCamera
     public UserCameraMode Mode { get; private set; }
     public Transform Transform { get; private set; }
 
-    public UserCamera(VRChatOSCClient oscClient)
+    internal UserCamera(VRChatOSCClient oscClient)
     {
         this.oscClient = oscClient;
     }

@@ -31,7 +31,7 @@ public record Avatar
 
     public virtual bool Equals(Avatar? other) => Id == other?.Id;
 
-    public void HandleOSCMessage(OSCMessage message)
+    internal void HandleOSCMessage(OSCMessage message)
     {
         if (message.Address == VRChatOSCConstants.ADDRESS_AVATAR_EYEHEIGHT)
             EyeHeight = (float)message.Arguments[0]!;

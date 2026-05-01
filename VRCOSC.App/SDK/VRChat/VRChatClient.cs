@@ -54,25 +54,25 @@ public class VRChatClient
         return true;
     }
 
-    public VRChatClient(VRChatOSCClient client)
+    internal VRChatClient(VRChatOSCClient client)
     {
         Player = new Player(client);
         UserCamera = new UserCamera(client);
     }
 
-    public void UpdateUser(User? user)
+    internal void UpdateUser(User? user)
     {
         User = IsOpen ? user : null;
         IsLoggedIn = user is not null && IsOpen;
     }
 
-    public void UpdateInstance(Instance? instance)
+    internal void UpdateInstance(Instance? instance)
     {
         Instance = IsOpen ? instance : null;
         IsInInstance = instance is not null && IsOpen;
     }
 
-    public void UpdateAvatar(Avatar? avatar)
+    internal void UpdateAvatar(Avatar? avatar)
     {
         Avatar = IsOpen ? avatar : null;
         IsInAvatar = avatar is not null && IsOpen;
