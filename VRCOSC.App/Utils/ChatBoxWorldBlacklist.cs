@@ -15,6 +15,7 @@ namespace VRCOSC.App.Utils;
 
 internal class ChatBoxWorldBlacklist : IVRCClientEventHandler
 {
+    private static readonly HttpClient client = new();
     private const string blacklist_url = "https://github.com/cyberkitsune/chatbox-club-blacklist/raw/master/npblacklist.json";
 
     private Blacklist? blacklist;
@@ -31,7 +32,9 @@ internal class ChatBoxWorldBlacklist : IVRCClientEventHandler
         await requestBlacklist();
 
         IsCurrentWorldBlacklisted = blacklist?.Worlds.Any(world => world.ID == worldID) ?? false;
-        Logger.Log($"Is world blacklisted?: {(IsCurrentWorldBlacklisted ? "Yes" : "No")}");
+
+        if (IsCurrentWorldBlacklisted)
+            Logger.Log($"World {worldID} is blacklisted");
     }
 
     private async Task requestBlacklist()
@@ -39,8 +42,6 @@ internal class ChatBoxWorldBlacklist : IVRCClientEventHandler
         try
         {
             if (blacklist is not null) return;
-
-            using var client = new HttpClient();
 
             var response = await client.GetAsync(blacklist_url);
             response.EnsureSuccessStatusCode();
