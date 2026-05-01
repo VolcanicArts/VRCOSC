@@ -103,7 +103,12 @@ public class DollyManager
     }
 
     /// <summary>
-    /// Exports the current dolly out of VRChat
+    /// Imports the dolly file into VRChat, without being managed by VRCOSC
+    /// </summary>
+    public void Import(string filePath) => oscClient.Send(VRChatOSCConstants.ADDRESS_DOLLY_IMPORT, filePath);
+
+    /// <summary>
+    /// Exports the current dolly out of VRChat and lets VRCOSC manage it
     /// </summary>
     public async Task Export()
     {
@@ -121,6 +126,31 @@ public class DollyManager
         File.Copy(Path.Join(vrchatDollyDirectoryPath, latestFile.Name), destinationFilePath);
 
         Dollies.Add(newDolly);
+    }
+
+    /// <summary>
+    /// Exports the current dolly out of VRChat and copies the file to <paramref name="filePath"/>, without being managed by VRCOSC
+    /// </summary>
+    public async Task<bool> Export(string filePath)
+    {
+        try
+        {
+            var currentDateTime = DateTime.Now;
+
+            oscClient.Send(VRChatOSCConstants.ADDRESS_DOLLY_EXPORT, [null]);
+            await Task.Delay(100);
+
+            var vrchatDollyDirectory = new DirectoryInfo(vrchatDollyDirectoryPath);
+            var latestFile = vrchatDollyDirectory.GetFiles().Where(f => f.LastWriteTime >= currentDateTime).OrderByDescending(f => f.LastWriteTime).FirstOrDefault();
+            if (latestFile is null) return false;
+
+            File.Copy(Path.Join(vrchatDollyDirectoryPath, latestFile.Name), filePath);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     /// <summary>
