@@ -13,7 +13,7 @@ using User = VRCOSC.App.SDK.VRChat.User;
 namespace VRCOSC.App.Nodes.Types.VRChat;
 
 [Node("Is VRChat Open")]
-public sealed class VRChatIsOpenNode() : ValueSourceNode<bool>(() => AppManager.GetInstance().VRChatClient.IsOpen, "Is Open");
+public sealed class VRChatIsOpenNode() : SimpleValueSourceNode<bool>(() => AppManager.GetInstance().VRChatClient.IsOpen, "Is Open");
 
 [Node("VRChat State Source", "VRChat")]
 public sealed class VRChatStateSourceNode : UpdateNode<bool, bool, bool, bool>

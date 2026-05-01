@@ -9,7 +9,7 @@ using VRCOSC.App.OpenVR.Device;
 
 namespace VRCOSC.App.Nodes.Types.SteamVR;
 
-public abstract class SteamVRDeviceSourceNode<T>(Func<T> func) : ValueSourceNode<T>(func, "Device") where T : TrackedDevice?;
+public abstract class SteamVRDeviceSourceNode<T>(Func<T> func) : SimpleValueSourceNode<T>(func, "Device") where T : TrackedDevice?;
 
 [Node("HMD", "SteamVR/Devices")]
 public sealed class SteamVRHMDSourceNode() : SteamVRDeviceSourceNode<HMD?>(() => AppManager.GetInstance().OpenVRManager.GetHMD());

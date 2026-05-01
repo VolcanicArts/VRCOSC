@@ -7,15 +7,15 @@ namespace VRCOSC.App.Nodes.Types.Time;
 
 [Node("DateTime Now", "Date & Time")]
 [NodeCollapsed]
-public sealed class DateTimeNowSourceNode() : ValueSourceNode<DateTime>(() => DateTime.Now);
+public sealed class DateTimeNowSourceNode() : SimpleValueSourceNode<DateTime>(() => DateTime.Now);
 
 [Node("Date Today", "Date & Time")]
 [NodeCollapsed]
-public sealed class DateTimeTodaySourceNode() : ValueSourceNode<DateTime>(() => DateTime.Today);
+public sealed class DateTimeTodaySourceNode() : SimpleValueSourceNode<DateTime>(() => DateTime.Today);
 
 [Node("UTC Now", "Date & Time")]
 [NodeCollapsed]
-public sealed class DateTimeUtcNowSourceNode() : ValueSourceNode<DateTime>(() => DateTime.UtcNow);
+public sealed class DateTimeUtcNowSourceNode() : SimpleValueSourceNode<DateTime>(() => DateTime.UtcNow);
 
 [Node("Unix Epoch", "Date & Time")]
 public sealed class DateTimeUnixEpochConstantNode() : ConstantNode<DateTime>(DateTime.UnixEpoch);

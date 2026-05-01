@@ -8,14 +8,12 @@ using VRCOSC.App.SDK.Utils;
 namespace VRCOSC.App.Nodes.Types.Keybind;
 
 [Node("Press Keybind", "Keybind")]
-public sealed class KeybindPressNode : Node, IFlowInput
+public sealed class KeybindPressNode : ActionNode
 {
-    public FlowContinuation Next = new();
-
     public ValueInput<SDK.Utils.Keybind> Keybind = new();
     public ValueInput<int> DurationMilliseconds = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task DoTask(PulseContext c)
     {
         var keybind = Keybind.Read(c);
         if (keybind is null) return;
@@ -26,16 +24,14 @@ public sealed class KeybindPressNode : Node, IFlowInput
 }
 
 [Node("Hold/Release Keybind", "Keybind")]
-public sealed class KeybindHoldReleaseNode : Node, IFlowInput
+public sealed class KeybindHoldReleaseNode : ActionNode
 {
     public GlobalStore<bool> PrevCondition = new();
-
-    public FlowContinuation Next = new();
 
     public ValueInput<SDK.Utils.Keybind> Keybind = new();
     public ValueInput<bool> Condition = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task DoTask(PulseContext c)
     {
         var keybind = Keybind.Read(c);
         if (keybind is null) return;
@@ -61,33 +57,13 @@ public sealed class KeybindHoldReleaseNode : Node, IFlowInput
 }
 
 [Node("Keybind Source", "Keybind")]
-public sealed class KeybindSourceNode : Node, IActiveUpdateNode, IHasKeybindProperty
+public sealed class KeybindSourceNode() : ValueSourceNode<bool>("Down"), IHasKeybindProperty
 {
-    public int UpdateOffset => 0;
-
-    public GlobalStore<bool> DownStore = new();
-
     [NodeProperty("keybind")]
     public SDK.Utils.Keybind Keybind { get; set; } = new();
 
-    public ValueOutput<bool> Down = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var keybindDown = isKeybindDown();
-        Down.Write(keybindDown, c);
-        return Task.CompletedTask;
-    }
-
-    public Task<bool> OnUpdate(PulseContext c)
-    {
-        var wasDown = DownStore.Read(c);
-        var isDown = isKeybindDown();
-        DownStore.Write(isDown, c);
-
-        return Task.FromResult(wasDown != isDown);
-    }
-
-    private bool isKeybindDown() => Keybind.Keys.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key))
-                                    && Keybind.Modifiers.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key));
+    protected override bool ComputeValue(PulseContext c)
+        => (Keybind.Modifiers.Count != 0 || Keybind.Keys.Count != 0)
+           && Keybind.Modifiers.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key))
+           && Keybind.Keys.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key));
 }

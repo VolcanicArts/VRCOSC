@@ -12,19 +12,27 @@ public abstract class ValueSourceNode<T1> : ValueComputeNode<T1>, IActiveUpdateN
     public virtual int UpdateOffset => 0;
     private readonly GlobalStore<T1> prevValue = new();
 
-    private readonly Func<T1> _func;
-
-    protected ValueSourceNode(Func<T1> func, string resultName = "") : base(resultName) => _func = func;
-
-    protected override T1 ComputeValue(PulseContext c) => _func();
+    protected ValueSourceNode(string resultName = "")
+        : base(resultName)
+    {
+    }
 
     public Task<bool> OnUpdate(PulseContext c)
     {
-        var value = _func();
+        var value = ComputeValue(c);
 
         if (EqualityComparer<T1>.Default.Equals(value, prevValue.Read(c))) return Task.FromResult(false);
 
         prevValue.Write(value, c);
         return Task.FromResult(true);
     }
+}
+
+public abstract class SimpleValueSourceNode<T1> : ValueSourceNode<T1>
+{
+    private readonly Func<T1> _func;
+
+    protected SimpleValueSourceNode(Func<T1> func, string resultName = "") : base(resultName) => _func = func;
+
+    protected override T1 ComputeValue(PulseContext c) => _func();
 }

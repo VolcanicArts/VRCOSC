@@ -12,15 +12,15 @@ namespace VRCOSC.App.Nodes.Types.SteamVR;
 
 [Node("Is Dashboard Visible", "SteamVR")]
 [NodeCollapsed]
-public sealed class SteamVRIsDashboardVisibleNode() : ValueSourceNode<bool>(() => AppManager.GetInstance().OpenVRManager.IsDashboardVisible, "Is Visible");
+public sealed class SteamVRIsDashboardVisibleNode() : SimpleValueSourceNode<bool>(() => AppManager.GetInstance().OpenVRManager.IsDashboardVisible, "Is Visible");
 
 [Node("Is User Present", "SteamVR")]
 [NodeCollapsed]
-public sealed class SteamVRIsUserPresentNode() : ValueSourceNode<bool>(() => AppManager.GetInstance().OpenVRManager.IsUserPresent, "Is Present");
+public sealed class SteamVRIsUserPresentNode() : SimpleValueSourceNode<bool>(() => AppManager.GetInstance().OpenVRManager.IsUserPresent, "Is Present");
 
 [Node("VR FPS", "SteamVR")]
 [NodeCollapsed]
-public sealed class SteamVRFPSNode() : ValueSourceNode<float>(() => AppManager.GetInstance().OpenVRManager.FPS, "FPS");
+public sealed class SteamVRFPSNode() : SimpleValueSourceNode<float>(() => AppManager.GetInstance().OpenVRManager.FPS, "FPS");
 
 [Node("Device Info", "SteamVR")]
 public sealed class SteamVRDeviceInfoNode : UpdateNode<bool, bool, float>

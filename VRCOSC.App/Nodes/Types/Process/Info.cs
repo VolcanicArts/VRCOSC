@@ -9,7 +9,7 @@ namespace VRCOSC.App.Nodes.Types.Process;
 
 [Node("Foreground Process", "Process")]
 [NodeCollapsed]
-public sealed class ForegroundProcessNode() : ValueSourceNode<System.Diagnostics.Process?>(ProcessExtensions.GetForegroundProcess);
+public sealed class ForegroundProcessNode() : SimpleValueSourceNode<System.Diagnostics.Process?>(ProcessExtensions.GetForegroundProcess);
 
 [Node("Process Info", "Process/Info")]
 public sealed class ProcessInfoNode : UpdateNode<int, string?, DateTime>
