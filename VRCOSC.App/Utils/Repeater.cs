@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -93,5 +94,54 @@ public sealed class Repeater : IAsyncDisposable
         {
             gate.Release();
         }
+    }
+}
+
+public class SpinWaitTask
+{
+    private readonly Action task;
+    private volatile bool _running = true;
+    private Thread _workerThread;
+
+    public SpinWaitTask(Action task)
+    {
+        this.task = task;
+    }
+
+    public void Start(TimeSpan delay)
+    {
+        _workerThread = new Thread(() =>
+        {
+            var sw = Stopwatch.StartNew();
+            long nextTick = 0;
+
+            while (_running)
+            {
+                long elapsed = sw.ElapsedTicks;
+
+                if (elapsed >= nextTick)
+                {
+                    task();
+                    nextTick += (long)(Stopwatch.Frequency * (1d / delay.TotalSeconds));
+                }
+                else
+                {
+                    // Spin-wait to reduce CPU when we have time
+                    Thread.SpinWait(100);
+                }
+            }
+        })
+        {
+            Priority = ThreadPriority.Highest,
+            IsBackground = true
+        };
+
+        _workerThread.Start();
+    }
+
+    public void Stop()
+    {
+        _running = false;
+        _workerThread?.Join();
     }
 }

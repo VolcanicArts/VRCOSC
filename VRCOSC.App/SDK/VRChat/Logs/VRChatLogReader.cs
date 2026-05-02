@@ -7,8 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.VRChat.Logs.Handlers;
 using VRCOSC.App.Utils;
@@ -22,11 +20,9 @@ internal static class VRChatLogReader
 
     private static readonly Regex datetime_regex = new(@"^(\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}).+$");
 
-    private static readonly List<LogLine> line_buffer = [];
     private static string? logFile;
     private static long byteOffset;
-    private static Repeater? processTask;
-    private static readonly Lock process_lock = new();
+    private static SpinWaitTask? processTask;
 
     private static readonly IVRChatLogLineHandler[] log_line_handlers =
     [
@@ -57,57 +53,62 @@ internal static class VRChatLogReader
             return;
         }
 
-        processTask = new Repeater($"{nameof(VRChatLogReader)}-{nameof(process)}", process);
-        processTask.Start(TimeSpan.FromMilliseconds(50), true);
+        processTask = new SpinWaitTask(process);
+        processTask.Start(TimeSpan.FromMilliseconds(10d));
     }
 
-    internal static async Task Stop()
+    internal static void Stop()
     {
         if (processTask is null) return;
 
-        await processTask.StopAsync();
+        processTask.Stop();
         reset();
     }
 
     private static void reset()
     {
-        line_buffer.Clear();
         logFile = null;
         byteOffset = 0;
         state = new();
     }
 
-    private static Task process()
+    private static void process()
     {
-        lock (process_lock)
+        try
         {
-            readLinesFromFile();
-            if (line_buffer.Count == 0) return Task.CompletedTask;
-
-            foreach (var logLine in line_buffer)
-            {
-                foreach (var logLineHandler in log_line_handlers)
-                {
-                    var match = logLineHandler.Regex.Match(logLine.Line);
-                    if (!match.Success) continue;
-
-                    var logEvent = logLineHandler.HandleMatch(state, new VRChatLogLineMatch(logLine.Timestamp, match));
-                    if (logEvent is null) continue;
-
-                    foreach (var eventHandler in event_handlers)
-                    {
-                        eventHandler.HandleClientEvent(logEvent);
-                    }
-                }
-            }
-
-            line_buffer.Clear();
+            readLinesToFileEnd();
         }
-
-        return Task.CompletedTask;
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e);
+        }
     }
 
-    private static void readLinesFromFile()
+    private static void handleLogLine(LogLine logLine)
+    {
+        foreach (var logLineHandler in log_line_handlers)
+        {
+            var match = logLineHandler.Regex.Match(logLine.Line);
+            if (!match.Success) continue;
+
+            var logEvent = logLineHandler.HandleMatch(state, new VRChatLogLineMatch(logLine.Timestamp, match));
+            if (logEvent is null) continue;
+
+            foreach (var eventHandler in event_handlers)
+            {
+                try
+                {
+                    eventHandler.HandleClientEvent(logEvent);
+                }
+                catch (Exception e)
+                {
+                    ExceptionHandler.Handle(e, "Exception handling client event");
+                }
+            }
+        }
+    }
+
+    private static void readLinesToFileEnd()
     {
         try
         {
@@ -120,26 +121,32 @@ internal static class VRChatLogReader
                 Logger.Log($"Reading log file: {logFile}");
             }
 
-            if (logFile is null) return;
+            if (!File.Exists(logFile)) return;
 
-            using var fileStream = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var streamReader = new StreamReader(fileStream);
-
-            streamReader.BaseStream.Seek(byteOffset, SeekOrigin.Begin);
-
-            var linesRead = 0;
-
-            while (linesRead < 100 && streamReader.ReadLine() is { } line)
+            try
             {
-                var dateTime = parseDate(line);
+                using var fileStream = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
 
-                if (!string.IsNullOrWhiteSpace(line) && dateTime is not null)
+                if (fileStream.Length < byteOffset)
+                    byteOffset = 0;
+
+                fileStream.Seek(byteOffset, SeekOrigin.Begin);
+
+                using var reader = new StreamReader(fileStream, Encoding.UTF8);
+
+                while (reader.ReadLine() is { } line)
                 {
-                    line_buffer.Add(new LogLine(dateTime.Value, line));
-                    linesRead++;
+                    var dateTime = parseDate(line);
+                    if (dateTime is null) continue;
+
+                    handleLogLine(new LogLine(dateTime.Value, line));
                 }
 
-                byteOffset += Encoding.UTF8.GetBytes(line).Length;
+                byteOffset = fileStream.Position;
+            }
+            catch (IOException)
+            {
+                // Ignore if the file is locked
             }
         }
         catch (Exception e)
@@ -156,5 +163,5 @@ internal static class VRChatLogReader
         return DateTime.ParseExact(foundDateTime, "yyyy.MM.dd HH:mm:ss", null);
     }
 
-    private readonly record struct LogLine(DateTime Timestamp, string Line);
+    private record LogLine(DateTime Timestamp, string Line);
 }
