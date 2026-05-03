@@ -618,7 +618,7 @@ internal class AppManager : IVRCClientEventHandler
         await VRChatOscClient.DisableReceive();
         VRChatOscClient.OnVRChatOSCMessageReceived -= onVRChatOSCMessageReceived;
 
-        VRChatLogReader.Stop();
+        await VRChatLogReader.Stop();
         await NodeManager.GetInstance().Stop();
         await ModuleManager.GetInstance().StopAsync();
         await ChatBoxManager.GetInstance().Stop();

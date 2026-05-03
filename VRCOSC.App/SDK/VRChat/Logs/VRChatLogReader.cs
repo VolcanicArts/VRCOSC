@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.VRChat.Logs.Handlers;
 using VRCOSC.App.Utils;
@@ -22,7 +23,7 @@ internal static class VRChatLogReader
 
     private static string? logFile;
     private static long byteOffset;
-    private static SpinWaitTask? processTask;
+    private static Repeater? processTask;
 
     private static readonly IVRChatLogLineHandler[] log_line_handlers =
     [
@@ -53,15 +54,15 @@ internal static class VRChatLogReader
             return;
         }
 
-        processTask = new SpinWaitTask(process);
-        processTask.Start(TimeSpan.FromMilliseconds(10d));
+        processTask = new Repeater($"{nameof(VRChatLogReader)}-process", process);
+        processTask.Start(TimeSpan.FromMilliseconds(100));
     }
 
-    internal static void Stop()
+    internal static async Task Stop()
     {
         if (processTask is null) return;
 
-        processTask.Stop();
+        await processTask.StopAsync();
         reset();
     }
 
@@ -72,7 +73,7 @@ internal static class VRChatLogReader
         state = new();
     }
 
-    private static void process()
+    private static Task process()
     {
         try
         {
@@ -82,6 +83,8 @@ internal static class VRChatLogReader
         {
             ExceptionHandler.Handle(e);
         }
+
+        return Task.CompletedTask;
     }
 
     private static void handleLogLine(LogLine logLine)
