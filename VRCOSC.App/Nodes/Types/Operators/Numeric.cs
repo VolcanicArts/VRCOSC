@@ -9,7 +9,7 @@ namespace VRCOSC.App.Nodes.Types.Operators;
 [Node("Add", "Operators/Numeric", EFontAwesomeIcon.Solid_Plus)]
 public sealed class AddNode<T>() : SimpleResultComputeNode<T>((a, b) => a + b) where T : IAdditionOperators<T, T, T>;
 
-[Node("Subtract", "Operators/Numeric", EFontAwesomeIcon.Solid_Plus)]
+[Node("Subtract", "Operators/Numeric", EFontAwesomeIcon.Solid_Minus)]
 public sealed class SubtractNode<T>() : SimpleResultComputeNode<T>((a, b) => a - b) where T : ISubtractionOperators<T, T, T>;
 
 [Node("Multiply", "Operators/Numeric", EFontAwesomeIcon.Solid_Asterisk)]
