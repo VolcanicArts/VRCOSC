@@ -52,15 +52,12 @@ public abstract class Node : IEquatable<Node>
         {
             await Process(c);
         }
-        catch (TaskCanceledException)
-        {
-        }
         catch (OperationCanceledException)
         {
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            ExceptionHandler.Handle(e);
+            Logger.Error(ex, $"Error in {nameof(Process)} in {GetType().GetFriendlyName()}");
         }
     }
 
@@ -72,15 +69,12 @@ public abstract class Node : IEquatable<Node>
         {
             return ShouldProcess(c);
         }
-        catch (TaskCanceledException)
-        {
-        }
         catch (OperationCanceledException)
         {
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            ExceptionHandler.Handle(e);
+            Logger.Error(ex, $"Error in {nameof(ShouldProcess)} in {GetType().GetFriendlyName()}");
         }
 
         return false;

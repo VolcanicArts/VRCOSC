@@ -15,6 +15,8 @@ public record Result
 
     public static Result Success() => new();
 
+    public static Result Fail() => new(new Exception("Failed"));
+
     public static Result Error(Exception exception) => new()
     {
         Exception = exception
@@ -38,6 +40,8 @@ public record Result<T> : Result
     {
         Value = value
     };
+
+    public new static Result<T> Fail() => new(new Exception("Failed"));
 
     public new static Result<T> Error(Exception exception) => new()
     {

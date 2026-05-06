@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -275,4 +275,31 @@ internal interface IDisplayNode
 public interface IModuleNodeEventHandler
 {
     public Task Write(object[] args, PulseContext c);
+}
+
+/// <summary>
+/// A passively updating node that can only read and write from stores in <see cref="OnUpdate"/>
+/// </summary>
+public interface IUpdateNode
+{
+    int UpdateOffset { get; }
+    void OnUpdate(PulseContext c);
+}
+
+/// <summary>
+/// An actively updating node that can read inputs/stores and write outputs/stores in <see cref="OnUpdate"/>.
+/// If <see cref="OnUpdate"/> returns true it will process and notify nodes down flow of the <see cref="ValueOutput{T}"/> changes, otherwise it will not process
+/// </summary>
+public interface IActiveUpdateNode
+{
+    int UpdateOffset { get; }
+    Task<bool> OnUpdate(PulseContext c);
+}
+
+/// <summary>
+/// Processes this node every update, and if any value output has changed, notifies nodes down flow of the changes
+/// </summary>
+public interface IContinuousNode
+{
+    int UpdateOffset { get; }
 }
