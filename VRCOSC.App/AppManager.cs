@@ -196,6 +196,13 @@ internal class AppManager : IVRCClientEventHandler
                 VRChatClient.Instance.Users.RemoveIf(user => user == userLeftClientEvent.User);
                 break;
             }
+
+            case AvatarPreChangeClientEvent:
+                // we only want to avatar data on avatar events if it was recent
+                if (@event.Timestamp >= DateTime.Now - TimeSpan.FromSeconds(1))
+                    VRChatClient.UpdateAvatar(null);
+
+                break;
         }
     }
 
