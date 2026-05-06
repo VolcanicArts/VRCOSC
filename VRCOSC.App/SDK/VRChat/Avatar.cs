@@ -12,7 +12,7 @@ public record Avatar
 {
     public readonly string Id;
     public readonly string Name;
-    public readonly IReadOnlyCollection<ParameterDefinition> Parameters;
+    public readonly IReadOnlyList<ParameterDefinition> Parameters;
 
     public float EyeHeight { get; internal set; }
     public float EyeHeightMin { get; internal set; }
