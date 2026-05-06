@@ -16,4 +16,10 @@ public sealed class EulerToQuaternionNode() : SimpleValueTransformNode<Vector3, 
 
 [Node("Multiply Quaternion", "Math/Quaternion")]
 [NodeCollapsed]
-public sealed class QuaternionMultiplyNode() : SimpleResultComputeNode<System.Numerics.Quaternion>((a, b) => a * b);
+public sealed class QuaternionMultiplyNode : ValueComputeNode<System.Numerics.Quaternion>
+{
+    public ValueInput<System.Numerics.Quaternion> A = new(defaultValue: System.Numerics.Quaternion.Identity);
+    public ValueInput<System.Numerics.Quaternion> B = new(defaultValue: System.Numerics.Quaternion.Identity);
+
+    protected override System.Numerics.Quaternion ComputeValue(PulseContext c) => A.Read(c) * B.Read(c);
+}
