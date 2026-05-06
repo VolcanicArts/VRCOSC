@@ -23,7 +23,7 @@ public static class TypeColorExtensions
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) type = type.GenericTypeArguments[0];
 
         if (type == typeof(bool)) return fromHsl(0, 0, 0.6f);
-        if (type == typeof(char)) return fromHsl(30f / 360f, 37f / 85f, 7f / 85f);
+        if (type == typeof(char)) return fromHsl(30f / 360f, 7f / 85f, 50f / 85f);
         if (type == typeof(string)) return fromHsl(30f / 360f, 7f / 85f, 75f / 85f);
 
         if (tryGetNumericHsl(type, out var baseHsl, out var t))
