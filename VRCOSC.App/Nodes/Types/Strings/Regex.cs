@@ -1,83 +1,287 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Strings;
 
 [Node("Regex Match", "Strings/Regex")]
-public sealed class RegexMatchNode : Node, IFlowInput, IHasTextProperty
+public sealed class RegexMatchNode : TryValueComputeNode<Match>, IHasTextProperty
 {
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public FlowContinuation OnMatchHit = new();
-    public FlowContinuation OnMatchMiss = new();
+    public ValueInput<string?> Input = new("String");
+    public ValueInput<RegexOptions> Options = new();
 
-    public ValueInput<string?> StrInput = new("String");
-    public ValueOutput<Match> Result = new();
-
-    protected override Task Process(PulseContext c)
+    protected override Result<Match> TryComputeValue(PulseContext c)
     {
-        var strInput = StrInput.Read(c);
-        if (strInput is null) return OnMatchMiss.Execute(c);
+        var input = Input.Read(c);
+        if (input is null) return Result<Match>.Fail();
 
         try
         {
-            var result = Regex.Match(strInput, Text);
-            Result.Write(result, c);
-            return OnMatchHit.Execute(c);
+            var options = Options.Read(c);
+            return Regex.Match(input, Text, options);
         }
         catch
         {
-            return OnMatchMiss.Execute(c);
+            return Result<Match>.Fail();
         }
     }
 }
 
-[Node("Regex Match Groups", "Strings/Regex")]
-public sealed class RegexMatchGroupsNode() : ValueTransformNode<Match?, IReadOnlyList<Group>>("Match", "Groups")
+[Node("Regex Matches", "Strings/Regex")]
+public sealed class RegexMatchesNode : TryValueComputeNode<MatchCollection>, IHasTextProperty
 {
-    protected override IReadOnlyList<Group> TransformValue(Match? value) => value is not null ? value.Groups : new List<Group>();
-}
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
 
-[Node("Regex Group Captures", "Strings/Regex")]
-public sealed class RegexGroupCapturesNode() : ValueTransformNode<Group?, IReadOnlyList<Capture>>("Group", "Captures")
-{
-    protected override IReadOnlyList<Capture> TransformValue(Group? value) => value is not null ? value.Captures : new List<Capture>();
-}
+    public ValueInput<string?> Input = new("String");
+    public ValueInput<RegexOptions> Options = new();
 
-[Node("Regex Capture Value", "Strings/Regex")]
-public sealed class RegexCaptureValueNode<T> : Node, IFlowInput
-{
-    public FlowContinuation OnSuccess = new();
-    public FlowContinuation OnFail = new();
-
-    public ValueInput<Capture> Capture = new();
-    public ValueOutput<T> Value = new();
-
-    protected override Task Process(PulseContext c)
+    protected override Result<MatchCollection> TryComputeValue(PulseContext c)
     {
-        var capture = Capture.Read(c);
-        if (capture is null) return OnFail.Execute(c);
-
-        var value = capture.Value;
+        var input = Input.Read(c);
+        if (input is null) return Result<MatchCollection>.Fail();
 
         try
         {
-            var converter = TypeDescriptor.GetConverter(typeof(T));
-            if (!converter.CanConvertFrom(typeof(string))) return OnFail.Execute(c);
-
-            Value.Write((T)converter.ConvertFrom(value)!, c);
+            var options = Options.Read(c);
+            return Regex.Matches(input, Text, options);
         }
         catch
         {
-            return OnFail.Execute(c);
+            return Result<MatchCollection>.Fail();
         }
-
-        return OnSuccess.Execute(c);
     }
 }
+
+[Node("Regex Is Match", "Strings/Regex")]
+public sealed class RegexIsMatchNode : ValueSourceNode<bool>, IHasTextProperty
+{
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
+
+    public ValueInput<string?> Input = new("String");
+    public ValueInput<RegexOptions> Options = new();
+
+    protected override bool ComputeValue(PulseContext c)
+    {
+        var input = Input.Read(c);
+        if (input is null) return false;
+
+        try
+        {
+            var options = Options.Read(c);
+            return Regex.IsMatch(input, Text, options);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}
+
+[Node("Regex Replace", "Strings/Regex")]
+public sealed class RegexReplaceNode : TryValueComputeNode<string>, IHasTextProperty
+{
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
+
+    public ValueInput<string?> Input = new("String");
+    public ValueInput<string> Replacement = new();
+    public ValueInput<RegexOptions> Options = new();
+
+    protected override Result<string> TryComputeValue(PulseContext c)
+    {
+        var input = Input.Read(c);
+        if (input is null) return Result<string>.Fail();
+
+        try
+        {
+            var replacement = Replacement.Read(c);
+            var options = Options.Read(c);
+            return Regex.Replace(input, Text, replacement, options);
+        }
+        catch
+        {
+            return Result<string>.Fail();
+        }
+    }
+}
+
+[Node("Regex Split", "Strings/Regex")]
+public sealed class RegexSplitNode : TryValueComputeNode<string[]>, IHasTextProperty
+{
+    [NodeProperty("text")]
+    public string Text { get; set; } = string.Empty;
+
+    public ValueInput<string?> Input = new("String");
+    public ValueInput<RegexOptions> Options = new();
+
+    protected override Result<string[]> TryComputeValue(PulseContext c)
+    {
+        var input = Input.Read(c);
+        if (input is null) return Result<string[]>.Fail();
+
+        try
+        {
+            var options = Options.Read(c);
+            return Regex.Split(input, Text, options);
+        }
+        catch
+        {
+            return Result<string[]>.Fail();
+        }
+    }
+}
+
+[Node("Match Success", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class MatchSuccessNode() : SimpleValueTransformNode<Match?, bool>(m => m?.Success ?? false);
+
+[Node("Match Value", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class MatchValueNode() : SimpleValueTransformNode<Match?, string>(m => m?.Value ?? string.Empty);
+
+[Node("Match Index", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class MatchIndexNode() : SimpleValueTransformNode<Match?, int>(m => m?.Index ?? -1);
+
+[Node("Match Length", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class MatchLengthNode() : SimpleValueTransformNode<Match?, int>(m => m?.Length ?? 0);
+
+[Node("Match Groups", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class MatchGroupsNode() : SimpleValueTransformNode<Match?, GroupCollection?>(m => m?.Groups);
+
+[Node("Get Group By Index", "Strings/Regex")]
+public sealed class GetGroupByIndexNode : TryValueComputeNode<Group>
+{
+    public ValueInput<GroupCollection?> Groups = new();
+    public ValueInput<int> Index = new();
+
+    protected override Result<Group> TryComputeValue(PulseContext c)
+    {
+        var groups = Groups.Read(c);
+        var index = Index.Read(c);
+
+        if (groups is null || index < 0 || index >= groups.Count)
+            return Result<Group>.Fail();
+
+        return groups[index];
+    }
+}
+
+[Node("Get Group By Name", "Strings/Regex")]
+public sealed class GetGroupByNameNode : TryValueComputeNode<Group>
+{
+    public ValueInput<GroupCollection?> Groups = new();
+    public ValueInput<string> Name = new();
+
+    protected override Result<Group> TryComputeValue(PulseContext c)
+    {
+        var groups = Groups.Read(c);
+        var name = Name.Read(c);
+
+        if (groups is null || string.IsNullOrEmpty(name))
+            return Result<Group>.Fail();
+
+        try
+        {
+            var group = groups[name];
+            return group.Success ? group : Result<Group>.Fail();
+        }
+        catch
+        {
+            return Result<Group>.Fail();
+        }
+    }
+}
+
+[Node("Group Collection Count", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class GroupCollectionCountNode() : SimpleValueTransformNode<GroupCollection?, int>(g => g?.Count ?? 0);
+
+[Node("Group Success", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class GroupSuccessNode() : SimpleValueTransformNode<Group?, bool>(g => g?.Success ?? false);
+
+[Node("Group Value", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class GroupValueNode() : SimpleValueTransformNode<Group?, string>(g => g?.Value ?? string.Empty);
+
+[Node("Group Index", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class GroupIndexNode() : SimpleValueTransformNode<Group?, int>(g => g?.Index ?? -1);
+
+[Node("Group Length", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class GroupLengthNode() : SimpleValueTransformNode<Group?, int>(g => g?.Length ?? 0);
+
+[Node("Group Name", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class GroupNameNode() : SimpleValueTransformNode<Group?, string>(g => g?.Name ?? string.Empty);
+
+[Node("Group Captures", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class GroupCapturesNode() : SimpleValueTransformNode<Group?, CaptureCollection?>(g => g?.Captures);
+
+[Node("Get Capture By Index", "Strings/Regex")]
+public sealed class GetCaptureByIndexNode : TryValueComputeNode<Capture>
+{
+    public ValueInput<CaptureCollection?> Captures = new();
+    public ValueInput<int> Index = new();
+
+    protected override Result<Capture> TryComputeValue(PulseContext c)
+    {
+        var captures = Captures.Read(c);
+        var index = Index.Read(c);
+
+        if (captures is null || index < 0 || index >= captures.Count)
+            return Result<Capture>.Fail();
+
+        return captures[index];
+    }
+}
+
+[Node("Capture Collection Count", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class CaptureCollectionCountNode() : SimpleValueTransformNode<CaptureCollection?, int>(c => c?.Count ?? 0);
+
+[Node("Capture Value", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class CaptureValueNode() : SimpleValueTransformNode<Capture?, string>(c => c?.Value ?? string.Empty);
+
+[Node("Capture Index", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class CaptureIndexNode() : SimpleValueTransformNode<Capture?, int>(c => c?.Index ?? -1);
+
+[Node("Capture Length", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class CaptureLengthNode() : SimpleValueTransformNode<Capture?, int>(c => c?.Length ?? 0);
+
+[Node("Get Match By Index", "Strings/Regex")]
+public sealed class GetMatchByIndexNode : TryValueComputeNode<Match>
+{
+    public ValueInput<MatchCollection?> Matches = new();
+    public ValueInput<int> Index = new();
+
+    protected override Result<Match> TryComputeValue(PulseContext c)
+    {
+        var matches = Matches.Read(c);
+        var index = Index.Read(c);
+
+        if (matches is null || index < 0 || index >= matches.Count)
+            return Result<Match>.Fail();
+
+        return matches[index];
+    }
+}
+
+[Node("Match Collection Count", "Strings/Regex")]
+[NodeCollapsed]
+public sealed class MatchCollectionCountNode() : SimpleValueTransformNode<MatchCollection?, int>(m => m?.Count ?? 0);
