@@ -2,101 +2,21 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Threading.Tasks;
-using VRCOSC.App.SDK.VRChat;
-using VRCOSC.App.SDK.VRChat.Logs.Handlers;
 
 namespace VRCOSC.App.Nodes.Types.Events;
 
 [Node("On Start", "Events")]
-public sealed class OnStartNode : Node, INodeEventHandler
+public sealed class OnStartNode : Node
 {
-    public FlowContinuation OnStart = new();
+    public FlowContinuation Next = new();
 
-    protected override Task Process(PulseContext c) => OnStart.Execute(c);
-
-    public Task<bool> HandleNodeStart(PulseContext c) => Task.FromResult(true);
+    protected override Task Process(PulseContext c) => Next.Execute(c);
 }
 
 [Node("On Stop", "Events")]
-public sealed class OnStopNode : Node, INodeEventHandler
+public sealed class OnStopNode : Node
 {
-    public FlowContinuation OnStop = new();
+    public FlowContinuation Next = new();
 
-    protected override Task Process(PulseContext c) => OnStop.Execute(c);
-
-    public Task<bool> HandleNodeStop(PulseContext c) => Task.FromResult(true);
-}
-
-[Node("On Instance Joined", "Events")]
-public sealed class OnInstanceJoinedNode : Node, INodeEventHandler
-{
-    public FlowContinuation OnInstanceJoined = new();
-
-    public ValueOutput<Instance> Instance = new();
-
-    protected override Task Process(PulseContext c) => OnInstanceJoined.Execute(c);
-
-    public Task<bool> HandleOnInstanceJoined(PulseContext c, InstanceJoinedClientEvent eventArgs)
-    {
-        Instance.Write(eventArgs.Instance, c);
-        return Task.FromResult(true);
-    }
-}
-
-[Node("On Instance Left", "Events")]
-public sealed class OnInstanceLeftNode : Node, INodeEventHandler
-{
-    public FlowContinuation OnInstanceLeft = new();
-
-    public ValueOutput<Instance> Instance = new();
-
-    protected override Task Process(PulseContext c) => OnInstanceLeft.Execute(c);
-
-    public Task<bool> HandleOnInstanceLeft(PulseContext c, InstanceLeftClientEvent eventArgs)
-    {
-        Instance.Write(eventArgs.Instance, c);
-        return Task.FromResult(true);
-    }
-}
-
-[Node("On User Joined", "Events")]
-public sealed class OnUserJoinedNode : Node, INodeEventHandler
-{
-    public FlowContinuation OnUserJoined = new();
-
-    public ValueOutput<User> User = new();
-
-    protected override Task Process(PulseContext c) => OnUserJoined.Execute(c);
-
-    public Task<bool> HandleOnUserJoined(PulseContext c, UserJoinedClientEvent eventArgs)
-    {
-        User.Write(eventArgs.User, c);
-        return Task.FromResult(true);
-    }
-}
-
-[Node("On User Left", "Events")]
-public sealed class OnUserLeftNode : Node, INodeEventHandler
-{
-    public FlowContinuation OnUserLeft = new();
-
-    public ValueOutput<User> User = new();
-
-    protected override Task Process(PulseContext c) => OnUserLeft.Execute(c);
-
-    public Task<bool> HandleOnUserLeft(PulseContext c, UserLeftClientEvent eventArgs)
-    {
-        User.Write(eventArgs.User, c);
-        return Task.FromResult(true);
-    }
-}
-
-[Node("On Avatar PreChange", "Events")]
-public sealed class OnAvatarPreChangeNode : Node, INodeEventHandler
-{
-    public FlowContinuation OnAvatarPreChange = new();
-
-    protected override Task Process(PulseContext c) => OnAvatarPreChange.Execute(c);
-
-    public Task<bool> HandleOnAvatarPreChange(PulseContext c, AvatarPreChangeClientEvent eventArgs) => Task.FromResult(true);
+    protected override Task Process(PulseContext c) => Next.Execute(c);
 }
