@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Security.Principal;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -71,7 +72,7 @@ internal class AppManager : IVRCClientEventHandler
 
     private Repeater vrchatCheckTask = null!;
 
-    private ConcurrentDictionary<ParameterDefinition, VRChatParameter> parameterCache { get; } = [];
+    private ConcurrentDictionary<ParameterDefinition, (DateTime Timestamp, VRChatParameter Parameter)> parameterCache { get; } = [];
 
     public AppManager()
     {
@@ -198,8 +199,15 @@ internal class AppManager : IVRCClientEventHandler
         }
     }
 
-    public VRChatParameter? GetParameter<T>(string name) => parameterCache.GetValueOrDefault(new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>()));
-    public VRChatParameter? GetParameter(string name) => parameterCache.SingleOrDefault(p => p.Value.Name == name).Value;
+    public VRChatParameter? GetParameter<T>(string name) => parameterCache.GetValueOrDefault(new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>())).Parameter;
+    public VRChatParameter? GetParameter(string name) => parameterCache.SingleOrDefault(p => p.Value.Parameter.Name == name).Value.Parameter;
+
+    public TemplatedVRChatParameter? GetParameter<T>(Regex pattern)
+    {
+        var type = ParameterTypeFactory.CreateFrom<T>();
+        var parameter = parameterCache.Where(p => p.Key.Type == type).OrderByDescending(p => p.Value.Timestamp).FirstOrDefault(p => pattern.IsMatch(p.Value.Parameter.Name)).Value.Parameter;
+        return parameter is not null ? new TemplatedVRChatParameter(pattern, parameter) : null;
+    }
 
     public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
@@ -250,7 +258,7 @@ internal class AppManager : IVRCClientEventHandler
             if (message.IsAvatarParameter)
             {
                 var parameter = new VRChatParameter(message);
-                parameterCache[parameter.GetDefinition()] = parameter;
+                parameterCache[parameter.GetDefinition()] = (DateTime.Now, parameter);
 
                 if (Enum.TryParse<VRChatAvatarParameter>(parameter.Name, out _))
                     ModuleManager.GetInstance().PlayerUpdate();
@@ -285,7 +293,7 @@ internal class AppManager : IVRCClientEventHandler
 
             foreach (var parameter in parameters)
             {
-                parameterCache[parameter.GetDefinition()] = parameter;
+                parameterCache[parameter.GetDefinition()] = (DateTime.Now, parameter);
             }
 
             VRChatClient.UpdateAvatar(new Avatar(avatarId, avatarConfig.Name, parameters.Select(x => x.GetDefinition()).ToArray()));
