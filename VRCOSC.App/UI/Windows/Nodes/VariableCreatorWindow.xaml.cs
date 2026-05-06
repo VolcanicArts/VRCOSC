@@ -2,6 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -40,7 +42,7 @@ public partial class VariableCreatorWindow : IManagedWindow
 
     private void updateText(string text)
     {
-        if (!string.IsNullOrWhiteSpace(text) && TypeResolver.TryConstruct(text, out var constructedType) && (!(VariablePersistent && constructedType.IsClass) || constructedType == typeof(string)))
+        if (!string.IsNullOrWhiteSpace(text) && TypeResolver.TryConstruct(text, out var constructedType) && (!VariablePersistent || isSerializable(constructedType)))
         {
             FormedTypeText.Text = constructedType.GetFriendlyName();
             FormedTypeText.FontStyle = FontStyles.Normal;
@@ -54,6 +56,30 @@ public partial class VariableCreatorWindow : IManagedWindow
             CreateNodeButton.Visibility = Visibility.Collapsed;
             VariableType = null;
         }
+    }
+
+    private static bool isSerializable(Type type)
+    {
+        if (type == typeof(string))
+            return true;
+
+        if (type.IsValueType)
+            return true;
+
+        if (type.IsGenericType)
+        {
+            var genericTypeDef = type.GetGenericTypeDefinition();
+
+            if (genericTypeDef == typeof(List<>) ||
+                genericTypeDef == typeof(Dictionary<,>))
+            {
+                return type.GetGenericArguments().All(isSerializable);
+            }
+        }
+
+        if (type.IsArray) return isSerializable(type.GetElementType()!);
+
+        return false;
     }
 
     private void CreateNodeButton_OnClick(object sender, RoutedEventArgs e)
