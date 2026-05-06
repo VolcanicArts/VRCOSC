@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.Nodes.Types;
@@ -21,7 +22,7 @@ public class PulseContext
 
     internal readonly NodeGraph Graph;
     internal readonly PulseContext? BaseContext;
-    private Dictionary<Guid, IRef[]> memory { get; } = [];
+    internal Dictionary<Guid, IRef[]> Memory { get; } = [];
     private Dictionary<Guid, Dictionary<IStore, IRef>> stores { get; } = [];
     private Dictionary<string, IRef> keyedStores { get; } = [];
     private Stack<Node> nodes { get; } = [];
@@ -45,7 +46,7 @@ public class PulseContext
 
     internal Node Peek() => nodes.Peek();
 
-    internal bool HasMemory(Guid nodeId) => memory.ContainsKey(nodeId) || (BaseContext?.HasMemory(nodeId) ?? false);
+    internal bool HasMemory(Guid nodeId) => Memory.ContainsKey(nodeId) || (BaseContext?.HasMemory(nodeId) ?? false);
 
     internal Task Execute(FlowCall call) => processNext(call, true);
 
@@ -53,9 +54,10 @@ public class PulseContext
 
     internal VRChatClient GetClient() => AppManager.GetInstance().VRChatClient;
 
-    internal string GetSpeechText() => Graph.CurrentSpeechText;
+    internal string? GetSpeechText() => Graph.CurrentSpeechText;
 
     internal VRChatParameter? GetParameter<T>(string name) => AppManager.GetInstance().GetParameter<T>(name);
+    internal TemplatedVRChatParameter? GetParameter<T>(Regex pattern) => AppManager.GetInstance().GetParameter<T>(pattern);
 
     private Task processNext(IFlow next, bool scope)
     {
@@ -71,7 +73,7 @@ public class PulseContext
         var metadata = Graph.Nodes[nodeId].Metadata;
         var hasVariableSize = metadata.ValueOutputHasVariableSize;
 
-        if (memory.TryGetValue(nodeId, out var refs))
+        if (Memory.TryGetValue(nodeId, out var refs))
         {
             if (hasVariableSize && index >= metadata.OutputsCount - 1)
             {
@@ -92,12 +94,12 @@ public class PulseContext
 
     private void writeValue<T>(Guid nodeId, int index, T value)
     {
-        ((Ref<T>)memory[nodeId][index]).Value = value;
+        ((Ref<T>)Memory[nodeId][index]).Value = value;
     }
 
     private void writeValueList<T>(Guid nodeId, int index, int listIndex, T value)
     {
-        ((Ref<T[]>)memory[nodeId][index]).Value[listIndex] = value;
+        ((Ref<T[]>)Memory[nodeId][index]).Value[listIndex] = value;
     }
 
     internal T Read<T>(ValueInput<T> valueInput)
@@ -209,7 +211,7 @@ public class PulseContext
             }
         }
 
-        memory[node.Id] = valueOutputRefs;
+        Memory[node.Id] = valueOutputRefs;
     }
 }
 
@@ -230,4 +232,6 @@ public class Ref<T> : IRef
 
     public object? GetValue() => Value;
     public Type GetValueType() => typeof(T);
+
+    public override bool Equals(object? obj) => obj is Ref<T> otherRef && EqualityComparer<T>.Default.Equals(Value, otherRef.Value);
 }

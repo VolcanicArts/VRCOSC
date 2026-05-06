@@ -68,6 +68,11 @@ public static class NodeMetadataBuilder
         var inputMetadata = getIoMetadata(valueInputs, node);
         var outputMetadata = getIoMetadata(valueOutputs, node);
 
+        var isContinuous = type.GetInterfaces().Any(i => i == typeof(IContinuousNode));
+
+        if (isContinuous && (isFlowInput || isFlowOutput))
+            throw new Exception($"Cannot build {nameof(NodeMetadata)} as {nameof(IContinuousNode)} is only allowed on value-only nodes");
+
         var metadata = new NodeMetadata
         {
             Title = nodeAttribute.Title,
@@ -88,6 +93,7 @@ public static class NodeMetadataBuilder
             ForceReprocess = type.HasCustomAttribute<NodeForceReprocessAttribute>(),
             Properties = properties,
             IsActiveUpdate = type.GetInterfaces().Any(i => i == typeof(IActiveUpdateNode)),
+            IsContinuous = isContinuous,
             NoCancel = type.HasCustomAttribute<NodeNoCancelAttribute>()
         };
 
@@ -147,6 +153,7 @@ public sealed class NodeMetadata
     public bool ValueOutputHasVariableSize { get; internal set; }
     public bool ForceReprocess { get; internal set; }
     public bool IsActiveUpdate { get; internal set; }
+    public bool IsContinuous { get; internal set; }
     public bool NoCancel { get; internal set; }
 
     public List<PropertyInfo> Properties { get; set; } = [];

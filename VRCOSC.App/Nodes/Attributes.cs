@@ -1,4 +1,4 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -7,7 +7,6 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FontAwesome6;
 using VRCOSC.App.SDK.Utils;
-using VRCOSC.App.SDK.VRChat.Logs.Handlers;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
@@ -121,28 +120,14 @@ public interface IStore;
 
 public class ContextStore<T> : IStore
 {
-    public T Read(PulseContext c)
-    {
-        return c.ReadStore(this);
-    }
-
-    public void Write(T value, PulseContext c)
-    {
-        c.WriteStore(this, value);
-    }
+    public T Read(PulseContext c) => c.ReadStore(this);
+    public void Write(T value, PulseContext c) => c.WriteStore(this, value);
 }
 
 public class GlobalStore<T> : IStore
 {
-    public T Read(PulseContext c)
-    {
-        return c.Graph.ReadStore(this, c);
-    }
-
-    public void Write(T value, PulseContext c)
-    {
-        c.Graph.WriteStore(this, value, c);
-    }
+    public T Read(PulseContext c) => c.Graph.ReadStore(this, c);
+    public void Write(T value, PulseContext c) => c.Graph.WriteStore(this, value, c);
 }
 
 public interface IValueInput : INodeAttribute
@@ -166,10 +151,7 @@ public class ValueInput<T> : IValueInput
         DefaultValue = defaultValue;
     }
 
-    public T Read(PulseContext c)
-    {
-        return c.Read(this);
-    }
+    public T Read(PulseContext c) => c.Read(this);
 }
 
 public class ValueOutput<T> : IValueOutput
@@ -182,10 +164,7 @@ public class ValueOutput<T> : IValueOutput
         Name = name.ToSentence();
     }
 
-    public void Write(T value, PulseContext c)
-    {
-        c.Write(this, value);
-    }
+    public void Write(T value, PulseContext c) => c.Write(this, value);
 }
 
 public class ValueInputList<T> : IValueInput
@@ -199,10 +178,7 @@ public class ValueInputList<T> : IValueInput
         Name = name.ToSentence();
     }
 
-    public List<T> Read(PulseContext c)
-    {
-        return c.Read(this);
-    }
+    public List<T> Read(PulseContext c) => c.Read(this);
 }
 
 public class ValueOutputList<T> : IValueOutput
@@ -215,15 +191,9 @@ public class ValueOutputList<T> : IValueOutput
         Name = name.ToSentence();
     }
 
-    public int Length(PulseContext c)
-    {
-        return c.Peek().VariableSize.ValueOutputSize;
-    }
+    public int Length(PulseContext c) => c.Peek().VariableSize.ValueOutputSize;
 
-    public void Write(int index, T value, PulseContext c)
-    {
-        c.Write(this, index, value);
-    }
+    public void Write(int index, T value, PulseContext c) => c.Write(this, index, value);
 }
 
 public interface IHasTextProperty
@@ -253,19 +223,6 @@ public interface IHasVariableReference
 }
 
 public record ImpulseDefinition(string Name, object[] Values);
-
-internal interface INodeEventHandler
-{
-    public Task<bool> HandleNodeStart(PulseContext c) => Task.FromResult(false);
-    public Task<bool> HandleNodeStop(PulseContext c) => Task.FromResult(false);
-    public Task<bool> HandlePartialSpeechResult(PulseContext c, string result) => Task.FromResult(false);
-    public Task<bool> HandleFinalSpeechResult(PulseContext c, string result) => Task.FromResult(false);
-    public Task<bool> HandleOnInstanceJoined(PulseContext c, InstanceJoinedClientEvent eventArgs) => Task.FromResult(false);
-    public Task<bool> HandleOnInstanceLeft(PulseContext c, InstanceLeftClientEvent eventArgs) => Task.FromResult(false);
-    public Task<bool> HandleOnUserJoined(PulseContext c, UserJoinedClientEvent eventArgs) => Task.FromResult(false);
-    public Task<bool> HandleOnUserLeft(PulseContext c, UserLeftClientEvent eventArgs) => Task.FromResult(false);
-    public Task<bool> HandleOnAvatarPreChange(PulseContext c, AvatarPreChangeClientEvent eventArgs) => Task.FromResult(false);
-}
 
 internal interface IDisplayNode
 {
