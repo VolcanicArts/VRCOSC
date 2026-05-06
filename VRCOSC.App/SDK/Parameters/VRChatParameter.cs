@@ -161,7 +161,12 @@ public record TemplatedVRChatParameter : VRChatParameter
     /// <summary>
     /// Gets a wildcard value as a specified type <typeparamref name="T"/> at <paramref name="position"/>
     /// </summary>
-    public T GetWildcard<T>(int position) => wildcards[position].GetValue<T>();
+    public T GetWildcard<T>(int position)
+    {
+        if (position < 0 || position >= wildcards.Count) return default!;
+
+        return wildcards[position].GetValue<T>();
+    }
 
     /// <summary>
     /// Checks a wildcard's value type <typeparamref name="T"/> at <paramref name="position"/>
@@ -173,7 +178,12 @@ public record TemplatedVRChatParameter : VRChatParameter
     /// Checks a wildcard's value type <paramref name="type"/> at <paramref name="position"/>
     /// </summary>
     /// <returns>True if the value is exactly the type passed, otherwise false</returns>
-    public bool IsWildcardType(Type type, int position) => wildcards[position].IsValueType(type);
+    public bool IsWildcardType(Type type, int position)
+    {
+        if (position < 0 || position >= wildcards.Count) return false;
+
+        return wildcards[position].IsValueType(type);
+    }
 }
 
 public record RegisteredParameter : TemplatedVRChatParameter
