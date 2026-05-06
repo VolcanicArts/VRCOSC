@@ -92,7 +92,7 @@ public class NodePreset
                         {
                             if (tryConvertToTargetType(propertyValue, property.PropertyType, out var convertedValue))
                             {
-                                if (propertyKey == "variable_id")
+                                if (propertyKey == "variable_id" && Variables.Count > 0)
                                     convertedValue = variableIdMapping[(Guid)convertedValue!];
 
                                 property.SetValue(node, convertedValue);
