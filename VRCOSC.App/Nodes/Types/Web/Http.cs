@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Web;
 
-public abstract class HttpNode(HttpMethod method) : TryActionNode
+public abstract class HttpNode(HttpMethod method) : TryActionAsyncNode
 {
     private readonly HttpClient client = new();
 
@@ -24,7 +24,7 @@ public abstract class HttpNode(HttpMethod method) : TryActionNode
     public ValueOutput<string> ErrorMessage = new();
     public ValueOutput<Dictionary<string, string>> ResponseHeaders = new("Headers");
 
-    protected override async Task<bool> TryTask(PulseContext c)
+    protected override async Task<bool> TryActionAsync(PulseContext c)
     {
         var url = URL.Read(c);
         var headers = Headers.Read(c);

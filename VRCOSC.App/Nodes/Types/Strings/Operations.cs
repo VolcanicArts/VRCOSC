@@ -3,7 +3,7 @@
 
 using System;
 using System.Globalization;
-using System.Threading.Tasks;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Strings;
 
@@ -129,24 +129,10 @@ public sealed class StringStartsWithNode : ValueComputeNode<bool>
 }
 
 [Node("Parse", "Strings")]
-public sealed class StringParseNode<T> : Node, IFlowInput where T : IParsable<T>
+public sealed class StringParseNode<T> : TryValueComputeNode<T> where T : IParsable<T>
 {
-    public FlowContinuation Success = new("On Success");
-    public FlowContinuation Failed = new("On Failed");
-
     public ValueInput<string?> Input = new();
     public ValueInput<CultureInfo> Culture = new("Culture", CultureInfo.CurrentCulture);
-    public ValueOutput<T> Output = new();
 
-    protected override Task Process(PulseContext c)
-    {
-        if (T.TryParse(Input.Read(c), Culture.Read(c), out var parsedInput))
-        {
-            Output.Write(parsedInput, c);
-            return Success.Execute(c);
-        }
-
-        Output.Write(default!, c);
-        return Failed.Execute(c);
-    }
+    protected override Result<T> TryComputeValue(PulseContext c) => T.TryParse(Input.Read(c), Culture.Read(c), out var parsedInput) ? parsedInput : Result<T>.Fail();
 }

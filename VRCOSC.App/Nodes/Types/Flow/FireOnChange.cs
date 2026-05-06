@@ -30,7 +30,7 @@ public sealed class FireOnChangeMultiNode<T> : Node
 {
     public override string DisplayName => "Fire On Change";
 
-    public FlowContinuation Next = new("Next");
+    public FlowContinuation Next = new();
 
     public GlobalStore<List<T>> PrevValues = new();
 
@@ -59,7 +59,7 @@ public sealed class FireOnChangeEnumerableNode<T> : Node, IActiveUpdateNode
 
     public int UpdateOffset => 0;
 
-    public FlowContinuation Next = new("Next");
+    public FlowContinuation Next = new();
 
     public GlobalStore<IEnumerable<T>> EnumerableStore = new();
 

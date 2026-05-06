@@ -19,7 +19,8 @@ public sealed class ExponentialNode<T>() : SimpleValueTransformNode<T>(T.Exp) wh
 public sealed class NegateNode<T>() : SimpleValueTransformNode<T>(v => T.Abs(v) * -T.One) where T : INumberBase<T>;
 
 [Node("Power", "Math", EFontAwesomeIcon.Solid_Superscript)]
-public sealed class PowerNode<T>() : SimpleResultComputeNode<T>(T.Pow) where T : IFloatingPointIeee754<T>;
+[NodeCollapsed]
+public sealed class PowerNode<T>() : SimpleResultComputeNode<T>(T.Pow) where T : IPowerFunctions<T>;
 
 [Node("Square Root", "Math", EFontAwesomeIcon.Solid_SquareRootVariable)]
 [NodeCollapsed]

@@ -78,34 +78,26 @@ public class JsonPathGetValueNode<T>() : TryValueComputeNode<T>(typeof(T).GetFri
     public ValueInput<string> Path = new();
     public ValueInput<JsonNode> Json = new();
 
-    protected override bool TryComputeValue(out T value, PulseContext c)
+    protected override Result<T> TryComputeValue(PulseContext c)
     {
         var path = Path.Read(c);
         var json = Json.Read(c);
 
         if (string.IsNullOrWhiteSpace(path))
-        {
-            value = default!;
-            return false;
-        }
+            return Result<T>.Fail();
 
         if (!JsonPath.TryParse(path, out var jsonPath))
-        {
-            value = default!;
-            return false;
-        }
+            return Result<T>.Fail();
 
         var result = jsonPath.Evaluate(json);
 
         try
         {
-            value = result.As<T>()!;
-            return true;
+            return result.As<T>()!;
         }
         catch
         {
-            value = default!;
-            return false;
+            return Result<T>.Fail();
         }
     }
 }

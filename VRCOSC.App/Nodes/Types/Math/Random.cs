@@ -7,12 +7,4 @@ using System.Numerics;
 namespace VRCOSC.App.Nodes.Types.Math;
 
 [Node("Random", "Math")]
-public sealed class RandomNode<T> : ValueComputeNode<T> where T : INumberBase<T>
-{
-    private readonly Random random = new();
-
-    public ValueInput<T> Min = new();
-    public ValueInput<T> Max = new();
-
-    protected override T ComputeValue(PulseContext c) => Utils.Interpolation.Map(random.NextDouble(), 0d, 1d, Min.Read(c), Max.Read(c));
-}
+public sealed class RandomNode<T>() : SimpleResultComputeNode<T>((min, max) => Utils.Interpolation.Map(Random.Shared.NextDouble(), 0d, 1d, min, max), "Min", "Max") where T : INumberBase<T>;

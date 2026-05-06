@@ -24,79 +24,57 @@ public sealed class DictionaryCountNode<TKey, TValue> : Node where TKey : notnul
 }
 
 [Node("Dictionary Key To Value", "Collections")]
-public sealed class DictionaryKeyToValueNode<TKey, TValue> : Node where TKey : notnull
+public sealed class DictionaryKeyToValueNode<TKey, TValue>() : ValueComputeNode<TValue>("Value") where TKey : notnull
 {
     public ValueInput<Dictionary<TKey, TValue>> Dictionary = new();
     public ValueInput<TKey> Key = new();
-    public ValueOutput<TValue> Value = new();
 
-    protected override Task Process(PulseContext c)
+    protected override TValue ComputeValue(PulseContext c)
     {
         var dictionary = Dictionary.Read(c);
-        if (dictionary is null) return Task.CompletedTask;
+        if (dictionary is null) return default!;
 
         var key = Key.Read(c);
-        if (key is null) return Task.CompletedTask;
+        if (key is null) return default!;
 
-        Value.Write(dictionary.TryGetValue(key, out var value) ? value : default!, c);
-        return Task.CompletedTask;
+        return dictionary.TryGetValue(key, out var value) ? value : default!;
     }
 }
 
 [Node("Dictionary Add Element", "Collections")]
-public sealed class DictionaryElementAddNode<TKey, TValue> : Node, IFlowInput where TKey : notnull
+public sealed class DictionaryElementAddNode<TKey, TValue> : ActionValueComputeNode<Dictionary<TKey, TValue>?> where TKey : notnull
 {
-    public FlowContinuation Next = new("Next");
-
-    public ValueInput<Dictionary<TKey, TValue>> Dictionary = new();
+    public ValueInput<Dictionary<TKey, TValue>?> Dictionary = new();
     public ValueInput<KeyValuePair<TKey, TValue>> Element = new();
-    public ValueOutput<Dictionary<TKey, TValue>> Result = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Dictionary<TKey, TValue>? ComputeValue(PulseContext c)
     {
         var dictionary = Dictionary.Read(c);
-
-        if (dictionary is null)
-        {
-            await Next.Execute(c);
-            return;
-        }
+        if (dictionary is null) return null;
 
         var element = Element.Read(c);
 
         dictionary = dictionary.ToDictionary(pair => pair.Key, pair => pair.Value);
         dictionary.TryAdd(element.Key, element.Value);
-        Result.Write(dictionary, c);
-
-        await Next.Execute(c);
+        return dictionary;
     }
 }
 
 [Node("Dictionary Remove Key", "Collections")]
-public sealed class DictionaryKeyRemoveNode<TKey, TValue> : Node, IFlowInput where TKey : notnull
+public sealed class DictionaryKeyRemoveNode<TKey, TValue> : ActionValueComputeNode<Dictionary<TKey, TValue>?> where TKey : notnull
 {
-    public FlowContinuation Next = new("Next");
-
-    public ValueInput<Dictionary<TKey, TValue>> Dictionary = new();
+    public ValueInput<Dictionary<TKey, TValue>?> Dictionary = new();
     public ValueInput<TKey> Key = new();
-    public ValueOutput<Dictionary<TKey, TValue>> Result = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override Dictionary<TKey, TValue>? ComputeValue(PulseContext c)
     {
         var dictionary = Dictionary.Read(c);
-
-        if (dictionary is null)
-        {
-            await Next.Execute(c);
-            return;
-        }
+        if (dictionary is null) return null;
 
         var key = Key.Read(c);
 
         dictionary = dictionary.ToDictionary(pair => pair.Key, pair => pair.Value);
         dictionary.Remove(key);
-        Result.Write(dictionary, c);
-
-        await Next.Execute(c);
+        return dictionary;
     }
 }

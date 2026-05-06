@@ -1,35 +1,14 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading.Tasks;
-
 namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Relay", "Utility")]
-public sealed class RelayNode<T> : Node
-{
-    public ValueInput<T> Input = new();
-    public ValueOutput<T> Output = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Output.Write(Input.Read(c), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class RelayNode<T>() : SimpleValueTransformNode<T>(v => v);
 
 [Node("Update Relay", "Utility")]
 [NodeCollapsed]
-public sealed class UpdateRelayNode<T> : UpdateNode<T>
+public sealed class UpdateRelayNode<T>() : SimpleValueTransformNode<T>(v => v), IContinuousNode
 {
-    public ValueInput<T> Input = new();
-    public ValueOutput<T> Output = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Output.Write(Input.Read(c), c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<T> GetValue(PulseContext c) => Task.FromResult(Input.Read(c));
+    public int UpdateOffset => 0;
 }

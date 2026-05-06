@@ -27,7 +27,7 @@ public sealed class PerlinNoise2DNode() : PerlinNoiseNode<Vector2>((n, v) => n.N
     public override string DisplayName => "Perlin Noise 2D";
 }
 
-[Node("2D", "Math/Noise/Perlin")]
+[Node("3D", "Math/Noise/Perlin")]
 public sealed class PerlinNoise3DNode() : PerlinNoiseNode<Vector3>((n, v) => n.Noise(v))
 {
     public override string DisplayName => "Perlin Noise 3D";

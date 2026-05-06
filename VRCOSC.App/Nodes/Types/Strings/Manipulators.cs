@@ -3,7 +3,6 @@
 
 using System;
 using System.Globalization;
-using System.Threading.Tasks;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Strings;
@@ -17,36 +16,31 @@ public enum ScrollDirection
 }
 
 [Node("String Scroll", "Strings")]
-public sealed class StringScrollNode : Node, IFlowInput
+public sealed class StringScrollNode : ActionValueComputeNode<string>
 {
-    public FlowContinuation Next = new("Next");
-
     public ValueInput<string> Input = new();
-    public ValueInput<int?> TruncateLen = new("Truncate Length");
-    public ValueInput<ScrollDirection> ScrollDir = new("Scroll Direction");
-    public ValueInput<string> JoinString = new("Join String");
-    public ValueInput<bool> OnlyScrollWhenTruncated = new("Only Scroll When Truncated");
-
-    public ValueOutput<string> Result = new();
+    public ValueInput<int?> TruncateLength = new();
+    public ValueInput<ScrollDirection> ScrollDirection = new();
+    public ValueInput<string> JoinString = new();
+    public ValueInput<bool> OnlyScrollWhenTruncated = new();
 
     public GlobalStore<int> CurrentIndex = new();
     public GlobalStore<bool> BounceDirection = new();
     public GlobalStore<ScrollDirection> PreviousScrollDirection = new();
     public GlobalStore<bool> PreviousOnlyScrollWhenTruncated = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override string ComputeValue(PulseContext c)
     {
         var input = Input.Read(c);
 
         if (string.IsNullOrWhiteSpace(input))
         {
             CurrentIndex.Write(0, c);
-            Result.Write(string.Empty, c);
-            return;
+            return string.Empty;
         }
 
-        var truncateLength = TruncateLen.Read(c) ?? -1;
-        var scrollDirection = ScrollDir.Read(c);
+        var truncateLength = TruncateLength.Read(c) ?? -1;
+        var scrollDirection = ScrollDirection.Read(c);
         var joinString = JoinString.Read(c);
         var onlyScrollWhenTruncated = OnlyScrollWhenTruncated.Read(c);
 
@@ -55,7 +49,7 @@ public sealed class StringScrollNode : Node, IFlowInput
         var previousScrollDirection = PreviousScrollDirection.Read(c);
         var previousOnlyScrollWhenTruncated = PreviousOnlyScrollWhenTruncated.Read(c);
 
-        if (previousScrollDirection != ScrollDirection.Bounce && scrollDirection == ScrollDirection.Bounce)
+        if (previousScrollDirection != Strings.ScrollDirection.Bounce && scrollDirection == Strings.ScrollDirection.Bounce)
             currentIndex = 0;
 
         previousScrollDirection = scrollDirection;
@@ -69,13 +63,13 @@ public sealed class StringScrollNode : Node, IFlowInput
         var formattedValueInfo = new StringInfo(input);
 
         var willTruncate = truncateLength >= 0 && formattedValueInfo.LengthInTextElements > truncateLength;
-        var willScroll = (!onlyScrollWhenTruncated || willTruncate) && scrollDirection != ScrollDirection.None;
+        var willScroll = (!onlyScrollWhenTruncated || willTruncate) && scrollDirection != Strings.ScrollDirection.None;
 
         if (!willScroll) currentIndex = 0;
 
         var stringInfo = new StringInfo(input);
 
-        if (willScroll && scrollDirection == ScrollDirection.Bounce && onlyScrollWhenTruncated)
+        if (willScroll && scrollDirection == Strings.ScrollDirection.Bounce && onlyScrollWhenTruncated)
         {
             var charsLeft = bounceDirection ? stringInfo.LengthInTextElements - currentIndex - truncateLength : currentIndex;
 
@@ -90,21 +84,21 @@ public sealed class StringScrollNode : Node, IFlowInput
         }
         else
         {
-            if (willScroll && scrollDirection != ScrollDirection.Bounce)
+            if (willScroll && scrollDirection != Strings.ScrollDirection.Bounce)
             {
                 if (!string.IsNullOrEmpty(joinString)) input += joinString;
 
                 switch (scrollDirection)
                 {
-                    case ScrollDirection.Right:
+                    case Strings.ScrollDirection.Right:
                         currentIndex += 1;
                         break;
 
-                    case ScrollDirection.Left:
+                    case Strings.ScrollDirection.Left:
                         currentIndex -= 1;
                         break;
 
-                    case ScrollDirection.None:
+                    case Strings.ScrollDirection.None:
                         break;
                 }
             }
@@ -114,14 +108,12 @@ public sealed class StringScrollNode : Node, IFlowInput
             input = cropAndWrapText(localStringInfo, position, truncateLength < 0 ? localStringInfo.LengthInTextElements : truncateLength);
         }
 
-        Result.Write(input, c);
-
         CurrentIndex.Write(currentIndex, c);
         BounceDirection.Write(bounceDirection, c);
         PreviousScrollDirection.Write(previousScrollDirection, c);
         PreviousOnlyScrollWhenTruncated.Write(previousOnlyScrollWhenTruncated, c);
 
-        await Next.Execute(c);
+        return input;
     }
 
     private static string cropAndWrapText(StringInfo text, int position, int maxLength)

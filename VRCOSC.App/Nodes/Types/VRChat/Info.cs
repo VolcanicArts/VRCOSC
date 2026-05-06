@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -16,8 +16,10 @@ namespace VRCOSC.App.Nodes.Types.VRChat;
 public sealed class VRChatIsOpenNode() : SimpleValueSourceNode<bool>(() => AppManager.GetInstance().VRChatClient.IsOpen, "Is Open");
 
 [Node("VRChat State Source", "VRChat")]
-public sealed class VRChatStateSourceNode : UpdateNode<bool, bool, bool, bool>
+public sealed class VRChatStateSourceNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueOutput<bool> IsOpen = new();
     public ValueOutput<bool> IsLoggedIn = new();
     public ValueOutput<bool> IsInInstance = new();
@@ -32,54 +34,24 @@ public sealed class VRChatStateSourceNode : UpdateNode<bool, bool, bool, bool>
         IsInAvatar.Write(client.IsInAvatar, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(bool, bool, bool, bool)> GetValues(PulseContext c)
-    {
-        var client = c.GetClient();
-        return Task.FromResult((LastKnownOpenState: client.IsOpen, client.IsLoggedIn, client.IsInInstance, client.IsInAvatar));
-    }
 }
 
 [Node("User Source", "VRChat")]
-public sealed class VRChatUserSourceNode : UpdateNode<User?>
+public sealed class VRChatUserSourceNode() : ValueSourceNode<User?>("User")
 {
-    public ValueOutput<User?> User = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        User.Write(c.GetClient().User, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<User?> GetValue(PulseContext c) => Task.FromResult(c.GetClient().User);
+    protected override User? ComputeValue(PulseContext c) => c.GetClient().User;
 }
 
 [Node("Avatar Source", "VRChat")]
-public sealed class VRChatAvatarSourceNode : UpdateNode<Avatar?>
+public sealed class VRChatAvatarSourceNode() : ValueSourceNode<Avatar?>("Avatar")
 {
-    public ValueOutput<Avatar?> Avatar = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Avatar.Write(c.GetClient().Avatar, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<Avatar?> GetValue(PulseContext c) => Task.FromResult(c.GetClient().Avatar);
+    protected override Avatar? ComputeValue(PulseContext c) => c.GetClient().Avatar;
 }
 
 [Node("Instance Source", "VRChat")]
-public sealed class VRChatInstanceSourceNode : UpdateNode<Instance?>
+public sealed class VRChatInstanceSourceNode() : ValueSourceNode<Instance?>("Instance")
 {
-    public ValueOutput<Instance?> Instance = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Instance.Write(c.GetClient().Instance, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<Instance?> GetValue(PulseContext c) => Task.FromResult(c.GetClient().Instance);
+    protected override Instance? ComputeValue(PulseContext c) => c.GetClient().Instance;
 }
 
 [Node("Unpack User", "VRChat/Structs/User")]
@@ -241,8 +213,10 @@ public sealed class AvatarPackNode : ValueComputeNode<Avatar?>
 }
 
 [Node("Avatar Height", "VRChat/Avatar/Info")]
-public sealed class AvatarHeightDataNode : UpdateNode<float, float, float, bool>
+public sealed class AvatarHeightDataNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueOutput<float> EyeHeight = new();
     public ValueOutput<float> EyeHeightMin = new();
     public ValueOutput<float> EyeHeightMax = new();
@@ -250,7 +224,7 @@ public sealed class AvatarHeightDataNode : UpdateNode<float, float, float, bool>
 
     protected override Task Process(PulseContext c)
     {
-        var avatar = AppManager.GetInstance().VRChatClient.Avatar;
+        var avatar = c.GetClient().Avatar;
         if (avatar is null) return Task.CompletedTask;
 
         EyeHeight.Write(avatar.EyeHeight, c);
@@ -259,14 +233,6 @@ public sealed class AvatarHeightDataNode : UpdateNode<float, float, float, bool>
         ScalingAllowed.Write(avatar.EyeHeightScalingAllowed, c);
 
         return Task.CompletedTask;
-    }
-
-    protected override Task<(float, float, float, bool)> GetValues(PulseContext c)
-    {
-        var avatar = AppManager.GetInstance().VRChatClient.Avatar;
-        if (avatar is null) return Task.FromResult((0f, 0f, 0f, false));
-
-        return Task.FromResult((avatar.EyeHeight, avatar.EyeHeightMin, avatar.EyeHeightMax, avatar.EyeHeightScalingAllowed));
     }
 }
 
@@ -304,15 +270,4 @@ public sealed class ParameterDefinitionPackNode : ValueComputeNode<ParameterDefi
 
 [Node("FPS", "VRChat")]
 [NodeCollapsed]
-public sealed class VRChatFPSNode : UpdateNode<int>
-{
-    public ValueOutput<int> FPS = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        FPS.Write((int)double.Round(c.GetClient().FPS, MidpointRounding.AwayFromZero), c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<int> GetValue(PulseContext c) => Task.FromResult((int)double.Round(c.GetClient().FPS, MidpointRounding.AwayFromZero));
-}
+public sealed class VRChatFPSNode() : SimpleValueSourceNode<int>(() => (int)double.Round(AppManager.GetInstance().VRChatClient.FPS, MidpointRounding.AwayFromZero), "FPS");

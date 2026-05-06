@@ -4,7 +4,7 @@
 namespace VRCOSC.App.Nodes.Types.VRChat;
 
 [Node("Set Avatar Eye Height", "VRChat/Avatar/Actions")]
-public sealed class AvatarSetEyeHeightNode : SimpleActionNode
+public sealed class AvatarSetEyeHeightNode : ActionNode
 {
     public ValueInput<float> Meters = new();
 

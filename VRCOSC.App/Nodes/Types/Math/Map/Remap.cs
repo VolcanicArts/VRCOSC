@@ -6,7 +6,7 @@ using System.Numerics;
 namespace VRCOSC.App.Nodes.Types.Math.Map;
 
 [Node("Remap", "Math/Map")]
-public sealed class RemapNode<TFrom, TTo> : ValueComputeNode<TTo> where TFrom : INumber<TFrom> where TTo : INumber<TTo>
+public sealed class RemapNode<TFrom, TTo> : ValueComputeNode<TTo> where TFrom : INumberBase<TFrom> where TTo : INumberBase<TTo>
 {
     public ValueInput<TFrom> Value = new();
     public ValueInput<TFrom> FromMin = new();

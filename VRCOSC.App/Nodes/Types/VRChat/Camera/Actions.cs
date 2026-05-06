@@ -8,25 +8,25 @@ using VRCOSC.App.Utils;
 namespace VRCOSC.App.Nodes.Types.VRChat.Camera;
 
 [Node("User Camera Close", "VRChat/User Camera/Actions")]
-public sealed class UserCameraCloseNode : SimpleActionNode
+public sealed class UserCameraCloseNode : ActionNode
 {
     protected override void DoAction(PulseContext c) => c.GetClient().UserCamera.Close();
 }
 
 [Node("User Camera Capture", "VRChat/User Camera/Actions")]
-public sealed class UserCameraCaptureNode : SimpleActionNode
+public sealed class UserCameraCaptureNode : ActionNode
 {
     protected override void DoAction(PulseContext c) => c.GetClient().UserCamera.Capture();
 }
 
 [Node("User Camera Capture Delayed", "VRChat/User Camera/Actions")]
-public sealed class UserCameraCaptureDelayedNode : SimpleActionNode
+public sealed class UserCameraCaptureDelayedNode : ActionNode
 {
     protected override void DoAction(PulseContext c) => c.GetClient().UserCamera.CaptureDelayed();
 }
 
 [Node("User Camera Set Mode", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetModeNode : SimpleActionNode
+public sealed class UserCameraSetModeNode : ActionNode
 {
     public ValueInput<UserCameraMode> Mode = new();
 
@@ -34,7 +34,7 @@ public sealed class UserCameraSetModeNode : SimpleActionNode
 }
 
 [Node("User Camera Set Zoom", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetZoomNode : SimpleActionNode
+public sealed class UserCameraSetZoomNode : ActionNode
 {
     public ValueInput<float> Zoom = new();
 
@@ -42,7 +42,7 @@ public sealed class UserCameraSetZoomNode : SimpleActionNode
 }
 
 [Node("User Camera Set GreenScreen Background", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetGreenScreenBackgroundNode : SimpleActionNode
+public sealed class UserCameraSetGreenScreenBackgroundNode : ActionNode
 {
     public ValueInput<ColorHSL> Color = new();
 
@@ -50,7 +50,7 @@ public sealed class UserCameraSetGreenScreenBackgroundNode : SimpleActionNode
 }
 
 [Node("User Camera Set Orientation", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetOrientationNode : SimpleActionNode
+public sealed class UserCameraSetOrientationNode : ActionNode
 {
     public ValueInput<UserCameraOrientation> Orientation = new();
 
@@ -58,7 +58,7 @@ public sealed class UserCameraSetOrientationNode : SimpleActionNode
 }
 
 [Node("User Camera Set Direction", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetDirectionNode : SimpleActionNode
+public sealed class UserCameraSetDirectionNode : ActionNode
 {
     public ValueInput<UserCameraDirection> Direction = new();
 
@@ -66,7 +66,7 @@ public sealed class UserCameraSetDirectionNode : SimpleActionNode
 }
 
 [Node("User Camera Set Focal Distance", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetFocalDistanceNode : SimpleActionNode
+public sealed class UserCameraSetFocalDistanceNode : ActionNode
 {
     public ValueInput<float> FocalDistance = new();
 
@@ -74,7 +74,7 @@ public sealed class UserCameraSetFocalDistanceNode : SimpleActionNode
 }
 
 [Node("User Camera Set Aperture", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetApertureNode : SimpleActionNode
+public sealed class UserCameraSetApertureNode : ActionNode
 {
     public ValueInput<float> Aperture = new();
 
@@ -82,7 +82,7 @@ public sealed class UserCameraSetApertureNode : SimpleActionNode
 }
 
 [Node("User Camera Set Streaming", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetStreamingNode : SimpleActionNode
+public sealed class UserCameraSetStreamingNode : ActionNode
 {
     public ValueInput<bool> Streaming = new();
 
@@ -90,7 +90,7 @@ public sealed class UserCameraSetStreamingNode : SimpleActionNode
 }
 
 [Node("User Camera Set Exposure", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetExposureNode : SimpleActionNode
+public sealed class UserCameraSetExposureNode : ActionNode
 {
     public ValueInput<float> Exposure = new();
 
@@ -98,7 +98,7 @@ public sealed class UserCameraSetExposureNode : SimpleActionNode
 }
 
 [Node("User Camera Set Mask", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetMaskNode : SimpleActionNode
+public sealed class UserCameraSetMaskNode : ActionNode
 {
     public ValueInput<UserCameraMask> Mask = new();
 
@@ -106,7 +106,7 @@ public sealed class UserCameraSetMaskNode : SimpleActionNode
 }
 
 [Node("User Camera Set Transform", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetTransformNode : SimpleActionNode
+public sealed class UserCameraSetTransformNode : ActionNode
 {
     public ValueInput<Transform> Transform = new();
 
@@ -114,7 +114,7 @@ public sealed class UserCameraSetTransformNode : SimpleActionNode
 }
 
 [Node("User Camera Set Auto Level", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetAutoLevelNode : SimpleActionNode
+public sealed class UserCameraSetAutoLevelNode : ActionNode
 {
     public ValueInput<UserCameraAutoLevel> Flags = new();
 
@@ -122,7 +122,7 @@ public sealed class UserCameraSetAutoLevelNode : SimpleActionNode
 }
 
 [Node("User Camera Set User Direction Offset", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetUserDirectionOffsetNode : SimpleActionNode
+public sealed class UserCameraSetUserDirectionOffsetNode : ActionNode
 {
     public ValueInput<Vector2> Offset = new();
 
@@ -130,7 +130,7 @@ public sealed class UserCameraSetUserDirectionOffsetNode : SimpleActionNode
 }
 
 [Node("User Camera Set Smoothing Enabled", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetSmoothingEnabledNode : SimpleActionNode
+public sealed class UserCameraSetSmoothingEnabledNode : ActionNode
 {
     public ValueInput<bool> Enabled = new();
 
@@ -138,7 +138,7 @@ public sealed class UserCameraSetSmoothingEnabledNode : SimpleActionNode
 }
 
 [Node("User Camera Set Smoothing Strength", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetSmoothingStrengthNode : SimpleActionNode
+public sealed class UserCameraSetSmoothingStrengthNode : ActionNode
 {
     public ValueInput<float> Strength = new();
 
@@ -146,7 +146,7 @@ public sealed class UserCameraSetSmoothingStrengthNode : SimpleActionNode
 }
 
 [Node("User Camera Set Audio Source", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetAudioSourceNode : SimpleActionNode
+public sealed class UserCameraSetAudioSourceNode : ActionNode
 {
     public ValueInput<UserCameraAudioSource> Source = new();
 
@@ -154,7 +154,7 @@ public sealed class UserCameraSetAudioSourceNode : SimpleActionNode
 }
 
 [Node("User Camera Set Trigger Takes Photos", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetTriggerTakesPhotosNode : SimpleActionNode
+public sealed class UserCameraSetTriggerTakesPhotosNode : ActionNode
 {
     public ValueInput<bool> Value = new();
 
@@ -162,7 +162,7 @@ public sealed class UserCameraSetTriggerTakesPhotosNode : SimpleActionNode
 }
 
 [Node("User Camera Set Dolly Paths Stay Visible", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetDollyPathsStayVisibleNode : SimpleActionNode
+public sealed class UserCameraSetDollyPathsStayVisibleNode : ActionNode
 {
     public ValueInput<bool> Value = new();
 
@@ -170,7 +170,7 @@ public sealed class UserCameraSetDollyPathsStayVisibleNode : SimpleActionNode
 }
 
 [Node("User Camera Set Show Focus", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetShowFocusNode : SimpleActionNode
+public sealed class UserCameraSetShowFocusNode : ActionNode
 {
     public ValueInput<bool> Value = new();
 
@@ -178,7 +178,7 @@ public sealed class UserCameraSetShowFocusNode : SimpleActionNode
 }
 
 [Node("User Camera Set Fly Enabled", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetFlyEnabledNode : SimpleActionNode
+public sealed class UserCameraSetFlyEnabledNode : ActionNode
 {
     public ValueInput<bool> Enabled = new();
 
@@ -186,7 +186,7 @@ public sealed class UserCameraSetFlyEnabledNode : SimpleActionNode
 }
 
 [Node("User Camera Set Fly Speed", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetFlySpeedNode : SimpleActionNode
+public sealed class UserCameraSetFlySpeedNode : ActionNode
 {
     public ValueInput<float> Speed = new();
 
@@ -194,7 +194,7 @@ public sealed class UserCameraSetFlySpeedNode : SimpleActionNode
 }
 
 [Node("User Camera Set Fly Roll", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetFlyRollNode : SimpleActionNode
+public sealed class UserCameraSetFlyRollNode : ActionNode
 {
     public ValueInput<bool> Enabled = new();
 
@@ -202,7 +202,7 @@ public sealed class UserCameraSetFlyRollNode : SimpleActionNode
 }
 
 [Node("User Camera Set Turn Speed", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetTurnSpeedNode : SimpleActionNode
+public sealed class UserCameraSetTurnSpeedNode : ActionNode
 {
     public ValueInput<float> Speed = new();
 
@@ -210,7 +210,7 @@ public sealed class UserCameraSetTurnSpeedNode : SimpleActionNode
 }
 
 [Node("User Camera Set Duration", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetDurationNode : SimpleActionNode
+public sealed class UserCameraSetDurationNode : ActionNode
 {
     public ValueInput<float> Duration = new();
 
@@ -218,7 +218,7 @@ public sealed class UserCameraSetDurationNode : SimpleActionNode
 }
 
 [Node("User Camera Set Photo Rate", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetPhotoRateNode : SimpleActionNode
+public sealed class UserCameraSetPhotoRateNode : ActionNode
 {
     public ValueInput<float> Rate = new();
 
@@ -226,7 +226,7 @@ public sealed class UserCameraSetPhotoRateNode : SimpleActionNode
 }
 
 [Node("User Camera Set Locked", "VRChat/User Camera/Actions")]
-public sealed class UserCameraSetLockedNode : SimpleActionNode
+public sealed class UserCameraSetLockedNode : ActionNode
 {
     public ValueInput<bool> Locked = new();
 

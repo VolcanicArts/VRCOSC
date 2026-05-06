@@ -9,46 +9,22 @@ using VRCOSC.App.Utils;
 namespace VRCOSC.App.Nodes.Types.VRChat.Camera;
 
 [Node("User Camera Mask", "VRChat/User Camera/Info")]
-public sealed class UserCameraMaskSourceNode : UpdateNode<UserCameraMask>
+public sealed class UserCameraMaskSourceNode() : ValueSourceNode<UserCameraMask>("Mask")
 {
-    public ValueOutput<UserCameraMask> Mask = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        Mask.Write(uc.Mask, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<UserCameraMask> GetValue(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult(uc.Mask);
-    }
+    protected override UserCameraMask ComputeValue(PulseContext c) => c.GetClient().UserCamera.Mask;
 }
 
 [Node("User Camera Locked", "VRChat/User Camera/Info")]
-public sealed class UserCameraLockedSourceNode : UpdateNode<bool>
+public sealed class UserCameraLockedSourceNode() : ValueSourceNode<bool>("Locked")
 {
-    public ValueOutput<bool> Locked = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        Locked.Write(uc.IsLocked, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<bool> GetValue(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult(uc.IsLocked);
-    }
+    protected override bool ComputeValue(PulseContext c) => c.GetClient().UserCamera.IsLocked;
 }
 
 [Node("User Camera Smoothing", "VRChat/User Camera/Info")]
-public sealed class UserCameraSmoothingSourceNode : UpdateNode<bool, float>
+public sealed class UserCameraSmoothingSourceNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueOutput<bool> Enabled = new();
     public ValueOutput<float> Strength = new();
 
@@ -59,19 +35,15 @@ public sealed class UserCameraSmoothingSourceNode : UpdateNode<bool, float>
         Strength.Write(uc.SmoothingStrength, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(bool, float)> GetValues(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult((uc.SmoothMovement, uc.SmoothingStrength));
-    }
 }
 
 [Node("User Camera Direction", "VRChat/User Camera/Info")]
-public sealed class UserCameraDirectionSourceNode : UpdateNode<UserCameraDirection, Vector2>
+public sealed class UserCameraDirectionSourceNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueOutput<UserCameraDirection> Direction = new();
-    public ValueOutput<Vector2> UserDirectionOffset = new("User Direction Offset");
+    public ValueOutput<Vector2> UserDirectionOffset = new();
 
     protected override Task Process(PulseContext c)
     {
@@ -80,39 +52,22 @@ public sealed class UserCameraDirectionSourceNode : UpdateNode<UserCameraDirecti
         UserDirectionOffset.Write(uc.UserDirectionOffset, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(UserCameraDirection, Vector2)> GetValues(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult((uc.Direction, uc.UserDirectionOffset));
-    }
 }
 
 [Node("User Camera Auto Level", "VRChat/User Camera/Info")]
-public sealed class UserCameraAutoLevelSourceNode : UpdateNode<UserCameraAutoLevel>
+public sealed class UserCameraAutoLevelSourceNode() : ValueSourceNode<UserCameraAutoLevel>("Flags")
 {
-    public ValueOutput<UserCameraAutoLevel> Flags = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        Flags.Write(uc.AutoLevel, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<UserCameraAutoLevel> GetValue(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult(uc.AutoLevel);
-    }
+    protected override UserCameraAutoLevel ComputeValue(PulseContext c) => c.GetClient().UserCamera.AutoLevel;
 }
 
 [Node("User Camera Flying", "VRChat/User Camera/Info")]
-public sealed class UserCameraFlyingSourceNode : UpdateNode<bool, float, bool>
+public sealed class UserCameraFlyingSourceNode : Node, IContinuousNode
 {
-    public ValueOutput<bool> IsFlying = new("Is Flying");
-    public ValueOutput<float> Speed = new("Speed");
-    public ValueOutput<bool> CanRoll = new("Can Roll");
+    public int UpdateOffset => 0;
+
+    public ValueOutput<bool> IsFlying = new();
+    public ValueOutput<float> Speed = new();
+    public ValueOutput<bool> CanRoll = new();
 
     protected override Task Process(PulseContext c)
     {
@@ -122,21 +77,17 @@ public sealed class UserCameraFlyingSourceNode : UpdateNode<bool, float, bool>
         CanRoll.Write(uc.RollWhileFlying, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(bool, float, bool)> GetValues(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult((uc.IsFlying, uc.FlySpeed, uc.RollWhileFlying));
-    }
 }
 
 [Node("User Camera Toggles", "VRChat/User Camera/Info")]
-public sealed class UserCameraTogglesSourceNode : UpdateNode<bool, bool, bool, bool>
+public sealed class UserCameraTogglesSourceNode : Node, IContinuousNode
 {
-    public ValueOutput<bool> TriggerTakesPhotos = new("Trigger Takes Photos");
-    public ValueOutput<bool> DollyPathsStayVisible = new("Dolly Paths Stay Visible");
-    public ValueOutput<bool> ShowFocus = new("Show Focus");
-    public ValueOutput<bool> IsStreaming = new("Is Streaming");
+    public int UpdateOffset => 0;
+
+    public ValueOutput<bool> TriggerTakesPhotos = new();
+    public ValueOutput<bool> DollyPathsStayVisible = new();
+    public ValueOutput<bool> ShowFocus = new();
+    public ValueOutput<bool> IsStreaming = new();
 
     protected override Task Process(PulseContext c)
     {
@@ -147,20 +98,16 @@ public sealed class UserCameraTogglesSourceNode : UpdateNode<bool, bool, bool, b
         IsStreaming.Write(uc.IsStreaming, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(bool, bool, bool, bool)> GetValues(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult((uc.TriggerTakesPhotos, uc.DollyPathsStayVisible, uc.ShowFocus, uc.IsStreaming));
-    }
 }
 
 [Node("User Camera Lens", "VRChat/User Camera/Info")]
-public sealed class UserCameraLensSourceNode : UpdateNode<float, float, float, float>
+public sealed class UserCameraLensSourceNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueOutput<float> Zoom = new();
     public ValueOutput<float> Exposure = new();
-    public ValueOutput<float> FocalDistance = new("Focal Distance");
+    public ValueOutput<float> FocalDistance = new();
     public ValueOutput<float> Aperture = new();
 
     protected override Task Process(PulseContext c)
@@ -172,143 +119,46 @@ public sealed class UserCameraLensSourceNode : UpdateNode<float, float, float, f
         Aperture.Write(uc.Aperture, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(float, float, float, float)> GetValues(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult((uc.Zoom, uc.Exposure, uc.FocalDistance, uc.Aperture));
-    }
 }
 
 [Node("User Camera Turn Speed", "VRChat/User Camera/Info")]
-public sealed class UserCameraTurnSpeedSourceNode : UpdateNode<float>
+public sealed class UserCameraTurnSpeedSourceNode() : ValueSourceNode<float>("Turn Speed")
 {
-    public ValueOutput<float> TurnSpeed = new("Turn Speed");
-
-    protected override Task Process(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        TurnSpeed.Write(uc.TurnSpeed, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<float> GetValue(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult(uc.TurnSpeed);
-    }
+    protected override float ComputeValue(PulseContext c) => c.GetClient().UserCamera.TurnSpeed;
 }
 
 [Node("User Camera Photo Rate", "VRChat/User Camera/Info")]
-public sealed class UserCameraPhotoRateSourceNode : UpdateNode<float>
+public sealed class UserCameraPhotoRateSourceNode() : ValueSourceNode<float>("Photo Rate")
 {
-    public ValueOutput<float> PhotoRate = new("Photo Rate");
-
-    protected override Task Process(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        PhotoRate.Write(uc.PhotoRate, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<float> GetValue(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult(uc.PhotoRate);
-    }
+    protected override float ComputeValue(PulseContext c) => c.GetClient().UserCamera.PhotoRate;
 }
 
 [Node("User Camera Duration", "VRChat/User Camera/Info")]
-public sealed class UserCameraDurationSourceNode : UpdateNode<float>
+public sealed class UserCameraDurationSourceNode() : ValueSourceNode<float>("Duration")
 {
-    public ValueOutput<float> Duration = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        Duration.Write(uc.Duration, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<float> GetValue(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult(uc.Duration);
-    }
+    protected override float ComputeValue(PulseContext c) => c.GetClient().UserCamera.Duration;
 }
 
 [Node("User Camera Mode", "VRChat/User Camera/Info")]
-public sealed class UserCameraModeSourceNode : UpdateNode<UserCameraMode>
+public sealed class UserCameraModeSourceNode() : ValueSourceNode<UserCameraMode>("Mode")
 {
-    public ValueOutput<UserCameraMode> Mode = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        Mode.Write(uc.Mode, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<UserCameraMode> GetValue(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult(uc.Mode);
-    }
+    protected override UserCameraMode ComputeValue(PulseContext c) => c.GetClient().UserCamera.Mode;
 }
 
 [Node("User Camera Transform", "VRChat/User Camera/Info")]
-public sealed class UserCameraTransformSourceNode : UpdateNode<Transform>
+public sealed class UserCameraTransformSourceNode() : ValueSourceNode<Transform>("Transform")
 {
-    public ValueOutput<Transform> Transform = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        Transform.Write(uc.Transform, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<Transform> GetValue(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult(uc.Transform);
-    }
+    protected override Transform ComputeValue(PulseContext c) => c.GetClient().UserCamera.Transform;
 }
 
 [Node("User Camera GreenScreen Background", "VRChat/User Camera/Info")]
-public sealed class UserCameraGreenScreenBackgroundSourceNode : UpdateNode<ColorHSL>
+public sealed class UserCameraGreenScreenBackgroundSourceNode() : ValueSourceNode<ColorHSL>("Color")
 {
-    public ValueOutput<ColorHSL> Color = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        Color.Write(uc.GreenScreenBackground, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<ColorHSL> GetValue(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult(uc.GreenScreenBackground);
-    }
+    protected override ColorHSL ComputeValue(PulseContext c) => c.GetClient().UserCamera.GreenScreenBackground;
 }
 
 [Node("User Camera Orientation", "VRChat/User Camera/Info")]
-public sealed class UserCameraOrientationSourceNode : UpdateNode<UserCameraOrientation>
+public sealed class UserCameraOrientationSourceNode : ValueSourceNode<UserCameraOrientation>
 {
-    public ValueOutput<UserCameraOrientation> Orientation = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        Orientation.Write(uc.Orientation, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<UserCameraOrientation> GetValue(PulseContext c)
-    {
-        var uc = c.GetClient().UserCamera;
-        return Task.FromResult(uc.Orientation);
-    }
+    protected override UserCameraOrientation ComputeValue(PulseContext c) => c.GetClient().UserCamera.Orientation;
 }

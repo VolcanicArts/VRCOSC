@@ -9,11 +9,11 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Continue On Elapsed", "Flow")]
 public sealed class ContinueOnElapsedNode : Node, IFlowInput
 {
-    private readonly GlobalStore<DateTime> lastUpdate = new();
+    public GlobalStore<DateTime> LastUpdateStore = new();
 
-    public FlowContinuation OnElapsed = new("On Elapsed");
+    public FlowContinuation OnElapsed = new();
 
-    public ValueInput<int> ElapsedMilliseconds = new("Elapsed Milliseconds");
+    public ValueInput<int> ElapsedMilliseconds = new();
 
     protected override async Task Process(PulseContext c)
     {
@@ -21,9 +21,9 @@ public sealed class ContinueOnElapsedNode : Node, IFlowInput
 
         var dateTimeNow = DateTime.Now;
 
-        if ((dateTimeNow - lastUpdate.Read(c)).TotalMilliseconds >= ElapsedMilliseconds.Read(c))
+        if ((dateTimeNow - LastUpdateStore.Read(c)).TotalMilliseconds >= ElapsedMilliseconds.Read(c))
         {
-            lastUpdate.Write(dateTimeNow, c);
+            LastUpdateStore.Write(dateTimeNow, c);
             await OnElapsed.Execute(c);
         }
     }

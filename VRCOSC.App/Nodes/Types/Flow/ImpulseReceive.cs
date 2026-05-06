@@ -12,7 +12,7 @@ public sealed class ImpulseReceiveNode : Node, IImpulseReceiver
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public FlowContinuation OnCall = new("On Call");
+    public FlowContinuation OnCall = new();
 
     protected override Task Process(PulseContext c) => OnCall.Execute(c);
 
@@ -27,7 +27,7 @@ public sealed class ImpulseReceiveNode<T1> : Node, IImpulseReceiver
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public FlowContinuation OnCall = new("On Call");
+    public FlowContinuation OnCall = new();
 
     public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
 
@@ -45,7 +45,7 @@ public sealed class ImpulseReceiveNode<T1, T2> : Node, IImpulseReceiver
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public FlowContinuation OnCall = new("On Call");
+    public FlowContinuation OnCall = new();
 
     public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
     public ValueOutput<T2> Second = new(typeof(T2).GetFriendlyName());
@@ -65,7 +65,7 @@ public sealed class ImpulseReceiveNode<T1, T2, T3> : Node, IImpulseReceiver
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public FlowContinuation OnCall = new("On Call");
+    public FlowContinuation OnCall = new();
 
     public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
     public ValueOutput<T2> Second = new(typeof(T2).GetFriendlyName());
@@ -87,7 +87,7 @@ public sealed class ImpulseReceiveNode<T1, T2, T3, T4> : Node, IImpulseReceiver
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public FlowContinuation OnCall = new("On Call");
+    public FlowContinuation OnCall = new();
 
     public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
     public ValueOutput<T2> Second = new(typeof(T2).GetFriendlyName());

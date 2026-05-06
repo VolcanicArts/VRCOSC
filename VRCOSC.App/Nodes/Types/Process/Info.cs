@@ -12,8 +12,10 @@ namespace VRCOSC.App.Nodes.Types.Process;
 public sealed class ForegroundProcessNode() : SimpleValueSourceNode<System.Diagnostics.Process?>(ProcessExtensions.GetForegroundProcess);
 
 [Node("Process Info", "Process/Info")]
-public sealed class ProcessInfoNode : UpdateNode<int, string?, DateTime>
+public sealed class ProcessInfoNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueInput<System.Diagnostics.Process?> ProcessInput = new("Process");
 
     public ValueOutput<int> Pid = new("Id");
@@ -29,13 +31,5 @@ public sealed class ProcessInfoNode : UpdateNode<int, string?, DateTime>
         Name.Write(process.ProcessName, c);
         StartTime.Write(process.StartTime, c);
         return Task.CompletedTask;
-    }
-
-    protected override Task<(int, string?, DateTime)> GetValues(PulseContext c)
-    {
-        var process = ProcessInput.Read(c);
-        if (process is null) return Task.FromResult((0, (string?)null, DateTime.UnixEpoch));
-
-        return Task.FromResult((process.Id, (string?)process.ProcessName, process.StartTime));
     }
 }

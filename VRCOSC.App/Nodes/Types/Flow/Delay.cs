@@ -6,17 +6,13 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Delay", "Flow")]
-public sealed class DelayNode : Node, IFlowInput
+public sealed class DelayNode : AsyncActionNode
 {
-    public FlowContinuation Next = new("Next");
+    public ValueInput<int> Milliseconds = new();
 
-    public ValueInput<int> Milliseconds = new("Milliseconds");
-
-    protected override async Task Process(PulseContext c)
+    protected override Task DoActionAsync(PulseContext c)
     {
-        if (Milliseconds.Read(c) > 0)
-            await Task.Delay(Milliseconds.Read(c), c.Token);
-
-        await Next.Execute(c);
+        var milliseconds = Milliseconds.Read(c);
+        return milliseconds > 0 ? Task.Delay(milliseconds, c.Token) : Task.CompletedTask;
     }
 }

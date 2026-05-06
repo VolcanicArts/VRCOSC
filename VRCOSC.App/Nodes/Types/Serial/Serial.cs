@@ -1,18 +1,13 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.IO.Ports;
-using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Serial;
 
 [Node("Serial Write", "Serial")]
-public sealed class SerialWriteNode : Node, IFlowInput
+public sealed class SerialWriteNode : TryActionNode
 {
-    public FlowContinuation OnSuccess = new();
-    public FlowContinuation OnFail = new();
-
     public ValueInput<string?> PortName = new();
     public ValueInput<int> BaudRate = new();
     public ValueInput<Parity> Parity = new();
@@ -20,10 +15,10 @@ public sealed class SerialWriteNode : Node, IFlowInput
     public ValueInput<StopBits> StopBits = new();
     public ValueInput<string?> Command = new();
 
-    protected override Task Process(PulseContext c)
+    protected override bool TryAction(PulseContext c)
     {
         var portName = PortName.Read(c);
-        if (string.IsNullOrWhiteSpace(portName)) return Task.CompletedTask;
+        if (string.IsNullOrWhiteSpace(portName)) return false;
 
         SerialPort? serial;
 
@@ -31,25 +26,25 @@ public sealed class SerialWriteNode : Node, IFlowInput
         {
             serial = new SerialPort(portName, BaudRate.Read(c), Parity.Read(c), DataBits.Read(c), StopBits.Read(c));
         }
-        catch (Exception)
+        catch
         {
-            return OnFail.Execute(c);
+            return false;
         }
 
         var command = Command.Read(c);
-        if (command is null) return OnFail.Execute(c);
+        if (command is null) return false;
 
         try
         {
             serial.Open();
             serial.WriteLine(command);
             serial.Close();
-            return OnSuccess.Execute(c);
+            return true;
         }
-        catch (Exception)
+        catch
         {
             serial.Close();
-            return OnFail.Execute(c);
+            return false;
         }
     }
 }

@@ -9,7 +9,7 @@ using SoundFlow.Interfaces;
 namespace VRCOSC.App.Nodes.Types.Audio;
 
 [Node("Player Play", "Audio")]
-public sealed class AudioPlayerPlayNode : SimpleActionNode
+public sealed class AudioPlayerPlayNode : ActionNode
 {
     public ValueInput<ISoundPlayer?> Player = new();
 
@@ -26,7 +26,7 @@ public sealed class AudioPlayerPlayNode : SimpleActionNode
 }
 
 [Node("Player Stop", "Audio")]
-public sealed class AudioPlayerStopNode : SimpleActionNode
+public sealed class AudioPlayerStopNode : ActionNode
 {
     public ValueInput<ISoundPlayer?> Player = new();
 
@@ -34,7 +34,7 @@ public sealed class AudioPlayerStopNode : SimpleActionNode
 }
 
 [Node("Player Pause", "Audio")]
-public sealed class AudioPlayerPauseNode : SimpleActionNode
+public sealed class AudioPlayerPauseNode : ActionNode
 {
     public ValueInput<ISoundPlayer?> Player = new();
 
@@ -42,7 +42,7 @@ public sealed class AudioPlayerPauseNode : SimpleActionNode
 }
 
 [Node("Player Set Volume", "Audio")]
-public sealed class AudioPlayerSetVolumeNode : SimpleActionNode
+public sealed class AudioPlayerSetVolumeNode : ActionNode
 {
     public ValueInput<ISoundPlayer?> Player = new();
     public ValueInput<float> Volume = new(defaultValue: 1f);
@@ -51,7 +51,7 @@ public sealed class AudioPlayerSetVolumeNode : SimpleActionNode
 }
 
 [Node("Player Set Speed", "Audio")]
-public sealed class AudioPlayerSetSpeedNode : SimpleActionNode
+public sealed class AudioPlayerSetSpeedNode : ActionNode
 {
     public ValueInput<ISoundPlayer?> Player = new();
     public ValueInput<float> Speed = new(defaultValue: 1f);
@@ -60,7 +60,7 @@ public sealed class AudioPlayerSetSpeedNode : SimpleActionNode
 }
 
 [Node("Player Seek", "Audio")]
-public sealed class AudioPlayerSeekNode : SimpleActionNode
+public sealed class AudioPlayerSeekNode : ActionNode
 {
     public ValueInput<ISoundPlayer?> Player = new();
     public ValueInput<TimeSpan> Time = new();

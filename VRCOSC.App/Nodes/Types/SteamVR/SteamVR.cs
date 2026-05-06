@@ -23,8 +23,10 @@ public sealed class SteamVRIsUserPresentNode() : SimpleValueSourceNode<bool>(() 
 public sealed class SteamVRFPSNode() : SimpleValueSourceNode<float>(() => AppManager.GetInstance().OpenVRManager.FPS, "FPS");
 
 [Node("Device Info", "SteamVR")]
-public sealed class SteamVRDeviceInfoNode : UpdateNode<bool, bool, float>
+public sealed class SteamVRDeviceInfoNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueInput<TrackedDevice> Device = new();
     public ValueOutput<bool> IsConnected = new();
     public ValueOutput<bool> IsCharging = new();
@@ -40,42 +42,19 @@ public sealed class SteamVRDeviceInfoNode : UpdateNode<bool, bool, float>
         Battery.Write(device.BatteryPercentage, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(bool, bool, float)> GetValues(PulseContext c)
-    {
-        var device = Device.Read(c);
-        if (device is null) return Task.FromResult((false, false, 0f));
-
-        return Task.FromResult((device.IsConnected, device.IsCharging, device.BatteryPercentage));
-    }
 }
 
 [Node("Device Transform", "SteamVR")]
-public sealed class SteamVRDeviceTransformSourceNode : UpdateNode<Vector3, Quaternion>
+public sealed class SteamVRDeviceTransformSourceNode() : SimpleValueTransformNode<TrackedDevice?, Transform>(d => d?.Transform ?? Transform.Identity, "Device", "Transform"), IContinuousNode
 {
-    public ValueInput<TrackedDevice> Device = new();
-    public ValueOutput<Transform> Transform = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var device = Device.Read(c);
-        Transform.Write(device?.Transform ?? Utils.Transform.Identity, c);
-
-        return Task.CompletedTask;
-    }
-
-    protected override Task<(Vector3, Quaternion)> GetValues(PulseContext c)
-    {
-        var device = Device.Read(c);
-        if (device is null) return Task.FromResult((Utils.Transform.Identity.Position, Utils.Transform.Identity.Rotation));
-
-        return Task.FromResult((device.Transform.Position, device.Transform.Rotation));
-    }
+    public int UpdateOffset => 0;
 }
 
 [Node("Controller Trigger", "SteamVR/Input")]
-public sealed class SteamVRControllerTriggerNode : UpdateNode<float, bool, bool>
+public sealed class SteamVRControllerTriggerNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueInput<Controller> Controller = new();
 
     public ValueOutput<float> Pull = new();
@@ -92,19 +71,13 @@ public sealed class SteamVRControllerTriggerNode : UpdateNode<float, bool, bool>
         Click.Write(controller.Input.Trigger.Click, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(float, bool, bool)> GetValues(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.FromResult((0f, false, false));
-
-        return Task.FromResult((controller.Input.Trigger.Pull, controller.Input.Trigger.Touch, controller.Input.Trigger.Click));
-    }
 }
 
 [Node("Controller Stick", "SteamVR/Input")]
-public sealed class SteamVRControllerStickNode : UpdateNode<Vector2, bool, bool>
+public sealed class SteamVRControllerStickNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueInput<Controller> Controller = new();
 
     public ValueOutput<Vector2> Position = new();
@@ -121,19 +94,13 @@ public sealed class SteamVRControllerStickNode : UpdateNode<Vector2, bool, bool>
         Click.Write(controller.Input.Stick.Click, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(Vector2, bool, bool)> GetValues(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.FromResult((Vector2.Zero, false, false));
-
-        return Task.FromResult((controller.Input.Stick.Position, controller.Input.Stick.Touch, controller.Input.Stick.Click));
-    }
 }
 
 [Node("Controller Primary", "SteamVR/Input")]
-public sealed class SteamVRControllerPrimaryNode : UpdateNode<bool, bool>
+public sealed class SteamVRControllerPrimaryNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueInput<Controller> Controller = new();
 
     public ValueOutput<bool> Touch = new();
@@ -148,19 +115,13 @@ public sealed class SteamVRControllerPrimaryNode : UpdateNode<bool, bool>
         Click.Write(controller.Input.Primary.Click, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(bool, bool)> GetValues(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.FromResult((false, false));
-
-        return Task.FromResult((controller.Input.Primary.Touch, controller.Input.Primary.Click));
-    }
 }
 
 [Node("Controller Secondary", "SteamVR/Input")]
-public sealed class SteamVRControllerSecondaryNode : UpdateNode<bool, bool>
+public sealed class SteamVRControllerSecondaryNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueInput<Controller> Controller = new();
 
     public ValueOutput<bool> Touch = new();
@@ -175,19 +136,13 @@ public sealed class SteamVRControllerSecondaryNode : UpdateNode<bool, bool>
         Click.Write(controller.Input.Secondary.Click, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(bool, bool)> GetValues(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.FromResult((false, false));
-
-        return Task.FromResult((controller.Input.Secondary.Touch, controller.Input.Secondary.Click));
-    }
 }
 
 [Node("Controller System", "SteamVR/Input")]
-public sealed class SteamVRControllerSystemNode : UpdateNode<bool, bool>
+public sealed class SteamVRControllerSystemNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueInput<Controller> Controller = new();
 
     public ValueOutput<bool> Touch = new();
@@ -202,19 +157,13 @@ public sealed class SteamVRControllerSystemNode : UpdateNode<bool, bool>
         Click.Write(controller.Input.System.Click, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(bool, bool)> GetValues(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.FromResult((false, false));
-
-        return Task.FromResult((controller.Input.System.Touch, controller.Input.System.Click));
-    }
 }
 
 [Node("Controller Grip", "SteamVR/Input")]
-public sealed class SteamVRControllerGripNode : UpdateNode<float, bool>
+public sealed class SteamVRControllerGripNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueInput<Controller> Controller = new();
 
     public ValueOutput<float> Pull = new();
@@ -229,19 +178,13 @@ public sealed class SteamVRControllerGripNode : UpdateNode<float, bool>
         Click.Write(controller.Input.Grip.Click, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(float, bool)> GetValues(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.FromResult((0f, false));
-
-        return Task.FromResult((controller.Input.Grip.Pull, controller.Input.Grip.Click));
-    }
 }
 
 [Node("Controller Pad", "SteamVR/Input")]
-public sealed class SteamVRControllerPadNode : UpdateNode<Vector2, bool, bool>
+public sealed class SteamVRControllerPadNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueInput<Controller> Controller = new();
 
     public ValueOutput<Vector2> Position = new();
@@ -258,19 +201,13 @@ public sealed class SteamVRControllerPadNode : UpdateNode<Vector2, bool, bool>
         Click.Write(controller.Input.Pad.Click, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(Vector2, bool, bool)> GetValues(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.FromResult((Vector2.Zero, false, false));
-
-        return Task.FromResult((controller.Input.Pad.Position, controller.Input.Pad.Touch, controller.Input.Pad.Click));
-    }
 }
 
 [Node("Controller Skeleton", "SteamVR/Input")]
-public sealed class SteamVRControllerSkeletonNode : UpdateNode<float, float, float, float>
+public sealed class SteamVRControllerSkeletonNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueInput<Controller> Controller = new();
 
     public ValueOutput<float> Index = new();
@@ -288,13 +225,5 @@ public sealed class SteamVRControllerSkeletonNode : UpdateNode<float, float, flo
         Ring.Write(controller.Input.Skeleton.Ring, c);
         Pinky.Write(controller.Input.Skeleton.Pinky, c);
         return Task.CompletedTask;
-    }
-
-    protected override Task<(float, float, float, float)> GetValues(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.FromResult((0f, 0f, 0f, 0f));
-
-        return Task.FromResult((controller.Input.Skeleton.Index, controller.Input.Skeleton.Middle, controller.Input.Skeleton.Ring, controller.Input.Skeleton.Pinky));
     }
 }

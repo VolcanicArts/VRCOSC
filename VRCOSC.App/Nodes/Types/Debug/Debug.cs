@@ -2,24 +2,19 @@
 // See the LICENSE file in the repository root for full license text.
 
 #if DEBUG
-using System.Threading.Tasks;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Debug;
 
 [Node("Log", "Debug")]
-public sealed class LogNode : Node, IFlowInput
+public sealed class LogNode : ActionNode
 {
-    public FlowContinuation Next = new();
-
     public ValueInput<string> Text = new();
 
-    protected override Task Process(PulseContext c)
+    protected override void DoAction(PulseContext c)
     {
         var text = Text.Read(c);
         if (text is not null) Logger.Log(text, LoggingTarget.Information);
-
-        return Next.Execute(c);
     }
 }
 #endif

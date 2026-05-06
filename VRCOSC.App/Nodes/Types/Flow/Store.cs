@@ -1,26 +1,21 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Threading.Tasks;
-
 namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Write Context Store", "Flow/Stores")]
-public sealed class ContextStoreWriteNode<T> : Node, IFlowInput, IHasTextProperty
+public sealed class ContextStoreWriteNode<T> : ActionNode, IHasTextProperty
 {
     [NodeProperty("key")]
     public string Text { get; set; } = string.Empty;
 
-    public FlowContinuation Next = new();
-
     public ValueInput<T> Value = new();
 
-    protected override Task Process(PulseContext c)
+    protected override void DoAction(PulseContext c)
     {
-        if (string.IsNullOrWhiteSpace(Text)) return Next.Execute(c);
+        if (string.IsNullOrWhiteSpace(Text)) return;
 
         c.WriteKeyedStore(Text, Value.Read(c));
-        return Next.Execute(c);
     }
 }
 

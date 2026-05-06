@@ -23,18 +23,12 @@ public sealed class TransformUnpackNode : Node
 }
 
 [Node("Pack Transform", "Math/Transform")]
-public sealed class TransformPackNode : Node
+public sealed class TransformPackNode() : ValueComputeNode<Utils.Transform>("Transform")
 {
     public ValueInput<Vector3> Position = new();
     public ValueInput<System.Numerics.Quaternion> Rotation = new(defaultValue: System.Numerics.Quaternion.Identity);
 
-    public ValueOutput<Utils.Transform> Transform = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Transform.Write(new Utils.Transform(Position.Read(c), Rotation.Read(c)), c);
-        return Task.CompletedTask;
-    }
+    protected override Utils.Transform ComputeValue(PulseContext c) => new(Position.Read(c), Rotation.Read(c));
 }
 
 [Node("Transform Relative To", "Math/Transform")]

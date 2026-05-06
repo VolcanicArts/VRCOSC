@@ -73,7 +73,7 @@ public sealed class IndirectWriteVariableNode<T> : Node, IFlowInput
 }
 
 [Node("Variable Reference")]
-public sealed class VariableReferenceNode<T> : Node, IHasVariableReference
+public sealed class VariableReferenceNode<T>() : ValueComputeNode<GraphVariable<T>>("Reference"), IHasVariableReference
 {
     public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
 
@@ -82,44 +82,19 @@ public sealed class VariableReferenceNode<T> : Node, IHasVariableReference
     [NodeProperty("variable_id")]
     public Guid VariableId { get; set; }
 
-    public ValueOutput<GraphVariable<T>> Reference = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Reference.Write(graphVariable, c);
-        return Task.CompletedTask;
-    }
+    protected override GraphVariable<T> ComputeValue(PulseContext c) => graphVariable;
 }
 
 [Node("Variable Reference To Value", "Variables")]
 [NodeForceReprocess]
-public sealed class VariableReferenceToValueNode<T> : UpdateNode<T>
+public sealed class VariableReferenceToValueNode<T>() : SimpleValueTransformNode<GraphVariable<T>?, T>(r => r is null ? default! : r.Value.Value, "Reference", "Value"), IContinuousNode
 {
-    public override int UpdateOffset => -1;
-
-    public ValueInput<GraphVariable<T>> Reference = new();
-
-    public ValueOutput<T> Value = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var reference = Reference.Read(c);
-        if (reference is null) return Task.CompletedTask;
-
-        Value.Write(reference.Value.Value, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<T> GetValue(PulseContext c)
-    {
-        var reference = Reference.Read(c);
-        return reference is null ? Task.FromResult(default(T)!) : Task.FromResult(reference.Value.Value);
-    }
+    public int UpdateOffset => -1;
 }
 
 [Node("Variable Source")]
 [NodeForceReprocess]
-public sealed class VariableSourceNode<T> : UpdateNode<T>, IHasVariableReference
+public sealed class VariableSourceNode<T>() : ValueSourceNode<T>("Value"), IHasVariableReference
 {
     public override int UpdateOffset => -1;
 
@@ -130,13 +105,5 @@ public sealed class VariableSourceNode<T> : UpdateNode<T>, IHasVariableReference
     [NodeProperty("variable_id")]
     public Guid VariableId { get; set; }
 
-    public ValueOutput<T> Value = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Value.Write(graphVariable.Value.Value, c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<T> GetValue(PulseContext c) => Task.FromResult(graphVariable.Value.Value);
+    protected override T ComputeValue(PulseContext c) => graphVariable.Value.Value;
 }

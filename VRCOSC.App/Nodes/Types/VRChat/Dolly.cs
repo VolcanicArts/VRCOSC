@@ -7,11 +7,11 @@ using VRCOSC.App.Dolly;
 namespace VRCOSC.App.Nodes.Types.VRChat;
 
 [Node("Dolly Import", "VRChat/Dolly")]
-public sealed class DollyImportNode : TryActionNode
+public sealed class DollyImportNode : TryActionAsyncNode
 {
     public ValueInput<string> Path = new();
 
-    protected override Task<bool> TryTask(PulseContext c)
+    protected override Task<bool> TryActionAsync(PulseContext c)
     {
         var path = Path.Read(c);
 
@@ -24,11 +24,11 @@ public sealed class DollyImportNode : TryActionNode
 }
 
 [Node("Dolly Export", "VRChat/Dolly")]
-public sealed class DollyExportNode : TryActionNode
+public sealed class DollyExportNode : TryActionAsyncNode
 {
     public ValueInput<string> Path = new();
 
-    protected override async Task<bool> TryTask(PulseContext c)
+    protected override async Task<bool> TryActionAsync(PulseContext c)
     {
         var path = Path.Read(c);
 
@@ -40,7 +40,7 @@ public sealed class DollyExportNode : TryActionNode
 }
 
 [Node("Dolly Play", "VRChat/Dolly")]
-public sealed class DollyPlayNode : SimpleActionNode
+public sealed class DollyPlayNode : ActionNode
 {
     public ValueInput<int> Delay = new();
 
@@ -56,7 +56,7 @@ public sealed class DollyPlayNode : SimpleActionNode
 }
 
 [Node("Dolly Stop", "VRChat/Dolly")]
-public sealed class DollyStopNode : SimpleActionNode
+public sealed class DollyStopNode : ActionNode
 {
     protected override void DoAction(PulseContext c) => DollyManager.GetInstance().Stop();
 }

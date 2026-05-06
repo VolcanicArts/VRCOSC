@@ -3,94 +3,71 @@
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Operators;
 
 [Node("Flag Create", "Operators/Enum")]
-public sealed class EnumFlagCreateNode<T> : Node where T : struct, Enum
+public sealed class EnumFlagCreateNode<T> : ValueComputeNode<T> where T : struct, Enum
 {
     public ValueInputList<T> Flags = new();
-    public ValueOutput<T> Result = new();
 
-    protected override Task Process(PulseContext c)
+    protected override T ComputeValue(PulseContext c)
     {
         var flags = Flags.Read(c);
         var result = flags.Aggregate(0ul, (current, flag) => current | Convert.ToUInt64(flag));
-        Result.Write((T)Enum.ToObject(typeof(T), result), c);
-        return Task.CompletedTask;
+        return (T)Enum.ToObject(typeof(T), result);
     }
 }
 
 [Node("Has Flag", "Operators/Enum")]
-public sealed class EnumHasFlagNode<T> : Node where T : struct, Enum
+public sealed class EnumHasFlagNode<T>() : ValueComputeNode<bool>("Has Flag") where T : struct, Enum
 {
     public ValueInput<T> Flags = new();
     public ValueInput<T> Flag = new();
-    public ValueOutput<bool> HasFlag = new();
 
-    protected override Task Process(PulseContext c)
+    protected override bool ComputeValue(PulseContext c)
     {
         var flags = Convert.ToUInt64(Flags.Read(c));
         var flag = Convert.ToUInt64(Flag.Read(c));
-        HasFlag.Write((flags & flag) == flag, c);
-        return Task.CompletedTask;
+        return (flags & flag) == flag;
     }
 }
 
 [Node("Flag Add", "Operators/Enum")]
-public sealed class EnumFlagAddNode<T> : Node, IFlowInput where T : struct, Enum
+public sealed class EnumFlagAddNode<T>() : ActionValueComputeNode<T>("Flags") where T : struct, Enum
 {
-    public FlowContinuation Next = new();
-
     public ValueInput<T> Flags = new();
     public ValueInput<T> NewFlag = new();
 
-    public ValueOutput<T> CreatedFlag = new("Created");
-
-    protected override async Task Process(PulseContext c)
+    protected override T ComputeValue(PulseContext c)
     {
         var flags = Convert.ToUInt64(Flags.Read(c));
         var newFlag = Convert.ToUInt64(NewFlag.Read(c));
-        var createdFlag = (T)Enum.ToObject(typeof(T), flags | newFlag);
-        CreatedFlag.Write(createdFlag, c);
-
-        await Next.Execute(c);
+        return (T)Enum.ToObject(typeof(T), flags | newFlag);
     }
 }
 
 [Node("Flag Remove", "Operators/Enum")]
-public sealed class EnumFlagRemoveNode<T> : Node, IFlowInput where T : struct, Enum
+public sealed class EnumFlagRemoveNode<T>() : ActionValueComputeNode<T>("Flags") where T : struct, Enum
 {
-    public FlowContinuation Next = new();
-
     public ValueInput<T> Flags = new();
     public ValueInput<T> OldFlag = new();
 
-    public ValueOutput<T> CreatedFlag = new("Created");
-
-    protected override async Task Process(PulseContext c)
+    protected override T ComputeValue(PulseContext c)
     {
         var flags = Convert.ToUInt64(Flags.Read(c));
         var oldFlag = Convert.ToUInt64(OldFlag.Read(c));
-        var createdFlag = (T)Enum.ToObject(typeof(T), flags & ~oldFlag);
-        CreatedFlag.Write(createdFlag, c);
-
-        await Next.Execute(c);
+        return (T)Enum.ToObject(typeof(T), flags & ~oldFlag);
     }
 }
 
 [Node("Flag Toggle", "Operators/Enum")]
-public sealed class EnumFlagToggleNode<T> : Node, IFlowInput where T : struct, Enum
+public sealed class EnumFlagToggleNode<T>() : ActionValueComputeNode<T>("Flags") where T : struct, Enum
 {
-    public FlowContinuation Next = new();
-
     public ValueInput<T> Flags = new();
     public ValueInput<T> Flag = new();
 
-    public ValueOutput<T> Result = new();
-
-    protected override async Task Process(PulseContext c)
+    protected override T ComputeValue(PulseContext c)
     {
         var flags = Convert.ToUInt64(Flags.Read(c));
         var flag = Convert.ToUInt64(Flag.Read(c));
@@ -102,8 +79,6 @@ public sealed class EnumFlagToggleNode<T> : Node, IFlowInput where T : struct, E
         else
             result |= flag;
 
-        Result.Write((T)Enum.ToObject(typeof(T), result), c);
-
-        await Next.Execute(c);
+        return (T)Enum.ToObject(typeof(T), result);
     }
 }

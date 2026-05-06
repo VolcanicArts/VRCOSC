@@ -12,11 +12,7 @@ public sealed class RoundNode<T> : ValueComputeNode<T> where T : IFloatingPoint<
     public ValueInput<T> Input = new();
     public ValueInput<int> DecimalPlaces = new();
 
-    protected override T ComputeValue(PulseContext c)
-    {
-        var decimalPlaces = int.Clamp(DecimalPlaces.Read(c), 0, maxDigits<T>());
-        return T.Round(Input.Read(c), decimalPlaces, MidpointRounding.AwayFromZero);
-    }
+    protected override T ComputeValue(PulseContext c) => T.Round(Input.Read(c), int.Clamp(DecimalPlaces.Read(c), 0, maxDigits<T>()), MidpointRounding.AwayFromZero);
 
     private static int maxDigits<Tf>() =>
         typeof(Tf) == typeof(float) ? 6 :

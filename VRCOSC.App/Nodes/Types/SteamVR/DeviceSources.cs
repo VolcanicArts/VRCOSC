@@ -2,7 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading.Tasks;
 using VRCOSC.App.OpenVR.Device;
 
 // ReSharper disable InconsistentNaming
@@ -45,18 +44,10 @@ public sealed class SteamVRLeftFootSourceNode() : SteamVRDeviceSourceNode<Tracke
 public sealed class SteamVRRightFootSourceNode() : SteamVRDeviceSourceNode<TrackedDevice?>(() => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightFoot));
 
 [Node("Tracked Device", "SteamVR/Devices")]
-public sealed class SteamVRTrackedDeviceSourceNode : UpdateNode<TrackedDevice?>, IHasTextProperty
+public sealed class SteamVRTrackedDeviceSourceNode() : ValueSourceNode<TrackedDevice?>("Device"), IHasTextProperty
 {
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public ValueOutput<TrackedDevice?> Device = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        Device.Write(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(Text), c);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<TrackedDevice?> GetValue(PulseContext c) => Task.FromResult(AppManager.GetInstance().OpenVRManager.GetTrackedDevice(Text));
+    protected override TrackedDevice? ComputeValue(PulseContext c) => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(Text);
 }

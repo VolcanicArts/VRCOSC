@@ -15,7 +15,7 @@ public sealed class FireWhileTrueNode : Node, IActiveUpdateNode
 
     public FlowContinuation Next = new();
 
-    public ValueInput<int> DelayMilliseconds = new("Delay Milliseconds");
+    public ValueInput<int> DelayMilliseconds = new();
     public ValueInput<bool> Condition = new();
 
     protected override Task Process(PulseContext c)

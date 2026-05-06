@@ -9,8 +9,8 @@ namespace VRCOSC.App.Nodes.Types.Collections;
 [Node("For Each", "Collections")]
 public sealed class ForEachNode<T> : Node, IFlowInput
 {
-    public FlowCall OnIteration = new("On Iteration");
-    public FlowContinuation OnEnd = new("On End");
+    public FlowCall OnIteration = new();
+    public FlowContinuation OnEnd = new();
 
     public ValueInput<IEnumerable<T>> Enumerable = new();
     public ValueOutput<T> Element = new();

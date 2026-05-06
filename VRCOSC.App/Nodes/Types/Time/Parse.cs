@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Time;
 
@@ -12,15 +13,5 @@ public sealed class DateTimeParse : TryValueComputeNode<DateTime>
     public ValueInput<string> Value = new();
     public ValueInput<DateTimeStyles> Styles = new(defaultValue: DateTimeStyles.AssumeUniversal);
 
-    protected override bool TryComputeValue(out DateTime value, PulseContext c)
-    {
-        if (DateTime.TryParse(Value.Read(c), null, Styles.Read(c), out var dateTime))
-        {
-            value = dateTime;
-            return true;
-        }
-
-        value = DateTime.UnixEpoch;
-        return false;
-    }
+    protected override Result<DateTime> TryComputeValue(PulseContext c) => DateTime.TryParse(Value.Read(c), null, Styles.Read(c), out var dateTime) ? dateTime : Result<DateTime>.Fail();
 }

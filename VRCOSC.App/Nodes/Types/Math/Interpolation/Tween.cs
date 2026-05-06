@@ -10,12 +10,12 @@ namespace VRCOSC.App.Nodes.Types.Math.Interpolation;
 [Node("Tween", "Math/Interpolation")]
 public sealed class TweenNode<T> : Node, IFlowInput where T : INumber<T>
 {
-    public FlowCall OnUpdate = new("On Update");
-    public FlowContinuation OnFinished = new("On Finished");
+    public FlowCall OnUpdate = new();
+    public FlowContinuation OnFinished = new();
 
     public ValueInput<T> From = new();
     public ValueInput<T> To = new();
-    public ValueInput<float> TimeMilliseconds = new("Time Milliseconds");
+    public ValueInput<float> TimeMilliseconds = new();
     public ValueOutput<T> Value = new();
 
     protected override async Task Process(PulseContext c)

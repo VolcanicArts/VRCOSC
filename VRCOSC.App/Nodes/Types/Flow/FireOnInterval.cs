@@ -11,7 +11,7 @@ public sealed class FireOnIntervalNode : Node, IActiveUpdateNode
 {
     public int UpdateOffset => 0;
 
-    private readonly GlobalStore<DateTime> lastUpdate = new();
+    public GlobalStore<DateTime> LastUpdateStore = new();
 
     public FlowContinuation Next = new();
 
@@ -23,11 +23,11 @@ public sealed class FireOnIntervalNode : Node, IActiveUpdateNode
     {
         var delay = DelayMilliseconds.Read(c);
         var dateTimeNow = DateTime.Now;
-        var shouldContinue = (dateTimeNow - lastUpdate.Read(c)).TotalMilliseconds >= delay;
+        var shouldContinue = (dateTimeNow - LastUpdateStore.Read(c)).TotalMilliseconds >= delay;
 
         if (shouldContinue)
         {
-            lastUpdate.Write(dateTimeNow, c);
+            LastUpdateStore.Write(dateTimeNow, c);
             return Task.FromResult(true);
         }
 

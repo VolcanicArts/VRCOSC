@@ -14,19 +14,16 @@ public class ParseJsonNode<T>() : TryValueComputeNode<T>(typeof(T).GetFriendlyNa
     public ValueInput<string> String = new();
     public ValueInput<JsonSerializerOptions> Options = new();
 
-    protected override bool TryComputeValue(out T value, PulseContext c)
+    protected override Result<T> TryComputeValue(PulseContext c)
     {
-        value = null!;
-
         var @string = String.Read(c);
         var options = Options.Read(c);
 
-        if (string.IsNullOrWhiteSpace(@string)) return false;
+        if (string.IsNullOrWhiteSpace(@string)) return Result<T>.Fail();
 
         var result = JsonSerializerSafe.TryDeserialize<T>(@string, options);
-        if (!result.IsSuccess) return false;
+        if (!result.IsSuccess) return Result<T>.Fail();
 
-        value = result.Value;
-        return true;
+        return result.Value;
     }
 }

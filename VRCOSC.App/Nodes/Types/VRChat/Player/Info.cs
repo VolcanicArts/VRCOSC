@@ -8,10 +8,12 @@ using VRCOSC.App.SDK.VRChat;
 namespace VRCOSC.App.Nodes.Types.VRChat.Player;
 
 [Node("Player Movement", "VRChat/Player/Info")]
-public sealed class PlayerMovementNode : UpdateNode<Vector3, float, float>
+public sealed class PlayerMovementNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueOutput<Vector3> Velocity = new();
-    public ValueOutput<float> AngularY = new("Angular Y");
+    public ValueOutput<float> AngularY = new();
     public ValueOutput<float> Upright = new();
 
     protected override Task Process(PulseContext c)
@@ -23,21 +25,17 @@ public sealed class PlayerMovementNode : UpdateNode<Vector3, float, float>
         Upright.Write(player.Upright, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(Vector3, float, float)> GetValues(PulseContext c)
-    {
-        var p = c.GetClient().Player;
-        return Task.FromResult((new Vector3(p.VelocityX, p.VelocityY, p.VelocityZ), p.AngularY, p.Upright));
-    }
 }
 
 [Node("Player Gesture", "VRChat/Player/Info")]
-public sealed class PlayerGestureNode : UpdateNode<GestureType, float, GestureType, float>
+public sealed class PlayerGestureNode : Node, IContinuousNode
 {
-    public ValueOutput<GestureType> LeftType = new("Left Type");
-    public ValueOutput<float> LeftWeight = new("Left Weight");
-    public ValueOutput<GestureType> RightType = new("Right Type");
-    public ValueOutput<float> RightWeight = new("Right Weight");
+    public int UpdateOffset => 0;
+
+    public ValueOutput<GestureType> LeftType = new();
+    public ValueOutput<float> LeftWeight = new();
+    public ValueOutput<GestureType> RightType = new();
+    public ValueOutput<float> RightWeight = new();
 
     protected override Task Process(PulseContext c)
     {
@@ -49,17 +47,13 @@ public sealed class PlayerGestureNode : UpdateNode<GestureType, float, GestureTy
         RightWeight.Write(player.GestureRightWeight, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(GestureType, float, GestureType, float)> GetValues(PulseContext c)
-    {
-        var p = c.GetClient().Player;
-        return Task.FromResult((p.GestureTypeLeft, p.GestureLeftWeight, p.GestureTypeRight, p.GestureRightWeight));
-    }
 }
 
 [Node("Player Voice", "VRChat/Player/Info")]
-public sealed class PlayerVoiceNode : UpdateNode<Viseme, float>
+public sealed class PlayerVoiceNode : Node, IContinuousNode
 {
+    public int UpdateOffset => 0;
+
     public ValueOutput<Viseme> Viseme = new();
     public ValueOutput<float> Voice = new();
 
@@ -71,25 +65,21 @@ public sealed class PlayerVoiceNode : UpdateNode<Viseme, float>
         Voice.Write(player.Voice, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(Viseme, float)> GetValues(PulseContext c)
-    {
-        var p = c.GetClient().Player;
-        return Task.FromResult((p.Viseme, p.Voice));
-    }
 }
 
 [Node("Player Identity", "VRChat/Player/Info")]
-public sealed class PlayerIdentityNode : UpdateNode<bool, bool, bool, bool, bool, bool, bool, TrackingType>
+public sealed class PlayerIdentityNode : Node, IContinuousNode
 {
-    public ValueOutput<bool> IsVR = new("Is VR");
-    public ValueOutput<bool> IsMuted = new("Is Muted");
+    public int UpdateOffset => 0;
+
+    public ValueOutput<bool> IsVR = new();
+    public ValueOutput<bool> IsMuted = new();
     public ValueOutput<bool> Earmuffs = new();
     public ValueOutput<bool> AFK = new();
-    public ValueOutput<bool> InStation = new("In Station");
+    public ValueOutput<bool> InStation = new();
     public ValueOutput<bool> Seated = new();
     public ValueOutput<bool> Grounded = new();
-    public ValueOutput<TrackingType> TrackingType = new("Tracking Type");
+    public ValueOutput<TrackingType> TrackingType = new();
 
     protected override Task Process(PulseContext c)
     {
@@ -105,22 +95,18 @@ public sealed class PlayerIdentityNode : UpdateNode<bool, bool, bool, bool, bool
         TrackingType.Write(player.TrackingType, c);
         return Task.CompletedTask;
     }
-
-    protected override Task<(bool, bool, bool, bool, bool, bool, bool, TrackingType)> GetValues(PulseContext c)
-    {
-        var p = c.GetClient().Player;
-        return Task.FromResult((p.IsVR, p.IsMuted, p.Earmuffs, p.AFK, p.InStation, p.Seated, p.Grounded, p.TrackingType));
-    }
 }
 
 [Node("Player Size", "VRChat/Player/Info")]
-public sealed class PlayerSizeNode : UpdateNode<bool, float, float, float, float>
+public sealed class PlayerSizeNode : Node, IContinuousNode
 {
-    public ValueOutput<bool> ScaleModified = new("Scale Modified");
-    public ValueOutput<float> ScaleFactor = new("Scale Factor");
-    public ValueOutput<float> ScaleFactorInverse = new("Scale Factor Inverse");
-    public ValueOutput<float> EyeHeightAsMeters = new("Eye Height As Meters");
-    public ValueOutput<float> EyeHeightAsPercent = new("Eye Height As Percent");
+    public int UpdateOffset => 0;
+
+    public ValueOutput<bool> ScaleModified = new();
+    public ValueOutput<float> ScaleFactor = new();
+    public ValueOutput<float> ScaleFactorInverse = new();
+    public ValueOutput<float> EyeHeightAsMeters = new();
+    public ValueOutput<float> EyeHeightAsPercent = new();
 
     protected override Task Process(PulseContext c)
     {
@@ -132,11 +118,5 @@ public sealed class PlayerSizeNode : UpdateNode<bool, float, float, float, float
         EyeHeightAsMeters.Write(player.EyeHeightAsMeters, c);
         EyeHeightAsPercent.Write(player.EyeHeightAsPercent, c);
         return Task.CompletedTask;
-    }
-
-    protected override Task<(bool, float, float, float, float)> GetValues(PulseContext c)
-    {
-        var p = c.GetClient().Player;
-        return Task.FromResult((p.ScaleModified, p.ScaleFactor, p.ScaleFactorInverse, p.EyeHeightAsMeters, p.EyeHeightAsPercent));
     }
 }

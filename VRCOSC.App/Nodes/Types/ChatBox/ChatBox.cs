@@ -2,72 +2,58 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading.Tasks;
 using VRCOSC.App.ChatBox;
 
 namespace VRCOSC.App.Nodes.Types.ChatBox;
 
 [Node("Override ChatBox Text", "ChatBox")]
-public sealed class ChatBoxOverrideTextNode : Node, IFlowInput
+public sealed class ChatBoxOverrideTextNode : ActionNode
 {
-    public FlowContinuation Next = new();
-
     public ValueInput<string> Input = new();
     public ValueInput<bool> MinimalBackground = new();
 
-    protected override Task Process(PulseContext c)
+    protected override void DoAction(PulseContext c)
     {
         var input = Input.Read(c);
 
         if (input is null)
         {
             ChatBoxManager.GetInstance().PulseText = null;
-            return Next.Execute(c);
+            return;
         }
 
         var minimalBackground = MinimalBackground.Read(c);
 
         ChatBoxManager.GetInstance().PulseText = input.Replace(Environment.NewLine, "\n");
         ChatBoxManager.GetInstance().PulseMinimalBackground = minimalBackground;
-
-        return Next.Execute(c);
     }
 }
 
-[Node("Is ChatBox Layer Enabled", "ChatBox")]
-public sealed class ChatBoxIsLayerEnabledNode : Node, IFlowInput
+[Node("ChatBox Layer Source", "ChatBox")]
+public sealed class ChatBoxLayerSourceNode() : ValueSourceNode<bool>("Is Enabled")
 {
-    public FlowContinuation Next = new();
-
     public ValueInput<int> Layer = new();
 
-    public ValueOutput<bool> IsEnabled = new();
-
-    protected override Task Process(PulseContext c)
+    protected override bool ComputeValue(PulseContext c)
     {
         var layer = Layer.Read(c);
-        layer = int.Clamp(layer, 0, ChatBoxManager.GetInstance().Timeline.LayerCount - 1);
+        if (layer < 0 || layer >= ChatBoxManager.GetInstance().Timeline.LayerCount) return false;
 
-        var isEnabled = ChatBoxManager.GetInstance().Timeline.LayerEnabled[layer];
-        IsEnabled.Write(isEnabled, c);
-        return Next.Execute(c);
+        return ChatBoxManager.GetInstance().Timeline.LayerEnabled[layer];
     }
 }
 
 [Node("Set ChatBox Layer Enabled", "ChatBox")]
-public sealed class ChatBoxSetLayerEnabledNode : Node, IFlowInput
+public sealed class ChatBoxSetLayerEnabledNode : ActionNode
 {
-    public FlowContinuation Next = new();
-
     public ValueInput<int> Layer = new();
     public ValueInput<bool> Enabled = new();
 
-    protected override Task Process(PulseContext c)
+    protected override void DoAction(PulseContext c)
     {
         var layer = Layer.Read(c);
-        layer = int.Clamp(layer, 0, ChatBoxManager.GetInstance().Timeline.LayerCount - 1);
+        if (layer < 0 || layer >= ChatBoxManager.GetInstance().Timeline.LayerCount) return;
 
         ChatBoxManager.GetInstance().Timeline.SetLayerEnabled(layer, Enabled.Read(c));
-        return Next.Execute(c);
     }
 }

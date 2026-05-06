@@ -7,7 +7,7 @@ using VRCOSC.App.Utils;
 namespace VRCOSC.App.Nodes.Types.VRChat.Player;
 
 [Node("Mute Set", "VRChat/Player/Actions")]
-public sealed class PlayerMuteSetNode : SimpleActionNode
+public sealed class PlayerMuteSetNode : ActionNode
 {
     public ValueInput<bool> Muted = new();
 
@@ -21,13 +21,13 @@ public sealed class PlayerMuteSetNode : SimpleActionNode
 }
 
 [Node("Mute Toggle", "VRChat/Player/Actions")]
-public sealed class PlayerMuteToggleNode : SimpleActionNode
+public sealed class PlayerMuteToggleNode : ActionNode
 {
     protected override void DoAction(PulseContext c) => c.GetClient().Player.ToggleVoice();
 }
 
 [Node("Push To Talk", "VRChat/Player/Actions")]
-public sealed class PlayerPushToTalkNode : SimpleActionNode
+public sealed class PlayerPushToTalkNode : ActionNode
 {
     public ValueInput<bool> Active = new();
 
@@ -35,13 +35,13 @@ public sealed class PlayerPushToTalkNode : SimpleActionNode
 }
 
 [Node("Jump", "VRChat/Player/Actions")]
-public sealed class PlayerJumpNode : SimpleActionNode
+public sealed class PlayerJumpNode : ActionNode
 {
     protected override void DoAction(PulseContext c) => c.GetClient().Player.Jump();
 }
 
 [Node("Look Vertical", "VRChat/Player/Actions")]
-public sealed class PlayerLookVerticalNode : SimpleActionNode
+public sealed class PlayerLookVerticalNode : ActionNode
 {
     public ValueInput<float> Angle = new();
 
@@ -49,7 +49,7 @@ public sealed class PlayerLookVerticalNode : SimpleActionNode
 }
 
 [Node("Look Horizontal", "VRChat/Player/Actions")]
-public sealed class PlayerLookHorizontalNode : SimpleActionNode
+public sealed class PlayerLookHorizontalNode : ActionNode
 {
     public ValueInput<float> Angle = new();
 
@@ -57,7 +57,7 @@ public sealed class PlayerLookHorizontalNode : SimpleActionNode
 }
 
 [Node("Move Vertical", "VRChat/Player/Actions")]
-public sealed class PlayerMoveVerticalNode : SimpleActionNode
+public sealed class PlayerMoveVerticalNode : ActionNode
 {
     public ValueInput<float> Amount = new();
 
@@ -65,7 +65,7 @@ public sealed class PlayerMoveVerticalNode : SimpleActionNode
 }
 
 [Node("Move Horizontal", "VRChat/Player/Actions")]
-public sealed class PlayerMoveHorizontalNode : SimpleActionNode
+public sealed class PlayerMoveHorizontalNode : ActionNode
 {
     public ValueInput<float> Amount = new();
 
@@ -73,7 +73,7 @@ public sealed class PlayerMoveHorizontalNode : SimpleActionNode
 }
 
 [Node("Set Run", "VRChat/Player/Actions")]
-public sealed class PlayerSetRunNode : SimpleActionNode
+public sealed class PlayerSetRunNode : ActionNode
 {
     public ValueInput<bool> Run = new();
 
@@ -87,7 +87,7 @@ public sealed class PlayerSetRunNode : SimpleActionNode
 }
 
 [Node("Change Avatar", "VRChat/Player/Actions")]
-public sealed class PlayerChangeAvatarNode : SimpleActionNode
+public sealed class PlayerChangeAvatarNode : ActionNode
 {
     public ValueInput<string> AvatarId = new("Avatar Id");
 
@@ -103,7 +103,7 @@ public sealed class PlayerChangeAvatarNode : SimpleActionNode
 }
 
 [Node("Grab", "VRChat/Player/Actions")]
-public sealed class PlayerGrabNode : SimpleActionNode
+public sealed class PlayerGrabNode : ActionNode
 {
     public ValueInput<Chirality> Chirality = new();
 
@@ -117,7 +117,7 @@ public sealed class PlayerGrabNode : SimpleActionNode
 }
 
 [Node("Drop", "VRChat/Player/Actions")]
-public sealed class PlayerDropNode : SimpleActionNode
+public sealed class PlayerDropNode : ActionNode
 {
     public ValueInput<Chirality> Chirality = new();
 
@@ -131,7 +131,7 @@ public sealed class PlayerDropNode : SimpleActionNode
 }
 
 [Node("Use", "VRChat/Player/Actions")]
-public sealed class PlayerUseNode : SimpleActionNode
+public sealed class PlayerUseNode : ActionNode
 {
     public ValueInput<Chirality> Chirality = new();
 
@@ -145,13 +145,13 @@ public sealed class PlayerUseNode : SimpleActionNode
 }
 
 [Node("Enter Safe Mode", "VRChat/Player/Actions")]
-public sealed class PlayerEnterSafeModeNode : SimpleActionNode
+public sealed class PlayerEnterSafeModeNode : ActionNode
 {
     protected override void DoAction(PulseContext c) => c.GetClient().Player.EnableSafeMode();
 }
 
 [Node("Toggle Quick Menu", "VRChat/Player/Actions")]
-public sealed class PlayerToggleQuickMenuNode : SimpleActionNode
+public sealed class PlayerToggleQuickMenuNode : ActionNode
 {
     public ValueInput<Chirality> Chirality = new();
 

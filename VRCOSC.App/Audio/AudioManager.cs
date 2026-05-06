@@ -55,7 +55,7 @@ public class AudioManager
         return Task.CompletedTask;
     }
 
-    public Utils.Result<ISoundPlayer> CreatePlayer(AudioPlaybackDevice playbackDevice, string filePath)
+    public Utils.Result<ISoundPlayer?> CreatePlayer(AudioPlaybackDevice playbackDevice, string filePath)
     {
         try
         {
