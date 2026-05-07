@@ -1748,26 +1748,22 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var nodeGraphItem = (NodeGraphItem)textBox.Tag;
 
         var type = nodeGraphItem.Node.Metadata.Outputs[0].Type;
+        var text = textBox.Text;
 
-        Task.Run(() =>
+        try
         {
-            try
-            {
-                var iNumberType = typeof(INumber<>).MakeGenericType(type);
-                if (!iNumberType.IsAssignableFrom(type)) return;
+            if (!type.IsAssignableTo(typeof(INumber<>).MakeGenericType(type)) || !typeof(double).TryCreateConverter(type, out var converter)) return;
 
-                var expression = new Expression(textBox.Text);
-                expression.disableImpliedMultiplicationMode();
-                var result = expression.calculate();
+            var expression = new Expression(text);
+            expression.disableImpliedMultiplicationMode();
+            var result = expression.calculate();
 
-                var convertedResult = Convert.ChangeType(result, type);
-
-                Dispatcher.Invoke(() => textBox.Text = convertedResult.ToString()!);
-            }
-            catch
-            {
-            }
-        }).Forget();
+            var convertedResult = converter.DynamicInvoke(result)!;
+            textBox.Text = convertedResult.ToString()!;
+        }
+        catch
+        {
+        }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
