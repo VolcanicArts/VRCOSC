@@ -53,7 +53,7 @@ public static class InstanceHelper
 
     public static InstanceRegion CodeToRegion(string code) => code.ToLowerInvariant() switch
     {
-        "usw" => InstanceRegion.USWest,
+        "us" => InstanceRegion.USWest,
         "use" => InstanceRegion.USEast,
         "eu" => InstanceRegion.Europe,
         "jp" => InstanceRegion.Japan,
@@ -75,7 +75,7 @@ public enum InstanceType
 
 public enum InstanceRegion
 {
-    USWest, //usw
+    USWest, //us
     USEast, //use
     Europe, //eu
     Japan //jp

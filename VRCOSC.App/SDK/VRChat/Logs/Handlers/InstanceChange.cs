@@ -62,7 +62,7 @@ public class InstanceChangeLogLineHandler : VRChatLogLineHandler
         }
         catch (Exception e)
         {
-            Logger.Error(e, "Failed to parse instance change");
+            Logger.Error(e, $"Failed to parse instance change for log line: '{logLine.Match.Value}'");
             return null;
         }
     }
