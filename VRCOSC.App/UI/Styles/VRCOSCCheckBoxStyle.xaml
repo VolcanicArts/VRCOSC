@@ -5,6 +5,7 @@
     <Style TargetType="core:VRCOSCCheckBox">
         <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="BorderThickness" Value="3"/>
+        <Setter Property="Padding" Value="5"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="core:VRCOSCCheckBox">
@@ -14,7 +15,7 @@
                         BorderBrush="{DynamicResource CForeground3}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius}">
-                        <Viewbox Stretch="Uniform" Margin="5">
+                        <Viewbox Stretch="Uniform" Margin="{TemplateBinding Padding}">
                             <fa6:ImageAwesome
                                 x:Name="CheckIcon"
                                 Icon="Solid_Check"

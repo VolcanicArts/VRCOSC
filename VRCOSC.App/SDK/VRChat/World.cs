@@ -14,7 +14,7 @@ public record World
         Name = name;
     }
 
-    public override string ToString() => $"{Id} ({Name})";
+    public override string ToString() => $"{Id}\n({Name})";
 
     public override int GetHashCode() => Id.GetHashCode();
 

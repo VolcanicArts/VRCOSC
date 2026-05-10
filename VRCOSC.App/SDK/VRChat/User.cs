@@ -14,7 +14,7 @@ public record User
         Username = username;
     }
 
-    public override string ToString() => $"{Id} ({Username})";
+    public override string ToString() => $"{Id}\n({Username})";
 
     public override int GetHashCode() => Id.GetHashCode();
 

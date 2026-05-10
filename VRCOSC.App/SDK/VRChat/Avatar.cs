@@ -26,7 +26,7 @@ public record Avatar
         Parameters = parameters;
     }
 
-    public override string ToString() => $"{Id} ({Name})";
+    public override string ToString() => $"{Id}\v({Name})";
 
     public override int GetHashCode() => Id.GetHashCode();
 

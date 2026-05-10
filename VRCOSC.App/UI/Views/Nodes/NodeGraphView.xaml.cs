@@ -45,8 +45,9 @@ namespace VRCOSC.App.UI.Views.Nodes;
 
 public partial class NodeGraphView : INotifyPropertyChanged
 {
-    public const int SNAP_DISTANCE = 25;
-    public const int SIGNIFICANT_SNAP_STEP = 20;
+    public const double SNAP_DISTANCE = 25d / 2d;
+    public const double BACKGROUND_SNAP_DISTANCE = SNAP_DISTANCE * 2d;
+    public const double SIGNIFICANT_SNAP_STEP = 20d;
     public Padding GroupPadding { get; } = new(30, 55, 30, 30);
     public Padding SelectionPadding { get; } = new((int)(SNAP_DISTANCE * 0.75), (int)(SNAP_DISTANCE * 0.75), (int)(SNAP_DISTANCE * 0.75), (int)(SNAP_DISTANCE * 0.75));
 
@@ -237,7 +238,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var brush = new VisualBrush(backgroundVisual)
         {
             TileMode = TileMode.Tile,
-            Viewport = new Rect(0, 0, SNAP_DISTANCE * SIGNIFICANT_SNAP_STEP, SNAP_DISTANCE * SIGNIFICANT_SNAP_STEP),
+            Viewport = new Rect(0, 0, BACKGROUND_SNAP_DISTANCE * SIGNIFICANT_SNAP_STEP, BACKGROUND_SNAP_DISTANCE * SIGNIFICANT_SNAP_STEP),
             ViewportUnits = BrushMappingMode.Absolute,
             AlignmentX = AlignmentX.Left,
             AlignmentY = AlignmentY.Top,
@@ -249,7 +250,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
     private DrawingVisual createTiledGrid()
     {
-        const double tile_size = SNAP_DISTANCE * SIGNIFICANT_SNAP_STEP;
+        const double tile_size = BACKGROUND_SNAP_DISTANCE * SIGNIFICANT_SNAP_STEP;
 
         const double line_thickness = 1.0;
         const double offset = line_thickness / 2.0;
@@ -264,7 +265,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         {
             if (i % SIGNIFICANT_SNAP_STEP == 0) continue;
 
-            var x = i * SNAP_DISTANCE + offset;
+            var x = i * BACKGROUND_SNAP_DISTANCE + offset;
             dc.DrawLine(minorPen, new Point(x, 0), new Point(x, tile_size));
         }
 
@@ -272,7 +273,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         {
             if (i % SIGNIFICANT_SNAP_STEP == 0) continue;
 
-            var y = i * SNAP_DISTANCE + offset;
+            var y = i * BACKGROUND_SNAP_DISTANCE + offset;
             dc.DrawLine(minorPen, new Point(0, y), new Point(tile_size, y));
         }
 
@@ -280,7 +281,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         {
             if (i % SIGNIFICANT_SNAP_STEP != 0) continue;
 
-            var x = i * SNAP_DISTANCE + offset;
+            var x = i * BACKGROUND_SNAP_DISTANCE + offset;
             dc.DrawLine(majorPen, new Point(x, 0), new Point(x, tile_size));
         }
 
@@ -288,7 +289,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         {
             if (i % SIGNIFICANT_SNAP_STEP != 0) continue;
 
-            var y = i * SNAP_DISTANCE + offset;
+            var y = i * BACKGROUND_SNAP_DISTANCE + offset;
             dc.DrawLine(majorPen, new Point(0, y), new Point(tile_size, y));
         }
 
@@ -301,8 +302,8 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
     private void snapPointToGrid(ref Point point)
     {
-        point.X = Math.Round(point.X / SNAP_DISTANCE) * SNAP_DISTANCE;
-        point.Y = Math.Round(point.Y / SNAP_DISTANCE) * SNAP_DISTANCE;
+        point.X = double.Round(point.X / SNAP_DISTANCE) * SNAP_DISTANCE;
+        point.Y = double.Round(point.Y / SNAP_DISTANCE) * SNAP_DISTANCE;
     }
 
     private void deselectGraphItems()
@@ -474,7 +475,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var path = new Path
         {
             Data = new PathGeometry { Figures = { pathFigure } },
-            StrokeThickness = 3
+            StrokeThickness = 2
         };
 
         if (connection.ConnectionType == ConnectionType.Flow)

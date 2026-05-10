@@ -3,5 +3,5 @@
 
 namespace VRCOSC.App.Nodes.Types.Inputs;
 
-[Node("Rich TextBox", "Utility")]
+[Node("Rich TextBox")]
 public sealed class RichTextNode : ValueNode<string>;

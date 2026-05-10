@@ -4,11 +4,12 @@
     <core:KeybindToStringConverter x:Key="KeybindToStringConverter" />
     <Style TargetType="core:KeybindPicker">
         <Setter Property="Focusable" Value="True" />
+        <Setter Property="BorderThickness" Value="2"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="core:KeybindPicker">
                     <Border Name="Border" BorderBrush="{TemplateBinding Background}" Background="{TemplateBinding Background}"
-                            CornerRadius="5" BorderThickness="2">
+                            CornerRadius="2" BorderThickness="{TemplateBinding BorderThickness}">
                         <TextBlock
                             Text="{TemplateBinding Keybind, Converter={StaticResource KeybindToStringConverter}}"
                             Foreground="{DynamicResource CForeground1}" FontSize="{TemplateBinding FontSize}"
