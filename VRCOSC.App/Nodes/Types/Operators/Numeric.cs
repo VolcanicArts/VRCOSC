@@ -1,6 +1,7 @@
 // Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Linq;
 using System.Numerics;
 using FontAwesome6;
 
@@ -9,8 +10,28 @@ namespace VRCOSC.App.Nodes.Types.Operators;
 [Node("Add", "Operators/Numeric", EFontAwesomeIcon.Solid_Plus)]
 public sealed class AddNode<T>() : SimpleResultComputeNode<T>((a, b) => a + b) where T : IAdditionOperators<T, T, T>;
 
+[Node("Add (Multi)", "Operators/Numeric")]
+public sealed class MultiAddNode<T> : ValueComputeNode<T> where T : IAdditionOperators<T, T, T>
+{
+    public override string DisplayName => "Add";
+
+    public ValueInputList<T> Inputs = new();
+
+    protected override T ComputeValue(PulseContext c) => Inputs.Read(c).Aggregate((curr, next) => curr + next);
+}
+
 [Node("Subtract", "Operators/Numeric", EFontAwesomeIcon.Solid_Minus)]
 public sealed class SubtractNode<T>() : SimpleResultComputeNode<T>((a, b) => a - b) where T : ISubtractionOperators<T, T, T>;
+
+[Node("Subtract (Multi)", "Operators/Numeric")]
+public sealed class MultiSubtractNode<T> : ValueComputeNode<T> where T : ISubtractionOperators<T, T, T>
+{
+    public override string DisplayName => "Subtract";
+
+    public ValueInputList<T> Inputs = new();
+
+    protected override T ComputeValue(PulseContext c) => Inputs.Read(c).Aggregate((curr, next) => curr - next);
+}
 
 [Node("Multiply", "Operators/Numeric", EFontAwesomeIcon.Solid_Asterisk)]
 public sealed class MultiplyNode<T>() : SimpleResultComputeNode<T>((a, b) => a * b) where T : IMultiplyOperators<T, T, T>;
