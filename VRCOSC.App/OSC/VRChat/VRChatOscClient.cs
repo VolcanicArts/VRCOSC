@@ -139,8 +139,8 @@ public class VRChatOSCClient
         if (eyeHeightScalingAllowedNode is null) return new AvatarHeightOSCQueryData();
 
         var eyeHeight = (float)(double)(eyeHeightNode.Value?[0] ?? 0d);
-        var eyeHeightMin = (float)(double)(eyeHeightNode.Value?[0] ?? 0d);
-        var eyeHeightMax = (float)(double)(eyeHeightNode.Value?[0] ?? 0d);
+        var eyeHeightMin = (float)(double)(eyeHeightMinNode.Value?[0] ?? 0d);
+        var eyeHeightMax = (float)(double)(eyeHeightMaxNode.Value?[0] ?? 0d);
         var eyeHeightScalingAllowed = (bool)(eyeHeightScalingAllowedNode.Value?[0] ?? false);
 
         return new AvatarHeightOSCQueryData(eyeHeight, eyeHeightMin, eyeHeightMax, eyeHeightScalingAllowed);
