@@ -36,6 +36,16 @@ public sealed class MultiSubtractNode<T> : ValueComputeNode<T> where T : ISubtra
 [Node("Multiply", "Operators/Numeric", EFontAwesomeIcon.Solid_Asterisk)]
 public sealed class MultiplyNode<T>() : SimpleResultComputeNode<T>((a, b) => a * b) where T : IMultiplyOperators<T, T, T>;
 
+[Node("Multiply (Multi)", "Operators/Numeric")]
+public sealed class MultiMultiplyNode<T> : ValueComputeNode<T> where T : IMultiplyOperators<T, T, T>
+{
+    public override string DisplayName => "Multiply";
+
+    public ValueInputList<T> Inputs = new();
+
+    protected override T ComputeValue(PulseContext c) => Inputs.Read(c).Aggregate((curr, next) => curr * next);
+}
+
 [Node("Divide", "Operators/Numeric", EFontAwesomeIcon.Solid_Divide)]
 public sealed class DivideNode<T>() : SimpleResultComputeNode<T>((a, b) => a / b) where T : IDivisionOperators<T, T, T>;
 
