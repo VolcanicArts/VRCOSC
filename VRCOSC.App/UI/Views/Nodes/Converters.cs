@@ -193,7 +193,7 @@ public class NodeIconToIconVisibilityConverter : IValueConverter
 
 public class TypeIsStringConverter : IValueConverter
 {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => value is string;
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => value is Type type && type == typeof(string);
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
@@ -202,7 +202,6 @@ public class GraphItemsDataTemplateSelector : DataTemplateSelector
 {
     public required DataTemplate? NodeTemplate { get; set; }
     public required DataTemplate? RelayNodeTemplate { get; set; }
-    public required DataTemplate? RichTextBoxNodeTemplate { get; set; }
     public required DataTemplate? TextBoxValueOutputOnlyNodeTemplate { get; set; }
     public required DataTemplate? ToggleValueOutputOnlyNodeTemplate { get; set; }
     public required DataTemplate? EnumValueOutputOnlyNodeTemplate { get; set; }
@@ -233,7 +232,7 @@ public class GraphItemsDataTemplateSelector : DataTemplateSelector
             var metadata = node.Metadata;
 
             if (node is ButtonNode) return ButtonNodeTemplate;
-            if (node is RichTextNode) return RichTextBoxNodeTemplate;
+            if (node is RichTextNode) return TextBoxValueOutputOnlyNodeTemplate;
 
             if (type.IsGenericType)
             {

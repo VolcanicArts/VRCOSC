@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Inputs;
@@ -18,6 +19,8 @@ public class ValueNode<T> : ValueComputeNode<T>
             NodeGraph.TriggerTree(this).Forget();
         }
     } = default!;
+
+    public Type Type => typeof(T);
 
     protected override T ComputeValue(PulseContext c) => Value;
 }
