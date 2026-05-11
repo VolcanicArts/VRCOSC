@@ -7,22 +7,56 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
-[Node("Fire On Change", "Flow")]
-public sealed class FireOnChangeNode<T> : Node
+public abstract class FireOnBaseNode<T> : Node
 {
     public FlowContinuation Next = new();
 
     public GlobalStore<T> PrevValue = new();
 
-    public ValueInput<T> Value = new();
+    protected override Task Process(PulseContext c) => Next.Execute(c);
 
-    protected override Task Process(PulseContext c)
+    protected override bool ShouldProcess(PulseContext c)
     {
-        PrevValue.Write(Value.Read(c), c);
-        return Next.Execute(c);
+        var value = GetValue(c);
+        var prevValue = PrevValue.Read(c);
+
+        PrevValue.Write(value, c);
+        return ShouldFire(value, prevValue);
     }
 
-    protected override bool ShouldProcess(PulseContext c) => !EqualityComparer<T>.Default.Equals(Value.Read(c), PrevValue.Read(c));
+    protected abstract T GetValue(PulseContext c);
+
+    protected abstract bool ShouldFire(T value, T prevValue);
+}
+
+[Node("Fire On Change", "Flow")]
+public sealed class FireOnChangeNode<T> : FireOnBaseNode<T>
+{
+    public ValueInput<T> Value = new();
+
+    protected override T GetValue(PulseContext c) => Value.Read(c);
+
+    protected override bool ShouldFire(T value, T prevValue) => !EqualityComparer<T>.Default.Equals(value, prevValue);
+}
+
+[Node("Fire On True", "Flow")]
+public sealed class FireOnTrueNode : FireOnBaseNode<bool>
+{
+    public ValueInput<bool> Condition = new();
+
+    protected override bool GetValue(PulseContext c) => Condition.Read(c);
+
+    protected override bool ShouldFire(bool value, bool prevValue) => value && !prevValue;
+}
+
+[Node("Fire On False", "Flow")]
+public sealed class FireOnFalseNode : FireOnBaseNode<bool>
+{
+    public ValueInput<bool> Condition = new();
+
+    protected override bool GetValue(PulseContext c) => Condition.Read(c);
+
+    protected override bool ShouldFire(bool value, bool prevValue) => !value && prevValue;
 }
 
 [Node("Fire On Change (Multi)", "Flow")]
