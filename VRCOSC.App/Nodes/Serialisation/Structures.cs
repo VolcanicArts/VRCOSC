@@ -61,6 +61,9 @@ public class SerialisableNodeGraph : SerialisableVersion
     [JsonProperty("name")]
     public string Name { get; set; } = string.Empty;
 
+    [JsonProperty("enabled")]
+    public bool Enabled { get; set; } = true;
+
     [JsonProperty("nodes")]
     public List<SerialisableNode> Nodes { get; set; } = [];
 
@@ -84,6 +87,7 @@ public class SerialisableNodeGraph : SerialisableVersion
 
         Id = nodeGraph.Id;
         Name = nodeGraph.Name.Value;
+        Enabled = nodeGraph.Enabled.Value;
         Nodes = nodeGraph.Nodes.Values.Select(node => new SerialisableNode(node)).ToList();
         Connections = nodeGraph.Connections.Values.Select(connection => new SerialisableConnection(connection)).ToList();
         Groups = nodeGraph.Groups.Values.Select(group => new SerialisableNodeGroup(group)).ToList();

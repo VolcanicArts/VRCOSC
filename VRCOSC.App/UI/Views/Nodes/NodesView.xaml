@@ -12,7 +12,7 @@
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="175"/>
+            <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -35,63 +35,149 @@
         <Grid Grid.Column="0" Grid.Row="1">
             <Grid x:Name="GraphsPanel">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-                    <core:SpacedStackPanel Orientation="Vertical" Spacing="5" Margin="5">
-                        <ItemsControl ItemsSource="{Binding GraphsSource, Mode=OneWay}" Background="Transparent">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <core:SpacedStackPanel Spacing="5" Orientation="Vertical"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border CornerRadius="5" MouseDown="GraphTab_OnClick" Tag="{Binding}"
-                                            ToolTip="{Binding Name.Value}"
-                                            ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Background" Value="{DynamicResource CBackground3}"/>
-                                                <Style.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="{DynamicResource CBackground8}"/>
-                                                    </Trigger>
-                                                    <MultiDataTrigger>
-                                                        <MultiDataTrigger.Conditions>
-                                                            <Condition Binding="{Binding Selected.Value}" Value="True"/>
-                                                            <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="False"/>
-                                                        </MultiDataTrigger.Conditions>
-                                                        <Setter Property="Background" Value="{DynamicResource CBackground6}"/>
-                                                    </MultiDataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                        <Border.ContextMenu>
-                                            <ContextMenu>
-                                                <MenuItem Header="Export" Click="ExportGraph_OnClick" Tag="{Binding}"/>
-                                                <MenuItem Header="Delete" Click="DeleteGraph_OnClick" Tag="{Binding}"/>
-                                            </ContextMenu>
-                                        </Border.ContextMenu>
-                                        <TextBlock Grid.Row="0" Grid.Column="0"
-                                                   Foreground="{DynamicResource CForeground2}"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   FontSize="15"
-                                                   Text="{Binding Name.Value}"
-                                                   TextTrimming="CharacterEllipsis"/>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        <core:IconButton ButtonColour="Green" Icon="Solid_Plus" VerticalAlignment="Top" Width="100" Height="20" Click="CreateGraph_OnClick"/>
-                    </core:SpacedStackPanel>
+
+                <Border Grid.Row="0" Background="{DynamicResource CBackground1}" Padding="12 10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <core:IconButton ButtonColour="Blue"
+                                         Icon="Solid_Download"
+                                         Height="24"
+                                         Click="ImportGraph_OnClick"
+                                         ToolTip="Import Graph"
+                                         ToolTipService.Placement="Bottom"
+                                         ToolTipService.InitialShowDelay="500"/>
+                        <core:IconButton Grid.Column="2"
+                                        ButtonColour="Green"
+                                        Icon="Solid_Plus"
+                                        Height="24"
+                                        Click="CreateGraph_OnClick"
+                                        ToolTip="Create New Graph"
+                                        ToolTipService.Placement="Bottom"
+                                        ToolTipService.InitialShowDelay="500"/>
+                    </Grid>
+                </Border>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="8">
+                    <ItemsControl ItemsSource="{Binding GraphsSource, Mode=OneWay}" Background="Transparent">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <core:SpacedStackPanel Spacing="6" Orientation="Vertical"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border CornerRadius="6"
+                                        Tag="{Binding}"
+                                        ToolTip="{Binding Name.Value}"
+                                        ToolTipService.Placement="Mouse"
+                                        ToolTipService.InitialShowDelay="500"
+                                        Padding="12 10"
+                                        BorderThickness="2">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{DynamicResource CBackground2}"/>
+                                            <Setter Property="BorderBrush" Value="Transparent"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource CBackground4}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource CBackground6}"/>
+                                                </Trigger>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding Selected.Value}" Value="True"/>
+                                                        <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="False"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Background" Value="{DynamicResource CBackground5}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource CBackground8}"/>
+                                                </MultiDataTrigger>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding Selected.Value}" Value="True"/>
+                                                        <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Background" Value="{DynamicResource CBackground5}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource CBackground8}"/>
+                                                </MultiDataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <core:VRCOSCCheckBox Grid.Column="0"
+                                                 IsChecked="{Binding Enabled.Value, Mode=TwoWay}"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0 0 12 0"
+                                                 Width="24"
+                                                 Height="24">
+                                        </core:VRCOSCCheckBox>
+
+                                        <TextBlock Grid.Column="1"
+                                                  Text="{Binding Name.Value}"
+                                                  FontSize="14"
+                                                  VerticalAlignment="Center"
+                                                  TextTrimming="CharacterEllipsis"
+                                                  MouseDown="GraphTab_OnClick"
+                                                  Margin="0 -2 0 0"
+                                                  Tag="{Binding}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Enabled.Value}" Value="False">
+                                                            <Setter Property="Foreground" Value="{DynamicResource CForeground3}"/>
+                                                            <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+
+                                        <Border Grid.Column="2"
+                                               Width="8"
+                                               Height="8"
+                                               CornerRadius="4"
+                                               Margin="12 0 0 0"
+                                               VerticalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{DynamicResource CRed}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Running.Value}" Value="True">
+                                                            <Setter Property="Background" Value="{DynamicResource CGreen}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                        </Border>
+                                    </Grid>
+                                    <Border.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Export" Click="ExportGraph_OnClick" Tag="{Binding}"/>
+                                            <Separator/>
+                                            <MenuItem Header="Delete" Click="DeleteGraph_OnClick" Tag="{Binding}"/>
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </ScrollViewer>
-                <core:IconButton Grid.Row="1" ButtonColour="Blue" Icon="Solid_Download" VerticalAlignment="Bottom" Margin="0 10" Width="100" Height="25" Click="ImportGraph_OnClick"
-                                 ToolTip="Import Graph"
-                                 ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
             </Grid>
+
             <Grid x:Name="PresetsPanel">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>

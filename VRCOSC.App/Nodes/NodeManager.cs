@@ -28,6 +28,8 @@ public class NodeManager
     public Action? OnLoading;
     public Observable<bool> Loaded { get; } = new();
 
+    private List<Guid> runningGraphs { get; } = [];
+
     public void Load()
     {
         OnLoading?.Invoke();
@@ -193,8 +195,9 @@ public class NodeManager
     {
         if (!Loaded.Value) return;
 
-        foreach (var graph in Graphs)
+        foreach (var graph in Graphs.Where(g => g.Enabled.Value))
         {
+            runningGraphs.Add(graph.Id);
             await graph.Start();
         }
     }
@@ -203,8 +206,11 @@ public class NodeManager
     {
         if (!Loaded.Value) return;
 
-        foreach (var graph in Graphs)
+        foreach (var graphId in runningGraphs)
         {
+            var graph = Graphs.SingleOrDefault(g => g.Id == graphId);
+            if (graph is null) continue;
+
             await graph.Stop();
         }
     }

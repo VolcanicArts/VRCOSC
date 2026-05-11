@@ -25,6 +25,7 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
     protected override bool ExecuteAfterDeserialisation(SerialisableNodeGraph data)
     {
         Reference.Name.Value = data.Name;
+        Reference.Enabled.Value = data.Enabled;
 
         foreach (var sV in data.Variables)
         {

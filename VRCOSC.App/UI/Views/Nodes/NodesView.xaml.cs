@@ -79,10 +79,7 @@ public partial class NodesView
         }
 
         ActiveField.Content = view;
-
-        if (selectedGraph is not null)
-            selectedGraph.Selected.Value = false;
-
+        selectedGraph?.Selected.Value = false;
         nodeGraph.Selected.Value = true;
         selectedGraph = nodeGraph;
     }

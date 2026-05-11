@@ -22,7 +22,8 @@ public class NodeGraph
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Observable<string> Name { get; } = new("New Graph");
-    public Observable<bool> Selected { get; set; } = new();
+    public Observable<bool> Selected { get; } = new();
+    public Observable<bool> Enabled { get; } = new(true);
 
     private readonly SerialisationManager serialiser;
 
@@ -35,7 +36,7 @@ public class NodeGraph
     public readonly Dictionary<Type, NodeMetadata> Metadata = [];
     public readonly ConcurrentDictionary<Guid, Dictionary<IStore, IRef>> GlobalStores = [];
 
-    private bool running;
+    public Observable<bool> Running { get; } = new();
 
     public List<Node> AddedNodes = [];
     public List<Node> RemovedNodes = [];
@@ -70,7 +71,7 @@ public class NodeGraph
 
     public async Task Start()
     {
-        running = true;
+        Running.Value = true;
         CurrentSpeechText = null;
         await triggerOnStartNodes();
         await processAllTriggerNodes();
@@ -99,7 +100,7 @@ public class NodeGraph
         GlobalStores.Clear();
         continuousOutputs.Clear();
         GraphVariables.ForEach(v => v.Value.Reset());
-        running = false;
+        Running.Value = false;
 
         Serialise();
     }
@@ -475,7 +476,7 @@ public class NodeGraph
 
     public async Task StartFlow(Node node, PulseContext? baseContext = null, Func<PulseContext, Task<bool>>? onPreProcess = null)
     {
-        if (!running) return;
+        if (!Running.Value) return;
 
         var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this, new CancellationTokenSource());
 
@@ -527,7 +528,7 @@ public class NodeGraph
     /// </summary>
     private async Task<bool> processNode(Node node, PulseContext c, Func<PulseContext, Task<bool>>? onPreProcess = null, Func<PulseContext, Task<bool>>? onPostProcess = null)
     {
-        if (!running) return false;
+        if (!Running.Value) return false;
         if (c.IsCancelled) return false;
         if (c.HasMemory(node.Id) && !node.Metadata.ForceReprocess) return false;
 
@@ -599,7 +600,7 @@ public class NodeGraph
     /// </summary>
     public async Task TriggerTree(Node sourceNode, PulseContext? baseContext = null, Func<PulseContext, Task<bool>>? onPreProcess = null, Func<PulseContext, Task<bool>>? onPostProcess = null)
     {
-        if (!running) return;
+        if (!Running.Value) return;
 
         if (sourceNode.Metadata.IsTrigger)
         {
