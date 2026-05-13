@@ -33,13 +33,10 @@ public sealed class SteamVRTriggerHapticNode : ActionNode
 }
 
 [Node("Shutdown Device", "SteamVR")]
-public sealed class SteamVRShutdownDeviceNode : ActionNode
+public sealed class SteamVRShutdownDeviceNode() : ActionValueConsumeNode<TrackedDevice?>("Device")
 {
-    public ValueInput<TrackedDevice> Device = new();
-
-    protected override void DoAction(PulseContext c)
+    protected override void ConsumeValue(TrackedDevice? device, PulseContext c)
     {
-        var device = Device.Read(c);
         if (device is null) return;
 
         AppManager.GetInstance().SteamVRManager.ShutdownDevice(device);

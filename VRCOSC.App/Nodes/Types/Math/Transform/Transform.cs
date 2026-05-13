@@ -2,28 +2,24 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Numerics;
-using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Math.Transform;
 
 [Node("Unpack Transform", "Math/Transform")]
-public sealed class TransformUnpackNode : Node
+public sealed class TransformUnpackNode() : ValueConsumeNode<Utils.Transform>(nameof(Utils.Transform))
 {
-    public ValueInput<Utils.Transform> Transform = new();
-
     public ValueOutput<Vector3> Position = new();
     public ValueOutput<System.Numerics.Quaternion> Rotation = new();
 
-    protected override Task Process(PulseContext c)
+    protected override void ConsumeValue(Utils.Transform transform, PulseContext c)
     {
-        Position.Write(Transform.Read(c).Position, c);
-        Rotation.Write(Transform.Read(c).Rotation, c);
-        return Task.CompletedTask;
+        Position.Write(transform.Position, c);
+        Rotation.Write(transform.Rotation, c);
     }
 }
 
 [Node("Pack Transform", "Math/Transform")]
-public sealed class TransformPackNode() : ValueComputeNode<Utils.Transform>("Transform")
+public sealed class TransformPackNode() : ValueComputeNode<Utils.Transform>(nameof(Utils.Transform))
 {
     public ValueInput<Vector3> Position = new();
     public ValueInput<System.Numerics.Quaternion> Rotation = new(defaultValue: System.Numerics.Quaternion.Identity);

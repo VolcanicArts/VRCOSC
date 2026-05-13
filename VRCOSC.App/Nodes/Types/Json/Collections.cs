@@ -12,7 +12,7 @@ namespace VRCOSC.App.Nodes.Types.Json;
 [NodeCollapsed]
 public class JsonObjectToDictionaryNode<T> : ValueTransformNode<JsonObject, Dictionary<string, T>>
 {
-    protected override Dictionary<string, T> TransformValue(JsonObject value)
+    protected override Dictionary<string, T> TransformValue(JsonObject value, PulseContext c)
     {
         if (value is null) return [];
 
@@ -39,24 +39,16 @@ public class JsonObjectToDictionaryNode<T> : ValueTransformNode<JsonObject, Dict
 
 [Node("Dictionary To JsonObject", "Json")]
 [NodeCollapsed]
-public class DictionaryToJsonObjectNode<T> : ValueComputeNode<JsonObject>
+public class DictionaryToJsonObjectNode<T> : ValueTransformNode<Dictionary<string, T>, JsonObject?>
 {
-    public ValueInput<Dictionary<string, T>> Dictionary = new();
-
-    protected override JsonObject ComputeValue(PulseContext c)
-    {
-        var input = Dictionary.Read(c);
-        if (input is null) return null!;
-
-        return (JsonObject)JsonSerializer.SerializeToNode(input, options: null)!;
-    }
+    protected override JsonObject? TransformValue(Dictionary<string, T> value, PulseContext c) => value is null ? null : (JsonObject)JsonSerializer.SerializeToNode(value, options: null)!;
 }
 
 [Node("JsonArray To Enumerable", "Json")]
 [NodeCollapsed]
 public class JsonArrayToEnumerableNode<T> : ValueTransformNode<JsonArray, List<T>>
 {
-    protected override List<T> TransformValue(JsonArray value)
+    protected override List<T> TransformValue(JsonArray value, PulseContext c)
     {
         try
         {
@@ -74,15 +66,7 @@ public class JsonArrayToEnumerableNode<T> : ValueTransformNode<JsonArray, List<T
 
 [Node("Enumerable To JsonArray", "Json")]
 [NodeCollapsed]
-public class EnumerableToJsonArrayNode<T> : ValueComputeNode<JsonArray>
+public class EnumerableToJsonArrayNode<T> : ValueTransformNode<List<T>, JsonArray?>
 {
-    public ValueInput<List<T>> List = new();
-
-    protected override JsonArray ComputeValue(PulseContext c)
-    {
-        var input = List.Read(c);
-        if (input is null) return null!;
-
-        return (JsonArray)JsonSerializer.SerializeToNode(input, options: null)!;
-    }
+    protected override JsonArray? TransformValue(List<T> value, PulseContext c) => value is null ? null : (JsonArray)JsonSerializer.SerializeToNode(value, options: null)!;
 }

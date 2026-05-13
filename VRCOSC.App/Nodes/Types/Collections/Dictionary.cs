@@ -3,25 +3,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Collections;
 
 [Node("Dictionary Count", "Collections")]
-public sealed class DictionaryCountNode<TKey, TValue> : Node where TKey : notnull
-{
-    public ValueInput<Dictionary<TKey, TValue>> Dictionary = new();
-    public ValueOutput<int> Count = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var dictionary = Dictionary.Read(c);
-        if (dictionary is null) return Task.CompletedTask;
-
-        Count.Write(dictionary.Count, c);
-        return Task.CompletedTask;
-    }
-}
+[NodeCollapsed]
+public sealed class DictionaryCountNode<TKey, TValue>() : SimpleValueTransformNode<Dictionary<TKey, TValue>?, int>(dictionary => dictionary?.Count ?? 0) where TKey : notnull;
 
 [Node("Dictionary Key To Value", "Collections")]
 public sealed class DictionaryKeyToValueNode<TKey, TValue>() : ValueComputeNode<TValue>("Value") where TKey : notnull

@@ -27,14 +27,11 @@ public sealed class DriveVariableNode<T> : Node, IUpdateNode, IHasVariableRefere
         return Task.CompletedTask;
     }
 
-    public void OnUpdate(PulseContext c)
-    {
-        graphVariable.Write(CurrValue.Read(c));
-    }
+    public void OnUpdate(PulseContext c) => graphVariable.Write(CurrValue.Read(c));
 }
 
 [Node("Direct Write Variable")]
-public sealed class DirectWriteVariableNode<T> : Node, IFlowInput, IHasVariableReference
+public sealed class DirectWriteVariableNode<T> : ActionNode, IHasVariableReference
 {
     public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
 
@@ -43,33 +40,18 @@ public sealed class DirectWriteVariableNode<T> : Node, IFlowInput, IHasVariableR
     [NodeProperty("variable_id")]
     public Guid VariableId { get; set; }
 
-    public FlowContinuation OnWrite = new();
-
     public ValueInput<T> Value = new();
 
-    protected override Task Process(PulseContext c)
-    {
-        graphVariable.Write(Value.Read(c));
-        return OnWrite.Execute(c);
-    }
+    protected override void DoAction(PulseContext c) => graphVariable.Write(Value.Read(c));
 }
 
 [Node("Indirect Write Variable", "Variables")]
-public sealed class IndirectWriteVariableNode<T> : Node, IFlowInput
+public sealed class IndirectWriteVariableNode<T> : ActionNode
 {
-    public FlowContinuation OnWrite = new();
-
     public ValueInput<GraphVariable<T>> Reference = new();
     public ValueInput<T> Value = new();
 
-    protected override Task Process(PulseContext c)
-    {
-        var reference = Reference.Read(c);
-        if (reference is null) return Task.CompletedTask;
-
-        reference.Write(Value.Read(c));
-        return OnWrite.Execute(c);
-    }
+    protected override void DoAction(PulseContext c) => Reference.Read(c)?.Write(Value.Read(c));
 }
 
 [Node("Variable Reference")]

@@ -17,18 +17,15 @@ public sealed class PackVector2Node : ValueComputeNode<Vector2>
 }
 
 [Node("Unpack Vector2", "Math/Vector2")]
-public sealed class UnpackVector2Node : Node
+public sealed class UnpackVector2Node() : ValueConsumeNode<Vector2>("Vector")
 {
-    public ValueInput<Vector2> Vector = new();
     public ValueOutput<float> X = new();
     public ValueOutput<float> Y = new();
 
-    protected override Task Process(PulseContext c)
+    protected override void ConsumeValue(Vector2 vector, PulseContext c)
     {
-        var vector = Vector.Read(c);
         X.Write(vector.X, c);
         Y.Write(vector.Y, c);
-        return Task.CompletedTask;
     }
 }
 
@@ -64,21 +61,20 @@ public sealed class Vector2ContainsNode : Node
 
 [Node("Delta", "Math/Vector2")]
 [NodeCollapsed]
-public sealed class Vector2DeltaNode : Node
+public sealed class Vector2DeltaNode : ValueTransformNode<Vector2>
 {
     public GlobalStore<Vector2> PrevValue = new();
 
-    public ValueInput<Vector2> Input = new();
-    public ValueOutput<Vector2> Output = new();
-
     protected override Task Process(PulseContext c)
     {
-        var input = Input.Read(c);
-        var prevValue = PrevValue.Read(c);
-
-        Output.Write(input - prevValue, c);
-        PrevValue.Write(input, c);
         return Task.CompletedTask;
+    }
+
+    protected override Vector2 TransformValue(Vector2 value, PulseContext c)
+    {
+        var prevValue = PrevValue.Read(c);
+        PrevValue.Write(value, c);
+        return value - prevValue;
     }
 }
 

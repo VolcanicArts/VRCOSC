@@ -8,8 +8,7 @@ using VRCOSC.App.Audio;
 namespace VRCOSC.App.Nodes.Types.Audio;
 
 [Node("Default Playback Device", "Audio/Devices")]
-[NodeCollapsed]
-public sealed class AudioDefaultPlaybackDeviceNode() : SimpleValueSourceNode<AudioPlaybackDevice?>(() => AudioManager.GetInstance().PlaybackDevices.FirstOrDefault(d => d.Info!.Value.IsDefault));
+public sealed class AudioDefaultPlaybackDeviceNode() : SimpleValueSourceNode<AudioPlaybackDevice?>(() => AudioManager.GetInstance().PlaybackDevices.FirstOrDefault(d => d.Info!.Value.IsDefault), "Device");
 
 [Node("Playback Device Source", "Audio/Devices")]
 public sealed class AudioPlaybackDeviceSourceNode() : ValueSourceNode<AudioPlaybackDevice?>("Device"), IHasTextProperty

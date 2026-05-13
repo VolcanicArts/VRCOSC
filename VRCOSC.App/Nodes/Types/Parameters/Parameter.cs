@@ -27,23 +27,21 @@ public sealed class IndirectSendParameterNode<T> : ActionNode where T : struct
 
 [Node("Direct Send Parameter", "Parameters/Send")]
 [NodeGenericTypeFilter(typeof(bool), typeof(int), typeof(float))]
-public sealed class DirectSendParameterNode<T> : ActionNode, IHasTextProperty where T : struct
+public sealed class DirectSendParameterNode<T> : ActionValueConsumeNode<T>, IHasTextProperty where T : struct
 {
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public ValueInput<T> Value = new();
-
-    protected override void DoAction(PulseContext c)
+    protected override void ConsumeValue(T value, PulseContext c)
     {
         if (!string.IsNullOrWhiteSpace(Text))
-            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{Text}", Value.Read(c));
+            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{Text}", value);
     }
 }
 
 [Node("Drive Parameter", "Parameters/Send")]
 [NodeGenericTypeFilter(typeof(bool), typeof(int), typeof(float))]
-public sealed class DriveParameterNode<T> : Node, IUpdateNode, IHasTextProperty where T : struct
+public sealed class DriveParameterNode<T> : ValueConsumeNode<T>, IUpdateNode, IHasTextProperty where T : struct
 {
     public int UpdateOffset => 2;
     public GlobalStore<T> CurrValue = new();
@@ -51,13 +49,7 @@ public sealed class DriveParameterNode<T> : Node, IUpdateNode, IHasTextProperty 
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public ValueInput<T> Value = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        CurrValue.Write(Value.Read(c), c);
-        return Task.CompletedTask;
-    }
+    protected override void ConsumeValue(T value, PulseContext c) => CurrValue.Write(value, c);
 
     public void OnUpdate(PulseContext c)
     {
@@ -157,17 +149,13 @@ public sealed class ParameterSourceNode<T>() : ValueSourceNode<T>("Value"), IHas
 
 [Node("Read Parameter")]
 [NodeGenericTypeFilter(typeof(bool), typeof(int), typeof(float))]
-public sealed class ReadParameterNode<T> : ActionNode where T : struct
+public sealed class ReadParameterNode<T>() : ActionValueTransformNode<string?, T>("Name", "Value") where T : struct
 {
-    public ValueInput<string?> Name = new();
-    public ValueOutput<T> Value = new();
-
-    protected override void DoAction(PulseContext c)
+    protected override T TransformValue(string? name, PulseContext c)
     {
-        var name = Name.Read(c);
-        if (string.IsNullOrEmpty(name)) return;
+        if (string.IsNullOrEmpty(name)) return default;
 
-        Value.Write(c.GetParameter<T>(name)?.GetValue<T>() ?? default, c);
+        return c.GetParameter<T>(name)?.GetValue<T>() ?? default;
     }
 }
 

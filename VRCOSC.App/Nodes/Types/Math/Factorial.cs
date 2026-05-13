@@ -9,7 +9,7 @@ namespace VRCOSC.App.Nodes.Types.Math;
 [NodeCollapsed]
 public sealed class FactorialNode<T> : ValueTransformNode<int, T> where T : INumberBase<T>
 {
-    protected override T TransformValue(int value)
+    protected override T TransformValue(int value, PulseContext c)
     {
         var result = T.One;
 

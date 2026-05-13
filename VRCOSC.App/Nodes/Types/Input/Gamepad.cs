@@ -3,7 +3,6 @@
 
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Windows.Win32;
 using Windows.Win32.UI.Input.XboxController;
 using VRCOSC.App.Utils;
@@ -125,112 +124,87 @@ public sealed class GamepadSetVibrationNode : ActionNode
     }
 }
 
-[Node("Gamepad Left Stick", "Input/Gamepad")]
-public sealed class GamepadLeftStickNode : Node, IContinuousNode
+public abstract class GamepadConsumeNode() : ValueConsumeNode<Gamepad>(nameof(Gamepad)), IContinuousNode
 {
     public int UpdateOffset => 0;
 
-    public ValueInput<Gamepad> Gamepad = new();
+    protected override void ConsumeValue(Gamepad value, PulseContext c) => ConsumeGampad(value, c);
 
+    protected abstract void ConsumeGampad(Gamepad gamepad, PulseContext c);
+}
+
+[Node("Gamepad Left Stick", "Input/Gamepad")]
+public sealed class GamepadLeftStickNode : GamepadConsumeNode
+{
     public ValueOutput<Vector2> Position = new();
     public ValueOutput<bool> Click = new();
 
-    protected override Task Process(PulseContext c)
+    protected override void ConsumeGampad(Gamepad gamepad, PulseContext c)
     {
-        var gamepad = Gamepad.Read(c);
         Position.Write(gamepad.LeftStickPos, c);
         Click.Write(gamepad.LeftStickClick, c);
-        return Task.CompletedTask;
     }
 }
 
 [Node("Gamepad Right Stick", "Input/Gamepad")]
-public sealed class GamepadRightStickNode : Node, IContinuousNode
+public sealed class GamepadRightStickNode : GamepadConsumeNode
 {
-    public int UpdateOffset => 0;
-
-    public ValueInput<Gamepad> Gamepad = new();
-
     public ValueOutput<Vector2> Position = new();
     public ValueOutput<bool> Click = new();
 
-    protected override Task Process(PulseContext c)
+    protected override void ConsumeGampad(Gamepad gamepad, PulseContext c)
     {
-        var gamepad = Gamepad.Read(c);
         Position.Write(gamepad.RightStickPos, c);
         Click.Write(gamepad.RightStickClick, c);
-        return Task.CompletedTask;
     }
 }
 
 [Node("Gamepad Triggers", "Input/Gamepad")]
-public sealed class GamepadTriggersNode : Node, IContinuousNode
+public sealed class GamepadTriggersNode : GamepadConsumeNode
 {
-    public int UpdateOffset => 0;
-
-    public ValueInput<Gamepad> Gamepad = new();
-
     public ValueOutput<float> Left = new();
     public ValueOutput<float> Right = new();
 
-    protected override Task Process(PulseContext c)
+    protected override void ConsumeGampad(Gamepad gamepad, PulseContext c)
     {
-        var gamepad = Gamepad.Read(c);
         Left.Write(gamepad.LeftTrigger, c);
         Right.Write(gamepad.RightTrigger, c);
-        return Task.CompletedTask;
     }
 }
 
 [Node("Gamepad Shoulders", "Input/Gamepad")]
-public sealed class GamepadShouldersNode : Node, IContinuousNode
+public sealed class GamepadShouldersNode : GamepadConsumeNode
 {
-    public int UpdateOffset => 0;
-
-    public ValueInput<Gamepad> Gamepad = new();
-
     public ValueOutput<bool> Left = new();
     public ValueOutput<bool> Right = new();
 
-    protected override Task Process(PulseContext c)
+    protected override void ConsumeGampad(Gamepad gamepad, PulseContext c)
     {
-        var gamepad = Gamepad.Read(c);
         Left.Write(gamepad.LeftShoulder, c);
         Right.Write(gamepad.RightShoulder, c);
-        return Task.CompletedTask;
     }
 }
 
 [Node("Gamepad DPad", "Input/Gamepad")]
-public sealed class GamepadDPadNode : Node, IContinuousNode
+public sealed class GamepadDPadNode : GamepadConsumeNode
 {
-    public int UpdateOffset => 0;
-
-    public ValueInput<Gamepad> Gamepad = new();
-
     public ValueOutput<bool> Up = new();
     public ValueOutput<bool> Down = new();
     public ValueOutput<bool> Left = new();
     public ValueOutput<bool> Right = new();
 
-    protected override Task Process(PulseContext c)
+    protected override void ConsumeGampad(Gamepad gamepad, PulseContext c)
     {
-        var gamepad = Gamepad.Read(c);
         Up.Write(gamepad.DPadUp, c);
         Down.Write(gamepad.DPadDown, c);
         Left.Write(gamepad.DPadLeft, c);
         Right.Write(gamepad.DPadRight, c);
-        return Task.CompletedTask;
     }
 }
 
 [Node("Gamepad Buttons", "Input/Gamepad")]
-public sealed class GamepadButtonsNode : Node, IContinuousNode
+public sealed class GamepadButtonsNode : GamepadConsumeNode
 {
-    public int UpdateOffset => 0;
-
-    public ValueInput<Gamepad> Gamepad = new();
-
     public ValueOutput<bool> A = new();
     public ValueOutput<bool> B = new();
     public ValueOutput<bool> X = new();
@@ -238,15 +212,13 @@ public sealed class GamepadButtonsNode : Node, IContinuousNode
     public ValueOutput<bool> Start = new();
     public ValueOutput<bool> Back = new();
 
-    protected override Task Process(PulseContext c)
+    protected override void ConsumeGampad(Gamepad gamepad, PulseContext c)
     {
-        var gamepad = Gamepad.Read(c);
         A.Write(gamepad.A, c);
         B.Write(gamepad.B, c);
         X.Write(gamepad.X, c);
         Y.Write(gamepad.Y, c);
         Start.Write(gamepad.Start, c);
         Back.Write(gamepad.Back, c);
-        return Task.CompletedTask;
     }
 }

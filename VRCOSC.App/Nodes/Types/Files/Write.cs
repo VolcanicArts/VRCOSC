@@ -2,201 +2,162 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Files;
 
 [Node("File Write", "Files")]
-public sealed class FileWriteTextNode : TryActionAsyncNode
+public sealed class FileWriteTextNode : TryHandleFilePathActionAsyncNode
 {
-    public ValueInput<string?> Path = new();
     public ValueInput<string?> Contents = new();
 
-    protected override async Task<bool> TryActionAsync(PulseContext c)
+    protected override async Task<bool> TryHandlePathAsync(string path, PulseContext c)
     {
-        var path = Path.Read(c);
-        var contents = Contents.Read(c);
-
-        if (string.IsNullOrEmpty(path)) return false;
-
-        await File.WriteAllTextAsync(path, contents, c.Token);
+        await File.WriteAllTextAsync(path, Contents.Read(c), c.Token);
         return true;
     }
 }
 
 [Node("File Append", "Files")]
-public sealed class FileAppendTextNode : TryActionAsyncNode
+public sealed class FileAppendTextNode : TryHandleFilePathActionAsyncNode
 {
-    public ValueInput<string?> Path = new();
     public ValueInput<string?> Contents = new();
 
-    protected override async Task<bool> TryActionAsync(PulseContext c)
+    protected override async Task<bool> TryHandlePathAsync(string path, PulseContext c)
     {
-        var path = Path.Read(c);
-        var contents = Contents.Read(c);
-
-        if (string.IsNullOrEmpty(path)) return false;
-
-        await File.AppendAllTextAsync(path, contents, c.Token);
+        await File.AppendAllTextAsync(path, Contents.Read(c), c.Token);
         return true;
     }
 }
 
 [Node("File Delete", "Files")]
-public sealed class FileDeleteNode : TryActionAsyncNode
+public sealed class FileDeleteNode : TryHandleFilePathActionNode
 {
-    public ValueInput<string?> Path = new();
+    protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
 
-    protected override Task<bool> TryActionAsync(PulseContext c)
+    protected override bool TryHandlePath(string path, PulseContext c)
     {
-        var path = Path.Read(c);
-
-        if (!File.Exists(path))
-            return Task.FromResult(false);
-
         File.Delete(path);
-        return Task.FromResult(true);
+        return true;
     }
 }
 
 [Node("File Copy", "Files")]
-public sealed class FileCopyNode : TryActionAsyncNode
+public sealed class FileCopyNode() : TryHandleFilePathActionNode("Source Path")
 {
-    public ValueInput<string?> SourcePath = new();
     public ValueInput<string?> DestinationPath = new();
     public ValueInput<bool> Overwrite = new();
 
-    protected override Task<bool> TryActionAsync(PulseContext c)
+    protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
+
+    protected override bool TryHandlePath(string path, PulseContext c)
     {
-        var source = SourcePath.Read(c);
         var dest = DestinationPath.Read(c);
+        if (string.IsNullOrEmpty(dest)) return false;
+
         var overwrite = Overwrite.Read(c);
 
-        if (string.IsNullOrEmpty(dest) || !File.Exists(source))
-            return Task.FromResult(false);
-
-        File.Copy(source, dest, overwrite);
-        return Task.FromResult(true);
+        File.Copy(path, dest, overwrite);
+        return true;
     }
 }
 
 [Node("File Move", "Files")]
-public sealed class FileMoveNode : TryActionAsyncNode
+public sealed class FileMoveNode() : TryHandleFilePathActionNode("Source Path")
 {
-    public ValueInput<string?> SourcePath = new();
     public ValueInput<string?> DestinationPath = new();
     public ValueInput<bool> Overwrite = new();
 
-    protected override Task<bool> TryActionAsync(PulseContext c)
+    protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
+
+    protected override bool TryHandlePath(string path, PulseContext c)
     {
-        var source = SourcePath.Read(c);
         var dest = DestinationPath.Read(c);
+        if (string.IsNullOrEmpty(dest)) return false;
+
         var overwrite = Overwrite.Read(c);
 
-        if (string.IsNullOrEmpty(dest) || !File.Exists(source))
-            return Task.FromResult(false);
-
-        File.Move(source, dest, overwrite);
-        return Task.FromResult(true);
+        File.Move(path, dest, overwrite);
+        return true;
     }
 }
 
 [Node("File Set Attributes", "Files")]
-public sealed class FileSetAttributesNode : TryActionAsyncNode
+public sealed class FileSetAttributesNode : TryHandleFilePathActionNode
 {
-    public ValueInput<string?> Path = new();
     public ValueInput<FileAttributes> Attributes = new();
 
-    protected override Task<bool> TryActionAsync(PulseContext c)
+    protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
+
+    protected override bool TryHandlePath(string path, PulseContext c)
     {
-        var path = Path.Read(c);
-        var attributes = Attributes.Read(c);
-
-        if (!File.Exists(path))
-            return Task.FromResult(false);
-
-        File.SetAttributes(path, attributes);
-        return Task.FromResult(true);
+        File.SetAttributes(path, Attributes.Read(c));
+        return true;
     }
 }
 
 [Node("File Set Creation Time", "Files")]
-public sealed class FileSetCreationTimeNode : TryActionAsyncNode
+public sealed class FileSetCreationTimeNode : TryHandleFilePathActionNode
 {
-    public ValueInput<string?> Path = new();
     public ValueInput<DateTime> CreationTime = new();
 
-    protected override Task<bool> TryActionAsync(PulseContext c)
+    protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
+
+    protected override bool TryHandlePath(string path, PulseContext c)
     {
-        var path = Path.Read(c);
-        var time = CreationTime.Read(c);
-
-        if (!File.Exists(path))
-            return Task.FromResult(false);
-
-        File.SetCreationTime(path, time);
-        return Task.FromResult(true);
+        File.SetCreationTime(path, CreationTime.Read(c));
+        return true;
     }
 }
 
 [Node("File Set Last Access Time", "Files")]
-public sealed class FileSetLastAccessTimeNode : TryActionAsyncNode
+public sealed class FileSetLastAccessTimeNode : TryHandleFilePathActionNode
 {
-    public ValueInput<string?> Path = new();
     public ValueInput<DateTime> LastAccessTime = new();
 
-    protected override Task<bool> TryActionAsync(PulseContext c)
+    protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
+
+    protected override bool TryHandlePath(string path, PulseContext c)
     {
-        var path = Path.Read(c);
-        var time = LastAccessTime.Read(c);
-
-        if (!File.Exists(path))
-            return Task.FromResult(false);
-
-        File.SetLastAccessTime(path, time);
-        return Task.FromResult(true);
+        File.SetLastAccessTime(path, LastAccessTime.Read(c));
+        return true;
     }
 }
 
 [Node("File Set Last Write Time", "Files")]
-public sealed class FileSetLastWriteTimeNode : TryActionAsyncNode
+public sealed class FileSetLastWriteTimeNode : TryHandleFilePathActionNode
 {
-    public ValueInput<string?> Path = new();
     public ValueInput<DateTime> LastWriteTime = new();
 
-    protected override Task<bool> TryActionAsync(PulseContext c)
+    protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
+
+    protected override bool TryHandlePath(string path, PulseContext c)
     {
-        var path = Path.Read(c);
-        var time = LastWriteTime.Read(c);
-
-        if (!File.Exists(path))
-            return Task.FromResult(false);
-
-        File.SetLastWriteTime(path, time);
-        return Task.FromResult(true);
+        File.SetLastWriteTime(path, LastWriteTime.Read(c));
+        return true;
     }
 }
 
 [Node("File Replace", "Files")]
-public sealed class FileReplaceNode : TryActionAsyncNode
+public sealed class FileReplaceNode() : TryHandleFilePathActionNode("Source Path")
 {
-    public ValueInput<string?> SourcePath = new();
     public ValueInput<string?> DestinationPath = new();
     public ValueInput<string?> BackupPath = new();
     public ValueInput<bool> IgnoreMetadataErrors = new();
 
-    protected override Task<bool> TryActionAsync(PulseContext c)
+    protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
+
+    protected override bool TryHandlePath(string path, PulseContext c)
     {
-        var source = SourcePath.Read(c);
         var dest = DestinationPath.Read(c);
+        if (string.IsNullOrEmpty(dest) || !File.Exists(dest)) return false;
+
         var backup = BackupPath.Read(c);
         var ignoreErrors = IgnoreMetadataErrors.Read(c);
 
-        if (!File.Exists(source) || !File.Exists(dest))
-            return Task.FromResult(false);
-
-        File.Replace(source, dest, backup, ignoreErrors);
-        return Task.FromResult(true);
+        File.Replace(path, dest, backup, ignoreErrors);
+        return true;
     }
 }

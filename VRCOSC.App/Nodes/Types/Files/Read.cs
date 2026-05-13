@@ -4,7 +4,6 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Files;
 
@@ -13,81 +12,19 @@ namespace VRCOSC.App.Nodes.Types.Files;
 public sealed class FileExistsNode() : SimpleValueTransformNode<string, bool>(File.Exists);
 
 [Node("File Read", "Files")]
-public sealed class FileReadTextNode : TryValueComputeAsyncNode<string>
+public sealed class FileReadTextNode() : HandleFilePathTransformAsyncNode<string>("Contents")
 {
-    public ValueInput<string> Path = new();
-
-    protected override async Task<Result<string>> TryComputeValueAsync(PulseContext c)
-    {
-        var path = Path.Read(c);
-
-        if (!File.Exists(path))
-            return Result<string>.Fail();
-
-        return await File.ReadAllTextAsync(path, c.Token);
-    }
+    protected override Task<string> HandlePathAsync(string path, PulseContext c) => File.ReadAllTextAsync(path, c.Token);
 }
 
 [Node("File Get Attributes", "Files")]
-public sealed class FileGetAttributesNode() : TryValueComputeNode<FileAttributes>("Attributes")
-{
-    public ValueInput<string> Path = new();
-
-    protected override Result<FileAttributes> TryComputeValue(PulseContext c)
-    {
-        var path = Path.Read(c);
-
-        if (!File.Exists(path))
-            return Result<FileAttributes>.Fail();
-
-        return File.GetAttributes(path);
-    }
-}
+public sealed class FileGetAttributesNode() : SimpleHandleFilePathTransformNode<FileAttributes>(File.GetAttributes, "Attributes");
 
 [Node("File Get Creation Time", "Files")]
-public sealed class FileGetCreationTimeNode() : TryValueComputeNode<DateTime>("Creation Time")
-{
-    public ValueInput<string> Path = new();
-
-    protected override Result<DateTime> TryComputeValue(PulseContext c)
-    {
-        var path = Path.Read(c);
-
-        if (!File.Exists(path))
-            return Result<DateTime>.Fail();
-
-        return File.GetCreationTime(path);
-    }
-}
+public sealed class FileGetCreationTimeNode() : SimpleHandleFilePathTransformNode<DateTime>(File.GetCreationTime, "Creation Time");
 
 [Node("File Get Last Access Time", "Files")]
-public sealed class FileGetLastAccessTimeNode() : TryValueComputeNode<DateTime>("Last Access Time")
-{
-    public ValueInput<string> Path = new();
-
-    protected override Result<DateTime> TryComputeValue(PulseContext c)
-    {
-        var path = Path.Read(c);
-
-        if (!File.Exists(path))
-            return Result<DateTime>.Fail();
-
-        return File.GetLastAccessTime(path);
-    }
-}
+public sealed class FileGetLastAccessTimeNode() : SimpleHandleFilePathTransformNode<DateTime>(File.GetLastAccessTime, "Last Access Time");
 
 [Node("File Get Last Write Time", "Files")]
-public sealed class FileGetLastWriteTimeNode() : TryValueComputeNode<DateTime>("Last Write Time")
-{
-    public ValueInput<string> Path = new();
-
-    protected override Result<DateTime> TryComputeValue(PulseContext c)
-    {
-        var path = Path.Read(c);
-
-        if (!File.Exists(path))
-            return Result<DateTime>.Fail();
-
-        return File.GetLastWriteTime(path);
-    }
-}
+public sealed class FileGetLastWriteTimeNode() : SimpleHandleFilePathTransformNode<DateTime>(File.GetLastWriteTime, "Last Write Time");

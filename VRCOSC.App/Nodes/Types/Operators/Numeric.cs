@@ -118,17 +118,4 @@ public sealed class ToBoolNode<T>() : SimpleValueTransformNode<T, bool>(v => v >
 
 [Node("Floating Point To Number")]
 [NodeCollapsed]
-public sealed class FloatingPointToNumberNode<Tfp, Tn> : ValueTransformNode<Tfp, Tn> where Tfp : IFloatingPoint<Tfp> where Tn : INumber<Tn>
-{
-    protected override Tn TransformValue(Tfp value)
-    {
-        try
-        {
-            return Tn.CreateChecked(value);
-        }
-        catch
-        {
-            return default!;
-        }
-    }
-}
+public sealed class FloatingPointToNumberNode<Tfp, Tn>() : SimpleValueTransformNode<Tfp, Tn>(Tn.CreateChecked) where Tfp : IFloatingPoint<Tfp> where Tn : INumber<Tn>;

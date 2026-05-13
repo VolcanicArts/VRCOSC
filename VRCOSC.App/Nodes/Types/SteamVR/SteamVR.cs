@@ -1,8 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Numerics;
-using System.Threading.Tasks;
 using VRCOSC.App.OpenVR.Device;
 using VRCOSC.App.Utils;
 
@@ -23,24 +21,21 @@ public sealed class SteamVRIsUserPresentNode() : SimpleValueSourceNode<bool>(() 
 public sealed class SteamVRFPSNode() : SimpleValueSourceNode<float>(() => AppManager.GetInstance().OpenVRManager.FPS, "FPS");
 
 [Node("Device Info", "SteamVR")]
-public sealed class SteamVRDeviceInfoNode : Node, IContinuousNode
+public sealed class SteamVRDeviceInfoNode() : ValueConsumeNode<TrackedDevice?>("Device"), IContinuousNode
 {
     public int UpdateOffset => 0;
 
-    public ValueInput<TrackedDevice> Device = new();
     public ValueOutput<bool> IsConnected = new();
     public ValueOutput<bool> IsCharging = new();
     public ValueOutput<float> Battery = new();
 
-    protected override Task Process(PulseContext c)
+    protected override void ConsumeValue(TrackedDevice? device, PulseContext c)
     {
-        var device = Device.Read(c);
-        if (device is null) return Task.CompletedTask;
+        if (device is null) return;
 
         IsConnected.Write(device.IsConnected, c);
         IsCharging.Write(device.IsCharging, c);
         Battery.Write(device.BatteryPercentage, c);
-        return Task.CompletedTask;
     }
 }
 
@@ -48,182 +43,4 @@ public sealed class SteamVRDeviceInfoNode : Node, IContinuousNode
 public sealed class SteamVRDeviceTransformSourceNode() : SimpleValueTransformNode<TrackedDevice?, Transform>(d => d?.Transform ?? Transform.Identity, "Device", "Transform"), IContinuousNode
 {
     public int UpdateOffset => 0;
-}
-
-[Node("Controller Trigger", "SteamVR/Input")]
-public sealed class SteamVRControllerTriggerNode : Node, IContinuousNode
-{
-    public int UpdateOffset => 0;
-
-    public ValueInput<Controller> Controller = new();
-
-    public ValueOutput<float> Pull = new();
-    public ValueOutput<bool> Touch = new();
-    public ValueOutput<bool> Click = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.CompletedTask;
-
-        Pull.Write(controller.Input.Trigger.Pull, c);
-        Touch.Write(controller.Input.Trigger.Touch, c);
-        Click.Write(controller.Input.Trigger.Click, c);
-        return Task.CompletedTask;
-    }
-}
-
-[Node("Controller Stick", "SteamVR/Input")]
-public sealed class SteamVRControllerStickNode : Node, IContinuousNode
-{
-    public int UpdateOffset => 0;
-
-    public ValueInput<Controller> Controller = new();
-
-    public ValueOutput<Vector2> Position = new();
-    public ValueOutput<bool> Touch = new();
-    public ValueOutput<bool> Click = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.CompletedTask;
-
-        Position.Write(controller.Input.Stick.Position, c);
-        Touch.Write(controller.Input.Stick.Touch, c);
-        Click.Write(controller.Input.Stick.Click, c);
-        return Task.CompletedTask;
-    }
-}
-
-[Node("Controller Primary", "SteamVR/Input")]
-public sealed class SteamVRControllerPrimaryNode : Node, IContinuousNode
-{
-    public int UpdateOffset => 0;
-
-    public ValueInput<Controller> Controller = new();
-
-    public ValueOutput<bool> Touch = new();
-    public ValueOutput<bool> Click = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.CompletedTask;
-
-        Touch.Write(controller.Input.Primary.Touch, c);
-        Click.Write(controller.Input.Primary.Click, c);
-        return Task.CompletedTask;
-    }
-}
-
-[Node("Controller Secondary", "SteamVR/Input")]
-public sealed class SteamVRControllerSecondaryNode : Node, IContinuousNode
-{
-    public int UpdateOffset => 0;
-
-    public ValueInput<Controller> Controller = new();
-
-    public ValueOutput<bool> Touch = new();
-    public ValueOutput<bool> Click = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.CompletedTask;
-
-        Touch.Write(controller.Input.Secondary.Touch, c);
-        Click.Write(controller.Input.Secondary.Click, c);
-        return Task.CompletedTask;
-    }
-}
-
-[Node("Controller System", "SteamVR/Input")]
-public sealed class SteamVRControllerSystemNode : Node, IContinuousNode
-{
-    public int UpdateOffset => 0;
-
-    public ValueInput<Controller> Controller = new();
-
-    public ValueOutput<bool> Touch = new();
-    public ValueOutput<bool> Click = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.CompletedTask;
-
-        Touch.Write(controller.Input.System.Touch, c);
-        Click.Write(controller.Input.System.Click, c);
-        return Task.CompletedTask;
-    }
-}
-
-[Node("Controller Grip", "SteamVR/Input")]
-public sealed class SteamVRControllerGripNode : Node, IContinuousNode
-{
-    public int UpdateOffset => 0;
-
-    public ValueInput<Controller> Controller = new();
-
-    public ValueOutput<float> Pull = new();
-    public ValueOutput<bool> Click = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.CompletedTask;
-
-        Pull.Write(controller.Input.Grip.Pull, c);
-        Click.Write(controller.Input.Grip.Click, c);
-        return Task.CompletedTask;
-    }
-}
-
-[Node("Controller Pad", "SteamVR/Input")]
-public sealed class SteamVRControllerPadNode : Node, IContinuousNode
-{
-    public int UpdateOffset => 0;
-
-    public ValueInput<Controller> Controller = new();
-
-    public ValueOutput<Vector2> Position = new();
-    public ValueOutput<bool> Touch = new();
-    public ValueOutput<bool> Click = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.CompletedTask;
-
-        Position.Write(controller.Input.Pad.Position, c);
-        Touch.Write(controller.Input.Pad.Touch, c);
-        Click.Write(controller.Input.Pad.Click, c);
-        return Task.CompletedTask;
-    }
-}
-
-[Node("Controller Skeleton", "SteamVR/Input")]
-public sealed class SteamVRControllerSkeletonNode : Node, IContinuousNode
-{
-    public int UpdateOffset => 0;
-
-    public ValueInput<Controller> Controller = new();
-
-    public ValueOutput<float> Index = new();
-    public ValueOutput<float> Middle = new();
-    public ValueOutput<float> Ring = new();
-    public ValueOutput<float> Pinky = new();
-
-    protected override Task Process(PulseContext c)
-    {
-        var controller = Controller.Read(c);
-        if (controller is null) return Task.CompletedTask;
-
-        Index.Write(controller.Input.Skeleton.Index, c);
-        Middle.Write(controller.Input.Skeleton.Middle, c);
-        Ring.Write(controller.Input.Skeleton.Ring, c);
-        Pinky.Write(controller.Input.Skeleton.Pinky, c);
-        return Task.CompletedTask;
-    }
 }
