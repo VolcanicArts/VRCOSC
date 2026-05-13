@@ -1084,8 +1084,8 @@ public partial class NodeGraphView : INotifyPropertyChanged
                     var type = typeof(ValueNode<>).MakeGenericType(slotInputType);
                     var outputNode = Graph.AddNode(type, mousePos);
 
-                    if (slot < node.Metadata.InputsCount - 1 && !isNullable)
-                        outputNode.GetType().GetProperty("Value")!.SetValue(outputNode, Convert.ChangeType(node.Metadata.Inputs[slot].DefaultValue, slotInputType));
+                    if (!(slot >= node.Metadata.InputsCount && node.Metadata.ValueInputHasVariableSize) && !isNullable)
+                        outputNode.GetType().GetProperty("Value")!.SetValue(outputNode, node.Metadata.Inputs[slot].DefaultValue);
 
                     Graph.CreateValueConnection(outputNode.Id, 0, node.Id, slot);
                     Graph.MarkDirty();
