@@ -49,8 +49,9 @@ public sealed class DemultiplexNode<T> : Node
         var index = Index.Read(c);
         var value = Value.Read(c);
         var defaultValue = DefaultValue.Read(c);
+        var length = Outputs.Length(c);
 
-        for (var i = 0; i < Outputs.Length(c); i++)
+        for (var i = 0; i < length; i++)
         {
             Outputs.Write(i, i == index ? value : defaultValue, c);
         }
