@@ -34,7 +34,6 @@ using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MenuItem = System.Windows.Controls.MenuItem;
 using MessageBox = System.Windows.MessageBox;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
-using RichTextBox = Xceed.Wpf.Toolkit.RichTextBox;
 using TextBox = System.Windows.Controls.TextBox;
 using Vector = System.Windows.Vector;
 
@@ -1661,6 +1660,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
 
         Dispatcher.Invoke(() => populateNodeGraphItem(nodeGraphItem), DispatcherPriority.Render);
+        Graph.TriggerTree(nodeGraphItem.Node).Forget();
     }
 
     private void InputVariableSize_DecreaseOnClick(object sender, RoutedEventArgs e)
@@ -1687,6 +1687,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
 
         Dispatcher.Invoke(() => populateNodeGraphItem(nodeGraphItem), DispatcherPriority.Render);
+        Graph.TriggerTree(nodeGraphItem.Node).Forget();
     }
 
     private void OutputVariableSize_IncreaseOnClick(object sender, RoutedEventArgs e)
@@ -1702,6 +1703,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
 
         Dispatcher.Invoke(() => populateNodeGraphItem(nodeGraphItem), DispatcherPriority.Render);
+        Graph.TriggerTree(nodeGraphItem.Node).Forget();
     }
 
     private void OutputVariableSize_DecreaseOnClick(object sender, RoutedEventArgs e)
@@ -1728,19 +1730,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
 
         Dispatcher.Invoke(() => populateNodeGraphItem(nodeGraphItem), DispatcherPriority.Render);
-    }
-
-    private void RichTextBox_PreviewKeyDown(object sender, KeyEventArgs e)
-    {
-        var richTextBox = (RichTextBox)sender;
-
-        richTextBox.Document.LineStackingStrategy = LineStackingStrategy.MaxHeight;
-
-        if (e.Key == Key.Tab)
-        {
-            e.Handled = true;
-            richTextBox.CaretPosition.InsertTextInRun("\t");
-        }
+        Graph.TriggerTree(nodeGraphItem.Node).Forget();
     }
 
     private void TextBoxValueOutputOnlyNodeTemplate_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
