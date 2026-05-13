@@ -89,18 +89,9 @@ public abstract class TryValueComputeAsyncNode<T> : TryActionAsyncNode
     protected abstract Task<Result<T>> TryComputeValueAsync(PulseContext c);
 }
 
-public abstract class TryValueComputeNode<T> : TryValueComputeAsyncNode<T>
+public abstract class TryValueComputeNode<T>(string resultName = "") : TryValueComputeAsyncNode<T>(resultName)
 {
-    protected TryValueComputeNode(string resultName = "")
-        : base(resultName)
-    {
-    }
-
-    protected override Task<Result<T>> TryComputeValueAsync(PulseContext c)
-    {
-        var result = TryComputeValue(c);
-        return Task.FromResult(result);
-    }
+    protected override Task<Result<T>> TryComputeValueAsync(PulseContext c) => Task.FromResult(TryComputeValue(c));
 
     protected abstract Result<T> TryComputeValue(PulseContext c);
 }

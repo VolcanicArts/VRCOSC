@@ -17,19 +17,51 @@ public abstract class ValueTransformNode<TFrom, TTo> : ValueComputeNode<TTo>
         Input = new ValueInput<TFrom>(inputName);
     }
 
-    protected override TTo ComputeValue(PulseContext c) => TransformValue(Input.Read(c));
+    protected override TTo ComputeValue(PulseContext c) => TransformValue(Input.Read(c), c);
 
-    protected abstract TTo TransformValue(TFrom value);
+    protected abstract TTo TransformValue(TFrom value, PulseContext c);
 }
 
 public abstract class ValueTransformNode<T>(string inputName = "", string outputName = "") : ValueTransformNode<T, T>(inputName, outputName);
 
 public abstract class SimpleValueTransformNode<TFrom, TTo>(Func<TFrom, TTo> func, string inputName = "", string outputName = "") : ValueTransformNode<TFrom, TTo>(inputName, outputName)
 {
-    protected override TTo TransformValue(TFrom value) => func(value);
+    protected override TTo TransformValue(TFrom value, PulseContext c) => func(value);
 }
 
 public abstract class SimpleValueTransformNode<T>(Func<T, T> func, string inputName = "", string outputName = "") : SimpleValueTransformNode<T, T>(func, inputName, outputName);
+
+public abstract class ActionValueTransformNode<T>(string inputName = "", string outputName = "") : ValueTransformNode<T>(inputName, outputName), IFlowInput
+{
+    public FlowContinuation Next = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        await base.Process(c);
+        await Next.Execute(c);
+    }
+}
+
+public abstract class SimpleActionValueTransformNode<T>(Func<T, T> func, string inputName = "", string outputName = "") : ActionValueTransformNode<T>(inputName, outputName)
+{
+    protected override T TransformValue(T value, PulseContext c) => func(value);
+}
+
+public abstract class ActionValueTransformNode<TFrom, TTo>(string inputName = "", string outputName = "") : ValueTransformNode<TFrom, TTo>(inputName, outputName), IFlowInput
+{
+    public FlowContinuation Next = new();
+
+    protected override async Task Process(PulseContext c)
+    {
+        await base.Process(c);
+        await Next.Execute(c);
+    }
+}
+
+public abstract class SimpleActionValueTransformNode<TFrom, TTo>(Func<TFrom, TTo> func, string inputName = "", string outputName = "") : ActionValueTransformNode<TFrom, TTo>(inputName, outputName)
+{
+    protected override TTo TransformValue(TFrom value, PulseContext c) => func(value);
+}
 
 public abstract class TryValueTransformAsyncNode<TFrom, TTo> : TryValueComputeAsyncNode<TTo>
 {
@@ -46,13 +78,8 @@ public abstract class TryValueTransformAsyncNode<TFrom, TTo> : TryValueComputeAs
     protected abstract Task<Result<TTo>> TryTransformValueAsync(TFrom value, PulseContext c);
 }
 
-public abstract class TryValueTransformNode<TFrom, TTo> : TryValueTransformAsyncNode<TFrom, TTo>
+public abstract class TryValueTransformNode<TFrom, TTo>(string inputName = "", string outputName = "") : TryValueTransformAsyncNode<TFrom, TTo>(inputName, outputName)
 {
-    protected TryValueTransformNode(string inputName = "", string outputName = "")
-        : base(inputName, outputName)
-    {
-    }
-
     protected override Task<Result<TTo>> TryTransformValueAsync(TFrom value, PulseContext c)
     {
         var result = TryTransformValue(value, c);
