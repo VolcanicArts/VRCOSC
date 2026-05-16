@@ -11,7 +11,7 @@ public sealed class AverageNode<T> : ValueComputeNode<T> where T : INumber<T>
 {
     public ValueInputList<T> Inputs = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var inputs = Inputs.Read(c);
         var value = inputs.Aggregate(T.Zero, (current, number) => current + number);

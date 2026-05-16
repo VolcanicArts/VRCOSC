@@ -11,5 +11,5 @@ public sealed class CastNode<TFrom, TTo> : ValueTransformNode<TFrom, TTo>
 {
     private readonly Delegate converter = typeof(TFrom).CreateConverter(typeof(TTo));
 
-    protected override TTo TransformValue(TFrom value, PulseContext c) => (TTo)converter.DynamicInvoke(value)!;
+    protected override TTo TransformValue(TFrom value, IPulseContext c) => (TTo)converter.DynamicInvoke(value)!;
 }

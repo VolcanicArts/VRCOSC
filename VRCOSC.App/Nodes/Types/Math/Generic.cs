@@ -18,12 +18,12 @@ public sealed class ExponentialNode<T>() : SimpleValueTransformNode<T>(T.Exp) wh
 [NodeCollapsed]
 public sealed class NegateNode<T>() : SimpleValueTransformNode<T>(v => T.Abs(v) * -T.One) where T : INumberBase<T>;
 
-[Node("Power", "Math", EFontAwesomeIcon.Solid_Superscript)]
-[NodeCollapsed]
+[Node("Power", "Math")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Superscript)]
 public sealed class PowerNode<T>() : SimpleResultComputeNode<T>(T.Pow) where T : IPowerFunctions<T>;
 
-[Node("Square Root", "Math", EFontAwesomeIcon.Solid_SquareRootVariable)]
-[NodeCollapsed]
+[Node("Square Root", "Math")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_SquareRootVariable)]
 public sealed class SquareRootNode<T>() : SimpleValueTransformNode<T>(T.Sqrt) where T : IRootFunctions<T>;
 
 [Node("Cube Root", "Math")]

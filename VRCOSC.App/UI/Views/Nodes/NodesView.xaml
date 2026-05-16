@@ -19,7 +19,8 @@
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Border Grid.RowSpan="2" Background="{DynamicResource CBackground3}"/>
+        <ContentPresenter Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" x:Name="ActiveField"/>
+        <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Background="{DynamicResource CBackground3}"/>
         <Grid Grid.Column="0" Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -228,7 +229,6 @@
                                  ToolTipService.Placement="Mouse" ToolTipService.InitialShowDelay="500"/>
             </Grid>
         </Grid>
-        <ContentPresenter Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" x:Name="ActiveField"/>
         <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="2" Background="{DynamicResource CBackground2}"
                 Visibility="{Binding NodesLoaded.Value, Converter={StaticResource BoolToVisibilityConverterInverted}}">
             <core:SpacedStackPanel Orientation="Vertical" Spacing="20" VerticalAlignment="Center">

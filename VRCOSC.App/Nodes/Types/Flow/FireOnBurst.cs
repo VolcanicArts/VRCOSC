@@ -9,7 +9,7 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Fire On Burst", "Flow")]
 public sealed class FireOnBurstNode : Node
 {
-    public FlowContinuation Next = new();
+    public FlowOutput Next = new();
 
     public GlobalStore<int> BecameTrue = new();
     public GlobalStore<DateTime> TrueTime = new();
@@ -19,9 +19,9 @@ public sealed class FireOnBurstNode : Node
     public ValueInput<int> Count = new(defaultValue: 2);
     public ValueInput<bool> Condition = new();
 
-    protected override Task Process(PulseContext c) => Next.Execute(c);
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    protected override bool ShouldProcess(PulseContext c)
+    protected override bool ShouldProcess(IPulseContext c)
     {
         var becameTrue = BecameTrue.Read(c);
         var trueTime = TrueTime.Read(c);

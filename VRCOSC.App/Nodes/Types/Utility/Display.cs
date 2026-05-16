@@ -23,7 +23,7 @@ public abstract class DisplayNodeBase<T> : ValueConsumeNode<T>, IDisplayNode, IN
 
     public void Clear() => Value = default!;
 
-    protected override void ConsumeValue(T value, PulseContext c) => Value = value;
+    protected override void ConsumeValue(T value, IPulseContext c) => Value = value;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -38,7 +38,7 @@ public sealed class PassthroughDisplayNode<T> : DisplayNodeBase<T>
 {
     public ValueOutput<T> Output = new();
 
-    protected override void ConsumeValue(T value, PulseContext c)
+    protected override void ConsumeValue(T value, IPulseContext c)
     {
         base.ConsumeValue(value, c);
         Output.Write(value, c);

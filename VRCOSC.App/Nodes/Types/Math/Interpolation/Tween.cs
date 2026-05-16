@@ -8,17 +8,18 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Math.Interpolation;
 
 [Node("Tween", "Math/Interpolation")]
-public sealed class TweenNode<T> : Node, IFlowInput where T : INumber<T>
+public sealed class TweenNode<T> : Node where T : INumber<T>
 {
-    public FlowCall OnUpdate = new();
-    public FlowContinuation OnFinished = new();
+    public FlowInput FlowInput = new();
+    public FlowOutput OnUpdate = new(scope: true);
+    public FlowOutput OnFinished = new();
 
     public ValueInput<T> From = new();
     public ValueInput<T> To = new();
     public ValueInput<float> TimeMilliseconds = new();
     public ValueOutput<T> Value = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task Process(IPulseContext c)
     {
         var startTime = DateTime.Now;
         var milliseconds = TimeMilliseconds.Read(c);

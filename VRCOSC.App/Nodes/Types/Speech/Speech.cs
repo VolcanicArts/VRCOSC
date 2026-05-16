@@ -6,5 +6,5 @@ namespace VRCOSC.App.Nodes.Types.Speech;
 [Node("Speech Source", "Speech")]
 public sealed class SpeechSourceNode() : ValueSourceNode<string?>("Text")
 {
-    protected override string? ComputeValue(PulseContext c) => c.GetSpeechText();
+    protected override string? ComputeValue(IPulseContext c) => ContainingGraph.CurrentSpeechText;
 }

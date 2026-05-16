@@ -13,7 +13,7 @@ public sealed class KeybindPressNode : AsyncActionNode
     public ValueInput<SDK.Utils.Keybind> Keybind = new();
     public ValueInput<int> DurationMilliseconds = new();
 
-    protected override async Task DoActionAsync(PulseContext c)
+    protected override async Task DoActionAsync(IPulseContext c)
     {
         var keybind = Keybind.Read(c);
         if (keybind is null) return;
@@ -31,7 +31,7 @@ public sealed class KeybindHoldReleaseNode : AsyncActionNode
     public ValueInput<SDK.Utils.Keybind> Keybind = new();
     public ValueInput<bool> Condition = new();
 
-    protected override async Task DoActionAsync(PulseContext c)
+    protected override async Task DoActionAsync(IPulseContext c)
     {
         var keybind = Keybind.Read(c);
         if (keybind is null) return;
@@ -57,13 +57,17 @@ public sealed class KeybindHoldReleaseNode : AsyncActionNode
 }
 
 [Node("Keybind Source", "Keybind")]
-public sealed class KeybindSourceNode() : ValueSourceNode<bool>("Down"), IHasKeybindProperty
+public sealed class KeybindSourceNode() : ValueSourceNode<bool>("Down")
 {
-    [NodeProperty("keybind")]
-    public SDK.Utils.Keybind Keybind { get; set; } = new();
+    public ValueInput<SDK.Utils.Keybind> Keybind = new(modes: ValueInputMode.Inline);
 
-    protected override bool ComputeValue(PulseContext c)
-        => (Keybind.Modifiers.Count != 0 || Keybind.Keys.Count != 0)
-           && Keybind.Modifiers.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key))
-           && Keybind.Keys.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key));
+    protected override bool ComputeValue(IPulseContext c)
+    {
+        var keybind = Keybind.Read(c);
+        if (keybind is null) return false;
+
+        return (keybind.Modifiers.Count != 0 || keybind.Keys.Count != 0)
+               && keybind.Modifiers.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key))
+               && keybind.Keys.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key));
+    }
 }

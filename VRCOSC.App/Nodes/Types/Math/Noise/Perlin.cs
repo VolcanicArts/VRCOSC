@@ -12,7 +12,7 @@ public abstract class PerlinNoiseNode<T>(Func<PerlinNoise, T, float> func) : Val
     public ValueInput<T> Value = new();
     public ValueInput<int> Seed = new();
 
-    protected override float ComputeValue(PulseContext c) => func(new PerlinNoise(Seed.Read(c)), Value.Read(c));
+    protected override float ComputeValue(IPulseContext c) => func(new PerlinNoise(Seed.Read(c)), Value.Read(c));
 }
 
 [Node("1D", "Math/Noise/Perlin")]

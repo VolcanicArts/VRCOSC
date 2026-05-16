@@ -13,18 +13,18 @@ public sealed class FireWhileTrueNode : Node, IActiveUpdateNode
 
     public GlobalStore<DateTime> LastUpdateStore = new();
 
-    public FlowContinuation Next = new();
+    public FlowOutput Next = new();
 
     public ValueInput<int> DelayMilliseconds = new();
     public ValueInput<bool> Condition = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         LastUpdateStore.Write(DateTime.Now, c);
         return Next.Execute(c);
     }
 
-    public Task<bool> OnUpdate(PulseContext c)
+    public Task<bool> OnUpdate(IPulseContext c)
     {
         var delay = DelayMilliseconds.Read(c);
         var shouldContinue = (DateTime.Now - LastUpdateStore.Read(c)).TotalMilliseconds >= delay;

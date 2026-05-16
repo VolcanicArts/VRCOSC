@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("If", "Flow")]
-public sealed class IfNode : Node, IFlowInput
+public sealed class IfNode : Node
 {
-    public FlowContinuation OnTrue = new();
-    public FlowContinuation OnFalse = new();
+    public FlowInput FlowInput = new();
+    public FlowOutput OnTrue = new();
+    public FlowOutput OnFalse = new();
 
     public ValueInput<bool> Condition = new();
 
-    protected override Task Process(PulseContext c) => Condition.Read(c) ? OnTrue.Execute(c) : OnFalse.Execute(c);
+    protected override Task Process(IPulseContext c) => Condition.Read(c) ? OnTrue.Execute(c) : OnFalse.Execute(c);
 }

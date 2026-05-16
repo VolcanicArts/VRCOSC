@@ -15,7 +15,7 @@ public sealed class SerialWriteNode : TryActionNode
     public ValueInput<StopBits> StopBits = new();
     public ValueInput<string?> Command = new();
 
-    protected override bool TryAction(PulseContext c)
+    protected override bool TryAction(IPulseContext c)
     {
         var portName = PortName.Read(c);
         if (string.IsNullOrWhiteSpace(portName)) return false;

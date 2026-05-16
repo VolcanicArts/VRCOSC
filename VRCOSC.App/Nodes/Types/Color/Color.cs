@@ -12,7 +12,7 @@ public sealed class ColorHSLPackNode() : ValueComputeNode<ColorHSL>("Color")
     public ValueInput<float> Saturation = new();
     public ValueInput<float> Lightness = new();
 
-    protected override ColorHSL ComputeValue(PulseContext c)
+    protected override ColorHSL ComputeValue(IPulseContext c)
     {
         var hue = Hue.Read(c) % 360;
         var saturation = float.Clamp(Saturation.Read(c), 0f, 1f);
@@ -28,7 +28,7 @@ public sealed class ColorHSLUnpackNode() : ValueConsumeNode<ColorHSL>("Color")
     public ValueOutput<float> Saturation = new();
     public ValueOutput<float> Lightness = new();
 
-    protected override void ConsumeValue(ColorHSL color, PulseContext c)
+    protected override void ConsumeValue(ColorHSL color, IPulseContext c)
     {
         Hue.Write(color.Hue, c);
         Saturation.Write(color.Saturation, c);

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
-        <WindowsSdkPackageVersion>10.0.26100.1</WindowsSdkPackageVersion>
+        <WindowsSdkPackageVersion>10.0.26100.56</WindowsSdkPackageVersion>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <LangVersion>latestmajor</LangVersion>
@@ -24,6 +24,7 @@
 
     <ItemGroup>
         <PackageReference Include="CommandLineParser" Version="2.9.1" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
         <PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
         <PackageReference Include="FontAwesome6.Fonts" Version="2.5.1" />
         <PackageReference Include="JsonPath.Net" Version="3.0.2" />

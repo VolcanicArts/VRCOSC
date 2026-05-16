@@ -40,7 +40,6 @@ public partial class NodesView
     {
         foreach (var nodeGraphView in viewCache.Values)
         {
-            nodeGraphView.RefreshContextMenu();
         }
     }
 

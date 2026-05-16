@@ -13,9 +13,9 @@ public sealed class FileWriteTextNode : TryHandleFilePathActionAsyncNode
 {
     public ValueInput<string?> Contents = new();
 
-    protected override async Task<bool> TryHandlePathAsync(string path, PulseContext c)
+    protected override async Task<bool> TryHandlePathAsync(string path, IPulseContext c)
     {
-        await File.WriteAllTextAsync(path, Contents.Read(c), c.Token);
+        await c.Run(File.WriteAllTextAsync(path, Contents.Read(c)));
         return true;
     }
 }
@@ -25,9 +25,9 @@ public sealed class FileAppendTextNode : TryHandleFilePathActionAsyncNode
 {
     public ValueInput<string?> Contents = new();
 
-    protected override async Task<bool> TryHandlePathAsync(string path, PulseContext c)
+    protected override async Task<bool> TryHandlePathAsync(string path, IPulseContext c)
     {
-        await File.AppendAllTextAsync(path, Contents.Read(c), c.Token);
+        await c.Run(File.AppendAllTextAsync(path, Contents.Read(c)));
         return true;
     }
 }
@@ -37,7 +37,7 @@ public sealed class FileDeleteNode : TryHandleFilePathActionNode
 {
     protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
 
-    protected override bool TryHandlePath(string path, PulseContext c)
+    protected override bool TryHandlePath(string path, IPulseContext c)
     {
         File.Delete(path);
         return true;
@@ -52,7 +52,7 @@ public sealed class FileCopyNode() : TryHandleFilePathActionNode("Source Path")
 
     protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
 
-    protected override bool TryHandlePath(string path, PulseContext c)
+    protected override bool TryHandlePath(string path, IPulseContext c)
     {
         var dest = DestinationPath.Read(c);
         if (string.IsNullOrEmpty(dest)) return false;
@@ -72,7 +72,7 @@ public sealed class FileMoveNode() : TryHandleFilePathActionNode("Source Path")
 
     protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
 
-    protected override bool TryHandlePath(string path, PulseContext c)
+    protected override bool TryHandlePath(string path, IPulseContext c)
     {
         var dest = DestinationPath.Read(c);
         if (string.IsNullOrEmpty(dest)) return false;
@@ -87,11 +87,11 @@ public sealed class FileMoveNode() : TryHandleFilePathActionNode("Source Path")
 [Node("File Set Attributes", "Files")]
 public sealed class FileSetAttributesNode : TryHandleFilePathActionNode
 {
-    public ValueInput<FileAttributes> Attributes = new();
+    public ValueInput<FileAttributes> Attributes = new(modes: ValueInputMode.Connection);
 
     protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
 
-    protected override bool TryHandlePath(string path, PulseContext c)
+    protected override bool TryHandlePath(string path, IPulseContext c)
     {
         File.SetAttributes(path, Attributes.Read(c));
         return true;
@@ -105,7 +105,7 @@ public sealed class FileSetCreationTimeNode : TryHandleFilePathActionNode
 
     protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
 
-    protected override bool TryHandlePath(string path, PulseContext c)
+    protected override bool TryHandlePath(string path, IPulseContext c)
     {
         File.SetCreationTime(path, CreationTime.Read(c));
         return true;
@@ -119,7 +119,7 @@ public sealed class FileSetLastAccessTimeNode : TryHandleFilePathActionNode
 
     protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
 
-    protected override bool TryHandlePath(string path, PulseContext c)
+    protected override bool TryHandlePath(string path, IPulseContext c)
     {
         File.SetLastAccessTime(path, LastAccessTime.Read(c));
         return true;
@@ -133,7 +133,7 @@ public sealed class FileSetLastWriteTimeNode : TryHandleFilePathActionNode
 
     protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
 
-    protected override bool TryHandlePath(string path, PulseContext c)
+    protected override bool TryHandlePath(string path, IPulseContext c)
     {
         File.SetLastWriteTime(path, LastWriteTime.Read(c));
         return true;
@@ -149,7 +149,7 @@ public sealed class FileReplaceNode() : TryHandleFilePathActionNode("Source Path
 
     protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
 
-    protected override bool TryHandlePath(string path, PulseContext c)
+    protected override bool TryHandlePath(string path, IPulseContext c)
     {
         var dest = DestinationPath.Read(c);
         if (string.IsNullOrEmpty(dest) || !File.Exists(dest)) return false;

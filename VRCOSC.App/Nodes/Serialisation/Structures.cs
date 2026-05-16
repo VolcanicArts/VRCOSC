@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
 using Newtonsoft.Json;
+using VRCOSC.App.Nodes.Metadata;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -88,8 +88,8 @@ public class SerialisableNodeGraph : SerialisableVersion
         Id = nodeGraph.Id;
         Name = nodeGraph.Name.Value;
         Enabled = nodeGraph.Enabled.Value;
-        Nodes = nodeGraph.Nodes.Values.Select(node => new SerialisableNode(node)).ToList();
-        Connections = nodeGraph.Connections.Values.Select(connection => new SerialisableConnection(connection)).ToList();
+        Nodes = nodeGraph.Elements.Values.OfType<Node>().Select(node => new SerialisableNode(node)).ToList();
+        Connections = nodeGraph.Connections.Select(connection => new SerialisableConnection(connection)).ToList();
         Groups = nodeGraph.Groups.Values.Select(group => new SerialisableNodeGroup(group)).ToList();
         Variables = nodeGraph.GraphVariables.Values.Select(variable => new SerialisableGraphVariable(variable)).ToList();
     }
@@ -125,22 +125,22 @@ public class SerialisableNode
     {
         Id = node.Id;
         Type = node.GetType().GetFriendlyName(true);
-        Position = new Vector2((float)node.NodePosition.X, (float)node.NodePosition.Y);
+        Position = node.Metadata.Position;
 
-        if (node.Metadata.Properties.Count != 0)
+        if (node.Metadata.Shared.HasProperties)
         {
             Properties = new Dictionary<string, object?>();
-            Properties.AddRange(node.Metadata.Properties.ToDictionary(property => property.GetCustomAttribute<NodePropertyAttribute>()!.SerialisedName, property => property.GetValue(node)));
+            Properties.AddRange(node.Metadata.Shared.Properties.ToDictionary(pair => pair.Key, pair => pair.Value.GetValue(node)));
         }
 
-        if (node.Metadata.ValueInputHasVariableSize)
+        if (node.Metadata.Shared.IsValueInput && node.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput).Last().Metadata.Shared.IsList)
         {
-            ValueInputSize = node.VariableSize.ValueInputSize;
+            ValueInputSize = node.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput).Last().Metadata.Size;
         }
 
-        if (node.Metadata.ValueOutputHasVariableSize)
+        if (node.Metadata.Shared.IsValueOutput && node.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput).Last().Metadata.Shared.IsList)
         {
-            ValueOutputSize = node.VariableSize.ValueOutputSize;
+            ValueOutputSize = node.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput).Last().Metadata.Size;
         }
     }
 }
@@ -167,14 +167,20 @@ public class SerialisableConnection
     {
     }
 
-    public SerialisableConnection(NodeConnection connection)
+    public SerialisableConnection(IConnection connection)
     {
-        Type = connection.ConnectionType;
-        OutputNodeId = connection.OutputNodeId;
+        Type = connection is IFlowConnection ? ConnectionType.Flow : ConnectionType.Value;
+        OutputNodeId = connection.OutputId;
         OutputNodeSlot = connection.OutputSlot;
-        InputNodeId = connection.InputNodeId;
+        InputNodeId = connection.InputId;
         InputNodeSlot = connection.InputSlot;
     }
+}
+
+public enum ConnectionType
+{
+    Flow,
+    Value
 }
 
 public class SerialisableNodeGroup

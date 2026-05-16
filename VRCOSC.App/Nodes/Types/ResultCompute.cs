@@ -19,7 +19,7 @@ public abstract class ResultComputeNode<TLeft, TRight, TResult> : ValueComputeNo
         B = new ValueInput<TRight>(string.IsNullOrEmpty(bName) ? "B" : bName);
     }
 
-    protected override TResult ComputeValue(PulseContext c)
+    protected override TResult ComputeValue(IPulseContext c)
     {
         var a = A.Read(c);
         var b = B.Read(c);
@@ -61,7 +61,7 @@ public abstract class TryResultComputeAsyncNode<TLeft, TRight, TResult> : TryVal
         B = new ValueInput<TRight>(string.IsNullOrEmpty(bName) ? "B" : bName);
     }
 
-    protected override async Task<Result<TResult>> TryComputeValueAsync(PulseContext c)
+    protected override async Task<Result<TResult>> TryComputeValueAsync(IPulseContext c)
     {
         try
         {
@@ -75,12 +75,12 @@ public abstract class TryResultComputeAsyncNode<TLeft, TRight, TResult> : TryVal
         }
     }
 
-    protected abstract Task<Result<TResult>> TryComputeResultAsync(TLeft a, TRight b, PulseContext c);
+    protected abstract Task<Result<TResult>> TryComputeResultAsync(TLeft a, TRight b, IPulseContext c);
 }
 
 public abstract class TryResultComputeNode<TLeft, TRight, TResult>(string aName = "", string bName = "", string resultName = "") : TryResultComputeAsyncNode<TLeft, TRight, TResult>(aName, bName, resultName)
 {
-    protected override Task<Result<TResult>> TryComputeResultAsync(TLeft a, TRight b, PulseContext c) => Task.FromResult(TryComputeResult(a, b, c));
+    protected override Task<Result<TResult>> TryComputeResultAsync(TLeft a, TRight b, IPulseContext c) => Task.FromResult(TryComputeResult(a, b, c));
 
-    protected abstract Result<TResult> TryComputeResult(TLeft a, TRight b, PulseContext c);
+    protected abstract Result<TResult> TryComputeResult(TLeft a, TRight b, IPulseContext c);
 }

@@ -16,7 +16,7 @@ public sealed class DictionaryKeyToValueNode<TKey, TValue>() : ValueComputeNode<
     public ValueInput<Dictionary<TKey, TValue>> Dictionary = new();
     public ValueInput<TKey> Key = new();
 
-    protected override TValue ComputeValue(PulseContext c)
+    protected override TValue ComputeValue(IPulseContext c)
     {
         var dictionary = Dictionary.Read(c);
         if (dictionary is null) return default!;
@@ -34,7 +34,7 @@ public sealed class DictionaryElementAddNode<TKey, TValue> : ActionValueComputeN
     public ValueInput<Dictionary<TKey, TValue>?> Dictionary = new();
     public ValueInput<KeyValuePair<TKey, TValue>> Element = new();
 
-    protected override Dictionary<TKey, TValue>? ComputeValue(PulseContext c)
+    protected override Dictionary<TKey, TValue>? ComputeValue(IPulseContext c)
     {
         var dictionary = Dictionary.Read(c);
         if (dictionary is null) return null;
@@ -53,7 +53,7 @@ public sealed class DictionaryKeyRemoveNode<TKey, TValue> : ActionValueComputeNo
     public ValueInput<Dictionary<TKey, TValue>?> Dictionary = new();
     public ValueInput<TKey> Key = new();
 
-    protected override Dictionary<TKey, TValue>? ComputeValue(PulseContext c)
+    protected override Dictionary<TKey, TValue>? ComputeValue(IPulseContext c)
     {
         var dictionary = Dictionary.Read(c);
         if (dictionary is null) return null;

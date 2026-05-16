@@ -11,10 +11,9 @@ namespace VRCOSC.App.Nodes.Types.Audio;
 public sealed class AudioDefaultPlaybackDeviceNode() : SimpleValueSourceNode<AudioPlaybackDevice?>(() => AudioManager.GetInstance().PlaybackDevices.FirstOrDefault(d => d.Info!.Value.IsDefault), "Device");
 
 [Node("Playback Device Source", "Audio/Devices")]
-public sealed class AudioPlaybackDeviceSourceNode() : ValueSourceNode<AudioPlaybackDevice?>("Device"), IHasTextProperty
+public sealed class AudioPlaybackDeviceSourceNode() : ValueSourceNode<AudioPlaybackDevice?>("Device")
 {
-    [NodeProperty("device_name")]
-    public string Text { get; set; } = string.Empty;
+    public ValueInput<string> Name = new(modes: ValueInputMode.Inline);
 
-    protected override AudioPlaybackDevice? ComputeValue(PulseContext c) => AudioManager.GetInstance().PlaybackDevices.FirstOrDefault(d => d.Info!.Value.Name == Text);
+    protected override AudioPlaybackDevice? ComputeValue(IPulseContext c) => AudioManager.GetInstance().PlaybackDevices.FirstOrDefault(d => d.Info!.Value.Name == Name.Read(c));
 }

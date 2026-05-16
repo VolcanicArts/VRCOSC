@@ -14,7 +14,7 @@ public sealed class PackVector3Node : ValueComputeNode<Vector3>
     public ValueInput<float> Y = new();
     public ValueInput<float> Z = new();
 
-    protected override Vector3 ComputeValue(PulseContext c) => new(X.Read(c), Y.Read(c), Z.Read(c));
+    protected override Vector3 ComputeValue(IPulseContext c) => new(X.Read(c), Y.Read(c), Z.Read(c));
 }
 
 [Node("Unpack Vector3", "Math/Vector3")]
@@ -24,7 +24,7 @@ public sealed class UnpackVector3Node() : ValueConsumeNode<Vector3>("Vector")
     public ValueOutput<float> Y = new();
     public ValueOutput<float> Z = new();
 
-    protected override void ConsumeValue(Vector3 vector, PulseContext c)
+    protected override void ConsumeValue(Vector3 vector, IPulseContext c)
     {
         X.Write(vector.X, c);
         Y.Write(vector.Y, c);
@@ -44,7 +44,7 @@ public sealed class Vector3ContainsNode : Node
     public ValueInput<Vector3> Point = new();
     public ValueOutput<bool> Result = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         Result.Write(isPointInBox(A.Read(c), B.Read(c), Point.Read(c)), c);
         return Task.CompletedTask;
@@ -71,7 +71,7 @@ public sealed class Vector3DeltaNode : ValueTransformNode<Vector3>
 {
     public GlobalStore<Vector3> PrevValue = new();
 
-    protected override Vector3 TransformValue(Vector3 value, PulseContext c)
+    protected override Vector3 TransformValue(Vector3 value, IPulseContext c)
     {
         var prevValue = PrevValue.Read(c);
         PrevValue.Write(value, c);

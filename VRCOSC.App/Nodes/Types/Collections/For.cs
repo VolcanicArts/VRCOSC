@@ -6,15 +6,16 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Collections;
 
 [Node("For", "Collections")]
-public sealed class ForNode : Node, IFlowInput
+public sealed class ForNode : Node
 {
-    public FlowCall OnIteration = new();
-    public FlowContinuation OnEnd = new();
+    public FlowInput FlowInput = new();
+    public FlowOutput OnIteration = new(scope: true);
+    public FlowOutput OnEnd = new();
 
     public ValueInput<int> Count = new();
     public ValueOutput<int> Index = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task Process(IPulseContext c)
     {
         var count = Count.Read(c);
 

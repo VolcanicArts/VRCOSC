@@ -12,7 +12,7 @@ public sealed class ChatBoxOverrideTextNode : ActionNode
     public ValueInput<string> Input = new();
     public ValueInput<bool> MinimalBackground = new();
 
-    protected override void DoAction(PulseContext c)
+    protected override void DoAction(IPulseContext c)
     {
         var input = Input.Read(c);
 
@@ -34,7 +34,7 @@ public sealed class ChatBoxLayerSourceNode() : ValueSourceNode<bool>("Is Enabled
 {
     public ValueInput<int> Layer = new();
 
-    protected override bool ComputeValue(PulseContext c)
+    protected override bool ComputeValue(IPulseContext c)
     {
         var layer = Layer.Read(c);
         if (layer < 0 || layer >= ChatBoxManager.GetInstance().Timeline.LayerCount) return false;
@@ -49,7 +49,7 @@ public sealed class ChatBoxSetLayerEnabledNode : ActionNode
     public ValueInput<int> Layer = new();
     public ValueInput<bool> Enabled = new();
 
-    protected override void DoAction(PulseContext c)
+    protected override void DoAction(IPulseContext c)
     {
         var layer = Layer.Read(c);
         if (layer < 0 || layer >= ChatBoxManager.GetInstance().Timeline.LayerCount) return;

@@ -11,7 +11,7 @@ public sealed class DeltaNode<T> : ValueTransformNode<T> where T : ISubtractionO
 {
     public GlobalStore<T> PrevValue = new();
 
-    protected override T TransformValue(T value, PulseContext c)
+    protected override T TransformValue(T value, IPulseContext c)
     {
         var prevValue = PrevValue.Read(c);
         PrevValue.Write(value, c);

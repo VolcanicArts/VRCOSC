@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.IO;
+using System.Linq;
 
 namespace VRCOSC.App.Nodes.Types.Files;
 
@@ -10,7 +11,7 @@ public sealed class PathJoinNode : ValueComputeNode<string>
 {
     public ValueInputList<string?> Paths = new();
 
-    protected override string ComputeValue(PulseContext c) => Path.Join(Paths.Read(c).ToArray());
+    protected override string ComputeValue(IPulseContext c) => Path.Join(Paths.Read(c).ToArray());
 }
 
 [Node("Path Exists", "Files/Paths")]

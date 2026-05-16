@@ -10,9 +10,9 @@ public sealed class DelayNode : AsyncActionNode
 {
     public ValueInput<int> Milliseconds = new();
 
-    protected override Task DoActionAsync(PulseContext c)
+    protected override Task DoActionAsync(IPulseContext c)
     {
         var milliseconds = Milliseconds.Read(c);
-        return milliseconds > 0 ? Task.Delay(milliseconds, c.Token) : Task.CompletedTask;
+        return milliseconds > 0 ? c.Run(Task.Delay(milliseconds)) : Task.CompletedTask;
     }
 }

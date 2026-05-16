@@ -24,7 +24,7 @@ public abstract class HttpNode(HttpMethod method) : TryActionAsyncNode
     public ValueOutput<string> ErrorMessage = new();
     public ValueOutput<Dictionary<string, string>> ResponseHeaders = new("Headers");
 
-    protected override async Task<bool> TryActionAsync(PulseContext c)
+    protected override async Task<bool> TryActionAsync(IPulseContext c)
     {
         var url = URL.Read(c);
         var headers = Headers.Read(c);
@@ -41,7 +41,7 @@ public abstract class HttpNode(HttpMethod method) : TryActionAsyncNode
             foreach (var header in headers)
                 request.Headers.Add(header.Key, header.Value);
 
-            var response = await client.SendAsync(request).WaitAsync(Timeout.Read(c));
+            var response = await c.Run(client.SendAsync(request).WaitAsync(Timeout.Read(c)));
             StatusCode.Write(response.StatusCode, c);
 
             var responseHeaders = response.Headers.ToDictionary(h => h.Key, h => string.Join(", ", h.Value));
@@ -59,8 +59,8 @@ public abstract class HttpNode(HttpMethod method) : TryActionAsyncNode
         }
     }
 
-    protected virtual Task ModifyRequest(HttpRequestMessage request, PulseContext c) => Task.CompletedTask;
-    protected virtual Task HandleResponse(HttpResponseMessage response, PulseContext c) => Task.CompletedTask;
+    protected virtual Task ModifyRequest(HttpRequestMessage request, IPulseContext c) => Task.CompletedTask;
+    protected virtual Task HandleResponse(HttpResponseMessage response, IPulseContext c) => Task.CompletedTask;
 }
 
 public abstract class HttpReadNode(HttpMethod method) : HttpNode(method)
@@ -68,9 +68,9 @@ public abstract class HttpReadNode(HttpMethod method) : HttpNode(method)
     public ValueOutput<string> ResponseContentType = new("Content Type");
     public ValueOutput<string> ResponseBody = new("Body");
 
-    protected override async Task HandleResponse(HttpResponseMessage response, PulseContext c)
+    protected override async Task HandleResponse(HttpResponseMessage response, IPulseContext c)
     {
-        var body = await response.Content.ReadAsStringAsync().WaitAsync(c.Token);
+        var body = await c.Run(response.Content.ReadAsStringAsync());
         ResponseBody.Write(body, c);
         ResponseContentType.Write(response.Content.Headers.ContentType?.MediaType ?? string.Empty, c);
     }
@@ -81,7 +81,7 @@ public abstract class HttpWriteNode(HttpMethod method) : HttpReadNode(method)
     public ValueInput<string> ContentType = new(defaultValue: "text/plain");
     public ValueInput<string> RequestBody = new("Body");
 
-    protected override Task ModifyRequest(HttpRequestMessage request, PulseContext c)
+    protected override Task ModifyRequest(HttpRequestMessage request, IPulseContext c)
     {
         request.Content = new StringContent(RequestBody.Read(c), Encoding.UTF8, ContentType.Read(c));
         return Task.CompletedTask;
@@ -111,7 +111,7 @@ public sealed class HttpOptionsNode() : HttpNode(HttpMethod.Options)
 {
     public ValueOutput<string> Allow = new();
 
-    protected override Task HandleResponse(HttpResponseMessage response, PulseContext c)
+    protected override Task HandleResponse(HttpResponseMessage response, IPulseContext c)
     {
         if (response.Content.Headers.TryGetValues("Allow", out var values))
             Allow.Write(string.Join(", ", values), c);

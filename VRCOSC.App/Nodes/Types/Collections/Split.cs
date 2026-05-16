@@ -12,7 +12,7 @@ public sealed class SplitDictionaryNode<TKey, TValue> : ValueConsumeNode<Diction
     public ValueOutput<List<TKey>> Keys = new();
     public ValueOutput<List<TValue>> Values = new();
 
-    protected override void ConsumeValue(Dictionary<TKey, TValue>? dictionary, PulseContext c)
+    protected override void ConsumeValue(Dictionary<TKey, TValue>? dictionary, IPulseContext c)
     {
         if (dictionary is null) return;
 
@@ -27,7 +27,7 @@ public sealed class SplitKeyValuePairNode<TKey, TValue> : ValueConsumeNode<KeyVa
     public ValueOutput<TKey> Key = new();
     public ValueOutput<TValue> Value = new();
 
-    protected override void ConsumeValue(KeyValuePair<TKey, TValue> pair, PulseContext c)
+    protected override void ConsumeValue(KeyValuePair<TKey, TValue> pair, IPulseContext c)
     {
         Key.Write(pair.Key, c);
         Value.Write(pair.Value, c);

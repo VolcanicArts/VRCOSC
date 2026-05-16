@@ -6,5 +6,5 @@ namespace VRCOSC.App.Nodes.Types;
 [NodeCollapsed]
 public abstract class ConstantNode<T>(T value) : ValueComputeNode<T>
 {
-    protected override T ComputeValue(PulseContext c) => value;
+    protected override T ComputeValue(IPulseContext c) => value;
 }

@@ -13,7 +13,7 @@ public class JsonObjectGetValueNode<T> : ValueComputeNode<T>
     public ValueInput<string> Key = new();
     public ValueInput<JsonObject> JsonObject = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var key = Key.Read(c);
         var value = JsonObject.Read(c);
@@ -44,7 +44,7 @@ public class JsonArrayGetValueNode<T> : ValueComputeNode<T>
     public ValueInput<int> Index = new();
     public ValueInput<JsonArray> JsonArray = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var index = Index.Read(c);
         var value = JsonArray.Read(c);
@@ -78,7 +78,7 @@ public class JsonPathGetValueNode<T>() : TryValueComputeNode<T>(typeof(T).GetFri
     public ValueInput<string> Path = new();
     public ValueInput<JsonNode> Json = new();
 
-    protected override Result<T> TryComputeValue(PulseContext c)
+    protected override Result<T> TryComputeValue(IPulseContext c)
     {
         var path = Path.Read(c);
         var json = Json.Read(c);

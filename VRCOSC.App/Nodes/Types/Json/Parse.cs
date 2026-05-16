@@ -8,13 +8,13 @@ using VRCOSC.App.Utils;
 namespace VRCOSC.App.Nodes.Types.Json;
 
 [Node("Parse", "Json")]
-[NodeGenericTypeFilter(typeof(JsonObject), typeof(JsonArray))]
+[NodeGenerics(typeof(JsonObject), typeof(JsonArray))]
 public class ParseJsonNode<T>() : TryValueComputeNode<T>(typeof(T).GetFriendlyName()) where T : class
 {
     public ValueInput<string> String = new();
     public ValueInput<JsonSerializerOptions> Options = new();
 
-    protected override Result<T> TryComputeValue(PulseContext c)
+    protected override Result<T> TryComputeValue(IPulseContext c)
     {
         var @string = String.Read(c);
         var options = Options.Read(c);

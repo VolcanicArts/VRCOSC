@@ -41,20 +41,21 @@ public struct Gamepad
 }
 
 [Node("Gamepad Source", "Input/Gamepad")]
-public sealed class GamepadSourceNode() : ValueComputeNode<Gamepad>("Gamepad"), IUpdateNode, IHasTextProperty
+public sealed class GamepadSourceNode() : ValueComputeNode<Gamepad>("Gamepad"), IUpdateNode
 {
     public int UpdateOffset => 0;
 
-    [NodeProperty("text")]
-    public string Text { get; set; } = "0";
-
     public GlobalStore<Gamepad> GamepadStore = new();
 
-    protected override Gamepad ComputeValue(PulseContext c) => GamepadStore.Read(c);
+    public ValueInput<uint> DeviceIndex = new(modes: ValueInputMode.Inline);
 
-    public void OnUpdate(PulseContext c)
+    protected override Gamepad ComputeValue(IPulseContext c) => GamepadStore.Read(c);
+
+    public void OnUpdate(IPulseContext c)
     {
-        if (!uint.TryParse(Text, out var deviceIndex) || PInvoke.XInputGetState(deviceIndex, out var state) != 0)
+        var deviceIndex = DeviceIndex.Read(c);
+
+        if (PInvoke.XInputGetState(deviceIndex, out var state) != 0)
         {
             GamepadStore.Write(new Gamepad(), c);
             return;
@@ -108,7 +109,7 @@ public sealed class GamepadSetVibrationNode : ActionNode
     public ValueInput<float> IntensityHeavy = new();
     public ValueInput<float> IntensityLight = new();
 
-    protected override void DoAction(PulseContext c)
+    protected override void DoAction(IPulseContext c)
     {
         var gamepad = Gamepad.Read(c);
         var intensityHeavy = float.Clamp(IntensityHeavy.Read(c), 0f, 1f);
@@ -128,9 +129,9 @@ public abstract class GamepadConsumeNode() : ValueConsumeNode<Gamepad>(nameof(Ga
 {
     public int UpdateOffset => 0;
 
-    protected override void ConsumeValue(Gamepad value, PulseContext c) => ConsumeGampad(value, c);
+    protected override void ConsumeValue(Gamepad value, IPulseContext c) => ConsumeGampad(value, c);
 
-    protected abstract void ConsumeGampad(Gamepad gamepad, PulseContext c);
+    protected abstract void ConsumeGampad(Gamepad gamepad, IPulseContext c);
 }
 
 [Node("Gamepad Left Stick", "Input/Gamepad")]
@@ -139,7 +140,7 @@ public sealed class GamepadLeftStickNode : GamepadConsumeNode
     public ValueOutput<Vector2> Position = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void ConsumeGampad(Gamepad gamepad, PulseContext c)
+    protected override void ConsumeGampad(Gamepad gamepad, IPulseContext c)
     {
         Position.Write(gamepad.LeftStickPos, c);
         Click.Write(gamepad.LeftStickClick, c);
@@ -152,7 +153,7 @@ public sealed class GamepadRightStickNode : GamepadConsumeNode
     public ValueOutput<Vector2> Position = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void ConsumeGampad(Gamepad gamepad, PulseContext c)
+    protected override void ConsumeGampad(Gamepad gamepad, IPulseContext c)
     {
         Position.Write(gamepad.RightStickPos, c);
         Click.Write(gamepad.RightStickClick, c);
@@ -165,7 +166,7 @@ public sealed class GamepadTriggersNode : GamepadConsumeNode
     public ValueOutput<float> Left = new();
     public ValueOutput<float> Right = new();
 
-    protected override void ConsumeGampad(Gamepad gamepad, PulseContext c)
+    protected override void ConsumeGampad(Gamepad gamepad, IPulseContext c)
     {
         Left.Write(gamepad.LeftTrigger, c);
         Right.Write(gamepad.RightTrigger, c);
@@ -178,7 +179,7 @@ public sealed class GamepadShouldersNode : GamepadConsumeNode
     public ValueOutput<bool> Left = new();
     public ValueOutput<bool> Right = new();
 
-    protected override void ConsumeGampad(Gamepad gamepad, PulseContext c)
+    protected override void ConsumeGampad(Gamepad gamepad, IPulseContext c)
     {
         Left.Write(gamepad.LeftShoulder, c);
         Right.Write(gamepad.RightShoulder, c);
@@ -193,7 +194,7 @@ public sealed class GamepadDPadNode : GamepadConsumeNode
     public ValueOutput<bool> Left = new();
     public ValueOutput<bool> Right = new();
 
-    protected override void ConsumeGampad(Gamepad gamepad, PulseContext c)
+    protected override void ConsumeGampad(Gamepad gamepad, IPulseContext c)
     {
         Up.Write(gamepad.DPadUp, c);
         Down.Write(gamepad.DPadDown, c);
@@ -212,7 +213,7 @@ public sealed class GamepadButtonsNode : GamepadConsumeNode
     public ValueOutput<bool> Start = new();
     public ValueOutput<bool> Back = new();
 
-    protected override void ConsumeGampad(Gamepad gamepad, PulseContext c)
+    protected override void ConsumeGampad(Gamepad gamepad, IPulseContext c)
     {
         A.Write(gamepad.A, c);
         B.Write(gamepad.B, c);

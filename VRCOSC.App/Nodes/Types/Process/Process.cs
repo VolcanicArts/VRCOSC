@@ -10,14 +10,15 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Process;
 
 [Node("Is Process Open", "Process")]
-public sealed class ProcessIsOpenNode : Node, IFlowInput
+public sealed class ProcessIsOpenNode : Node
 {
-    public FlowContinuation Next = new();
+    public FlowInput FlowInput = new();
+    public FlowOutput Next = new();
 
     public ValueInput<string> Name = new();
     public ValueOutput<bool> IsOpen = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task Process(IPulseContext c)
     {
         try
         {
@@ -38,15 +39,16 @@ public sealed class ProcessIsOpenNode : Node, IFlowInput
 }
 
 [Node("Start Process", "Process")]
-public sealed class ProcessStartNode : Node, IFlowInput
+public sealed class ProcessStartNode : Node
 {
-    public FlowContinuation OnStart = new();
-    public FlowContinuation OnFail = new();
+    public FlowInput FlowInput = new();
+    public FlowOutput OnStart = new();
+    public FlowOutput OnFail = new();
 
     public ValueInput<string?> Name = new();
     public ValueOutput<System.Diagnostics.Process?> ProcessOutput = new("Process");
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task Process(IPulseContext c)
     {
         try
         {
@@ -98,14 +100,15 @@ public sealed class ProcessStartNode : Node, IFlowInput
 }
 
 [Node("Stop Process", "Process")]
-public sealed class ProcessStopNode : Node, IFlowInput
+public sealed class ProcessStopNode : Node
 {
-    public FlowContinuation OnStop = new();
-    public FlowContinuation OnFail = new();
+    public FlowInput FlowInput = new();
+    public FlowOutput OnStop = new();
+    public FlowOutput OnFail = new();
 
     public ValueInput<string> Name = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task Process(IPulseContext c)
     {
         try
         {

@@ -15,7 +15,7 @@ public sealed class CreateListNode<T> : Node
     public ValueOutput<List<T>> Output = new();
     public ValueOutput<int> InputCount = new("Input Count");
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var list = Inputs.Read(c).ToList();
         Output.Write(list, c);
@@ -31,10 +31,10 @@ public sealed class CreateDictionaryNode<TKey, TValue> : Node where TKey : notnu
     public ValueOutput<Dictionary<TKey, TValue>> Output = new();
     public ValueOutput<int> InputCount = new("Input Count");
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var dictionary = new Dictionary<TKey, TValue>();
-        dictionary.AddRange(Inputs.Read(c).RemoveIf(pair => pair.Key is null));
+        dictionary.AddRange(Inputs.Read(c).ToList().RemoveIf(pair => pair.Key is null));
 
         Output.Write(dictionary, c);
         InputCount.Write(dictionary.Count, c);
@@ -50,7 +50,7 @@ public sealed class CreateKeyValuePairNode<TKey, TValue> : Node where TKey : not
     public ValueInput<TValue> Value = new();
     public ValueOutput<KeyValuePair<TKey, TValue>> Output = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         Output.Write(new KeyValuePair<TKey, TValue>(Key.Read(c), Value.Read(c)), c);
         return Task.CompletedTask;
@@ -63,7 +63,7 @@ public sealed class EmptyDictionaryNode<TKey, TValue> : Node where TKey : notnul
 {
     public ValueOutput<Dictionary<TKey, TValue>> Dictionary = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         Dictionary.Write(new Dictionary<TKey, TValue>(), c);
         return Task.CompletedTask;
@@ -76,7 +76,7 @@ public sealed class EmptyListNode<T> : Node
 {
     public ValueOutput<List<T>> List = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         List.Write(new List<T>(), c);
         return Task.CompletedTask;

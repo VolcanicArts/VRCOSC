@@ -2,10 +2,11 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Windows;
 using Newtonsoft.Json;
+using VRCOSC.App.Nodes.Metadata;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -56,14 +57,18 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
             {
                 if (!TypeResolver.TryConstruct(sN.Type, out var nodeType)) continue;
 
-                var node = Reference.AddNode(nodeType, new Point(sN.Position.X, sN.Position.Y), sN.Id);
+                var nodeResult = Reference.AddNode(nodeType, sN.Id);
+                Debug.Assert(nodeResult.IsSuccess);
+
+                var node = nodeResult.Value;
+                node.Metadata.Position = sN.Position;
 
                 if (sN.Properties is not null)
                 {
                     foreach (var (propertyKey, propertyValue) in sN.Properties)
                     {
                         var property = node.GetType().GetProperties()
-                                           .SingleOrDefault(property => property.TryGetCustomAttribute<NodePropertyAttribute>(out var attribute) && attribute.SerialisedName == propertyKey);
+                                           .SingleOrDefault(property => property.TryGetCustomAttribute<NodePropertyAttribute>(out var attribute) && attribute.Name == propertyKey);
 
                         if (property is not null)
                         {
@@ -75,13 +80,24 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
                     }
                 }
 
-                if (node.Metadata.ValueInputHasVariableSize || node.Metadata.ValueOutputHasVariableSize)
+                if (node.Metadata.Elements[ConnectionPoint.ValueInput].Any())
                 {
-                    Reference.VariableSizes[node.Id] = new NodeVariableSize
+                    var lastValueInput = node.Metadata.Elements[ConnectionPoint.ValueInput].Last();
+
+                    if (lastValueInput.Shared.IsList)
                     {
-                        ValueInputSize = sN.ValueInputSize ?? 1,
-                        ValueOutputSize = sN.ValueOutputSize ?? 1
-                    };
+                        lastValueInput.Size = sN.ValueInputSize ?? 0;
+                    }
+                }
+
+                if (node.Metadata.Elements[ConnectionPoint.ValueOutput].Any())
+                {
+                    var lastValueOutput = node.Metadata.Elements[ConnectionPoint.ValueOutput].Last();
+
+                    if (lastValueOutput.Shared.IsList)
+                    {
+                        lastValueOutput.Size = sN.ValueOutputSize ?? 0;
+                    }
                 }
             }
             catch (Exception e)
@@ -91,25 +107,50 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
         }
 
         // Updating from previous variable system
-        foreach (var node in Reference.Nodes.Values.ToList())
+        foreach (var node in Reference.Elements.Values.ToList())
         {
             if (node.GetType().IsAssignableTo(typeof(IHasVariableReference)) && ((IHasVariableReference)node).VariableId == Guid.Empty)
             {
-                Reference.DeleteNode(node.Id);
+                Reference.RemoveNode(node.Id);
             }
         }
 
         foreach (var sC in data.Connections)
         {
-            if (!Reference.Nodes.ContainsKey(sC.InputNodeId) || !Reference.Nodes.ContainsKey(sC.OutputNodeId)) continue;
+            var outputNodeResult = Reference.GetNode(sC.OutputNodeId);
+            if (!outputNodeResult.IsSuccess) continue;
+
+            var inputNodeResult = Reference.GetNode(sC.InputNodeId);
+            if (!inputNodeResult.IsSuccess) continue;
+
+            var outputNode = outputNodeResult.Value;
+            var inputNode = inputNodeResult.Value;
 
             try
             {
                 if (sC.Type == ConnectionType.Flow)
-                    Reference.CreateFlowConnection(sC.OutputNodeId, sC.OutputNodeSlot, sC.InputNodeId);
+                {
+                    var outputElement = outputNode.Metadata.ElementInstancesFor(ConnectionPoint.FlowOutput)[sC.OutputNodeSlot];
+                    var inputElement = inputNode.Metadata.ElementInstancesFor(ConnectionPoint.FlowInput)[sC.InputNodeSlot];
+
+                    Reference.CreateConnection(outputElement, 0, inputElement, 0);
+                }
 
                 if (sC.Type == ConnectionType.Value)
-                    Reference.CreateValueConnection(sC.OutputNodeId, sC.OutputNodeSlot, sC.InputNodeId, sC.InputNodeSlot);
+                {
+                    var (outputSlot, outputIndex) = sC.OutputNodeSlot >= outputNode.Metadata.Shared.ValueOutputCount
+                        ? (outputNode.Metadata.Shared.ValueOutputCount - 1, sC.OutputNodeSlot - (outputNode.Metadata.Shared.ValueOutputCount - 1))
+                        : (sC.OutputNodeSlot, 0);
+
+                    var (inputSlot, inputIndex) = sC.InputNodeSlot >= inputNode.Metadata.Shared.ValueInputCount
+                        ? (inputNode.Metadata.Shared.ValueInputCount - 1, sC.InputNodeSlot - (inputNode.Metadata.Shared.ValueInputCount - 1))
+                        : (sC.InputNodeSlot, 0);
+
+                    var outputElement = outputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput)[outputSlot];
+                    var inputElement = inputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput)[inputSlot];
+
+                    Reference.CreateConnection(outputElement, outputIndex, inputElement, inputIndex);
+                }
             }
             catch (Exception e)
             {
@@ -123,7 +164,7 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
             {
                 var group = Reference.AddGroup(sG.Nodes, sG.Id);
                 group.Title.Value = sG.Title;
-                group.Nodes.RemoveIf(nodeId => !Reference.Nodes.ContainsKey(nodeId));
+                group.Nodes.RemoveIf(nodeId => !Reference.Elements.ContainsKey(nodeId));
             }
             catch (Exception e)
             {

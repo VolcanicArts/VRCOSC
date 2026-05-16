@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using VRCOSC.App.SDK.Utils;
 
 namespace VRCOSC.App.Nodes;
 
@@ -26,7 +27,14 @@ public static class NodeConstants
     public static readonly Type[] INPUT_TYPES = new[]
     {
         typeof(string),
-        typeof(bool)
+        typeof(bool),
+        typeof(Enum),
+        typeof(Keybind)
+    }.Concat(NUMERIC_TYPES).ToArray();
+
+    public static readonly Type[] TEXTBOX_TYPES = new[]
+    {
+        typeof(string)
     }.Concat(NUMERIC_TYPES).ToArray();
 
     public static readonly Type[] COMMON_TYPES = new[]

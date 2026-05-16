@@ -13,7 +13,7 @@ public sealed class SteamVRTriggerHapticNode : ActionNode
     public ValueInput<float> Frequency = new();
     public ValueInput<float> Amplitude = new();
 
-    protected override void DoAction(PulseContext c)
+    protected override void DoAction(IPulseContext c)
     {
         var device = Device.Read(c);
         if (device is null) return;
@@ -35,7 +35,7 @@ public sealed class SteamVRTriggerHapticNode : ActionNode
 [Node("Shutdown Device", "SteamVR")]
 public sealed class SteamVRShutdownDeviceNode() : ActionValueConsumeNode<TrackedDevice?>("Device")
 {
-    protected override void ConsumeValue(TrackedDevice? device, PulseContext c)
+    protected override void ConsumeValue(TrackedDevice? device, IPulseContext c)
     {
         if (device is null) return;
 

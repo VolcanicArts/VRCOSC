@@ -8,7 +8,7 @@ namespace VRCOSC.App.Nodes.Types.Inputs;
 [Node("Call")]
 public sealed class ButtonNode : Node
 {
-    public FlowContinuation Next = new();
+    public FlowOutput Next = new();
 
-    protected override Task Process(PulseContext c) => Next.Execute(c);
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 }

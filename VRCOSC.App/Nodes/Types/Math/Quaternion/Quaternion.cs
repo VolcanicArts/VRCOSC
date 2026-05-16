@@ -21,5 +21,5 @@ public sealed class QuaternionMultiplyNode : ValueComputeNode<System.Numerics.Qu
     public ValueInput<System.Numerics.Quaternion> A = new(defaultValue: System.Numerics.Quaternion.Identity);
     public ValueInput<System.Numerics.Quaternion> B = new(defaultValue: System.Numerics.Quaternion.Identity);
 
-    protected override System.Numerics.Quaternion ComputeValue(PulseContext c) => A.Read(c) * B.Read(c);
+    protected override System.Numerics.Quaternion ComputeValue(IPulseContext c) => A.Read(c) * B.Read(c);
 }

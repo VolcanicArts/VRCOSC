@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections;
 using System.Globalization;
 using System.Reflection;
 using System.Windows;
@@ -17,6 +18,42 @@ namespace VRCOSC.App.UI.Core;
 public class ObjectToStringConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => value?.ToString() ?? "null";
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class StringIsNotNullOrEmptyConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not string strValue) return null;
+
+        return !string.IsNullOrEmpty(strValue);
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class StringIsNotNullOrEmptyVisibilityConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not string strValue) return Visibility.Collapsed;
+
+        return !string.IsNullOrEmpty(strValue) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class StringIsNullOrEmptyConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not string strValue) return null;
+
+        return string.IsNullOrEmpty(strValue);
+    }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
@@ -207,4 +244,29 @@ public class BorderClipConverter : IMultiValueConverter
     }
 
     public object[]? ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => null;
+}
+
+public class CollectionIsEmptyToVisibilityConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not ICollection enumerable) return null;
+
+        return enumerable.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class EnumGetValuesConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not Type type) return null;
+        if (!type.IsEnum) return null;
+
+        return Enum.GetValues(type);
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }

@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Linq;
 
 namespace VRCOSC.App.Nodes.Types.Strings;
 
@@ -12,7 +13,7 @@ public sealed class ToStringNode<T> : ValueComputeNode<string>
     public ValueInput<string> Format = new();
     public ValueInput<IFormatProvider> FormatProvider = new();
 
-    protected override string ComputeValue(PulseContext c)
+    protected override string ComputeValue(IPulseContext c)
     {
         var value = Value.Read(c);
         var format = Format.Read(c);
@@ -31,7 +32,7 @@ public sealed class StringFormatNode : ValueComputeNode<string>
     public ValueInput<string?> Format = new();
     public ValueInputList<object?> Values = new();
 
-    protected override string ComputeValue(PulseContext c)
+    protected override string ComputeValue(IPulseContext c)
     {
         try
         {

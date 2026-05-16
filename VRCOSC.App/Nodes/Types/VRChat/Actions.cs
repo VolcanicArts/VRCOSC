@@ -8,9 +8,9 @@ public sealed class AvatarSetEyeHeightNode : ActionNode
 {
     public ValueInput<float> Meters = new();
 
-    protected override void DoAction(PulseContext c)
+    protected override void DoAction(IPulseContext c)
     {
-        var client = c.GetClient();
+        var client = AppManager.GetInstance().VRChatClient;
         if (!client.IsInAvatar) return;
 
         client.Avatar.SetEyeHeight(Meters.Read(c));

@@ -11,7 +11,7 @@ public sealed class TransformUnpackNode() : ValueConsumeNode<Utils.Transform>(na
     public ValueOutput<Vector3> Position = new();
     public ValueOutput<System.Numerics.Quaternion> Rotation = new();
 
-    protected override void ConsumeValue(Utils.Transform transform, PulseContext c)
+    protected override void ConsumeValue(Utils.Transform transform, IPulseContext c)
     {
         Position.Write(transform.Position, c);
         Rotation.Write(transform.Rotation, c);
@@ -24,7 +24,7 @@ public sealed class TransformPackNode() : ValueComputeNode<Utils.Transform>(name
     public ValueInput<Vector3> Position = new();
     public ValueInput<System.Numerics.Quaternion> Rotation = new(defaultValue: System.Numerics.Quaternion.Identity);
 
-    protected override Utils.Transform ComputeValue(PulseContext c) => new(Position.Read(c), Rotation.Read(c));
+    protected override Utils.Transform ComputeValue(IPulseContext c) => new(Position.Read(c), Rotation.Read(c));
 }
 
 [Node("Transform Relative To", "Math/Transform")]

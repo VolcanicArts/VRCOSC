@@ -19,7 +19,7 @@ public sealed class ProcessInfoNode() : ValueConsumeNode<System.Diagnostics.Proc
     public ValueOutput<string?> Name = new();
     public ValueOutput<DateTime> StartTime = new();
 
-    protected override void ConsumeValue(System.Diagnostics.Process? process, PulseContext c)
+    protected override void ConsumeValue(System.Diagnostics.Process? process, IPulseContext c)
     {
         if (process is null) return;
 

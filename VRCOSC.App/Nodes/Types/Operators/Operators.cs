@@ -6,8 +6,10 @@ using FontAwesome6;
 
 namespace VRCOSC.App.Nodes.Types.Operators;
 
-[Node("Equals", "Operators", EFontAwesomeIcon.Solid_Equals)]
+[Node("Equals", "Operators")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Equals)]
 public sealed class EqualsNode<T>() : SimpleResultComputeNode<T, bool>(EqualityComparer<T>.Default.Equals);
 
-[Node("Not Equals", "Operators", EFontAwesomeIcon.Solid_NotEqual)]
+[Node("Not Equals", "Operators")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_NotEqual)]
 public sealed class NotEqualsNode<T>() : SimpleResultComputeNode<T, bool>((a, b) => !EqualityComparer<T>.Default.Equals(a, b));

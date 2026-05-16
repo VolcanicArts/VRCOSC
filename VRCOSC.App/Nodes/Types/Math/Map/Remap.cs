@@ -14,7 +14,7 @@ public sealed class RemapNode<TFrom, TTo> : ValueComputeNode<TTo> where TFrom : 
     public ValueInput<TTo> ToMin = new();
     public ValueInput<TTo> ToMax = new();
 
-    protected override TTo ComputeValue(PulseContext c) => Utils.Interpolation.Map(Value.Read(c), FromMin.Read(c), FromMax.Read(c), ToMin.Read(c), ToMax.Read(c));
+    protected override TTo ComputeValue(IPulseContext c) => Utils.Interpolation.Map(Value.Read(c), FromMin.Read(c), FromMax.Read(c), ToMin.Read(c), ToMax.Read(c));
 }
 
 [Node("Remap 0,1 To -1,1", "Math/Map")]

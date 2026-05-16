@@ -1,0 +1,172 @@
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// See the LICENSE file in the repository root for full license text.
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using VRCOSC.App.Modules;
+using VRCOSC.App.Nodes.Types;
+using VRCOSC.App.SDK.Nodes;
+using VRCOSC.App.Utils;
+
+namespace VRCOSC.App.Nodes.Metadata;
+
+public static class NodeMetadataManager
+{
+    private static Dictionary<Type, INodeSharedMetadata> sharedMetadata { get; } = [];
+    private static Dictionary<Guid, INodeMetadata> instanceMetadata { get; } = [];
+
+    public static Result<INodeMetadata> GetFor(Node node)
+    {
+        if (instanceMetadata.TryGetValue(node.Id, out var nodeMetadata))
+        {
+            return Result<INodeMetadata>.Success(nodeMetadata);
+        }
+
+        return createFor(node);
+    }
+
+    public static Result<INodeSharedMetadata> GetFor(Type nodeType)
+    {
+        if (sharedMetadata.TryGetValue(nodeType, out var metadata))
+        {
+            return Result<INodeSharedMetadata>.Success(metadata);
+        }
+
+        return createFor(nodeType);
+    }
+
+    private static INodeElementSharedMetadata[] createElementMetadataFor(Type nodeType, Type elementBase, Type elementListBase)
+    {
+        var fields = nodeType.GetFieldsByType(elementBase).ToArray();
+
+        var arr = new INodeElementSharedMetadata[fields.Length];
+
+        for (var i = 0; i < fields.Length; i++)
+        {
+            var f = fields[i];
+
+            arr[i] = new NodeElementSharedMetadata
+            {
+                FieldInfo = f,
+                Slot = i,
+                IsList = f.FieldType.IsAssignableTo(elementListBase),
+                IsInlineable = f.FieldType.IsAssignableTo(typeof(IValueInput)) && NodeConstants.INPUT_TYPES.Contains(f.FieldType.GetGenericArguments()[0])
+            };
+        }
+
+        return arr;
+    }
+
+    private static INodeElementMetadata[] getElementInstancesFor(Node node, INodeElementSharedMetadata[] elements) =>
+        elements.Select(INodeElementMetadata (shared) => new NodeElementMetadata
+        {
+            Shared = shared,
+            Instance = (INodeElement)shared.FieldInfo.GetValue(node)!,
+            Size = shared.IsList ? 1 : 0
+        }).ToArray();
+
+    private static Result<INodeMetadata> createFor(Node node)
+    {
+        if (!sharedMetadata.TryGetValue(node.GetType(), out var shared))
+        {
+            var sharedResult = createFor(node.GetType());
+            if (!sharedResult.IsSuccess) return sharedResult.Exception;
+
+            shared = sharedResult.Value;
+        }
+
+        var flowInputInstances = getElementInstancesFor(node, shared.Elements[ConnectionPoint.FlowInput]);
+        var flowOutputInstances = getElementInstancesFor(node, shared.Elements[ConnectionPoint.FlowOutput]);
+        var valueInputInstances = getElementInstancesFor(node, shared.Elements[ConnectionPoint.ValueInput]);
+        var valueOutputInstances = getElementInstancesFor(node, shared.Elements[ConnectionPoint.ValueOutput]);
+
+        var elementInstances = new Dictionary<ConnectionPoint, INodeElementMetadata[]>
+        {
+            { ConnectionPoint.FlowInput, flowInputInstances },
+            { ConnectionPoint.FlowOutput, flowOutputInstances },
+            { ConnectionPoint.ValueInput, valueInputInstances },
+            { ConnectionPoint.ValueOutput, valueOutputInstances }
+        };
+
+        var metadata = new NodeMetadata
+        {
+            Shared = shared,
+            Elements = elementInstances
+        };
+
+        instanceMetadata[node.Id] = metadata;
+        return metadata;
+    }
+
+    private static Result<INodeSharedMetadata> createFor(Type nodeType)
+    {
+        if (nodeType.IsAbstract)
+            return new Exception("Node must not be abstract");
+
+        if (!nodeType.TryGetCustomAttribute<NodeAttribute>(out var nodeAttribute))
+            return new Exception($"Node must have a {nameof(NodeAttribute)}");
+
+        var genericTypes = nodeType.IsGenericType ? nodeType.GetGenericArguments() : [];
+
+        var properties = nodeType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).Where(p => p.HasCustomAttribute<NodePropertyAttribute>())
+                                 .ToDictionary(p => p.GetCustomAttribute<NodePropertyAttribute>()!.Name, p => p);
+
+        var flowInputElements = createElementMetadataFor(nodeType, typeof(IFlowInputBase), typeof(IFlowInputList));
+        var flowOutputElements = createElementMetadataFor(nodeType, typeof(IFlowOutputBase), typeof(IFlowOutputList));
+        var valueInputElements = createElementMetadataFor(nodeType, typeof(IValueInputBase), typeof(IValueInputList));
+        var valueOutputElements = createElementMetadataFor(nodeType, typeof(IValueOutputBase), typeof(IValueOutputList));
+
+        var elements = new Dictionary<ConnectionPoint, INodeElementSharedMetadata[]>
+        {
+            { ConnectionPoint.FlowInput, flowInputElements },
+            { ConnectionPoint.FlowOutput, flowOutputElements },
+            { ConnectionPoint.ValueInput, valueInputElements },
+            { ConnectionPoint.ValueOutput, valueOutputElements }
+        };
+
+        var reprocess = nodeType.HasCustomAttribute<NodeForceReprocessAttribute>();
+        var collapsedAttribute = nodeType.GetCustomAttribute<NodeCollapsedAttribute>();
+
+        if (collapsedAttribute is not null)
+        {
+            if (flowInputElements.Length > 0 || flowOutputElements.Length > 0)
+                return new Exception("Flow nodes cannot be collapsed");
+
+            if (valueInputElements.Any(e => e.IsList) || valueOutputElements.Any(e => e.IsList))
+                return new Exception("Node with variable size cannot be collapsed");
+        }
+
+        var noCancel = nodeType.HasCustomAttribute<NodeNoCancelAttribute>();
+        var isContinuous = nodeType.GetInterfaces().Contains(typeof(IContinuousNode));
+        var isActiveUpdate = nodeType.GetInterfaces().Contains(typeof(IActiveUpdateNode));
+
+        var moduleNodeType = nodeType.GetConstructedGenericBase(typeof(ModuleNode<>));
+
+        var pathRoot = moduleNodeType is null
+            ? nodeAttribute.Path.Contains('/') ? nodeAttribute.Path.Split('/')[0] : nodeAttribute.Path
+            : ModuleManager.GetInstance().GetModuleInstanceFromType(moduleNodeType.GetGenericArguments()[0]).Title;
+
+        var metadata = new NodeSharedMetadata
+        {
+            Type = nodeType,
+            Name = nodeAttribute.Title,
+            Icons = collapsedAttribute?.Icons ?? [],
+            Path = nodeAttribute.Path,
+            PathRoot = pathRoot,
+            GenericTypes = genericTypes,
+            GenericsFilter = nodeType.TryGetCustomAttribute<NodeGenerics>(out var genericsAttribute) ? genericsAttribute.Types : [],
+            Properties = properties,
+            Elements = elements,
+            Reprocess = reprocess,
+            IsCollapsed = collapsedAttribute is not null,
+            NoCancel = noCancel,
+            IsContinuous = isContinuous,
+            IsActiveUpdate = isActiveUpdate
+        };
+
+        sharedMetadata[nodeType] = metadata;
+        return metadata;
+    }
+}

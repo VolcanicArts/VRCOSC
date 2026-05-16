@@ -16,7 +16,7 @@ public abstract class ValueConsumeNode<T> : Node
         Input = new ValueInput<T>(string.IsNullOrEmpty(inputName) ? "Value" : inputName);
     }
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var value = Input.Read(c);
 
@@ -31,19 +31,20 @@ public abstract class ValueConsumeNode<T> : Node
         return Task.CompletedTask;
     }
 
-    protected abstract void ConsumeValue(T value, PulseContext c);
+    protected abstract void ConsumeValue(T value, IPulseContext c);
 }
 
 public abstract class SimpleValueConsumeNode<T>(Action<T> func, string inputName = "") : ValueConsumeNode<T>(inputName)
 {
-    protected override void ConsumeValue(T value, PulseContext c) => func(value);
+    protected override void ConsumeValue(T value, IPulseContext c) => func(value);
 }
 
-public abstract class ActionValueConsumeNode<T>(string inputName = "") : ValueConsumeNode<T>(inputName), IFlowInput
+public abstract class ActionValueConsumeNode<T>(string inputName = "") : ValueConsumeNode<T>(inputName)
 {
-    public FlowContinuation Next = new();
+    public FlowInput FlowInput = new();
+    public FlowOutput Next = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task Process(IPulseContext c)
     {
         await base.Process(c);
         await Next.Execute(c);
@@ -52,7 +53,7 @@ public abstract class ActionValueConsumeNode<T>(string inputName = "") : ValueCo
 
 public abstract class SimpleActionValueConsumeNode<T>(Action<T> func, string inputName = "") : ActionValueConsumeNode<T>(inputName)
 {
-    protected override void ConsumeValue(T value, PulseContext c) => func(value);
+    protected override void ConsumeValue(T value, IPulseContext c) => func(value);
 }
 
 public abstract class TryValueConsumeAsyncNode<T> : TryActionAsyncNode
@@ -64,7 +65,7 @@ public abstract class TryValueConsumeAsyncNode<T> : TryActionAsyncNode
         Input = new ValueInput<T>(inputName);
     }
 
-    protected override async Task<bool> TryActionAsync(PulseContext c)
+    protected override async Task<bool> TryActionAsync(IPulseContext c)
     {
         try
         {
@@ -78,12 +79,12 @@ public abstract class TryValueConsumeAsyncNode<T> : TryActionAsyncNode
         }
     }
 
-    protected abstract Task<Result> TryConsumeValueAsync(T value, PulseContext c);
+    protected abstract Task<Result> TryConsumeValueAsync(T value, IPulseContext c);
 }
 
 public abstract class TryValueConsumeNode<T>(string inputName = "") : TryValueConsumeAsyncNode<T>(inputName)
 {
-    protected override Task<Result> TryConsumeValueAsync(T value, PulseContext c) => Task.FromResult(TryConsumeValue(value, c));
+    protected override Task<Result> TryConsumeValueAsync(T value, IPulseContext c) => Task.FromResult(TryConsumeValue(value, c));
 
-    protected abstract Result TryConsumeValue(T value, PulseContext c);
+    protected abstract Result TryConsumeValue(T value, IPulseContext c);
 }

@@ -4,17 +4,21 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
+using MeaMod.DNS.Server;
+using VRCOSC.App.Nodes.Metadata;
 using VRCOSC.App.Nodes.Serialisation;
+using VRCOSC.App.Nodes.Serialisation.V2;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Events;
 using VRCOSC.App.Nodes.Types.Strings;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
+using Node = VRCOSC.App.Nodes.Types.Node;
 
 namespace VRCOSC.App.Nodes;
 
@@ -24,28 +28,20 @@ public class NodeGraph
     public Observable<string> Name { get; } = new("New Graph");
     public Observable<bool> Selected { get; } = new();
     public Observable<bool> Enabled { get; } = new(true);
+    public Observable<bool> Running { get; } = new();
 
     private readonly SerialisationManager serialiser;
 
-    public ConcurrentDictionary<Guid, Node> Nodes { get; } = [];
-    public ConcurrentDictionary<Guid, NodeConnection> Connections { get; } = [];
-    public ConcurrentDictionary<Guid, NodeGroup> Groups { get; } = [];
-    public ConcurrentDictionary<Guid, NodeVariableSize> VariableSizes = [];
+    public ConcurrentDictionary<Guid, IGraphElement> Elements { get; } = [];
+    public ConcurrentSet<IConnection> Connections { get; } = [];
     public ConcurrentDictionary<Guid, IGraphVariable> GraphVariables { get; } = [];
+    public ConcurrentDictionary<Guid, NodeGroup> Groups { get; } = [];
 
-    public readonly Dictionary<Type, NodeMetadata> Metadata = [];
     public readonly ConcurrentDictionary<Guid, Dictionary<IStore, IRef>> GlobalStores = [];
 
-    public Observable<bool> Running { get; } = new();
+    private GraphChanges graphChanges = new();
 
-    public List<Node> AddedNodes = [];
-    public List<Node> RemovedNodes = [];
-    public List<NodeConnection> AddedConnections = [];
-    public List<NodeConnection> RemovedConnections = [];
-    public List<NodeGroup> AddedGroups = [];
-    public List<NodeGroup> RemovedGroups = [];
-
-    public Func<Task>? OnMarkedDirty;
+    public Func<GraphChanges, Task>? OnMarkedDirty;
     public bool UILoaded { get; set; }
 
     public string? CurrentSpeechText { get; private set; }
@@ -54,6 +50,7 @@ public class NodeGraph
     {
         serialiser = new SerialisationManager();
         serialiser.RegisterSerialiser(1, new NodeGraphSerialiser(AppManager.GetInstance().Storage, this));
+        serialiser.RegisterSerialiser(2, new NodeGraphSerialiserV2(AppManager.GetInstance().Storage, this));
     }
 
     public void Load(string importPath = "")
@@ -66,6 +63,7 @@ public class NodeGraph
 
     public void Serialise()
     {
+        Logger.Log("Serialising graph");
         serialiser.Serialise();
     }
 
@@ -107,171 +105,568 @@ public class NodeGraph
 
     #region Management
 
-    public void MarkDirty() => MarkDirtyAsync().Forget();
+    public Task MarkDirty() => MarkDirtyAsync();
+
+    public IEnumerable<IConnection> GetConnectionsForNode(Guid id)
+    {
+        return Connections.Where(c => c.InputId == id || c.OutputId == id);
+    }
 
     public async Task MarkDirtyAsync()
     {
         if (OnMarkedDirty is not null)
-            await OnMarkedDirty.Invoke();
+            await OnMarkedDirty.Invoke(graphChanges);
 
-        AddedNodes.Clear();
-        RemovedNodes.Clear();
-        AddedConnections.Clear();
-        RemovedConnections.Clear();
-        AddedGroups.Clear();
-        RemovedGroups.Clear();
-
+        graphChanges = new();
         Serialise();
     }
 
-    public Node AddNode(Type nodeType, Point initialPosition, Guid? id = null)
+    public Result<INode> AddNode(Type type, Guid? idOverride = null, Vector2 position = default, object?[]? args = null)
     {
-        var node = (Node)Activator.CreateInstance(nodeType)!;
-        node.Init();
-        node.NodePosition = initialPosition;
+        var nodeResult = type.InstanceAs<Node>(args);
+        if (!nodeResult.IsSuccess) return nodeResult.Exception;
 
-        if (id.HasValue)
-            node.Id = id.Value;
+        var id = idOverride ?? Guid.NewGuid();
 
-        NodeMetadata metadata;
+        var node = nodeResult.Value;
+        node.Id = id;
+        node.Init(this);
 
-        if (Metadata.TryGetValue(nodeType, out var foundMetadata))
-        {
-            metadata = foundMetadata;
-        }
-        else
-        {
-            metadata = NodeMetadataBuilder.BuildFrom(node);
-            Metadata.Add(nodeType, metadata);
-        }
+        var metadataResult = NodeMetadataManager.GetFor(node);
+        if (!metadataResult.IsSuccess) return metadataResult.Exception;
 
-        if (metadata.ValueInputHasVariableSize || metadata.ValueOutputHasVariableSize)
-            VariableSizes.TryAdd(node.Id, new NodeVariableSize());
+        node.Metadata.Position = position;
 
-        node.NodeGraph = this;
+        var existingNodeResult = GetNode(id);
+        if (existingNodeResult.IsSuccess) return new InvalidOperationException($"{nameof(INode)} with ID {node.Id} already exists", existingNodeResult.Exception);
 
-        Nodes.TryAdd(node.Id, node);
-        AddedNodes.Add(node);
+        Elements[id] = node;
+        graphChanges.AddedNodes.Add(node);
 
         return node;
     }
 
-    public void DeleteNode(Guid nodeId)
+    public virtual bool RemoveNode(Guid id)
     {
-        var node = Nodes[nodeId];
-        var nodesToTrigger = new List<Guid>();
+        var nodeResult = GetNode(id);
+        if (!nodeResult.IsSuccess) return false;
 
-        foreach (var connection in Connections.Values.Where(connection => connection.OutputNodeId == nodeId || connection.InputNodeId == nodeId).ToList())
+        if (!Elements.Remove(id, out var element)) return false;
+
+        var node = (INode)element;
+
+        var inputConnections = Connections.RemoveIf(c => c.OutputId == id);
+        var outputConnections = Connections.RemoveIf(c => c.InputId == id);
+
+        foreach (var inputConnection in inputConnections)
         {
-            Connections.TryRemove(connection.Id, out _);
-            RemovedConnections.Add(connection);
-
-            if (connection.InputNodeId == nodeId) continue;
-
-            nodesToTrigger.Add(connection.InputNodeId);
+            var inputNodeResult = GetNode(inputConnection.InputId);
+            Debug.Assert(inputNodeResult.IsSuccess);
+            var inputNode = inputNodeResult.Value;
+            inputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput)[inputConnection.InputSlot].IsConnected = false;
         }
 
-        var group = Groups.Values.SingleOrDefault(group => group.Nodes.Contains(nodeId));
-
-        if (group is not null)
-        {
-            group.Nodes.Remove(nodeId);
-            if (group.Nodes.Count == 0) DeleteGroup(group.Id);
-        }
-
-        Nodes.TryRemove(nodeId, out _);
-        RemovedNodes.Add(node);
-
-        foreach (var nodeToTrigger in nodesToTrigger.Distinct().Select(nId => Nodes[nId]).Where(n => !n.Metadata.IsActiveUpdate && !n.Metadata.IsFlowInput))
-        {
-            TriggerTree(nodeToTrigger).Forget();
-        }
+        graphChanges.RemovedConnections.AddRange(inputConnections);
+        graphChanges.RemovedConnections.AddRange(outputConnections);
+        graphChanges.RemovedNodes.Add(node);
+        return true;
     }
 
-    public void CreateFlowConnection(Guid outputNodeId, int outputFlowSlot, Guid inputNodeId)
+    #region Connections
+
+    private Result<IFlowConnection> createFlowConnection(Guid outputId, int outputSlot, int outputSlotIndex, Guid inputId, int inputSlot, int inputSlotIndex)
     {
-        if (outputNodeId == inputNodeId) return;
+        // If there's already a flow connection with this flow output slot, remove it
+        var outputSlotExistingConnection = Connections.SingleOrDefault(c => c is IFlowConnection && c.OutputId == outputId && c.OutputSlot == outputSlot && c.OutputSlotIndex == outputSlotIndex);
 
-        var outputAlreadyHasConnection =
-            Connections.Values.FirstOrDefault(connection => connection.ConnectionType == ConnectionType.Flow && connection.OutputNodeId == outputNodeId && connection.OutputSlot == outputFlowSlot);
-
-        var newConnection = new NodeConnection(Guid.NewGuid(), ConnectionType.Flow, outputNodeId, outputFlowSlot, null, inputNodeId, 0, null);
-        Connections.TryAdd(newConnection.Id, newConnection);
-        AddedConnections.Add(newConnection);
-
-        if (outputAlreadyHasConnection is not null)
+        if (outputSlotExistingConnection is not null)
         {
-            RemoveConnection(outputAlreadyHasConnection);
+            Connections.Remove(outputSlotExistingConnection);
+            graphChanges.RemovedConnections.Add(outputSlotExistingConnection);
         }
+
+        var connection = new FlowConnection(outputId, outputSlot, outputSlotIndex, inputId, inputSlot, inputSlotIndex);
+        Connections.Add(connection);
+        return connection;
     }
 
-    public void CreateValueConnection(Guid outputNodeId, int outputValueSlot, Guid inputNodeId, int inputValueSlot)
+    private Result<IValueConnection[]> createValueConnection(Guid outputId, int outputSlot, int outputSlotIndex, Type outputType, Guid inputId, int inputSlot, int inputSlotIndex, Type inputType)
     {
-        if (outputNodeId == inputNodeId) return;
+        var outputElement = Elements[outputId];
+        var inputElement = Elements[inputId];
 
-        var outputNode = Nodes[outputNodeId];
-        var inputNode = Nodes[inputNodeId];
-
-        var outputType = outputNode.GetTypeOfOutputSlot(outputValueSlot);
-        var inputType = inputNode.GetTypeOfInputSlot(inputValueSlot);
-        var existingConnection = Connections.Values.FirstOrDefault(con => con.ConnectionType == ConnectionType.Value && con.InputNodeId == inputNodeId && con.InputSlot == inputValueSlot);
-
-        NodeConnection? newConnection = null;
-        var newConnectionMade = false;
+        // If there's already a value connection with this value input slot, remove it
+        var inputSlotExistingConnection = Connections.SingleOrDefault(c => c is IValueConnection && c.InputId == inputId && c.InputSlot == inputSlot && c.InputSlotIndex == inputSlotIndex);
 
         if (outputType.IsAssignableTo(inputType))
         {
-            newConnection = new NodeConnection(Guid.NewGuid(), ConnectionType.Value, outputNodeId, outputValueSlot, outputType, inputNodeId, inputValueSlot, inputType);
-            newConnectionMade = true;
-        }
-        else
-        {
-            var group = Groups.Values.SingleOrDefault(group => group.Nodes.Contains(outputNodeId) && group.Nodes.Contains(inputNodeId));
+            var connection = new ValueConnection(outputId, outputSlot, outputSlotIndex, outputType, inputId, inputSlot, inputSlotIndex, inputType);
 
-            if (inputType == typeof(string))
+            if (inputSlotExistingConnection is not null)
             {
-                var toStringNode = AddNode(typeof(ToStringNode<>).MakeGenericType(outputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
-                CreateValueConnection(outputNodeId, outputValueSlot, toStringNode.Id, 0);
-                CreateValueConnection(toStringNode.Id, 0, inputNodeId, inputValueSlot);
-                group?.Nodes.Add(toStringNode.Id);
-                newConnectionMade = true;
+                Connections.Remove(inputSlotExistingConnection);
+                graphChanges.RemovedConnections.Add(inputSlotExistingConnection);
             }
-            else if (outputType.TryCreateConverter(inputType, out _))
+
+            Connections.Add(connection);
+
+            if (inputElement is INode inputNode && !inputNode.Metadata.Shared.IsFlow)
             {
-                var castNode = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType), new Point((outputNode.NodePosition.X + inputNode.NodePosition.X) / 2f, (outputNode.NodePosition.Y + inputNode.NodePosition.Y) / 2f));
-                CreateValueConnection(outputNodeId, outputValueSlot, castNode.Id, 0);
-                CreateValueConnection(castNode.Id, 0, inputNodeId, inputValueSlot);
-                group?.Nodes.Add(castNode.Id);
-                newConnectionMade = true;
+                _ = TriggerTree(inputNode);
             }
+
+            return Result<IValueConnection[]>.Success([connection]);
         }
 
-        // if the input already had a connection, disconnect it
-        if (newConnectionMade && existingConnection is not null)
+        if (inputType == typeof(string))
         {
-            RemoveConnection(existingConnection);
+            var result = AddNode(typeof(ToStringNode<>).MakeGenericType(outputType));
+            if (!result.IsSuccess) return result.Exception;
+
+            var castNode = result.Value;
+
+            var conn1Result = createValueConnection(outputId, outputSlot, outputSlotIndex, outputType, castNode.Id, 0, 0, outputType);
+            if (!conn1Result.IsSuccess) return conn1Result.Exception;
+
+            var conn2Result = createValueConnection(castNode.Id, 0, 0, inputType, inputId, inputSlot, inputSlotIndex, inputType);
+            if (!conn2Result.IsSuccess) return conn2Result.Exception;
+
+            if (inputElement is INode inputNode && !inputNode.Metadata.Shared.IsFlow)
+            {
+                _ = TriggerTree(inputNode);
+            }
+
+            return Result<IValueConnection[]>.Success([conn1Result.Value[0], conn2Result.Value[0]]);
         }
 
-        if (newConnection is not null)
+        if (outputType.TryCreateConverter(inputType, out _))
         {
-            Connections.TryAdd(newConnection.Id, newConnection);
-            AddedConnections.Add(newConnection);
+            var result = AddNode(typeof(CastNode<,>).MakeGenericType(outputType, inputType));
+            if (!result.IsSuccess) return result.Exception;
+
+            var castNode = result.Value;
+
+            var conn1Result = createValueConnection(outputId, outputSlot, outputSlotIndex, outputType, castNode.Id, 0, 0, outputType);
+            if (!conn1Result.IsSuccess) return conn1Result.Exception;
+
+            var conn2Result = createValueConnection(castNode.Id, 0, 0, inputType, inputId, inputSlot, inputSlotIndex, inputType);
+            if (!conn2Result.IsSuccess) return conn2Result.Exception;
+
+            if (inputElement is INode inputNode && !inputNode.Metadata.Shared.IsFlow)
+            {
+                _ = TriggerTree(inputNode);
+            }
+
+            return Result<IValueConnection[]>.Success([conn1Result.Value[0], conn2Result.Value[0]]);
         }
 
-        if (newConnectionMade && !inputNode.Metadata.IsActiveUpdate && !inputNode.Metadata.IsFlowInput)
-            TriggerTree(inputNode).Forget();
+        return new Exception("Whoops");
     }
 
-    public void RemoveConnection(NodeConnection connection)
+    public Result<IFlowConnection[]> CreateConnection(IFlowOutput output, IFlowInput input)
     {
-        Connections.TryRemove(connection.Id, out _);
-        RemovedConnections.Add(connection);
+        if (output.Owner == input.Owner)
+            return new Exception("Cannot create a connection to the same node");
 
-        var affectedNode = Nodes[connection.InputNodeId];
+        var result = createFlowConnection(output.Owner.Id, output.Metadata.Shared.Slot, 0, input.Owner.Id, input.Metadata.Shared.Slot, 0);
+        if (!result.IsSuccess) return result.Exception;
 
-        if (!affectedNode.Metadata.IsActiveUpdate && !affectedNode.Metadata.IsFlowInput)
+        var connection = result.Value;
+
+        output.IsConnected = true;
+        input.IsConnected = true;
+
+        graphChanges.AddedConnections.Add(connection);
+        return Result<IFlowConnection[]>.Success([connection]);
+    }
+
+    public Result<IFlowConnection[]> CreateConnection(IFlowOutputList output, int outputIndex, IFlowInput input)
+    {
+        if (output.Owner == input.Owner)
+            return new Exception("Cannot create a connection to the same node");
+
+        var outputSize = output.Metadata.Size;
+
+        if (outputIndex >= outputSize)
+            return new Exception($"{nameof(outputIndex)} is too large for size of {nameof(output)}");
+
+        var result = createFlowConnection(output.Owner.Id, output.Metadata.Shared.Slot, outputIndex, input.Owner.Id, input.Metadata.Shared.Slot, 0);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        input.IsConnected = true;
+
+        graphChanges.AddedConnections.Add(connection);
+        return Result<IFlowConnection[]>.Success([connection]);
+    }
+
+    public Result<IFlowConnection[]> CreateConnection(IFlowOutput output, IFlowInputList input, int inputIndex)
+    {
+        if (output.Owner == input.Owner)
+            return new Exception("Cannot create a connection to the same node");
+
+        var inputSize = input.Metadata.Size;
+
+        if (inputIndex >= inputSize)
+            return new Exception($"{nameof(inputIndex)} is too large for size of {nameof(input)}");
+
+        var result = createFlowConnection(output.Owner.Id, output.Metadata.Shared.Slot, 0, input.Owner.Id, input.Metadata.Shared.Slot, inputIndex);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        output.IsConnected = true;
+
+        graphChanges.AddedConnections.Add(connection);
+        return Result<IFlowConnection[]>.Success([connection]);
+    }
+
+    public Result<IFlowConnection[]> CreateConnection(IFlowOutputList output, int outputIndex, IFlowInputList input, int inputIndex)
+    {
+        if (output.Owner == input.Owner)
+            return new Exception("Cannot create a connection to the same node");
+
+        var outputSize = output.Metadata.Size;
+        var inputSize = input.Metadata.Size;
+
+        if (outputIndex >= outputSize)
+            return new Exception($"{nameof(outputIndex)} is too large for size of {nameof(output)}");
+
+        if (inputIndex >= inputSize)
+            return new Exception($"{nameof(inputIndex)} is too large for size of {nameof(input)}");
+
+        var result = createFlowConnection(output.Owner.Id, output.Metadata.Shared.Slot, outputIndex, input.Owner.Id, input.Metadata.Shared.Slot, inputIndex);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        graphChanges.AddedConnections.Add(connection);
+        return Result<IFlowConnection[]>.Success([connection]);
+    }
+
+    public Result<IValueConnection[]> CreateConnection(IValueOutput output, IValueInput input)
+    {
+        if (output.Owner == input.Owner)
+            return new Exception("Cannot create a connection to the same node");
+
+        var result = createValueConnection(output.Owner.Id, output.Metadata.Shared.Slot, 0, output.Metadata.Shared.ValueType, input.Owner.Id, input.Metadata.Shared.Slot, 0, input.Metadata.Shared.ValueType);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        output.IsConnected = true;
+        input.IsConnected = true;
+
+        graphChanges.AddedConnections.AddRange(connection);
+        return Result<IValueConnection[]>.Success(connection);
+    }
+
+    public Result<IValueConnection[]> CreateConnection(IValueOutputList output, int outputIndex, IValueInput input)
+    {
+        if (output.Owner == input.Owner)
+            return new Exception("Cannot create a connection to the same node");
+
+        var outputSize = output.Metadata.Size;
+
+        if (outputIndex >= outputSize)
+            return new Exception($"{nameof(outputIndex)} is too large for size of {nameof(output)}");
+
+        var result = createValueConnection(output.Owner.Id, output.Metadata.Shared.Slot, outputIndex, output.Metadata.Shared.ValueType, input.Owner.Id, input.Metadata.Shared.Slot, 0,
+            input.Metadata.Shared.ValueType);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        input.IsConnected = true;
+
+        graphChanges.AddedConnections.AddRange(connection);
+        return Result<IValueConnection[]>.Success(connection);
+    }
+
+    public Result<IValueConnection[]> CreateConnection(IValueOutput output, IValueInputList input, int inputIndex)
+    {
+        if (output.Owner == input.Owner)
+            return new Exception("Cannot create a connection to the same node");
+
+        var inputSize = input.Metadata.Size;
+
+        if (inputIndex >= inputSize)
+            return new Exception($"{nameof(inputIndex)} is too large for size of {nameof(input)}");
+
+        var result = createValueConnection(output.Owner.Id, output.Metadata.Shared.Slot, 0, output.Metadata.Shared.ValueType, input.Owner.Id, input.Metadata.Shared.Slot, inputIndex, input.Metadata.Shared.ValueType);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        output.IsConnected = true;
+
+        graphChanges.AddedConnections.AddRange(connection);
+        return Result<IValueConnection[]>.Success(connection);
+    }
+
+    public Result<IValueConnection[]> CreateConnection(IValueOutputList output, int outputIndex, IValueInputList input, int inputIndex)
+    {
+        if (output.Owner == input.Owner)
+            return new Exception("Cannot create a connection to the same node");
+
+        var outputSize = output.Metadata.Size;
+        var inputSize = input.Metadata.Size;
+
+        if (outputIndex >= outputSize)
+            return new Exception($"{nameof(outputIndex)} is too large for size of {nameof(output)}");
+
+        if (inputIndex >= inputSize)
+            return new Exception($"{nameof(inputIndex)} is too large for size of {nameof(input)}");
+
+        var result = createValueConnection(output.Owner.Id, output.Metadata.Shared.Slot, outputIndex, output.Metadata.Shared.ValueType, input.Owner.Id, input.Metadata.Shared.Slot, inputIndex, input.Metadata.Shared.ValueType);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connections = result.Value;
+
+        graphChanges.AddedConnections.AddRange(connections);
+        return Result<IValueConnection[]>.Success(connections);
+    }
+
+    public Result<IFlowConnection[]> CreateConnection(IFlowRelay output, IFlowRelay input)
+    {
+        if (output == input)
+            return new Exception("Cannot create a connection to the same relay");
+
+        var result = createFlowConnection(output.Id, 0, 0, input.Id, 0, 0);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        graphChanges.AddedConnections.Add(connection);
+        return Result<IFlowConnection[]>.Success([connection]);
+    }
+
+    public Result<IFlowConnection[]> CreateConnection(IFlowOutput output, IFlowRelay input)
+    {
+        var result = createFlowConnection(output.Owner.Id, output.Metadata.Shared.Slot, 0, input.Id, 0, 0);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        output.IsConnected = true;
+
+        graphChanges.AddedConnections.Add(connection);
+        return Result<IFlowConnection[]>.Success([connection]);
+    }
+
+    public Result<IFlowConnection[]> CreateConnection(IFlowRelay output, IFlowInput input)
+    {
+        var result = createFlowConnection(output.Id, 0, 0, input.Owner.Id, input.Metadata.Shared.Slot, 0);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        input.IsConnected = true;
+
+        graphChanges.AddedConnections.Add(connection);
+        return Result<IFlowConnection[]>.Success([connection]);
+    }
+
+    public Result<IFlowConnection[]> CreateConnection(IFlowOutputList output, int outputIndex, IFlowRelay input)
+    {
+        var outputSize = output.Metadata.Size;
+
+        if (outputIndex >= outputSize)
+            return new Exception($"{nameof(outputIndex)} is too large for size of {nameof(output)}");
+
+        var result = createFlowConnection(output.Owner.Id, output.Metadata.Shared.Slot, outputIndex, input.Id, 0, 0);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        graphChanges.AddedConnections.Add(connection);
+        return Result<IFlowConnection[]>.Success([connection]);
+    }
+
+    public Result<IFlowConnection[]> CreateConnection(IFlowRelay output, IFlowInputList input, int inputIndex)
+    {
+        var inputSize = input.Metadata.Size;
+
+        if (inputIndex >= inputSize)
+            return new Exception($"{nameof(inputIndex)} is too large for size of {nameof(input)}");
+
+        var result = createFlowConnection(output.Id, 0, 0, input.Owner.Id, input.Metadata.Shared.Slot, inputIndex);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        graphChanges.AddedConnections.Add(connection);
+        return Result<IFlowConnection[]>.Success([connection]);
+    }
+
+    public Result<IValueConnection[]> CreateConnection(IValueRelay output, IValueRelay input)
+    {
+        if (output == input)
+            return new Exception("Cannot create a connection to the same relay");
+
+        var result = createValueConnection(output.Id, 0, 0, output.Type, input.Id, 0, 0, input.Type);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        graphChanges.AddedConnections.AddRange(connection);
+        return Result<IValueConnection[]>.Success(connection);
+    }
+
+    public Result<IValueConnection[]> CreateConnection(IValueOutput output, IValueRelay input)
+    {
+        var result = createValueConnection(output.Owner.Id, output.Metadata.Shared.Slot, 0, output.Metadata.Shared.ValueType, input.Id, 0, 0, input.Type);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        output.IsConnected = true;
+
+        graphChanges.AddedConnections.AddRange(connection);
+        return Result<IValueConnection[]>.Success(connection);
+    }
+
+    public Result<IValueConnection[]> CreateConnection(IValueRelay output, IValueInput input)
+    {
+        var result = createValueConnection(output.Id, 0, 0, output.Type, input.Owner.Id, input.Metadata.Shared.Slot, 0, input.Metadata.Shared.ValueType);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        input.IsConnected = true;
+
+        graphChanges.AddedConnections.AddRange(connection);
+        return Result<IValueConnection[]>.Success(connection);
+    }
+
+    public Result<IValueConnection[]> CreateConnection(IValueOutputList output, int outputIndex, IValueRelay input)
+    {
+        var outputSize = output.Metadata.Size;
+
+        if (outputIndex >= outputSize)
+            return new Exception($"{nameof(outputIndex)} is too large for size of {nameof(output)}");
+
+        var result = createValueConnection(output.Owner.Id, output.Metadata.Shared.Slot, outputIndex, output.Metadata.Shared.ValueType, input.Id, 0, 0, input.Type);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        graphChanges.AddedConnections.AddRange(connection);
+        return Result<IValueConnection[]>.Success(connection);
+    }
+
+    public Result<IValueConnection[]> CreateConnection(IValueRelay output, IValueInputList input, int inputIndex)
+    {
+        var inputSize = input.Metadata.Size;
+
+        if (inputIndex >= inputSize)
+            return new Exception($"{nameof(inputIndex)} is too large for size of {nameof(input)}");
+
+        var result = createValueConnection(output.Id, 0, 0, output.Type, input.Owner.Id, input.Metadata.Shared.Slot, inputIndex, input.Metadata.Shared.ValueType);
+        if (!result.IsSuccess) return result.Exception;
+
+        var connection = result.Value;
+
+        graphChanges.AddedConnections.AddRange(connection);
+        return Result<IValueConnection[]>.Success(connection);
+    }
+
+    public Result<IConnection[]> CreateConnection(object output, int outputIndex, object input, int inputIndex)
+    {
+        {
+            if (output is IFlowOutput flowOutput && input is IFlowInput flowInput) return CreateConnection(flowOutput, flowInput).To<IConnection[]>();
+        }
+
+        {
+            if (output is IFlowOutputList flowOutput && input is IFlowInput flowInput) return CreateConnection(flowOutput, outputIndex, flowInput).To<IConnection[]>();
+        }
+
+        {
+            if (output is IFlowOutput flowOutput && input is IFlowInputList flowInput) return CreateConnection(flowOutput, flowInput, inputIndex).To<IConnection[]>();
+        }
+
+        {
+            if (output is IFlowOutputList flowOutput && input is IFlowInputList flowInput) return CreateConnection(flowOutput, outputIndex, flowInput, inputIndex).To<IConnection[]>();
+        }
+
+        {
+            if (output is IValueOutput valueOutput && input is IValueInput valueInput) return CreateConnection(valueOutput, valueInput).To<IConnection[]>();
+        }
+
+        {
+            if (output is IValueOutputList valueOutput && input is IValueInput valueInput) return CreateConnection(valueOutput, outputIndex, valueInput).To<IConnection[]>();
+        }
+
+        {
+            if (output is IValueOutput valueOutput && input is IValueInputList valueInput) return CreateConnection(valueOutput, valueInput, inputIndex).To<IConnection[]>();
+        }
+
+        {
+            if (output is IValueOutputList valueOutput && input is IValueInputList valueInput) return CreateConnection(valueOutput, outputIndex, valueInput, inputIndex).To<IConnection[]>();
+        }
+
+        {
+            if (output is IFlowRelay flowOutput && input is IFlowRelay flowInput) return CreateConnection(flowOutput, flowInput).To<IConnection[]>();
+        }
+
+        {
+            if (output is IFlowOutput flowOutput && input is IFlowRelay flowInput) return CreateConnection(flowOutput, flowInput).To<IConnection[]>();
+        }
+
+        {
+            if (output is IFlowRelay flowOutput && input is IFlowInput flowInput) return CreateConnection(flowOutput, flowInput).To<IConnection[]>();
+        }
+
+        {
+            if (output is IFlowOutputList flowOutput && input is IFlowRelay flowInput) return CreateConnection(flowOutput, outputIndex, flowInput).To<IConnection[]>();
+        }
+
+        {
+            if (output is IFlowRelay flowOutput && input is IFlowInputList flowInput) return CreateConnection(flowOutput, flowInput, inputIndex).To<IConnection[]>();
+        }
+
+        {
+            if (output is IValueRelay flowOutput && input is IValueRelay flowInput) return CreateConnection(flowOutput, flowInput).To<IConnection[]>();
+        }
+
+        {
+            if (output is IValueOutput flowOutput && input is IValueRelay flowInput) return CreateConnection(flowOutput, flowInput).To<IConnection[]>();
+        }
+
+        {
+            if (output is IValueRelay flowOutput && input is IValueInput flowInput) return CreateConnection(flowOutput, flowInput).To<IConnection[]>();
+        }
+
+        {
+            if (output is IValueOutputList flowOutput && input is IValueRelay flowInput) return CreateConnection(flowOutput, outputIndex, flowInput).To<IConnection[]>();
+        }
+
+        {
+            if (output is IValueRelay flowOutput && input is IValueInputList flowInput) return CreateConnection(flowOutput, flowInput, inputIndex).To<IConnection[]>();
+        }
+
+        return new Exception("Unknown connection pair");
+    }
+
+    public void RemoveConnection(IConnection connection)
+    {
+        Connections.Remove(connection);
+        graphChanges.RemovedConnections.Add(connection);
+
+        var affectedNode = (INode)Elements[connection.InputId];
+
+        if (connection is IValueConnection)
+            affectedNode.Metadata.Elements[ConnectionPoint.ValueInput][connection.InputSlot].Instance.IsConnected = false;
+
+        if (connection is IFlowConnection)
+            affectedNode.Metadata.Elements[ConnectionPoint.FlowInput][connection.InputSlot].Instance.IsConnected = false;
+
+        if (!affectedNode.Metadata.Shared.IsActiveUpdate && !affectedNode.Metadata.Shared.IsFlowInput)
             TriggerTree(affectedNode).Forget();
     }
+
+    #endregion
 
     public NodeGroup AddGroup(IEnumerable<Guid> initialNodes, Guid? id = null)
     {
@@ -279,14 +674,14 @@ public class NodeGraph
         nodeGroup.Nodes.AddRange(initialNodes);
         if (id.HasValue) nodeGroup.Id = id.Value;
         Groups.TryAdd(nodeGroup.Id, nodeGroup);
-        AddedGroups.Add(nodeGroup);
+        graphChanges.AddedGroups.Add(nodeGroup);
         return nodeGroup;
     }
 
     public void DeleteGroup(Guid id)
     {
         Groups.TryRemove(id, out var group);
-        RemovedGroups.Add(group!);
+        graphChanges.RemovedGroups.Add(group!);
     }
 
     #endregion
@@ -301,11 +696,11 @@ public class NodeGraph
 
     public void DeleteVariable(IGraphVariable variable)
     {
-        foreach (var (_, node) in Nodes)
+        foreach (var (_, element) in Elements)
         {
-            if (node is IHasVariableReference variableReferenceNode && variableReferenceNode.VariableId == variable.GetId())
+            if (element is IHasVariableReference variableReferenceNode && variableReferenceNode.VariableId == variable.GetId())
             {
-                DeleteNode(node.Id);
+                RemoveNode(element.Id);
             }
         }
 
@@ -316,7 +711,7 @@ public class NodeGraph
 
     private async Task processAllTriggerNodes()
     {
-        foreach (var node in Nodes.Values.Where(node => node.Metadata.IsTrigger && !node.Metadata.IsActiveUpdate))
+        foreach (var node in Elements.Values.OfType<INode>().Where(node => node.Metadata.Shared.IsAnyTrigger && !node.Metadata.Shared.IsActiveUpdate))
         {
             await TriggerTree(node);
         }
@@ -324,7 +719,7 @@ public class NodeGraph
 
     private void clearDisplayNodes()
     {
-        foreach (var displayNode in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IDisplayNode))).Cast<IDisplayNode>())
+        foreach (var displayNode in Elements.Values.OfType<IDisplayNode>())
         {
             displayNode.Clear();
         }
@@ -333,13 +728,13 @@ public class NodeGraph
     private Task? updateTask;
     private CancellationTokenSource? updateTokenSource;
 
-    private IEnumerable<Node> continuousNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IContinuousNode))).OrderBy(node => ((IContinuousNode)node).UpdateOffset);
-    private IEnumerable<Node> activeUpdateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IActiveUpdateNode))).OrderBy(node => ((IActiveUpdateNode)node).UpdateOffset);
-    private IEnumerable<Node> updateNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IUpdateNode))).OrderBy(node => ((IUpdateNode)node).UpdateOffset);
-    private IEnumerable<Node> startNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(OnStartNode)));
-    private IEnumerable<Node> stopNodes => Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(OnStopNode)));
+    private IEnumerable<INode> continuousNodes => Elements.Values.OfType<IContinuousNode>().OrderBy(node => node.UpdateOffset).Cast<INode>();
+    private IEnumerable<INode> activeUpdateNodes => Elements.Values.OfType<IActiveUpdateNode>().OrderBy(node => node.UpdateOffset).Cast<INode>();
+    private IEnumerable<INode> updateNodes => Elements.Values.OfType<IUpdateNode>().OrderBy(node => node.UpdateOffset).Cast<INode>();
+    private IEnumerable<INode> startNodes => Elements.Values.OfType<OnStartNode>();
+    private IEnumerable<INode> stopNodes => Elements.Values.OfType<OnStopNode>();
 
-    private Dictionary<Guid, IRef[]> continuousOutputs { get; } = [];
+    private Dictionary<Guid, IRef[][]> continuousOutputs { get; } = [];
 
     private void startUpdate()
     {
@@ -359,19 +754,19 @@ public class NodeGraph
 
                             if (continuousOutputs.TryGetValue(node.Id, out var outputs))
                             {
-                                bool wasChange = false;
+                                var wasChange = false;
 
-                                for (var i = 0; i < node.VirtualValueOutputCount(); i++)
+                                for (var i = 0; i < node.Metadata.Shared.ValueOutputCount; i++)
                                 {
                                     if (!outputs[i].Equals(nodeMemory[i])) wasChange = true;
                                 }
 
                                 continuousOutputs[node.Id] = nodeMemory;
-                                return Task.FromResult(wasChange);
+                                return wasChange;
                             }
 
                             continuousOutputs[node.Id] = nodeMemory;
-                            return Task.FromResult(true);
+                            return true;
                         });
                     }
 
@@ -404,10 +799,10 @@ public class NodeGraph
         var nodePreset = new NodePreset
         {
             Name = { Value = name },
-            Nodes = nodeIds.Select(id => new SerialisableNode(Nodes[id])).ToList(),
-            Connections = Connections.Values.Where(c => nodeIds.Contains(c.OutputNodeId) && nodeIds.Contains(c.InputNodeId)).Select(c => new SerialisableConnection(c)).ToList(),
+            Nodes = nodeIds.Select(id => new SerialisableNode((Node)Elements[id])).ToList(),
+            Connections = Connections.Where(c => nodeIds.Contains(c.OutputId) && nodeIds.Contains(c.InputId)).Select(c => new SerialisableConnection(c)).ToList(),
             Groups = Groups.Values.Where(g => g.Nodes.All(nodeIds.Contains)).Select(g => new SerialisableNodeGroup(g)).ToList(),
-            Variables = nodeIds.Select(id => Nodes[id]).OfType<IHasVariableReference>().Select(node => new SerialisableGraphVariable(GraphVariables[node.VariableId])).ToList()
+            Variables = nodeIds.Select(id => (Node)Elements[id]).OfType<IHasVariableReference>().Select(node => new SerialisableGraphVariable(GraphVariables[node.VariableId])).ToList()
         };
 
         foreach (var node in nodePreset.Nodes)
@@ -419,19 +814,34 @@ public class NodeGraph
         nodePreset.Serialise();
     }
 
-    public NodeConnection? FindConnectionFromValueInput(Guid nodeId, int index)
+    public Result<IValueConnection> FindConnectionFromValueInput(Guid nodeId, int slot, int slotIndex)
     {
-        return Connections.Values.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeId && c.InputSlot == index);
+        var connection = (IValueConnection?)Connections.SingleOrDefault(c => c is IValueConnection && c.InputId == nodeId && c.InputSlot == slot && c.InputSlotIndex == slotIndex);
+        return connection is not null ? Result<IValueConnection>.Success(connection) : new Exception("Connection does not exist");
     }
 
-    public NodeConnection? FindConnectionFromFlowOutput(Guid nodeId, int index)
+    public Result<IFlowConnection> FindConnectionFromFlowOutput(Guid nodeId, int slot, int slotIndex)
     {
-        return Connections.Values.SingleOrDefault(c => c.ConnectionType == ConnectionType.Flow && c.OutputNodeId == nodeId && c.OutputSlot == index);
+        var connection = (IFlowConnection?)Connections.SingleOrDefault(c => c is IFlowConnection && c.OutputId == nodeId && c.OutputSlot == slot && c.OutputSlotIndex == slotIndex);
+        return connection is not null ? Result<IFlowConnection>.Success(connection) : new Exception("Connection does not exist");
     }
 
-    public NodeMetadata GetMetadata(Node node) => Metadata[node.GetType()];
+    public Result<INode> GetNode(Guid id) => getGraphElement<INode>(id);
 
-    public void WriteStore<T>(GlobalStore<T> globalStore, T value, PulseContext c)
+    private Result<T> getGraphElement<T>(Guid id) where T : IGraphElement
+    {
+        if (Elements.TryGetValue(id, out var graphElement))
+        {
+            if (!graphElement.GetType().IsAssignableTo(typeof(T)))
+                return new InvalidOperationException($"{nameof(IGraphElement)} of ID {id} is not {typeof(T).Name}");
+
+            return (T)graphElement;
+        }
+
+        return new InvalidOperationException($"{nameof(IGraphElement)} of ID {id} doesn't exist");
+    }
+
+    public void WriteStore<T>(IGlobalStore<T> globalStore, T value, PulseContext c)
     {
         var currentNode = c.Peek();
 
@@ -441,7 +851,7 @@ public class NodeGraph
         GlobalStores[currentNode.Id][globalStore] = new Ref<T>(value);
     }
 
-    public T ReadStore<T>(GlobalStore<T> globalStore, PulseContext c)
+    public T ReadStore<T>(IGlobalStore<T> globalStore, PulseContext c)
     {
         var currentNode = c.Peek();
 
@@ -474,14 +884,13 @@ public class NodeGraph
     public void OnPartialSpeechResult(string result) => CurrentSpeechText = result;
     public void OnFinalSpeechResult(string result) => CurrentSpeechText = result;
 
-    public async Task StartFlow(Node node, PulseContext? baseContext = null, Func<PulseContext, Task<bool>>? onPreProcess = null)
+    public async Task StartFlow(INode node, PulseContext? baseContext = null, Func<PulseContext, Task<bool>>? onPreProcess = null)
     {
-        if (!Running.Value) return;
+        Debug.Assert(node.Metadata.Shared.IsAnyTrigger);
 
         var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this, new CancellationTokenSource());
 
-        // display node, drive node, etc... Don't bother making a FlowTask
-        if (node.Metadata.IsTrigger && !node.Metadata.IsFlow)
+        if (node.Metadata.Shared.IsValueInputTrigger)
         {
             await processNode(node, c, onPreProcess);
             return;
@@ -490,7 +899,11 @@ public class NodeGraph
         var shouldProcess = await checkShouldProcess(node, c);
         if (!shouldProcess) return;
 
-        if (onPreProcess is not null && !await onPreProcess.Invoke(c)) return;
+        if (onPreProcess is not null)
+        {
+            var preProcessResult = await onPreProcess.Invoke(c);
+            if (!preProcessResult) return;
+        }
 
         if (cancelTasks.TryGetValue(node.Id, out var existingTask))
         {
@@ -499,38 +912,40 @@ public class NodeGraph
             cancelTasks.TryRemove(node.Id, out _);
         }
 
-        if (!node.Metadata.NoCancel)
+        if (!node.Metadata.Shared.NoCancel)
         {
-            var newTask = Task.Run(() => node.InternalProcess(c)).ContinueWith(__ => { cancelTasks.TryRemove(node.Id, out _); }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            var newTask = Task.Run(() => node.IProcess(c)).ContinueWith(__ => { cancelTasks.TryRemove(node.Id, out _); }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
             cancelTasks.TryAdd(node.Id, new FlowTask(newTask, c));
         }
         else
         {
             var flowTaskId = Guid.NewGuid();
-            var newTask = Task.Run(() => node.InternalProcess(c)).ContinueWith(__ => { tasks.TryRemove(flowTaskId, out _); }, TaskContinuationOptions.OnlyOnRanToCompletion);
+            var newTask = Task.Run(() => node.IProcess(c)).ContinueWith(__ => { tasks.TryRemove(flowTaskId, out _); }, TaskContinuationOptions.OnlyOnRanToCompletion);
             tasks.TryAdd(flowTaskId, new FlowTask(newTask, c));
         }
     }
 
-    public Task ProcessNode(Guid nodeId, PulseContext c) => processNode(Nodes[nodeId], c);
-
-    private async Task<bool> checkShouldProcess(Node node, PulseContext c)
+    public Task ProcessNode(Guid nodeId, PulseContext c)
     {
-        c.CreateMemory(node);
-        await backtrackNode(node, c);
-        c.Push(node);
-        return node.InternalShouldProcess(c);
+        var nodeResult = getGraphElement<Node>(nodeId);
+        if (!nodeResult.IsSuccess) throw nodeResult.Exception;
+
+        return processNode(nodeResult.Value, c);
     }
 
-    /// <summary>
-    /// Processes a node, with an optional preprocess step after <see cref="Node.ShouldProcess"/> returns true
-    /// </summary>
-    private async Task<bool> processNode(Node node, PulseContext c, Func<PulseContext, Task<bool>>? onPreProcess = null, Func<PulseContext, Task<bool>>? onPostProcess = null)
+    private async Task<bool> checkShouldProcess(INode node, PulseContext c)
     {
-        if (!Running.Value) return false;
+        c.CreateMemory(node);
+        await backtrackNode(node, c);
+        c.Push(node);
+        return node.IShouldProcess(c);
+    }
+
+    private async Task<bool> processNode(INode node, PulseContext c, Func<PulseContext, Task<bool>>? onPreProcess = null, Func<PulseContext, bool>? onPostProcess = null)
+    {
         if (c.IsCancelled) return false;
-        if (c.HasMemory(node.Id) && !node.Metadata.ForceReprocess) return false;
+        if (c.HasMemory(node.Id) && !node.Metadata.Shared.Reprocess) return false;
 
         c.CreateMemory(node);
         await backtrackNode(node, c);
@@ -539,7 +954,7 @@ public class NodeGraph
         c.Push(node);
         if (c.IsCancelled) return false;
 
-        if (!node.InternalShouldProcess(c))
+        if (!node.IShouldProcess(c))
         {
             c.Pop();
             return false;
@@ -560,11 +975,11 @@ public class NodeGraph
 
         if (c.IsCancelled) return false;
 
-        await node.InternalProcess(c);
+        await node.IProcess(c);
 
         if (onPostProcess is not null)
         {
-            var result = await onPostProcess.Invoke(c);
+            var result = onPostProcess.Invoke(c);
             if (!result) return false;
         }
 
@@ -573,36 +988,45 @@ public class NodeGraph
         return true;
     }
 
-    private async Task backtrackNode(Node node, PulseContext c)
+    private async Task backtrackNode(INode node, PulseContext c)
     {
-        for (var index = 0; index < node.VirtualValueInputCount(); index++)
+        var metadata = node.Metadata;
+        var slotElements = metadata.Elements[ConnectionPoint.ValueInput];
+
+        for (var slot = 0; slot < metadata.Shared.ValueInputCount; slot++)
         {
-            var connection = FindConnectionFromValueInput(node.Id, index);
-            if (connection is null) continue;
+            var slotMetadata = slotElements[slot];
+            var size = slotMetadata.Shared.IsList ? slotMetadata.Size : 1;
 
-            var outputNode = Nodes[connection.OutputNodeId];
-
-            if (outputNode.Metadata.IsFlow)
+            for (var slotIndex = 0; slotIndex < size; slotIndex++)
             {
-                // we want to create default memory so that backtracking the outputs exists
-                if (!c.HasMemory(outputNode.Id))
+                var connectionResult = FindConnectionFromValueInput(node.Id, slot, slotIndex);
+                if (!connectionResult.IsSuccess) continue;
+
+                var outputNodeResult = getGraphElement<Node>(connectionResult.Value.OutputId);
+                if (!outputNodeResult.IsSuccess) throw outputNodeResult.Exception;
+
+                var outputNode = outputNodeResult.Value;
+
+                if (outputNode.Metadata.Shared.IsFlow && !c.HasMemory(outputNode.Id))
+                {
                     c.CreateMemory(outputNode);
+                    continue;
+                }
 
-                continue;
+                await processNode(outputNode, c);
             }
-
-            await processNode(outputNode, c);
         }
     }
 
     /// <summary>
     /// Triggers the source node immediately if <paramref name="sourceNode"/> is a trigger node, otherwise walks forward to get all the nodes that are trigger nodes and triggers those
     /// </summary>
-    public async Task TriggerTree(Node sourceNode, PulseContext? baseContext = null, Func<PulseContext, Task<bool>>? onPreProcess = null, Func<PulseContext, Task<bool>>? onPostProcess = null)
+    public async Task TriggerTree(INode sourceNode, PulseContext? baseContext = null, Func<PulseContext, Task<bool>>? onPreProcess = null, Func<PulseContext, bool>? onPostProcess = null)
     {
         if (!Running.Value) return;
 
-        if (sourceNode.Metadata.IsTrigger)
+        if (sourceNode.Metadata.Shared.IsAnyTrigger)
         {
             await StartFlow(sourceNode, baseContext, onPreProcess);
             return;
@@ -616,74 +1040,81 @@ public class NodeGraph
             if (!hasProcessed) return;
         }
 
-        var pathList = new List<Node[]>();
-        var currPath = new Stack<Node>();
+        var triggerList = new List<INode>();
+        var pathStack = new Stack<INode>();
 
-        currPath.Push(sourceNode);
+        pathStack.Push(sourceNode);
+        await processNode(sourceNode, c);
 
-        for (var i = 0; i < sourceNode.VirtualValueOutputCount(); i++)
+        var metadata = sourceNode.Metadata;
+        var slotElements = metadata.Elements[ConnectionPoint.ValueOutput];
+
+        for (var slot = 0; slot < metadata.Shared.ValueOutputCount; slot++)
         {
-            await walkForward(pathList, currPath, sourceNode, i);
-        }
+            var slotMetadata = slotElements[slot];
+            var size = slotMetadata.Shared.IsList ? slotMetadata.Size : 1;
 
-        // we want to process every non-trigger node before processing the trigger nodes so that
-        // every non-trigger node in the tree only runs once, even if non-trigger node isn't part
-        // of the current path but will be down one of the trigger node's flows
-
-        foreach (var path in pathList)
-        {
-            // traverse backwards as ToArray on a stack reverses the order
-            for (var i = path.Length - 1; i > 0; i--)
+            for (var slotIndex = 0; slotIndex < size; slotIndex++)
             {
-                var node = path[i];
-                await processNode(node, c);
+                await walkForward(triggerList, pathStack, slot, slotIndex, c);
             }
         }
 
-        foreach (var node in pathList.Select(path => path.First()).DistinctBy(node => node.Id))
+        foreach (var node in triggerList)
         {
             await StartFlow(node, c);
         }
     }
 
-    private async Task walkForward(List<Node[]> triggerStacks, Stack<Node> pathStack, Node currentNode, int outputSlot)
+    private async Task walkForward(List<INode> triggerList, Stack<INode> pathStack, int outputSlot, int outputSlotIndex, PulseContext c)
     {
-        var connections = Connections.Values.Where(con => con.ConnectionType == ConnectionType.Value && con.OutputNodeId == currentNode.Id && con.OutputSlot == outputSlot);
+        var currentNode = pathStack.Peek();
+        var connections = Connections.Where(con => con is IValueConnection && con.OutputId == currentNode.Id && con.OutputSlot == outputSlot && con.OutputSlotIndex == outputSlotIndex);
 
         foreach (var connection in connections)
         {
-            var inputNode = Nodes[connection.InputNodeId];
-            var inputSlot = connection.InputSlot;
+            var inputNodeResult = getGraphElement<Node>(connection.InputId);
+            Debug.Assert(inputNodeResult.IsSuccess);
+
+            var inputNode = inputNodeResult.Value;
+            var metadata = inputNode.Metadata;
 
             if (pathStack.Contains(inputNode)) continue;
-            if (inputNode.Metadata.IsFlowInput || inputNode.Metadata.IsActiveUpdate) continue;
+            if (metadata.Shared.IsFlowInput || metadata.Shared.IsContinuous) continue;
 
-            if (inputSlot >= inputNode.Metadata.InputsCount) inputSlot = inputNode.Metadata.InputsCount - 1;
-
-            pathStack.Push(inputNode);
-
-            if (inputNode.Metadata.IsTrigger)
+            if (metadata.Shared.IsAnyTrigger && !triggerList.Contains(inputNode))
             {
-                triggerStacks.Add(pathStack.ToArray());
+                triggerList.Add(inputNode);
                 continue;
             }
 
-            for (var i = 0; i < inputNode.VirtualValueOutputCount(); i++)
+            pathStack.Push(inputNode);
+            await processNode(inputNode, c);
+
+            var slotElements = metadata.Elements[ConnectionPoint.ValueOutput];
+
+            for (var slot = 0; slot < metadata.Shared.ValueOutputCount; slot++)
             {
-                await walkForward(triggerStacks, pathStack, inputNode, i);
+                var slotMetadata = slotElements[slot];
+                var size = slotMetadata.Shared.IsList ? slotMetadata.Size : 1;
+
+                for (var slotIndex = 0; slotIndex < size; slotIndex++)
+                {
+                    await walkForward(triggerList, pathStack, slot, slotIndex, c);
+                }
             }
 
             pathStack.Pop();
         }
     }
 
-    public async Task TriggerImpulse(ImpulseDefinition definition, PulseContext c)
+    public async Task TriggerImpulse(ImpulseDefinition definition, IPulseContext c)
     {
-        foreach (var node in Nodes.Values.Where(node => node.GetType().IsAssignableTo(typeof(IImpulseReceiver))))
+        foreach (var node in Elements.Values.Where(node => node.GetType().IsAssignableTo(typeof(IImpulseReceiver))).Cast<INode>())
         {
             var impulseNode = (IImpulseReceiver)node;
 
-            if (!string.Equals(definition.Name, impulseNode.Text, StringComparison.CurrentCulture)) continue;
+            //if (!string.Equals(definition.Name, impulseNode.Text, StringComparison.CurrentCulture)) continue;
 
             var type = node.GetType();
 
@@ -695,7 +1126,7 @@ public class NodeGraph
                 if (!type.GenericTypeArguments.SequenceEqual(definition.Values.Select(o => o.GetType()))) continue;
             }
 
-            var newC = new PulseContext(c, this);
+            var newC = new PulseContext((PulseContext)c, this);
 
             await processNode(node, newC, newNewC =>
             {
@@ -707,7 +1138,7 @@ public class NodeGraph
 
     public async Task TriggerModuleNode(Type nodeType, object[] data)
     {
-        foreach (var node in Nodes.Values.Where(node => node.GetType() == nodeType && node.GetType().IsAssignableTo(typeof(IModuleNodeEventHandler))))
+        foreach (var node in Elements.Values.Where(element => element.GetType() == nodeType && element.GetType().IsAssignableTo(typeof(IModuleNodeEventHandler))).Cast<INode>())
         {
             var handler = (IModuleNodeEventHandler)node;
 
@@ -718,19 +1149,4 @@ public class NodeGraph
             });
         }
     }
-}
-
-public record NodeConnection(Guid Id, ConnectionType ConnectionType, Guid OutputNodeId, int OutputSlot, Type? OutputType, Guid InputNodeId, int InputSlot, Type? InputType);
-
-public enum ConnectionType
-{
-    Flow,
-    Value
-}
-
-[Flags]
-public enum ConnectionSide
-{
-    Input = 1 << 0,
-    Output = 1 << 1
 }

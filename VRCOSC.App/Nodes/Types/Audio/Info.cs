@@ -11,14 +11,14 @@ public abstract class SoundPlayerConsumeNode() : ValueConsumeNode<ISoundPlayer?>
 {
     public int UpdateOffset => 0;
 
-    protected override void ConsumeValue(ISoundPlayer? player, PulseContext c)
+    protected override void ConsumeValue(ISoundPlayer? player, IPulseContext c)
     {
         if (player is null) return;
 
         ConsumeSoundPlayer(player, c);
     }
 
-    protected abstract void ConsumeSoundPlayer(ISoundPlayer player, PulseContext c);
+    protected abstract void ConsumeSoundPlayer(ISoundPlayer player, IPulseContext c);
 }
 
 [Node("Player State", "Audio/Info")]
@@ -26,7 +26,7 @@ public sealed class AudioPlayerStateNode : SoundPlayerConsumeNode
 {
     public ValueOutput<PlaybackState> State = new();
 
-    protected override void ConsumeSoundPlayer(ISoundPlayer player, PulseContext c) => State.Write(player.State, c);
+    protected override void ConsumeSoundPlayer(ISoundPlayer player, IPulseContext c) => State.Write(player.State, c);
 }
 
 [Node("Player Settings", "Audio/Info")]
@@ -36,7 +36,7 @@ public sealed class AudioPlayerSettingsNode : SoundPlayerConsumeNode
     public ValueOutput<float> Speed = new();
     public ValueOutput<bool> IsLooping = new();
 
-    protected override void ConsumeSoundPlayer(ISoundPlayer player, PulseContext c)
+    protected override void ConsumeSoundPlayer(ISoundPlayer player, IPulseContext c)
     {
         Volume.Write(player.Volume, c);
         Speed.Write(player.PlaybackSpeed, c);
@@ -51,7 +51,7 @@ public sealed class AudioPlayerTimeNode : SoundPlayerConsumeNode
     public ValueOutput<TimeSpan> Current = new();
     public ValueOutput<float> Progress = new();
 
-    protected override void ConsumeSoundPlayer(ISoundPlayer player, PulseContext c)
+    protected override void ConsumeSoundPlayer(ISoundPlayer player, IPulseContext c)
     {
         var progress = player.Duration == 0f ? 0f : player.Time / player.Duration;
 

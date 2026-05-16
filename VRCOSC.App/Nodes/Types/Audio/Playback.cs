@@ -13,7 +13,7 @@ public sealed class AudioPlayerPlayNode : ActionNode
 {
     public ValueInput<ISoundPlayer?> Player = new();
 
-    protected override void DoAction(PulseContext c)
+    protected override void DoAction(IPulseContext c)
     {
         var player = Player.Read(c);
         if (player is null) return;
@@ -30,7 +30,7 @@ public sealed class AudioPlayerStopNode : ActionNode
 {
     public ValueInput<ISoundPlayer?> Player = new();
 
-    protected override void DoAction(PulseContext c) => Player.Read(c)?.Stop();
+    protected override void DoAction(IPulseContext c) => Player.Read(c)?.Stop();
 }
 
 [Node("Player Pause", "Audio")]
@@ -38,7 +38,7 @@ public sealed class AudioPlayerPauseNode : ActionNode
 {
     public ValueInput<ISoundPlayer?> Player = new();
 
-    protected override void DoAction(PulseContext c) => Player.Read(c)?.Pause();
+    protected override void DoAction(IPulseContext c) => Player.Read(c)?.Pause();
 }
 
 [Node("Player Set Volume", "Audio")]
@@ -47,7 +47,7 @@ public sealed class AudioPlayerSetVolumeNode : ActionNode
     public ValueInput<ISoundPlayer?> Player = new();
     public ValueInput<float> Volume = new(defaultValue: 1f);
 
-    protected override void DoAction(PulseContext c) => Player.Read(c)?.Volume = Volume.Read(c);
+    protected override void DoAction(IPulseContext c) => Player.Read(c)?.Volume = Volume.Read(c);
 }
 
 [Node("Player Set Speed", "Audio")]
@@ -56,7 +56,7 @@ public sealed class AudioPlayerSetSpeedNode : ActionNode
     public ValueInput<ISoundPlayer?> Player = new();
     public ValueInput<float> Speed = new(defaultValue: 1f);
 
-    protected override void DoAction(PulseContext c) => Player.Read(c)?.PlaybackSpeed = Speed.Read(c);
+    protected override void DoAction(IPulseContext c) => Player.Read(c)?.PlaybackSpeed = Speed.Read(c);
 }
 
 [Node("Player Seek", "Audio")]
@@ -66,5 +66,5 @@ public sealed class AudioPlayerSeekNode : ActionNode
     public ValueInput<TimeSpan> Time = new();
     public ValueInput<SeekOrigin> Origin = new();
 
-    protected override void DoAction(PulseContext c) => Player.Read(c)?.Seek(Time.Read(c), Origin.Read(c));
+    protected override void DoAction(IPulseContext c) => Player.Read(c)?.Seek(Time.Read(c), Origin.Read(c));
 }

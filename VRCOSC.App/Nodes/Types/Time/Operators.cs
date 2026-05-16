@@ -16,7 +16,7 @@ public sealed class TimeSpanConstructNode : ValueComputeNode<TimeSpan>
     public ValueInput<float> Milliseconds = new();
     public ValueInput<float> Microseconds = new();
 
-    protected override TimeSpan ComputeValue(PulseContext c)
+    protected override TimeSpan ComputeValue(IPulseContext c)
     {
         try
         {
@@ -47,7 +47,7 @@ public sealed class TimeSpanExtractNode() : ValueConsumeNode<TimeSpan>("TimeSpan
     public ValueOutput<int> Microseconds = new();
     public ValueOutput<int> Nanoseconds = new();
 
-    protected override void ConsumeValue(TimeSpan timeSpan, PulseContext c)
+    protected override void ConsumeValue(TimeSpan timeSpan, IPulseContext c)
     {
         Days.Write(timeSpan.Days, c);
         Hours.Write(timeSpan.Hours, c);
@@ -70,7 +70,7 @@ public sealed class TimeSpanExtractTotalNode() : ValueConsumeNode<TimeSpan>("Tim
     public ValueOutput<double> Microseconds = new();
     public ValueOutput<double> Nanoseconds = new();
 
-    protected override void ConsumeValue(TimeSpan timeSpan, PulseContext c)
+    protected override void ConsumeValue(TimeSpan timeSpan, IPulseContext c)
     {
         Days.Write(timeSpan.TotalDays, c);
         Hours.Write(timeSpan.TotalHours, c);
@@ -92,7 +92,7 @@ public sealed class DateTimeConstructNode : ValueComputeNode<DateTime>
     public ValueInput<float> Milliseconds = new();
     public ValueInput<float> Microseconds = new();
 
-    protected override DateTime ComputeValue(PulseContext c)
+    protected override DateTime ComputeValue(IPulseContext c)
     {
         try
         {
@@ -126,7 +126,7 @@ public sealed class DateTimeExtractNode() : ValueConsumeNode<DateTime>("DateTime
     public ValueOutput<int> Microsecond = new();
     public ValueOutput<int> Nanosecond = new();
 
-    protected override void ConsumeValue(DateTime dateTime, PulseContext c)
+    protected override void ConsumeValue(DateTime dateTime, IPulseContext c)
     {
         DayOfYear.Write(dateTime.DayOfYear, c);
         Year.Write(dateTime.Year, c);
@@ -144,18 +144,18 @@ public sealed class DateTimeExtractNode() : ValueConsumeNode<DateTime>("DateTime
 [Node("DateTime Difference", "Date & Time")]
 public sealed class DateTimeDifferenceNode() : SimpleResultComputeNode<DateTime, TimeSpan>((a, b) => a - b);
 
-[Node("DateTime Add", "Date & Time", EFontAwesomeIcon.Solid_Plus)]
-[NodeCollapsed]
+[Node("DateTime Add", "Date & Time")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Plus)]
 public sealed class DateTimeAddNode() : SimpleResultComputeNode<DateTime, TimeSpan, DateTime>((a, b) => a.Add(b), "DateTime", "TimeSpan");
 
-[Node("DateTime Subtract", "Date & Time", EFontAwesomeIcon.Solid_Minus)]
-[NodeCollapsed]
+[Node("DateTime Subtract", "Date & Time")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Minus)]
 public sealed class DateTimeSubtractNode() : SimpleResultComputeNode<DateTime, TimeSpan, DateTime>((a, b) => a.Subtract(b), "DateTime", "TimeSpan");
 
-[Node("TimeSpan Add", "Date & Time", EFontAwesomeIcon.Solid_Plus)]
-[NodeCollapsed]
+[Node("TimeSpan Add", "Date & Time")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Plus)]
 public sealed class TimeSpanAddNode() : SimpleResultComputeNode<TimeSpan>((a, b) => a.Add(b), "Source", "Value");
 
-[Node("TimeSpan Subtract", "Date & Time", EFontAwesomeIcon.Solid_Minus)]
-[NodeCollapsed]
+[Node("TimeSpan Subtract", "Date & Time")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Minus)]
 public sealed class TimeSpanSubtractNode() : SimpleResultComputeNode<TimeSpan>((a, b) => a.Subtract(b), "Source", "Value");

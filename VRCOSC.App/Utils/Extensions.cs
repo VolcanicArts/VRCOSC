@@ -9,13 +9,14 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Linq.Expressions;
+using System.Numerics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -24,8 +25,40 @@ using Windows.Win32.UI.WindowsAndMessaging;
 using Json.Path;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
+using Expression = System.Linq.Expressions.Expression;
 
 namespace VRCOSC.App.Utils;
+
+public static class ActivatorExtensions
+{
+    extension(Type type)
+    {
+        public Result<T> InstanceAs<T>(object?[]? args)
+        {
+            try
+            {
+                return (T)Activator.CreateInstance(type, args: args)!;
+            }
+            catch (Exception e)
+            {
+                return e;
+            }
+        }
+    }
+}
+
+public static class UIExtensions
+{
+    extension(Vector2 vector)
+    {
+        public Point AsPoint => new(vector.X, vector.Y);
+    }
+
+    extension(Point point)
+    {
+        public Vector2 AsVector => new((float)point.X, (float)point.Y);
+    }
+}
 
 public static class EnumerableExtensions
 {
@@ -58,6 +91,7 @@ public static class CollectionExtensions
     /// <summary>
     /// Removes elements based on a predicate
     /// </summary>
+    /// <returns>The removed items</returns>
     public static ICollection<T> RemoveIf<T>(this ICollection<T> collection, Func<T, bool> predicate)
     {
         var itemsToRemove = collection.Where(predicate.Invoke).ToList();
@@ -67,7 +101,7 @@ public static class CollectionExtensions
             collection.Remove(itemToRemove);
         }
 
-        return collection;
+        return itemsToRemove;
     }
 }
 

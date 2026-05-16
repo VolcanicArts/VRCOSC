@@ -14,7 +14,7 @@ public sealed class DampContinuouslyNode<T> : ValueComputeNode<T>, IContinuousNo
     public ValueInput<T> Target = new();
     public ValueInput<double> HalfTimeMilli = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var result = Utils.Interpolation.DampContinuously(Current.Read(c), Target.Read(c), HalfTimeMilli.Read(c) / 2d, 1d / 100d * 1000d);
         Current.Write(result, c);

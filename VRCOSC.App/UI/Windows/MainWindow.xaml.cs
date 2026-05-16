@@ -246,6 +246,7 @@ public partial class MainWindow
 
         ProfileManager.GetInstance().Load();
         ModuleManager.GetInstance().LoadAllModules();
+        NodeTypeManager.Init();
         NodeManager.GetInstance().Load();
         ChatBoxManager.GetInstance().Load();
         RouterManager.GetInstance().Load();

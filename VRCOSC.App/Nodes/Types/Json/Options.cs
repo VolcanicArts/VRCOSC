@@ -10,7 +10,7 @@ public sealed class PackJsonSerializerOptionsNode : ValueComputeNode<JsonSeriali
 {
     public ValueInput<bool> AllowTrailingCommas = new();
 
-    protected override JsonSerializerOptions ComputeValue(PulseContext c)
+    protected override JsonSerializerOptions ComputeValue(IPulseContext c)
     {
         var options = new JsonSerializerOptions
         {

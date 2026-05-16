@@ -10,14 +10,14 @@ public abstract class SteamVRControllerConsumeNode() : ValueConsumeNode<Controll
 {
     public int UpdateOffset => 0;
 
-    protected override void ConsumeValue(Controller? controller, PulseContext c)
+    protected override void ConsumeValue(Controller? controller, IPulseContext c)
     {
         if (controller is null) return;
 
         ConsumeController(controller, c);
     }
 
-    protected abstract void ConsumeController(Controller controller, PulseContext c);
+    protected abstract void ConsumeController(Controller controller, IPulseContext c);
 }
 
 [Node("Controller Trigger", "SteamVR/Input")]
@@ -27,7 +27,7 @@ public sealed class SteamVRControllerTriggerNode : SteamVRControllerConsumeNode
     public ValueOutput<bool> Touch = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void ConsumeController(Controller controller, PulseContext c)
+    protected override void ConsumeController(Controller controller, IPulseContext c)
     {
         Pull.Write(controller.Input.Trigger.Pull, c);
         Touch.Write(controller.Input.Trigger.Touch, c);
@@ -42,7 +42,7 @@ public sealed class SteamVRControllerStickNode : SteamVRControllerConsumeNode
     public ValueOutput<bool> Touch = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void ConsumeController(Controller controller, PulseContext c)
+    protected override void ConsumeController(Controller controller, IPulseContext c)
     {
         Position.Write(controller.Input.Stick.Position, c);
         Touch.Write(controller.Input.Stick.Touch, c);
@@ -56,7 +56,7 @@ public sealed class SteamVRControllerPrimaryNode : SteamVRControllerConsumeNode
     public ValueOutput<bool> Touch = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void ConsumeController(Controller controller, PulseContext c)
+    protected override void ConsumeController(Controller controller, IPulseContext c)
     {
         Touch.Write(controller.Input.Primary.Touch, c);
         Click.Write(controller.Input.Primary.Click, c);
@@ -69,7 +69,7 @@ public sealed class SteamVRControllerSecondaryNode : SteamVRControllerConsumeNod
     public ValueOutput<bool> Touch = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void ConsumeController(Controller controller, PulseContext c)
+    protected override void ConsumeController(Controller controller, IPulseContext c)
     {
         Touch.Write(controller.Input.Secondary.Touch, c);
         Click.Write(controller.Input.Secondary.Click, c);
@@ -82,7 +82,7 @@ public sealed class SteamVRControllerSystemNode : SteamVRControllerConsumeNode
     public ValueOutput<bool> Touch = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void ConsumeController(Controller controller, PulseContext c)
+    protected override void ConsumeController(Controller controller, IPulseContext c)
     {
         Touch.Write(controller.Input.System.Touch, c);
         Click.Write(controller.Input.System.Click, c);
@@ -95,7 +95,7 @@ public sealed class SteamVRControllerGripNode : SteamVRControllerConsumeNode
     public ValueOutput<float> Pull = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void ConsumeController(Controller controller, PulseContext c)
+    protected override void ConsumeController(Controller controller, IPulseContext c)
     {
         Pull.Write(controller.Input.Grip.Pull, c);
         Click.Write(controller.Input.Grip.Click, c);
@@ -109,7 +109,7 @@ public sealed class SteamVRControllerPadNode : SteamVRControllerConsumeNode
     public ValueOutput<bool> Touch = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void ConsumeController(Controller controller, PulseContext c)
+    protected override void ConsumeController(Controller controller, IPulseContext c)
     {
         Position.Write(controller.Input.Pad.Position, c);
         Touch.Write(controller.Input.Pad.Touch, c);
@@ -125,7 +125,7 @@ public sealed class SteamVRControllerSkeletonNode : SteamVRControllerConsumeNode
     public ValueOutput<float> Ring = new();
     public ValueOutput<float> Pinky = new();
 
-    protected override void ConsumeController(Controller controller, PulseContext c)
+    protected override void ConsumeController(Controller controller, IPulseContext c)
     {
         Index.Write(controller.Input.Skeleton.Index, c);
         Middle.Write(controller.Input.Skeleton.Middle, c);

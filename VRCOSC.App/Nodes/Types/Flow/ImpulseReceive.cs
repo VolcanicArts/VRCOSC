@@ -12,11 +12,11 @@ public sealed class ImpulseReceiveNode : Node, IImpulseReceiver
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public FlowContinuation OnCall = new();
+    public FlowOutput OnCall = new();
 
-    protected override Task Process(PulseContext c) => OnCall.Execute(c);
+    protected override Task Process(IPulseContext c) => OnCall.Execute(c);
 
-    public void WriteOutputs(object[] values, PulseContext c)
+    public void WriteOutputs(object[] values, IPulseContext c)
     {
     }
 }
@@ -27,13 +27,13 @@ public sealed class ImpulseReceiveNode<T1> : Node, IImpulseReceiver
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public FlowContinuation OnCall = new();
+    public FlowOutput OnCall = new();
 
     public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
 
-    protected override Task Process(PulseContext c) => OnCall.Execute(c);
+    protected override Task Process(IPulseContext c) => OnCall.Execute(c);
 
-    public void WriteOutputs(object[] values, PulseContext c)
+    public void WriteOutputs(object[] values, IPulseContext c)
     {
         First.Write((T1)values[0], c);
     }
@@ -45,14 +45,14 @@ public sealed class ImpulseReceiveNode<T1, T2> : Node, IImpulseReceiver
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public FlowContinuation OnCall = new();
+    public FlowOutput OnCall = new();
 
     public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
     public ValueOutput<T2> Second = new(typeof(T2).GetFriendlyName());
 
-    protected override Task Process(PulseContext c) => OnCall.Execute(c);
+    protected override Task Process(IPulseContext c) => OnCall.Execute(c);
 
-    public void WriteOutputs(object[] values, PulseContext c)
+    public void WriteOutputs(object[] values, IPulseContext c)
     {
         First.Write((T1)values[0], c);
         Second.Write((T2)values[1], c);
@@ -65,15 +65,15 @@ public sealed class ImpulseReceiveNode<T1, T2, T3> : Node, IImpulseReceiver
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public FlowContinuation OnCall = new();
+    public FlowOutput OnCall = new();
 
     public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
     public ValueOutput<T2> Second = new(typeof(T2).GetFriendlyName());
     public ValueOutput<T3> Third = new(typeof(T3).GetFriendlyName());
 
-    protected override Task Process(PulseContext c) => OnCall.Execute(c);
+    protected override Task Process(IPulseContext c) => OnCall.Execute(c);
 
-    public void WriteOutputs(object[] values, PulseContext c)
+    public void WriteOutputs(object[] values, IPulseContext c)
     {
         First.Write((T1)values[0], c);
         Second.Write((T2)values[1], c);
@@ -87,16 +87,16 @@ public sealed class ImpulseReceiveNode<T1, T2, T3, T4> : Node, IImpulseReceiver
     [NodeProperty("text")]
     public string Text { get; set; } = string.Empty;
 
-    public FlowContinuation OnCall = new();
+    public FlowOutput OnCall = new();
 
     public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
     public ValueOutput<T2> Second = new(typeof(T2).GetFriendlyName());
     public ValueOutput<T3> Third = new(typeof(T3).GetFriendlyName());
     public ValueOutput<T4> Fourth = new(typeof(T4).GetFriendlyName());
 
-    protected override Task Process(PulseContext c) => OnCall.Execute(c);
+    protected override Task Process(IPulseContext c) => OnCall.Execute(c);
 
-    public void WriteOutputs(object[] values, PulseContext c)
+    public void WriteOutputs(object[] values, IPulseContext c)
     {
         First.Write((T1)values[0], c);
         Second.Write((T2)values[1], c);

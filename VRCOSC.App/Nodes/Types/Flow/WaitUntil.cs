@@ -6,17 +6,18 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Wait Until True", "Flow")]
-public sealed class WaitUntilTrueNode : Node, IActiveUpdateNode, IFlowInput
+public sealed class WaitUntilTrueNode : Node, IActiveUpdateNode
 {
     public int UpdateOffset => 0;
 
     public GlobalStore<bool> CurrCondition = new();
 
-    public FlowContinuation Next = new();
+    public FlowInput FlowInput = new();
+    public FlowOutput Next = new();
 
     public ValueInput<bool> Condition = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task Process(IPulseContext c)
     {
         while (!c.IsCancelled && !CurrCondition.Read(c))
         {
@@ -26,7 +27,7 @@ public sealed class WaitUntilTrueNode : Node, IActiveUpdateNode, IFlowInput
         await Next.Execute(c);
     }
 
-    public Task<bool> OnUpdate(PulseContext c)
+    public Task<bool> OnUpdate(IPulseContext c)
     {
         CurrCondition.Write(Condition.Read(c), c);
         return Task.FromResult(false);
@@ -34,17 +35,18 @@ public sealed class WaitUntilTrueNode : Node, IActiveUpdateNode, IFlowInput
 }
 
 [Node("Wait Until False", "Flow")]
-public sealed class WaitUntilFalseNode : Node, IActiveUpdateNode, IFlowInput
+public sealed class WaitUntilFalseNode : Node, IActiveUpdateNode
 {
     public int UpdateOffset => 0;
 
     public GlobalStore<bool> CurrCondition = new();
 
-    public FlowContinuation Next = new();
+    public FlowInput FlowInput = new();
+    public FlowOutput Next = new();
 
     public ValueInput<bool> Condition = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task Process(IPulseContext c)
     {
         while (!c.IsCancelled && CurrCondition.Read(c))
         {
@@ -54,7 +56,7 @@ public sealed class WaitUntilFalseNode : Node, IActiveUpdateNode, IFlowInput
         await Next.Execute(c);
     }
 
-    public Task<bool> OnUpdate(PulseContext c)
+    public Task<bool> OnUpdate(IPulseContext c)
     {
         CurrCondition.Write(Condition.Read(c), c);
         return Task.FromResult(false);

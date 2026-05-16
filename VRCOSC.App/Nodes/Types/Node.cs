@@ -2,87 +2,22 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Windows;
+using VRCOSC.App.Nodes.Metadata;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types;
 
-public abstract class Node : IEquatable<Node>
+public interface IGraphElement
 {
-    internal NodeGraph NodeGraph { get; set; } = null!;
-    internal NodeVariableSize VariableSize => NodeGraph.VariableSizes[Id];
+    public Guid Id { get; }
+}
 
-    internal Guid Id { get; set; } = Guid.NewGuid();
-    internal Point NodePosition { get; set; } = new(5000, 5000);
+public abstract class GraphElement : IGraphElement, IEquatable<GraphElement>
+{
+    public Guid Id { get; internal set; } = Guid.NewGuid();
 
-    public virtual string DisplayName => Metadata.Title;
-
-    public NodeMetadata Metadata => NodeGraph.GetMetadata(this);
-
-    internal void Init()
-    {
-        var type = GetType();
-
-        var attributeGroups = new List<Type>
-        {
-            typeof(IFlow),
-            typeof(IValueInput),
-            typeof(IValueOutput)
-        };
-
-        foreach (var attributeGroup in attributeGroups)
-        {
-            var fieldGroup = type.GetFieldsByType(attributeGroup).ToArray();
-
-            for (int i = 0; i < fieldGroup.Length; i++)
-            {
-                var field = fieldGroup[i];
-                var instance = (INodeAttribute)field.GetValue(this)!;
-                instance.Index = i;
-            }
-        }
-    }
-
-    internal async Task InternalProcess(PulseContext c)
-    {
-        try
-        {
-            await Process(c);
-        }
-        catch (OperationCanceledException)
-        {
-        }
-        catch (Exception ex)
-        {
-            Logger.Error(ex, $"Error in {nameof(Process)} in {GetType().GetFriendlyName()}");
-        }
-    }
-
-    protected abstract Task Process(PulseContext c);
-
-    internal bool InternalShouldProcess(PulseContext c)
-    {
-        try
-        {
-            return ShouldProcess(c);
-        }
-        catch (OperationCanceledException)
-        {
-        }
-        catch (Exception ex)
-        {
-            Logger.Error(ex, $"Error in {nameof(ShouldProcess)} in {GetType().GetFriendlyName()}");
-        }
-
-        return false;
-    }
-
-    protected virtual bool ShouldProcess(PulseContext c) => true;
-
-    public bool Equals(Node? other)
+    public bool Equals(GraphElement? other)
     {
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
@@ -96,8 +31,72 @@ public abstract class Node : IEquatable<Node>
         if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
 
-        return Equals((Node)obj);
+        return Equals((GraphElement)obj);
     }
 
     public override int GetHashCode() => Id.GetHashCode();
+}
+
+public interface INode : IGraphElement
+{
+    INodeMetadata Metadata { get; }
+    string DisplayName { get; }
+    NodeGraph ContainingGraph { get; }
+
+    internal Task IProcess(IPulseContext c);
+    internal bool IShouldProcess(IPulseContext c);
+}
+
+public abstract class Node : GraphElement, INode
+{
+    public INodeMetadata Metadata => NodeMetadataManager.GetFor(this).Value;
+    public virtual string DisplayName => Metadata.Shared.Name;
+    public NodeGraph ContainingGraph { get; private set; } = null!;
+
+    internal void Init(NodeGraph containingGraph)
+    {
+        ContainingGraph = containingGraph;
+
+        var fields = GetType().GetFieldsByType(typeof(INodeElement));
+
+        foreach (var field in fields)
+        {
+            var instance = (INodeElement)field.GetValue(this)!;
+            instance.Owner = this;
+        }
+    }
+
+    public async Task IProcess(IPulseContext c)
+    {
+        try
+        {
+            await Process(c);
+        }
+        catch (TaskCanceledException)
+        {
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.StackTrace);
+        }
+    }
+
+    public bool IShouldProcess(IPulseContext c) => ShouldProcess(c);
+
+    /// <summary>
+    /// Processes this node from inputs to outputs
+    /// </summary>
+    /// <param name="c">The context a flow is running in</param>
+    protected abstract Task Process(IPulseContext c);
+
+    /// <summary>
+    /// Whether this <see cref="Node"/> should process or not
+    /// </summary>
+    /// <param name="c">The context a flow is running in</param>
+    /// <returns>True if this node should process. False otherwise</returns>
+    /// <remarks>In the case this this <see cref="Node"/> is a trigger node, returning false means an existing flow isn't cancelled</remarks>
+    protected virtual bool ShouldProcess(IPulseContext c) => true;
 }

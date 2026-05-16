@@ -6,10 +6,11 @@
     <core:BindingProxy x:Key="CBackground1Proxy" Data="{DynamicResource CBackground1}"/>
     <Style TargetType="core:IconButton">
         <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Padding" Value="5"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="core:IconButton">
-                    <Border CornerRadius="{TemplateBinding CornerRadius}" Padding="{TemplateBinding Padding}">
+                    <Border CornerRadius="{TemplateBinding CornerRadius}">
                         <Border.Background>
                             <MultiBinding Converter="{StaticResource ButtonBackgroundColourConverter}">
                                 <Binding RelativeSource="{RelativeSource TemplatedParent}"/>
@@ -17,13 +18,12 @@
                                 <Binding Source="{StaticResource CBackground1Proxy}" Path="Data"/>
                             </MultiBinding>
                         </Border.Background>
-                        <Viewbox Stretch="Uniform" Margin="5">
-                            <fa6:ImageAwesome
-                                Icon="{TemplateBinding Icon}"
-                                PrimaryColor="{DynamicResource CForeground1}"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"/>
-                        </Viewbox>
+                        <fa6:ImageAwesome
+                            Margin="{TemplateBinding Padding}"
+                            Icon="{TemplateBinding Icon}"
+                            PrimaryColor="{DynamicResource CForeground1}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"/>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

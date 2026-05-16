@@ -21,7 +21,7 @@ public sealed class BitwiseMultiAndNode<T> : ValueComputeNode<T> where T : IBitw
 
     public ValueInputList<T> Values = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var values = Values.Read(c);
         return values.Count != 0 ? values.Aggregate((a, v) => a & v) : default!;
@@ -39,7 +39,7 @@ public sealed class BitwiseMultiNandNode<T> : ValueComputeNode<T> where T : IBit
 
     public ValueInputList<T> Values = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var values = Values.Read(c);
         return values.Count != 0 ? ~values.Aggregate((a, v) => a & v) : default!;
@@ -57,7 +57,7 @@ public sealed class BitwiseMultiOrNode<T> : ValueComputeNode<T> where T : IBitwi
 
     public ValueInputList<T> Values = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var values = Values.Read(c);
         return values.Count != 0 ? values.Aggregate((a, v) => a | v) : default!;
@@ -75,7 +75,7 @@ public sealed class BitwiseMultiNorNode<T> : ValueComputeNode<T> where T : IBitw
 
     public ValueInputList<T> Values = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var values = Values.Read(c);
         return values.Count != 0 ? ~values.Aggregate((a, v) => a | v) : default!;
@@ -93,7 +93,7 @@ public sealed class BitwiseMultiXorNode<T> : ValueComputeNode<T> where T : IBitw
 
     public ValueInputList<T> Values = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var values = Values.Read(c);
         return values.Count != 0 ? values.Aggregate((a, v) => a ^ v) : default!;
@@ -111,7 +111,7 @@ public sealed class BitwiseMultiXNorNode<T> : ValueComputeNode<T> where T : IBit
 
     public ValueInputList<T> Values = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var values = Values.Read(c);
         return values.Count != 0 ? ~values.Aggregate((a, v) => a ^ v) : default!;

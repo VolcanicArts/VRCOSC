@@ -16,11 +16,11 @@ public class ValueNode<T> : ValueComputeNode<T>
         set
         {
             field = value;
-            NodeGraph.TriggerTree(this).Forget();
+            ContainingGraph.TriggerTree(this).Forget();
         }
     } = default!;
 
     public Type Type => typeof(T);
 
-    protected override T ComputeValue(PulseContext c) => Value;
+    protected override T ComputeValue(IPulseContext c) => Value;
 }
