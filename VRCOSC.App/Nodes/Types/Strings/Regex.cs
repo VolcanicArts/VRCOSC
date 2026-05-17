@@ -11,7 +11,7 @@ public sealed class RegexMatchNode : TryValueComputeNode<Match>
 {
     public ValueInput<string?> Regex = new();
     public ValueInput<string?> Input = new("String");
-    public ValueInput<RegexOptions> Options = new();
+    public ValueInput<RegexOptions> Options = new(modes: ValueInputMode.Connection);
 
     protected override Result<Match> TryComputeValue(IPulseContext c)
     {
@@ -38,7 +38,7 @@ public sealed class RegexMatchesNode : TryValueComputeNode<MatchCollection>
 {
     public ValueInput<string> RegexStr = new("Regex");
     public ValueInput<string?> Input = new("String");
-    public ValueInput<RegexOptions> Options = new();
+    public ValueInput<RegexOptions> Options = new(modes: ValueInputMode.Connection);
 
     protected override Result<MatchCollection> TryComputeValue(IPulseContext c)
     {
@@ -62,7 +62,7 @@ public sealed class RegexIsMatchNode : ValueSourceNode<bool>
 {
     public ValueInput<string> RegexStr = new("Regex");
     public ValueInput<string?> Input = new("String");
-    public ValueInput<RegexOptions> Options = new();
+    public ValueInput<RegexOptions> Options = new(modes: ValueInputMode.Connection);
 
     protected override bool ComputeValue(IPulseContext c)
     {
@@ -87,7 +87,7 @@ public sealed class RegexReplaceNode : TryValueComputeNode<string>
     public ValueInput<string> RegexStr = new("Regex");
     public ValueInput<string?> Input = new("String");
     public ValueInput<string> Replacement = new();
-    public ValueInput<RegexOptions> Options = new();
+    public ValueInput<RegexOptions> Options = new(modes: ValueInputMode.Connection);
 
     protected override Result<string> TryComputeValue(IPulseContext c)
     {
@@ -112,7 +112,7 @@ public sealed class RegexSplitNode : TryValueComputeNode<string[]>
 {
     public ValueInput<string> RegexStr = new("Regex");
     public ValueInput<string?> Input = new("String");
-    public ValueInput<RegexOptions> Options = new();
+    public ValueInput<RegexOptions> Options = new(modes: ValueInputMode.Connection);
 
     protected override Result<string[]> TryComputeValue(IPulseContext c)
     {

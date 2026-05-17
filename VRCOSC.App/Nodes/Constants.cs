@@ -24,24 +24,17 @@ public static class NodeConstants
         typeof(decimal),
     };
 
-    public static readonly Type[] INPUT_TYPES = new[]
-    {
-        typeof(string),
-        typeof(bool),
-        typeof(Enum),
-        typeof(Keybind)
-    }.Concat(NUMERIC_TYPES).ToArray();
-
     public static readonly Type[] TEXTBOX_TYPES = new[]
     {
         typeof(string)
     }.Concat(NUMERIC_TYPES).ToArray();
 
-    public static readonly Type[] COMMON_TYPES = new[]
+    public static readonly Type[] INPUT_TYPES = new[]
     {
         typeof(bool),
-        typeof(int),
-        typeof(float),
-        typeof(string)
-    };
+        typeof(Enum),
+        typeof(Keybind),
+        typeof(DateTime),
+        typeof(TimeSpan)
+    }.Concat(TEXTBOX_TYPES).ToArray();
 }

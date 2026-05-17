@@ -14,4 +14,6 @@ public class GraphChanges
     public List<IConnection> AddedConnections { get; } = [];
     public List<NodeGroup> RemovedGroups { get; } = [];
     public List<NodeGroup> AddedGroups { get; } = [];
+    public List<IComment> AddedComments { get; } = [];
+    public List<IComment> RemovedComments { get; } = [];
 }

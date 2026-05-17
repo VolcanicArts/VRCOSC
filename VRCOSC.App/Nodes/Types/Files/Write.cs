@@ -101,7 +101,7 @@ public sealed class FileSetAttributesNode : TryHandleFilePathActionNode
 [Node("File Set Creation Time", "Files")]
 public sealed class FileSetCreationTimeNode : TryHandleFilePathActionNode
 {
-    public ValueInput<DateTime> CreationTime = new();
+    public ValueInput<DateTime> CreationTime = new(defaultValue: DateTime.Now);
 
     protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
 
@@ -115,7 +115,7 @@ public sealed class FileSetCreationTimeNode : TryHandleFilePathActionNode
 [Node("File Set Last Access Time", "Files")]
 public sealed class FileSetLastAccessTimeNode : TryHandleFilePathActionNode
 {
-    public ValueInput<DateTime> LastAccessTime = new();
+    public ValueInput<DateTime> LastAccessTime = new(defaultValue: DateTime.Now);
 
     protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
 
@@ -129,7 +129,7 @@ public sealed class FileSetLastAccessTimeNode : TryHandleFilePathActionNode
 [Node("File Set Last Write Time", "Files")]
 public sealed class FileSetLastWriteTimeNode : TryHandleFilePathActionNode
 {
-    public ValueInput<DateTime> LastWriteTime = new();
+    public ValueInput<DateTime> LastWriteTime = new(defaultValue: DateTime.Now);
 
     protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
 

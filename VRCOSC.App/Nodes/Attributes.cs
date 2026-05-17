@@ -209,7 +209,7 @@ public record FlowOutput : FlowElement, IFlowOutput
 {
     public bool Scope { get; }
 
-    public FlowOutput([CallerMemberName] string name = "", bool scope = false)
+    public FlowOutput(string name = "", bool scope = false)
         : base(name)
     {
         Scope = scope;
@@ -276,7 +276,7 @@ public record ValueInput<T> : ValueElement<T>, IValueInput<T>
         Modes = modes;
     }
 
-    public T Read(IPulseContext c) => !IsConnected ? _field : c.Read(this);
+    public T Read(IPulseContext c) => c.Read(this);
 
     public object? GetField() => _field;
 
@@ -334,6 +334,7 @@ public interface IImpulseSender : IImpulseNode;
 
 public interface IImpulseReceiver : IImpulseNode
 {
+    public bool CanReceive(string name, IPulseContext c);
     public void WriteOutputs(object[] values, IPulseContext c);
 }
 

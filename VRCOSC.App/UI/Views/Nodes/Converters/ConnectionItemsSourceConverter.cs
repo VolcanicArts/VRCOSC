@@ -24,13 +24,18 @@ public class ConnectionItemsSourceConverter : IValueConverter
         var points = node.Metadata.Elements[ConnectionPoint];
 
         var isSourceNode = node.Metadata.IsSourceNode;
+        var isDriveNode = node.Metadata.IsDriveNode;
+
+        var valueOutputRenderName = !isSourceNode;
+        var valueInputRenderName = !isDriveNode;
+        bool? valueInputRenderInlineOverride = isDriveNode ? false : null;
 
         return ConnectionPoint switch
         {
             ConnectionPoint.FlowOutput => points.Select<INodeElementMetadata, ObservableObject>(e => e.Shared.IsList ? new NodeFlowOutputListViewModel((IFlowOutputList)e.Instance) : new NodeFlowOutputViewModel((IFlowOutput)e.Instance)),
             ConnectionPoint.FlowInput => points.Select<INodeElementMetadata, ObservableObject>(e => e.Shared.IsList ? new NodeFlowInputListViewModel((IFlowInputList)e.Instance) : new NodeFlowInputViewModel((IFlowInput)e.Instance)),
-            ConnectionPoint.ValueOutput => points.Select<INodeElementMetadata, ObservableObject>(e => e.Shared.IsList ? new NodeValueOutputListViewModel((IValueOutputList)e.Instance) : new NodeValueOutputViewModel((IValueOutput)e.Instance, renderName: !isSourceNode)),
-            ConnectionPoint.ValueInput => points.Select<INodeElementMetadata, ObservableObject>(e => e.Shared.IsList ? new NodeValueInputListViewModel((IValueInputList)e.Instance) : new NodeValueInputViewModel((IValueInput)e.Instance)),
+            ConnectionPoint.ValueOutput => points.Select<INodeElementMetadata, ObservableObject>(e => e.Shared.IsList ? new NodeValueOutputListViewModel((IValueOutputList)e.Instance) : new NodeValueOutputViewModel((IValueOutput)e.Instance, renderName: valueOutputRenderName)),
+            ConnectionPoint.ValueInput => points.Select<INodeElementMetadata, ObservableObject>(e => e.Shared.IsList ? new NodeValueInputListViewModel((IValueInputList)e.Instance) : new NodeValueInputViewModel((IValueInput)e.Instance, renderName: valueInputRenderName, renderInlineOverride: valueInputRenderInlineOverride)),
             _ => throw new ArgumentOutOfRangeException()
         };
     }

@@ -1,8 +1,11 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Windows;
 using System.Windows.Controls;
+using VRCOSC.App.Nodes;
+using VRCOSC.App.Nodes.Metadata;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Flow;
 using VRCOSC.App.Nodes.Types.Inputs;
@@ -16,16 +19,22 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
 {
     public required DataTemplate CastNode { get; set; }
     public required DataTemplate CollapsedNode { get; set; }
+    public required DataTemplate HoistedInputNode { get; set; }
+    public required DataTemplate NoInlineNode { get; set; }
     public required DataTemplate RegularNode { get; set; }
     public required DataTemplate SourceNode { get; set; }
-    public required DataTemplate CallNode { get; set; }
+    public required DataTemplate DriveNode { get; set; }
+    public required DataTemplate ButtonNode { get; set; }
     public required DataTemplate DisplayNode { get; set; }
     public required DataTemplate PassthroughDisplayNode { get; set; }
     public required DataTemplate RelayNode { get; set; }
     public required DataTemplate CheckBoxValueNode { get; set; }
     public required DataTemplate TextBoxValueNode { get; set; }
+    public required DataTemplate TextBoxNumericValueNode { get; set; }
     public required DataTemplate ComboBoxValueNode { get; set; }
     public required DataTemplate KeybindValueNode { get; set; }
+    public required DataTemplate DateTimeValueNode { get; set; }
+    public required DataTemplate TimeSpanValueNode { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
@@ -33,7 +42,7 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
         {
             var node = nodeViewModel.Node;
             var type = node.GetType();
-            var isGeneric = type.IsGenericType;
+            var isGeneric = node.Metadata.Shared.GenericTypes.Length != 0;
 
             if (isGeneric)
             {
@@ -41,18 +50,20 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
 
                 if (genericType == typeof(ValueNode<>))
                 {
-                    var instanceType = type.GetGenericArguments()[0];
+                    var instanceType = node.Metadata.Shared.GenericTypes[0];
+                    instanceType = Nullable.GetUnderlyingType(instanceType) ?? instanceType;
 
-                    if (instanceType == typeof(bool)) return CheckBoxValueNode;
+                    if (NodeConstants.NUMERIC_TYPES.Contains(instanceType))
+                        return TextBoxNumericValueNode;
 
-                    if (instanceType == typeof(string) || instanceType == typeof(int) || instanceType == typeof(long)
-                        || instanceType == typeof(float) || instanceType == typeof(double) || instanceType == typeof(short))
+                    if (NodeConstants.TEXTBOX_TYPES.Contains(instanceType))
                         return TextBoxValueNode;
 
                     if (instanceType.IsEnum) return ComboBoxValueNode;
-
-                    if (instanceType == typeof(Keybind))
-                        return KeybindValueNode;
+                    if (instanceType == typeof(bool)) return CheckBoxValueNode;
+                    if (instanceType == typeof(Keybind)) return KeybindValueNode;
+                    if (instanceType == typeof(DateTime)) return DateTimeValueNode;
+                    if (instanceType == typeof(TimeSpan)) return TimeSpanValueNode;
                 }
 
                 if (genericType == typeof(DisplayNode<>)) return DisplayNode;
@@ -62,13 +73,44 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
             }
 
             if (type == typeof(ButtonNode))
-                return CallNode;
+                return ButtonNode;
 
             if (node.Metadata.Shared.IsCollapsed)
                 return CollapsedNode;
 
             if (node.Metadata.IsSourceNode)
                 return SourceNode;
+
+            if (node.Metadata.IsDriveNode)
+                return DriveNode;
+
+            var valueInputs = node.Metadata.Elements[ConnectionPoint.ValueInput];
+            var canBeNoInline = false;
+
+            if (node.Metadata.Shared.IsValueInput)
+            {
+                canBeNoInline = true;
+
+                for (var i = 0; i < node.Metadata.Shared.ValueOutputCount; i++)
+                {
+                    if (i < node.Metadata.Shared.ValueInputCount)
+                    {
+                        var valueInput = (IValueInputBase)valueInputs[i].Instance;
+
+                        if (valueInput.Metadata.Shared.IsInlineable && valueInput.Modes.HasFlag(ValueInputMode.Inline))
+                        {
+                            canBeNoInline = false;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (canBeNoInline)
+                return NoInlineNode;
+
+            if (node.Metadata.HasAllInlineOnly)
+                return HoistedInputNode;
 
             return RegularNode;
         }

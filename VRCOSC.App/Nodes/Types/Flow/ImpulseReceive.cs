@@ -1,106 +1,73 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Threading.Tasks;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
-[Node("Impulse Receive", "Flow/Impulse Receive")]
-public sealed class ImpulseReceiveNode : Node, IImpulseReceiver
+[Node("Impulse Receive", "Flow")]
+public class ImpulseReceiveNode : Node, IImpulseReceiver
 {
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
     public FlowOutput OnCall = new();
+
+    public ValueInput<string> Name = new(modes: ValueInputMode.Inline);
 
     protected override Task Process(IPulseContext c) => OnCall.Execute(c);
 
-    public void WriteOutputs(object[] values, IPulseContext c)
+    public bool CanReceive(string checkName, IPulseContext c)
+    {
+        var name = Name.Read(c);
+        if (string.IsNullOrEmpty(name)) return false;
+
+        return string.Equals(name, checkName, StringComparison.CurrentCulture);
+    }
+
+    public virtual void WriteOutputs(object[] values, IPulseContext c)
     {
     }
 }
 
-[Node("Impulse Receive With Data", "Flow/Impulse Receive")]
-public sealed class ImpulseReceiveNode<T1> : Node, IImpulseReceiver
+public class ImpulseReceiveNode<T1> : ImpulseReceiveNode
 {
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
-    public FlowOutput OnCall = new();
-
     public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
 
-    protected override Task Process(IPulseContext c) => OnCall.Execute(c);
-
-    public void WriteOutputs(object[] values, IPulseContext c)
+    public override void WriteOutputs(object[] values, IPulseContext c)
     {
         First.Write((T1)values[0], c);
     }
 }
 
-[Node("Impulse Receive With Data 2", "Flow/Impulse Receive")]
-public sealed class ImpulseReceiveNode<T1, T2> : Node, IImpulseReceiver
+public class ImpulseReceiveNode<T1, T2> : ImpulseReceiveNode<T1>
 {
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
-    public FlowOutput OnCall = new();
-
-    public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
     public ValueOutput<T2> Second = new(typeof(T2).GetFriendlyName());
 
-    protected override Task Process(IPulseContext c) => OnCall.Execute(c);
-
-    public void WriteOutputs(object[] values, IPulseContext c)
+    public override void WriteOutputs(object[] values, IPulseContext c)
     {
-        First.Write((T1)values[0], c);
+        base.WriteOutputs(values, c);
         Second.Write((T2)values[1], c);
     }
 }
 
-[Node("Impulse Receive With Data 3", "Flow/Impulse Receive")]
-public sealed class ImpulseReceiveNode<T1, T2, T3> : Node, IImpulseReceiver
+public class ImpulseReceiveNode<T1, T2, T3> : ImpulseReceiveNode<T1, T2>
 {
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
-    public FlowOutput OnCall = new();
-
-    public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
-    public ValueOutput<T2> Second = new(typeof(T2).GetFriendlyName());
     public ValueOutput<T3> Third = new(typeof(T3).GetFriendlyName());
 
-    protected override Task Process(IPulseContext c) => OnCall.Execute(c);
-
-    public void WriteOutputs(object[] values, IPulseContext c)
+    public override void WriteOutputs(object[] values, IPulseContext c)
     {
-        First.Write((T1)values[0], c);
-        Second.Write((T2)values[1], c);
+        base.WriteOutputs(values, c);
         Third.Write((T3)values[2], c);
     }
 }
 
-[Node("Impulse Receive With Data 4", "Flow/Impulse Receive")]
-public sealed class ImpulseReceiveNode<T1, T2, T3, T4> : Node, IImpulseReceiver
+public sealed class ImpulseReceiveNode<T1, T2, T3, T4> : ImpulseReceiveNode<T1, T2, T3>
 {
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
-    public FlowOutput OnCall = new();
-
-    public ValueOutput<T1> First = new(typeof(T1).GetFriendlyName());
-    public ValueOutput<T2> Second = new(typeof(T2).GetFriendlyName());
-    public ValueOutput<T3> Third = new(typeof(T3).GetFriendlyName());
     public ValueOutput<T4> Fourth = new(typeof(T4).GetFriendlyName());
 
-    protected override Task Process(IPulseContext c) => OnCall.Execute(c);
-
-    public void WriteOutputs(object[] values, IPulseContext c)
+    public override void WriteOutputs(object[] values, IPulseContext c)
     {
-        First.Write((T1)values[0], c);
-        Second.Write((T2)values[1], c);
-        Third.Write((T3)values[2], c);
+        base.WriteOutputs(values, c);
         Fourth.Write((T4)values[3], c);
     }
 }

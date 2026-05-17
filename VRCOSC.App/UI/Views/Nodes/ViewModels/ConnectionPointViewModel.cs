@@ -113,7 +113,7 @@ public partial class NodeValueInputViewModel : ConnectionPointViewModel
     [ObservableProperty]
     private bool renderInline;
 
-    public NodeValueInputViewModel(IValueInputBase element, int index = 0, bool renderName = true) : base(index, renderName)
+    public NodeValueInputViewModel(IValueInputBase element, int index = 0, bool renderName = true, bool? renderInlineOverride = null) : base(index, renderName)
     {
         Element = element;
         TypeName = element.Metadata.Shared.ValueType.GetFriendlyName();
@@ -121,12 +121,17 @@ public partial class NodeValueInputViewModel : ConnectionPointViewModel
         if (element is IValueInput elementSingle)
         {
             RenderConnection = elementSingle.Modes.HasFlag(ValueInputMode.Connection);
-            RenderInline = elementSingle.Modes.HasFlag(ValueInputMode.Inline) && !element.IsConnected && RenderName;
 
-            element.OnIsConnectedChanged += () =>
+            if (renderInlineOverride is null)
             {
-                RenderInline = elementSingle.Modes.HasFlag(ValueInputMode.Inline) && !element.IsConnected && RenderName;
-            };
+                RenderInline = elementSingle.Modes.HasFlag(ValueInputMode.Inline) && !element.IsConnected;
+
+                element.OnIsConnectedChanged += () => { RenderInline = elementSingle.Modes.HasFlag(ValueInputMode.Inline) && !element.IsConnected; };
+            }
+            else
+            {
+                RenderInline = elementSingle.Modes == ValueInputMode.Inline || renderInlineOverride.Value;
+            }
         }
     }
 }

@@ -64,7 +64,7 @@ public abstract class TryValueComputeAsyncNode<T> : TryActionAsyncNode
 
     protected TryValueComputeAsyncNode(string resultName = "")
     {
-        Result = new ValueOutput<T>(resultName);
+        Result = new ValueOutput<T>(string.IsNullOrEmpty(resultName) ? "Result" : resultName);
     }
 
     protected override async Task<bool> TryActionAsync(IPulseContext c)

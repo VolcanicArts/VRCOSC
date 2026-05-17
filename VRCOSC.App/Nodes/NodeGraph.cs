@@ -59,11 +59,13 @@ public class NodeGraph
             serialiser.Deserialise();
         else
             serialiser.Deserialise(false, importPath);
+
+        Enabled.Subscribe(Serialise);
     }
 
     public void Serialise()
     {
-        Logger.Log("Serialising graph");
+        Logger.Log($"Serialising graph with {Elements.Count} elements", LoggingTarget.Information);
         serialiser.Serialise();
     }
 
@@ -78,6 +80,8 @@ public class NodeGraph
 
     public async Task Stop()
     {
+        if (!Running.Value) return;
+
         await updateTokenSource!.CancelAsync();
         await updateTask!;
 
@@ -146,7 +150,7 @@ public class NodeGraph
         return node;
     }
 
-    public virtual bool RemoveNode(Guid id)
+    public bool RemoveNode(Guid id)
     {
         var nodeResult = GetNode(id);
         if (!nodeResult.IsSuccess) return false;
@@ -170,6 +174,14 @@ public class NodeGraph
         graphChanges.RemovedConnections.AddRange(outputConnections);
         graphChanges.RemovedNodes.Add(node);
         return true;
+    }
+
+    public void RemoveComment(Guid id)
+    {
+        if (Elements.TryRemove(id, out var comment))
+        {
+            graphChanges.RemovedComments.Add((Comment)comment);
+        }
     }
 
     #region Connections
@@ -711,7 +723,7 @@ public class NodeGraph
 
     private async Task processAllTriggerNodes()
     {
-        foreach (var node in Elements.Values.OfType<INode>().Where(node => node.Metadata.Shared.IsAnyTrigger && !node.Metadata.Shared.IsActiveUpdate))
+        foreach (var node in Elements.Values.OfType<INode>().Where(node => node.Metadata.Shared.IsValueInputTrigger && !node.Metadata.Shared.IsActiveUpdate))
         {
             await TriggerTree(node);
         }
@@ -779,8 +791,6 @@ public class NodeGraph
                     {
                         var c = new PulseContext(this);
                         c.Push(node);
-                        // Not needed but just in case a write happens so errors don't throw
-                        c.CreateMemory(node);
                         ((IUpdateNode)node).OnUpdate(c);
                     }
 
@@ -996,11 +1006,10 @@ public class NodeGraph
         for (var slot = 0; slot < metadata.Shared.ValueInputCount; slot++)
         {
             var slotMetadata = slotElements[slot];
-            var size = slotMetadata.Shared.IsList ? slotMetadata.Size : 1;
 
-            for (var slotIndex = 0; slotIndex < size; slotIndex++)
+            for (var index = 0; index < slotMetadata.WorkingSize; index++)
             {
-                var connectionResult = FindConnectionFromValueInput(node.Id, slot, slotIndex);
+                var connectionResult = FindConnectionFromValueInput(node.Id, slot, index);
                 if (!connectionResult.IsSuccess) continue;
 
                 var outputNodeResult = getGraphElement<Node>(connectionResult.Value.OutputId);
@@ -1008,7 +1017,7 @@ public class NodeGraph
 
                 var outputNode = outputNodeResult.Value;
 
-                if (outputNode.Metadata.Shared.IsFlow && !c.HasMemory(outputNode.Id))
+                if (outputNode.Metadata.Shared.IsFlow)
                 {
                     c.CreateMemory(outputNode);
                     continue;
@@ -1040,67 +1049,67 @@ public class NodeGraph
             if (!hasProcessed) return;
         }
 
-        var triggerList = new List<INode>();
-        var pathStack = new Stack<INode>();
+        var pathList = new List<INode[]>();
+        var currPath = new Stack<INode>();
 
-        pathStack.Push(sourceNode);
-        await processNode(sourceNode, c);
+        currPath.Push(sourceNode);
 
-        var metadata = sourceNode.Metadata;
-        var slotElements = metadata.Elements[ConnectionPoint.ValueOutput];
-
-        for (var slot = 0; slot < metadata.Shared.ValueOutputCount; slot++)
+        for (var slot = 0; slot < sourceNode.Metadata.Shared.ValueOutputCount; slot++)
         {
-            var slotMetadata = slotElements[slot];
-            var size = slotMetadata.Shared.IsList ? slotMetadata.Size : 1;
+            var valueOutput = sourceNode.Metadata.Elements[ConnectionPoint.ValueOutput][slot];
 
-            for (var slotIndex = 0; slotIndex < size; slotIndex++)
+            for (var index = 0; index < valueOutput.WorkingSize; index++)
             {
-                await walkForward(triggerList, pathStack, slot, slotIndex, c);
+                await walkForward(pathList, currPath, sourceNode, slot, index);
             }
         }
 
-        foreach (var node in triggerList)
+        // we want to process every non-trigger node before processing the trigger nodes so that
+        // every non-trigger node in the tree only runs once, even if non-trigger node isn't part
+        // of the current path but will be down one of the trigger node's flows
+
+        foreach (var path in pathList)
+        {
+            // traverse backwards as ToArray on a stack reverses the order
+            for (var i = path.Length - 1; i > 0; i--)
+            {
+                var node = path[i];
+                await processNode(node, c);
+            }
+        }
+
+        foreach (var node in pathList.Select(path => path.First()).DistinctBy(node => node.Id))
         {
             await StartFlow(node, c);
         }
     }
 
-    private async Task walkForward(List<INode> triggerList, Stack<INode> pathStack, int outputSlot, int outputSlotIndex, PulseContext c)
+    private async Task walkForward(List<INode[]> triggerStacks, Stack<INode> pathStack, INode currentNode, int outputSlot, int outputIndex)
     {
-        var currentNode = pathStack.Peek();
-        var connections = Connections.Where(con => con is IValueConnection && con.OutputId == currentNode.Id && con.OutputSlot == outputSlot && con.OutputSlotIndex == outputSlotIndex);
+        var connections = Connections.Where(con => con is IValueConnection && con.OutputId == currentNode.Id && con.OutputSlot == outputSlot && con.OutputSlotIndex == outputIndex);
 
         foreach (var connection in connections)
         {
-            var inputNodeResult = getGraphElement<Node>(connection.InputId);
-            Debug.Assert(inputNodeResult.IsSuccess);
-
-            var inputNode = inputNodeResult.Value;
-            var metadata = inputNode.Metadata;
+            var inputNode = (INode)Elements[connection.InputId];
 
             if (pathStack.Contains(inputNode)) continue;
-            if (metadata.Shared.IsFlowInput || metadata.Shared.IsContinuous) continue;
+            if (inputNode.Metadata.Shared.IsFlowInput || inputNode.Metadata.Shared.IsActiveUpdate) continue;
 
-            if (metadata.Shared.IsAnyTrigger && !triggerList.Contains(inputNode))
+            pathStack.Push(inputNode);
+
+            if (inputNode.Metadata.Shared.IsAnyTrigger)
             {
-                triggerList.Add(inputNode);
+                triggerStacks.Add(pathStack.ToArray());
                 continue;
             }
 
-            pathStack.Push(inputNode);
-            await processNode(inputNode, c);
-
-            var slotElements = metadata.Elements[ConnectionPoint.ValueOutput];
-
-            for (var slot = 0; slot < metadata.Shared.ValueOutputCount; slot++)
+            for (var slot = 0; slot < inputNode.Metadata.Shared.ValueOutputCount; slot++)
             {
-                var slotMetadata = slotElements[slot];
-                var size = slotMetadata.Shared.IsList ? slotMetadata.Size : 1;
+                var valueOutput = inputNode.Metadata.Elements[ConnectionPoint.ValueOutput][slot];
 
-                for (var slotIndex = 0; slotIndex < size; slotIndex++)
+                for (var index = 0; index < valueOutput.WorkingSize; index++)
                 {
-                    await walkForward(triggerList, pathStack, slot, slotIndex, c);
+                    await walkForward(triggerStacks, pathStack, inputNode, slot, index);
                 }
             }
 
@@ -1110,13 +1119,12 @@ public class NodeGraph
 
     public async Task TriggerImpulse(ImpulseDefinition definition, IPulseContext c)
     {
-        foreach (var node in Elements.Values.Where(node => node.GetType().IsAssignableTo(typeof(IImpulseReceiver))).Cast<INode>())
+        foreach (var receiveNode in Elements.Values.Where(node => node.GetType().IsAssignableTo(typeof(IImpulseReceiver))).Cast<INode>())
         {
-            var impulseNode = (IImpulseReceiver)node;
+            var receiveNodeAsImpulse = (IImpulseReceiver)receiveNode;
+            if (!receiveNodeAsImpulse.CanReceive(definition.Name, c)) continue;
 
-            //if (!string.Equals(definition.Name, impulseNode.Text, StringComparison.CurrentCulture)) continue;
-
-            var type = node.GetType();
+            var type = receiveNode.GetType();
 
             if (definition.Values.Length == 0 && type.IsGenericType) continue;
 
@@ -1128,9 +1136,9 @@ public class NodeGraph
 
             var newC = new PulseContext((PulseContext)c, this);
 
-            await processNode(node, newC, newNewC =>
+            await processNode(receiveNode, newC, newNewC =>
             {
-                impulseNode.WriteOutputs(definition.Values, newNewC);
+                receiveNodeAsImpulse.WriteOutputs(definition.Values, newNewC);
                 return Task.FromResult(true);
             });
         }
@@ -1148,5 +1156,17 @@ public class NodeGraph
                 return true;
             });
         }
+    }
+
+    public IComment AddComment(Guid? idOverride = null)
+    {
+        var comment = new Comment();
+
+        if (idOverride.HasValue)
+            comment.Id = idOverride.Value;
+
+        Elements.TryAdd(comment.Id, comment);
+        graphChanges.AddedComments.Add(comment);
+        return comment;
     }
 }

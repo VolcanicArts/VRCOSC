@@ -146,7 +146,7 @@ public sealed class PhysboneParameterSourceNode : Node, IContinuousNode
 {
     public int UpdateOffset => -2;
 
-    public ValueInput<string> Name = new();
+    public ValueInput<string> Name = new(modes: ValueInputMode.Inline);
 
     public ValueOutput<bool> Grabbed = new();
     public ValueOutput<bool> Posed = new();
@@ -179,7 +179,7 @@ public sealed class RaycastParameterSourceNode : Node, IContinuousNode
 {
     public int UpdateOffset => -2;
 
-    public ValueInput<string> Name = new();
+    public ValueInput<string> Name = new(modes: ValueInputMode.Inline);
 
     public ValueOutput<bool> Hit = new();
     public ValueOutput<float> Ratio = new();

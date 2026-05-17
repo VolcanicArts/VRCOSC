@@ -124,7 +124,7 @@ public sealed class NodeSharedMetadata : INodeSharedMetadata
 
     public bool IsFlow => IsFlowInput || IsFlowOutput;
     public bool IsValue => IsValueInput || IsValueOutput;
-    public bool IsFlowOutputTrigger => IsFlowOutput && !IsFlowInput && IsValueInput;
+    public bool IsFlowOutputTrigger => IsFlowOutput && !IsFlowInput && !IsValue;
     public bool IsValueInputTrigger => !IsFlow && IsValueInput && !IsValueOutput;
     public bool IsAnyTrigger => IsFlowOutputTrigger || IsValueInputTrigger;
 }
@@ -137,6 +137,8 @@ public interface INodeMetadata
     Dictionary<ConnectionPoint, INodeElementMetadata[]> Elements { get; }
     bool IsSourceNode { get; }
     bool IsDriveNode { get; }
+    bool HasAnyInline { get; }
+    bool HasAllInlineOnly { get; }
 
     INodeElementMetadata ElementMetadataFor(INodeElement element)
     {
@@ -163,4 +165,6 @@ public sealed class NodeMetadata : INodeMetadata
     public required Dictionary<ConnectionPoint, INodeElementMetadata[]> Elements { get; init; }
     public bool IsSourceNode => !Shared.IsFlow && Shared.ValueInputCount == 1 && Shared.ValueOutputCount == 1 && ((IValueInputBase)Elements[ConnectionPoint.ValueInput][0].Instance).Modes == ValueInputMode.Inline;
     public bool IsDriveNode => !Shared.IsFlow && !Shared.IsValueOutput && Shared.ValueInputCount == 2 && ((IValueInputBase)Elements[ConnectionPoint.ValueInput][0].Instance).Modes == ValueInputMode.Inline;
+    public bool HasAnyInline => Shared.IsValueInput && Elements[ConnectionPoint.ValueInput].Any(e => e.Shared.IsInlineable && ((IValueInputBase)e.Instance).Modes.HasFlag(ValueInputMode.Inline));
+    public bool HasAllInlineOnly => Shared.IsValueInput && Elements[ConnectionPoint.ValueInput].All(e => e.Shared.IsInlineable && ((IValueInputBase)e.Instance).Modes == ValueInputMode.Inline);
 }

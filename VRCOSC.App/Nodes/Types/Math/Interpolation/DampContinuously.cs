@@ -17,6 +17,8 @@ public sealed class DampContinuouslyNode<T> : ValueComputeNode<T>, IContinuousNo
     protected override T ComputeValue(IPulseContext c)
     {
         var result = Utils.Interpolation.DampContinuously(Current.Read(c), Target.Read(c), HalfTimeMilli.Read(c) / 2d, 1d / 100d * 1000d);
+        if (T.IsNaN(result)) result = T.Zero;
+
         Current.Write(result, c);
         return result;
     }

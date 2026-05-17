@@ -44,8 +44,8 @@ public abstract class SimpleActionNode(Action action) : ActionNode
 public abstract class TryActionAsyncNode : Node
 {
     public FlowInput FlowInput = new();
-    public FlowOutput OnSuccess = new();
-    public FlowOutput OnFail = new();
+    public FlowOutput OnSuccess = new("On Success");
+    public FlowOutput OnFail = new("On Fail");
 
     protected override async Task Process(IPulseContext c)
     {

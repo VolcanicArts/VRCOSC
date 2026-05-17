@@ -24,6 +24,7 @@ using VRCOSC.App.UI.Views.Nodes.ViewModels;
 using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
 using Xceed.Wpf.AvalonDock.Controls;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MenuItem = System.Windows.Controls.MenuItem;
 using MessageBox = System.Windows.MessageBox;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
@@ -46,7 +47,7 @@ public partial class NodeGraphView
     public NodeGraph Graph { get; }
 
     public ObservableCollection<GraphElementViewModel> GraphElements { get; } = [];
-    public IEnumerable<IGraphVariable> GraphVariablesSource => Graph.GraphVariables.Values;
+    public ObservableCollection<IGraphVariable> GraphVariablesSource { get; } = [];
 
     private bool hasLoaded;
 
@@ -71,6 +72,8 @@ public partial class NodeGraphView
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        if (hasLoaded) return;
+
         nodeCreatorWindowManager = new WindowManager(this);
         variableCreatorWindowManager = new WindowManager(this);
         presetCreatorWindowManager = new WindowManager(this);
@@ -82,7 +85,12 @@ public partial class NodeGraphView
     #region Util
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static T snapToGrid<T>(T value) where T : IFloatingPointIeee754<T> => T.Round(value / (T.CreateChecked(25) / T.CreateChecked(2))) * (T.CreateChecked(25) / T.CreateChecked(2)) - T.CreateChecked(0.5);
+    private static T snapToGrid<T>(T value) where T : IFloatingPointIeee754<T>
+    {
+        var snapDistance = T.CreateChecked(SNAP_DISTANCE);
+        var offset = T.CreateChecked(0.5d);
+        return T.Round((value + offset) / snapDistance) * snapDistance - offset;
+    }
 
     #endregion
 
@@ -94,11 +102,11 @@ public partial class NodeGraphView
 
     private record SelectionCreate(Point Point);
 
-    private record SelectionDrag(Vector Offset);
+    private record SelectionDrag(Vector Offset, Vector OffsetFromGrid);
 
     private record ElementsSelection(GridGraphElementViewModel[] Items);
 
-    private record GroupDrag(Vector Offset, Vector OffsetFromGrid, GroupViewModel GroupVm, IEnumerable<GridGraphElementViewModel> Items, IEnumerable<IConnection> Connections);
+    private record GroupDrag(Vector Offset, Vector OffsetFromGrid, GroupViewModel GroupVm, IEnumerable<GridGraphElementViewModel> Items);
 
     #endregion
 
@@ -108,6 +116,9 @@ public partial class NodeGraphView
     {
         try
         {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
             if (changes.RemovedNodes.Count != 0)
                 GraphElements.RemoveIf(item => item is NodeViewModel vm && changes.RemovedNodes.Contains(vm.Node));
 
@@ -117,62 +128,98 @@ public partial class NodeGraphView
             if (changes.RemovedGroups.Count != 0)
                 GraphElements.RemoveIf(item => item is GroupViewModel vm && changes.RemovedGroups.Contains(vm.Group));
 
+            if (changes.RemovedComments.Count != 0)
+                GraphElements.RemoveIf(item => item is CommentViewModel vm && changes.RemovedComments.Contains(vm.Comment));
+
+            Logger.Log($"Finished removing elements in {stopwatch.Elapsed}", LoggingTarget.Information);
+            stopwatch.Restart();
+
             var addedNodes = new List<NodeViewModel>();
             var addedConnections = new List<ConnectionViewModel>();
             var addedGroups = new List<GroupViewModel>();
+            var addedComments = new List<CommentViewModel>();
 
             var offset = GraphElements.Count;
 
             await Dispatcher.InvokeAsync(() =>
             {
+                GraphVariablesSource.Clear();
+                GraphVariablesSource.AddRange(Graph.GraphVariables.Values.OrderBy(v => v.GetName()).ThenBy(v => v.GetValueType().GetFriendlyName()));
+
                 addedNodes.AddRange(changes.AddedNodes.Select(node => new NodeViewModel((INode)Graph.Elements[node.Id])).ToList());
                 addedConnections.AddRange(changes.AddedConnections.Select(connection => new ConnectionViewModel(connection)).ToList());
                 addedGroups.AddRange(changes.AddedGroups.Select(group => new GroupViewModel(group)).ToList());
+                addedComments.AddRange(changes.AddedComments.Select(comment => new CommentViewModel(comment)).ToList());
                 GraphElements.AddRange(addedNodes);
                 GraphElements.AddRange(addedConnections);
                 GraphElements.AddRange(addedGroups);
+                GraphElements.AddRange(addedComments);
+
+                Logger.Log($"Finished adding elements in {stopwatch.Elapsed}", LoggingTarget.Information);
+                stopwatch.Restart();
             });
 
             await Dispatcher.InvokeAsync(() =>
             {
                 for (var i = 0; i < addedNodes.Count; i++)
                 {
-                    var nodeViewModel = addedNodes[i];
+                    var nodeVm = addedNodes[i];
                     var itemContainer = (FrameworkElement)GraphElementItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + i);
                     var nodeContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
 
-                    nodeViewModel.Control = nodeContainer;
-                    populateNodeViewModel(nodeViewModel);
-                    updateGridGraphElementPosition(nodeViewModel, nodeViewModel.Position);
+                    nodeVm.Control = nodeContainer;
+                    populateNodeViewModel(nodeVm);
+                    updateGridGraphElementPosition(nodeVm, nodeVm.Position);
                 }
+
+                Logger.Log($"Finished populating nodes in {stopwatch.Elapsed}", LoggingTarget.Information);
+                stopwatch.Restart();
 
                 offset += addedNodes.Count;
 
                 for (var i = 0; i < addedConnections.Count; i++)
                 {
-                    var connectionViewModel = addedConnections[i];
+                    var connectionVm = addedConnections[i];
                     var itemContainer = (FrameworkElement)GraphElementItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + i);
                     var connectionContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
 
-                    connectionViewModel.Control = connectionContainer;
-                    updateConnectionViewModelPoints(connectionViewModel);
-                    connectionViewModel.IsVisible = true;
+                    connectionVm.Control = connectionContainer;
+                    updateConnectionViewModelPoints(connectionVm);
+                    connectionVm.IsVisible = true;
                 }
+
+                Logger.Log($"Finished populating connections in {stopwatch.Elapsed}", LoggingTarget.Information);
+                stopwatch.Restart();
 
                 offset += addedConnections.Count;
 
                 for (var i = 0; i < addedGroups.Count; i++)
                 {
-                    var nodeGroupGraphItem = addedGroups[i];
+                    var groupVm = addedGroups[i];
                     var itemContainer = (FrameworkElement)GraphElementItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + i);
                     var groupContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
 
-                    nodeGroupGraphItem.Control = groupContainer;
-                    updateNodeGroupGraphItem(nodeGroupGraphItem);
+                    groupVm.Control = groupContainer;
+                    updateGroupViewModel(groupVm);
                 }
-            }, DispatcherPriority.Render);
 
-            Graph.Serialise();
+                Logger.Log($"Finished populating groups in {stopwatch.Elapsed}", LoggingTarget.Information);
+                stopwatch.Restart();
+
+                offset += addedGroups.Count;
+
+                for (var i = 0; i < addedComments.Count; i++)
+                {
+                    var commentVm = addedComments[i];
+                    var itemContainer = (FrameworkElement)GraphElementItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + i);
+                    var groupContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
+
+                    commentVm.Control = groupContainer;
+                }
+
+                Logger.Log($"Finished populating comments in {stopwatch.Elapsed}", LoggingTarget.Information);
+                stopwatch.Restart();
+            }, DispatcherPriority.Render);
 
             if (!hasLoaded)
             {
@@ -287,9 +334,6 @@ public partial class NodeGraphView
         vm.SnapOffset = new Point(xOffset, yOffset);
     }
 
-    /// <summary>
-    /// Chooses a control to calculate the snap offset from
-    /// </summary>
     private static FrameworkElement getSnappingControl(NodeViewModel vm)
     {
         var metadata = vm.Node.Metadata.Shared;
@@ -307,6 +351,37 @@ public partial class NodeGraphView
     #region GraphControl
 
     private Point lastGraphPointerPos;
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) && e.Key == Key.C)
+        {
+            //executeCopy();
+            e.Handled = true;
+            return;
+        }
+
+        if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) && e.Key == Key.V)
+        {
+            //executePaste().Forget();
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.Space)
+        {
+            centerGraph();
+            e.Handled = true;
+            return;
+        }
+
+        if (e.Key == Key.Delete && elementsSelection is not null)
+        {
+            deleteSelection().Forget();
+            e.Handled = true;
+            return;
+        }
+    }
 
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
@@ -334,9 +409,6 @@ public partial class NodeGraphView
 
     private void handleMouseUpdates(MouseButtonEventArgs e)
     {
-        var mousePos = e.GetPosition(GraphContainer);
-        var snappedMousePos = new Vector2((float)snapToGrid(mousePos.X), (float)snapToGrid(mousePos.Y));
-
         if (e is { ChangedButton: GRAPH_DRAG_BUTTON, ButtonState: MouseButtonState.Pressed } && graphDragMousePos is null)
         {
             graphDragMousePos = e.GetPosition(this);
@@ -372,6 +444,7 @@ public partial class NodeGraphView
         {
             groupDrag = null;
             GraphContainer.ReleaseMouseCapture();
+            Graph.Serialise();
         }
 
         if (e is { ChangedButton: GRAPH_INTERACT_BUTTON, ButtonState: MouseButtonState.Released } && selectionDrag is not null)
@@ -382,7 +455,7 @@ public partial class NodeGraphView
 
         if (e is { ChangedButton: GRAPH_SECONDARY_BUTTON, ButtonState: MouseButtonState.Released } && connectionDrag is not null)
         {
-            var success = createNodeFromDrag(snappedMousePos);
+            var success = createNodeFromDrag();
 
             if (success)
             {
@@ -398,11 +471,33 @@ public partial class NodeGraphView
         var contextMenu = GraphContainer.ContextMenu!;
         contextMenu.Items.Clear();
         contextMenu.Items.Add(GraphContextMenuBuilder.Items.Value);
+
+        var addComment = new MenuItem
+        {
+            Header = "Add Comment",
+        };
+
+        addComment.Click += AddComment_OnClick;
+
+        contextMenu.Items.Add(addComment);
+    }
+
+    private void AddComment_OnClick(object sender, RoutedEventArgs e)
+    {
+        var comment = Graph.AddComment();
+        comment.Position.Value = getSnappedMousePos();
+        Graph.MarkDirty();
     }
 
     #endregion
 
     #region GraphTransform
+
+    private Vector2 getSnappedMousePos()
+    {
+        var mousePos = Mouse.GetPosition(GraphContainer);
+        return new Vector2((float)snapToGrid(mousePos.X), (float)snapToGrid(mousePos.Y));
+    }
 
     private MatrixTransform graphTransform => (MatrixTransform)GraphContainer.RenderTransform!;
 
@@ -418,6 +513,8 @@ public partial class NodeGraphView
 
         var m = Matrix.Identity;
         m.Translate((viewportWidth - graphWidth) * 0.5, (viewportHeight - graphHeight) * 0.5);
+        m.Scale(1d, 1d);
+        ShowDetails.Value = true;
         graphTransform.Matrix = m;
     }
 
@@ -437,13 +534,15 @@ public partial class NodeGraphView
 
     protected override void OnMouseWheel(MouseWheelEventArgs e)
     {
+        GraphContainer.Focus();
+
         var m = graphTransform.Matrix;
 
-        var zoomFactor = Math.Pow(1.1, e.Delta / 120f);
+        var zoomFactor = double.Pow(1.1d, e.Delta / 120d);
         var oldScale = m.M11;
-        var newScale = Math.Clamp(oldScale * zoomFactor, 0.05, 3.0);
+        var newScale = double.Clamp(oldScale * zoomFactor, 0.025d, 5.0d);
         var k = newScale / oldScale;
-        if (Math.Abs(k - 1.0) < 1e-6) return;
+        if (double.Abs(k - 1.0d) < 1e-6d) return;
 
         var pivotLocal = m;
         pivotLocal.Invert();
@@ -475,6 +574,9 @@ public partial class NodeGraphView
         control.CaptureMouse();
         e.Handled = true;
 
+        var index = GraphElements.IndexOf(graphElementViewModel);
+        GraphElements.Move(index, GraphElements.Count - 1);
+
         var offset = e.GetPosition(GraphContainer) - graphElementViewModel.Position;
         draggingGridGraphElement = new ElementOffset(graphElementViewModel, new Point(offset.X, offset.Y));
     }
@@ -486,6 +588,7 @@ public partial class NodeGraphView
         if (e is { ChangedButton: GRAPH_INTERACT_BUTTON, ButtonState: MouseButtonState.Released } && connectionDrag is null)
         {
             var control = (FrameworkElement)sender!;
+            checkForGroupAdditions();
             control.ReleaseMouseCapture();
             e.Handled = true;
             draggingGridGraphElement = null;
@@ -499,6 +602,9 @@ public partial class NodeGraphView
 
         var newPos = e.GetPosition(GraphContainer) - draggingGridGraphElement.Offset;
         updateGridGraphElementPosition(draggingGridGraphElement.ViewModel, new Point(newPos.X, newPos.Y));
+
+        if (draggingGridGraphElement.ViewModel is NodeViewModel nodeVm)
+            updateGroupOfNode(nodeVm);
     }
 
     private void updateGridGraphElementPosition(GridGraphElementViewModel vm, Point position)
@@ -522,7 +628,34 @@ public partial class NodeGraphView
 
     private NodeViewModel getNodeViewModel(INode node) => GraphElements.OfType<NodeViewModel>().Single(vm => vm.Node == node);
 
-    private void updateNodeGroupGraphItem(GroupViewModel groupVm)
+    private void checkForGroupAdditions()
+    {
+        if (draggingGridGraphElement is null) return;
+
+        if (draggingGridGraphElement.ViewModel is not NodeViewModel nodeVm) return;
+
+        if (Graph.Groups.Values.Any(nodeGroup => nodeGroup.Nodes.Contains(nodeVm.Node.Id))) return;
+
+        GroupViewModel? groupToUpdate = null;
+
+        foreach (var groupItem in GraphElements.OfType<GroupViewModel>())
+        {
+            var mousePos = Mouse.GetPosition(GraphContainer);
+            var bounds = new Rect(groupItem.Position.X, groupItem.Position.Y, groupItem.Width, groupItem.Height);
+
+            if (!bounds.Contains(mousePos)) continue;
+
+            groupToUpdate = groupItem;
+        }
+
+        if (groupToUpdate is not null)
+        {
+            groupToUpdate.Group.Nodes.Add(nodeVm.Node.Id);
+            updateGroupViewModel(groupToUpdate);
+        }
+    }
+
+    private void updateGroupViewModel(GroupViewModel groupVm)
     {
         var nodeGraphItems = GraphElements.OfType<NodeViewModel>().Where(nodeGraphItem => groupVm.Group.Nodes.Contains(nodeGraphItem.Node.Id)).ToList();
 
@@ -559,27 +692,60 @@ public partial class NodeGraphView
         if (groupDrag is null) return;
 
         var mousePos = Mouse.GetPosition(GraphContainer);
-        var currPos = new Point(groupDrag.GroupVm.Position.X, groupDrag.GroupVm.Position.Y) - groupDrag.OffsetFromGrid;
-        var newPos = mousePos - groupDrag.Offset - groupDrag.OffsetFromGrid;
-        var groupVm = groupDrag.GroupVm;
 
-        newPos.X = snapToGrid(double.Clamp(newPos.X, 0, GraphContainer.ActualWidth - groupVm.Control.ActualWidth));
-        newPos.Y = snapToGrid(double.Clamp(newPos.Y, 0, GraphContainer.ActualHeight - groupVm.Control.ActualHeight));
+        var rawGroupPos = new Point(
+            mousePos.X - groupDrag.Offset.X,
+            mousePos.Y - groupDrag.Offset.Y
+        );
 
-        var delta = new Vector(newPos.X - currPos.X, newPos.Y - currPos.Y);
+        var clampedGroupPos = new Point(
+            double.Clamp(rawGroupPos.X, 0, GraphContainer.ActualWidth - groupDrag.GroupVm.Width),
+            double.Clamp(rawGroupPos.Y, 0, GraphContainer.ActualHeight - groupDrag.GroupVm.Height)
+        );
 
-        var positionChanged = double.Abs(delta.X) >= SNAP_DISTANCE || double.Abs(delta.Y) >= SNAP_DISTANCE;
-        if (!positionChanged) return;
+        var rawDesiredPos = new Point(
+            clampedGroupPos.X - groupDrag.OffsetFromGrid.X,
+            clampedGroupPos.Y - groupDrag.OffsetFromGrid.Y
+        );
+
+        var snappedDesiredPos = new Point(
+            snapToGrid(rawDesiredPos.X),
+            snapToGrid(rawDesiredPos.Y)
+        );
+
+        var currentGroupPos = groupDrag.GroupVm.Position;
+
+        var compensatedCurrentPos = new Point(
+            currentGroupPos.X - groupDrag.OffsetFromGrid.X,
+            currentGroupPos.Y - groupDrag.OffsetFromGrid.Y
+        );
+
+        var snappedCurrentPos = new Point(
+            snapToGrid(compensatedCurrentPos.X),
+            snapToGrid(compensatedCurrentPos.Y)
+        );
+
+        if (double.Abs(snappedDesiredPos.X - snappedCurrentPos.X) < 0.01 &&
+            double.Abs(snappedDesiredPos.Y - snappedCurrentPos.Y) < 0.01)
+            return;
+
+        var delta = new Vector(
+            snappedDesiredPos.X - snappedCurrentPos.X,
+            snappedDesiredPos.Y - snappedCurrentPos.Y
+        );
 
         foreach (var graphItem in groupDrag.Items)
         {
-            graphItem.Position = new Point(graphItem.Position.X + delta.X, graphItem.Position.Y + delta.Y);
+            graphItem.SetPosition(new Point(
+                graphItem.Position.X + delta.X,
+                graphItem.Position.Y + delta.Y
+            ));
 
             if (graphItem is NodeViewModel nodeVm)
                 updateNodeViewModelConnections(nodeVm);
         }
 
-        groupVm.SetPosition(newPos + groupDrag.OffsetFromGrid);
+        updateGroupViewModel(groupDrag.GroupVm);
     }
 
     #region Connections
@@ -657,12 +823,13 @@ public partial class NodeGraphView
 
     private ConnectionDrag? connectionDrag;
 
-    private bool createNodeFromDrag(Vector2 position)
+    private bool createNodeFromDrag()
     {
         Debug.Assert(connectionDrag is not null);
 
         var element = connectionDrag.Element;
         var slotIndex = connectionDrag.SlotIndex;
+        var position = getSnappedMousePos();
 
         var isFlowInput = element.GetType().IsAssignableTo(typeof(IFlowInputBase));
         var isFlowOutput = element.GetType().IsAssignableTo(typeof(IFlowOutputBase));
@@ -683,7 +850,7 @@ public partial class NodeGraphView
             return true;
         }
 
-        if (isValueInput && NodeConstants.INPUT_TYPES.Any(type => element.Metadata.Shared.ValueType.IsAssignableTo(type)))
+        if (isValueInput && NodeConstants.INPUT_TYPES.Any(type => (Nullable.GetUnderlyingType(element.Metadata.Shared.ValueType) ?? element.Metadata.Shared.ValueType).IsAssignableTo(type)))
         {
             var nodeType = typeof(ValueNode<>).MakeGenericType(element.Metadata.Shared.ValueType);
             var nodeResult = Graph.AddNode(nodeType);
@@ -851,6 +1018,14 @@ public partial class NodeGraphView
         curve.Point3 = endPoint;
     }
 
+    private void updateGroupOfNode(NodeViewModel nodeVm)
+    {
+        var group = Graph.Groups.Values.SingleOrDefault(group => group.Nodes.Contains(nodeVm.Node.Id));
+
+        if (group is not null)
+            updateGroupViewModel(GraphElements.OfType<GroupViewModel>().Single(groupVm => groupVm.Group.Id == group.Id));
+    }
+
     #endregion
 
     private void GraphContextMenu_NodeEntry_OnClick(object? sender, RoutedEventArgs e)
@@ -972,14 +1147,25 @@ public partial class NodeGraphView
         _ = Graph.TriggerTree(vm.Node);
     }
 
-    private void NodeContextMenu_DeleteClick(object? sender, RoutedEventArgs e)
+    private void ElementContextMenu_DeleteClick(object? sender, RoutedEventArgs e)
     {
         var control = (FrameworkElement)sender!;
-        var vm = (NodeViewModel)control.Tag!;
+        var vm = (GridGraphElementViewModel)control.Tag!;
 
         e.Handled = true;
-        Graph.RemoveNode(vm.Node.Id);
-        Graph.MarkDirty();
+
+        if (vm is NodeViewModel nodeVm)
+        {
+            Graph.RemoveNode(nodeVm.Node.Id);
+            Graph.MarkDirty();
+            updateGroupOfNode(nodeVm);
+        }
+
+        if (vm is CommentViewModel commentVm)
+        {
+            Graph.RemoveComment(commentVm.Comment.Id);
+            Graph.MarkDirty();
+        }
     }
 
     private void updateSelectionCreate()
@@ -1010,19 +1196,50 @@ public partial class NodeGraphView
 
         var mousePos = Mouse.GetPosition(GraphContainer);
         var transform = (TranslateTransform)SelectionVisual.RenderTransform;
-        var currPos = new Point(transform.X, transform.Y);
-        var newPos = mousePos - selectionDrag.Offset;
 
-        newPos.X = snapToGrid(double.Clamp(newPos.X, 0, GraphContainer.ActualWidth - SelectionVisual.ActualWidth));
-        newPos.Y = snapToGrid(double.Clamp(newPos.Y, 0, GraphContainer.ActualHeight - SelectionVisual.ActualHeight));
+        var rawSelectionPos = new Point(
+            mousePos.X - selectionDrag.Offset.X,
+            mousePos.Y - selectionDrag.Offset.Y
+        );
 
-        var delta = new Point(newPos.X - currPos.X, newPos.Y - currPos.Y);
+        var clampedSelectionPos = new Point(
+            double.Clamp(rawSelectionPos.X, 0, GraphContainer.ActualWidth - SelectionVisual.ActualWidth),
+            double.Clamp(rawSelectionPos.Y, 0, GraphContainer.ActualHeight - SelectionVisual.ActualHeight)
+        );
 
-        var positionChanged = double.Abs(delta.X) >= SNAP_DISTANCE || double.Abs(delta.Y) >= SNAP_DISTANCE;
-        if (!positionChanged) return;
+        var rawDesiredPos = new Point(
+            clampedSelectionPos.X - selectionDrag.OffsetFromGrid.X,
+            clampedSelectionPos.Y - selectionDrag.OffsetFromGrid.Y
+        );
 
-        transform.X = newPos.X;
-        transform.Y = newPos.Y;
+        var snappedDesiredPos = new Point(
+            snapToGrid(rawDesiredPos.X),
+            snapToGrid(rawDesiredPos.Y)
+        );
+
+        var currentSelectionPos = new Point(transform.X, transform.Y);
+
+        var compensatedCurrentPos = new Point(
+            currentSelectionPos.X - selectionDrag.OffsetFromGrid.X,
+            currentSelectionPos.Y - selectionDrag.OffsetFromGrid.Y
+        );
+
+        var snappedCurrentPos = new Point(
+            snapToGrid(compensatedCurrentPos.X),
+            snapToGrid(compensatedCurrentPos.Y)
+        );
+
+        if (double.Abs(snappedDesiredPos.X - snappedCurrentPos.X) < 0.01 &&
+            double.Abs(snappedDesiredPos.Y - snappedCurrentPos.Y) < 0.01)
+            return;
+
+        var delta = new Point(
+            snappedDesiredPos.X - snappedCurrentPos.X,
+            snappedDesiredPos.Y - snappedCurrentPos.Y
+        );
+
+        transform.X = currentSelectionPos.X + delta.X;
+        transform.Y = currentSelectionPos.Y + delta.Y;
 
         foreach (var item in elementsSelection.Items)
         {
@@ -1032,14 +1249,8 @@ public partial class NodeGraphView
 
         foreach (var groupVm in GraphElements.OfType<GroupViewModel>().ToList())
         {
-            updateNodeGroupGraphItem(groupVm);
+            updateGroupViewModel(groupVm);
         }
-    }
-
-    private void deselectGraphItems()
-    {
-        elementsSelection = null;
-        SelectionVisual.Visibility = Visibility.Collapsed;
     }
 
     private void shrinkWrapSelection()
@@ -1091,6 +1302,12 @@ public partial class NodeGraphView
         SelectionVisual.Visibility = Visibility.Visible;
     }
 
+    private void deselectGraphItems()
+    {
+        elementsSelection = null;
+        SelectionVisual.Visibility = Visibility.Collapsed;
+    }
+
     private void GroupContainer_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
         if (Keyboard.IsKeyDown(Key.LeftCtrl))
@@ -1119,9 +1336,6 @@ public partial class NodeGraphView
                                        .Where(nodeGraphItem => groupVm.Group.Nodes.Contains(nodeGraphItem.Node.Id))
                                        .ToList();
 
-            var connections = nodeVms.SelectMany(nodeVm => Graph.Connections.Where(c => c.InputId == nodeVm.Node.Id || c.OutputId == nodeVm.Node.Id))
-                                     .Distinct();
-
             var offsetFromGrid = new Vector(groupPos.X % SNAP_DISTANCE, groupPos.Y % SNAP_DISTANCE);
 
             var groupGraphItemIndex = GraphElements.IndexOf(groupVm);
@@ -1133,7 +1347,7 @@ public partial class NodeGraphView
                 GraphElements.Move(index, GraphElements.Count - 1);
             }
 
-            groupDrag = new GroupDrag(offset, offsetFromGrid, groupVm, nodeVms, connections);
+            groupDrag = new GroupDrag(offset, offsetFromGrid, groupVm, nodeVms);
             GraphContainer.CaptureMouse();
 
             deselectGraphItems();
@@ -1152,8 +1366,9 @@ public partial class NodeGraphView
             var mousePos = Mouse.GetPosition(GraphContainer);
             var selectionPos = new Point(position.X, position.Y);
             var offset = mousePos - selectionPos;
+            var offsetFromGrid = new Vector(selectionPos.X % SNAP_DISTANCE, selectionPos.Y % SNAP_DISTANCE);
 
-            selectionDrag = new SelectionDrag(offset);
+            selectionDrag = new SelectionDrag(offset, offsetFromGrid);
             GraphContainer.CaptureMouse();
         }
     }
@@ -1312,7 +1527,7 @@ public partial class NodeGraphView
 
         foreach (var nodeGroupGraphItem in groupsToUpdate)
         {
-            updateNodeGroupGraphItem(nodeGroupGraphItem);
+            updateGroupViewModel(nodeGroupGraphItem);
         }
 
         deselectGraphItems();

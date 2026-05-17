@@ -6,7 +6,7 @@ using System.Numerics;
 namespace VRCOSC.App.Nodes.Types.Math.Map;
 
 [Node("Remap", "Math/Map")]
-public sealed class RemapNode<TFrom, TTo> : ValueComputeNode<TTo> where TFrom : INumberBase<TFrom> where TTo : INumberBase<TTo>
+public class RemapNode<TFrom, TTo> : ValueComputeNode<TTo> where TFrom : INumberBase<TFrom> where TTo : INumberBase<TTo>
 {
     public ValueInput<TFrom> Value = new();
     public ValueInput<TFrom> FromMin = new();
@@ -16,6 +16,8 @@ public sealed class RemapNode<TFrom, TTo> : ValueComputeNode<TTo> where TFrom : 
 
     protected override TTo ComputeValue(IPulseContext c) => Utils.Interpolation.Map(Value.Read(c), FromMin.Read(c), FromMax.Read(c), ToMin.Read(c), ToMax.Read(c));
 }
+
+public sealed class RemapNode<T> : RemapNode<T, T> where T : INumberBase<T>;
 
 [Node("Remap 0,1 To -1,1", "Math/Map")]
 [NodeCollapsed]

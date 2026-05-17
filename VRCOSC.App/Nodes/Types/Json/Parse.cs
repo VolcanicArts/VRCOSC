@@ -11,7 +11,7 @@ namespace VRCOSC.App.Nodes.Types.Json;
 [NodeGenerics(typeof(JsonObject), typeof(JsonArray))]
 public class ParseJsonNode<T>() : TryValueComputeNode<T>(typeof(T).GetFriendlyName()) where T : class
 {
-    public ValueInput<string> String = new();
+    public ValueInput<string> String = new(modes: ValueInputMode.Connection);
     public ValueInput<JsonSerializerOptions> Options = new();
 
     protected override Result<T> TryComputeValue(IPulseContext c)

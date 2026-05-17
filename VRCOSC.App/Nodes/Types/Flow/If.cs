@@ -9,8 +9,8 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 public sealed class IfNode : Node
 {
     public FlowInput FlowInput = new();
-    public FlowOutput OnTrue = new();
-    public FlowOutput OnFalse = new();
+    public FlowOutput OnTrue = new("On True");
+    public FlowOutput OnFalse = new("On False");
 
     public ValueInput<bool> Condition = new();
 

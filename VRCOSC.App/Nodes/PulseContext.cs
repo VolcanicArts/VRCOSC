@@ -164,13 +164,13 @@ public class PulseContext : IPulseContext
 
     public T Read<T>(IValueInput<T> valueInput)
     {
-        Debug.Assert(valueInput.IsConnected);
+        if (valueInput.Modes == ValueInputMode.Inline) return valueInput.Field;
 
         var current = Peek();
         var slot = valueInput.Metadata.Shared.Slot;
 
         var connectionResult = Graph.FindConnectionFromValueInput(current.Id, slot, 0);
-        Debug.Assert(connectionResult.IsSuccess);
+        if (!connectionResult.IsSuccess) return valueInput.Field;
 
         var connection = connectionResult.Value;
         var result = tryReadValue<T>(connection.OutputId, connection.OutputSlot, connection.OutputSlotIndex, out var value);

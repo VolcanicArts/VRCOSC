@@ -3,10 +3,10 @@
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
-[Node("Relay", "Utility")]
+[Node("Relay", "Utility/Relay")]
 public sealed class RelayNode<T>() : SimpleValueTransformNode<T>(v => v);
 
-[Node("Update Relay", "Utility")]
+[Node("Update Relay", "Utility/Relay")]
 [NodeCollapsed]
 public sealed class UpdateRelayNode<T>() : SimpleValueTransformNode<T>(v => v), IContinuousNode
 {

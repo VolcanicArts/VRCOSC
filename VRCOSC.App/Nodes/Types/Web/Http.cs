@@ -38,6 +38,8 @@ public abstract class HttpNode(HttpMethod method) : TryActionAsyncNode
             using var request = new HttpRequestMessage(method, new Uri(url));
             await ModifyRequest(request, c);
 
+            request.Headers.Add("User-Agent", AppManager.APP_NAME);
+
             foreach (var header in headers)
                 request.Headers.Add(header.Key, header.Value);
 

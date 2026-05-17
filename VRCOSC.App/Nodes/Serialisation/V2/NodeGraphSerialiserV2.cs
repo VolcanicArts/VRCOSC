@@ -128,6 +128,8 @@ public class NodeGraphSerialiserV2 : ProfiledSerialiser<NodeGraph, SerialisableN
 
             try
             {
+                // TODO: Check that the input is not inline only
+
                 if (sC.Type == "f")
                 {
                     var outputElement = outputNode.Metadata.ElementInstancesFor(ConnectionPoint.FlowOutput)[sC.OutputSlot];
@@ -161,6 +163,20 @@ public class NodeGraphSerialiserV2 : ProfiledSerialiser<NodeGraph, SerialisableN
             catch (Exception e)
             {
                 Logger.Error(e, "Error creating a group when deserialising");
+            }
+        }
+
+        foreach (var sC in data.Comments)
+        {
+            try
+            {
+                var comment = Reference.AddComment(sC.Id);
+                comment.Position.Value = sC.Position;
+                comment.Text.Value = sC.Text;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Error creating a comment when deserialising");
             }
         }
 

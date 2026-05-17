@@ -3,7 +3,7 @@
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
-[Node("Write Context Store", "Flow/Stores")]
+[Node("Write Context Store", "Utility/Stores")]
 public sealed class ContextStoreWriteNode<T> : ActionNode
 {
     public ValueInput<string> Name = new(modes: ValueInputMode.Inline);
@@ -18,7 +18,7 @@ public sealed class ContextStoreWriteNode<T> : ActionNode
     }
 }
 
-[Node("Context Store Source", "Flow/Stores")]
+[Node("Context Store Source", "Utility/Stores")]
 public sealed class ContextStoreSourceNode<T> : ValueComputeNode<T>
 {
     public ValueInput<string> Name = new(modes: ValueInputMode.Inline);

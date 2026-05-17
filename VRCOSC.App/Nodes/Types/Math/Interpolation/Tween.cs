@@ -11,8 +11,8 @@ namespace VRCOSC.App.Nodes.Types.Math.Interpolation;
 public sealed class TweenNode<T> : Node where T : INumber<T>
 {
     public FlowInput FlowInput = new();
-    public FlowOutput OnUpdate = new(scope: true);
-    public FlowOutput OnFinished = new();
+    public FlowOutput OnUpdate = new("On Update", scope: true);
+    public FlowOutput OnFinished = new("On Finished");
 
     public ValueInput<T> From = new();
     public ValueInput<T> To = new();

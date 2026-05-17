@@ -37,6 +37,9 @@ public class SerialisableNodeGraphV2 : SerialisableVersion
     [JsonProperty("variables")]
     public List<SerialisableGraphVariableV2> Variables { get; set; } = [];
 
+    [JsonProperty("comments")]
+    public List<SerialisableComment> Comments { get; set; } = [];
+
     [JsonConstructor]
     public SerialisableNodeGraphV2()
     {
@@ -53,6 +56,7 @@ public class SerialisableNodeGraphV2 : SerialisableVersion
         Connections = nodeGraph.Connections.Select(connection => new SerialisableConnectionV2(connection)).ToList();
         Groups = nodeGraph.Groups.Values.Select(group => new SerialisableNodeGroupV2(group)).ToList();
         Variables = nodeGraph.GraphVariables.Values.Select(variable => new SerialisableGraphVariableV2(variable)).ToList();
+        Comments = nodeGraph.Elements.Values.OfType<Comment>().Select(comment => new SerialisableComment(comment)).ToList();
     }
 }
 
@@ -213,7 +217,7 @@ public class SerialisableGraphVariableV2
     public string Type { get; set; } = string.Empty;
 
     [JsonProperty("value")]
-    public object Value { get; set; } = null!;
+    public object? Value { get; set; }
 
     [JsonConstructor]
     public SerialisableGraphVariableV2()
@@ -229,5 +233,29 @@ public class SerialisableGraphVariableV2
 
         if (Persistent)
             Value = variable.GetValue();
+    }
+}
+
+public class SerialisableComment
+{
+    [JsonProperty("id")]
+    public Guid Id { get; set; }
+
+    [JsonProperty("position")]
+    public Vector2 Position { get; set; }
+
+    [JsonProperty("text")]
+    public string Text { get; set; } = string.Empty;
+
+    [JsonConstructor]
+    public SerialisableComment()
+    {
+    }
+
+    public SerialisableComment(IComment comment)
+    {
+        Id = comment.Id;
+        Position = comment.Position.Value;
+        Text = comment.Text.Value;
     }
 }
