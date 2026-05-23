@@ -32,9 +32,10 @@ public static class NodeConstants
     public static readonly Type[] INPUT_TYPES = new[]
     {
         typeof(bool),
-        typeof(Enum),
         typeof(Keybind),
         typeof(DateTime),
         typeof(TimeSpan)
     }.Concat(TEXTBOX_TYPES).ToArray();
+
+    public static bool IsInputType(Type type) => INPUT_TYPES.Contains(type) || type.IsEnum;
 }

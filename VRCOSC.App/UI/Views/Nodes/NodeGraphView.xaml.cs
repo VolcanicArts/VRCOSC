@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using VRCOSC.App.Nodes;
 using VRCOSC.App.Nodes.Metadata;
+using VRCOSC.App.Nodes.Serialisation.V2;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Inputs;
 using VRCOSC.App.Nodes.Types.Utility;
@@ -148,16 +149,22 @@ public partial class NodeGraphView
 
                 addedNodes.AddRange(changes.AddedNodes.Select(node => new NodeViewModel((INode)Graph.Elements[node.Id])).ToList());
                 addedConnections.AddRange(changes.AddedConnections.Select(connection => new ConnectionViewModel(connection)).ToList());
-                addedGroups.AddRange(changes.AddedGroups.Select(group => new GroupViewModel(group)).ToList());
                 addedComments.AddRange(changes.AddedComments.Select(comment => new CommentViewModel(comment)).ToList());
+                addedGroups.AddRange(changes.AddedGroups.Select(group => new GroupViewModel(group)).ToList());
+
                 GraphElements.AddRange(addedNodes);
                 GraphElements.AddRange(addedConnections);
-                GraphElements.AddRange(addedGroups);
                 GraphElements.AddRange(addedComments);
+                GraphElements.AddRange(addedGroups);
 
                 Logger.Log($"Finished adding elements in {stopwatch.Elapsed}", LoggingTarget.Information);
                 stopwatch.Restart();
             });
+
+            await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Loaded);
+
+            Logger.Log($"Finished wait for load in {stopwatch.Elapsed}", LoggingTarget.Information);
+            stopwatch.Restart();
 
             await Dispatcher.InvokeAsync(() =>
             {
@@ -193,6 +200,21 @@ public partial class NodeGraphView
 
                 offset += addedConnections.Count;
 
+                for (var i = 0; i < addedComments.Count; i++)
+                {
+                    var commentVm = addedComments[i];
+                    var itemContainer = (FrameworkElement)GraphElementItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + i);
+                    var commentContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
+
+                    commentVm.Control = commentContainer;
+                    updateCommentSnap(commentVm);
+                }
+
+                Logger.Log($"Finished populating comments in {stopwatch.Elapsed}", LoggingTarget.Information);
+                stopwatch.Restart();
+
+                offset += addedComments.Count;
+
                 for (var i = 0; i < addedGroups.Count; i++)
                 {
                     var groupVm = addedGroups[i];
@@ -200,26 +222,17 @@ public partial class NodeGraphView
                     var groupContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
 
                     groupVm.Control = groupContainer;
+                    updateGroupViewModel(groupVm, false);
+                }
+
+                foreach (var groupVm in addedGroups)
+                {
                     updateGroupViewModel(groupVm);
                 }
 
                 Logger.Log($"Finished populating groups in {stopwatch.Elapsed}", LoggingTarget.Information);
                 stopwatch.Restart();
-
-                offset += addedGroups.Count;
-
-                for (var i = 0; i < addedComments.Count; i++)
-                {
-                    var commentVm = addedComments[i];
-                    var itemContainer = (FrameworkElement)GraphElementItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + i);
-                    var groupContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
-
-                    commentVm.Control = groupContainer;
-                }
-
-                Logger.Log($"Finished populating comments in {stopwatch.Elapsed}", LoggingTarget.Information);
-                stopwatch.Restart();
-            }, DispatcherPriority.Render);
+            }, DispatcherPriority.Background);
 
             if (!hasLoaded)
             {
@@ -356,14 +369,14 @@ public partial class NodeGraphView
     {
         if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) && e.Key == Key.C)
         {
-            //executeCopy();
+            executeCopy();
             e.Handled = true;
             return;
         }
 
         if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) && e.Key == Key.V)
         {
-            //executePaste().Forget();
+            executePaste().Forget();
             e.Handled = true;
             return;
         }
@@ -375,12 +388,60 @@ public partial class NodeGraphView
             return;
         }
 
-        if (e.Key == Key.Delete && elementsSelection is not null)
+        if (e.Key == Key.Delete)
         {
-            deleteSelection().Forget();
-            e.Handled = true;
+            if (elementsSelection is not null)
+            {
+                deleteSelection().Forget();
+                e.Handled = true;
+            }
+
             return;
         }
+    }
+
+    private NodePreset? copyPasteHolder;
+
+    private void executeCopy()
+    {
+        if (elementsSelection is null) return;
+
+        var position = (TranslateTransform)SelectionVisual.RenderTransform;
+
+        var nodeVms = elementsSelection.Items.OfType<NodeViewModel>().ToList();
+        var nodeIds = nodeVms.Select(vm => vm.Node.Id).ToList();
+
+        copyPasteHolder = new NodePreset
+        {
+            Structure =
+            {
+                Nodes = nodeVms.Select(nodeVm => new SerialisableNode((Node)nodeVm.Node)).ToList(),
+                Connections = Graph.Connections.Where(c => nodeIds.Contains(c.OutputId) && nodeIds.Contains(c.InputId)).Select(c => new SerialisableConnection(c)).ToList(),
+                Groups = Graph.Groups.Values.Where(g => g.Nodes.All(nodeId => nodeVms.Select(item => item.Node.Id).Contains(nodeId))).Select(group => new SerialisableNodeGroup(group)).ToList(),
+                Comments = elementsSelection.Items.OfType<CommentViewModel>().Select(commentVm => new SerialisableComment(commentVm.Comment)).ToList()
+            }
+        };
+
+        foreach (var node in copyPasteHolder.Structure.Nodes)
+        {
+            node.Position = new Vector2(node.Position.X - (float)position.X, node.Position.Y - (float)position.Y);
+        }
+
+        foreach (var comment in copyPasteHolder.Structure.Comments)
+        {
+            comment.Position = new Vector2(comment.Position.X - (float)position.X, comment.Position.Y - (float)position.Y);
+        }
+    }
+
+    private async Task executePaste()
+    {
+        if (copyPasteHolder is null) return;
+
+        var offset = getSnappedMousePos();
+        Logger.Log($"Pasting at {offset}", LoggingTarget.Information);
+        var newNodes = copyPasteHolder.SpawnTo(Graph, offset);
+        await Graph.MarkDirtyAsync();
+        shrinkWrapSelection(newNodes);
     }
 
     protected override void OnMouseDown(MouseButtonEventArgs e)
@@ -451,6 +512,7 @@ public partial class NodeGraphView
         {
             selectionDrag = null;
             GraphContainer.ReleaseMouseCapture();
+            Graph.Serialise();
         }
 
         if (e is { ChangedButton: GRAPH_SECONDARY_BUTTON, ButtonState: MouseButtonState.Released } && connectionDrag is not null)
@@ -487,6 +549,12 @@ public partial class NodeGraphView
         var comment = Graph.AddComment();
         comment.Position.Value = getSnappedMousePos();
         Graph.MarkDirty();
+    }
+
+    private void updateCommentSnap(CommentViewModel vm)
+    {
+        vm.SnapOffset = new Point(vm.Control.ActualWidth / 2d, 0d);
+        vm.SetPosition(new Point(snapToGrid(vm.Position.X + vm.SnapOffset.X) - vm.SnapOffset.X, snapToGrid(vm.Position.Y + vm.SnapOffset.Y) - vm.SnapOffset.Y));
     }
 
     #endregion
@@ -655,20 +723,23 @@ public partial class NodeGraphView
         }
     }
 
-    private void updateGroupViewModel(GroupViewModel groupVm)
+    private void updateGroupViewModel(GroupViewModel groupVm, bool updateIndexes = true)
     {
-        var nodeGraphItems = GraphElements.OfType<NodeViewModel>().Where(nodeGraphItem => groupVm.Group.Nodes.Contains(nodeGraphItem.Node.Id)).ToList();
+        var nodeVms = GraphElements.OfType<NodeViewModel>().Where(nodeVm => groupVm.Group.Nodes.Contains(nodeVm.Node.Id)).ToList();
 
-        foreach (var nodeGraphItem in nodeGraphItems)
+        if (updateIndexes)
         {
-            var index = GraphElements.IndexOf(nodeGraphItem);
-            GraphElements.Move(index, GraphElements.Count - 1);
+            foreach (var nodeGraphItem in nodeVms)
+            {
+                var index = GraphElements.IndexOf(nodeGraphItem);
+                GraphElements.Move(index, GraphElements.Count - 1);
+            }
         }
 
         var topLeft = new Point(GraphContainer.ActualWidth, GraphContainer.ActualHeight);
         var bottomRight = new Point(0, 0);
 
-        foreach (var nodeGraphItem in nodeGraphItems)
+        foreach (var nodeGraphItem in nodeVms)
         {
             topLeft.X = Math.Min(topLeft.X, nodeGraphItem.Position.X - GroupPadding.Left);
             topLeft.Y = Math.Min(topLeft.Y, nodeGraphItem.Position.Y - GroupPadding.Top);
@@ -1138,7 +1209,7 @@ public partial class NodeGraphView
         _ = Graph.MarkDirty();
     }
 
-    private void CallNode_OnClick(object sender, RoutedEventArgs e)
+    private void ButtonNode_OnClick(object sender, RoutedEventArgs e)
     {
         var control = (FrameworkElement)sender!;
         var vm = (NodeViewModel)control.Tag!;
@@ -1253,7 +1324,7 @@ public partial class NodeGraphView
         }
     }
 
-    private void shrinkWrapSelection()
+    private void shrinkWrapSelection(IEnumerable<Guid>? forceElements = null)
     {
         var bounds = new Rect(0, 0, SelectionVisual.ActualWidth, SelectionVisual.ActualHeight);
 
@@ -1265,18 +1336,32 @@ public partial class NodeGraphView
         foreach (var graphItem in GraphElements.OfType<GridGraphElementViewModel>())
         {
             var element = graphItem.Control;
+            var position = graphItem.Position;
             var startPoint = element.TranslatePoint(new Point(0, 0), SelectionVisual);
             var endPoint = element.TranslatePoint(new Point(element.ActualWidth, element.ActualHeight), SelectionVisual);
 
-            var nodeContainerPosition = (TranslateTransform)element.RenderTransform;
-
-            if (bounds.Contains(startPoint) && bounds.Contains(endPoint))
+            if (forceElements is null)
             {
-                topLeft.X = Math.Min(topLeft.X, nodeContainerPosition.X);
-                topLeft.Y = Math.Min(topLeft.Y, nodeContainerPosition.Y);
-                bottomRight.X = Math.Max(bottomRight.X, nodeContainerPosition.X + element.ActualWidth);
-                bottomRight.Y = Math.Max(bottomRight.Y, nodeContainerPosition.Y + element.ActualHeight);
-                elements.Add(graphItem);
+                if (bounds.Contains(startPoint) && bounds.Contains(endPoint))
+                {
+                    topLeft.X = Math.Min(topLeft.X, position.X);
+                    topLeft.Y = Math.Min(topLeft.Y, position.Y);
+                    bottomRight.X = Math.Max(bottomRight.X, position.X + element.ActualWidth);
+                    bottomRight.Y = Math.Max(bottomRight.Y, position.Y + element.ActualHeight);
+                    elements.Add(graphItem);
+                }
+            }
+            else
+            {
+                if (graphItem is NodeViewModel nodeVm && forceElements.Contains(nodeVm.Node.Id)
+                    || graphItem is CommentViewModel commentVm && forceElements.Contains(commentVm.Comment.Id))
+                {
+                    topLeft.X = Math.Min(topLeft.X, position.X);
+                    topLeft.Y = Math.Min(topLeft.Y, position.Y);
+                    bottomRight.X = Math.Max(bottomRight.X, position.X + element.ActualWidth);
+                    bottomRight.Y = Math.Max(bottomRight.Y, position.Y + element.ActualHeight);
+                    elements.Add(graphItem);
+                }
             }
         }
 
@@ -1391,8 +1476,8 @@ public partial class NodeGraphView
     private void addVariableNode(Type type, IGraphVariable graphVariable)
     {
         var window = Window.GetWindow(this)!;
-        var offset = TranslatePoint(new Point(window.ActualWidth / 2d, window.ActualHeight / 2d), GraphContainer);
-        var nodeResult = Graph.AddNode(type, position: new Vector2((float)offset.X, (float)offset.Y));
+        var offset = window.TranslatePoint(new Point(window.ActualWidth / 2d, window.ActualHeight / 2d), GraphContainer);
+        var nodeResult = Graph.AddNode(type, null, new Vector2((float)snapToGrid(offset.X), (float)snapToGrid(offset.Y)));
         Debug.Assert(nodeResult.IsSuccess);
         var variableReference = (IHasVariableReference)nodeResult.Value;
         variableReference.VariableId = graphVariable.GetId();
@@ -1485,7 +1570,8 @@ public partial class NodeGraphView
     {
         Debug.Assert(elementsSelection is not null);
 
-        var selectedNodes = elementsSelection.Items.OfType<NodeViewModel>().Select(item => item.Node.Id).ToList();
+        var selectedNodes = elementsSelection.Items.OfType<NodeViewModel>().Select(nodeVm => nodeVm.Node.Id).ToList();
+        var selectedComments = elementsSelection.Items.OfType<CommentViewModel>().Select(commentVm => commentVm.Comment.Id).ToList();
         var position = (TranslateTransform)SelectionVisual.RenderTransform;
 
         var presetCreatorWindow = new PresetCreatorWindow();
@@ -1494,7 +1580,7 @@ public partial class NodeGraphView
         {
             if (string.IsNullOrEmpty(presetCreatorWindow.PresetName)) return;
 
-            Graph.CreatePreset(presetCreatorWindow.PresetName, selectedNodes, (float)position.X, (float)position.Y);
+            Graph.CreatePreset(presetCreatorWindow.PresetName, selectedNodes, selectedComments, (float)position.X, (float)position.Y);
         };
 
         presetCreatorWindowManager.TrySpawnChild(presetCreatorWindow);
@@ -1510,27 +1596,46 @@ public partial class NodeGraphView
     {
         Debug.Assert(elementsSelection is not null);
 
+        var groups = GraphElements.OfType<GroupViewModel>().ToList();
         var groupsToUpdate = new List<GroupViewModel>();
 
         foreach (var item in elementsSelection.Items)
         {
             if (item is NodeViewModel nodeVm)
             {
-                var groupItem = GraphElements.OfType<GroupViewModel>().SingleOrDefault(groupItem => groupItem.Group.Nodes.Contains(nodeVm.Node.Id));
-                if (groupItem is not null && !groupsToUpdate.Contains(groupItem)) groupsToUpdate.Add(groupItem);
+                var groupVm = groups.SingleOrDefault(groupVm => groupVm.Group.Nodes.Contains(nodeVm.Node.Id));
+
+                if (groupVm is not null)
+                {
+                    groupVm.Group.Nodes.Remove(nodeVm.Node.Id);
+
+                    if (!groupsToUpdate.Contains(groupVm))
+                        groupsToUpdate.Add(groupVm);
+                }
 
                 Graph.RemoveNode(nodeVm.Node.Id);
             }
+
+            if (item is CommentViewModel commentVm)
+            {
+                Graph.RemoveComment(commentVm.Comment.Id);
+            }
         }
 
-        await Graph.MarkDirtyAsync();
-
-        foreach (var nodeGroupGraphItem in groupsToUpdate)
+        foreach (var groupVm in groupsToUpdate.Where(vm => vm.Group.Nodes.Count == 0).ToList())
         {
-            updateGroupViewModel(nodeGroupGraphItem);
+            Graph.DeleteGroup(groupVm.Group.Id);
+            groupsToUpdate.Remove(groupVm);
         }
 
         deselectGraphItems();
+
+        await Graph.MarkDirtyAsync();
+
+        foreach (var groupVm in groupsToUpdate)
+        {
+            updateGroupViewModel(groupVm);
+        }
     }
 
     private void OnGraphTitleEditCompleted(object sender, RoutedEventArgs e)
@@ -1540,6 +1645,30 @@ public partial class NodeGraphView
 
     private void OnGroupTitleEditCompleted(object sender, RoutedEventArgs e)
     {
+        Graph.Serialise();
+    }
+
+    private void VariableName_EditCompleted(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var variable = (IGraphVariable)element.Tag;
+
+        foreach (var nodeVm in GraphElements.OfType<NodeViewModel>().Where(nodeVm => nodeVm.Node is IHasVariableReference varRef && varRef.VariableId == variable.GetId()))
+        {
+            nodeVm.NotifyProperty(nameof(NodeViewModel.DisplayName));
+        }
+
+        Graph.Serialise();
+    }
+
+    private void Comment_EditCompleted(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var commentVm = (CommentViewModel)element.Tag;
+
+        Dispatcher.Invoke(() => { }, DispatcherPriority.Loaded);
+        updateCommentSnap(commentVm);
+
         Graph.Serialise();
     }
 }

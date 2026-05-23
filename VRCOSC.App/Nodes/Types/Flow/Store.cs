@@ -6,7 +6,7 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Write Context Store", "Utility/Stores")]
 public sealed class ContextStoreWriteNode<T> : ActionNode
 {
-    public ValueInput<string> Name = new(modes: ValueInputMode.Inline);
+    public ValueInput<string> Name = new();
     public ValueInput<T> Value = new();
 
     protected override void DoAction(IPulseContext c)
@@ -21,7 +21,8 @@ public sealed class ContextStoreWriteNode<T> : ActionNode
 [Node("Context Store Source", "Utility/Stores")]
 public sealed class ContextStoreSourceNode<T> : ValueComputeNode<T>
 {
-    public ValueInput<string> Name = new(modes: ValueInputMode.Inline);
+    [InputMode(InputModes.Inline)]
+    public ValueInput<string> Name = new();
 
     protected override T ComputeValue(IPulseContext c)
     {

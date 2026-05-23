@@ -87,7 +87,8 @@ public sealed class FileMoveNode() : TryHandleFilePathActionNode("Source Path")
 [Node("File Set Attributes", "Files")]
 public sealed class FileSetAttributesNode : TryHandleFilePathActionNode
 {
-    public ValueInput<FileAttributes> Attributes = new(modes: ValueInputMode.Connection);
+    [InputMode(InputModes.Connection)]
+    public ValueInput<FileAttributes> Attributes = new();
 
     protected override bool IsPathValid([NotNullWhen(true)] string? path) => base.IsPathValid(path) && File.Exists(path);
 

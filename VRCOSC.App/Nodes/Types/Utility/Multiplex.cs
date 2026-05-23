@@ -8,7 +8,9 @@ namespace VRCOSC.App.Nodes.Types.Utility;
 [Node("Conditional", "Utility")]
 public sealed class ConditionalNode<T> : ValueComputeNode<T>
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<bool> Condition = new();
+
     public ValueInput<T> True = new();
     public ValueInput<T> False = new();
 
@@ -18,7 +20,9 @@ public sealed class ConditionalNode<T> : ValueComputeNode<T>
 [Node("Multiplex", "Utility")]
 public sealed class MultiplexNode<T> : Node
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<int> Index = new();
+
     public ValueInputList<T> Inputs = new();
     public ValueOutput<T> Element = new();
     public ValueOutput<int> InputCount = new();
@@ -39,7 +43,9 @@ public sealed class MultiplexNode<T> : Node
 [Node("Demultiplex", "Utility")]
 public sealed class DemultiplexNode<T> : Node
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<int> Index = new();
+
     public ValueInput<T> Value = new();
     public ValueInput<T> DefaultValue = new();
     public ValueOutputList<T> Outputs = new();

@@ -9,7 +9,7 @@ namespace VRCOSC.App.Nodes.Types.SteamVR;
 public sealed class SteamVRTriggerHapticNode : ActionNode
 {
     public ValueInput<TrackedDevice> Device = new();
-    public ValueInput<float> DurationSeconds = new();
+    public ValueInput<int> Duration = new("Duration (ms)");
     public ValueInput<float> Frequency = new();
     public ValueInput<float> Amplitude = new();
 
@@ -18,7 +18,7 @@ public sealed class SteamVRTriggerHapticNode : ActionNode
         var device = Device.Read(c);
         if (device is null) return;
 
-        var duration = DurationSeconds.Read(c);
+        var duration = Duration.Read(c);
         if (duration == 0) return;
 
         var frequency = Frequency.Read(c);
@@ -28,7 +28,7 @@ public sealed class SteamVRTriggerHapticNode : ActionNode
         var amplitude = Amplitude.Read(c);
         amplitude = float.Clamp(amplitude, 0f, 1f);
 
-        AppManager.GetInstance().OpenVRManager.TriggerHaptic(device, duration, frequency, amplitude);
+        AppManager.GetInstance().OpenVRManager.TriggerHaptic(device, duration / 1000f, frequency, amplitude);
     }
 }
 

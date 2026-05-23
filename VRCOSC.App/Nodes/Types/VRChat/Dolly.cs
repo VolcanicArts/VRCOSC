@@ -42,7 +42,7 @@ public sealed class DollyExportNode : TryActionAsyncNode
 [Node("Dolly Play", "VRChat/Dolly")]
 public sealed class DollyPlayNode : ActionNode
 {
-    public ValueInput<int> Delay = new();
+    public ValueInput<int> Delay = new("Delay (s)");
 
     protected override void DoAction(IPulseContext c)
     {

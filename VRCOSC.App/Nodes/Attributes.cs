@@ -28,36 +28,21 @@ public class NodeAttribute : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Class)]
-public class NodeGenerics : Attribute
+public class NodeGenerics(params Type[] types) : Attribute
 {
-    public Type[] Types { get; }
-
-    public NodeGenerics(params Type[] types)
-    {
-        Types = types;
-    }
+    public Type[] Types { get; } = types;
 }
 
 [AttributeUsage(AttributeTargets.Property)]
-public class NodePropertyAttribute : Attribute
+public class NodePropertyAttribute(string name) : Attribute
 {
-    public string Name { get; }
-
-    public NodePropertyAttribute(string name)
-    {
-        Name = name;
-    }
+    public string Name { get; } = name;
 }
 
 [AttributeUsage(AttributeTargets.Class)]
-public class NodeCollapsedAttribute : Attribute
+public class NodeCollapsedAttribute(params EFontAwesomeIcon[]? icons) : Attribute
 {
-    public EFontAwesomeIcon[]? Icons { get; }
-
-    public NodeCollapsedAttribute(params EFontAwesomeIcon[]? icons)
-    {
-        Icons = icons;
-    }
+    public EFontAwesomeIcon[]? Icons { get; } = icons;
 }
 
 /// <inheritdoc />
@@ -73,6 +58,12 @@ public class NodeForceReprocessAttribute : Attribute;
 /// </summary>
 [AttributeUsage(AttributeTargets.Class)]
 public class NodeNoCancelAttribute : Attribute;
+
+[AttributeUsage(AttributeTargets.Field)]
+public class InputMode(InputModes modes) : Attribute
+{
+    public InputModes Modes { get; } = modes;
+}
 
 public interface INodeElement
 {
@@ -102,10 +93,7 @@ public interface IFlowOutputList : IFlowOutputBase;
 
 public interface IValueElement : INodeElement;
 
-public interface IValueInputBase : IValueElement
-{
-    ValueInputMode Modes { get; }
-}
+public interface IValueInputBase : IValueElement;
 
 public interface IValueInput : IValueInputBase
 {
@@ -149,7 +137,7 @@ public interface IContextStore : IStore;
 
 public interface IContextStore<T> : IContextStore, IStore<T>;
 
-public abstract record NodeElement : INodeElement
+public abstract class NodeElement : INodeElement
 {
     public Node Owner { get; set; } = null!;
     public string Name { get; }
@@ -175,84 +163,50 @@ public abstract record NodeElement : INodeElement
     }
 }
 
-public record FlowElement : NodeElement, IFlowElement
-{
-    protected FlowElement(string name = "")
-        : base(name)
-    {
-    }
-}
+public class FlowElement(string name = "") : NodeElement(name), IFlowElement;
 
-public record FlowInput : FlowElement, IFlowInput
+public class FlowInput(string name = "") : FlowElement(name), IFlowInput
 {
-    public FlowInput(string name = "")
-        : base(name)
-    {
-    }
-
     public bool IsSource(IPulseContext c) => c.IsSource(this);
 }
 
-public record FlowInputList : FlowElement, IFlowInputList
+public class FlowInputList(string name = "") : FlowElement(name), IFlowInputList
 {
-    public FlowInputList([CallerMemberName] string name = "")
-        : base(name)
-    {
-    }
-
     public int Count => Metadata.Size;
 
     public bool IsSource(int index, IPulseContext c) => c.IsSource(this, index);
 }
 
-public record FlowOutput : FlowElement, IFlowOutput
+public class FlowOutput(string name = "", bool scope = false) : FlowElement(name), IFlowOutput
 {
-    public bool Scope { get; }
-
-    public FlowOutput(string name = "", bool scope = false)
-        : base(name)
-    {
-        Scope = scope;
-    }
+    public bool Scope { get; } = scope;
 
     public Task Execute(IPulseContext c) => c.Execute(this);
 }
 
-public record FlowOutputList : FlowElement, IFlowOutputList
+public class FlowOutputList(string name = "", bool scope = false) : FlowElement(name), IFlowOutputList
 {
-    public bool Scope { get; }
-
-    public FlowOutputList([CallerMemberName] string name = "", bool scope = false)
-        : base(name)
-    {
-        Scope = scope;
-    }
+    public bool Scope { get; } = scope;
 
     public int Count => Metadata.Size;
 
     public Task Execute(int index, IPulseContext c) => c.Execute(this, index);
 }
 
-public abstract record ValueElement<T> : NodeElement, IValueElement
-{
-    protected ValueElement(string name = "")
-        : base(name)
-    {
-    }
-}
+public abstract class ValueElement<T>(string name = "") : NodeElement(name), IValueElement;
 
 [Flags]
-public enum ValueInputMode
+public enum InputModes
 {
     Connection = 1 << 0,
     Inline = 1 << 1
 }
 
-public record ValueInput<T> : ValueElement<T>, IValueInput<T>
+public class ValueInput<T>([CallerMemberName] string name = "", T defaultValue = default!) : ValueElement<T>(name), IValueInput<T>
 {
-    public T DefaultValue { get; }
+    public T DefaultValue { get; } = defaultValue;
 
-    private T _field;
+    private T _field = defaultValue;
 
     public T Field
     {
@@ -261,19 +215,9 @@ public record ValueInput<T> : ValueElement<T>, IValueInput<T>
         {
             _field = value;
 
-            if (!Owner.Metadata.Shared.IsFlowInput)
+            if (Owner.Metadata.Shared.IsAnyTrigger)
                 _ = Owner.ContainingGraph.TriggerTree(Owner);
         }
-    }
-
-    public ValueInputMode Modes { get; }
-
-    public ValueInput([CallerMemberName] string name = "", T defaultValue = default!, ValueInputMode modes = ValueInputMode.Connection | ValueInputMode.Inline)
-        : base(name)
-    {
-        DefaultValue = defaultValue;
-        _field = defaultValue;
-        Modes = modes;
     }
 
     public T Read(IPulseContext c) => c.Read(this);
@@ -283,43 +227,26 @@ public record ValueInput<T> : ValueElement<T>, IValueInput<T>
     public void SetField(object? value) => _field = (T)value!;
 }
 
-public record ValueInputList<T> : ValueElement<T>, IValueInputList<T>
+public class ValueInputList<T>([CallerMemberName] string name = "") : ValueElement<T>(name), IValueInputList<T>
 {
-    public ValueInputMode Modes => ValueInputMode.Connection | ValueInputMode.Inline;
-
-    public ValueInputList([CallerMemberName] string name = "")
-        : base(name)
-    {
-    }
-
     public int Count => Metadata.Size;
 
     public IReadOnlyList<T> Read(IPulseContext c) => c.Read(this);
 }
 
-public record ValueOutput<T> : ValueElement<T>, IValueOutput<T>
+public class ValueOutput<T>([CallerMemberName] string name = "") : ValueElement<T>(name), IValueOutput<T>
 {
-    public ValueOutput([CallerMemberName] string name = "")
-        : base(name)
-    {
-    }
-
     public void Write(T value, IPulseContext c) => c.Write(this, value);
 }
 
-public record ValueOutputList<T> : ValueElement<T>, IValueOutputList<T>
+public class ValueOutputList<T>([CallerMemberName] string name = "") : ValueElement<T>(name), IValueOutputList<T>
 {
-    public ValueOutputList([CallerMemberName] string name = "")
-        : base(name)
-    {
-    }
-
     public int Count => Metadata.Size;
 
     public void Write(int index, T value, IPulseContext c) => c.Write(this, index, value);
 }
 
-public record GlobalStore<T> : IGlobalStore<T>
+public class GlobalStore<T> : IGlobalStore<T>
 {
     public Type Type => typeof(T);
 
@@ -366,7 +293,7 @@ public interface IUpdateNode
 
 /// <summary>
 /// An actively updating node that can read inputs/stores and write outputs/stores in <see cref="OnUpdate"/>.
-/// If <see cref="OnUpdate"/> returns true it will process and notify nodes down flow of the <see cref="ValueOutput{T}"/> changes, otherwise it will not process
+/// If <see cref="OnUpdate"/> returns true it will process and notify nodes down flow of the <see cref="IValueOutputBase"/> changes, otherwise it will not process
 /// </summary>
 public interface IActiveUpdateNode
 {
@@ -375,7 +302,7 @@ public interface IActiveUpdateNode
 }
 
 /// <summary>
-/// Processes this node every update, and if any value output has changed, notifies nodes down flow of the changes
+/// Processes this node every update, and if any <see cref="IValueOutputBase"/> has changed, notifies nodes down flow of the changes
 /// </summary>
 public interface IContinuousNode
 {

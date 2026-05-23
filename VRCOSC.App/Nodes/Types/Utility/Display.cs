@@ -4,10 +4,11 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Utility;
 
-public abstract class DisplayNodeBase<T> : ValueConsumeNode<T>, IDisplayNode, INotifyPropertyChanged
+public abstract class DisplayNodeBase<T> : Node, IDisplayNode, INotifyPropertyChanged
 {
     public T Value
     {
@@ -21,9 +22,16 @@ public abstract class DisplayNodeBase<T> : ValueConsumeNode<T>, IDisplayNode, IN
         }
     } = default!;
 
+    [InputMode(InputModes.Connection)]
+    public ValueInput<T> Input = new();
+
     public void Clear() => Value = default!;
 
-    protected override void ConsumeValue(T value, IPulseContext c) => Value = value;
+    protected override Task Process(IPulseContext c)
+    {
+        Value = Input.Read(c);
+        return Task.CompletedTask;
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -38,9 +46,10 @@ public sealed class PassthroughDisplayNode<T> : DisplayNodeBase<T>
 {
     public ValueOutput<T> Output = new();
 
-    protected override void ConsumeValue(T value, IPulseContext c)
+    protected override Task Process(IPulseContext c)
     {
-        base.ConsumeValue(value, c);
-        Output.Write(value, c);
+        base.Process(c);
+        Output.Write(Input.Read(c), c);
+        return Task.CompletedTask;
     }
 }

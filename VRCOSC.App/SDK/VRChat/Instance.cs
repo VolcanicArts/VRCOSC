@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Collections.Generic;
 
 namespace VRCOSC.App.SDK.VRChat;
@@ -48,7 +47,7 @@ public static class InstanceHelper
         "private" when canRequestInvite => InstanceType.InvitePlus,
         "friends" => InstanceType.Friends,
         "hidden" => InstanceType.FriendsPlus,
-        _ => throw new ArgumentOutOfRangeException(nameof(code), code, "Unable to parse type code")
+        _ => InstanceType.Public
     };
 
     public static InstanceRegion CodeToRegion(string code) => code.ToLowerInvariant() switch
@@ -57,12 +56,13 @@ public static class InstanceHelper
         "use" => InstanceRegion.USEast,
         "eu" => InstanceRegion.Europe,
         "jp" => InstanceRegion.Japan,
-        _ => throw new ArgumentOutOfRangeException(nameof(code), code, "Unable to parse region code")
+        _ => InstanceRegion.Unknown
     };
 }
 
 public enum InstanceType
 {
+    Public, //nothing
     Group, //group~members
     GroupPlus, //group~plus
     GroupPublic, //group~public
@@ -70,13 +70,13 @@ public enum InstanceType
     InvitePlus, //private~canRequestInvite
     Friends, //friends
     FriendsPlus, //hidden
-    Public //nothing
 }
 
 public enum InstanceRegion
 {
+    Unknown,
     USWest, //us
     USEast, //use
     Europe, //eu
-    Japan //jp
+    Japan, //jp
 }

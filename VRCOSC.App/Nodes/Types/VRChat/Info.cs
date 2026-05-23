@@ -87,6 +87,7 @@ public sealed class UserPackNode : ValueComputeNode<User?>
 }
 
 [Node("Unpack Instance", "VRChat/Structs/Instance")]
+[NodeForceReprocess]
 public sealed class InstanceUnpackNode : Node, IActiveUpdateNode
 {
     public int UpdateOffset => 0;

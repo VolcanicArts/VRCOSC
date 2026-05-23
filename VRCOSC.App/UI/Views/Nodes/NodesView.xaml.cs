@@ -71,6 +71,8 @@ public partial class NodesView
 
     private void showNodeGraph(NodeGraph nodeGraph)
     {
+        selectedGraph?.Serialise();
+
         if (!viewCache.TryGetValue(nodeGraph.Id, out var view))
         {
             view = new NodeGraphView(nodeGraph);

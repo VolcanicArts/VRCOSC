@@ -3,7 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using VRCOSC.App.Nodes.Serialisation;
+using VRCOSC.App.Nodes.Serialisation.V1;
+using VRCOSC.App.Nodes.Serialisation.V2;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -13,17 +16,15 @@ public class NodePreset
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Observable<string> Name { get; } = new("New Preset");
-    public List<SerialisableNode> Nodes { get; set; } = [];
-    public List<SerialisableConnection> Connections { get; set; } = [];
-    public List<SerialisableNodeGroup> Groups { get; set; } = [];
-    public List<SerialisableGraphVariable> Variables { get; set; } = [];
+    public SerialisableNodeGraphBase Structure { get; set; } = new();
 
     private readonly SerialisationManager serialiser;
 
     public NodePreset()
     {
         serialiser = new SerialisationManager();
-        serialiser.RegisterSerialiser(1, new NodePresetSerialiser(AppManager.GetInstance().Storage, this));
+        serialiser.RegisterSerialiser(1, new NodePresetSerialiserV1(AppManager.GetInstance().Storage, this));
+        serialiser.RegisterSerialiser(2, new NodePresetSerialiser(AppManager.GetInstance().Storage, this));
     }
 
     public void Load(string importPath = "")
@@ -40,4 +41,6 @@ public class NodePreset
     {
         serialiser.Serialise();
     }
+
+    public IEnumerable<Guid> SpawnTo(NodeGraph targetGraph, Vector2 offset) => NodeGraphBaseHelper.Deserialise(Structure, targetGraph, true, offset);
 }

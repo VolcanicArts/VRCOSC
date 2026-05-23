@@ -30,7 +30,7 @@ public sealed class DriveVariableNode<T> : Node, IUpdateNode, IHasVariableRefere
     public void OnUpdate(IPulseContext c) => graphVariable.Write(CurrValue.Read(c));
 }
 
-[Node("Direct Write Variable")]
+[Node("Write Variable")]
 public sealed class DirectWriteVariableNode<T> : ActionNode, IHasVariableReference
 {
     public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
@@ -45,7 +45,7 @@ public sealed class DirectWriteVariableNode<T> : ActionNode, IHasVariableReferen
     protected override void DoAction(IPulseContext c) => graphVariable.Write(Value.Read(c));
 }
 
-[Node("Indirect Write Variable", "Variables")]
+[Node("Write Variable", "Variables")]
 public sealed class IndirectWriteVariableNode<T> : ActionNode
 {
     public ValueInput<GraphVariable<T>> Reference = new();
@@ -67,7 +67,7 @@ public sealed class VariableReferenceNode<T>() : ValueComputeNode<GraphVariable<
     protected override GraphVariable<T> ComputeValue(IPulseContext c) => graphVariable;
 }
 
-[Node("Variable Reference To Value", "Variables")]
+[Node("Variable Ref To Value", "Variables")]
 [NodeForceReprocess]
 public sealed class VariableReferenceToValueNode<T>() : SimpleValueTransformNode<GraphVariable<T>?, T>(r => r is null ? default! : r.Value.Value, "Reference", "Value"), IContinuousNode
 {

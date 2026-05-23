@@ -15,7 +15,7 @@ public sealed class FireWhileTrueNode : Node, IActiveUpdateNode
 
     public FlowOutput Next = new();
 
-    public ValueInput<int> DelayMilliseconds = new();
+    public ValueInput<int> Delay = new("Delay (ms)");
     public ValueInput<bool> Condition = new();
 
     protected override Task Process(IPulseContext c)
@@ -26,7 +26,7 @@ public sealed class FireWhileTrueNode : Node, IActiveUpdateNode
 
     public Task<bool> OnUpdate(IPulseContext c)
     {
-        var delay = DelayMilliseconds.Read(c);
+        var delay = Delay.Read(c);
         var shouldContinue = (DateTime.Now - LastUpdateStore.Read(c)).TotalMilliseconds >= delay;
         return Task.FromResult(shouldContinue && Condition.Read(c));
     }

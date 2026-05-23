@@ -7,23 +7,23 @@ using VRCOSC.App.SDK.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Keybind;
 
-[Node("Press Keybind", "Keybind")]
+[Node("Press Keybind", "Input/Keybind")]
 public sealed class KeybindPressNode : AsyncActionNode
 {
     public ValueInput<SDK.Utils.Keybind> Keybind = new();
-    public ValueInput<int> DurationMilliseconds = new();
+    public ValueInput<int> Duration = new("Duration (ms)", 25);
 
     protected override async Task DoActionAsync(IPulseContext c)
     {
         var keybind = Keybind.Read(c);
         if (keybind is null) return;
 
-        await KeySimulator.PressKeybind(keybind, DurationMilliseconds.Read(c));
+        await KeySimulator.PressKeybind(keybind, Duration.Read(c));
         await Next.Execute(c);
     }
 }
 
-[Node("Hold/Release Keybind", "Keybind")]
+[Node("Hold/Release Keybind", "Input/Keybind")]
 public sealed class KeybindHoldReleaseNode : AsyncActionNode
 {
     public GlobalStore<bool> PrevCondition = new();
@@ -56,10 +56,11 @@ public sealed class KeybindHoldReleaseNode : AsyncActionNode
     }
 }
 
-[Node("Keybind Source", "Keybind")]
+[Node("Keybind Source", "Input/Keybind")]
 public sealed class KeybindSourceNode() : ValueSourceNode<bool>("Down")
 {
-    public ValueInput<SDK.Utils.Keybind> Keybind = new(modes: ValueInputMode.Inline);
+    [InputMode(InputModes.Inline)]
+    public ValueInput<SDK.Utils.Keybind> Keybind = new();
 
     protected override bool ComputeValue(IPulseContext c)
     {

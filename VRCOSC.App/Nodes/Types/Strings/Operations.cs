@@ -131,8 +131,10 @@ public sealed class StringStartsWithNode : ValueComputeNode<bool>
 [Node("Parse", "Strings")]
 public sealed class StringParseNode<T> : TryValueComputeNode<T> where T : IParsable<T>
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<string?> Input = new();
-    public ValueInput<CultureInfo> Culture = new("Culture", CultureInfo.CurrentCulture);
+
+    public ValueInput<CultureInfo> Culture = new(defaultValue: CultureInfo.CurrentCulture);
 
     protected override Result<T> TryComputeValue(IPulseContext c) => T.TryParse(Input.Read(c), Culture.Read(c), out var parsedInput) ? parsedInput : Result<T>.Fail();
 }

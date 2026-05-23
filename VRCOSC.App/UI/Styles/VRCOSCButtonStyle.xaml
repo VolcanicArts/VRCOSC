@@ -1,23 +1,93 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:core="clr-namespace:VRCOSC.App.UI.Core">
-    <core:ButtonBackgroundColourConverter x:Key="ButtonBackgroundColourUpdater"/>
-    <core:BindingProxy x:Key="CBackground1Proxy" Data="{DynamicResource CBackground1}"/>
     <Style TargetType="core:VRCOSCButton">
-        <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="core:VRCOSCButton">
-                    <Border CornerRadius="{TemplateBinding CornerRadius}">
-                        <Border.Background>
-                            <MultiBinding Converter="{StaticResource ButtonBackgroundColourUpdater}">
-                                <Binding RelativeSource="{RelativeSource TemplatedParent}"/>
-                                <Binding Path="IsMouseOver" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                <Binding Source="{StaticResource CBackground1Proxy}" Path="Data"/>
-                            </MultiBinding>
-                        </Border.Background>
+                    <Border x:Name="Border" CornerRadius="{TemplateBinding CornerRadius}" Background="Transparent">
                         <ContentPresenter />
                     </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="ButtonColour"
+                                 Value="{x:Static core:ButtonColour.Green}">
+                            <Setter TargetName="Border"
+                                    Property="Background"
+                                    Value="{DynamicResource CGreen}" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="ButtonColour"
+                                           Value="{x:Static core:ButtonColour.Green}" />
+                                <Condition Property="IsMouseOver"
+                                           Value="True" />
+                            </MultiTrigger.Conditions>
+
+                            <Setter TargetName="Border"
+                                    Property="Background"
+                                    Value="{DynamicResource CGreenL}" />
+                        </MultiTrigger>
+                        <Trigger Property="ButtonColour"
+                                 Value="{x:Static core:ButtonColour.Blue}">
+                            <Setter TargetName="Border"
+                                    Property="Background"
+                                    Value="{DynamicResource CBlue}" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="ButtonColour"
+                                           Value="{x:Static core:ButtonColour.Blue}" />
+                                <Condition Property="IsMouseOver"
+                                           Value="True" />
+                            </MultiTrigger.Conditions>
+
+                            <Setter TargetName="Border"
+                                    Property="Background"
+                                    Value="{DynamicResource CBlueL}" />
+                        </MultiTrigger>
+                        <Trigger Property="ButtonColour"
+                                 Value="{x:Static core:ButtonColour.Red}">
+                            <Setter TargetName="Border"
+                                    Property="Background"
+                                    Value="{DynamicResource CRed}" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="ButtonColour"
+                                           Value="{x:Static core:ButtonColour.Red}" />
+                                <Condition Property="IsMouseOver"
+                                           Value="True" />
+                            </MultiTrigger.Conditions>
+
+                            <Setter TargetName="Border"
+                                    Property="Background"
+                                    Value="{DynamicResource CRedL}" />
+                        </MultiTrigger>
+                        <Trigger Property="ButtonColour"
+                                 Value="{x:Static core:ButtonColour.Gray}">
+                            <Setter TargetName="Border"
+                                    Property="Background"
+                                    Value="{DynamicResource CBackground6}" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="ButtonColour"
+                                           Value="{x:Static core:ButtonColour.Gray}" />
+                                <Condition Property="IsMouseOver"
+                                           Value="True" />
+                            </MultiTrigger.Conditions>
+
+                            <Setter TargetName="Border"
+                                    Property="Background"
+                                    Value="{DynamicResource CBackground8}" />
+                        </MultiTrigger>
+                        <Trigger Property="ButtonColour"
+                                 Value="{x:Static core:ButtonColour.None}">
+                            <Setter TargetName="Border"
+                                    Property="Background"
+                                    Value="Transparent" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

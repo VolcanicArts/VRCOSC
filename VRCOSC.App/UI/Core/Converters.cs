@@ -17,7 +17,17 @@ namespace VRCOSC.App.UI.Core;
 
 public class ObjectToStringConverter : IValueConverter
 {
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => value?.ToString() ?? "null";
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is null) return "null";
+
+        var stringifiedValue = value.ToString();
+
+        if (stringifiedValue == value.GetType().ToString())
+            return value.GetType().GetFriendlyName();
+
+        return stringifiedValue ?? "null";
+    }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
@@ -36,7 +46,7 @@ public class StringIsNotNullOrEmptyConverter : IValueConverter
 
 public class StringIsNotNullOrEmptyVisibilityConverter : IValueConverter
 {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not string strValue) return Visibility.Collapsed;
 
@@ -60,7 +70,7 @@ public class StringIsNullOrEmptyConverter : IValueConverter
 
 public class NullToVisibilityConverter : IValueConverter
 {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         return value is null ? Visibility.Collapsed : Visibility.Visible;
     }
@@ -110,7 +120,7 @@ public class BoolToThicknessConverter : IValueConverter
 
 public class StringToVisibilityConverter : IValueConverter
 {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not string strValue) return Visibility.Collapsed;
 
@@ -161,9 +171,8 @@ public class TypeToFriendlyNameConverter : IValueConverter
     {
         if (value is null) return "NULL TYPE";
 
-        if (!value.GetType().IsAssignableTo(typeof(Type))) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
+        if (value is not Type typeValue) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
 
-        var typeValue = (Type)value;
         return typeValue.GetFriendlyName();
     }
 

@@ -63,9 +63,6 @@ public partial class MainWindow
     private readonly Storage storage = AppManager.GetInstance().Storage;
     private VelopackUpdater velopackUpdater = null!;
 
-    public Observable<bool> ShowAppDebug { get; } = new();
-    public Observable<bool> ShowRouter { get; } = new();
-
     public LaunchOptions? LaunchOptions { get; }
 
     public MainWindow(string[] args)
@@ -198,8 +195,6 @@ public partial class MainWindow
         AppSettingsView = new AppSettingsView();
         InformationView = new InformationView();
 
-        SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug).Subscribe(newValue => ShowAppDebug.Value = newValue, true);
-
         var isBeta = SettingsManager.GetInstance().GetValue<UpdateChannel>(VRCOSCMetadata.InstalledUpdateChannel) == UpdateChannel.Beta;
 
         var packageManager = PackageManager.GetInstance();
@@ -246,7 +241,6 @@ public partial class MainWindow
 
         ProfileManager.GetInstance().Load();
         ModuleManager.GetInstance().LoadAllModules();
-        NodeTypeManager.Init();
         NodeManager.GetInstance().Load();
         ChatBoxManager.GetInstance().Load();
         RouterManager.GetInstance().Load();

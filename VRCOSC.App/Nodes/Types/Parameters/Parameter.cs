@@ -8,7 +8,7 @@ using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.App.Nodes.Types.Parameters;
 
-[Node("Send Parameter", "Parameters/Send")]
+[Node("Send Parameter", "VRChat/Parameters/Send")]
 [NodeGenerics(typeof(bool), typeof(int), typeof(float))]
 public sealed class SendParameterNode<T> : ActionNode where T : unmanaged
 {
@@ -24,7 +24,7 @@ public sealed class SendParameterNode<T> : ActionNode where T : unmanaged
     }
 }
 
-[Node("Drive Parameter", "Parameters/Send")]
+[Node("Drive Parameter", "VRChat/Parameters/Send")]
 [NodeGenerics(typeof(bool), typeof(int), typeof(float))]
 public sealed class DriveParameterNode<T> : Node, IUpdateNode where T : unmanaged
 {
@@ -32,7 +32,9 @@ public sealed class DriveParameterNode<T> : Node, IUpdateNode where T : unmanage
 
     public GlobalStore<T> CurrValue = new();
 
-    public ValueInput<string> Name = new(modes: ValueInputMode.Inline);
+    [InputMode(InputModes.Inline)]
+    public ValueInput<string> Name = new();
+
     public ValueInput<T> Value = new();
 
     protected override Task Process(IPulseContext c)
@@ -50,7 +52,7 @@ public sealed class DriveParameterNode<T> : Node, IUpdateNode where T : unmanage
     }
 }
 
-[Node("Toggle Parameter", "Parameters/Send")]
+[Node("Toggle Parameter", "VRChat/Parameters/Send")]
 [NodeGenerics(typeof(bool), typeof(int), typeof(float))]
 public sealed class ToggleParameterNode<T> : ActionNode where T : unmanaged
 {
@@ -111,13 +113,14 @@ public sealed class ToggleParameterNode<T> : ActionNode where T : unmanaged
     }
 }
 
-[Node("Parameter Source", "Parameters/Receive")]
+[Node("Parameter Source", "VRChat/Parameters/Receive")]
 [NodeGenerics(typeof(bool), typeof(int), typeof(float))]
 public sealed class ParameterSourceNode<T>() : ValueSourceNode<T>("Value") where T : unmanaged
 {
     public override int UpdateOffset => -2;
 
-    public ValueInput<string> Name = new(modes: ValueInputMode.Inline);
+    [InputMode(InputModes.Inline)]
+    public ValueInput<string> Name = new();
 
     protected override T ComputeValue(IPulseContext c)
     {
@@ -141,12 +144,13 @@ public sealed class ReadParameterNode<T>() : ActionValueTransformNode<string?, T
     }
 }
 
-[Node("Physbone Parameter Source", "Parameters/Receive")]
+[Node("Physbone Parameter Source", "VRChat/Parameters/Receive")]
 public sealed class PhysboneParameterSourceNode : Node, IContinuousNode
 {
     public int UpdateOffset => -2;
 
-    public ValueInput<string> Name = new(modes: ValueInputMode.Inline);
+    [InputMode(InputModes.Inline)]
+    public ValueInput<string> Name = new();
 
     public ValueOutput<bool> Grabbed = new();
     public ValueOutput<bool> Posed = new();
@@ -174,12 +178,13 @@ public sealed class PhysboneParameterSourceNode : Node, IContinuousNode
     }
 }
 
-[Node("Raycast Parameter Source", "Parameters/Receive")]
+[Node("Raycast Parameter Source", "VRChat/Parameters/Receive")]
 public sealed class RaycastParameterSourceNode : Node, IContinuousNode
 {
     public int UpdateOffset => -2;
 
-    public ValueInput<string> Name = new(modes: ValueInputMode.Inline);
+    [InputMode(InputModes.Inline)]
+    public ValueInput<string> Name = new();
 
     public ValueOutput<bool> Hit = new();
     public ValueOutput<float> Ratio = new();
@@ -201,12 +206,14 @@ public sealed class RaycastParameterSourceNode : Node, IContinuousNode
     }
 }
 
-[Node("Wildcard Parameter Source", "Parameters/Receive")]
+[Node("Wildcard Parameter Source", "VRChat/Parameters/Receive")]
 public class WildcardParameterSourceNode<T, W0> : Node, IContinuousNode where T : unmanaged
 {
     public int UpdateOffset => -2;
 
-    public ValueInput<string> Name = new(modes: ValueInputMode.Inline);
+    [InputMode(InputModes.Inline)]
+    public ValueInput<string> Name = new();
+
     public ValueOutput<T> Value = new();
     public ValueOutput<W0> Wildcard0 = new("Wildcard 0");
 

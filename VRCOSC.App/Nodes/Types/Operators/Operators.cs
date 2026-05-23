@@ -18,7 +18,9 @@ public sealed class NotEqualsNode<T>() : SimpleResultComputeNode<T, bool>((a, b)
 [Node("Equals Any", "Operators")]
 public sealed class EqualsAnyNode<T> : ValueComputeNode<bool>
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<T> Value = new();
+
     public ValueInputList<T> Values = new();
 
     protected override bool ComputeValue(IPulseContext c)

@@ -14,7 +14,26 @@ using VRCOSC.App.Utils;
 namespace VRCOSC.App.Nodes.Serialisation.V2;
 
 [JsonObject(MemberSerialization.OptIn)]
-public class SerialisableNodeGraphV2 : SerialisableVersion
+public class SerialisableNodeGraphBase : SerialisableVersion
+{
+    [JsonProperty("nodes")]
+    public List<SerialisableNode> Nodes { get; set; } = [];
+
+    [JsonProperty("connections")]
+    public List<SerialisableConnection> Connections { get; set; } = [];
+
+    [JsonProperty("groups")]
+    public List<SerialisableNodeGroup> Groups { get; set; } = [];
+
+    [JsonProperty("variables")]
+    public List<SerialisableGraphVariable> Variables { get; set; } = [];
+
+    [JsonProperty("comments")]
+    public List<SerialisableComment> Comments { get; set; } = [];
+}
+
+[JsonObject(MemberSerialization.OptIn)]
+public class SerialisableNodeGraph : SerialisableNodeGraphBase
 {
     [JsonProperty("id")]
     public Guid Id { get; set; }
@@ -25,43 +44,28 @@ public class SerialisableNodeGraphV2 : SerialisableVersion
     [JsonProperty("enabled")]
     public bool Enabled { get; set; } = true;
 
-    [JsonProperty("nodes")]
-    public List<SerialisableNodeV2> Nodes { get; set; } = [];
-
-    [JsonProperty("connections")]
-    public List<SerialisableConnectionV2> Connections { get; set; } = [];
-
-    [JsonProperty("groups")]
-    public List<SerialisableNodeGroupV2> Groups { get; set; } = [];
-
-    [JsonProperty("variables")]
-    public List<SerialisableGraphVariableV2> Variables { get; set; } = [];
-
-    [JsonProperty("comments")]
-    public List<SerialisableComment> Comments { get; set; } = [];
-
     [JsonConstructor]
-    public SerialisableNodeGraphV2()
+    public SerialisableNodeGraph()
     {
     }
 
-    public SerialisableNodeGraphV2(NodeGraph nodeGraph)
+    public SerialisableNodeGraph(NodeGraph nodeGraph)
     {
         Version = 2;
 
         Id = nodeGraph.Id;
         Name = nodeGraph.Name.Value;
         Enabled = nodeGraph.Enabled.Value;
-        Nodes = nodeGraph.Elements.Values.OfType<Node>().Select(node => new SerialisableNodeV2(node)).ToList();
-        Connections = nodeGraph.Connections.Select(connection => new SerialisableConnectionV2(connection)).ToList();
-        Groups = nodeGraph.Groups.Values.Select(group => new SerialisableNodeGroupV2(group)).ToList();
-        Variables = nodeGraph.GraphVariables.Values.Select(variable => new SerialisableGraphVariableV2(variable)).ToList();
+        Nodes = nodeGraph.Elements.Values.OfType<Node>().Select(node => new SerialisableNode(node)).ToList();
+        Connections = nodeGraph.Connections.Select(connection => new SerialisableConnection(connection)).ToList();
+        Groups = nodeGraph.Groups.Values.Select(group => new SerialisableNodeGroup(group)).ToList();
+        Variables = nodeGraph.GraphVariables.Values.Select(variable => new SerialisableGraphVariable(variable)).ToList();
         Comments = nodeGraph.Elements.Values.OfType<Comment>().Select(comment => new SerialisableComment(comment)).ToList();
     }
 }
 
 [JsonObject(MemberSerialization.OptIn, ItemNullValueHandling = NullValueHandling.Ignore)]
-public class SerialisableNodeV2
+public class SerialisableNode
 {
     [JsonProperty("id")]
     public Guid Id { get; set; }
@@ -72,21 +76,21 @@ public class SerialisableNodeV2
     [JsonProperty("position")]
     public Vector2 Position { get; set; }
 
-    [JsonProperty("sizes")]
+    [JsonProperty("sizes", NullValueHandling = NullValueHandling.Ignore)]
     public Dictionary<int, int[]>? Sizes { get; set; }
 
-    [JsonProperty("inlines")]
+    [JsonProperty("inlines", NullValueHandling = NullValueHandling.Ignore)]
     public List<object?>? Inlines { get; set; }
 
-    [JsonProperty("properties")]
+    [JsonProperty("properties", NullValueHandling = NullValueHandling.Ignore)]
     public Dictionary<string, object?>? Properties { get; set; }
 
     [JsonConstructor]
-    public SerialisableNodeV2()
+    public SerialisableNode()
     {
     }
 
-    public SerialisableNodeV2(Node node)
+    public SerialisableNode(Node node)
     {
         var metadata = node.Metadata;
 
@@ -116,14 +120,14 @@ public class SerialisableNodeV2
                 Sizes[(int)ConnectionPoint.ValueInput] = valueInputSizes;
         }
 
-        if (metadata.Shared.IsValueInput && !metadata.Shared.IsCollapsed)
+        if (metadata.Shared.HasAnyInline && !metadata.Shared.IsCollapsed)
         {
             Inlines = [];
 
             Inlines.AddRange(metadata.Elements[ConnectionPoint.ValueInput].Select(i =>
             {
                 var isList = i.Shared.IsList;
-                var isConnectionOnly = i.Instance is IValueInput { Modes: ValueInputMode.Connection };
+                var isConnectionOnly = i.Shared.Modes == InputModes.Connection;
                 var isInlineable = i.Shared.IsInlineable;
 
                 return !isList && !isConnectionOnly && isInlineable ? ((IValueInput)i.Instance).GetField() : null;
@@ -138,7 +142,7 @@ public class SerialisableNodeV2
     }
 }
 
-public class SerialisableConnectionV2
+public class SerialisableConnection
 {
     [JsonProperty("type")]
     public string Type { get; set; } = null!;
@@ -162,11 +166,11 @@ public class SerialisableConnectionV2
     public int InputSlotIndex { get; set; }
 
     [JsonConstructor]
-    public SerialisableConnectionV2()
+    public SerialisableConnection()
     {
     }
 
-    public SerialisableConnectionV2(IConnection connection)
+    public SerialisableConnection(IConnection connection)
     {
         Type = connection is IFlowConnection ? "f" : "v";
         OutputId = connection.OutputId;
@@ -178,7 +182,7 @@ public class SerialisableConnectionV2
     }
 }
 
-public class SerialisableNodeGroupV2
+public class SerialisableNodeGroup
 {
     [JsonProperty("id")]
     public Guid Id { get; set; }
@@ -190,11 +194,11 @@ public class SerialisableNodeGroupV2
     public List<Guid> Nodes { get; set; } = [];
 
     [JsonConstructor]
-    public SerialisableNodeGroupV2()
+    public SerialisableNodeGroup()
     {
     }
 
-    public SerialisableNodeGroupV2(NodeGroup group)
+    public SerialisableNodeGroup(NodeGroup group)
     {
         Id = group.Id;
         Title = group.Title.Value;
@@ -202,7 +206,7 @@ public class SerialisableNodeGroupV2
     }
 }
 
-public class SerialisableGraphVariableV2
+public class SerialisableGraphVariable
 {
     [JsonProperty("id")]
     public Guid Id { get; set; }
@@ -216,15 +220,15 @@ public class SerialisableGraphVariableV2
     [JsonProperty("type")]
     public string Type { get; set; } = string.Empty;
 
-    [JsonProperty("value")]
+    [JsonProperty("value", NullValueHandling = NullValueHandling.Ignore)]
     public object? Value { get; set; }
 
     [JsonConstructor]
-    public SerialisableGraphVariableV2()
+    public SerialisableGraphVariable()
     {
     }
 
-    public SerialisableGraphVariableV2(IGraphVariable variable)
+    public SerialisableGraphVariable(IGraphVariable variable)
     {
         Id = variable.GetId();
         Name = variable.GetName();
@@ -257,5 +261,32 @@ public class SerialisableComment
         Id = comment.Id;
         Position = comment.Position.Value;
         Text = comment.Text.Value;
+    }
+}
+
+[JsonObject(MemberSerialization.OptIn)]
+public class SerialisableNodePreset : SerialisableNodeGraphBase
+{
+    [JsonProperty("id")]
+    public Guid Id { get; set; }
+
+    [JsonProperty("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonConstructor]
+    public SerialisableNodePreset()
+    {
+    }
+
+    public SerialisableNodePreset(NodePreset nodePreset)
+    {
+        Version = 2;
+
+        Id = nodePreset.Id;
+        Name = nodePreset.Name.Value;
+        Nodes = nodePreset.Structure.Nodes;
+        Connections = nodePreset.Structure.Connections;
+        Groups = nodePreset.Structure.Groups;
+        Variables = nodePreset.Structure.Variables;
     }
 }

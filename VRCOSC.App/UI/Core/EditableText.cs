@@ -28,9 +28,9 @@ public class EditableText : Control
         DependencyProperty.Register(nameof(IsEditing), typeof(bool), typeof(EditableText),
             new PropertyMetadata(false, OnIsEditingChanged));
 
-    public static readonly DependencyProperty FontSizeProperty =
-        DependencyProperty.Register(nameof(FontSize), typeof(double), typeof(EditableText),
-            new PropertyMetadata(20.0));
+    public static readonly DependencyProperty EditCompleteOnlyOnTextChangeProperty =
+        DependencyProperty.Register(nameof(FontSize), typeof(bool), typeof(EditableText),
+            new PropertyMetadata(true));
 
     public string Text
     {
@@ -44,20 +44,10 @@ public class EditableText : Control
         set => SetValue(IsEditingProperty, value);
     }
 
-    public new double FontSize
+    public bool EditCompleteOnlyOnTextChange
     {
-        get => (double)GetValue(FontSizeProperty);
-        set => SetValue(FontSizeProperty, value);
-    }
-
-    public static readonly RoutedEvent TextChangedEvent =
-        EventManager.RegisterRoutedEvent(nameof(TextChanged), RoutingStrategy.Bubble,
-            typeof(RoutedPropertyChangedEventHandler<string>), typeof(EditableText));
-
-    public event RoutedPropertyChangedEventHandler<string> TextChanged
-    {
-        add => AddHandler(TextChangedEvent, value);
-        remove => RemoveHandler(TextChangedEvent, value);
+        get => (bool)GetValue(EditCompleteOnlyOnTextChangeProperty);
+        set => SetValue(EditCompleteOnlyOnTextChangeProperty, value);
     }
 
     public static readonly RoutedEvent EditCompletedEvent =
@@ -79,7 +69,7 @@ public class EditableText : Control
 
         if (editTextBox != null)
         {
-            editTextBox.LostFocus -= EditTextBox_LostFocus;
+            editTextBox.PreviewLostKeyboardFocus -= EditTextBox_LostFocus;
             editTextBox.KeyDown -= EditTextBox_KeyDown;
         }
 
@@ -91,7 +81,7 @@ public class EditableText : Control
 
         if (editTextBox != null)
         {
-            editTextBox.LostFocus += EditTextBox_LostFocus;
+            editTextBox.PreviewLostKeyboardFocus += EditTextBox_LostFocus;
             editTextBox.KeyDown += EditTextBox_KeyDown;
         }
     }
@@ -118,7 +108,8 @@ public class EditableText : Control
 
     private void EditTextBox_LostFocus(object sender, RoutedEventArgs e)
     {
-        completeEdit();
+        var prevText = Text;
+        completeEdit(prevText);
     }
 
     private void EditTextBox_KeyDown(object sender, KeyEventArgs e)
@@ -126,7 +117,6 @@ public class EditableText : Control
         if (e.Key == Key.Enter)
         {
             e.Handled = true;
-            completeEdit();
             Focus();
         }
 
@@ -137,16 +127,14 @@ public class EditableText : Control
         }
     }
 
-    private void completeEdit()
+    private void completeEdit(string prevText)
     {
-        var oldValue = Text;
-
         IsEditing = false;
-        Text = editTextBox?.Text ?? string.Empty;
+        var text = editTextBox?.Text ?? string.Empty;
 
-        if (oldValue != Text)
-            RaiseEvent(new RoutedPropertyChangedEventArgs<string>(oldValue, Text, TextChangedEvent));
+        if (EditCompleteOnlyOnTextChange && prevText == text) return;
 
+        Text = text;
         RaiseEvent(new RoutedEventArgs(EditCompletedEvent));
     }
 }

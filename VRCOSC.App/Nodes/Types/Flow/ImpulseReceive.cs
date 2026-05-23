@@ -12,7 +12,8 @@ public class ImpulseReceiveNode : Node, IImpulseReceiver
 {
     public FlowOutput OnCall = new();
 
-    public ValueInput<string> Name = new(modes: ValueInputMode.Inline);
+    [InputMode(InputModes.Inline)]
+    public ValueInput<string> Name = new();
 
     protected override Task Process(IPulseContext c) => OnCall.Execute(c);
 

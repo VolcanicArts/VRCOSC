@@ -32,6 +32,8 @@ public class NodeManager
 
     public void Load()
     {
+        NodeTypeManager.Init();
+
         OnLoading?.Invoke();
 
         if (ModuleManager.GetInstance().ErrorsInLastLoad.Value)

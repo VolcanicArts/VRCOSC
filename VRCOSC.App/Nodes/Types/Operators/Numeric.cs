@@ -3,15 +3,18 @@
 
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using FontAwesome6;
 
 namespace VRCOSC.App.Nodes.Types.Operators;
+
+#region Add
 
 [Node("Add", "Operators/Numeric")]
 [NodeCollapsed(EFontAwesomeIcon.Solid_Plus)]
 public class AddNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a + b) where TLeft : IAdditionOperators<TLeft, TRight, TResult> where TRight : notnull;
 
-public class AddNode<TInput, TResult> : AddNode<TInput, TInput, TResult> where TInput : IAdditionOperators<TInput, TInput, TResult>;
+public class AddNode<TLeft, TRight> : AddNode<TLeft, TRight, TLeft> where TLeft : IAdditionOperators<TLeft, TRight, TLeft> where TRight : notnull;
 
 public sealed class AddNode<T> : AddNode<T, T> where T : IAdditionOperators<T, T, T>;
 
@@ -25,9 +28,17 @@ public sealed class MultiAddNode<T> : ValueComputeNode<T> where T : IAdditionOpe
     protected override T ComputeValue(IPulseContext c) => Inputs.Read(c).Aggregate((curr, next) => curr + next);
 }
 
+#endregion
+
+#region Subtract
+
 [Node("Subtract", "Operators/Numeric")]
 [NodeCollapsed(EFontAwesomeIcon.Solid_Minus)]
-public sealed class SubtractNode<T>() : SimpleResultComputeNode<T>((a, b) => a - b) where T : ISubtractionOperators<T, T, T>;
+public class SubtractNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a - b) where TLeft : ISubtractionOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class SubtractNode<TLeft, TRight> : SubtractNode<TLeft, TRight, TLeft> where TLeft : ISubtractionOperators<TLeft, TRight, TLeft> where TRight : notnull;
+
+public sealed class SubtractNode<T> : SubtractNode<T, T> where T : ISubtractionOperators<T, T, T>;
 
 [Node("Subtract (Multi)", "Operators/Numeric")]
 public sealed class MultiSubtractNode<T> : ValueComputeNode<T> where T : ISubtractionOperators<T, T, T>
@@ -38,6 +49,8 @@ public sealed class MultiSubtractNode<T> : ValueComputeNode<T> where T : ISubtra
 
     protected override T ComputeValue(IPulseContext c) => Inputs.Read(c).Aggregate((curr, next) => curr - next);
 }
+
+#endregion
 
 [Node("Multiply", "Operators/Numeric")]
 [NodeCollapsed(EFontAwesomeIcon.Solid_Asterisk)]
@@ -122,6 +135,41 @@ public sealed class MaximumNode<T> : ValueComputeNode<T> where T : IComparisonOp
         }
 
         return max;
+    }
+}
+
+[Node("Velocity", "Operators/Numeric")]
+public sealed class VelocityNode<T> : Node, IContinuousNode where T : IFloatingPoint<T>
+{
+    public int UpdateOffset => 0;
+
+    public GlobalStore<bool> HasPreviousValue = new();
+    public GlobalStore<T> PrevValue = new();
+
+    public ValueInput<T> Input = new();
+    public ValueOutput<double> Velocity = new();
+
+    protected override Task Process(IPulseContext c)
+    {
+        const double delta_time = 1d / 100d;
+
+        var current = Input.Read(c);
+
+        if (!HasPreviousValue.Read(c))
+        {
+            PrevValue.Write(current, c);
+            HasPreviousValue.Write(true, c);
+
+            Velocity.Write(0d, c);
+            return Task.CompletedTask;
+        }
+
+        var delta = current - PrevValue.Read(c);
+        var metres = double.CreateChecked(delta);
+
+        Velocity.Write(metres / delta_time, c);
+        PrevValue.Write(current, c);
+        return Task.CompletedTask;
     }
 }
 

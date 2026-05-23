@@ -8,11 +8,11 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Delay", "Flow")]
 public sealed class DelayNode : AsyncActionNode
 {
-    public ValueInput<int> Milliseconds = new();
+    public ValueInput<int> Delay = new("Delay (ms)");
 
     protected override Task DoActionAsync(IPulseContext c)
     {
-        var milliseconds = Milliseconds.Read(c);
-        return milliseconds > 0 ? c.Run(Task.Delay(milliseconds)) : Task.CompletedTask;
+        var delay = Delay.Read(c);
+        return delay > 0 ? c.Run(Task.Delay(delay)) : Task.CompletedTask;
     }
 }

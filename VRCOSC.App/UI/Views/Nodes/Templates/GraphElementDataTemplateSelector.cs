@@ -25,6 +25,7 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
     public required DataTemplate SourceNode { get; set; }
     public required DataTemplate DriveNode { get; set; }
     public required DataTemplate ButtonNode { get; set; }
+    public required DataTemplate SwitchNode { get; set; }
     public required DataTemplate DisplayNode { get; set; }
     public required DataTemplate PassthroughDisplayNode { get; set; }
     public required DataTemplate RelayNode { get; set; }
@@ -47,6 +48,9 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
             if (isGeneric)
             {
                 var genericType = type.GetGenericTypeDefinition();
+
+                if (genericType == typeof(SwitchNode<>))
+                    return SwitchNode;
 
                 if (genericType == typeof(ValueNode<>))
                 {
@@ -78,16 +82,16 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
             if (node.Metadata.Shared.IsCollapsed)
                 return CollapsedNode;
 
-            if (node.Metadata.IsSourceNode)
+            if (node.Metadata.Shared.IsSourceNode)
                 return SourceNode;
 
-            if (node.Metadata.IsDriveNode)
+            if (node.Metadata.Shared.IsDriveNode)
                 return DriveNode;
 
             var valueInputs = node.Metadata.Elements[ConnectionPoint.ValueInput];
             var canBeNoInline = false;
 
-            if (node.Metadata.Shared.IsValueInput)
+            if (node.Metadata.Shared.IsValueInput && node.Metadata.Shared.IsValueOutput)
             {
                 canBeNoInline = true;
 
@@ -95,9 +99,9 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
                 {
                     if (i < node.Metadata.Shared.ValueInputCount)
                     {
-                        var valueInput = (IValueInputBase)valueInputs[i].Instance;
+                        var metadata = valueInputs[i];
 
-                        if (valueInput.Metadata.Shared.IsInlineable && valueInput.Modes.HasFlag(ValueInputMode.Inline))
+                        if (metadata.Shared.IsInlineable && metadata.Shared.Modes.HasFlag(InputModes.Inline))
                         {
                             canBeNoInline = false;
                             break;
@@ -106,11 +110,11 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
                 }
             }
 
+            if (node.Metadata.Shared.HasAllInlineOnly)
+                return HoistedInputNode;
+
             if (canBeNoInline)
                 return NoInlineNode;
-
-            if (node.Metadata.HasAllInlineOnly)
-                return HoistedInputNode;
 
             return RegularNode;
         }

@@ -10,20 +10,20 @@ using VRCOSC.App.Nodes.Metadata;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Nodes.Serialisation.V2;
+namespace VRCOSC.App.Nodes.Serialisation.V1;
 
-public class NodeGraphSerialiserV2 : ProfiledSerialiser<NodeGraph, SerialisableNodeGraphV2>
+public class NodeGraphSerialiserV1 : ProfiledSerialiser<NodeGraph, SerialisableNodeGraphV1>
 {
     protected override string Directory => Path.Join(base.Directory, "nodes", "graphs");
     protected override string FileName => $"{Reference.Id}.json";
     protected override Formatting Format => Formatting.None;
 
-    public NodeGraphSerialiserV2(Storage storage, NodeGraph reference)
+    public NodeGraphSerialiserV1(Storage storage, NodeGraph reference)
         : base(storage, reference)
     {
     }
 
-    protected override bool ExecuteAfterDeserialisation(SerialisableNodeGraphV2 data)
+    protected override bool ExecuteAfterDeserialisation(SerialisableNodeGraphV1 data)
     {
         Reference.Name.Value = data.Name;
         Reference.Enabled.Value = data.Enabled;
@@ -63,19 +63,6 @@ public class NodeGraphSerialiserV2 : ProfiledSerialiser<NodeGraph, SerialisableN
                 var node = nodeResult.Value;
                 node.Metadata.Position = sN.Position;
 
-                if (sN.Sizes is not null)
-                {
-                    foreach (var (point, sizes) in sN.Sizes)
-                    {
-                        var elements = node.Metadata.Elements[(ConnectionPoint)point];
-
-                        for (var i = 0; i < elements.Length; i++)
-                        {
-                            elements[i].Size = sizes[i];
-                        }
-                    }
-                }
-
                 if (sN.Properties is not null)
                 {
                     foreach (var (propertyKey, propertyValue) in sN.Properties)
@@ -93,19 +80,23 @@ public class NodeGraphSerialiserV2 : ProfiledSerialiser<NodeGraph, SerialisableN
                     }
                 }
 
-                if (sN.Inlines is not null)
+                if (node.Metadata.Elements[ConnectionPoint.ValueInput].Any())
                 {
-                    var inputs = node.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput);
+                    var lastValueInput = node.Metadata.Elements[ConnectionPoint.ValueInput].Last();
 
-                    for (var i = 0; i < sN.Inlines.Count; i++)
+                    if (lastValueInput.Shared.IsList)
                     {
-                        var input = inputs[i];
-                        if (input.Metadata.Shared.IsList) continue;
+                        lastValueInput.Size = sN.ValueInputSize ?? 0;
+                    }
+                }
 
-                        var inline = sN.Inlines[i];
+                if (node.Metadata.Elements[ConnectionPoint.ValueOutput].Any())
+                {
+                    var lastValueOutput = node.Metadata.Elements[ConnectionPoint.ValueOutput].Last();
 
-                        if (input.Metadata.Shared.IsInlineable && TryConvertToTargetType(inline, input.Metadata.Shared.ValueType, out var value))
-                            ((IValueInput)input).SetField(value);
+                    if (lastValueOutput.Shared.IsList)
+                    {
+                        lastValueOutput.Size = sN.ValueOutputSize ?? 0;
                     }
                 }
             }
@@ -115,12 +106,21 @@ public class NodeGraphSerialiserV2 : ProfiledSerialiser<NodeGraph, SerialisableN
             }
         }
 
+        // Updating from previous variable system
+        foreach (var node in Reference.Elements.Values.ToList())
+        {
+            if (node.GetType().IsAssignableTo(typeof(IHasVariableReference)) && ((IHasVariableReference)node).VariableId == Guid.Empty)
+            {
+                Reference.RemoveNode(node.Id);
+            }
+        }
+
         foreach (var sC in data.Connections)
         {
-            var outputNodeResult = Reference.GetNode(sC.OutputId);
+            var outputNodeResult = Reference.GetNode(sC.OutputNodeId);
             if (!outputNodeResult.IsSuccess) continue;
 
-            var inputNodeResult = Reference.GetNode(sC.InputId);
+            var inputNodeResult = Reference.GetNode(sC.InputNodeId);
             if (!inputNodeResult.IsSuccess) continue;
 
             var outputNode = outputNodeResult.Value;
@@ -128,22 +128,28 @@ public class NodeGraphSerialiserV2 : ProfiledSerialiser<NodeGraph, SerialisableN
 
             try
             {
-                // TODO: Check that the input is not inline only
-
-                if (sC.Type == "f")
+                if (sC.Type == ConnectionType.Flow)
                 {
-                    var outputElement = outputNode.Metadata.ElementInstancesFor(ConnectionPoint.FlowOutput)[sC.OutputSlot];
-                    var inputElement = inputNode.Metadata.ElementInstancesFor(ConnectionPoint.FlowInput)[sC.InputSlot];
+                    var outputElement = outputNode.Metadata.ElementInstancesFor(ConnectionPoint.FlowOutput)[sC.OutputNodeSlot];
+                    var inputElement = inputNode.Metadata.ElementInstancesFor(ConnectionPoint.FlowInput)[sC.InputNodeSlot];
 
                     Reference.CreateConnection(outputElement, 0, inputElement, 0);
                 }
 
-                if (sC.Type == "v")
+                if (sC.Type == ConnectionType.Value)
                 {
-                    var outputElement = outputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput)[sC.OutputSlot];
-                    var inputElement = inputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput)[sC.InputSlot];
+                    var (outputSlot, outputIndex) = sC.OutputNodeSlot >= outputNode.Metadata.Shared.ValueOutputCount
+                        ? (outputNode.Metadata.Shared.ValueOutputCount - 1, sC.OutputNodeSlot - (outputNode.Metadata.Shared.ValueOutputCount - 1))
+                        : (sC.OutputNodeSlot, 0);
 
-                    Reference.CreateConnection(outputElement, sC.OutputSlotIndex, inputElement, sC.InputSlotIndex);
+                    var (inputSlot, inputIndex) = sC.InputNodeSlot >= inputNode.Metadata.Shared.ValueInputCount
+                        ? (inputNode.Metadata.Shared.ValueInputCount - 1, sC.InputNodeSlot - (inputNode.Metadata.Shared.ValueInputCount - 1))
+                        : (sC.InputNodeSlot, 0);
+
+                    var outputElement = outputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput)[outputSlot];
+                    var inputElement = inputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput)[inputSlot];
+
+                    Reference.CreateConnection(outputElement, outputIndex, inputElement, inputIndex);
                 }
             }
             catch (Exception e)
@@ -163,20 +169,6 @@ public class NodeGraphSerialiserV2 : ProfiledSerialiser<NodeGraph, SerialisableN
             catch (Exception e)
             {
                 Logger.Error(e, "Error creating a group when deserialising");
-            }
-        }
-
-        foreach (var sC in data.Comments)
-        {
-            try
-            {
-                var comment = Reference.AddComment(sC.Id);
-                comment.Position.Value = sC.Position;
-                comment.Text.Value = sC.Text;
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Error creating a comment when deserialising");
             }
         }
 

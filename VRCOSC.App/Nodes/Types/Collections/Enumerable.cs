@@ -17,7 +17,7 @@ public sealed class EnumerableContainsNode<T>() : SimpleResultComputeNode<IEnume
 [Node("Enumerable Element At", "Collections/Enumerable")]
 public sealed class EnumerableElementAtNode<T>() : ResultComputeNode<IEnumerable<T>?, int, T>("Enumerable", "Index", "Element")
 {
-    protected override T ComputeResult(IEnumerable<T>? enumerable, int index)
+    protected override T ComputeResult(IEnumerable<T>? enumerable, int index, IPulseContext c)
     {
         if (enumerable is null || index < 0 || index >= enumerable.Count()) return default!;
 
@@ -58,9 +58,9 @@ public sealed class EnumerableReverseNode<T>() : SimpleValueTransformNode<IEnume
 public sealed class EnumerableDistinctNode<T>() : SimpleValueTransformNode<IEnumerable<T>?>(enumerable => enumerable?.Distinct() ?? null);
 
 [Node("Enumerable Concat", "Collections/Enumerable")]
-public sealed class EnumerableConcatNode<T>() : ResultComputeNode<IEnumerable<T>?>("First", "Second", "Enumerable")
+public sealed class EnumerableConcatNode<T>() : ResultComputeNode<IEnumerable<T>>("First", "Second", "Enumerable")
 {
-    protected override IEnumerable<T>? ComputeResult(IEnumerable<T>? first, IEnumerable<T>? second)
+    protected override IEnumerable<T> ComputeResult(IEnumerable<T>? first, IEnumerable<T>? second, IPulseContext c)
     {
         first ??= Enumerable.Empty<T>();
         second ??= Enumerable.Empty<T>();

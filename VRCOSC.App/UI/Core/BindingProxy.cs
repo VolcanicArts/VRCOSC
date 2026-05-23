@@ -15,7 +15,8 @@ public sealed class BindingProxy : Freezable
 {
     protected override Freezable CreateInstanceCore() => new BindingProxy();
 
-    public static readonly DependencyProperty DataProperty = DependencyProperty.Register(nameof(Data), typeof(object), typeof(BindingProxy), new UIPropertyMetadata(null));
+    public static readonly DependencyProperty DataProperty = DependencyProperty.Register(nameof(Data), typeof(object), typeof(BindingProxy),
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
 
     public object Data
     {

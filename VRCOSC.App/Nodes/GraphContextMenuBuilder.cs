@@ -52,7 +52,7 @@ public static class GraphContextMenuBuilder
 
     private static ContextMenuSubMenuEntry build()
     {
-        var createNodeSubMenu = new ContextMenuSubMenuEntry("Create Node");
+        var createNodeSubMenu = new ContextMenuSubMenuEntry("Add Node");
 
         foreach (var (key, typeMetadata) in NodeTypeManager.Data)
         {

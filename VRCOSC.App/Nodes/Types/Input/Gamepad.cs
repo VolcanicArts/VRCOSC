@@ -47,7 +47,8 @@ public sealed class GamepadSourceNode() : ValueComputeNode<Gamepad>("Gamepad"), 
 
     public GlobalStore<Gamepad> GamepadStore = new();
 
-    public ValueInput<uint> DeviceIndex = new(modes: ValueInputMode.Inline);
+    [InputMode(InputModes.Inline)]
+    public ValueInput<uint> DeviceIndex = new();
 
     protected override Gamepad ComputeValue(IPulseContext c) => GamepadStore.Read(c);
 

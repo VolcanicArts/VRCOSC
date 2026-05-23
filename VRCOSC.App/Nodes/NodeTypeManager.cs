@@ -18,6 +18,8 @@ public static partial class NodeTypeManager
 
     public static void Init()
     {
+        Data.Clear();
+
         var types = getAllNodeTypes();
         var groupedTypes = types.GroupBy(t => NamespaceRegex().Match(t.GetFriendlyName(true)).Value);
 

@@ -10,8 +10,11 @@ namespace VRCOSC.App.Nodes.Types.Time;
 [Node("Parse DateTime", "Date & Time")]
 public sealed class DateTimeParseNode : TryValueComputeNode<DateTime>
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<string> Value = new();
-    public ValueInput<DateTimeStyles> Styles = new(defaultValue: DateTimeStyles.AssumeUniversal, modes: ValueInputMode.Connection);
+
+    [InputMode(InputModes.Connection)]
+    public ValueInput<DateTimeStyles> Styles = new(defaultValue: DateTimeStyles.AssumeUniversal);
 
     protected override Result<DateTime> TryComputeValue(IPulseContext c) => DateTime.TryParse(Value.Read(c), null, Styles.Read(c), out var dateTime) ? dateTime : Result<DateTime>.Fail();
 }

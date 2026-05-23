@@ -8,7 +8,9 @@ namespace VRCOSC.App.Nodes.Types.Math;
 [Node("Clamp", "Math/Clamp")]
 public sealed class ClampNode<T> : ValueComputeNode<T> where T : INumber<T>
 {
-    public ValueInput<T> Value = new(modes: ValueInputMode.Connection);
+    [InputMode(InputModes.Connection)]
+    public ValueInput<T> Value = new();
+
     public ValueInput<T> Min = new();
     public ValueInput<T> Max = new();
 

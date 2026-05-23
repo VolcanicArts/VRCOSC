@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Threading.Tasks;
 using FontAwesome6;
 
 namespace VRCOSC.App.Nodes.Types.Time;
@@ -37,8 +38,13 @@ public sealed class TimeSpanConstructNode : ValueComputeNode<TimeSpan>
 }
 
 [Node("TimeSpan Extract", "Date & Time")]
-public sealed class TimeSpanExtractNode() : ValueConsumeNode<TimeSpan>("TimeSpan")
+public sealed class TimeSpanExtractNode : Node
 {
+    public override string DisplayName => "Extract";
+
+    [InputMode(InputModes.Connection)]
+    public ValueInput<TimeSpan> TimeSpan = new("TimeSpan");
+
     public ValueOutput<int> Days = new();
     public ValueOutput<int> Hours = new();
     public ValueOutput<int> Minutes = new();
@@ -47,8 +53,9 @@ public sealed class TimeSpanExtractNode() : ValueConsumeNode<TimeSpan>("TimeSpan
     public ValueOutput<int> Microseconds = new();
     public ValueOutput<int> Nanoseconds = new();
 
-    protected override void ConsumeValue(TimeSpan timeSpan, IPulseContext c)
+    protected override Task Process(IPulseContext c)
     {
+        var timeSpan = TimeSpan.Read(c);
         Days.Write(timeSpan.Days, c);
         Hours.Write(timeSpan.Hours, c);
         Minutes.Write(timeSpan.Minutes, c);
@@ -56,12 +63,18 @@ public sealed class TimeSpanExtractNode() : ValueConsumeNode<TimeSpan>("TimeSpan
         Milliseconds.Write(timeSpan.Milliseconds, c);
         Microseconds.Write(timeSpan.Microseconds, c);
         Nanoseconds.Write(timeSpan.Nanoseconds, c);
+        return Task.CompletedTask;
     }
 }
 
 [Node("TimeSpan Extract Total", "Date & Time")]
-public sealed class TimeSpanExtractTotalNode() : ValueConsumeNode<TimeSpan>("TimeSpan")
+public sealed class TimeSpanExtractTotalNode : Node
 {
+    public override string DisplayName => "Extract Total";
+
+    [InputMode(InputModes.Connection)]
+    public ValueInput<TimeSpan> TimeSpan = new("TimeSpan");
+
     public ValueOutput<double> Days = new();
     public ValueOutput<double> Hours = new();
     public ValueOutput<double> Minutes = new();
@@ -70,8 +83,9 @@ public sealed class TimeSpanExtractTotalNode() : ValueConsumeNode<TimeSpan>("Tim
     public ValueOutput<double> Microseconds = new();
     public ValueOutput<double> Nanoseconds = new();
 
-    protected override void ConsumeValue(TimeSpan timeSpan, IPulseContext c)
+    protected override Task Process(IPulseContext c)
     {
+        var timeSpan = TimeSpan.Read(c);
         Days.Write(timeSpan.TotalDays, c);
         Hours.Write(timeSpan.TotalHours, c);
         Minutes.Write(timeSpan.TotalMinutes, c);
@@ -79,6 +93,7 @@ public sealed class TimeSpanExtractTotalNode() : ValueConsumeNode<TimeSpan>("Tim
         Milliseconds.Write(timeSpan.TotalMilliseconds, c);
         Microseconds.Write(timeSpan.TotalMicroseconds, c);
         Nanoseconds.Write(timeSpan.TotalNanoseconds, c);
+        return Task.CompletedTask;
     }
 }
 
@@ -142,6 +157,7 @@ public sealed class DateTimeExtractNode() : ValueConsumeNode<DateTime>("DateTime
 }
 
 [Node("DateTime Difference", "Date & Time")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Minus)]
 public sealed class DateTimeDifferenceNode() : SimpleResultComputeNode<DateTime, TimeSpan>((a, b) => a - b);
 
 [Node("DateTime Add", "Date & Time")]

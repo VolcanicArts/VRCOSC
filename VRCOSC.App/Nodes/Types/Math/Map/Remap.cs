@@ -6,18 +6,31 @@ using System.Numerics;
 namespace VRCOSC.App.Nodes.Types.Math.Map;
 
 [Node("Remap", "Math/Map")]
-public class RemapNode<TFrom, TTo> : ValueComputeNode<TTo> where TFrom : INumberBase<TFrom> where TTo : INumberBase<TTo>
+public class RemapNode<TFrom, TTo> : ValueComputeNode<TTo> where TFrom : INumber<TFrom> where TTo : INumber<TTo>
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<TFrom> Value = new();
+
     public ValueInput<TFrom> FromMin = new();
     public ValueInput<TFrom> FromMax = new();
     public ValueInput<TTo> ToMin = new();
     public ValueInput<TTo> ToMax = new();
+    public ValueInput<bool> Clamp = new();
 
-    protected override TTo ComputeValue(IPulseContext c) => Utils.Interpolation.Map(Value.Read(c), FromMin.Read(c), FromMax.Read(c), ToMin.Read(c), ToMax.Read(c));
+    protected override TTo ComputeValue(IPulseContext c)
+    {
+        var value = Value.Read(c);
+        var fromMin = FromMin.Read(c);
+        var fromMax = FromMax.Read(c);
+
+        if (Clamp.Read(c))
+            value = TFrom.Clamp(value, fromMin, fromMax);
+
+        return Utils.Interpolation.Map(value, fromMin, fromMax, ToMin.Read(c), ToMax.Read(c));
+    }
 }
 
-public sealed class RemapNode<T> : RemapNode<T, T> where T : INumberBase<T>;
+public sealed class RemapNode<T> : RemapNode<T, T> where T : INumber<T>;
 
 [Node("Remap 0,1 To -1,1", "Math/Map")]
 [NodeCollapsed]

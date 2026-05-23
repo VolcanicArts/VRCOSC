@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MeaMod.DNS.Server;
 using VRCOSC.App.Nodes.Metadata;
-using VRCOSC.App.Nodes.Serialisation;
+using VRCOSC.App.Nodes.Serialisation.V1;
 using VRCOSC.App.Nodes.Serialisation.V2;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Events;
@@ -49,8 +49,8 @@ public class NodeGraph
     public NodeGraph()
     {
         serialiser = new SerialisationManager();
-        serialiser.RegisterSerialiser(1, new NodeGraphSerialiser(AppManager.GetInstance().Storage, this));
-        serialiser.RegisterSerialiser(2, new NodeGraphSerialiserV2(AppManager.GetInstance().Storage, this));
+        serialiser.RegisterSerialiser(1, new NodeGraphSerialiserV1(AppManager.GetInstance().Storage, this));
+        serialiser.RegisterSerialiser(2, new NodeGraphSerialiser(AppManager.GetInstance().Storage, this));
     }
 
     public void Load(string importPath = "")
@@ -159,10 +159,10 @@ public class NodeGraph
 
         var node = (INode)element;
 
-        var inputConnections = Connections.RemoveIf(c => c.OutputId == id);
-        var outputConnections = Connections.RemoveIf(c => c.InputId == id);
+        var removedInputConnections = Connections.RemoveIf(c => c.OutputId == id);
+        var removedOutputConnections = Connections.RemoveIf(c => c.InputId == id);
 
-        foreach (var inputConnection in inputConnections)
+        foreach (var inputConnection in removedInputConnections)
         {
             var inputNodeResult = GetNode(inputConnection.InputId);
             Debug.Assert(inputNodeResult.IsSuccess);
@@ -170,8 +170,8 @@ public class NodeGraph
             inputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput)[inputConnection.InputSlot].IsConnected = false;
         }
 
-        graphChanges.RemovedConnections.AddRange(inputConnections);
-        graphChanges.RemovedConnections.AddRange(outputConnections);
+        graphChanges.RemovedConnections.AddRange(removedInputConnections);
+        graphChanges.RemovedConnections.AddRange(removedOutputConnections);
         graphChanges.RemovedNodes.Add(node);
         return true;
     }
@@ -674,7 +674,7 @@ public class NodeGraph
         if (connection is IFlowConnection)
             affectedNode.Metadata.Elements[ConnectionPoint.FlowInput][connection.InputSlot].Instance.IsConnected = false;
 
-        if (!affectedNode.Metadata.Shared.IsActiveUpdate && !affectedNode.Metadata.Shared.IsFlowInput)
+        if (!affectedNode.Metadata.Shared.IsSelfUpdating && !affectedNode.Metadata.Shared.IsFlowInput)
             TriggerTree(affectedNode).Forget();
     }
 
@@ -723,7 +723,7 @@ public class NodeGraph
 
     private async Task processAllTriggerNodes()
     {
-        foreach (var node in Elements.Values.OfType<INode>().Where(node => node.Metadata.Shared.IsValueInputTrigger && !node.Metadata.Shared.IsActiveUpdate))
+        foreach (var node in Elements.Values.OfType<INode>().Where(node => node.Metadata.Shared.IsValueInputTrigger))
         {
             await TriggerTree(node);
         }
@@ -768,9 +768,17 @@ public class NodeGraph
                             {
                                 var wasChange = false;
 
-                                for (var i = 0; i < node.Metadata.Shared.ValueOutputCount; i++)
+                                for (var slot = 0; slot < node.Metadata.Shared.ValueOutputCount; slot++)
                                 {
-                                    if (!outputs[i].Equals(nodeMemory[i])) wasChange = true;
+                                    var valueOutput = node.Metadata.Elements[ConnectionPoint.ValueOutput][slot];
+
+                                    for (var index = 0; index < valueOutput.WorkingSize; index++)
+                                    {
+                                        var prevValue = outputs[slot][index];
+                                        var currentValue = nodeMemory[slot][index];
+
+                                        if (!prevValue.Equals(currentValue)) wasChange = true;
+                                    }
                                 }
 
                                 continuousOutputs[node.Id] = nodeMemory;
@@ -804,20 +812,29 @@ public class NodeGraph
         }, updateTokenSource.Token);
     }
 
-    public void CreatePreset(string name, List<Guid> nodeIds, float posX, float posY)
+    public void CreatePreset(string name, List<Guid> nodeIds, List<Guid> commentIds, float posX, float posY)
     {
         var nodePreset = new NodePreset
         {
             Name = { Value = name },
-            Nodes = nodeIds.Select(id => new SerialisableNode((Node)Elements[id])).ToList(),
-            Connections = Connections.Where(c => nodeIds.Contains(c.OutputId) && nodeIds.Contains(c.InputId)).Select(c => new SerialisableConnection(c)).ToList(),
-            Groups = Groups.Values.Where(g => g.Nodes.All(nodeIds.Contains)).Select(g => new SerialisableNodeGroup(g)).ToList(),
-            Variables = nodeIds.Select(id => (Node)Elements[id]).OfType<IHasVariableReference>().Select(node => new SerialisableGraphVariable(GraphVariables[node.VariableId])).ToList()
+            Structure =
+            {
+                Nodes = nodeIds.Select(id => new SerialisableNode((Node)Elements[id])).ToList(),
+                Connections = Connections.Where(c => nodeIds.Contains(c.OutputId) && nodeIds.Contains(c.InputId)).Select(c => new SerialisableConnection(c)).ToList(),
+                Groups = Groups.Values.Where(g => g.Nodes.All(nodeIds.Contains)).Select(g => new SerialisableNodeGroup(g)).ToList(),
+                Variables = nodeIds.Select(id => (Node)Elements[id]).OfType<IHasVariableReference>().Select(node => new SerialisableGraphVariable(GraphVariables[node.VariableId])).ToList(),
+                Comments = commentIds.Select(id => new SerialisableComment((Comment)Elements[id])).ToList()
+            }
         };
 
-        foreach (var node in nodePreset.Nodes)
+        foreach (var node in nodePreset.Structure.Nodes)
         {
             node.Position = new Vector2(node.Position.X - posX, node.Position.Y - posY);
+        }
+
+        foreach (var comment in nodePreset.Structure.Comments)
+        {
+            comment.Position = new Vector2(comment.Position.X - posX, comment.Position.Y - posY);
         }
 
         NodeManager.GetInstance().Presets.Add(nodePreset);
@@ -1043,16 +1060,11 @@ public class NodeGraph
 
         var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this);
 
-        if (onPreProcess is not null || onPostProcess is not null)
-        {
-            var hasProcessed = await processNode(sourceNode, c, onPreProcess, onPostProcess);
-            if (!hasProcessed) return;
-        }
+        var hasProcessed = await processNode(sourceNode, c, onPreProcess, onPostProcess);
+        if (!hasProcessed) return;
 
         var pathList = new List<INode[]>();
         var currPath = new Stack<INode>();
-
-        currPath.Push(sourceNode);
 
         for (var slot = 0; slot < sourceNode.Metadata.Shared.ValueOutputCount; slot++)
         {
@@ -1070,6 +1082,8 @@ public class NodeGraph
 
         foreach (var path in pathList)
         {
+            if (path.Length == 1) continue;
+
             // traverse backwards as ToArray on a stack reverses the order
             for (var i = path.Length - 1; i > 0; i--)
             {
@@ -1093,7 +1107,7 @@ public class NodeGraph
             var inputNode = (INode)Elements[connection.InputId];
 
             if (pathStack.Contains(inputNode)) continue;
-            if (inputNode.Metadata.Shared.IsFlowInput || inputNode.Metadata.Shared.IsActiveUpdate) continue;
+            if (inputNode.Metadata.Shared.IsFlowInput || inputNode.Metadata.Shared.IsSelfUpdating) continue;
 
             pathStack.Push(inputNode);
 

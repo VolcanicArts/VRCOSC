@@ -15,7 +15,7 @@ public sealed class FireOnBurstNode : Node
     public GlobalStore<DateTime> TrueTime = new();
     public GlobalStore<int> BecameFalse = new();
 
-    public ValueInput<int> Milliseconds = new();
+    public ValueInput<int> Duration = new("Duration (ms)");
     public ValueInput<int> Count = new(defaultValue: 2);
     public ValueInput<bool> Condition = new();
 
@@ -26,7 +26,7 @@ public sealed class FireOnBurstNode : Node
         var becameTrue = BecameTrue.Read(c);
         var trueTime = TrueTime.Read(c);
         var becameFalse = BecameFalse.Read(c);
-        var milliseconds = Milliseconds.Read(c);
+        var milliseconds = Duration.Read(c);
         var count = Count.Read(c);
         var condition = Condition.Read(c);
 

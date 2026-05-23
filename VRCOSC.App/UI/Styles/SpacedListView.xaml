@@ -3,7 +3,6 @@
                     xmlns:core="clr-namespace:VRCOSC.App.UI.Core"
                     xmlns:b="http://schemas.microsoft.com/xaml/behaviors">
     <Style TargetType="{x:Type core:SpacedListView}">
-        <Setter Property="OverridesDefaultStyle" Value="True" />
         <Setter Property="ItemsPanel">
             <Setter.Value>
                 <ItemsPanelTemplate>

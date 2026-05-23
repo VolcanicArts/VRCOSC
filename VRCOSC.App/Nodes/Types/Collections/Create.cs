@@ -34,7 +34,9 @@ public sealed class CreateDictionaryNode<TKey, TValue> : Node where TKey : notnu
     protected override Task Process(IPulseContext c)
     {
         var dictionary = new Dictionary<TKey, TValue>();
-        dictionary.AddRange(Inputs.Read(c).ToList().RemoveIf(pair => pair.Key is null));
+        var inputs = Inputs.Read(c).ToList();
+        inputs.RemoveAll(pair => pair.Key is null);
+        dictionary.AddRange(inputs);
 
         Output.Write(dictionary, c);
         InputCount.Write(dictionary.Count, c);

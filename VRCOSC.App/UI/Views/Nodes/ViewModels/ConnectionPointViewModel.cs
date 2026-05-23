@@ -118,19 +118,22 @@ public partial class NodeValueInputViewModel : ConnectionPointViewModel
         Element = element;
         TypeName = element.Metadata.Shared.ValueType.GetFriendlyName();
 
-        if (element is IValueInput elementSingle)
+        if (element is IValueInput)
         {
-            RenderConnection = elementSingle.Modes.HasFlag(ValueInputMode.Connection);
+            var canInline = element.Metadata.Shared.Modes.HasFlag(InputModes.Inline);
+            var canConnection = element.Metadata.Shared.Modes.HasFlag(InputModes.Connection);
+
+            RenderConnection = canConnection;
 
             if (renderInlineOverride is null)
             {
-                RenderInline = elementSingle.Modes.HasFlag(ValueInputMode.Inline) && !element.IsConnected;
+                RenderInline = canInline && !element.IsConnected;
 
-                element.OnIsConnectedChanged += () => { RenderInline = elementSingle.Modes.HasFlag(ValueInputMode.Inline) && !element.IsConnected; };
+                element.OnIsConnectedChanged += () => { RenderInline = canInline && !element.IsConnected; };
             }
             else
             {
-                RenderInline = elementSingle.Modes == ValueInputMode.Inline || renderInlineOverride.Value;
+                RenderInline = element.Metadata.Shared.Modes == InputModes.Inline || renderInlineOverride.Value;
             }
         }
     }

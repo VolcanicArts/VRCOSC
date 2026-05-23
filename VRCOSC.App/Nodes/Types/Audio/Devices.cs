@@ -13,7 +13,8 @@ public sealed class AudioDefaultPlaybackDeviceNode() : SimpleValueSourceNode<Aud
 [Node("Playback Device Source", "Audio/Devices")]
 public sealed class AudioPlaybackDeviceSourceNode() : ValueSourceNode<AudioPlaybackDevice?>("Device")
 {
-    public ValueInput<string> Name = new(modes: ValueInputMode.Inline);
+    [InputMode(InputModes.Inline)]
+    public ValueInput<string> Name = new();
 
     protected override AudioPlaybackDevice? ComputeValue(IPulseContext c) => AudioManager.GetInstance().PlaybackDevices.FirstOrDefault(d => d.Info!.Value.Name == Name.Read(c));
 }

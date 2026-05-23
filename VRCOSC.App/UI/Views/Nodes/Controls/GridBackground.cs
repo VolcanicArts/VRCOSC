@@ -10,7 +10,8 @@ namespace VRCOSC.App.UI.Views.Nodes.Controls;
 public partial class GridBackground : Control
 {
     public static readonly DependencyProperty CellSizeProperty =
-        DependencyProperty.Register(nameof(CellSize), typeof(double), typeof(GridBackground), new PropertyMetadata(25d));
+        DependencyProperty.Register(nameof(CellSize), typeof(double), typeof(GridBackground),
+            new FrameworkPropertyMetadata(25d, FrameworkPropertyMetadataOptions.AffectsRender, OnVisualPropertyChanged));
 
     public double CellSize
     {
@@ -19,7 +20,8 @@ public partial class GridBackground : Control
     }
 
     public static readonly DependencyProperty MajorLineIntervalProperty =
-        DependencyProperty.Register(nameof(MajorLineInterval), typeof(int), typeof(GridBackground), new PropertyMetadata(20));
+        DependencyProperty.Register(nameof(MajorLineInterval), typeof(int), typeof(GridBackground),
+            new FrameworkPropertyMetadata(20, FrameworkPropertyMetadataOptions.AffectsRender, OnVisualPropertyChanged));
 
     public int MajorLineInterval
     {
@@ -28,7 +30,8 @@ public partial class GridBackground : Control
     }
 
     public static readonly DependencyProperty LineThicknessProperty =
-        DependencyProperty.Register(nameof(LineThickness), typeof(int), typeof(GridBackground), new PropertyMetadata(1));
+        DependencyProperty.Register(nameof(LineThickness), typeof(int), typeof(GridBackground),
+            new FrameworkPropertyMetadata(1, FrameworkPropertyMetadataOptions.AffectsRender, OnVisualPropertyChanged));
 
     public int LineThickness
     {
@@ -37,7 +40,8 @@ public partial class GridBackground : Control
     }
 
     public static readonly DependencyProperty BackgroundBrushProperty =
-        DependencyProperty.Register(nameof(BackgroundBrush), typeof(Brush), typeof(GridBackground), new PropertyMetadata(Brushes.Transparent));
+        DependencyProperty.Register(nameof(BackgroundBrush), typeof(Brush), typeof(GridBackground),
+            new FrameworkPropertyMetadata(Brushes.Transparent, FrameworkPropertyMetadataOptions.AffectsRender, OnVisualPropertyChanged));
 
     public Brush BackgroundBrush
     {
@@ -46,7 +50,8 @@ public partial class GridBackground : Control
     }
 
     public static readonly DependencyProperty MinorLineBrushProperty =
-        DependencyProperty.Register(nameof(MinorLineBrush), typeof(Brush), typeof(GridBackground), new PropertyMetadata(Brushes.Black));
+        DependencyProperty.Register(nameof(MinorLineBrush), typeof(Brush), typeof(GridBackground),
+            new FrameworkPropertyMetadata(Brushes.Black, FrameworkPropertyMetadataOptions.AffectsRender, OnVisualPropertyChanged));
 
     public Brush MinorLineBrush
     {
@@ -55,7 +60,8 @@ public partial class GridBackground : Control
     }
 
     public static readonly DependencyProperty MajorLineBrushProperty =
-        DependencyProperty.Register(nameof(MajorLineBrush), typeof(Brush), typeof(GridBackground), new PropertyMetadata(Brushes.White));
+        DependencyProperty.Register(nameof(MajorLineBrush), typeof(Brush), typeof(GridBackground),
+            new FrameworkPropertyMetadata(Brushes.White, FrameworkPropertyMetadataOptions.AffectsRender, OnVisualPropertyChanged));
 
     public Brush MajorLineBrush
     {
@@ -63,12 +69,20 @@ public partial class GridBackground : Control
         set => SetValue(MajorLineBrushProperty, value);
     }
 
-    private DrawingBrush? _cachedBrush;
+    private DrawingBrush? cachedBrush;
+
+    private static void OnVisualPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is GridBackground grid)
+        {
+            grid.cachedBrush = null;
+        }
+    }
 
     protected override void OnRender(DrawingContext context)
     {
-        _cachedBrush ??= createGridBrush();
-        context.DrawRectangle(_cachedBrush, null, new Rect(RenderSize));
+        cachedBrush ??= createGridBrush();
+        context.DrawRectangle(cachedBrush, null, new Rect(RenderSize));
     }
 
     private DrawingBrush createGridBrush()

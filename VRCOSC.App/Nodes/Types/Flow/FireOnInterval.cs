@@ -15,13 +15,13 @@ public sealed class FireOnIntervalNode : Node, IActiveUpdateNode
 
     public FlowOutput Next = new();
 
-    public ValueInput<int> DelayMilliseconds = new();
+    public ValueInput<int> Interval = new("Interval (ms)");
 
     protected override Task Process(IPulseContext c) => Next.Execute(c);
 
     public Task<bool> OnUpdate(IPulseContext c)
     {
-        var delay = DelayMilliseconds.Read(c);
+        var delay = Interval.Read(c);
         var dateTimeNow = DateTime.Now;
         var shouldContinue = (dateTimeNow - LastUpdateStore.Read(c)).TotalMilliseconds >= delay;
 

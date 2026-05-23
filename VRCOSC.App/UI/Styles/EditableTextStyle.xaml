@@ -5,8 +5,9 @@
     <Setter Property="Template">
         <Setter.Value>
             <ControlTemplate TargetType="{x:Type core:EditableText}">
-                <Grid Margin="10,5" VerticalAlignment="Center">
+                <Grid RowDefinitions="Auto" Margin="10 0" VerticalAlignment="Center">
                     <Grid x:Name="PART_DisplayGrid"
+                          Grid.Row="0"
                           Cursor="Hand"
                           Margin="0 -2 0 0"
                           Background="Transparent"
@@ -25,11 +26,13 @@
                                   FontSize="{TemplateBinding FontSize}"
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Top"
+                                  TextAlignment="Center"
                                   TextTrimming="CharacterEllipsis"
                                   Foreground="{TemplateBinding Foreground}"/>
                     </Grid>
                     <Grid Background="Transparent"
-                          Margin="0 -3 0 0">
+                          Margin="0 2"
+                          Grid.Row="0">
                         <Grid.Style>
                             <Style TargetType="Grid">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -41,7 +44,7 @@
                             </Style>
                         </Grid.Style>
                         <TextBox x:Name="PART_EditTextBox"
-                                Text="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                Text="{Binding Text, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
                                 FontSize="{TemplateBinding FontSize}"
                                 Foreground="{TemplateBinding Foreground}"
                                 HorizontalAlignment="Stretch"

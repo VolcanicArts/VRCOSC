@@ -34,7 +34,7 @@ public static class NodeMetadataManager
             return Result<INodeSharedMetadata>.Success(metadata);
         }
 
-        return createFor(nodeType);
+        return createSharedFor(nodeType);
     }
 
     private static INodeElementSharedMetadata[] createElementMetadataFor(Type nodeType, Type elementBase, Type elementListBase)
@@ -46,13 +46,16 @@ public static class NodeMetadataManager
         for (var i = 0; i < fields.Length; i++)
         {
             var f = fields[i];
+            var modes = f.TryGetCustomAttribute<InputMode>(out var valueModeAttribute) ? valueModeAttribute.Modes : InputModes.Connection | InputModes.Inline;
+            var isInlineable = f.FieldType.IsAssignableTo(typeof(IValueInput)) && NodeConstants.IsInputType(f.FieldType.GetGenericArguments()[0]) && modes.HasFlag(InputModes.Inline);
 
             arr[i] = new NodeElementSharedMetadata
             {
                 FieldInfo = f,
                 Slot = i,
                 IsList = f.FieldType.IsAssignableTo(elementListBase),
-                IsInlineable = f.FieldType.IsAssignableTo(typeof(IValueInput)) && NodeConstants.INPUT_TYPES.Contains(f.FieldType.GetGenericArguments()[0])
+                Modes = modes,
+                IsInlineable = isInlineable
             };
         }
 
@@ -71,7 +74,7 @@ public static class NodeMetadataManager
     {
         if (!sharedMetadata.TryGetValue(node.GetType(), out var shared))
         {
-            var sharedResult = createFor(node.GetType());
+            var sharedResult = createSharedFor(node.GetType());
             if (!sharedResult.IsSuccess) return sharedResult.Exception;
 
             shared = sharedResult.Value;
@@ -100,7 +103,7 @@ public static class NodeMetadataManager
         return metadata;
     }
 
-    private static Result<INodeSharedMetadata> createFor(Type nodeType)
+    private static Result<INodeSharedMetadata> createSharedFor(Type nodeType)
     {
         if (nodeType.IsAbstract)
             return new Exception("Node must not be abstract");

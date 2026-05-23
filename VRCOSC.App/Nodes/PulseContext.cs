@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ using VRCOSC.App.SDK.VRChat;
 
 namespace VRCOSC.App.Nodes;
 
-public record FlowSource(IFlowInputBase FlowInput, int Index);
+public record FlowSource(int Slot, int Index);
 
 public interface IPulseContext
 {
@@ -71,8 +72,6 @@ public class PulseContext : IPulseContext
 
     internal INode Peek() => nodes.Peek();
 
-    internal bool HasMemory(Guid nodeId) => Memory.ContainsKey(nodeId) || (BaseContext?.HasMemory(nodeId) ?? false);
-
     public Task Run(Task task) => task.WaitAsync(Source.Token);
     public Task<T> Run<T>(Task<T> task) => task.WaitAsync(Source.Token);
 
@@ -81,14 +80,8 @@ public class PulseContext : IPulseContext
     internal VRChatParameter? GetParameter<T>(string name) => AppManager.GetInstance().GetParameter<T>(name);
     internal TemplatedVRChatParameter? GetParameter<T>(Regex pattern) => AppManager.GetInstance().GetParameter<T>(pattern);
 
-    public void WriteKeyedStore<T>(string name, T value)
-    {
-    }
-
-    public T ReadKeyedStore<T>(string name)
-    {
-        return default!;
-    }
+    public void WriteKeyedStore<T>(string name, T value) => keyedStores[name] = new Ref<T>(value);
+    public T ReadKeyedStore<T>(string name) => tryReadKeyedStore<T>(name, out var value) ? value : default!;
 
     public async Task Execute(IFlowOutput flowOutput)
     {
@@ -103,9 +96,10 @@ public class PulseContext : IPulseContext
 
         var inputNodeResult = Graph.GetNode(connection.InputId);
         Debug.Assert(inputNodeResult.IsSuccess);
+
         var inputNode = inputNodeResult.Value;
         var flowInputElement = (IFlowInputBase)inputNode.Metadata.ElementInstancesFor(ConnectionPoint.FlowInput)[connection.InputSlot];
-        var flowSource = new FlowSource(flowInputElement, connection.InputSlot);
+        var flowSource = new FlowSource(flowInputElement.Metadata.Shared.Slot, connection.InputSlotIndex);
 
         flowSources.Push(flowSource);
         await Graph.ProcessNode(connection.InputId, scope ? new PulseContext(this, Graph) : this);
@@ -125,25 +119,56 @@ public class PulseContext : IPulseContext
         return Graph.ProcessNode(connection.InputId, scope ? new PulseContext(this, Graph) : this);
     }
 
+    internal bool HasMemory(Guid nodeId) => Memory.ContainsKey(nodeId) || (BaseContext?.HasMemory(nodeId) ?? false);
+
+    private bool tryReadKeyedStore<T>(string name, out T value)
+    {
+        if (keyedStores.TryGetValue(name, out var localIRef))
+        {
+            value = (T)localIRef.GetValue()!;
+            return true;
+        }
+
+        if (BaseContext?.tryReadKeyedStore<T>(name, out var baseValue) ?? false)
+        {
+            value = baseValue;
+            return true;
+        }
+
+        value = default!;
+        return true;
+    }
+
+    private bool tryGetMemoryEntry(Guid nodeId, [NotNullWhen(true)] out IRef[][]? memoryEntry)
+    {
+        if (Memory.TryGetValue(nodeId, out var localEntry))
+        {
+            memoryEntry = localEntry;
+            return true;
+        }
+
+        if (BaseContext?.tryGetMemoryEntry(nodeId, out var baseEntry) ?? false)
+        {
+            memoryEntry = baseEntry;
+            return true;
+        }
+
+        memoryEntry = null;
+        return false;
+    }
+
     private bool tryReadValue<T>(Guid nodeId, int slot, int index, out T value)
     {
-        if (Memory.TryGetValue(nodeId, out var memoryEntry))
+        if (tryGetMemoryEntry(nodeId, out var memoryEntry))
         {
-            Debug.Assert(memoryEntry is not null);
-
             value = (T)memoryEntry[slot][index].GetValue()!;
             return true;
         }
 
-        if (BaseContext is not null)
+        if (BaseContext?.tryReadValue<T>(nodeId, slot, index, out var baseValue) ?? false)
         {
-            var baseResult = BaseContext.tryReadValue<T>(nodeId, slot, index, out var baseValue);
-
-            if (baseResult)
-            {
-                value = baseValue;
-                return true;
-            }
+            value = baseValue;
+            return true;
         }
 
         value = default!;
@@ -152,7 +177,7 @@ public class PulseContext : IPulseContext
 
     private void writeValue<T>(Guid nodeId, int slot, int index, T value)
     {
-        var memoryResult = Memory.TryGetValue(nodeId, out var memoryEntry);
+        var memoryResult = tryGetMemoryEntry(nodeId, out var memoryEntry);
         Debug.Assert(memoryResult && memoryEntry is not null);
 
         var iRefStore = memoryEntry[slot][index];
@@ -164,7 +189,7 @@ public class PulseContext : IPulseContext
 
     public T Read<T>(IValueInput<T> valueInput)
     {
-        if (valueInput.Modes == ValueInputMode.Inline) return valueInput.Field;
+        if (valueInput.Metadata.Shared.Modes == InputModes.Inline) return valueInput.Field;
 
         var current = Peek();
         var slot = valueInput.Metadata.Shared.Slot;
@@ -223,7 +248,7 @@ public class PulseContext : IPulseContext
 
     internal void CreateMemory(INode node)
     {
-        if (Memory.ContainsKey(node.Id)) return;
+        if (HasMemory(node.Id)) return;
 
         var valueOutputCount = node.Metadata.Shared.ValueOutputCount;
         Memory.Add(node.Id, new IRef[valueOutputCount][]);
@@ -248,13 +273,13 @@ public class PulseContext : IPulseContext
     public bool IsSource(IFlowInput flowInput)
     {
         var flowSource = flowSources.Peek();
-        return flowSource.FlowInput == flowInput;
+        return flowSource.Slot == flowInput.Metadata.Shared.Slot;
     }
 
     public bool IsSource(IFlowInputList flowInputList, int index)
     {
         var flowSource = flowSources.Peek();
-        return flowSource.FlowInput == flowInputList && flowSource.Index == index;
+        return flowSource.Slot == flowInputList.Metadata.Shared.Slot && flowSource.Index == index;
     }
 }
 
@@ -264,7 +289,7 @@ public interface IRef
     public object? GetValue();
 }
 
-public class Ref<T> : IRef
+public class Ref<T> : IRef, IEqualityComparer<T>
 {
     public T Value;
     public Type ValueType => typeof(T);
@@ -282,5 +307,9 @@ public class Ref<T> : IRef
 
     public object? GetValue() => Value;
 
-    public override bool Equals(object? obj) => obj is Ref<T> otherRef && EqualityComparer<T>.Default.Equals(Value, otherRef.Value);
+    public bool Equals(T? x, T? y) => EqualityComparer<T>.Default.Equals(x, y);
+
+    public int GetHashCode([DisallowNull] T obj) => EqualityComparer<T>.Default.GetHashCode(Value!);
+
+    public override bool Equals(object? obj) => obj is Ref<T> other && Equals(Value, other.Value);
 }

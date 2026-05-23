@@ -11,12 +11,14 @@ public sealed class DampContinuouslyNode<T> : ValueComputeNode<T>, IContinuousNo
     public int UpdateOffset => 0;
     public GlobalStore<T> Current = new();
 
+    [InputMode(InputModes.Connection)]
     public ValueInput<T> Target = new();
-    public ValueInput<double> HalfTimeMilli = new();
+
+    public ValueInput<double> HalfTime = new("Half Time (ms)");
 
     protected override T ComputeValue(IPulseContext c)
     {
-        var result = Utils.Interpolation.DampContinuously(Current.Read(c), Target.Read(c), HalfTimeMilli.Read(c) / 2d, 1d / 100d * 1000d);
+        var result = Utils.Interpolation.DampContinuously(Current.Read(c), Target.Read(c), HalfTime.Read(c) / 2d, 1d / 100d * 1000d);
         if (T.IsNaN(result)) result = T.Zero;
 
         Current.Write(result, c);

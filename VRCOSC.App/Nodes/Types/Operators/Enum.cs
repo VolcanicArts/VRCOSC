@@ -22,7 +22,9 @@ public sealed class EnumFlagCreateNode<T> : ValueComputeNode<T> where T : struct
 [Node("Has Flag", "Operators/Enum")]
 public sealed class EnumHasFlagNode<T>() : ValueComputeNode<bool>("Has Flag") where T : struct, Enum
 {
-    public ValueInput<T> Flags = new(modes: ValueInputMode.Connection);
+    [InputMode(InputModes.Connection)]
+    public ValueInput<T> Flags = new();
+
     public ValueInput<T> Flag = new();
 
     protected override bool ComputeValue(IPulseContext c)
@@ -36,7 +38,9 @@ public sealed class EnumHasFlagNode<T>() : ValueComputeNode<bool>("Has Flag") wh
 [Node("Flag Add", "Operators/Enum")]
 public sealed class EnumFlagAddNode<T>() : ActionValueComputeNode<T>("Flags") where T : struct, Enum
 {
-    public ValueInput<T> Flags = new(modes: ValueInputMode.Connection);
+    [InputMode(InputModes.Connection)]
+    public ValueInput<T> Flags = new();
+
     public ValueInput<T> NewFlag = new();
 
     protected override T ComputeValue(IPulseContext c)
@@ -50,7 +54,9 @@ public sealed class EnumFlagAddNode<T>() : ActionValueComputeNode<T>("Flags") wh
 [Node("Flag Remove", "Operators/Enum")]
 public sealed class EnumFlagRemoveNode<T>() : ActionValueComputeNode<T>("Flags") where T : struct, Enum
 {
-    public ValueInput<T> Flags = new(modes: ValueInputMode.Connection);
+    [InputMode(InputModes.Connection)]
+    public ValueInput<T> Flags = new();
+
     public ValueInput<T> OldFlag = new();
 
     protected override T ComputeValue(IPulseContext c)
@@ -64,7 +70,9 @@ public sealed class EnumFlagRemoveNode<T>() : ActionValueComputeNode<T>("Flags")
 [Node("Flag Toggle", "Operators/Enum")]
 public sealed class EnumFlagToggleNode<T>() : ActionValueComputeNode<T>("Flags") where T : struct, Enum
 {
-    public ValueInput<T> Flags = new(modes: ValueInputMode.Connection);
+    [InputMode(InputModes.Connection)]
+    public ValueInput<T> Flags = new();
+
     public ValueInput<T> Flag = new();
 
     protected override T ComputeValue(IPulseContext c)
