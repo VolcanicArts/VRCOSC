@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using ColorPicker;
 using VRCOSC.App.Nodes;
 using VRCOSC.App.Nodes.Metadata;
 using VRCOSC.App.Nodes.Serialisation.V2;
@@ -25,6 +26,7 @@ using VRCOSC.App.UI.Views.Nodes.ViewModels;
 using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
 using Xceed.Wpf.AvalonDock.Controls;
+using Color = VRCOSC.App.Utils.Color;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MenuItem = System.Windows.Controls.MenuItem;
 using MessageBox = System.Windows.MessageBox;
@@ -292,7 +294,11 @@ public partial class NodeGraphView
 
             if (!elementSharedMetadata.IsList)
             {
-                var slotElement = searchList.Single(c => c.Name == control_name && c.Tag?.GetType() == viewModelType && ((ConnectionPointViewModel)c.Tag).Element.Metadata.Shared.Slot == slot);
+                var slotElement = searchList.SingleOrDefault(c => c.Name == control_name && c.Tag?.GetType() == viewModelType && ((ConnectionPointViewModel)c.Tag).Element.Metadata.Shared.Slot == slot);
+
+                // ValueNode doesn't need a connection point for collapsed inputs
+                if (slotElement is null) continue;
+
                 controls[slot].Add(slotElement);
             }
             else
@@ -449,8 +455,30 @@ public partial class NodeGraphView
         lastGraphPointerPos = e.GetPosition(GraphContainer);
         if (e.Handled) return;
 
+        // StandardColorPicker doesn't block events. We'll do it manually
+        if (IsMouseCapturedByDescendantOf<PickerControlBase>()) return;
+
         GraphContainer.Focus();
         handleMouseUpdates(e);
+    }
+
+    public static DependencyObject? GetParent(DependencyObject obj) =>
+        obj is Visual or System.Windows.Media.Media3D.Visual3D ? VisualTreeHelper.GetParent(obj) : LogicalTreeHelper.GetParent(obj);
+
+    public static bool IsMouseCapturedByDescendantOf<T>() where T : DependencyObject
+    {
+        if (Mouse.Captured is not DependencyObject current)
+            return false;
+
+        while (current != null)
+        {
+            if (current is T)
+                return true;
+
+            current = GetParent(current);
+        }
+
+        return false;
     }
 
     protected override void OnMouseMove(MouseEventArgs e)
@@ -634,6 +662,9 @@ public partial class NodeGraphView
     private void GridGraphElementContainer_OnMouseDown(object? sender, MouseButtonEventArgs e)
     {
         if (e.Handled) return;
+
+        // StandardColorPicker doesn't block events. We'll do it manually
+        if (IsMouseCapturedByDescendantOf<PickerControlBase>()) return;
 
         if (e is not { ChangedButton: GRAPH_INTERACT_BUTTON, ButtonState: MouseButtonState.Pressed }) return;
 
@@ -921,7 +952,7 @@ public partial class NodeGraphView
             return true;
         }
 
-        if (isValueInput && NodeConstants.INPUT_TYPES.Any(type => (Nullable.GetUnderlyingType(element.Metadata.Shared.ValueType) ?? element.Metadata.Shared.ValueType).IsAssignableTo(type)))
+        if (isValueInput && NodeConstants.IsInputType(Nullable.GetUnderlyingType(element.Metadata.Shared.ValueType) ?? element.Metadata.Shared.ValueType))
         {
             var nodeType = typeof(ValueNode<>).MakeGenericType(element.Metadata.Shared.ValueType);
             var nodeResult = Graph.AddNode(nodeType);
@@ -931,7 +962,7 @@ public partial class NodeGraphView
             node.Metadata.Position = position;
 
             if (!element.Metadata.Shared.IsList)
-                nodeType.GetProperty(nameof(ValueNode<>.Value))!.SetValue(node, ((IValueInput)element).GetField());
+                ((IValueInput)node.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput)[0]).SetField(((IValueInput)element).GetField());
 
             var connectionResult = Graph.CreateConnection(node.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput)[0], 0, element, slotIndex);
             if (!connectionResult.IsSuccess) return false;
@@ -1011,6 +1042,7 @@ public partial class NodeGraphView
     private void Connection_OnMouseDown(object? sender, MouseButtonEventArgs e)
     {
         if (connectionDrag is not null) return;
+
         if (e.ChangedButton != MouseButton.Left || e.ButtonState != MouseButtonState.Pressed) return;
 
         var control = (FrameworkElement)sender!;
@@ -1091,10 +1123,10 @@ public partial class NodeGraphView
 
     private void updateGroupOfNode(NodeViewModel nodeVm)
     {
-        var group = Graph.Groups.Values.SingleOrDefault(group => group.Nodes.Contains(nodeVm.Node.Id));
+        var groupVm = GraphElements.OfType<GroupViewModel>().SingleOrDefault(groupVm => groupVm.Group.Nodes.Contains(nodeVm.Node.Id));
 
-        if (group is not null)
-            updateGroupViewModel(GraphElements.OfType<GroupViewModel>().Single(groupVm => groupVm.Group.Id == group.Id));
+        if (groupVm is not null)
+            updateGroupViewModel(groupVm, false);
     }
 
     #endregion
@@ -1227,9 +1259,13 @@ public partial class NodeGraphView
 
         if (vm is NodeViewModel nodeVm)
         {
+            var groupVm = GraphElements.OfType<GroupViewModel>().SingleOrDefault(groupVm => groupVm.Group.Nodes.Contains(nodeVm.Node.Id));
             Graph.RemoveNode(nodeVm.Node.Id);
+
+            if (groupVm is not null)
+                updateGroupViewModel(groupVm, false);
+
             Graph.MarkDirty();
-            updateGroupOfNode(nodeVm);
         }
 
         if (vm is CommentViewModel commentVm)
@@ -1312,13 +1348,25 @@ public partial class NodeGraphView
         transform.X = currentSelectionPos.X + delta.X;
         transform.Y = currentSelectionPos.Y + delta.Y;
 
+        var groupVms = GraphElements.OfType<GroupViewModel>();
+        var groupUpdates = new List<GroupViewModel>();
+
         foreach (var item in elementsSelection.Items)
         {
             updateGridGraphElementPosition(item, new Point(item.Position.X + delta.X, item.Position.Y + delta.Y));
-            if (item is NodeViewModel nodeVm) updateNodeViewModelConnections(nodeVm);
+
+            if (item is NodeViewModel nodeVm)
+            {
+                updateNodeViewModelConnections(nodeVm);
+
+                foreach (var groupVm in groupVms)
+                {
+                    if (groupVm.Group.Nodes.Contains(nodeVm.Node.Id)) groupUpdates.Add(groupVm);
+                }
+            }
         }
 
-        foreach (var groupVm in GraphElements.OfType<GroupViewModel>().ToList())
+        foreach (var groupVm in groupUpdates.DistinctBy(groupVm => groupVm.Group.Id))
         {
             updateGroupViewModel(groupVm);
         }
@@ -1670,5 +1718,53 @@ public partial class NodeGraphView
         updateCommentSnap(commentVm);
 
         Graph.Serialise();
+    }
+
+    public async void SpawnPreset(NodePreset preset)
+    {
+        var window = Window.GetWindow(this)!;
+        var offset = window.TranslatePoint(new Point(window.ActualWidth / 2d, window.ActualHeight / 2d), GraphContainer);
+        var newNodes = preset.SpawnTo(Graph, new Vector2((float)snapToGrid(offset.X), (float)snapToGrid(offset.Y)));
+        await Graph.MarkDirtyAsync();
+        shrinkWrapSelection(newNodes);
+    }
+
+    private void PickerControlBase_OnColorChanged(object sender, RoutedEventArgs e)
+    {
+        var element = (PickerControlBase)sender;
+
+        if (element.Tag is NodeViewModel nodeVm)
+        {
+            Debug.Assert(nodeVm.Node.Metadata.Shared.Type.GetGenericTypeDefinition() == typeof(ValueNode<>));
+
+            if (nodeVm.Node.Metadata.Shared.TypeGenerics[0] == typeof(Color))
+            {
+                nodeVm.Node.GetType().GetProperty(nameof(ValueNode<>.Value))!.SetValue(nodeVm.Node, new Color(element.SelectedColor));
+            }
+
+            if (nodeVm.Node.Metadata.Shared.TypeGenerics[0] == typeof(ColorHSL))
+            {
+                nodeVm.Node.GetType().GetProperty(nameof(ValueNode<>.Value))!.SetValue(nodeVm.Node, new Color(element.SelectedColor).AsColorHSL);
+            }
+
+            if (!nodeVm.Node.Metadata.Shared.IsFlowInput)
+                Graph.TriggerTree(nodeVm.Node).Forget();
+        }
+
+        if (element.Tag is NodeValueInputViewModel valueInputVm)
+        {
+            if (valueInputVm.Element.Metadata.Shared.ValueType == typeof(Color))
+            {
+                ((IValueInput)valueInputVm.Element).SetField(new Color(element.SelectedColor));
+            }
+
+            if (valueInputVm.Element.Metadata.Shared.ValueType == typeof(ColorHSL))
+            {
+                ((IValueInput)valueInputVm.Element).SetField(new Color(element.SelectedColor).AsColorHSL);
+            }
+
+            if (!valueInputVm.Element.Owner.Metadata.Shared.IsFlowInput)
+                Graph.TriggerTree(valueInputVm.Element.Owner).Forget();
+        }
     }
 }

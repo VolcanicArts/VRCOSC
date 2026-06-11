@@ -20,7 +20,7 @@ public static class TypeColorExtensions
     {
         public SolidColorBrush GetTypeBrush() => toBrush(type.GetTypeColor());
 
-        public Color GetTypeColor()
+        public System.Windows.Media.Color GetTypeColor()
         {
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) type = type.GenericTypeArguments[0];
 
@@ -145,7 +145,7 @@ public static class TypeColorExtensions
         return tbl;
     }
 
-    private static Color hslToColor((float H, float S, float L) hsl)
+    private static System.Windows.Media.Color hslToColor((float H, float S, float L) hsl)
     {
         double h = hsl.H, s = hsl.S, l = hsl.L;
         double r, g, b;
@@ -163,7 +163,7 @@ public static class TypeColorExtensions
             b = hueToRgb(p, q, h - 1.0 / 3);
         }
 
-        return Color.FromArgb(
+        return System.Windows.Media.Color.FromArgb(
             255,
             (byte)Math.Round(r * 255),
             (byte)Math.Round(g * 255),
@@ -189,14 +189,14 @@ public static class TypeColorExtensions
         => a + (b - a) * t;
 
     // Helpers to wrap System.Drawing.Color → SolidColorBrush
-    private static SolidColorBrush toBrush(Color dc)
+    private static SolidColorBrush toBrush(System.Windows.Media.Color dc)
     {
-        var mc = Color.FromArgb(dc.A, dc.R, dc.G, dc.B);
+        var mc = System.Windows.Media.Color.FromArgb(dc.A, dc.R, dc.G, dc.B);
         var b = new SolidColorBrush(mc);
         b.Freeze();
         return b;
     }
 
-    private static Color fromHsl(float h, float s, float l)
+    private static System.Windows.Media.Color fromHsl(float h, float s, float l)
         => hslToColor((h, s, l));
 }

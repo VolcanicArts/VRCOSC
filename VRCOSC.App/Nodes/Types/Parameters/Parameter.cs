@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Parameters;
 
 namespace VRCOSC.App.Nodes.Types.Parameters;
@@ -18,9 +17,9 @@ public sealed class SendParameterNode<T> : ActionNode where T : unmanaged
     protected override void DoAction(IPulseContext c)
     {
         var name = Name.Read(c);
+        if (string.IsNullOrWhiteSpace(name)) return;
 
-        if (!string.IsNullOrWhiteSpace(name))
-            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{name}", Value.Read(c));
+        AppManager.GetInstance().SendToAllParameter(name, Value.Read(c));
     }
 }
 
@@ -46,9 +45,9 @@ public sealed class DriveParameterNode<T> : Node, IUpdateNode where T : unmanage
     public void OnUpdate(IPulseContext c)
     {
         var name = Name.Read(c);
+        if (string.IsNullOrWhiteSpace(name)) return;
 
-        if (!string.IsNullOrWhiteSpace(name))
-            AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{name}", CurrValue.Read(c));
+        AppManager.GetInstance().SendToAllParameter(name, Value.Read(c));
     }
 }
 
@@ -95,7 +94,7 @@ public sealed class ToggleParameterNode<T> : ActionNode where T : unmanaged
             }
         }
 
-        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{name}", sendValue);
+        AppManager.GetInstance().SendToAllParameter(name, sendValue);
     }
 
     private T getOnValue()
@@ -128,7 +127,7 @@ public sealed class ParameterSourceNode<T>() : ValueSourceNode<T>("Value") where
         if (string.IsNullOrWhiteSpace(name)) return default;
 
         var nameRegex = TemplatedVRChatParameter.TemplateAsRegex(name);
-        return AppManager.GetInstance().GetParameter<T>(nameRegex)?.GetValue<T>() ?? default;
+        return AppManager.GetInstance().GetParameterValue<T>(nameRegex);
     }
 }
 
@@ -199,9 +198,9 @@ public sealed class RaycastParameterSourceNode : Node, IContinuousNode
         var ratioRegex = TemplatedVRChatParameter.TemplateAsRegex($"{name}_Ratio");
         var distanceRegex = TemplatedVRChatParameter.TemplateAsRegex($"{name}_Distance");
 
-        Hit.Write(AppManager.GetInstance().GetParameter<bool>(hitRegex)?.GetValue<bool>() ?? false, c);
-        Ratio.Write(AppManager.GetInstance().GetParameter<float>(ratioRegex)?.GetValue<float>() ?? 0f, c);
-        Distance.Write(AppManager.GetInstance().GetParameter<float>(distanceRegex)?.GetValue<float>() ?? 0f, c);
+        Hit.Write(AppManager.GetInstance().GetParameterValue<bool>(hitRegex), c);
+        Ratio.Write(AppManager.GetInstance().GetParameterValue<float>(ratioRegex), c);
+        Distance.Write(AppManager.GetInstance().GetParameterValue<float>(distanceRegex), c);
         return Task.CompletedTask;
     }
 }

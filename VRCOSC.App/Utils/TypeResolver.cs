@@ -38,11 +38,14 @@ public static partial class TypeResolver
         { "jsonobject", typeof(JsonObject) },
         { "user", typeof(User) },
         { "instance", typeof(Instance) },
+        { "world", typeof(World) },
         { "soundplayer", typeof(SoundPlayer) },
         { "isoundplayer", typeof(ISoundPlayer) },
         { "vector2", typeof(Vector2) },
         { "vector3", typeof(Vector3) },
-        { "quaternion", typeof(Quaternion) }
+        { "quaternion", typeof(Quaternion) },
+        { "color", typeof(Color) },
+        { "colorhsl", typeof(ColorHSL) }
     };
 
     private static Lazy<Dictionary<string, Type>> typeIndex = new(buildTypeIndex, true);

@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,9 @@ public class NodeGraphSerialiserV1 : ProfiledSerialiser<NodeGraph, SerialisableN
 
     protected override bool ExecuteAfterDeserialisation(SerialisableNodeGraphV1 data)
     {
+        var nodeIds = new List<Guid>();
+        var idMapping = new Dictionary<Guid, Guid>();
+
         Reference.Name.Value = data.Name;
         Reference.Enabled.Value = data.Enabled;
 
@@ -55,18 +59,36 @@ public class NodeGraphSerialiserV1 : ProfiledSerialiser<NodeGraph, SerialisableN
         {
             try
             {
-                if (!TypeResolver.TryConstruct(sN.Type, out var nodeType)) continue;
+                var serialisableNodeType = NodeGraphBaseHelper.RunTypeMigration(sN.Type);
+                if (!TypeResolver.TryConstruct(serialisableNodeType, out var nodeType)) continue;
 
-                var nodeResult = Reference.AddNode(nodeType, sN.Id);
+                var nodeId = Guid.NewGuid();
+                idMapping.Add(sN.Id, nodeId);
+
+                var nodeResult = Reference.AddNode(nodeType, nodeId);
                 Debug.Assert(nodeResult.IsSuccess);
 
                 var node = nodeResult.Value;
+                nodeIds.Add(node.Id);
                 node.Metadata.Position = sN.Position;
 
                 if (sN.Properties is not null)
                 {
                     foreach (var (propertyKey, propertyValue) in sN.Properties)
                     {
+                        var migrationResult = NodeGraphBaseHelper.RunPropertyMigration(node, sN.Type, propertyKey, propertyValue);
+
+                        if (migrationResult)
+                        {
+                            // Since we've migrated from a property to a ValueInput, increase the target slot on all connections to the value inputs
+                            foreach (var connection in data.Connections.Where(c => c.Type == ConnectionType.Value && c.InputNodeId == sN.Id))
+                            {
+                                connection.InputNodeSlot++;
+                            }
+
+                            continue;
+                        }
+
                         var property = node.GetType().GetProperties()
                                            .SingleOrDefault(property => property.TryGetCustomAttribute<NodePropertyAttribute>(out var attribute) && attribute.Name == propertyKey);
 
@@ -117,10 +139,10 @@ public class NodeGraphSerialiserV1 : ProfiledSerialiser<NodeGraph, SerialisableN
 
         foreach (var sC in data.Connections)
         {
-            var outputNodeResult = Reference.GetNode(sC.OutputNodeId);
+            var outputNodeResult = Reference.GetNode(idMapping[sC.OutputNodeId]);
             if (!outputNodeResult.IsSuccess) continue;
 
-            var inputNodeResult = Reference.GetNode(sC.InputNodeId);
+            var inputNodeResult = Reference.GetNode(idMapping[sC.InputNodeId]);
             if (!inputNodeResult.IsSuccess) continue;
 
             var outputNode = outputNodeResult.Value;
@@ -149,6 +171,8 @@ public class NodeGraphSerialiserV1 : ProfiledSerialiser<NodeGraph, SerialisableN
                     var outputElement = outputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput)[outputSlot];
                     var inputElement = inputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput)[inputSlot];
 
+                    if (inputElement.Metadata.Shared.Modes == InputModes.Inline) continue;
+
                     Reference.CreateConnection(outputElement, outputIndex, inputElement, inputIndex);
                 }
             }
@@ -162,9 +186,14 @@ public class NodeGraphSerialiserV1 : ProfiledSerialiser<NodeGraph, SerialisableN
         {
             try
             {
-                var group = Reference.AddGroup(sG.Nodes, sG.Id);
+                var groupNodeIds = sG.Nodes.Select(nodeId => idMapping[nodeId]).ToList();
+                groupNodeIds.RemoveAll(nodeId => !Reference.Elements.ContainsKey(nodeId));
+                if (groupNodeIds.Count == 0) continue;
+
+                var groupId = Guid.NewGuid();
+                idMapping[sG.Id] = groupId;
+                var group = Reference.AddGroup(groupNodeIds, groupId);
                 group.Title.Value = sG.Title;
-                group.Nodes.RemoveIf(nodeId => !Reference.Elements.ContainsKey(nodeId));
             }
             catch (Exception e)
             {

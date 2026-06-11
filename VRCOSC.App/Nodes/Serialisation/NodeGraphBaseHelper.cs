@@ -8,12 +8,66 @@ using System.Numerics;
 using Newtonsoft.Json.Linq;
 using VRCOSC.App.Nodes.Metadata;
 using VRCOSC.App.Nodes.Serialisation.V2;
+using VRCOSC.App.Nodes.Types;
+using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Serialisation;
 
 public static class NodeGraphBaseHelper
 {
+    public static string RunTypeMigration(string type)
+    {
+        if (type.Contains("IndirectSendParameterNode"))
+            return type.Replace("IndirectSendParameterNode", "SendParameterNode");
+
+        if (type.Contains("DirectSendParameterNode"))
+            return type.Replace("DirectSendParameterNode", "SendParameterNode");
+
+        if (type.Contains("LogNode"))
+            return type.Replace("LogNode", "LogNode<System.String>");
+
+        return type;
+    }
+
+    public static bool RunPropertyMigration(INode node, string originalType, string propertyKey, object? propertyValue)
+    {
+        var migrations = new Dictionary<string, (string PropertyKey, Type? TargetType, int Slot)>
+        {
+            { "DirectSendParameterNode", ("text", typeof(string), 0) },
+            { "DriveParameterNode", ("text", typeof(string), 0) },
+            { "ToggleParameterNode", ("text", typeof(string), 0) },
+            { "ParameterSourceNode", ("text", typeof(string), 0) },
+            { "PhysboneParameterSourceNode", ("text", typeof(string), 0) },
+            { "RaycastParameterSourceNode", ("text", typeof(string), 0) },
+            { "WildcardParameterSourceNode", ("text", typeof(string), 0) },
+            { "SteamVRTrackedDeviceSourceNode", ("text", typeof(string), 0) },
+            { "RegexMatchNode", ("text", typeof(string), 0) },
+            { "RegexMatchesNode", ("text", typeof(string), 0) },
+            { "RegexIsMatchNode", ("text", typeof(string), 0) },
+            { "RegexReplaceNode", ("text", typeof(string), 0) },
+            { "RegexSplitNode", ("text", typeof(string), 0) },
+            { "ImpulseReceiveNode", ("text", typeof(string), 0) },
+            { "ImpulseSendNode", ("text", typeof(string), 0) },
+            //{ "GamepadSourceNode", ("text", typeof(string), 0) },
+            { "KeybindSourceNode", ("keybind", typeof(Keybind), 0) },
+            { "ValueNode", ("value", null, 0) }
+        };
+
+        var matching = migrations.FirstOrDefault(m => originalType.Contains(m.Key) && propertyKey == m.Value.PropertyKey);
+        if (matching.Key == null) return false;
+
+        // Since migrations are from single properties, take the first generic type if the type we're converting is null
+        var targetType = matching.Value.TargetType ?? node.Metadata.Shared.TypeGenerics[0];
+
+        if (!tryConvertToTargetType(propertyValue, targetType, out var convertedValue))
+            return false;
+
+        var propertyElement = (IValueInput)node.Metadata.Elements[ConnectionPoint.ValueInput][matching.Value.Slot].Instance;
+        propertyElement.SetField(convertedValue);
+        return true;
+    }
+
     private static bool tryConvertToTargetType(object? value, Type targetType, out object? outValue)
     {
         try
@@ -42,8 +96,8 @@ public static class NodeGraphBaseHelper
                     outValue = new DateTimeOffset(localDateTime, TimeZoneInfo.Local.GetUtcOffset(localDateTime));
                     return true;
 
-                case string timeSpanStr when targetType == typeof(TimeSpan):
-                    outValue = TimeSpan.Parse(timeSpanStr);
+                case string timeSpanStr when targetType == typeof(TimeSpan) && TimeSpan.TryParse(timeSpanStr, out var parsedTimeSpan):
+                    outValue = parsedTimeSpan;
                     return true;
 
                 default:
@@ -53,13 +107,14 @@ public static class NodeGraphBaseHelper
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e, $"Unable to convert {value!.GetType().GetFriendlyName()} to {targetType.GetFriendlyName()}");
+            Logger.Error(e, $"Unable to convert {value?.GetType().GetFriendlyName() ?? "null"} to {targetType.GetFriendlyName()}");
             throw;
         }
     }
 
     public static IEnumerable<Guid> Deserialise(SerialisableNodeGraphBase baseElements, NodeGraph targetGraph, bool remapIds = false, Vector2 offset = new())
     {
+        var nodeIds = new List<Guid>();
         var idMapping = new Dictionary<Guid, Guid>();
 
         foreach (var sV in baseElements.Variables)
@@ -86,7 +141,8 @@ public static class NodeGraphBaseHelper
         {
             try
             {
-                if (!TypeResolver.TryConstruct(sN.Type, out var nodeType)) continue;
+                var serialisedType = RunTypeMigration(sN.Type);
+                if (!TypeResolver.TryConstruct(serialisedType, out var nodeType)) continue;
 
                 var nodeId = remapIds ? Guid.NewGuid() : sN.Id;
                 if (remapIds) idMapping.Add(sN.Id, nodeId);
@@ -95,6 +151,7 @@ public static class NodeGraphBaseHelper
                 if (!nodeResult.IsSuccess) continue;
 
                 var node = nodeResult.Value;
+                nodeIds.Add(node.Id);
                 node.Metadata.Position = sN.Position + offset;
 
                 if (sN.Sizes is not null)
@@ -114,6 +171,19 @@ public static class NodeGraphBaseHelper
                 {
                     foreach (var (propertyKey, propertyValue) in sN.Properties)
                     {
+                        var migrationResult = RunPropertyMigration(node, sN.Type, propertyKey, propertyValue);
+
+                        if (migrationResult)
+                        {
+                            // Since we've migrated from a property to a ValueInput, increase the target slot on all connections to the value inputs
+                            foreach (var connection in baseElements.Connections.Where(c => c.Type == "v" && c.InputId == sN.Id))
+                            {
+                                connection.InputSlot++;
+                            }
+
+                            continue;
+                        }
+
                         var (_, propertyInfo) = node.Metadata.Shared.Properties.SingleOrDefault(property => property.Key == propertyKey);
                         if (propertyInfo is null) continue;
 
@@ -193,14 +263,14 @@ public static class NodeGraphBaseHelper
         {
             try
             {
-                var nodeIds = sG.Nodes.Select(nodeId => remapIds ? idMapping[nodeId] : nodeId).ToList();
-                nodeIds.RemoveAll(nodeId => !targetGraph.Elements.ContainsKey(nodeId));
-                if (nodeIds.Count == 0) continue;
+                var groupNodeIds = sG.Nodes.Select(nodeId => remapIds ? idMapping[nodeId] : nodeId).ToList();
+                groupNodeIds.RemoveAll(nodeId => !targetGraph.Elements.ContainsKey(nodeId));
+                if (groupNodeIds.Count == 0) continue;
 
                 var groupId = remapIds ? Guid.NewGuid() : sG.Id;
                 if (remapIds) idMapping[sG.Id] = groupId;
 
-                var group = targetGraph.AddGroup(nodeIds, groupId);
+                var group = targetGraph.AddGroup(groupNodeIds, groupId);
                 group.Title.Value = sG.Title;
             }
             catch (Exception e)
@@ -226,6 +296,6 @@ public static class NodeGraphBaseHelper
             }
         }
 
-        return remapIds ? idMapping.Values : baseElements.Nodes.Select(sV => sV.Id);
+        return nodeIds;
     }
 }

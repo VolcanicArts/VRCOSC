@@ -26,4 +26,13 @@ public static class Interpolation
         var t = double.CreateSaturating(source - sMin) / double.CreateSaturating(sMax - sMin);
         return dMin + TTo.CreateSaturating(double.CreateSaturating(dMax - dMin) * t);
     }
+
+    public static TTo Ease<TFrom, TTo>(TTo min, TTo max, TFrom t, EasingMode easing) where TFrom : IFloatingPointIeee754<TFrom> where TTo : INumberBase<TTo>
+    {
+        t = Easing.Apply(t, easing);
+        var doubleT = double.CreateSaturating(t);
+        var doubleMin = double.CreateSaturating(min);
+        var doubleMax = double.CreateSaturating(max);
+        return TTo.CreateSaturating(doubleMin + (doubleMax - doubleMin) * doubleT);
+    }
 }

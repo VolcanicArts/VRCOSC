@@ -4,6 +4,7 @@
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Math.Interpolation;
 
@@ -16,33 +17,30 @@ public sealed class TweenNode<T> : Node where T : INumber<T>
 
     public ValueInput<T> From = new();
     public ValueInput<T> To = new();
-    public ValueInput<float> Duration = new("Duration (ms)");
+    public ValueInput<int> Duration = new("Duration (ms)");
+    public ValueInput<EasingMode> Easing = new(defaultValue: EasingMode.Linear);
     public ValueOutput<T> Value = new();
 
     protected override async Task Process(IPulseContext c)
     {
-        var startTime = DateTime.Now;
         var milliseconds = Duration.Read(c);
-        var endTime = startTime + TimeSpan.FromMilliseconds(milliseconds);
         var from = From.Read(c);
         var to = To.Read(c);
+        var easing = Easing.Read(c);
 
         var t = 0d;
-        var fromDouble = double.CreateSaturating(from);
-        var toDouble = double.CreateSaturating(to);
+        var startTime = DateTime.Now;
+        var endTime = startTime + TimeSpan.FromMilliseconds(milliseconds);
         var timeDiff = endTime - startTime;
+        var updateDelay = TimeSpan.FromSeconds(1d / 100d);
 
         do
         {
             t = double.Clamp((DateTime.Now - startTime) / timeDiff, 0d, 1d);
-            var value = T.CreateSaturating(fromDouble + (toDouble - fromDouble) * t);
-            Value.Write(value, c);
-
+            Value.Write(Utils.Interpolation.Ease(from, to, t, easing), c);
             await OnUpdate.Execute(c);
-            await Task.Delay(TimeSpan.FromSeconds(1d / 100d));
-        } while (!c.IsCancelled && double.Abs(t - 1d) > double.Epsilon);
-
-        if (c.IsCancelled) return;
+            await c.Run(Task.Delay(updateDelay));
+        } while (!c.IsCancelled && double.Abs(t - 1d) > 1e-4);
 
         Value.Write(default!, c);
         await OnFinished.Execute(c);

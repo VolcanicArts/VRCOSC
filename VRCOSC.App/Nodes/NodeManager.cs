@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Profiles;
-using VRCOSC.App.UI.Windows;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
@@ -113,11 +112,12 @@ public class NodeManager
         Loaded.Value = true;
     }
 
-    public void ImportGraph(string filePath)
+    public NodeGraph ImportGraph(string filePath)
     {
-        var graph = new NodeGraph();
+        var graph = new NodeGraph(true);
         graph.Load(filePath);
         Graphs.Add(graph);
+        return graph;
     }
 
     public void ImportPreset(string filePath)
@@ -169,10 +169,13 @@ public class NodeManager
 
             try
             {
-                File.Delete(Path.Join(graphsPath, $"{oldGraph.Id}.json"));
+                var path = Path.Join(graphsPath, $"{oldGraph.Id}.json");
+                Logger.Log($"Deleting {path}", LoggingTarget.Information);
+                File.Delete(path);
             }
-            catch
+            catch (Exception e)
             {
+                Logger.Error(e, "Unable to delete graph file");
             }
         }
     }
@@ -189,8 +192,6 @@ public class NodeManager
             {
             }
         }
-
-        MainWindow.GetInstance().NodesView.RefreshAllContextMenus();
     }
 
     public async Task Start()

@@ -29,6 +29,14 @@ using Expression = System.Linq.Expressions.Expression;
 
 namespace VRCOSC.App.Utils;
 
+public static class MathExtensions
+{
+    extension<T>(T value) where T : IFloatingPoint<T>
+    {
+        public T Repeat(T length) => value - T.Floor(value / length) * length;
+    }
+}
+
 public static class ActivatorExtensions
 {
     extension(Type type)
@@ -177,6 +185,30 @@ public static class ArrayExtensions
         var destination = new T[length];
         Array.Copy(source, destination, length);
         return destination;
+    }
+}
+
+public static class VectorExtensions
+{
+    extension(Vector3 vec3)
+    {
+        public float XProperty
+        {
+            get => vec3.X;
+            set => vec3.X = value;
+        }
+
+        public float YProperty
+        {
+            get => vec3.Y;
+            set => vec3.Y = value;
+        }
+
+        public float ZProperty
+        {
+            get => vec3.Z;
+            set => vec3.Z = value;
+        }
     }
 }
 

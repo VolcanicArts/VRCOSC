@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using VRCOSC.App.SDK.Utils;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
 
@@ -34,7 +35,9 @@ public static class NodeConstants
         typeof(bool),
         typeof(Keybind),
         typeof(DateTime),
-        typeof(TimeSpan)
+        typeof(TimeSpan),
+        typeof(Color),
+        typeof(ColorHSL)
     }.Concat(TEXTBOX_TYPES).ToArray();
 
     public static bool IsInputType(Type type) => INPUT_TYPES.Contains(type) || type.IsEnum;

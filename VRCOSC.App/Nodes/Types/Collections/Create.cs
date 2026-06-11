@@ -44,10 +44,12 @@ public sealed class CreateDictionaryNode<TKey, TValue> : Node where TKey : notnu
     }
 }
 
-[Node("Create KeyValuePair", "Collections")]
+[Node("Pack KeyValuePair", "Collections")]
 [NodeCollapsed]
 public sealed class CreateKeyValuePairNode<TKey, TValue> : Node where TKey : notnull
 {
+    public override string DisplayName => "Pack KVP";
+
     public ValueInput<TKey> Key = new();
     public ValueInput<TValue> Value = new();
     public ValueOutput<KeyValuePair<TKey, TValue>> Output = new();

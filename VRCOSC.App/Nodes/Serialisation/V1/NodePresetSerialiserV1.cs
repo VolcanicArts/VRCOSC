@@ -21,7 +21,8 @@ public class NodePresetSerialiserV1 : ProfiledSerialiser<NodePreset, Serialisabl
 
     protected override bool ExecuteAfterDeserialisation(SerialisableNodePresetV1 data)
     {
+        Reference.Id = data.Id;
         Reference.Name.Value = data.Name;
-        return false;
+        return true;
     }
 }

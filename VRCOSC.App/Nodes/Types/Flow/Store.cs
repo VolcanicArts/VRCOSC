@@ -14,7 +14,7 @@ public sealed class ContextStoreWriteNode<T> : ActionNode
         var name = Name.Read(c);
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        c.WriteKeyedStore(name, Value.Read(c));
+        c.WriteContextStore(name, Value.Read(c));
     }
 }
 
@@ -27,6 +27,6 @@ public sealed class ContextStoreSourceNode<T> : ValueComputeNode<T>
     protected override T ComputeValue(IPulseContext c)
     {
         var name = Name.Read(c);
-        return string.IsNullOrWhiteSpace(name) ? default! : c.ReadKeyedStore<T>(name);
+        return string.IsNullOrWhiteSpace(name) ? default! : c.ReadContextStore<T>(name);
     }
 }

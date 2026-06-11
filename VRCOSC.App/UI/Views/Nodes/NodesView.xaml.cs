@@ -36,13 +36,6 @@ public partial class NodesView
         };
     }
 
-    public void RefreshAllContextMenus()
-    {
-        foreach (var nodeGraphView in viewCache.Values)
-        {
-        }
-    }
-
     private void setActiveTab(bool presetTab)
     {
         if (presetTab)
@@ -99,7 +92,8 @@ public partial class NodesView
             var filePath = await Platform.PickFileAsync(".json");
             if (filePath is null) return;
 
-            NodeManager.GetInstance().ImportGraph(filePath);
+            var graph = NodeManager.GetInstance().ImportGraph(filePath);
+            showNodeGraph(graph);
         }
         catch (Exception ex)
         {
@@ -130,12 +124,12 @@ public partial class NodesView
 
         var index = Math.Max(0, NodeManager.GetInstance().Graphs.IndexOf(graph) - 1);
 
-        NodeManager.GetInstance().Graphs.Remove(graph);
-
         if (selectedGraph == graph)
         {
             showNodeGraph(NodeManager.GetInstance().Graphs[index]);
         }
+
+        NodeManager.GetInstance().Graphs.Remove(graph);
     }
 
     private void GraphsTab_OnMouseDown(object sender, MouseButtonEventArgs e)
@@ -212,5 +206,13 @@ public partial class NodesView
         {
             nodeGraph.MarkDirty();
         }
+    }
+
+    private void SpawnPreset_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var preset = (NodePreset)element.Tag;
+
+        ((NodeGraphView)ActiveField.Content).SpawnPreset(preset);
     }
 }

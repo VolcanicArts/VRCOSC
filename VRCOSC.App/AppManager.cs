@@ -216,6 +216,23 @@ internal class AppManager : IVRCClientEventHandler
         return parameter is not null ? new TemplatedVRChatParameter(pattern, parameter) : null;
     }
 
+    public void SendToAllParameter<T>(string pattern, T value)
+    {
+        if (!VRChatClient.IsInAvatar) return;
+
+        var regex = new Regex($"^(?:{Regex.Escape(pattern).Replace(@"\*", @"(\S*?)")})$");
+
+        foreach (var def in VRChatClient.Avatar.Parameters.Where(def => regex.IsMatch(def.Name)))
+        {
+            VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{def.Name}", value);
+        }
+    }
+
+    /// <summary>
+    /// Attempts to get the first parameter that matches <paramref name="pattern"/>. Extracts the value, otherwise default <typeparamref name="T"/>
+    /// </summary>
+    public T GetParameterValue<T>(Regex pattern) where T : unmanaged => GetParameter<T>(pattern)?.GetValue<T>() ?? default;
+
     public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
     private async Task checkForVRChatAutoStart()

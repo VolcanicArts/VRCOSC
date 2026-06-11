@@ -13,6 +13,7 @@
              xmlns:fontAwesome6="clr-namespace:FontAwesome6;assembly=FontAwesome6.Core"
              xmlns:controls="clr-namespace:VRCOSC.App.UI.Views.Nodes.Controls"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
              mc:Ignorable="d"
              d:DesignHeight="1920" d:DesignWidth="1080"
              Focusable="True"
@@ -20,6 +21,8 @@
     <UserControl.Resources>
         <core:ObjectToStringConverter x:Key="ObjectToStringConverter"/>
         <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <core:ColorToWindowsColorConverter x:Key="ColorToWindowsColorConverter"/>
+        <core:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
         <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterHidden" False="Hidden"/>
         <core:StringIsNotNullOrEmptyVisibilityConverter x:Key="StringIsNotNullOrEmptyVisibilityConverter" />
         <core:TypeToBrushConverter x:Key="TypeToBrushConverter"/>
@@ -29,7 +32,6 @@
 
         <converters:ElementListPathVisibilityConverter x:Key="ElementListPathVisibilityConverter"/>
         <converters:ElementListPointConverter x:Key="ElementListPointConverter"/>
-        <converters:TypeIsStringConverter x:Key="TypeIsStringConverter"/>
         <converters:InputNameVisibilityConverter x:Key="InputNameVisibilityConverter"/>
 
         <ContextMenu x:Key="GraphContextMenu">
@@ -62,7 +64,7 @@
 
         <ContextMenu x:Key="SelectionContextMenu">
             <MenuItem Header="Create Group" Click="SelectionContextMenu_CreateGroupClick"/>
-            <MenuItem Header="Save As Preset" Click="SelectionContextMenu_SaveAsPresetClick"/>
+            <MenuItem Header="Create Preset" Click="SelectionContextMenu_SaveAsPresetClick"/>
             <MenuItem Header="Delete All" Click="SelectionContextMenu_DeleteAllClick"/>
         </ContextMenu>
 
@@ -70,19 +72,11 @@
         <SolidColorBrush x:Key="NodeBackgroundBrush" Color="{DynamicResource CBackground4Color}" Opacity="0.85" />
         <SolidColorBrush x:Key="GroupBackgroundBrush" Color="{DynamicResource CBackground1Color}" Opacity="0.5" />
 
-        <Style TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="pack://application:,,,/VRCOSC.App;component/Fonts/#Iosevka"/>
-        </Style>
-
         <Style TargetType="TextBlock" x:Key="ElementText">
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Foreground" Value="{DynamicResource CForeground1}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Margin" Value="0 -2 0 0"/>
-        </Style>
-
-        <Style TargetType="fa6:FontAwesome">
-            <Setter Property="FontFamily" Value="pack://application:,,,/VRCOSC.App;component/Fonts/#Iosevka"/>
         </Style>
 
         <Style TargetType="fa6:FontAwesome" x:Key="IconFlow">
@@ -96,7 +90,7 @@
             <Border Height="12" Width="6"
                     VerticalAlignment="Center"
                     Cursor="Arrow"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     Background="{StaticResource FlowBrush}"
                     CornerRadius="1"
                     MouseDown="Connection_OnMouseDown"
@@ -104,12 +98,12 @@
             </Border>
         </DataTemplate>
 
-        <DataTemplate x:Key="ValueConnectionPointTemplate" DataType="{x:Type viewModels:NodeValueOutputViewModel}">
+        <DataTemplate x:Key="ValueConnectionPointTemplate" DataType="{x:Type viewModels:ConnectionPointViewModel}">
             <Border Height="10" Width="10"
                     VerticalAlignment="Center"
                     Cursor="Arrow"
                     Tag="{Binding}"
-                    Background="{Binding Element.Metadata.Shared.ValueType, Converter={StaticResource TypeToBrushConverter}}"
+                    Background="{Binding Element.Metadata.Shared.ValueType, Converter={StaticResource TypeToBrushConverter}, Mode=OneTime}"
                     CornerRadius="5"
                     MouseDown="Connection_OnMouseDown"
                     MouseUp="Connection_OnMouseUp"
@@ -136,7 +130,7 @@
                     <TextBlock Grid.Row="1"
                                Visibility="{Binding GenericTypesToString, Converter={StaticResource StringIsNotNullOrEmptyVisibilityConverter}, Mode=OneTime}"
                                Foreground="{DynamicResource CForeground3}"
-                               Text="{Binding GenericTypesToString}"
+                               Text="{Binding GenericTypesToString, Mode=OneTime}"
                                FontSize="10"
                                FontWeight="Regular"
                                VerticalAlignment="Top"
@@ -152,7 +146,7 @@
                 <Border Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}"
                         Margin="0 1">
                     <TextBlock Foreground="{DynamicResource CForeground3}"
-                               Text="{Binding Node.Metadata.Shared.PathRoot}"
+                               Text="{Binding Node.Metadata.Shared.PathRoot, Mode=OneTime}"
                                FontSize="9"
                                FontWeight="Light"
                                VerticalAlignment="Center"
@@ -199,22 +193,85 @@
         </DataTemplate>
 
         <DataTemplate x:Key="ElementListButtons" DataType="{x:Type viewModels:ConnectionPointListViewModel}">
-            <Grid Height="25">
-                <Grid ColumnDefinitions="Auto,5,Auto">
-                    <core:IconButton Grid.Column="0" Tag="{Binding}" Width="18" Height="18" CornerRadius="4" Padding="3" Icon="Solid_Plus" ButtonColour="Green" Click="ListElementAdd_OnClick" />
-                    <core:IconButton Grid.Column="2" Tag="{Binding}" Width="18" Height="18" CornerRadius="4" Padding="3" Icon="Solid_Minus" ButtonColour="Red" Click="ListElementRemove_OnClick"/>
-                </Grid>
+            <Grid ColumnDefinitions="Auto,5,Auto" Height="25">
+                <core:IconButton Grid.Column="0" Tag="{Binding Mode=OneTime}" Width="18" Height="18" CornerRadius="4" Padding="3" Icon="Solid_Plus" ButtonColour="Green" Click="ListElementAdd_OnClick" />
+                <core:IconButton Grid.Column="2" Tag="{Binding Mode=OneTime}" Width="18" Height="18" CornerRadius="4" Padding="3" Icon="Solid_Minus" ButtonColour="Red" Click="ListElementRemove_OnClick"/>
             </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ComboBoxElementTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <ComboBox ItemsSource="{Binding Element.Metadata.Shared.ValueType, Converter={StaticResource EnumGetValuesConverter}, Mode=OneTime}"
+                      SelectedItem="{Binding Element.Field}"
+                      VerticalContentAlignment="Center"
+                      VerticalAlignment="Center"
+                      Height="18"
+                      FontSize="9"
+                      ToolTip="{Binding Element.Name, Mode=OneTime}">
+            </ComboBox>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TextBoxElementTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <xctk:WatermarkTextBox HorizontalAlignment="Stretch" VerticalAlignment="Center" FontSize="11"
+                                   VerticalContentAlignment="Center"
+                                   TextAlignment="Left"
+                                   Padding="0 -1 0 0"
+                                   Height="18"
+                                   KeepWatermarkOnGotFocus="True"
+                                   Watermark="{Binding Element.Name, Mode=OneTime}"
+                                   Background="{DynamicResource CBackground3}"
+                                   Foreground="{DynamicResource CForeground1}"
+                                   Text="{Binding Element.Field}"
+                                   ToolTip="{Binding Element.Name, Mode=OneTime}">
+                <xctk:WatermarkTextBox.WatermarkTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Mode=OneTime}" HorizontalAlignment="Center" Foreground="{DynamicResource CForeground1}" Margin="3 0" Opacity="0.5"/>
+                    </DataTemplate>
+                </xctk:WatermarkTextBox.WatermarkTemplate>
+            </xctk:WatermarkTextBox>
+        </DataTemplate>
+
+        <DataTemplate x:Key="KeybindElementTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <core:KeybindPicker Keybind="{Binding Element.Field}"
+                                Height="18"
+                                FontSize="12" BorderThickness="1"
+                                Background="{DynamicResource CBackground6}"
+                                ToolTip="{Binding Element.Name, Mode=OneTime}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="DateTimeElementTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <xctk:DateTimePicker HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                 Height="18"
+                                 Padding="0 -2 0 0"
+                                 Background="{DynamicResource CBackground3}"
+                                 Foreground="{DynamicResource CForeground1}"
+                                 Value="{Binding Element.Field}" ToolTip="{Binding Element.Name, Mode=OneTime}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TimeSpanElementTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <xctk:TimeSpanUpDown VerticalAlignment="Center"
+                                 Height="18"
+                                 Padding="0 -2 0 0"
+                                 Background="{DynamicResource CBackground3}"
+                                 Foreground="{DynamicResource CForeground1}"
+                                 Value="{Binding Element.Field}" ToolTip="{Binding Element.Name, Mode=OneTime}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ColorElementTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <colorPicker:PortableColorPicker Tag="{Binding}" SelectedColor="{Binding Element.Field, Mode=OneTime, Converter={StaticResource ColorToWindowsColorConverter}}" ColorChanged="PickerControlBase_OnColorChanged" Height="18" Focusable="True" Style="{DynamicResource DefaultColorPickerStyle}"/>
+        </DataTemplate>
+
+        <DataTemplate x:Key="CheckBoxElementTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <core:VRCOSCCheckBox Width="18" Height="18" CornerRadius="2" BorderThickness="1" Padding="3" IsChecked="{Binding Element.Field}"/>
         </DataTemplate>
 
         <DataTemplate x:Key="FlowOutputTemplate" DataType="{x:Type viewModels:NodeFlowOutputViewModel}">
             <Grid ColumnDefinitions="6,*,6" Height="25">
                 <Grid Grid.Column="1" ColumnDefinitions="*,3,Auto" HorizontalAlignment="Right">
-                    <TextBlock Grid.Column="0" Visibility="{Binding RenderName, Converter={StaticResource BoolToVisibilityConverter}}" Text="{Binding Element.Name}" Style="{StaticResource ElementText}"/>
+                    <TextBlock Grid.Column="0" Visibility="{Binding RenderName, Converter={StaticResource BoolToVisibilityConverter}}" Text="{Binding Element.Name, Mode=OneTime}" Style="{StaticResource ElementText}"/>
                     <fa6:FontAwesome Grid.Column="2" Style="{StaticResource IconFlow}" />
                 </Grid>
-                <Grid Grid.Column="2" Name="ConnectionPointContainer" Tag="{Binding}" Margin="0 0 -8 0">
-                    <ContentPresenter Content="{Binding}"
+                <Grid Grid.Column="2" Name="ConnectionPointContainer" Tag="{Binding Mode=OneTime}" Margin="0 0 -8 0">
+                    <ContentPresenter Content="{Binding Mode=OneTime}"
                                       ContentTemplate="{StaticResource FlowConnectionPointTemplate}" />
                 </Grid>
             </Grid>
@@ -222,45 +279,44 @@
 
         <DataTemplate x:Key="FlowInputTemplate" DataType="{x:Type viewModels:NodeFlowInputViewModel}">
             <Grid ColumnDefinitions="6,*,6" Height="25">
-                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding}" Margin="-8 0 0 0">
-                    <ContentPresenter Content="{Binding}"
+                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding Mode=OneTime}" Margin="-8 0 0 0">
+                    <ContentPresenter Content="{Binding Mode=OneTime}"
                                       ContentTemplate="{StaticResource FlowConnectionPointTemplate}" />
                 </Grid>
                 <Grid Grid.Column="1" ColumnDefinitions="Auto,3,*">
                     <fa6:FontAwesome Grid.Column="0" Style="{StaticResource IconFlow}" />
-                    <TextBlock Grid.Column="2" Visibility="{Binding RenderName, Converter={StaticResource BoolToVisibilityConverter}}" Text="{Binding Element.Name}" Style="{StaticResource ElementText}"/>
+                    <TextBlock Grid.Column="2" Visibility="{Binding RenderName, Converter={StaticResource BoolToVisibilityConverter}}" Text="{Binding Element.Name, Mode=OneTime}" Style="{StaticResource ElementText}"/>
                 </Grid>
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="ValueInputTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
             <Grid ColumnDefinitions="10,*,10" Height="25">
-                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding}" Margin="-12 0 0 0">
-                    <ContentPresenter Content="{Binding}"
+                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding Mode=OneTime}" Margin="-12 0 0 0">
+                    <ContentPresenter Content="{Binding Mode=OneTime}"
                                       ContentTemplate="{StaticResource ValueConnectionPointTemplate}" />
                 </Grid>
-                <TextBlock Grid.Column="1" Visibility="{Binding RenderName, Converter={StaticResource BoolToVisibilityConverter}}" Text="{Binding Element.Name}" Style="{StaticResource ElementText}"/>
+                <TextBlock Grid.Column="1" Visibility="{Binding RenderName, Converter={StaticResource BoolToVisibilityConverter}}" Text="{Binding Element.Name, Mode=OneTime}" Style="{StaticResource ElementText}"/>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ComboBoxValueCollapsedTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <Grid Margin="2 0" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource ComboBoxElementTemplate}"/>
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="ComboBoxValueInputTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
             <Grid ColumnDefinitions="10,*,10" Height="25">
-                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding}" Margin="-12 0 0 0">
-                    <ContentPresenter Content="{Binding}"
+                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding Mode=OneTime}" Margin="-12 0 0 0">
+                    <ContentPresenter Content="{Binding Mode=OneTime}"
                                       Visibility="{Binding RenderConnection, Converter={StaticResource BoolToVisibilityConverter}}"
                                       ContentTemplate="{StaticResource ValueConnectionPointTemplate}" />
                 </Grid>
                 <Grid Grid.Column="1" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <ComboBox ItemsSource="{Binding Element.Metadata.Shared.ValueType, Converter={StaticResource EnumGetValuesConverter}}"
-                              SelectedItem="{Binding Element.Field}"
-                              VerticalContentAlignment="Center"
-                              VerticalAlignment="Center"
-                              Height="18"
-                              FontSize="12"
-                              ToolTip="{Binding Element.Name}">
-                    </ComboBox>
+                    <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource ComboBoxElementTemplate}"/>
                 </Grid>
-                <TextBlock Grid.Column="1" Text="{Binding Element.Name}" Style="{StaticResource ElementText}">
+                <TextBlock Grid.Column="1" Text="{Binding Element.Name, Mode=OneTime}" Style="{StaticResource ElementText}">
                     <TextBlock.Visibility>
                         <MultiBinding Converter="{StaticResource InputNameVisibilityConverter}">
                             <Binding Path="RenderInline"/>
@@ -268,23 +324,26 @@
                         </MultiBinding>
                     </TextBlock.Visibility>
                 </TextBlock>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="KeybindValueCollapsedTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <Grid Margin="2 0" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource KeybindElementTemplate}"/>
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="KeybindValueInputTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
             <Grid ColumnDefinitions="10,*,10" Height="25">
-                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding}" Margin="-12 0 0 0">
-                    <ContentPresenter Content="{Binding}"
+                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding Mode=OneTime}" Margin="-12 0 0 0">
+                    <ContentPresenter Content="{Binding Mode=OneTime}"
                                       Visibility="{Binding RenderConnection, Converter={StaticResource BoolToVisibilityConverter}}"
                                       ContentTemplate="{StaticResource ValueConnectionPointTemplate}" />
                 </Grid>
                 <Grid Grid.Column="1" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <core:KeybindPicker Grid.Column="0" Keybind="{Binding Element.Field, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        FontSize="12" Margin="0 3" BorderThickness="1"
-                                        Background="{DynamicResource CBackground6}"
-                                        ToolTip="{Binding Element.Name}"/>
+                    <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource KeybindElementTemplate}"/>
                 </Grid>
-                <TextBlock Grid.Column="1" Text="{Binding Element.Name}" Style="{StaticResource ElementText}">
+                <TextBlock Grid.Column="1" Text="{Binding Element.Name, Mode=OneTime}" Style="{StaticResource ElementText}">
                     <TextBlock.Visibility>
                         <MultiBinding Converter="{StaticResource InputNameVisibilityConverter}">
                             <Binding Path="RenderInline"/>
@@ -292,36 +351,26 @@
                         </MultiBinding>
                     </TextBlock.Visibility>
                 </TextBlock>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TextBoxValueCollapsedTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <Grid Margin="2 0" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource TextBoxElementTemplate}"/>
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="TextBoxValueInputTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
             <Grid ColumnDefinitions="10,*,10" Height="25">
-                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding}" Margin="-12 0 0 0">
-                    <ContentPresenter Content="{Binding}"
+                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding Mode=OneTime}" Margin="-12 0 0 0">
+                    <ContentPresenter Content="{Binding Mode=OneTime}"
                                       Visibility="{Binding RenderConnection, Converter={StaticResource BoolToVisibilityConverter}}"
                                       ContentTemplate="{StaticResource ValueConnectionPointTemplate}" />
                 </Grid>
                 <Grid Grid.Column="1" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <xctk:WatermarkTextBox HorizontalAlignment="Stretch" VerticalAlignment="Center" FontSize="11"
-                             VerticalContentAlignment="Center"
-                             TextAlignment="Left"
-                             Padding="0 -1 0 0"
-                             Height="18"
-                             KeepWatermarkOnGotFocus="True"
-                             Watermark="{Binding Element.Name}"
-                             Background="{DynamicResource CBackground3}"
-                             Foreground="{DynamicResource CForeground1}"
-                             Text="{Binding Element.Field}"
-                             ToolTip="{Binding Element.Name}">
-                        <xctk:WatermarkTextBox.WatermarkTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" HorizontalAlignment="Center" Foreground="{DynamicResource CForeground1}" Margin="3 0" Opacity="0.5"/>
-                            </DataTemplate>
-                        </xctk:WatermarkTextBox.WatermarkTemplate>
-                    </xctk:WatermarkTextBox>
+                    <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource TextBoxElementTemplate}"/>
                 </Grid>
-                <TextBlock Grid.Column="1" Text="{Binding Element.Name}" Style="{StaticResource ElementText}">
+                <TextBlock Grid.Column="1" Text="{Binding Element.Name, Mode=OneTime}" Style="{StaticResource ElementText}">
                     <TextBlock.Visibility>
                         <MultiBinding Converter="{StaticResource InputNameVisibilityConverter}">
                             <Binding Path="RenderInline"/>
@@ -329,25 +378,26 @@
                         </MultiBinding>
                     </TextBlock.Visibility>
                 </TextBlock>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="DateTimeValueCollapsedTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <Grid Margin="2 0" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource DateTimeElementTemplate}"/>
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="DateTimeValueInputTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
             <Grid ColumnDefinitions="10,*,10" Height="25">
-                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding}" Margin="-12 0 0 0">
-                    <ContentPresenter Content="{Binding}"
+                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding Mode=OneTime}" Margin="-12 0 0 0">
+                    <ContentPresenter Content="{Binding Mode=OneTime}"
                                       Visibility="{Binding RenderConnection, Converter={StaticResource BoolToVisibilityConverter}}"
                                       ContentTemplate="{StaticResource ValueConnectionPointTemplate}" />
                 </Grid>
                 <Grid Grid.Column="1" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <xctk:DateTimePicker HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                         Height="18"
-                                         Padding="0 -2 0 0"
-                                         Background="{DynamicResource CBackground3}"
-                                         Foreground="{DynamicResource CForeground1}"
-                                         Value="{Binding Element.Field}" ToolTip="{Binding Element.Name}"/>
+                    <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource DateTimeElementTemplate}"/>
                 </Grid>
-                <TextBlock Grid.Column="1" Text="{Binding Element.Name}" Style="{StaticResource ElementText}">
+                <TextBlock Grid.Column="1" Text="{Binding Element.Name, Mode=OneTime}" Style="{StaticResource ElementText}">
                     <TextBlock.Visibility>
                         <MultiBinding Converter="{StaticResource InputNameVisibilityConverter}">
                             <Binding Path="RenderInline"/>
@@ -355,25 +405,26 @@
                         </MultiBinding>
                     </TextBlock.Visibility>
                 </TextBlock>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TimeSpanValueCollapsedTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <Grid Margin="2 0" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource TimeSpanElementTemplate}"/>
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="TimeSpanValueInputTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
             <Grid ColumnDefinitions="10,*,10" Height="25">
-                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding}" Margin="-12 0 0 0">
-                    <ContentPresenter Content="{Binding}"
+                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding Mode=OneTime}" Margin="-12 0 0 0">
+                    <ContentPresenter Content="{Binding Mode=OneTime}"
                                       Visibility="{Binding RenderConnection, Converter={StaticResource BoolToVisibilityConverter}}"
                                       ContentTemplate="{StaticResource ValueConnectionPointTemplate}" />
                 </Grid>
                 <Grid Grid.Column="1" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <xctk:TimeSpanUpDown VerticalAlignment="Center"
-                                         Height="18"
-                                         Padding="0 -2 0 0"
-                                         Background="{DynamicResource CBackground3}"
-                                         Foreground="{DynamicResource CForeground1}"
-                                         Value="{Binding Element.Field}" ToolTip="{Binding Element.Name}"/>
+                    <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource TimeSpanElementTemplate}"/>
                 </Grid>
-                <TextBlock Grid.Column="1" Text="{Binding Element.Name}" Style="{StaticResource ElementText}">
+                <TextBlock Grid.Column="1" Text="{Binding Element.Name, Mode=OneTime}" Style="{StaticResource ElementText}">
                     <TextBlock.Visibility>
                         <MultiBinding Converter="{StaticResource InputNameVisibilityConverter}">
                             <Binding Path="RenderInline"/>
@@ -384,113 +435,146 @@
             </Grid>
         </DataTemplate>
 
+        <DataTemplate x:Key="ColorValueCollapsedTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <Grid Margin="2 0" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource ColorElementTemplate}"/>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ColorValueInputTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <Grid ColumnDefinitions="10,*,10" Height="25">
+                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding Mode=OneTime}" Margin="-12 0 0 0">
+                    <ContentPresenter Content="{Binding Mode=OneTime}"
+                                      Visibility="{Binding RenderConnection, Converter={StaticResource BoolToVisibilityConverter}}"
+                                      ContentTemplate="{StaticResource ValueConnectionPointTemplate}" />
+                </Grid>
+                <Grid Grid.Column="1" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource ColorElementTemplate}"/>
+                </Grid>
+                <TextBlock Grid.Column="1" Text="{Binding Element.Name, Mode=OneTime}" Style="{StaticResource ElementText}">
+                    <TextBlock.Visibility>
+                        <MultiBinding Converter="{StaticResource InputNameVisibilityConverter}">
+                            <Binding Path="RenderInline"/>
+                            <Binding Path="RenderName"/>
+                        </MultiBinding>
+                    </TextBlock.Visibility>
+                </TextBlock>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="CheckBoxValueCollapsedTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
+            <Grid Margin="2 0" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource CheckBoxElementTemplate}"/>
+            </Grid>
+        </DataTemplate>
+
         <DataTemplate x:Key="CheckBoxValueInputTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
             <Grid ColumnDefinitions="10,*,10" Height="25">
-                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding}" Margin="-12 0 0 0">
-                    <ContentPresenter Content="{Binding}"
+                <Grid Grid.Column="0" Name="ConnectionPointContainer" Tag="{Binding Mode=OneTime}" Margin="-12 0 0 0">
+                    <ContentPresenter Content="{Binding Mode=OneTime}"
                                       Visibility="{Binding RenderConnection, Converter={StaticResource BoolToVisibilityConverter}}"
                                       ContentTemplate="{StaticResource ValueConnectionPointTemplate}" />
                 </Grid>
                 <Grid Grid.Column="1" ColumnDefinitions="Auto,*">
-                    <core:VRCOSCCheckBox Margin="0 0 5 0" Grid.Column="0" Width="20" Height="20" CornerRadius="2" BorderThickness="1" Padding="3" IsChecked="{Binding Element.Field}" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                    <TextBlock Grid.Column="1" Visibility="{Binding RenderName, Converter={StaticResource BoolToVisibilityConverter}}" Text="{Binding Element.Name}" Style="{StaticResource ElementText}"/>
+                    <ContentPresenter Grid.Column="0" Margin="0 0 5 0" Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource CheckBoxElementTemplate}" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <TextBlock Grid.Column="1" Visibility="{Binding RenderName, Converter={StaticResource BoolToVisibilityConverter}}" Text="{Binding Element.Name, Mode=OneTime}" Style="{StaticResource ElementText}"/>
                 </Grid>
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="ValueOutputTemplate" DataType="{x:Type viewModels:NodeValueOutputViewModel}">
             <Grid ColumnDefinitions="10,*,10" Height="25">
-                <TextBlock Grid.Column="1" HorizontalAlignment="Right" Visibility="{Binding RenderName, Converter={StaticResource BoolToVisibilityConverter}}" Text="{Binding Element.Name}" Style="{StaticResource ElementText}"/>
-                <Grid Grid.Column="2" Name="ConnectionPointContainer" Tag="{Binding}" Margin="0 0 -12 0">
-                    <ContentPresenter Content="{Binding}"
+                <TextBlock Grid.Column="1" HorizontalAlignment="Right" Visibility="{Binding RenderName, Converter={StaticResource BoolToVisibilityConverter}}" Text="{Binding Element.Name, Mode=OneTime}" Style="{StaticResource ElementText}"/>
+                <Grid Grid.Column="2" Name="ConnectionPointContainer" Tag="{Binding Mode=OneTime}" Margin="0 0 -12 0">
+                    <ContentPresenter Content="{Binding Mode=OneTime}"
                                       ContentTemplate="{StaticResource ValueConnectionPointTemplate}" />
                 </Grid>
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="FlowInputListTemplate" DataType="{x:Type viewModels:NodeFlowInputListViewModel}">
-            <Grid RowDefinitions="Auto,Auto" Name="FlowInputListTemplateInstance" Tag="{Binding}">
+            <Grid RowDefinitions="Auto,Auto" Name="FlowInputListTemplateInstance" Tag="{Binding Mode=OneTime}">
                 <ItemsControl Grid.Row="0"
                               ItemsSource="{Binding ItemsSource}"
                               ItemTemplate="{StaticResource FlowInputTemplate}" />
                 <ContentPresenter Grid.Row="1"
-                                  Content="{Binding}"
+                                  Content="{Binding Mode=OneTime}"
                                   ContentTemplate="{StaticResource ElementListButtons}"
                                   HorizontalAlignment="Left"
                                   Margin="10 0 0 0" />
                 <ContentPresenter Margin="24 0 0 0"
                                   HorizontalAlignment="Left"
-                                  Content="{Binding}"
+                                  Content="{Binding Mode=OneTime}"
                                   ContentTemplate="{StaticResource InputElementListPath}" />
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="FlowOutputListTemplate" DataType="{x:Type viewModels:NodeFlowOutputListViewModel}">
-            <Grid RowDefinitions="Auto,Auto" Name="FlowOutputListTemplateInstance" Tag="{Binding}">
+            <Grid RowDefinitions="Auto,Auto" Name="FlowOutputListTemplateInstance" Tag="{Binding Mode=OneTime}">
                 <ItemsControl Grid.Row="0"
                               ItemsSource="{Binding ItemsSource}"
                               ItemTemplate="{StaticResource FlowOutputTemplate}" />
                 <ContentPresenter Grid.Row="1"
-                                  Content="{Binding}"
+                                  Content="{Binding Mode=OneTime}"
                                   ContentTemplate="{StaticResource ElementListButtons}"
                                   HorizontalAlignment="Right"
                                   Margin="0 0 10 0" />
                 <ContentPresenter Margin="0 0 24 0"
                                   HorizontalAlignment="Right"
-                                  Content="{Binding}"
+                                  Content="{Binding Mode=OneTime}"
                                   ContentTemplate="{StaticResource OutputElementListPath}" />
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="ValueInputListTemplate" DataType="{x:Type viewModels:NodeValueInputListViewModel}">
-            <Grid RowDefinitions="Auto,Auto" Name="ValueInputListTemplateInstance" Tag="{Binding}">
+            <Grid RowDefinitions="Auto,Auto" Name="ValueInputListTemplateInstance" Tag="{Binding Mode=OneTime}">
                 <ItemsControl Grid.Row="0"
                               ItemsSource="{Binding ItemsSource}"
                               ItemTemplate="{StaticResource ValueInputTemplate}" />
                 <ContentPresenter Grid.Row="1"
-                                  Content="{Binding}"
+                                  Content="{Binding Mode=OneTime}"
                                   ContentTemplate="{StaticResource ElementListButtons}"
                                   HorizontalAlignment="Left"
                                   Margin="10 0 0 0" />
                 <ContentPresenter Margin="11 0 0 0"
                                   HorizontalAlignment="Left"
-                                  Content="{Binding}"
+                                  Content="{Binding Mode=OneTime}"
                                   ContentTemplate="{StaticResource InputElementListPath}" />
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="ValueOutputListTemplate" DataType="{x:Type viewModels:NodeValueOutputListViewModel}">
-            <Grid RowDefinitions="Auto,Auto" Name="ValueOutputListTemplateInstance" Tag="{Binding}">
+            <Grid RowDefinitions="Auto,Auto" Name="ValueOutputListTemplateInstance" Tag="{Binding Mode=OneTime}">
                 <ItemsControl Grid.Row="0"
                               ItemsSource="{Binding ItemsSource}"
                               ItemTemplate="{StaticResource ValueOutputTemplate}" />
                 <ContentPresenter Grid.Row="1"
-                                  Content="{Binding}"
+                                  Content="{Binding Mode=OneTime}"
                                   ContentTemplate="{StaticResource ElementListButtons}"
                                   HorizontalAlignment="Right"
                                   Margin="0 0 10 0" />
                 <ContentPresenter Margin="0 0 11 0"
                                   HorizontalAlignment="Right"
-                                  Content="{Binding}"
+                                  Content="{Binding Mode=OneTime}"
                                   ContentTemplate="{StaticResource OutputElementListPath}" />
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="ValueInputCollapsedTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
-            <Grid Name="ConnectionPointContainer" Width="10" Height="14" Margin="-5.5 0 0 0" Tag="{Binding}">
-                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ValueConnectionPointTemplate}" />
+            <Grid Name="ConnectionPointContainer" Width="10" Height="14" Margin="-5.5 0 0 0" Tag="{Binding Mode=OneTime}">
+                <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource ValueConnectionPointTemplate}" />
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="ValueOutputCollapsedTemplate" DataType="{x:Type viewModels:NodeValueOutputViewModel}">
-            <Grid Name="ConnectionPointContainer" Width="10" Height="14" Margin="0 0 -5.5 0" Tag="{Binding}">
-                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource ValueConnectionPointTemplate}" />
+            <Grid Name="ConnectionPointContainer" Width="10" Height="14" Margin="0 0 -5.5 0" Tag="{Binding Mode=OneTime}">
+                <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource ValueConnectionPointTemplate}" />
             </Grid>
         </DataTemplate>
 
         <DataTemplate x:Key="FlowOutputCollapsedTemplate" DataType="{x:Type viewModels:NodeFlowOutputViewModel}">
-            <Grid Name="ConnectionPointContainer" Width="6" Height="14" Margin="0 0 -3.5 0" Tag="{Binding}">
-                <ContentPresenter Content="{Binding}" ContentTemplate="{StaticResource FlowConnectionPointTemplate}" />
+            <Grid Name="ConnectionPointContainer" Width="6" Height="14" Margin="0 0 -3.5 0" Tag="{Binding Mode=OneTime}">
+                <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource FlowConnectionPointTemplate}" />
             </Grid>
         </DataTemplate>
 
@@ -508,12 +592,13 @@
                                                   ComboBoxValueInput="{StaticResource ComboBoxValueInputTemplate}"
                                                   KeybindValueInput="{StaticResource KeybindValueInputTemplate}"
                                                   DateTimeValueInput="{StaticResource DateTimeValueInputTemplate}"
-                                                  TimeSpanValueInput="{StaticResource TimeSpanValueInputTemplate}"/>
+                                                  TimeSpanValueInput="{StaticResource TimeSpanValueInputTemplate}"
+                                                  ColorValueInput="{StaticResource ColorValueInputTemplate}"/>
 
         <DataTemplate x:Key="CheckBoxValueNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     CornerRadius="2"
                     BorderThickness="1"
                     BorderBrush="{DynamicResource CForeground3}"
@@ -526,8 +611,8 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid ColumnDefinitions="*,Auto" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                    <core:VRCOSCCheckBox Grid.Column="0" Width="18" Height="18" Margin="2" CornerRadius="1" BorderThickness="1" Padding="3" IsChecked="{Binding Node.Value}"/>
-                    <ContentPresenter Grid.Column="1" Content="{Binding ValueOutputVms[0]}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ContentPresenter Grid.Column="0" Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource CheckBoxValueCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ContentPresenter Grid.Column="1" Height="22" Content="{Binding ValueOutputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -535,7 +620,7 @@
         <DataTemplate x:Key="TextBoxValueNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     CornerRadius="2"
                     BorderThickness="1"
                     Width="200"
@@ -549,15 +634,8 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid ColumnDefinitions="*,Auto" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                    <TextBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="12"
-                             Margin="2"
-                             AcceptsReturn="{Binding Node.Metadata.Shared.GenericTypes[0], Converter={StaticResource TypeIsStringConverter}}"
-                             AcceptsTab="{Binding Node.Metadata.Shared.GenericTypes[0], Converter={StaticResource TypeIsStringConverter}}"
-                             MinLines="0"
-                             VerticalContentAlignment="Center"
-                             Text="{Binding Node.Value}">
-                    </TextBox>
-                    <ContentPresenter Grid.Column="1" Height="22" Content="{Binding ValueOutputVms[0]}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Top"/>
+                    <ContentPresenter Grid.Column="0" Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource TextBoxValueCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ContentPresenter Grid.Column="1" Height="22" Content="{Binding ValueOutputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Top"/>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -565,10 +643,11 @@
         <DataTemplate x:Key="TextBoxNumericValueNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     CornerRadius="2"
                     BorderThickness="1"
                     Width="100"
+                    Height="24"
                     BorderBrush="{DynamicResource CForeground3}"
                     HorizontalAlignment="Left" VerticalAlignment="Top"
                     MouseDown="GridGraphElementContainer_OnMouseDown"
@@ -579,15 +658,8 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid ColumnDefinitions="*,Auto" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                    <TextBox Grid.Column="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="12"
-                             Margin="2"
-                             AcceptsReturn="{Binding Node.Metadata.Shared.GenericTypes[0], Converter={StaticResource TypeIsStringConverter}}"
-                             AcceptsTab="{Binding Node.Metadata.Shared.GenericTypes[0], Converter={StaticResource TypeIsStringConverter}}"
-                             MinLines="0"
-                             VerticalContentAlignment="Center"
-                             Text="{Binding Node.Value}">
-                    </TextBox>
-                    <ContentPresenter Grid.Column="1" Height="22" Content="{Binding ValueOutputVms[0]}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Top"/>
+                    <ContentPresenter Grid.Column="0" Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource TextBoxValueCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ContentPresenter Grid.Column="1" Height="22" Content="{Binding ValueOutputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -595,7 +667,7 @@
         <DataTemplate x:Key="ComboBoxValueNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     CornerRadius="2"
                     Width="150"
                     BorderThickness="1"
@@ -609,14 +681,8 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid ColumnDefinitions="*,Auto" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                    <ComboBox Grid.Column="0" ItemsSource="{Binding Node.Metadata.Shared.GenericTypes[0], Converter={StaticResource EnumGetValuesConverter}}"
-                              SelectedItem="{Binding Node.Value}"
-                              VerticalContentAlignment="Center"
-                              VerticalAlignment="Center"
-                              Height="18"
-                              Margin="2">
-                    </ComboBox>
-                    <ContentPresenter Grid.Column="1" Content="{Binding ValueOutputVms[0]}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ContentPresenter Grid.Column="0" Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ComboBoxValueCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ContentPresenter Grid.Column="1" Height="22" Content="{Binding ValueOutputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -624,7 +690,7 @@
         <DataTemplate x:Key="KeybindValueNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     CornerRadius="2"
                     BorderThickness="1"
                     Width="200"
@@ -638,10 +704,8 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid ColumnDefinitions="*,Auto" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                    <core:KeybindPicker Grid.Column="0" Keybind="{Binding Node.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        FontSize="12" Margin="2" BorderThickness="1"
-                                        Background="{DynamicResource CBackground6}"/>
-                    <ContentPresenter Grid.Column="1" Content="{Binding ValueOutputVms[0]}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ContentPresenter Grid.Column="0" Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource KeybindValueCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ContentPresenter Grid.Column="1" Height="22" Content="{Binding ValueOutputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -649,7 +713,7 @@
         <DataTemplate x:Key="DateTimeValueNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     CornerRadius="2"
                     BorderThickness="1"
                     Width="200"
@@ -663,11 +727,8 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid ColumnDefinitions="*,Auto" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                    <xctk:DateTimePicker Grid.Column="0" Value="{Binding Node.Value}" Margin="2"
-                                         Padding="0 -2 0 0"
-                                         Background="{DynamicResource CBackground3}"
-                                         Foreground="{DynamicResource CForeground1}"/>
-                    <ContentPresenter Grid.Column="1" Content="{Binding ValueOutputVms[0]}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ContentPresenter Grid.Column="0" Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource DateTimeValueCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ContentPresenter Grid.Column="1" Height="22" Content="{Binding ValueOutputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -675,7 +736,7 @@
         <DataTemplate x:Key="TimeSpanValueNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     CornerRadius="2"
                     BorderThickness="1"
                     Width="200"
@@ -689,11 +750,31 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid ColumnDefinitions="*,Auto" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                    <xctk:TimeSpanUpDown Grid.Column="0" Value="{Binding Node.Value}" Margin="2"
-                                         Padding="0 -2 0 0"
-                                         Background="{DynamicResource CBackground3}"
-                                         Foreground="{DynamicResource CForeground1}"/>
-                    <ContentPresenter Grid.Column="1" Content="{Binding ValueOutputVms[0]}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ContentPresenter Grid.Column="0" Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource TimeSpanValueCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ContentPresenter Grid.Column="1" Height="22" Content="{Binding ValueOutputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ColorValueNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
+            <Border Cursor="Hand"
+                    Focusable="True"
+                    Tag="{Binding Mode=OneTime}"
+                    CornerRadius="2"
+                    BorderThickness="1"
+                    Width="50"
+                    BorderBrush="{DynamicResource CForeground3}"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    MouseDown="GridGraphElementContainer_OnMouseDown"
+                    MouseUp="GridGraphElementContainer_OnMouseUp"
+                    Background="{DynamicResource NodeBackgroundBrush}"
+                    ContextMenu="{StaticResource ElementContextMenu}">
+                <Border.RenderTransform>
+                    <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
+                </Border.RenderTransform>
+                <Grid ColumnDefinitions="*,Auto" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+                    <ContentPresenter Grid.Column="0" Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ColorValueCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ContentPresenter Grid.Column="1" Height="22" Content="{Binding ValueOutputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -701,7 +782,7 @@
         <DataTemplate x:Key="DisplayNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     CornerRadius="2"
                     BorderThickness="1"
                     BorderBrush="{DynamicResource CForeground3}"
@@ -714,7 +795,7 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid ColumnDefinitions="Auto,Auto" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                    <ContentPresenter Grid.Column="0" Height="18" Content="{Binding ValueInputVms[0]}" ContentTemplate="{StaticResource ValueInputCollapsedTemplate}" VerticalAlignment="Top"/>
+                    <ContentPresenter Grid.Column="0" Height="18" Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueInputCollapsedTemplate}" VerticalAlignment="Top"/>
                     <TextBlock Grid.Column="1"
                                Foreground="{DynamicResource CForeground1}"
                                Text="{Binding Node.Value, Converter={StaticResource ObjectToStringConverter}}" FontSize="12"
@@ -729,10 +810,33 @@
             </Border>
         </DataTemplate>
 
+        <DataTemplate x:Key="ColorDisplayNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
+            <Border Cursor="Hand"
+                    Focusable="True"
+                    Tag="{Binding Mode=OneTime}"
+                    CornerRadius="2"
+                    BorderThickness="1"
+                    Width="50"
+                    BorderBrush="{DynamicResource CForeground3}"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    MouseDown="GridGraphElementContainer_OnMouseDown"
+                    MouseUp="GridGraphElementContainer_OnMouseUp"
+                    Background="{DynamicResource NodeBackgroundBrush}"
+                    ContextMenu="{StaticResource ElementContextMenu}">
+                <Border.RenderTransform>
+                    <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
+                </Border.RenderTransform>
+                <Grid ColumnDefinitions="Auto,*" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+                    <ContentPresenter Grid.Column="0" Height="18" Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueInputCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <Border Margin="2" Grid.Column="1" CornerRadius="2" Background="{Binding Node.Value, Converter={StaticResource ColorToBrushConverter}}"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
         <DataTemplate x:Key="PassthroughDisplayNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     CornerRadius="2"
                     BorderThickness="1"
                     Width="250"
@@ -746,7 +850,7 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid ColumnDefinitions="Auto,*,Auto" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                    <ContentPresenter Grid.Column="0" Height="18" Content="{Binding ValueInputVms[0]}" ContentTemplate="{StaticResource ValueInputCollapsedTemplate}" VerticalAlignment="Top"/>
+                    <ContentPresenter Grid.Column="0" Height="18" Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueInputCollapsedTemplate}" VerticalAlignment="Top"/>
                     <TextBlock Grid.Column="1"
                                Foreground="{DynamicResource CForeground1}"
                                Text="{Binding Node.Value, Converter={StaticResource ObjectToStringConverter}}" FontSize="12"
@@ -756,7 +860,7 @@
                                TextWrapping="Wrap"
                                Margin="4 -1.5 4 0"
                                FontWeight="SemiBold"/>
-                    <ContentPresenter Grid.Column="2" Height="18" Content="{Binding ValueOutputVms[0]}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Top"/>
+                    <ContentPresenter Grid.Column="2" Height="18" Content="{Binding ValueOutputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Top"/>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -764,7 +868,7 @@
         <DataTemplate x:Key="CollapsedNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     CornerRadius="2"
                     BorderThickness="1"
                     BorderBrush="{DynamicResource CForeground3}"
@@ -777,7 +881,7 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid ColumnDefinitions="Auto,Auto,Auto" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                    <ItemsControl Grid.Column="0" ItemsSource="{Binding ValueInputVms}" ItemTemplate="{StaticResource ValueInputCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ItemsControl Grid.Column="0" ItemsSource="{Binding ValueInputVms, Mode=OneTime}" ItemTemplate="{StaticResource ValueInputCollapsedTemplate}" VerticalAlignment="Center"/>
                     <Grid Grid.Column="1" VerticalAlignment="Stretch" Margin="4 0" MinHeight="18">
                         <TextBlock Foreground="{DynamicResource CForeground1}"
                                    Text="{Binding DisplayName}" FontSize="12"
@@ -786,8 +890,8 @@
                                    HorizontalAlignment="Center"
                                    TextAlignment="Center"
                                    FontWeight="SemiBold"
-                                   Visibility="{Binding Node.Metadata.Shared.Icons, Converter={StaticResource CollectionIsEmptyToVisibilityConverter}}"/>
-                        <ItemsControl ItemsSource="{Binding Node.Metadata.Shared.Icons}">
+                                   Visibility="{Binding Node.Metadata.Shared.Icons, Converter={StaticResource CollectionIsEmptyToVisibilityConverter}, Mode=OneTime}"/>
+                        <ItemsControl ItemsSource="{Binding Node.Metadata.Shared.Icons, Mode=OneTime}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <StackPanel Orientation="Horizontal"/>
@@ -795,7 +899,7 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="{x:Type fontAwesome6:EFontAwesomeIcon}">
-                                    <fa6:FontAwesome Icon="{Binding}" FontSize="20"
+                                    <fa6:FontAwesome Icon="{Binding Mode=OneTime}" FontSize="20"
                                             VerticalAlignment="Center"
                                             HorizontalAlignment="Center"
                                             Foreground="{DynamicResource CForeground2}"
@@ -806,7 +910,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </Grid>
-                    <ItemsControl Grid.Column="2" ItemsSource="{Binding ValueOutputVms}" ItemTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ItemsControl Grid.Column="2" ItemsSource="{Binding ValueOutputVms, Mode=OneTime}" ItemTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -814,8 +918,8 @@
         <DataTemplate x:Key="SourceNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
-                    Width="200"
+                    Tag="{Binding Mode=OneTime}"
+                    Width="202"
                     CornerRadius="10"
                     BorderThickness="2"
                     BorderBrush="{DynamicResource CForeground3}"
@@ -828,12 +932,12 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid RowDefinitions="Auto,Auto,Auto">
-                    <ContentPresenter Grid.Row="0" Content="{Binding}" ContentTemplate="{StaticResource NodeHeaderTemplate}" />
+                    <ContentPresenter Grid.Row="0" Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource NodeHeaderTemplate}" />
                     <Grid Grid.Row="1" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                        <ContentPresenter Content="{Binding ValueInputVms[0]}" ContentTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
-                        <ContentPresenter Content="{Binding ValueOutputVms[0]}" ContentTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                        <ContentPresenter Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                        <ContentPresenter Content="{Binding ValueOutputVms[0], Mode=OneTime}" ContentTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
                     </Grid>
-                    <ContentPresenter Grid.Row="2" Content="{Binding}" ContentTemplate="{StaticResource NodeFooterTemplate}" />
+                    <ContentPresenter Grid.Row="2" Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource NodeFooterTemplate}" />
                 </Grid>
             </Border>
         </DataTemplate>
@@ -841,8 +945,8 @@
         <DataTemplate x:Key="DriveNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
-                    Width="200"
+                    Tag="{Binding Mode=OneTime}"
+                    Width="202"
                     CornerRadius="10"
                     BorderThickness="2"
                     BorderBrush="{DynamicResource CForeground3}"
@@ -857,7 +961,7 @@
                 <Grid RowDefinitions="Auto,Auto,Auto">
                     <ContentPresenter Grid.Row="0" Content="{Binding}" ContentTemplate="{StaticResource NodeHeaderTemplate}" />
                     <Grid Grid.Row="1" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                        <ItemsControl Grid.Row="0" ItemsSource="{Binding ValueInputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}">
+                        <ItemsControl Grid.Row="0" ItemsSource="{Binding ValueInputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <Grid />
@@ -865,7 +969,7 @@
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
                     </Grid>
-                    <ContentPresenter Grid.Row="2" Content="{Binding}" ContentTemplate="{StaticResource NodeFooterTemplate}" />
+                    <ContentPresenter Grid.Row="2" Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource NodeFooterTemplate}" />
                 </Grid>
             </Border>
         </DataTemplate>
@@ -873,7 +977,7 @@
         <DataTemplate x:Key="HoistedInputNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     Width="202"
                     CornerRadius="10"
                     BorderThickness="2"
@@ -887,14 +991,14 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid RowDefinitions="Auto,Auto,Auto">
-                    <ContentPresenter Grid.Row="0" Content="{Binding}" ContentTemplate="{StaticResource NodeHeaderTemplate}" />
+                    <ContentPresenter Grid.Row="0" Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource NodeHeaderTemplate}" />
                     <Grid RowDefinitions="Auto,Auto,Auto" Grid.Row="1" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                        <ItemsControl Grid.Row="0" ItemsSource="{Binding ValueInputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
-                        <ItemsControl Grid.Row="1" ItemsSource="{Binding FlowInputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
-                        <ItemsControl Grid.Row="1" ItemsSource="{Binding FlowOutputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
-                        <ItemsControl Grid.Row="2" ItemsSource="{Binding ValueOutputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                        <ItemsControl Grid.Row="0" ItemsSource="{Binding ValueInputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                        <ItemsControl Grid.Row="1" ItemsSource="{Binding FlowInputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                        <ItemsControl Grid.Row="1" ItemsSource="{Binding FlowOutputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                        <ItemsControl Grid.Row="2" ItemsSource="{Binding ValueOutputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
                     </Grid>
-                    <ContentPresenter Grid.Row="2" Content="{Binding}" ContentTemplate="{StaticResource NodeFooterTemplate}" />
+                    <ContentPresenter Grid.Row="2" Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource NodeFooterTemplate}" />
                 </Grid>
             </Border>
         </DataTemplate>
@@ -902,7 +1006,7 @@
         <DataTemplate x:Key="NoInlineNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     Width="202"
                     CornerRadius="10"
                     BorderThickness="2"
@@ -916,14 +1020,14 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid RowDefinitions="Auto,Auto,Auto">
-                    <ContentPresenter Grid.Row="0" Content="{Binding}" ContentTemplate="{StaticResource NodeHeaderTemplate}" />
+                    <ContentPresenter Grid.Row="0" Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource NodeHeaderTemplate}" />
                     <Grid RowDefinitions="Auto,Auto" Grid.Row="1" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                        <ItemsControl Grid.Row="0" ItemsSource="{Binding FlowInputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
-                        <ItemsControl Grid.Row="0" ItemsSource="{Binding FlowOutputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
-                        <ItemsControl Grid.Row="1" ItemsSource="{Binding ValueOutputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
-                        <ItemsControl Grid.Row="1" ItemsSource="{Binding ValueInputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                        <ItemsControl Grid.Row="0" ItemsSource="{Binding FlowInputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                        <ItemsControl Grid.Row="0" ItemsSource="{Binding FlowOutputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                        <ItemsControl Grid.Row="1" ItemsSource="{Binding ValueOutputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                        <ItemsControl Grid.Row="1" ItemsSource="{Binding ValueInputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
                     </Grid>
-                    <ContentPresenter Grid.Row="2" Content="{Binding}" ContentTemplate="{StaticResource NodeFooterTemplate}" />
+                    <ContentPresenter Grid.Row="2" Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource NodeFooterTemplate}" />
                 </Grid>
             </Border>
         </DataTemplate>
@@ -931,7 +1035,7 @@
         <DataTemplate x:Key="SwitchNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     Width="202"
                     CornerRadius="10"
                     BorderThickness="2"
@@ -945,18 +1049,18 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid RowDefinitions="Auto,Auto,Auto">
-                    <ContentPresenter Grid.Row="0" Content="{Binding}" ContentTemplate="{StaticResource NodeHeaderTemplate}" />
+                    <ContentPresenter Grid.Row="0" Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource NodeHeaderTemplate}" />
                     <Grid ColumnDefinitions="*,*" Grid.Row="1" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                         <Grid RowDefinitions="Auto,Auto" Grid.Column="0">
-                            <ItemsControl Grid.Row="0" ItemsSource="{Binding FlowInputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
-                            <ItemsControl Grid.Row="1" ItemsSource="{Binding ValueInputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                            <ItemsControl Grid.Row="0" ItemsSource="{Binding FlowInputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                            <ItemsControl Grid.Row="1" ItemsSource="{Binding ValueInputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
                         </Grid>
                         <Grid RowDefinitions="Auto,Auto" Grid.Column="1">
-                            <ItemsControl Grid.Row="0" ItemsSource="{Binding FlowOutputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
-                            <ItemsControl Grid.Row="1" ItemsSource="{Binding ValueOutputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                            <ItemsControl Grid.Row="0" ItemsSource="{Binding FlowOutputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                            <ItemsControl Grid.Row="1" ItemsSource="{Binding ValueOutputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
                         </Grid>
                     </Grid>
-                    <ContentPresenter Grid.Row="2" Content="{Binding}" ContentTemplate="{StaticResource NodeFooterTemplate}" />
+                    <ContentPresenter Grid.Row="2" Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource NodeFooterTemplate}" />
                 </Grid>
             </Border>
         </DataTemplate>
@@ -964,7 +1068,7 @@
         <DataTemplate x:Key="RegularNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     Width="202"
                     CornerRadius="10"
                     BorderThickness="2"
@@ -978,14 +1082,14 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid RowDefinitions="Auto,Auto,Auto">
-                    <ContentPresenter Grid.Row="0" Content="{Binding}" ContentTemplate="{StaticResource NodeHeaderTemplate}" />
+                    <ContentPresenter Grid.Row="0" Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource NodeHeaderTemplate}" />
                     <Grid Grid.Row="1" RowDefinitions="Auto,Auto,Auto" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                        <ItemsControl Grid.Row="0" ItemsSource="{Binding FlowInputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
-                        <ItemsControl Grid.Row="0" ItemsSource="{Binding FlowOutputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
-                        <ItemsControl Grid.Row="1" ItemsSource="{Binding ValueOutputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
-                        <ItemsControl Grid.Row="2" ItemsSource="{Binding ValueInputVms}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                        <ItemsControl Grid.Row="0" ItemsSource="{Binding FlowInputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                        <ItemsControl Grid.Row="0" ItemsSource="{Binding FlowOutputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                        <ItemsControl Grid.Row="1" ItemsSource="{Binding ValueOutputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
+                        <ItemsControl Grid.Row="2" ItemsSource="{Binding ValueInputVms, Mode=OneTime}" ItemTemplateSelector="{StaticResource ConnectionDataTemplateSelector}"/>
                     </Grid>
-                    <ContentPresenter Grid.Row="2" Content="{Binding}" ContentTemplate="{StaticResource NodeFooterTemplate}" />
+                    <ContentPresenter Grid.Row="2" Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource NodeFooterTemplate}" />
                 </Grid>
             </Border>
         </DataTemplate>
@@ -993,7 +1097,7 @@
         <DataTemplate x:Key="ButtonNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     Width="100"
                     CornerRadius="2"
                     BorderThickness="1"
@@ -1007,8 +1111,8 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid ColumnDefinitions="*,Auto" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                    <core:TextButton Grid.Column="0" Text="Call" FontSize="12" CornerRadius="2" Tag="{Binding}" Cursor="Arrow" Margin="2" Click="ButtonNode_OnClick" Focusable="True" ButtonColour="Gray"/>
-                    <ItemsControl Grid.Column="1" ItemsSource="{Binding FlowOutputVms}" ItemTemplate="{StaticResource FlowOutputCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <core:TextButton Grid.Column="0" Text="Call" FontSize="12" CornerRadius="2" Tag="{Binding Mode=OneTime}" Cursor="Arrow" Margin="2" Click="ButtonNode_OnClick" Focusable="True" ButtonColour="Gray"/>
+                    <ItemsControl Grid.Column="1" ItemsSource="{Binding FlowOutputVms, Mode=OneTime}" ItemTemplate="{StaticResource FlowOutputCollapsedTemplate}" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -1016,7 +1120,7 @@
         <DataTemplate x:Key="RelayNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     CornerRadius="2"
                     BorderThickness="1"
                     Width="15"
@@ -1030,15 +1134,15 @@
                     <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
                 </Border.RenderTransform>
                 <Grid ColumnDefinitions="Auto,*,Auto">
-                    <ItemsControl Grid.Column="0" ItemsSource="{Binding ValueInputVms}" ItemTemplate="{StaticResource ValueInputCollapsedTemplate}" VerticalAlignment="Center"/>
-                    <ItemsControl Grid.Column="2" ItemsSource="{Binding ValueOutputVms}" ItemTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ItemsControl Grid.Column="0" ItemsSource="{Binding ValueInputVms, Mode=OneTime}" ItemTemplate="{StaticResource ValueInputCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <ItemsControl Grid.Column="2" ItemsSource="{Binding ValueOutputVms, Mode=OneTime}" ItemTemplate="{StaticResource ValueOutputCollapsedTemplate}" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type viewModels:GroupViewModel}">
             <Border Name="GroupContainer"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     CornerRadius="20"
                     Cursor="Hand"
                     BorderThickness="2"
@@ -1054,9 +1158,10 @@
                 </Border.RenderTransform>
                 <Grid Height="35" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                     <Border Background="{DynamicResource CBackground1}" CornerRadius="20 20 0 0"/>
-                    <core:EditableText Text="{Binding Group.Title.Value, Mode=TwoWay}"
+                    <core:EditableText Text="{Binding Group.Title.Value}"
                                        Margin="10 0"
                                        HorizontalAlignment="Center"
+                                       FontSize="20"
                                        Foreground="{DynamicResource CForeground1}"
                                        EditCompleted="OnGroupTitleEditCompleted"/>
                 </Grid>
@@ -1065,7 +1170,7 @@
 
         <DataTemplate DataType="{x:Type viewModels:CommentViewModel}">
             <Border Name="CommentContainer"
-                    Tag="{Binding}"
+                    Tag="{Binding Mode=OneTime}"
                     CornerRadius="5"
                     Cursor="Hand"
                     BorderThickness="1"
@@ -1080,7 +1185,7 @@
                 <Grid HorizontalAlignment="Center">
                     <Border Background="{DynamicResource CBackground1}" Opacity="0.75" CornerRadius="5"/>
                     <core:EditableText Text="{Binding Comment.Text.Value}"
-                                       Tag="{Binding}"
+                                       Tag="{Binding Mode=OneTime}"
                                        Margin="5 2"
                                        MinWidth="50"
                                        FontSize="15"
@@ -1107,6 +1212,7 @@
                                          SwitchNode="{StaticResource SwitchNodeTemplate}"
                                          DisplayNode="{StaticResource DisplayNodeTemplate}"
                                          PassthroughDisplayNode="{StaticResource PassthroughDisplayNodeTemplate}"
+                                         ColorDisplayNode="{StaticResource ColorDisplayNodeTemplate}"
                                          RelayNode="{StaticResource RelayNodeTemplate}"
                                          CheckBoxValueNode="{StaticResource CheckBoxValueNodeTemplate}"
                                          TextBoxValueNode="{StaticResource TextBoxValueNodeTemplate}"
@@ -1114,7 +1220,8 @@
                                          ComboBoxValueNode="{StaticResource ComboBoxValueNodeTemplate}"
                                          KeybindValueNode="{StaticResource KeybindValueNodeTemplate}"
                                          DateTimeValueNode="{StaticResource DateTimeValueNodeTemplate}"
-                                         TimeSpanValueNode="{StaticResource TimeSpanValueNodeTemplate}"/>
+                                         TimeSpanValueNode="{StaticResource TimeSpanValueNodeTemplate}"
+                                         ColorValueNode="{StaticResource ColorValueNodeTemplate}"/>
     </UserControl.Resources>
 
     <Grid Background="{DynamicResource CBackground1}">
@@ -1149,7 +1256,7 @@
                             </ItemsControl.ItemContainerStyle>
                         </ItemsControl>
                         <Path x:Name="ConnectionDragPath"
-                              Stroke="LawnGreen"
+                              Stroke="LimeGreen"
                               StrokeThickness="2"
                               StrokeStartLineCap="Round"
                               StrokeEndLineCap="Round"

@@ -14,7 +14,7 @@ public sealed class DampContinuouslyNode<T> : ValueComputeNode<T>, IContinuousNo
     [InputMode(InputModes.Connection)]
     public ValueInput<T> Target = new();
 
-    public ValueInput<double> HalfTime = new("Half Time (ms)");
+    public ValueInput<int> HalfTime = new("Half Time (ms)");
 
     protected override T ComputeValue(IPulseContext c)
     {

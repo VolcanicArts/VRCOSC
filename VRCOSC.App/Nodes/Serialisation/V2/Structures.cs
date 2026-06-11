@@ -58,7 +58,7 @@ public class SerialisableNodeGraph : SerialisableNodeGraphBase
         Enabled = nodeGraph.Enabled.Value;
         Nodes = nodeGraph.Elements.Values.OfType<Node>().Select(node => new SerialisableNode(node)).ToList();
         Connections = nodeGraph.Connections.Select(connection => new SerialisableConnection(connection)).ToList();
-        Groups = nodeGraph.Groups.Values.Select(group => new SerialisableNodeGroup(group)).ToList();
+        Groups = nodeGraph.Groups.Values.Where(g => g.Nodes.Any()).Select(group => new SerialisableNodeGroup(group)).ToList();
         Variables = nodeGraph.GraphVariables.Values.Select(variable => new SerialisableGraphVariable(variable)).ToList();
         Comments = nodeGraph.Elements.Values.OfType<Comment>().Select(comment => new SerialisableComment(comment)).ToList();
     }

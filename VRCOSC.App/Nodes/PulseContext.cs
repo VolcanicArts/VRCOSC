@@ -5,17 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.Nodes.Metadata;
 using VRCOSC.App.Nodes.Types;
-using VRCOSC.App.SDK.Parameters;
-using VRCOSC.App.SDK.VRChat;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
 
-public record FlowSource(int Slot, int Index);
+internal record FlowSource(int Slot, int Index);
 
 public interface IPulseContext
 {
@@ -34,102 +32,86 @@ public interface IPulseContext
     internal void Write<T>(IValueOutputList<T> valueOutputList, int slotIndex, T value);
     internal void Write<T>(IGlobalStore<T> store, T value);
     internal T Read<T>(IGlobalStore<T> store);
-    internal void WriteKeyedStore<T>(string name, T value);
-    internal T ReadKeyedStore<T>(string name);
+    internal void WriteContextStore<T>(string name, T value);
+    internal T ReadContextStore<T>(string name);
 }
 
 public class PulseContext : IPulseContext
 {
-    internal CancellationTokenSource Source { get; }
-    public CancellationToken Token => Source.Token;
-
-    public bool IsCancelled => Token.IsCancellationRequested;
-
-    internal readonly NodeGraph Graph;
-    internal readonly PulseContext? BaseContext;
-    internal Dictionary<Guid, IRef[][]> Memory { get; } = [];
-    private Dictionary<Guid, Dictionary<IStore, IRef>> stores { get; } = [];
-    private Dictionary<string, IRef> keyedStores { get; } = [];
-    private Stack<INode> nodes { get; } = [];
-    private Stack<FlowSource> flowSources { get; } = [];
+    internal readonly CancellationTokenSource Source;
+    internal readonly Dictionary<Guid, IRef[][]> Memory = [];
+    private readonly NodeGraph _graph;
+    private readonly PulseContext? _baseContext;
+    private readonly Dictionary<string, IRef> _keyedStores = [];
+    private readonly Stack<Guid> _exectution = [];
+    private readonly Stack<FlowSource> _flowSources = [];
 
     internal PulseContext(NodeGraph graph)
     {
-        Graph = graph;
+        _graph = graph;
         Source = new CancellationTokenSource();
     }
 
     internal PulseContext(PulseContext baseContext, NodeGraph graph, CancellationTokenSource? source = null)
     {
-        Graph = graph;
-        BaseContext = baseContext;
+        _graph = graph;
+        _baseContext = baseContext;
         Source = source ?? baseContext.Source;
     }
 
-    internal void Push(INode node) => nodes.Push(node);
+    internal void Push(Guid element) => _exectution.Push(element);
+    internal void Pop() => _exectution.Pop();
+    internal Guid Peek() => _exectution.Peek();
 
-    internal void Pop() => nodes.Pop();
-
-    internal INode Peek() => nodes.Peek();
+    public bool IsCancelled => Source.Token.IsCancellationRequested;
 
     public Task Run(Task task) => task.WaitAsync(Source.Token);
     public Task<T> Run<T>(Task<T> task) => task.WaitAsync(Source.Token);
 
-    internal VRChatClient GetClient() => AppManager.GetInstance().VRChatClient;
-    internal string? GetSpeechText() => Graph.CurrentSpeechText;
-    internal VRChatParameter? GetParameter<T>(string name) => AppManager.GetInstance().GetParameter<T>(name);
-    internal TemplatedVRChatParameter? GetParameter<T>(Regex pattern) => AppManager.GetInstance().GetParameter<T>(pattern);
-
-    public void WriteKeyedStore<T>(string name, T value) => keyedStores[name] = new Ref<T>(value);
-    public T ReadKeyedStore<T>(string name) => tryReadKeyedStore<T>(name, out var value) ? value : default!;
+    public void WriteContextStore<T>(string name, T value) => _keyedStores[name] = new Ref<T>(value);
+    public T ReadContextStore<T>(string name) => tryReadKeyedStore<T>(name, out var value) ? value : default!;
 
     public async Task Execute(IFlowOutput flowOutput)
     {
-        var current = Peek();
+        var currentId = Peek();
         var slot = flowOutput.Metadata.Shared.Slot;
         var scope = flowOutput.Scope;
 
-        var connectionResult = Graph.FindConnectionFromFlowOutput(current.Id, slot, 0);
+        var connectionResult = _graph.FindConnectionFromFlowOutput(currentId, slot, 0);
         if (!connectionResult.IsSuccess) return;
 
         var connection = connectionResult.Value;
+        var flowSource = new FlowSource(connection.InputSlot, connection.InputSlotIndex);
 
-        var inputNodeResult = Graph.GetNode(connection.InputId);
-        Debug.Assert(inputNodeResult.IsSuccess);
-
-        var inputNode = inputNodeResult.Value;
-        var flowInputElement = (IFlowInputBase)inputNode.Metadata.ElementInstancesFor(ConnectionPoint.FlowInput)[connection.InputSlot];
-        var flowSource = new FlowSource(flowInputElement.Metadata.Shared.Slot, connection.InputSlotIndex);
-
-        flowSources.Push(flowSource);
-        await Graph.ProcessNode(connection.InputId, scope ? new PulseContext(this, Graph) : this);
-        flowSources.Pop();
+        _flowSources.Push(flowSource);
+        await _graph.ProcessNode(connection.InputId, scope ? new PulseContext(this, _graph) : this);
+        _flowSources.Pop();
     }
 
     public Task Execute(IFlowOutputList flowOutputList, int index)
     {
-        var current = Peek();
+        var currentId = Peek();
         var slot = flowOutputList.Metadata.Shared.Slot;
         var scope = flowOutputList.Scope;
 
-        var connectionResult = Graph.FindConnectionFromFlowOutput(current.Id, slot, index);
+        var connectionResult = _graph.FindConnectionFromFlowOutput(currentId, slot, index);
         if (!connectionResult.IsSuccess) return Task.CompletedTask;
 
         var connection = connectionResult.Value;
-        return Graph.ProcessNode(connection.InputId, scope ? new PulseContext(this, Graph) : this);
+        return _graph.ProcessNode(connection.InputId, scope ? new PulseContext(this, _graph) : this);
     }
 
-    internal bool HasMemory(Guid nodeId) => Memory.ContainsKey(nodeId) || (BaseContext?.HasMemory(nodeId) ?? false);
+    internal bool HasMemory(Guid nodeId) => Memory.ContainsKey(nodeId) || (_baseContext?.HasMemory(nodeId) ?? false);
 
     private bool tryReadKeyedStore<T>(string name, out T value)
     {
-        if (keyedStores.TryGetValue(name, out var localIRef))
+        if (_keyedStores.TryGetValue(name, out var localIRef))
         {
             value = (T)localIRef.GetValue()!;
             return true;
         }
 
-        if (BaseContext?.tryReadKeyedStore<T>(name, out var baseValue) ?? false)
+        if (_baseContext?.tryReadKeyedStore<T>(name, out var baseValue) ?? false)
         {
             value = baseValue;
             return true;
@@ -147,7 +129,7 @@ public class PulseContext : IPulseContext
             return true;
         }
 
-        if (BaseContext?.tryGetMemoryEntry(nodeId, out var baseEntry) ?? false)
+        if (_baseContext?.tryGetMemoryEntry(nodeId, out var baseEntry) ?? false)
         {
             memoryEntry = baseEntry;
             return true;
@@ -165,7 +147,7 @@ public class PulseContext : IPulseContext
             return true;
         }
 
-        if (BaseContext?.tryReadValue<T>(nodeId, slot, index, out var baseValue) ?? false)
+        if (_baseContext?.tryReadValue<T>(nodeId, slot, index, out var baseValue) ?? false)
         {
             value = baseValue;
             return true;
@@ -189,12 +171,14 @@ public class PulseContext : IPulseContext
 
     public T Read<T>(IValueInput<T> valueInput)
     {
-        if (valueInput.Metadata.Shared.Modes == InputModes.Inline) return valueInput.Field;
+        var metadata = valueInput.Metadata;
 
-        var current = Peek();
+        if (metadata.Shared.Modes == InputModes.Inline) return valueInput.Field;
+
+        var currentId = Peek();
         var slot = valueInput.Metadata.Shared.Slot;
 
-        var connectionResult = Graph.FindConnectionFromValueInput(current.Id, slot, 0);
+        var connectionResult = _graph.FindConnectionFromValueInput(currentId, slot, 0);
         if (!connectionResult.IsSuccess) return valueInput.Field;
 
         var connection = connectionResult.Value;
@@ -204,47 +188,45 @@ public class PulseContext : IPulseContext
 
     public IReadOnlyList<T> Read<T>(IValueInputList<T> valueInputList)
     {
-        var current = Peek();
+        var currentId = Peek();
         var slot = valueInputList.Metadata.Shared.Slot;
         var size = valueInputList.Metadata.Size;
         var values = new T[size];
 
-        for (var i = 0; i < size; i++)
+        for (var slotIndex = 0; slotIndex < size; slotIndex++)
         {
-            var connectionResult = Graph.FindConnectionFromValueInput(current.Id, slot, i);
+            var connectionResult = _graph.FindConnectionFromValueInput(currentId, slot, slotIndex);
 
             if (!connectionResult.IsSuccess)
             {
-                values[i] = default!;
+                values[slotIndex] = default!;
             }
             else
             {
                 var connection = connectionResult.Value;
                 var result = tryReadValue<T>(connection.OutputId, connection.OutputSlot, connection.OutputSlotIndex, out var value);
-                values[i] = result ? value : default!;
+                values[slotIndex] = result ? value : default!;
             }
         }
 
         return values;
     }
 
-    public void Write<T>(IValueOutput<T> valueOutput, T value)
+    public void Write<T>(IValueOutput<T> valueOutput, T value) => writeValue(Peek(), valueOutput.Metadata.Shared.Slot, 0, value);
+
+    public void Write<T>(IValueOutputList<T> valueOutputList, int slotIndex, T value) => writeValue(Peek(), valueOutputList.Metadata.Shared.Slot, slotIndex, value);
+
+    public void Write<T>(IGlobalStore<T> store, T value) => _graph.WriteStore(store, value, this);
+
+    public T Read<T>(IGlobalStore<T> store) => _graph.ReadStore(store, this);
+
+    public bool IsSource(IFlowInput flowInput) => _flowSources.Peek().Slot == flowInput.Metadata.Shared.Slot;
+
+    public bool IsSource(IFlowInputList flowInputList, int index)
     {
-        var current = Peek();
-        var slot = valueOutput.Metadata.Shared.Slot;
-        writeValue(current.Id, slot, 0, value);
+        var flowSource = _flowSources.Peek();
+        return flowSource.Slot == flowInputList.Metadata.Shared.Slot && flowSource.Index == index;
     }
-
-    public void Write<T>(IValueOutputList<T> valueOutputList, int slotIndex, T value)
-    {
-        var current = Peek();
-        var slot = valueOutputList.Metadata.Shared.Slot;
-        writeValue(current.Id, slot, slotIndex, value);
-    }
-
-    public void Write<T>(IGlobalStore<T> store, T value) => Graph.WriteStore(store, value, this);
-
-    public T Read<T>(IGlobalStore<T> store) => Graph.ReadStore(store, this);
 
     internal void CreateMemory(INode node)
     {
@@ -255,61 +237,18 @@ public class PulseContext : IPulseContext
 
         var valueOutputs = node.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput);
 
-        for (var i = 0; i < valueOutputCount; i++)
+        for (var slot = 0; slot < valueOutputCount; slot++)
         {
-            var valueOutput = valueOutputs[i];
+            var valueOutput = valueOutputs[slot];
             var metadata = valueOutput.Metadata;
             var memoryEntry = new IRef[metadata.WorkingSize];
 
-            for (var j = 0; j < memoryEntry.Length; j++)
+            for (var slotIndex = 0; slotIndex < memoryEntry.Length; slotIndex++)
             {
-                memoryEntry[j] = (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(metadata.Shared.ValueType))!;
+                memoryEntry[slotIndex] = (IRef)Activator.CreateInstance(typeof(Ref<>).MakeGenericType(metadata.Shared.ValueType))!;
             }
 
-            Memory[node.Id][i] = memoryEntry;
+            Memory[node.Id][slot] = memoryEntry;
         }
     }
-
-    public bool IsSource(IFlowInput flowInput)
-    {
-        var flowSource = flowSources.Peek();
-        return flowSource.Slot == flowInput.Metadata.Shared.Slot;
-    }
-
-    public bool IsSource(IFlowInputList flowInputList, int index)
-    {
-        var flowSource = flowSources.Peek();
-        return flowSource.Slot == flowInputList.Metadata.Shared.Slot && flowSource.Index == index;
-    }
-}
-
-public interface IRef
-{
-    public Type ValueType { get; }
-    public object? GetValue();
-}
-
-public class Ref<T> : IRef, IEqualityComparer<T>
-{
-    public T Value;
-    public Type ValueType => typeof(T);
-
-    public Ref(T startValue = default!)
-    {
-        Value = startValue;
-    }
-
-    // Required for Activator.CreateInstance
-    public Ref()
-    {
-        Value = default!;
-    }
-
-    public object? GetValue() => Value;
-
-    public bool Equals(T? x, T? y) => EqualityComparer<T>.Default.Equals(x, y);
-
-    public int GetHashCode([DisallowNull] T obj) => EqualityComparer<T>.Default.GetHashCode(Value!);
-
-    public override bool Equals(object? obj) => obj is Ref<T> other && Equals(Value, other.Value);
 }

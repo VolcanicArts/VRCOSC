@@ -19,7 +19,7 @@ public abstract class HttpNode(HttpMethod method) : TryActionAsyncNode
 
     public ValueInput<string> URL = new();
     public ValueInput<Dictionary<string, string>> Headers = new();
-    public ValueInput<TimeSpan> Timeout = new(defaultValue: TimeSpan.FromMilliseconds(1000));
+    public ValueInput<int> Timeout = new("Timeout (ms)", defaultValue: 1000);
     public ValueOutput<HttpStatusCode> StatusCode = new();
     public ValueOutput<string> ErrorMessage = new();
     public ValueOutput<Dictionary<string, string>> ResponseHeaders = new("Headers");
@@ -27,10 +27,9 @@ public abstract class HttpNode(HttpMethod method) : TryActionAsyncNode
     protected override async Task<bool> TryActionAsync(IPulseContext c)
     {
         var url = URL.Read(c);
-        var headers = Headers.Read(c);
-
         if (string.IsNullOrEmpty(url)) return false;
 
+        var headers = Headers.Read(c);
         headers ??= new Dictionary<string, string>();
 
         try
@@ -43,7 +42,7 @@ public abstract class HttpNode(HttpMethod method) : TryActionAsyncNode
             foreach (var header in headers)
                 request.Headers.Add(header.Key, header.Value);
 
-            var response = await c.Run(client.SendAsync(request).WaitAsync(Timeout.Read(c)));
+            var response = await c.Run(client.SendAsync(request).WaitAsync(TimeSpan.FromMilliseconds(Timeout.Read(c))));
             StatusCode.Write(response.StatusCode, c);
 
             var responseHeaders = response.Headers.ToDictionary(h => h.Key, h => string.Join(", ", h.Value));

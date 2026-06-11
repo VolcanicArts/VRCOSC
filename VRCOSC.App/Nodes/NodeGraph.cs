@@ -10,12 +10,14 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using MeaMod.DNS.Server;
+using VRCOSC.App.Modules;
 using VRCOSC.App.Nodes.Metadata;
 using VRCOSC.App.Nodes.Serialisation.V1;
 using VRCOSC.App.Nodes.Serialisation.V2;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Events;
 using VRCOSC.App.Nodes.Types.Strings;
+using VRCOSC.App.SDK.Nodes;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 using Node = VRCOSC.App.Nodes.Types.Node;
@@ -46,8 +48,11 @@ public class NodeGraph
 
     public string? CurrentSpeechText { get; private set; }
 
-    public NodeGraph()
+    public readonly bool FromImport;
+
+    public NodeGraph(bool fromImport = false)
     {
+        FromImport = fromImport;
         serialiser = new SerialisationManager();
         serialiser.RegisterSerialiser(1, new NodeGraphSerialiserV1(AppManager.GetInstance().Storage, this));
         serialiser.RegisterSerialiser(2, new NodeGraphSerialiser(AppManager.GetInstance().Storage, this));
@@ -147,6 +152,15 @@ public class NodeGraph
         Elements[id] = node;
         graphChanges.AddedNodes.Add(node);
 
+        var moduleNodeInterface = type.GetInterfaces().SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IModuleNode<>));
+
+        if (moduleNodeInterface is not null)
+        {
+            var moduleType = moduleNodeInterface.GetGenericArguments()[0];
+            var module = ModuleManager.GetInstance().GetModuleInstanceFromType(moduleType);
+            type.GetProperty("Module")!.SetValue(node, module);
+        }
+
         return node;
     }
 
@@ -168,6 +182,15 @@ public class NodeGraph
             Debug.Assert(inputNodeResult.IsSuccess);
             var inputNode = inputNodeResult.Value;
             inputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput)[inputConnection.InputSlot].IsConnected = false;
+        }
+
+        var group = Groups.Values.SingleOrDefault(g => g.Nodes.Contains(id));
+        group?.Nodes.Remove(id);
+
+        if (group?.Nodes.Count == 0)
+        {
+            Groups.TryRemove(group.Id, out _);
+            graphChanges.RemovedGroups.Add(group);
         }
 
         graphChanges.RemovedConnections.AddRange(removedInputConnections);
@@ -204,8 +227,9 @@ public class NodeGraph
 
     private Result<IValueConnection[]> createValueConnection(Guid outputId, int outputSlot, int outputSlotIndex, Type outputType, Guid inputId, int inputSlot, int inputSlotIndex, Type inputType)
     {
-        var outputElement = Elements[outputId];
-        var inputElement = Elements[inputId];
+        // temp casting before relays
+        var outputElement = (INode)Elements[outputId];
+        var inputElement = (INode)Elements[inputId];
 
         // If there's already a value connection with this value input slot, remove it
         var inputSlotExistingConnection = Connections.SingleOrDefault(c => c is IValueConnection && c.InputId == inputId && c.InputSlot == inputSlot && c.InputSlotIndex == inputSlotIndex);
@@ -222,9 +246,9 @@ public class NodeGraph
 
             Connections.Add(connection);
 
-            if (inputElement is INode inputNode && !inputNode.Metadata.Shared.IsFlow)
+            if (!inputElement.Metadata.Shared.IsFlow)
             {
-                _ = TriggerTree(inputNode);
+                TriggerTree(inputElement).Forget();
             }
 
             return Result<IValueConnection[]>.Success([connection]);
@@ -235,17 +259,18 @@ public class NodeGraph
             var result = AddNode(typeof(ToStringNode<>).MakeGenericType(outputType));
             if (!result.IsSuccess) return result.Exception;
 
-            var castNode = result.Value;
+            var toStringNode = result.Value;
+            toStringNode.Metadata.Position = (inputElement.Metadata.Position - outputElement.Metadata.Position) / new Vector2(2) + outputElement.Metadata.Position;
 
-            var conn1Result = createValueConnection(outputId, outputSlot, outputSlotIndex, outputType, castNode.Id, 0, 0, outputType);
+            var conn1Result = createValueConnection(outputId, outputSlot, outputSlotIndex, outputType, toStringNode.Id, 0, 0, outputType);
             if (!conn1Result.IsSuccess) return conn1Result.Exception;
 
-            var conn2Result = createValueConnection(castNode.Id, 0, 0, inputType, inputId, inputSlot, inputSlotIndex, inputType);
+            var conn2Result = createValueConnection(toStringNode.Id, 0, 0, inputType, inputId, inputSlot, inputSlotIndex, inputType);
             if (!conn2Result.IsSuccess) return conn2Result.Exception;
 
-            if (inputElement is INode inputNode && !inputNode.Metadata.Shared.IsFlow)
+            if (!inputElement.Metadata.Shared.IsValueInputTrigger)
             {
-                _ = TriggerTree(inputNode);
+                TriggerTree(inputElement).Forget();
             }
 
             return Result<IValueConnection[]>.Success([conn1Result.Value[0], conn2Result.Value[0]]);
@@ -257,6 +282,7 @@ public class NodeGraph
             if (!result.IsSuccess) return result.Exception;
 
             var castNode = result.Value;
+            castNode.Metadata.Position = (inputElement.Metadata.Position - outputElement.Metadata.Position) / new Vector2(2) + outputElement.Metadata.Position;
 
             var conn1Result = createValueConnection(outputId, outputSlot, outputSlotIndex, outputType, castNode.Id, 0, 0, outputType);
             if (!conn1Result.IsSuccess) return conn1Result.Exception;
@@ -264,9 +290,9 @@ public class NodeGraph
             var conn2Result = createValueConnection(castNode.Id, 0, 0, inputType, inputId, inputSlot, inputSlotIndex, inputType);
             if (!conn2Result.IsSuccess) return conn2Result.Exception;
 
-            if (inputElement is INode inputNode && !inputNode.Metadata.Shared.IsFlow)
+            if (!inputElement.Metadata.Shared.IsFlow)
             {
-                _ = TriggerTree(inputNode);
+                TriggerTree(inputElement).Forget();
             }
 
             return Result<IValueConnection[]>.Success([conn1Result.Value[0], conn2Result.Value[0]]);
@@ -798,7 +824,7 @@ public class NodeGraph
                     foreach (var node in updateNodes)
                     {
                         var c = new PulseContext(this);
-                        c.Push(node);
+                        c.Push(node.Id);
                         ((IUpdateNode)node).OnUpdate(c);
                     }
 
@@ -870,22 +896,19 @@ public class NodeGraph
 
     public void WriteStore<T>(IGlobalStore<T> globalStore, T value, PulseContext c)
     {
-        var currentNode = c.Peek();
-
-        if (!GlobalStores.ContainsKey(currentNode.Id))
-            GlobalStores.TryAdd(currentNode.Id, new Dictionary<IStore, IRef>());
-
-        GlobalStores[currentNode.Id][globalStore] = new Ref<T>(value);
+        var currentId = c.Peek();
+        GlobalStores.TryAdd(currentId, new Dictionary<IStore, IRef>());
+        GlobalStores[currentId][globalStore] = new Ref<T>(value);
     }
 
     public T ReadStore<T>(IGlobalStore<T> globalStore, PulseContext c)
     {
-        var currentNode = c.Peek();
+        var currentId = c.Peek();
 
-        if (!GlobalStores.TryGetValue(currentNode.Id, out var nodeStore))
+        if (!GlobalStores.TryGetValue(currentId, out var nodeStore))
         {
             var value = new Dictionary<IStore, IRef>();
-            GlobalStores.TryAdd(currentNode.Id, value);
+            GlobalStores.TryAdd(currentId, value);
             nodeStore = value;
         }
 
@@ -915,7 +938,7 @@ public class NodeGraph
     {
         Debug.Assert(node.Metadata.Shared.IsAnyTrigger);
 
-        var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this, new CancellationTokenSource());
+        var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this);
 
         if (node.Metadata.Shared.IsValueInputTrigger)
         {
@@ -965,7 +988,7 @@ public class NodeGraph
     {
         c.CreateMemory(node);
         await backtrackNode(node, c);
-        c.Push(node);
+        c.Push(node.Id);
         return node.IShouldProcess(c);
     }
 
@@ -978,7 +1001,7 @@ public class NodeGraph
         await backtrackNode(node, c);
         if (c.IsCancelled) return false;
 
-        c.Push(node);
+        c.Push(node.Id);
         if (c.IsCancelled) return false;
 
         if (!node.IShouldProcess(c))

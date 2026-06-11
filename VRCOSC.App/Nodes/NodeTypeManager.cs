@@ -20,19 +20,26 @@ public static partial class NodeTypeManager
     {
         Data.Clear();
 
-        var types = getAllNodeTypes();
-        var groupedTypes = types.GroupBy(t => NamespaceRegex().Match(t.GetFriendlyName(true)).Value);
-
-        foreach (var groupedType in groupedTypes)
+        try
         {
-            var linkedTypes = groupedType.Select(t => t).ToArray();
-            var metadataResult = NodeMetadataManager.GetFor(linkedTypes[0]);
+            var types = getAllNodeTypes();
+            var groupedTypes = types.GroupBy(t => NamespaceRegex().Match(t.GetFriendlyName(true)).Value);
 
-            Data[groupedType.Key] = new NodeTypeMetadata
+            foreach (var groupedType in groupedTypes)
             {
-                Shared = metadataResult.Value,
-                LinkedTypes = linkedTypes
-            };
+                var linkedTypes = groupedType.Select(t => t).ToArray();
+                var metadataResult = NodeMetadataManager.GetFor(linkedTypes[0]);
+
+                Data[groupedType.Key] = new NodeTypeMetadata
+                {
+                    Shared = metadataResult.Value,
+                    LinkedTypes = linkedTypes
+                };
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "Unable to create node type data");
         }
     }
 
@@ -54,7 +61,6 @@ public static partial class NodeTypeManager
             foreach (var t in types)
             {
                 if (t.IsAbstract) continue;
-                if (!typeof(Node).IsAssignableFrom(t)) continue;
                 if (!t.IsAssignableTo(typeof(Node))) continue;
 
                 yield return t;

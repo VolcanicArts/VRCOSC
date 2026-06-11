@@ -9,7 +9,7 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 public class SequenceNode : Node
 {
     public FlowInput Input = new();
-    public FlowOutputList Outputs = new();
+    public FlowOutputList Outputs = new("Flows");
 
     protected override async Task Process(IPulseContext c)
     {

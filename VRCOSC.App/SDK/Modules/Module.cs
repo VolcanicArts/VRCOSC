@@ -977,8 +977,8 @@ public abstract class Module
 
     public async Task TriggerModuleNode(Type nodeType, object[] data)
     {
-        if (!nodeType.IsAssignableTo(typeof(ModuleNode<>).MakeGenericType(GetType()))) throw new InvalidOperationException($"{nodeType.Name} is not a {nameof(ModuleNode<>)}");
-        if (!nodeType.IsAssignableTo(typeof(IModuleNodeEventHandler))) throw new InvalidOperationException($"{nodeType.Name} is not a {nameof(IModuleNodeEventHandler)}");
+        if (!nodeType.IsAssignableTo(typeof(IModuleNode<>).MakeGenericType(GetType()))) throw new InvalidOperationException($"{nodeType.Name} is not an {nameof(IModuleNode<>)}");
+        if (!nodeType.IsAssignableTo(typeof(IModuleNodeEventHandler))) throw new InvalidOperationException($"{nodeType.Name} is not an {nameof(IModuleNodeEventHandler)}");
 
         await NodeManager.GetInstance().TriggerModuleNode(nodeType, data);
     }

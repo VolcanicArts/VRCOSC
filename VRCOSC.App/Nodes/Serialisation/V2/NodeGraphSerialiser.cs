@@ -21,9 +21,10 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
 
     protected override bool ExecuteAfterDeserialisation(SerialisableNodeGraph data)
     {
+        Reference.Id = data.Id;
         Reference.Name.Value = data.Name;
         Reference.Enabled.Value = data.Enabled;
-        NodeGraphBaseHelper.Deserialise(data, Reference);
+        NodeGraphBaseHelper.Deserialise(data, Reference, Reference.FromImport);
         return false;
     }
 }

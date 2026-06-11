@@ -91,6 +91,9 @@ public class JsonPathGetValueNode<T>() : TryValueComputeNode<T>(typeof(T).GetFri
 
         var result = jsonPath.Evaluate(json);
 
+        if (result.Matches.Count == 0)
+            return Result<T>.Fail();
+
         try
         {
             return result.As<T>()!;

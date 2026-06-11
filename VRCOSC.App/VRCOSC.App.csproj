@@ -31,6 +31,7 @@
         <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.7-pre674" />
         <PackageReference Include="MathParser.org-mXparser" Version="6.1.0" />
         <PackageReference Include="MeaMod.DNS" Version="1.0.71" />
+        <PackageReference Include="Microsoft.Management.Infrastructure" Version="3.0.0" />
         <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.275">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -39,6 +40,8 @@
         <PackageReference Include="NAudio" Version="2.3.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Octokit" Version="14.0.0" />
+        <PackageReference Include="OpenHardwareMonitorLib" Version="1.0.9513" />
+        <PackageReference Include="PixiEditor.ColorPicker" Version="3.4.2.3" />
         <PackageReference Include="PresentMonFps" Version="2.0.6" />
         <PackageReference Include="Semver" Version="3.0.0" />
         <PackageReference Include="SoundFlow" Version="1.4.0" />
@@ -54,9 +57,9 @@
         <PackageReference Include="Velopack" Version="0.0.1298" />
         <PackageReference Include="VolcanicArts.FastOSC" Version="2.0.0" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />
-        <PackageReference Include="Whisper.net" Version="1.9.0" />
-        <PackageReference Include="Whisper.net.Runtime" Version="1.9.0" />
-        <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.9.0" />
+        <PackageReference Include="Whisper.net" Version="1.9.1" />
+        <PackageReference Include="Whisper.net.Runtime" Version="1.9.1" />
+        <PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.9.1" />
         <PackageReference Include="WindowsInput" Version="6.4.1" />
     </ItemGroup>
 
@@ -75,6 +78,12 @@
       <EmbeddedResource Include="Resources\OpenVR\SteamImage.png" />
       <None Remove="Resources\OpenVR\vive_bindings.json" />
       <EmbeddedResource Include="Resources\OpenVR\vive_bindings.json" />
+      <None Remove="Resources\OpenVR\holographic_controller_bindings.json" />
+      <EmbeddedResource Include="Resources\OpenVR\holographic_controller_bindings.json" />
+      <None Remove="Resources\OpenVR\vd_hand_controller_bindings.json" />
+      <EmbeddedResource Include="Resources\OpenVR\vd_hand_controller_bindings.json" />
+      <None Remove="Resources\OpenVR\vive_cosmos_controller_bindings.json" />
+      <EmbeddedResource Include="Resources\OpenVR\vive_cosmos_controller_bindings.json" />
     </ItemGroup>
 
     <ItemGroup>
@@ -258,13 +267,59 @@
 
     <ItemGroup>
       <None Remove="Resources\Fonts\Iosevka-Regular.ttf" />
-      <Resource Include="Resources\Fonts\Iosevka-Regular.ttf">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Resources\Fonts\Iosevka-SemiBold.ttf" />
-      <Resource Include="Resources\Fonts\Iosevka-SemiBold.ttf">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Resource>
+      <None Remove="Resources\Fonts\Iosevka-Bold.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-BoldItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-BoldOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-Extended.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedBold.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedBoldItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedBoldOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedExtraBold.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedExtraBoldItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedExtraBoldOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedExtraLight.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedExtraLightItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedExtraLightOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedHeavy.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedHeavyItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedHeavyOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedLight.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedLightItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedLightOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedMedium.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedMediumItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedMediumOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedSemiBold.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedSemiBoldItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedSemiBoldOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedThin.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedThinItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtendedThinOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtraBold.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtraBoldItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtraBoldOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtraLight.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtraLightItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ExtraLightOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-Heavy.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-HeavyItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-HeavyOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-Italic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-Light.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-LightItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-LightOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-Medium.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-MediumItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-MediumOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-Oblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-SemiBoldItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-SemiBoldOblique.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-Thin.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ThinItalic.ttf" />
+      <None Remove="Resources\Fonts\Iosevka-ThinOblique.ttf" />
     </ItemGroup>
 
 </Project>

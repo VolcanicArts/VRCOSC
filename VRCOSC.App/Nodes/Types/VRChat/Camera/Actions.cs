@@ -44,7 +44,7 @@ public sealed class UserCameraSetZoomNode : ActionNode
 [Node("User Camera Set GreenScreen Background", "VRChat/User Camera/Actions")]
 public sealed class UserCameraSetGreenScreenBackgroundNode : ActionNode
 {
-    public ValueInput<ColorHSL> Color = new();
+    public ValueInput<ColorHSL> Color = new(defaultValue: new ColorHSL(0.3333333333f, 0, 0));
 
     protected override void DoAction(IPulseContext c) => AppManager.GetInstance().VRChatClient.UserCamera.SetGreenScreenBackground(Color.Read(c));
 }

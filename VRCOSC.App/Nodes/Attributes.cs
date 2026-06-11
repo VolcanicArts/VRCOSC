@@ -69,7 +69,7 @@ public interface INodeElement
 {
     Node Owner { get; set; }
     string Name { get; }
-    INodeElementMetadata Metadata { get; }
+    INodeElementMetadata Metadata { get; internal set; }
     bool IsConnected { get; internal set; }
     Action? OnIsConnectedChanged { get; set; }
 }
@@ -140,8 +140,8 @@ public interface IContextStore<T> : IContextStore, IStore<T>;
 public abstract class NodeElement : INodeElement
 {
     public Node Owner { get; set; } = null!;
+    public INodeElementMetadata Metadata { get; set; }
     public string Name { get; }
-    public INodeElementMetadata Metadata => NodeMetadataManager.GetFor(Owner).Value.ElementMetadataFor(this);
 
     public bool IsConnected
     {
@@ -215,7 +215,7 @@ public class ValueInput<T>([CallerMemberName] string name = "", T defaultValue =
         {
             _field = value;
 
-            if (Owner.Metadata.Shared.IsAnyTrigger)
+            if (!Owner.Metadata.Shared.IsFlowInput)
                 _ = Owner.ContainingGraph.TriggerTree(Owner);
         }
     }

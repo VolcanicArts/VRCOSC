@@ -7,7 +7,6 @@ using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using FontAwesome6;
-using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Metadata;
 
@@ -48,7 +47,7 @@ public interface INodeElementMetadata
 {
     INodeElementSharedMetadata Shared { get; }
     INodeElement Instance { get; }
-    int Size { get; set; }
+    int Size { get; internal set; }
     int WorkingSize { get; }
 }
 
@@ -63,11 +62,11 @@ public sealed class NodeElementMetadata : INodeElementMetadata
 public interface INodeSharedMetadata
 {
     Type Type { get; }
+    Type[] TypeGenerics { get; }
     string Name { get; }
     string Path { get; }
     string PathRoot { get; }
     EFontAwesomeIcon[] Icons { get; }
-    Type[] GenericTypes { get; }
     Type[] GenericsFilter { get; }
     Dictionary<ConnectionPoint, INodeElementSharedMetadata[]> Elements { get; }
     Dictionary<string, PropertyInfo> Properties { get; }
@@ -109,7 +108,7 @@ public sealed class NodeSharedMetadata : INodeSharedMetadata
     public required string Path { get; init; }
     public required string PathRoot { get; init; }
     public required EFontAwesomeIcon[] Icons { get; init; }
-    public required Type[] GenericTypes { get; init; }
+    public required Type[] TypeGenerics { get; init; }
     public required Type[] GenericsFilter { get; init; }
     public required Dictionary<ConnectionPoint, INodeElementSharedMetadata[]> Elements { get; init; }
     public required Dictionary<string, PropertyInfo> Properties { get; init; }
@@ -147,23 +146,9 @@ public sealed class NodeSharedMetadata : INodeSharedMetadata
 public interface INodeMetadata
 {
     INodeSharedMetadata Shared { get; }
-    Vector2 Position { get; set; }
-    int ZIndex { get; set; }
+    Vector2 Position { get; internal set; }
+    int ZIndex { get; internal set; }
     Dictionary<ConnectionPoint, INodeElementMetadata[]> Elements { get; }
-
-    INodeElementMetadata ElementMetadataFor(INodeElement element)
-    {
-        try
-        {
-            return Elements.Values.SelectMany(a => a).Single(m => m.Instance == element);
-        }
-        catch (Exception e)
-        {
-            Logger.Error(e, $"{Shared.Name} has encountered an error");
-            return null;
-        }
-    }
-
     int[] ElementSizesFor(ConnectionPoint point) => Elements[point].Select(i => i.Size).ToArray();
     INodeElement[] ElementInstancesFor(ConnectionPoint point) => Elements[point].Select(i => i.Instance).ToArray();
 }

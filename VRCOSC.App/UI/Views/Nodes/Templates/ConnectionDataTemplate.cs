@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using VRCOSC.App.Nodes;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.UI.Views.Nodes.ViewModels;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.Nodes.Templates;
 
@@ -26,6 +27,7 @@ public class ConnectionDataTemplateSelector : DataTemplateSelector
     public required DataTemplate KeybindValueInput { get; set; }
     public required DataTemplate DateTimeValueInput { get; set; }
     public required DataTemplate TimeSpanValueInput { get; set; }
+    public required DataTemplate ColorValueInput { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
@@ -61,6 +63,8 @@ public class ConnectionDataTemplateSelector : DataTemplateSelector
                 if (type.IsEnum) return ComboBoxValueInput;
                 if (type == typeof(DateTime)) return DateTimeValueInput;
                 if (type == typeof(TimeSpan)) return TimeSpanValueInput;
+                if (type == typeof(Color)) return ColorValueInput;
+                if (type == typeof(ColorHSL)) return ColorValueInput;
 
                 return ValueInput;
             }

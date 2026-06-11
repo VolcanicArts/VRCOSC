@@ -59,16 +59,16 @@ public static class GraphContextMenuBuilder
             var currentList = createNodeSubMenu.Items;
             var path = typeMetadata.Shared.Path;
 
-            var moduleNode = typeMetadata.Shared.Type.GetConstructedGenericBase(typeof(ModuleNode<>));
+            var moduleNodeInterface = typeMetadata.Shared.Type.GetInterfaces().SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IModuleNode<>));
 
-            if (moduleNode is not null)
+            if (moduleNodeInterface is not null)
             {
-                var moduleType = moduleNode.GenericTypeArguments[0];
+                var moduleType = moduleNodeInterface.GenericTypeArguments[0];
                 var module = ModuleManager.GetInstance().GetModuleInstanceFromType(moduleType);
                 path = $"Modules/{module.Title}" + (!string.IsNullOrWhiteSpace(path) ? $"/{path}" : string.Empty);
             }
 
-            if (string.IsNullOrEmpty(path) && moduleNode is null) continue;
+            if (string.IsNullOrEmpty(path) && moduleNodeInterface is null) continue;
 
             var pathParts = path.Split('/');
 

@@ -25,4 +25,7 @@
     <Brush x:Key="CYellow">#FFF1C40F</Brush>
     <Brush x:Key="COrange">#FFE67E22</Brush>
     <Brush x:Key="CChatBoxBackground">#FF27272C</Brush>
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
+    </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

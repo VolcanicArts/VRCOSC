@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Parameters;
@@ -103,7 +102,7 @@ public sealed class InstanceUnpackNode : Node, IActiveUpdateNode
     public ValueOutput<bool> AgeGated = new();
     public ValueOutput<bool> HasQueue = new();
     public ValueOutput<World> World = new();
-    public ValueOutput<IReadOnlyList<User>?> Users = new();
+    public ValueOutput<IEnumerable<User>?> Users = new();
 
     protected override Task Process(IPulseContext c)
     {
@@ -118,7 +117,7 @@ public sealed class InstanceUnpackNode : Node, IActiveUpdateNode
         AgeGated.Write(instance.AgeGated, c);
         HasQueue.Write(instance.HasQueue, c);
         World.Write(instance.World, c);
-        Users.Write(instance.Users.ToImmutableList(), c);
+        Users.Write(instance.Users.ToList(), c);
         return Task.CompletedTask;
     }
 
@@ -185,7 +184,7 @@ public sealed class AvatarUnpackNode : Node
     public ValueInput<Avatar?> Avatar = new();
     public ValueOutput<string> AvatarId = new("Id");
     public ValueOutput<string> Name = new();
-    public ValueOutput<IReadOnlyList<ParameterDefinition>> Parameters = new();
+    public ValueOutput<IEnumerable<ParameterDefinition>> Parameters = new();
 
     protected override Task Process(IPulseContext c)
     {
@@ -194,7 +193,7 @@ public sealed class AvatarUnpackNode : Node
 
         AvatarId.Write(avatar.Id, c);
         Name.Write(avatar.Name, c);
-        Parameters.Write(avatar.Parameters.ToImmutableList(), c);
+        Parameters.Write(avatar.Parameters.ToList(), c);
         return Task.CompletedTask;
     }
 }

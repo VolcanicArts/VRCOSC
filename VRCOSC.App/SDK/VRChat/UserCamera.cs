@@ -34,7 +34,7 @@ public class UserCamera
     public float Exposure { get; private set; }
     public float FocalDistance { get; private set; }
     public float Aperture { get; private set; }
-    public ColorHSL GreenScreenBackground { get; private set; } = new(120, 1f, 0.5f);
+    public ColorHSL GreenScreenBackground { get; private set; } = new(0.3333333333f, 1f, 0.5f);
     public Vector2 UserDirectionOffset { get; private set; } = Vector2.Zero;
     public float TurnSpeed { get; private set; }
     public float PhotoRate { get; private set; }
@@ -181,18 +181,18 @@ public class UserCamera
                 break;
 
             case VRChatCameraInput.Hue:
-                var hue = (int)(float)message.ParameterValue;
-                GreenScreenBackground = GreenScreenBackground with { Hue = hue };
+                var hue = (float)message.ParameterValue / 360f;
+                GreenScreenBackground = GreenScreenBackground with { _h = hue };
                 break;
 
             case VRChatCameraInput.Saturation:
                 var saturation = Interpolation.Map((float)message.ParameterValue, 0f, 100f, 0f, 1f);
-                GreenScreenBackground = GreenScreenBackground with { Saturation = saturation };
+                GreenScreenBackground = GreenScreenBackground with { _s = saturation };
                 break;
 
             case VRChatCameraInput.Lightness:
                 var lightness = Interpolation.Map((float)message.ParameterValue, 0f, 100f, 0f, 1f);
-                GreenScreenBackground = GreenScreenBackground with { Lightness = lightness };
+                GreenScreenBackground = GreenScreenBackground with { _l = lightness };
                 break;
 
             case VRChatCameraInput.LookAtMeXOffset:
@@ -282,7 +282,7 @@ public class UserCamera
     private async Task<ColorHSL> retrieveGreenScreenBackground()
     {
         var hueAddress = await oscClient.RequestNode(inputToAddress(VRChatCameraInput.Hue));
-        var hue = hueAddress is null ? 0 : (int)(double)hueAddress.Value![0];
+        var hue = (hueAddress is null ? 0 : (float)(double)hueAddress.Value![0]) / 360f;
 
         var saturationAddress = await oscClient.RequestNode(inputToAddress(VRChatCameraInput.Saturation));
         var saturation = saturationAddress is null ? 0f : Interpolation.Map((double)saturationAddress.Value![0], 0d, 100d, 0f, 1f);
@@ -359,9 +359,9 @@ public class UserCamera
 
     public void SetGreenScreenBackground(ColorHSL color)
     {
-        send(VRChatCameraInput.Hue, (float)color.Hue);
-        send(VRChatCameraInput.Saturation, float.Lerp(0f, 100f, color.Saturation));
-        send(VRChatCameraInput.Lightness, float.Lerp(0f, 100f, float.Clamp(color.Lightness, 0f, 0.5f)));
+        send(VRChatCameraInput.Hue, color.H * 360f);
+        send(VRChatCameraInput.Saturation, float.Lerp(0f, 100f, color.S));
+        send(VRChatCameraInput.Lightness, float.Lerp(0f, 100f, float.Clamp(color.L, 0f, 0.5f)));
     }
 
     public void SetUserDirectionOffset(Vector2 offset)

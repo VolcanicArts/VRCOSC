@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
-[Node("Rate Limit", "Flow")]
+[Node("Continue On Elapsed", "Flow")]
 public sealed class ContinueOnElapsedNode : Node
 {
     public GlobalStore<DateTime> LastUpdateStore = new();
@@ -18,12 +18,17 @@ public sealed class ContinueOnElapsedNode : Node
 
     protected override async Task Process(IPulseContext c)
     {
-        var elapsed = Time.Read(c);
-        if (elapsed <= 0) return;
+        var timeLimit = Time.Read(c);
+
+        if (timeLimit <= 0)
+        {
+            await Next.Execute(c);
+            return;
+        }
 
         var dateTimeNow = DateTime.Now;
 
-        if ((dateTimeNow - LastUpdateStore.Read(c)).TotalMilliseconds >= elapsed)
+        if ((dateTimeNow - LastUpdateStore.Read(c)).TotalMilliseconds >= timeLimit)
         {
             LastUpdateStore.Write(dateTimeNow, c);
             await Next.Execute(c);

@@ -56,7 +56,7 @@ public class NodeViewModel : GridGraphElementViewModel
     public INode Node { get; }
 
     public string DisplayName => Node.DisplayName;
-    public string GenericTypesToString => string.Join(", ", Node.Metadata.Shared.GenericTypes.Select(arg => arg.GetFriendlyName()));
+    public string GenericTypesToString => string.Join(", ", Node.Metadata.Shared.TypeGenerics.Select(arg => arg.GetFriendlyName()));
 
     public FrameworkElement SnappingControl { get; set; } = null!;
 

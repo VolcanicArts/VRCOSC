@@ -12,6 +12,7 @@ using VRCOSC.App.Nodes.Types.Inputs;
 using VRCOSC.App.Nodes.Types.Utility;
 using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.UI.Views.Nodes.ViewModels;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.UI.Views.Nodes.Templates;
 
@@ -28,6 +29,7 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
     public required DataTemplate SwitchNode { get; set; }
     public required DataTemplate DisplayNode { get; set; }
     public required DataTemplate PassthroughDisplayNode { get; set; }
+    public required DataTemplate ColorDisplayNode { get; set; }
     public required DataTemplate RelayNode { get; set; }
     public required DataTemplate CheckBoxValueNode { get; set; }
     public required DataTemplate TextBoxValueNode { get; set; }
@@ -36,6 +38,7 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
     public required DataTemplate KeybindValueNode { get; set; }
     public required DataTemplate DateTimeValueNode { get; set; }
     public required DataTemplate TimeSpanValueNode { get; set; }
+    public required DataTemplate ColorValueNode { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
@@ -43,7 +46,7 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
         {
             var node = nodeViewModel.Node;
             var type = node.GetType();
-            var isGeneric = node.Metadata.Shared.GenericTypes.Length != 0;
+            var isGeneric = node.Metadata.Shared.TypeGenerics.Length != 0;
 
             if (isGeneric)
             {
@@ -54,7 +57,7 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
 
                 if (genericType == typeof(ValueNode<>))
                 {
-                    var instanceType = node.Metadata.Shared.GenericTypes[0];
+                    var instanceType = node.Metadata.Shared.TypeGenerics[0];
                     instanceType = Nullable.GetUnderlyingType(instanceType) ?? instanceType;
 
                     if (NodeConstants.NUMERIC_TYPES.Contains(instanceType))
@@ -68,9 +71,19 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
                     if (instanceType == typeof(Keybind)) return KeybindValueNode;
                     if (instanceType == typeof(DateTime)) return DateTimeValueNode;
                     if (instanceType == typeof(TimeSpan)) return TimeSpanValueNode;
+                    if (instanceType == typeof(Color)) return ColorValueNode;
+                    if (instanceType == typeof(ColorHSL)) return ColorValueNode;
                 }
 
-                if (genericType == typeof(DisplayNode<>)) return DisplayNode;
+                if (genericType == typeof(DisplayNode<>))
+                {
+                    var instanceType = node.Metadata.Shared.TypeGenerics[0];
+                    if (instanceType == typeof(Color)) return ColorDisplayNode;
+                    if (instanceType == typeof(ColorHSL)) return ColorDisplayNode;
+
+                    return DisplayNode;
+                }
+
                 if (genericType == typeof(PassthroughDisplayNode<>)) return PassthroughDisplayNode;
                 if (genericType == typeof(RelayNode<>)) return RelayNode;
                 if (genericType == typeof(CastNode<,>)) return CastNode;

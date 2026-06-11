@@ -34,8 +34,14 @@ public sealed class RemapNode<T> : RemapNode<T, T> where T : INumber<T>;
 
 [Node("Remap 0,1 To -1,1", "Math/Map")]
 [NodeCollapsed]
-public sealed class Remap0111Node<T>() : SimpleValueTransformNode<T>(v => Utils.Interpolation.Map(v, T.Zero, T.One, T.NegativeOne, T.One)) where T : IFloatingPoint<T>;
+public sealed class Remap0111Node<T>() : SimpleValueTransformNode<T>(v => Utils.Interpolation.Map(v, T.Zero, T.One, T.NegativeOne, T.One)) where T : IFloatingPoint<T>
+{
+    public override string DisplayName => "0,1 -> -1,1";
+}
 
 [Node("Remap -1,1 To 0,1", "Math/Map")]
 [NodeCollapsed]
-public sealed class Remap1101Node<T>() : SimpleValueTransformNode<T>(v => Utils.Interpolation.Map(v, T.NegativeOne, T.One, T.Zero, T.One)) where T : IFloatingPoint<T>;
+public sealed class Remap1101Node<T>() : SimpleValueTransformNode<T>(v => Utils.Interpolation.Map(v, T.NegativeOne, T.One, T.Zero, T.One)) where T : IFloatingPoint<T>
+{
+    public override string DisplayName => "-1,1 -> 0,1";
+}

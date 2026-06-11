@@ -43,9 +43,10 @@ public sealed class SteamVRLeftFootSourceNode() : SteamVRDeviceSourceNode<Tracke
 [Node("Right Foot Tracker", "SteamVR/Devices")]
 public sealed class SteamVRRightFootSourceNode() : SteamVRDeviceSourceNode<TrackedDevice?>(() => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(DeviceRole.RightFoot));
 
-[Node("Tracked Device", "SteamVR/Devices")]
+[Node("Tracked Device Source", "SteamVR/Devices")]
 public sealed class SteamVRTrackedDeviceSourceNode() : ValueSourceNode<TrackedDevice?>("Device")
 {
+    [InputMode(InputModes.Inline)]
     public ValueInput<string> SerialNumber = new();
 
     protected override TrackedDevice? ComputeValue(IPulseContext c) => AppManager.GetInstance().OpenVRManager.GetTrackedDevice(SerialNumber.Read(c));

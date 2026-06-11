@@ -69,7 +69,7 @@ public partial class ConnectionViewModel : GraphElementViewModel
         return (Point.Add(startPoint, new Vector(delta, 0)), Point.Add(endPoint, new Vector(-delta, 0)));
     }
 
-    private static LinearGradientBrush createGradientBrush(Point startPoint, Point endPoint, Color startColor, Color endColor)
+    private static LinearGradientBrush createGradientBrush(Point startPoint, Point endPoint, System.Windows.Media.Color startColor, System.Windows.Media.Color endColor)
     {
         var x = double.Min(startPoint.X, endPoint.X);
         var y = double.Min(startPoint.Y, endPoint.Y);

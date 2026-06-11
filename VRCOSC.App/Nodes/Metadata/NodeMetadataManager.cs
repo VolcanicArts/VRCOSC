@@ -62,13 +62,21 @@ public static class NodeMetadataManager
         return arr;
     }
 
-    private static INodeElementMetadata[] getElementInstancesFor(Node node, INodeElementSharedMetadata[] elements) =>
-        elements.Select(INodeElementMetadata (shared) => new NodeElementMetadata
+    private static IEnumerable<INodeElementMetadata> getElementInstancesFor(Node node, INodeElementSharedMetadata[] elements)
+    {
+        foreach (var shared in elements)
         {
-            Shared = shared,
-            Instance = (INodeElement)shared.FieldInfo.GetValue(node)!,
-            Size = shared.IsList ? 1 : 0
-        }).ToArray();
+            var instance = new NodeElementMetadata
+            {
+                Shared = shared,
+                Instance = (INodeElement)shared.FieldInfo.GetValue(node)!,
+                Size = shared.IsList ? 1 : 0
+            };
+
+            instance.Instance.Metadata = instance;
+            yield return instance;
+        }
+    }
 
     private static Result<INodeMetadata> createFor(Node node)
     {
@@ -80,10 +88,10 @@ public static class NodeMetadataManager
             shared = sharedResult.Value;
         }
 
-        var flowInputInstances = getElementInstancesFor(node, shared.Elements[ConnectionPoint.FlowInput]);
-        var flowOutputInstances = getElementInstancesFor(node, shared.Elements[ConnectionPoint.FlowOutput]);
-        var valueInputInstances = getElementInstancesFor(node, shared.Elements[ConnectionPoint.ValueInput]);
-        var valueOutputInstances = getElementInstancesFor(node, shared.Elements[ConnectionPoint.ValueOutput]);
+        var flowInputInstances = getElementInstancesFor(node, shared.Elements[ConnectionPoint.FlowInput]).ToArray();
+        var flowOutputInstances = getElementInstancesFor(node, shared.Elements[ConnectionPoint.FlowOutput]).ToArray();
+        var valueInputInstances = getElementInstancesFor(node, shared.Elements[ConnectionPoint.ValueInput]).ToArray();
+        var valueOutputInstances = getElementInstancesFor(node, shared.Elements[ConnectionPoint.ValueOutput]).ToArray();
 
         var elementInstances = new Dictionary<ConnectionPoint, INodeElementMetadata[]>
         {
@@ -111,7 +119,7 @@ public static class NodeMetadataManager
         if (!nodeType.TryGetCustomAttribute<NodeAttribute>(out var nodeAttribute))
             return new Exception($"Node must have a {nameof(NodeAttribute)}");
 
-        var genericTypes = nodeType.IsGenericType ? nodeType.GetGenericArguments() : [];
+        var typeGenerics = nodeType.IsGenericType ? nodeType.GetGenericArguments() : [];
 
         var properties = nodeType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy).Where(p => p.HasCustomAttribute<NodePropertyAttribute>())
                                  .ToDictionary(p => p.GetCustomAttribute<NodePropertyAttribute>()!.Name, p => p);
@@ -145,20 +153,20 @@ public static class NodeMetadataManager
         var isContinuous = nodeType.GetInterfaces().Contains(typeof(IContinuousNode));
         var isActiveUpdate = nodeType.GetInterfaces().Contains(typeof(IActiveUpdateNode));
 
-        var moduleNodeType = nodeType.GetConstructedGenericBase(typeof(ModuleNode<>));
+        var moduleNodeInterface = nodeType.GetInterfaces().SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IModuleNode<>));
 
-        var pathRoot = moduleNodeType is null
+        var pathRoot = moduleNodeInterface is null
             ? nodeAttribute.Path.Contains('/') ? nodeAttribute.Path.Split('/')[0] : nodeAttribute.Path
-            : ModuleManager.GetInstance().GetModuleInstanceFromType(moduleNodeType.GetGenericArguments()[0]).Title;
+            : ModuleManager.GetInstance().GetModuleInstanceFromType(moduleNodeInterface.GetGenericArguments()[0]).Title;
 
         var metadata = new NodeSharedMetadata
         {
             Type = nodeType,
+            TypeGenerics = typeGenerics,
             Name = nodeAttribute.Title,
             Icons = collapsedAttribute?.Icons ?? [],
             Path = nodeAttribute.Path,
             PathRoot = pathRoot,
-            GenericTypes = genericTypes,
             GenericsFilter = nodeType.TryGetCustomAttribute<NodeGenerics>(out var genericsAttribute) ? genericsAttribute.Types : [],
             Properties = properties,
             Elements = elements,

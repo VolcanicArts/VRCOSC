@@ -31,7 +31,7 @@ public abstract record Connection : IConnection
     public int OutputSlot { get; }
     public int OutputSlotIndex { get; }
     public Guid InputId { get; }
-    public int InputSlot { get; }
+    public int InputSlot { get; set; }
     public int InputSlotIndex { get; }
 
     protected Connection(Guid outputId, int outputSlot, int outputSlotIndex, Guid inputId, int inputSlot, int inputSlotIndex)

@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using VRCOSC.App.Utils;
+using Color = VRCOSC.App.Utils.Color;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -30,6 +31,70 @@ public class ObjectToStringConverter : IValueConverter
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class ColorToBrushConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is ColorHSL colorHsl)
+        {
+            var colorHslAsColor = colorHsl.AsColor;
+            var r = colorHslAsColor._r * colorHslAsColor._a;
+            var g = colorHslAsColor._g * colorHslAsColor._a;
+            var b = colorHslAsColor._b * colorHslAsColor._a;
+            return new SolidColorBrush(System.Windows.Media.Color.FromScRgb(1, r, g, b));
+        }
+
+        if (value is Color color)
+        {
+            var r = color._r * color._a;
+            var g = color._g * color._a;
+            var b = color._b * color._a;
+            return new SolidColorBrush(System.Windows.Media.Color.FromScRgb(1, r, g, b));
+        }
+
+        return new SolidColorBrush(System.Windows.Media.Color.FromScRgb(1, 0, 0, 0));
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class ColorToWindowsColorConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is ColorHSL colorHsl)
+        {
+            var colorHslAsColor = colorHsl.AsColor;
+            return System.Windows.Media.Color.FromScRgb(1, colorHslAsColor._r, colorHslAsColor._g, colorHslAsColor._b);
+        }
+
+        if (value is Color color)
+        {
+            return System.Windows.Media.Color.FromScRgb(1, color._r, color._g, color._b);
+        }
+
+        return System.Windows.Media.Color.FromScRgb(1, 0, 0, 0);
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is System.Windows.Media.Color color)
+        {
+            if (targetType == typeof(Color))
+            {
+                return new Color(color.ScR, color.ScG, color.ScB, color.ScA);
+            }
+
+            if (targetType == typeof(ColorHSL))
+            {
+                return new Color(color.ScR, color.ScG, color.ScB, color.ScA).AsColorHSL;
+            }
+        }
+
+        return Color.Black;
+    }
 }
 
 public class StringIsNotNullOrEmptyConverter : IValueConverter
