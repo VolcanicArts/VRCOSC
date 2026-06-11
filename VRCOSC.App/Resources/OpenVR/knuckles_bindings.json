@@ -128,6 +128,19 @@
 					"path": "/user/hand/left/input/grip"
 				},
 				{
+					"inputs" : {
+						"click" : {
+							"output" : "/actions/main/in/left_grip_click"
+						}
+					},
+					"mode" : "button",
+					"parameters" : {
+						"force_input" : "force",
+						"haptic_amplitude" : "0"
+					},
+					"path" : "/user/hand/left/input/grip"
+				},
+				{
 					"inputs": {
 						"position": {
 							"output": "/actions/main/in/left_pad_position"
@@ -252,6 +265,19 @@
 					},
 					"mode": "trigger",
 					"path": "/user/hand/right/input/grip"
+				},
+				{
+					"inputs" : {
+						"click" : {
+							"output" : "/actions/main/in/right_grip_click"
+						}
+					},
+					"mode" : "button",
+					"parameters" : {
+						"force_input" : "force",
+						"haptic_amplitude" : "0"
+					},
+					"path" : "/user/hand/right/input/grip"
 				},
 				{
 					"inputs": {
