@@ -18,7 +18,6 @@ public sealed class SwitchNode<T> : Node
     [InputMode(InputModes.Connection)]
     public ValueInput<T> Value = new();
 
-    // TODO: Add bool input for multiple matches?
     protected override async Task Process(IPulseContext c)
     {
         var value = Value.Read(c);

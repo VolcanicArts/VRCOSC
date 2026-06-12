@@ -18,6 +18,7 @@
                 <ResourceDictionary Source="UI/Styles/KeybindPickerStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/VRCOSCSliderStyle.xaml" />
                 <ResourceDictionary Source="UI/Styles/EditableTextStyle.xaml" />
+                <ResourceDictionary Source="UI/Styles/FlowDisplay.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

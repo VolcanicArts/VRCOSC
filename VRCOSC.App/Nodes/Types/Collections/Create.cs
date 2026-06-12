@@ -8,7 +8,7 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Collections;
 
-[Node("Create List", "Collections")]
+[Node("Create List", "Collections/Enumerable")]
 public sealed class CreateListNode<T> : Node
 {
     public ValueInputList<T> Inputs = new();
@@ -24,7 +24,7 @@ public sealed class CreateListNode<T> : Node
     }
 }
 
-[Node("Create Dictionary", "Collections")]
+[Node("Create Dictionary", "Collections/Dictionary")]
 public sealed class CreateDictionaryNode<TKey, TValue> : Node where TKey : notnull
 {
     public ValueInputList<KeyValuePair<TKey, TValue>> Inputs = new();
@@ -44,7 +44,7 @@ public sealed class CreateDictionaryNode<TKey, TValue> : Node where TKey : notnu
     }
 }
 
-[Node("Pack KeyValuePair", "Collections")]
+[Node("Pack KeyValuePair", "Collections/Dictionary")]
 [NodeCollapsed]
 public sealed class CreateKeyValuePairNode<TKey, TValue> : Node where TKey : notnull
 {
@@ -61,7 +61,7 @@ public sealed class CreateKeyValuePairNode<TKey, TValue> : Node where TKey : not
     }
 }
 
-[Node("Empty Dictionary", "Collections")]
+[Node("Empty Dictionary", "Collections/Dictionary")]
 [NodeCollapsed]
 public sealed class EmptyDictionaryNode<TKey, TValue> : Node where TKey : notnull
 {
@@ -74,7 +74,7 @@ public sealed class EmptyDictionaryNode<TKey, TValue> : Node where TKey : notnul
     }
 }
 
-[Node("Empty List", "Collections")]
+[Node("Empty List", "Collections/Enumerable")]
 [NodeCollapsed]
 public sealed class EmptyListNode<T> : Node
 {

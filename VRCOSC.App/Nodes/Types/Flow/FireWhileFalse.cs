@@ -24,6 +24,8 @@ public sealed class FireWhileFalseNode : Node, IActiveUpdateNode
         return Next.Execute(c);
     }
 
+    protected override bool ShouldProcess(IPulseContext c) => !Condition.Read(c);
+
     public Task<bool> OnUpdate(IPulseContext c)
     {
         var delay = Delay.Read(c);

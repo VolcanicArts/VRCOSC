@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace VRCOSC.App.Nodes.Types.Collections;
 
-[Node("Split Dictionary", "Collections")]
+[Node("Split Dictionary", "Collections/Dictionary")]
 public sealed class SplitDictionaryNode<TKey, TValue> : ValueConsumeNode<Dictionary<TKey, TValue>?> where TKey : notnull
 {
     public ValueOutput<List<TKey>> Keys = new();
@@ -21,7 +21,7 @@ public sealed class SplitDictionaryNode<TKey, TValue> : ValueConsumeNode<Diction
     }
 }
 
-[Node("Split KeyValuePair", "Collections")]
+[Node("Split KeyValuePair", "Collections/Dictionary")]
 public sealed class SplitKeyValuePairNode<TKey, TValue> : ValueConsumeNode<KeyValuePair<TKey, TValue>> where TKey : notnull
 {
     public ValueOutput<TKey> Key = new();

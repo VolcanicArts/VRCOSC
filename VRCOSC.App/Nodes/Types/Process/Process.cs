@@ -39,106 +39,67 @@ public sealed class ProcessIsOpenNode : Node
 }
 
 [Node("Start Process", "Process")]
-public sealed class ProcessStartNode : Node
+public sealed class ProcessStartNode : TryActionAsyncNode
 {
-    public FlowInput FlowInput = new();
-    public FlowOutput OnStart = new();
-    public FlowOutput OnFail = new();
-
     public ValueInput<string?> Name = new();
     public ValueOutput<System.Diagnostics.Process?> ProcessOutput = new("Process");
 
-    protected override async Task Process(IPulseContext c)
+    protected override async Task<bool> TryActionAsync(IPulseContext c)
     {
-        try
-        {
-            var name = Name.Read(c);
+        var name = Name.Read(c);
+        if (string.IsNullOrWhiteSpace(name)) return false;
 
-            if (!string.IsNullOrWhiteSpace(name))
+        var process = new System.Diagnostics.Process
+        {
+            StartInfo = new ProcessStartInfo
             {
-                var process = new System.Diagnostics.Process
-                {
-                    StartInfo = new ProcessStartInfo
-                    {
-                        WindowStyle = ProcessWindowStyle.Hidden,
-                        WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.System),
-                        FileName = "cmd.exe",
-                        Arguments = $"/c start {name}",
-                        UseShellExecute = true
-                    }
-                };
-
-                process.Start();
-                await process.WaitForExitAsync();
-
-                using var searcher = new ManagementObjectSearcher(
-                    $"SELECT * FROM Win32_Process WHERE Name LIKE '%{name}%'"
-                );
-
-                var result = searcher.Get()
-                                     .Cast<ManagementObject>()
-                                     .OrderByDescending(p => p["CreationDate"]?.ToString() ?? "0")
-                                     .FirstOrDefault();
-
-                if (result != null)
-                {
-                    var pid = (int)(uint)result["ProcessId"];
-                    var target = System.Diagnostics.Process.GetProcessById(pid);
-                    ProcessOutput.Write(target, c);
-                }
-
-                await OnStart.Execute(c);
-                return;
+                WindowStyle = ProcessWindowStyle.Hidden,
+                WorkingDirectory = Environment.GetFolderPath(Environment.SpecialFolder.System),
+                FileName = "cmd.exe",
+                Arguments = $"/c start {name}",
+                UseShellExecute = true
             }
-        }
-        catch
-        {
-        }
+        };
 
-        await OnFail.Execute(c);
+        process.Start();
+        await process.WaitForExitAsync();
+
+        using var searcher = new ManagementObjectSearcher($"SELECT * FROM Win32_Process WHERE Name LIKE '%{name}%'");
+        var result = searcher.Get().Cast<ManagementObject>().OrderByDescending(p => p["CreationDate"]?.ToString() ?? "0").FirstOrDefault();
+        if (result == null) return false;
+
+        var pid = (int)(uint)result["ProcessId"];
+        var target = System.Diagnostics.Process.GetProcessById(pid);
+        ProcessOutput.Write(target, c);
+
+        return true;
     }
 }
 
 [Node("Stop Process", "Process")]
-public sealed class ProcessStopNode : Node
+public sealed class ProcessStopNode : TryActionAsyncNode
 {
-    public FlowInput FlowInput = new();
-    public FlowOutput OnStop = new();
-    public FlowOutput OnFail = new();
-
     public ValueInput<string> Name = new();
 
-    protected override async Task Process(IPulseContext c)
+    protected override async Task<bool> TryActionAsync(IPulseContext c)
     {
-        try
+        var name = Name.Read(c);
+        if (string.IsNullOrWhiteSpace(name)) return false;
+
+        var processes = System.Diagnostics.Process.GetProcessesByName(name);
+
+        if (processes.Length == 0)
         {
-            var name = Name.Read(c);
-
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                var processes = System.Diagnostics.Process.GetProcessesByName(name);
-
-                if (processes.Length == 0)
-                {
-                    await OnFail.Execute(c);
-                    return;
-                }
-
-                foreach (var process in processes)
-                {
-                    process.Kill();
-                    await process.WaitForExitAsync();
-                    process.Dispose();
-                }
-
-                await OnStop.Execute(c);
-                return;
-            }
-        }
-        catch
-        {
+            return false;
         }
 
-        await OnFail.Execute(c);
+        foreach (var process in processes)
+        {
+            process.Kill();
+            await process.WaitForExitAsync();
+            process.Dispose();
+        }
+
+        return true;
     }
 }

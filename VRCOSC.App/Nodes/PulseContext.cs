@@ -157,8 +157,10 @@ public class PulseContext : IPulseContext
         return false;
     }
 
-    private void writeValue<T>(Guid nodeId, int slot, int index, T value)
+    private bool writeValue<T>(Guid nodeId, int slot, int index, T value)
     {
+        var cached = _graph.GetCachedValueOutput<T>(nodeId, slot, index);
+
         var memoryResult = tryGetMemoryEntry(nodeId, out var memoryEntry);
         Debug.Assert(memoryResult && memoryEntry is not null);
 
@@ -167,6 +169,9 @@ public class PulseContext : IPulseContext
 
         var refStore = (Ref<T>)iRefStore;
         refStore.Value = value;
+
+        _graph.CacheValueOutput<T>(nodeId, slot, index, refStore);
+        return !cached.Equals(refStore);
     }
 
     public T Read<T>(IValueInput<T> valueInput)
@@ -212,9 +217,17 @@ public class PulseContext : IPulseContext
         return values;
     }
 
-    public void Write<T>(IValueOutput<T> valueOutput, T value) => writeValue(Peek(), valueOutput.Metadata.Shared.Slot, 0, value);
+    public void Write<T>(IValueOutput<T> valueOutput, T value)
+    {
+        var isDirty = writeValue(Peek(), valueOutput.Metadata.Shared.Slot, 0, value);
+        valueOutput.IsDirty = isDirty;
+    }
 
-    public void Write<T>(IValueOutputList<T> valueOutputList, int slotIndex, T value) => writeValue(Peek(), valueOutputList.Metadata.Shared.Slot, slotIndex, value);
+    public void Write<T>(IValueOutputList<T> valueOutputList, int slotIndex, T value)
+    {
+        var isDirty = writeValue(Peek(), valueOutputList.Metadata.Shared.Slot, slotIndex, value);
+        valueOutputList.IsDirty = isDirty;
+    }
 
     public void Write<T>(IGlobalStore<T> store, T value) => _graph.WriteStore(store, value, this);
 
@@ -231,6 +244,9 @@ public class PulseContext : IPulseContext
     internal void CreateMemory(INode node)
     {
         if (HasMemory(node.Id)) return;
+
+        // TODO: Move IsDirty into the context
+        node.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput).ForEach(vo => ((IValueOutputBase)vo).IsDirty = false);
 
         var valueOutputCount = node.Metadata.Shared.ValueOutputCount;
         Memory.Add(node.Id, new IRef[valueOutputCount][]);

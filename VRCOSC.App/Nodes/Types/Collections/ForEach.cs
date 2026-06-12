@@ -10,8 +10,8 @@ namespace VRCOSC.App.Nodes.Types.Collections;
 public sealed class ForEachNode<T> : Node
 {
     public FlowInput FlowInput = new();
-    public FlowOutput OnIteration = new(scope: true);
-    public FlowOutput OnEnd = new();
+    public FlowOutput OnIteration = new("On Iteration", scope: true);
+    public FlowOutput OnEnd = new("On End");
 
     public ValueInput<IEnumerable<T>> Enumerable = new();
     public ValueOutput<T> Element = new();

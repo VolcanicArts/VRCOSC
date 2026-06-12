@@ -29,7 +29,9 @@
         <core:EnumGetValuesConverter x:Key="EnumGetValuesConverter"/>
         <core:CollectionIsEmptyToVisibilityConverter x:Key="CollectionIsEmptyToVisibilityConverter"/>
         <core:TypeToFriendlyNameConverter x:Key="TypeToFriendlyNameConverter"/>
+        <core:TimeSpanToStringConverter x:Key="TimeSpanToStringConverter"/>
 
+        <converters:TypeIsStringConverter x:Key="TypeIsStringConverter"/>
         <converters:ElementListPathVisibilityConverter x:Key="ElementListPathVisibilityConverter"/>
         <converters:ElementListPointConverter x:Key="ElementListPointConverter"/>
         <converters:InputNameVisibilityConverter x:Key="InputNameVisibilityConverter"/>
@@ -210,26 +212,6 @@
             </ComboBox>
         </DataTemplate>
 
-        <DataTemplate x:Key="TextBoxElementTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
-            <xctk:WatermarkTextBox HorizontalAlignment="Stretch" VerticalAlignment="Center" FontSize="11"
-                                   VerticalContentAlignment="Center"
-                                   TextAlignment="Left"
-                                   Padding="0 -1 0 0"
-                                   Height="18"
-                                   KeepWatermarkOnGotFocus="True"
-                                   Watermark="{Binding Element.Name, Mode=OneTime}"
-                                   Background="{DynamicResource CBackground3}"
-                                   Foreground="{DynamicResource CForeground1}"
-                                   Text="{Binding Element.Field}"
-                                   ToolTip="{Binding Element.Name, Mode=OneTime}">
-                <xctk:WatermarkTextBox.WatermarkTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Mode=OneTime}" HorizontalAlignment="Center" Foreground="{DynamicResource CForeground1}" Margin="3 0" Opacity="0.5"/>
-                    </DataTemplate>
-                </xctk:WatermarkTextBox.WatermarkTemplate>
-            </xctk:WatermarkTextBox>
-        </DataTemplate>
-
         <DataTemplate x:Key="KeybindElementTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
             <core:KeybindPicker Keybind="{Binding Element.Field}"
                                 Height="18"
@@ -355,8 +337,14 @@
         </DataTemplate>
 
         <DataTemplate x:Key="TextBoxValueCollapsedTemplate" DataType="{x:Type viewModels:NodeValueInputViewModel}">
-            <Grid Margin="2 0" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
-                <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource TextBoxElementTemplate}"/>
+            <Grid Margin="2" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
+                <TextBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="12"
+                         AcceptsReturn="{Binding Element.Owner.Metadata.Shared.TypeGenerics[0], Converter={StaticResource TypeIsStringConverter}}"
+                         AcceptsTab="{Binding Element.Owner.Metadata.Shared.TypeGenerics[0], Converter={StaticResource TypeIsStringConverter}}"
+                         MinLines="0"
+                         VerticalContentAlignment="Center"
+                         Text="{Binding Element.Field}">
+                </TextBox>
             </Grid>
         </DataTemplate>
 
@@ -368,7 +356,23 @@
                                       ContentTemplate="{StaticResource ValueConnectionPointTemplate}" />
                 </Grid>
                 <Grid Grid.Column="1" Visibility="{Binding RenderInline, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource TextBoxElementTemplate}"/>
+                    <xctk:WatermarkTextBox HorizontalAlignment="Stretch" VerticalAlignment="Center" FontSize="11"
+                                           VerticalContentAlignment="Center"
+                                           TextAlignment="Left"
+                                           Padding="0 -1 0 0"
+                                           Height="18"
+                                           KeepWatermarkOnGotFocus="True"
+                                           Watermark="{Binding Element.Name, Mode=OneTime}"
+                                           Background="{DynamicResource CBackground3}"
+                                           Foreground="{DynamicResource CForeground1}"
+                                           Text="{Binding Element.Field}"
+                                           ToolTip="{Binding Element.Name, Mode=OneTime}">
+                        <xctk:WatermarkTextBox.WatermarkTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Mode=OneTime}" HorizontalAlignment="Center" Foreground="{DynamicResource CForeground1}" Margin="3 0" Opacity="0.5"/>
+                            </DataTemplate>
+                        </xctk:WatermarkTextBox.WatermarkTemplate>
+                    </xctk:WatermarkTextBox>
                 </Grid>
                 <TextBlock Grid.Column="1" Text="{Binding Element.Name, Mode=OneTime}" Style="{StaticResource ElementText}">
                     <TextBlock.Visibility>
@@ -572,6 +576,12 @@
             </Grid>
         </DataTemplate>
 
+        <DataTemplate x:Key="FlowInputCollapsedTemplate" DataType="{x:Type viewModels:NodeFlowOutputViewModel}">
+            <Grid Name="ConnectionPointContainer" Width="6" Height="14" Margin="-3.5 0 0 0" Tag="{Binding Mode=OneTime}">
+                <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource FlowConnectionPointTemplate}" />
+            </Grid>
+        </DataTemplate>
+
         <DataTemplate x:Key="FlowOutputCollapsedTemplate" DataType="{x:Type viewModels:NodeFlowOutputViewModel}">
             <Grid Name="ConnectionPointContainer" Width="6" Height="14" Margin="0 0 -3.5 0" Tag="{Binding Mode=OneTime}">
                 <ContentPresenter Content="{Binding Mode=OneTime}" ContentTemplate="{StaticResource FlowConnectionPointTemplate}" />
@@ -669,7 +679,7 @@
                     Focusable="True"
                     Tag="{Binding Mode=OneTime}"
                     CornerRadius="2"
-                    Width="150"
+                    Width="100"
                     BorderThickness="1"
                     BorderBrush="{DynamicResource CForeground3}"
                     HorizontalAlignment="Left" VerticalAlignment="Top"
@@ -779,7 +789,7 @@
             </Border>
         </DataTemplate>
 
-        <DataTemplate x:Key="DisplayNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
+        <DataTemplate x:Key="DisplayNodeTemplate" DataType="{x:Type viewModels:DisplayNodeBaseViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
                     Tag="{Binding Mode=OneTime}"
@@ -798,7 +808,7 @@
                     <ContentPresenter Grid.Column="0" Height="18" Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueInputCollapsedTemplate}" VerticalAlignment="Top"/>
                     <TextBlock Grid.Column="1"
                                Foreground="{DynamicResource CForeground1}"
-                               Text="{Binding Node.Value, Converter={StaticResource ObjectToStringConverter}}" FontSize="12"
+                               Text="{Binding Uivalue, Converter={StaticResource ObjectToStringConverter}}" FontSize="12"
                                VerticalAlignment="Center"
                                HorizontalAlignment="Center"
                                TextAlignment="Center"
@@ -810,7 +820,7 @@
             </Border>
         </DataTemplate>
 
-        <DataTemplate x:Key="ColorDisplayNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
+        <DataTemplate x:Key="ColorDisplayNodeTemplate" DataType="{x:Type viewModels:DisplayNodeBaseViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
                     Tag="{Binding Mode=OneTime}"
@@ -828,12 +838,36 @@
                 </Border.RenderTransform>
                 <Grid ColumnDefinitions="Auto,*" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
                     <ContentPresenter Grid.Column="0" Height="18" Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueInputCollapsedTemplate}" VerticalAlignment="Center"/>
-                    <Border Margin="2" Grid.Column="1" CornerRadius="2" Background="{Binding Node.Value, Converter={StaticResource ColorToBrushConverter}}"/>
+                    <Border Margin="2" Grid.Column="1" CornerRadius="2" Background="{Binding Uivalue, Converter={StaticResource ColorToBrushConverter}}"/>
                 </Grid>
             </Border>
         </DataTemplate>
 
-        <DataTemplate x:Key="PassthroughDisplayNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
+        <DataTemplate x:Key="FlowDisplayNodeTemplate" DataType="{x:Type viewModels:NodeViewModel}">
+            <Border Cursor="Hand"
+                    Focusable="True"
+                    Tag="{Binding Mode=OneTime}"
+                    CornerRadius="2"
+                    BorderThickness="1"
+                    Width="100"
+                    BorderBrush="{DynamicResource CForeground3}"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    MouseDown="GridGraphElementContainer_OnMouseDown"
+                    MouseUp="GridGraphElementContainer_OnMouseUp"
+                    Background="{DynamicResource NodeBackgroundBrush}"
+                    ContextMenu="{StaticResource ElementContextMenu}">
+                <Border.RenderTransform>
+                    <TranslateTransform X="{Binding Position.X, Mode=OneWay}" Y="{Binding Position.Y, Mode=OneWay}" />
+                </Border.RenderTransform>
+                <Grid ColumnDefinitions="Auto,*,Auto" Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+                    <ContentPresenter Grid.Column="0" Height="22" Content="{Binding FlowInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource FlowInputCollapsedTemplate}" VerticalAlignment="Center"/>
+                    <controls:FlowDisplay Grid.Column="1" AnimationDuration="1000" BorderColor="{StaticResource FlowBrush}" BorderWidth="1" BorderCornerRadius="1"/>
+                    <ContentPresenter Grid.Column="2" Height="22" Content="{Binding FlowOutputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource FlowOutputCollapsedTemplate}" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="PassthroughDisplayNodeTemplate" DataType="{x:Type viewModels:DisplayNodeBaseViewModel}">
             <Border Cursor="Hand"
                     Focusable="True"
                     Tag="{Binding Mode=OneTime}"
@@ -853,7 +887,7 @@
                     <ContentPresenter Grid.Column="0" Height="18" Content="{Binding ValueInputVms[0], Mode=OneTime}" ContentTemplate="{StaticResource ValueInputCollapsedTemplate}" VerticalAlignment="Top"/>
                     <TextBlock Grid.Column="1"
                                Foreground="{DynamicResource CForeground1}"
-                               Text="{Binding Node.Value, Converter={StaticResource ObjectToStringConverter}}" FontSize="12"
+                               Text="{Binding Uivalue, Converter={StaticResource ObjectToStringConverter}}" FontSize="12"
                                VerticalAlignment="Center"
                                HorizontalAlignment="Center"
                                TextAlignment="Center"
@@ -1212,6 +1246,7 @@
                                          SwitchNode="{StaticResource SwitchNodeTemplate}"
                                          DisplayNode="{StaticResource DisplayNodeTemplate}"
                                          PassthroughDisplayNode="{StaticResource PassthroughDisplayNodeTemplate}"
+                                         FlowDisplayNode="{StaticResource FlowDisplayNodeTemplate}"
                                          ColorDisplayNode="{StaticResource ColorDisplayNodeTemplate}"
                                          RelayNode="{StaticResource RelayNodeTemplate}"
                                          CheckBoxValueNode="{StaticResource CheckBoxValueNodeTemplate}"
@@ -1293,6 +1328,29 @@
                                        Foreground="{DynamicResource CForeground1}"
                                        EditCompleted="OnGraphTitleEditCompleted"/>
                 </Border>
+                <Grid x:Name="DebugGrid" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
+                    <Border Background="{DynamicResource CBackground1}" Opacity="0.75" CornerRadius="2"/>
+                    <Grid RowDefinitions="Auto,Auto" Margin="5 3">
+                        <Grid RowDefinitions="Auto,Auto" Grid.Row="0">
+                            <TextBlock Grid.Row="0" TextAlignment="Right" Text="{Binding Graph.HighestUpdateTime, Mode=OneWay, Converter={StaticResource TimeSpanToStringConverter}}"
+                                       FontSize="15" Foreground="{DynamicResource CRedL}" Opacity="0.9"/>
+                            <TextBlock Grid.Row="1" TextAlignment="Right" Text="{Binding Graph.LowestUpdateTime, Mode=OneWay, Converter={StaticResource TimeSpanToStringConverter}}"
+                                       FontSize="15" Foreground="{DynamicResource CGreenL}" Opacity="0.9"/>
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMouseOver, ElementName=DebugGrid}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+                        </Grid>
+                        <TextBlock Grid.Row="1" TextAlignment="Right" Text="{Binding Graph.CurrentUpdateTime, Mode=OneWay, Converter={StaticResource TimeSpanToStringConverter}}"
+                                   FontSize="15" Foreground="{DynamicResource CForeground2}"/>
+                    </Grid>
+                </Grid>
             </Grid>
             <Border Grid.Column="1" Background="{DynamicResource CBackground3}">
                 <Grid RowDefinitions="25,5,*" Margin="0 5 0 0">

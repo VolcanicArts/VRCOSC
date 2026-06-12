@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using VRCOSC.App.Nodes;
@@ -29,6 +30,7 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
     public required DataTemplate SwitchNode { get; set; }
     public required DataTemplate DisplayNode { get; set; }
     public required DataTemplate PassthroughDisplayNode { get; set; }
+    public required DataTemplate FlowDisplayNode { get; set; }
     public required DataTemplate ColorDisplayNode { get; set; }
     public required DataTemplate RelayNode { get; set; }
     public required DataTemplate CheckBoxValueNode { get; set; }
@@ -89,6 +91,9 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
                 if (genericType == typeof(CastNode<,>)) return CastNode;
             }
 
+            if (type == typeof(FlowDisplayNode))
+                return FlowDisplayNode;
+
             if (type == typeof(ButtonNode))
                 return ButtonNode;
 
@@ -104,7 +109,7 @@ public class GraphElementDataTemplateSelector : DataTemplateSelector
             var valueInputs = node.Metadata.Elements[ConnectionPoint.ValueInput];
             var canBeNoInline = false;
 
-            if (node.Metadata.Shared.IsValueInput && node.Metadata.Shared.IsValueOutput)
+            if (node.Metadata.Shared.IsValueInput && node.Metadata.Shared.IsValueOutput && node.Metadata.Shared.Elements[ConnectionPoint.ValueOutput].All(e => !e.IsList))
             {
                 canBeNoInline = true;
 

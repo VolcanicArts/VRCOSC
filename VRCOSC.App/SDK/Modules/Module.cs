@@ -550,9 +550,9 @@ public abstract class Module
         addSetting(lookup, new MutableKeyValuePairListModuleSetting(title, description, typeof(MutableKeyValuePairListSettingView), defaultValues, keyTitle, valueTitle));
     }
 
+    [Obsolete("It's now recommended to expose module information to, and let users query parameters in, Pulse")]
     protected void CreateQueryableParameterList(Enum lookup, string title, string description)
     {
-        // TODO: Allow for deriving queryable parameters
         addSetting(lookup, new QueryableParameterListModuleSetting<QueryableParameter>(title, description));
     }
 
@@ -882,7 +882,7 @@ public abstract class Module
     /// <param name="value">The value to set the parameter to</param>
     protected void SendParameter(string name, object value)
     {
-        AppManager.GetInstance().VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{name}", value);
+        AppManager.GetInstance().SendToAllParameter(name, value);
     }
 
     /// <summary>

@@ -9,8 +9,8 @@ namespace VRCOSC.App.Nodes.Types.Collections;
 public sealed class ForNode : Node
 {
     public FlowInput FlowInput = new();
-    public FlowOutput OnIteration = new(scope: true);
-    public FlowOutput OnEnd = new();
+    public FlowOutput OnIteration = new("On Iteration", scope: true);
+    public FlowOutput OnEnd = new("On End");
 
     public ValueInput<int> Count = new();
     public ValueOutput<int> Index = new();

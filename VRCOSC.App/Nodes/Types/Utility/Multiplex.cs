@@ -18,6 +18,7 @@ public sealed class ConditionalNode<T> : ValueComputeNode<T>
 }
 
 [Node("Multiplex", "Utility")]
+[NodeForceReprocess]
 public sealed class MultiplexNode<T> : Node
 {
     [InputMode(InputModes.Connection)]
@@ -41,6 +42,7 @@ public sealed class MultiplexNode<T> : Node
 }
 
 [Node("Demultiplex", "Utility")]
+[NodeForceReprocess]
 public sealed class DemultiplexNode<T> : Node
 {
     [InputMode(InputModes.Connection)]

@@ -122,12 +122,17 @@ public partial class NodesView
         var result = MessageBox.Show("Are you sure you want to delete this graph?", "Graph Delete Warning", MessageBoxButton.YesNo);
         if (result != MessageBoxResult.Yes) return;
 
-        var index = Math.Max(0, NodeManager.GetInstance().Graphs.IndexOf(graph) - 1);
+        var indexOfGraph = NodeManager.GetInstance().Graphs.IndexOf(graph);
+        int index = indexOfGraph - 1;
+
+        if (indexOfGraph == 0)
+            index = 1;
+
+        if (indexOfGraph == NodeManager.GetInstance().Graphs.Count - 1)
+            index = NodeManager.GetInstance().Graphs.Count - 2;
 
         if (selectedGraph == graph)
-        {
             showNodeGraph(NodeManager.GetInstance().Graphs[index]);
-        }
 
         NodeManager.GetInstance().Graphs.Remove(graph);
     }

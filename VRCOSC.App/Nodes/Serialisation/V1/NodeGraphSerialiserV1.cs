@@ -36,7 +36,11 @@ public class NodeGraphSerialiserV1 : ProfiledSerialiser<NodeGraph, SerialisableN
         {
             try
             {
-                if (!TypeResolver.TryConstruct(sV.Type, out var variableType)) continue;
+                if (!TypeResolver.TryConstruct(sV.Type, out var variableType))
+                {
+                    Logger.Log($"Unable to construct variable type {sV.Type}");
+                    continue;
+                }
 
                 if (TryConvertToTargetType(sV.Value, variableType, out var variableValue))
                 {
@@ -60,7 +64,12 @@ public class NodeGraphSerialiserV1 : ProfiledSerialiser<NodeGraph, SerialisableN
             try
             {
                 var serialisableNodeType = NodeGraphBaseHelper.RunTypeMigration(sN.Type);
-                if (!TypeResolver.TryConstruct(serialisableNodeType, out var nodeType)) continue;
+
+                if (!TypeResolver.TryConstruct(serialisableNodeType, out var nodeType))
+                {
+                    Logger.Log($"Unable to construct node type {serialisableNodeType}");
+                    continue;
+                }
 
                 var nodeId = Guid.NewGuid();
                 idMapping.Add(sN.Id, nodeId);
@@ -139,10 +148,13 @@ public class NodeGraphSerialiserV1 : ProfiledSerialiser<NodeGraph, SerialisableN
 
         foreach (var sC in data.Connections)
         {
-            var outputNodeResult = Reference.GetNode(idMapping[sC.OutputNodeId]);
+            if (!idMapping.TryGetValue(sC.OutputNodeId, out var outputNodeId)) continue;
+            if (!idMapping.TryGetValue(sC.InputNodeId, out var inputNodeId)) continue;
+
+            var outputNodeResult = Reference.GetNode(outputNodeId);
             if (!outputNodeResult.IsSuccess) continue;
 
-            var inputNodeResult = Reference.GetNode(idMapping[sC.InputNodeId]);
+            var inputNodeResult = Reference.GetNode(inputNodeId);
             if (!inputNodeResult.IsSuccess) continue;
 
             var outputNode = outputNodeResult.Value;
@@ -186,7 +198,7 @@ public class NodeGraphSerialiserV1 : ProfiledSerialiser<NodeGraph, SerialisableN
         {
             try
             {
-                var groupNodeIds = sG.Nodes.Select(nodeId => idMapping[nodeId]).ToList();
+                var groupNodeIds = sG.Nodes.Where(idMapping.ContainsKey).Select(nodeId => idMapping[nodeId]).ToList();
                 groupNodeIds.RemoveAll(nodeId => !Reference.Elements.ContainsKey(nodeId));
                 if (groupNodeIds.Count == 0) continue;
 

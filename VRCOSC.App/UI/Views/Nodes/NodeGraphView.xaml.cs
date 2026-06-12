@@ -149,7 +149,12 @@ public partial class NodeGraphView
                 GraphVariablesSource.Clear();
                 GraphVariablesSource.AddRange(Graph.GraphVariables.Values.OrderBy(v => v.GetName()).ThenBy(v => v.GetValueType().GetFriendlyName()));
 
-                addedNodes.AddRange(changes.AddedNodes.Select(node => new NodeViewModel((INode)Graph.Elements[node.Id])).ToList());
+                addedNodes.AddRange(changes.AddedNodes.Select(node =>
+                {
+                    if (node is IDisplayNode) return new DisplayNodeBaseViewModel(node);
+
+                    return new NodeViewModel(node);
+                }).ToList());
                 addedConnections.AddRange(changes.AddedConnections.Select(connection => new ConnectionViewModel(connection)).ToList());
                 addedComments.AddRange(changes.AddedComments.Select(comment => new CommentViewModel(comment)).ToList());
                 addedGroups.AddRange(changes.AddedGroups.Select(group => new GroupViewModel(group)).ToList());
@@ -176,6 +181,8 @@ public partial class NodeGraphView
                     var itemContainer = (FrameworkElement)GraphElementItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + i);
                     var nodeContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
 
+                    if (nodeVm is DisplayNodeBaseViewModel dnbvm) dnbvm.Start();
+
                     nodeVm.Control = nodeContainer;
                     populateNodeViewModel(nodeVm);
                     updateGridGraphElementPosition(nodeVm, nodeVm.Position);
@@ -193,6 +200,7 @@ public partial class NodeGraphView
                     var connectionContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
 
                     connectionVm.Control = connectionContainer;
+                    connectionVm.ZIndex = -10;
                     updateConnectionViewModelPoints(connectionVm);
                     connectionVm.IsVisible = true;
                 }
@@ -242,6 +250,7 @@ public partial class NodeGraphView
                 {
                     hasLoaded = true;
                     LoadingOverlay.FadeOut(250);
+                    GraphContainer.Focus();
                 });
             }
         }
@@ -458,7 +467,12 @@ public partial class NodeGraphView
         // StandardColorPicker doesn't block events. We'll do it manually
         if (IsMouseCapturedByDescendantOf<PickerControlBase>()) return;
 
-        GraphContainer.Focus();
+        if (!GraphContainer.IsFocused)
+        {
+            GraphContainer.Focus();
+            Graph.Serialise();
+        }
+
         handleMouseUpdates(e);
     }
 
@@ -947,6 +961,20 @@ public partial class NodeGraphView
             node.Metadata.Position = position;
 
             var connectionResult = Graph.CreateConnection(node.Metadata.ElementInstancesFor(ConnectionPoint.FlowOutput)[0], 0, element, slotIndex);
+            if (!connectionResult.IsSuccess) return false;
+
+            return true;
+        }
+
+        if (isFlowOutput)
+        {
+            var nodeResult = Graph.AddNode(typeof(FlowDisplayNode));
+            if (!nodeResult.IsSuccess) return false;
+
+            var node = nodeResult.Value;
+            node.Metadata.Position = position;
+
+            var connectionResult = Graph.CreateConnection(element, slotIndex, node.Metadata.ElementInstancesFor(ConnectionPoint.FlowInput)[0], 0);
             if (!connectionResult.IsSuccess) return false;
 
             return true;

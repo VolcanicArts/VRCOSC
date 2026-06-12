@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MeaMod.DNS.Server;
@@ -24,7 +26,7 @@ using Node = VRCOSC.App.Nodes.Types.Node;
 
 namespace VRCOSC.App.Nodes;
 
-public class NodeGraph
+public class NodeGraph : INotifyPropertyChanged
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Observable<string> Name { get; } = new("New Graph");
@@ -78,6 +80,9 @@ public class NodeGraph
     {
         Running.Value = true;
         CurrentSpeechText = null;
+        cachedValueOutputs.Clear();
+
+        cacheNodeTypes();
         await triggerOnStartNodes();
         await processAllTriggerNodes();
         startUpdate();
@@ -88,7 +93,6 @@ public class NodeGraph
         if (!Running.Value) return;
 
         await updateTokenSource!.CancelAsync();
-        await updateTask!;
 
         try
         {
@@ -105,8 +109,10 @@ public class NodeGraph
 
         cancelTasks.Clear();
         GlobalStores.Clear();
-        continuousOutputs.Clear();
         GraphVariables.ForEach(v => v.Value.Reset());
+        HighestUpdateTime = TimeSpan.Zero;
+        LowestUpdateTime = TimeSpan.Zero;
+        CurrentUpdateTime = TimeSpan.Zero;
         Running.Value = false;
 
         Serialise();
@@ -123,11 +129,25 @@ public class NodeGraph
 
     public async Task MarkDirtyAsync()
     {
+        cachedPaths.Clear();
+        cachedBacktracks.Clear();
+        cacheNodeTypes();
+
         if (OnMarkedDirty is not null)
             await OnMarkedDirty.Invoke(graphChanges);
 
         graphChanges = new();
         Serialise();
+    }
+
+    private void cacheNodeTypes()
+    {
+        var nodes = Elements.Values.OfType<INode>().ToArray();
+        continuousNodes = nodes.OfType<IContinuousNode>().OrderBy(node => node.UpdateOffset).Cast<INode>().ToArray();
+        activeUpdateNodes = nodes.OfType<IActiveUpdateNode>().OrderBy(node => node.UpdateOffset).Cast<INode>().ToArray();
+        updateNodes = nodes.OfType<IUpdateNode>().OrderBy(node => node.UpdateOffset).Cast<INode>().ToArray();
+        startNodes = nodes.OfType<OnStartNode>().ToArray<INode>();
+        stopNodes = nodes.OfType<OnStopNode>().ToArray<INode>();
     }
 
     public Result<INode> AddNode(Type type, Guid? idOverride = null, Vector2 position = default, object?[]? args = null)
@@ -181,7 +201,9 @@ public class NodeGraph
             var inputNodeResult = GetNode(inputConnection.InputId);
             Debug.Assert(inputNodeResult.IsSuccess);
             var inputNode = inputNodeResult.Value;
-            inputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput)[inputConnection.InputSlot].IsConnected = false;
+
+            if (inputConnection is IValueConnection)
+                inputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput)[inputConnection.InputSlot].IsConnected = false;
         }
 
         var group = Groups.Values.SingleOrDefault(g => g.Nodes.Contains(id));
@@ -763,57 +785,105 @@ public class NodeGraph
         }
     }
 
-    private Task? updateTask;
+    private Thread? updateThread;
     private CancellationTokenSource? updateTokenSource;
 
-    private IEnumerable<INode> continuousNodes => Elements.Values.OfType<IContinuousNode>().OrderBy(node => node.UpdateOffset).Cast<INode>();
-    private IEnumerable<INode> activeUpdateNodes => Elements.Values.OfType<IActiveUpdateNode>().OrderBy(node => node.UpdateOffset).Cast<INode>();
-    private IEnumerable<INode> updateNodes => Elements.Values.OfType<IUpdateNode>().OrderBy(node => node.UpdateOffset).Cast<INode>();
-    private IEnumerable<INode> startNodes => Elements.Values.OfType<OnStartNode>();
-    private IEnumerable<INode> stopNodes => Elements.Values.OfType<OnStopNode>();
+    private INode[] continuousNodes { get; set; } = [];
+    private INode[] activeUpdateNodes { get; set; } = [];
+    private INode[] updateNodes { get; set; } = [];
+    private INode[] startNodes { get; set; } = [];
+    private INode[] stopNodes { get; set; } = [];
 
-    private Dictionary<Guid, IRef[][]> continuousOutputs { get; } = [];
+    private Dictionary<Guid, Dictionary<int, Dictionary<int, IRef>>> cachedValueOutputs { get; } = [];
+
+    internal void CacheValueOutput<T>(Guid nodeId, int slot, int index, IRef value)
+    {
+        cachedValueOutputs[nodeId][slot][index] = value;
+    }
+
+    internal Ref<T> GetCachedValueOutput<T>(Guid nodeId, int slot, int index)
+    {
+        if (!cachedValueOutputs.TryGetValue(nodeId, out var nodeOutputs))
+        {
+            nodeOutputs = new Dictionary<int, Dictionary<int, IRef>>();
+            cachedValueOutputs[nodeId] = nodeOutputs;
+        }
+
+        if (!nodeOutputs.TryGetValue(slot, out var nodeOutputsSlot))
+        {
+            nodeOutputsSlot = new Dictionary<int, IRef>();
+            nodeOutputs[slot] = nodeOutputsSlot;
+        }
+
+        if (!nodeOutputsSlot.TryGetValue(index, out var value))
+        {
+            value = new Ref<T>();
+            nodeOutputsSlot[index] = value;
+        }
+
+        return (Ref<T>)value;
+    }
+
+    public TimeSpan HighestUpdateTime
+    {
+        get;
+        set
+        {
+            if (value.Equals(field)) return;
+
+            field = value;
+            OnPropertyChanged();
+        }
+    } = TimeSpan.Zero;
+
+    public TimeSpan LowestUpdateTime
+    {
+        get;
+        set
+        {
+            if (value.Equals(field)) return;
+
+            field = value;
+            OnPropertyChanged();
+        }
+    } = TimeSpan.Zero;
+
+    public TimeSpan CurrentUpdateTime
+    {
+        get;
+        private set
+        {
+            if (value.Equals(field)) return;
+
+            field = value;
+            OnPropertyChanged();
+        }
+    } = TimeSpan.Zero;
+
+    private long updateCount;
+    private TimeSpan recentUpdateTotal = TimeSpan.Zero;
+    private readonly TimeSpan updateDelay = TimeSpan.FromMilliseconds(10);
+    private const int fps_update_count = 10;
+    private const int fps_extra_update_count = 250;
 
     private void startUpdate()
     {
         updateTokenSource = new();
 
-        updateTask = Task.Run(async () =>
+        updateThread = new Thread(async () =>
         {
             try
             {
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+
                 while (!updateTokenSource.IsCancellationRequested)
                 {
+                    stopwatch.Restart();
+
                     foreach (var node in continuousNodes)
                     {
-                        await TriggerTree(node, null, null, newC =>
-                        {
-                            var nodeMemory = newC.Memory[node.Id];
-
-                            if (continuousOutputs.TryGetValue(node.Id, out var outputs))
-                            {
-                                var wasChange = false;
-
-                                for (var slot = 0; slot < node.Metadata.Shared.ValueOutputCount; slot++)
-                                {
-                                    var valueOutput = node.Metadata.Elements[ConnectionPoint.ValueOutput][slot];
-
-                                    for (var index = 0; index < valueOutput.WorkingSize; index++)
-                                    {
-                                        var prevValue = outputs[slot][index];
-                                        var currentValue = nodeMemory[slot][index];
-
-                                        if (!prevValue.Equals(currentValue)) wasChange = true;
-                                    }
-                                }
-
-                                continuousOutputs[node.Id] = nodeMemory;
-                                return wasChange;
-                            }
-
-                            continuousOutputs[node.Id] = nodeMemory;
-                            return true;
-                        });
+                        await TriggerTree(node, null, null, _ => node.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput).Any(vo => ((IValueOutputBase)vo).IsDirty));
                     }
 
                     foreach (var node in activeUpdateNodes)
@@ -828,14 +898,46 @@ public class NodeGraph
                         ((IUpdateNode)node).OnUpdate(c);
                     }
 
-                    await Task.Delay(TimeSpan.FromSeconds(1d / 100d));
+                    updateCount++;
+                    var elapsed = stopwatch.Elapsed;
+                    recentUpdateTotal += elapsed;
+
+                    if (updateCount % fps_update_count == 0)
+                    {
+                        CurrentUpdateTime = recentUpdateTotal / fps_update_count;
+                        recentUpdateTotal = TimeSpan.Zero;
+                    }
+
+                    if (updateCount % fps_extra_update_count == 0)
+                    {
+                        LowestUpdateTime = TimeSpan.Zero;
+                        HighestUpdateTime = TimeSpan.Zero;
+                    }
+
+                    if (elapsed.TotalMilliseconds < LowestUpdateTime.TotalMilliseconds || LowestUpdateTime == TimeSpan.Zero)
+                        LowestUpdateTime = elapsed;
+
+                    if (elapsed.TotalMilliseconds > HighestUpdateTime.TotalMilliseconds || HighestUpdateTime == TimeSpan.Zero)
+                        HighestUpdateTime = elapsed;
+
+                    var totalElapsed = stopwatch.Elapsed;
+                    var sleepTime = updateDelay - totalElapsed;
+                    if (sleepTime.TotalMilliseconds < 0) sleepTime = TimeSpan.Zero;
+
+                    Thread.Sleep(sleepTime);
                 }
             }
             catch (Exception e)
             {
-                ExceptionHandler.Handle(e);
+                Logger.Error(e, $"Pulse UpdateThread-{Id}");
             }
-        }, updateTokenSource.Token);
+        })
+        {
+            IsBackground = true,
+            Name = $"Pulse UpdateThread-{Id}"
+        };
+
+        updateThread.Start();
     }
 
     public void CreatePreset(string name, List<Guid> nodeIds, List<Guid> commentIds, float posX, float posY)
@@ -1038,25 +1140,14 @@ public class NodeGraph
         return true;
     }
 
+    private readonly Dictionary<Guid, INode[]> cachedBacktracks = [];
+
     private async Task backtrackNode(INode node, PulseContext c)
     {
-        var metadata = node.Metadata;
-        var slotElements = metadata.Elements[ConnectionPoint.ValueInput];
-
-        for (var slot = 0; slot < metadata.Shared.ValueInputCount; slot++)
+        if (cachedBacktracks.TryGetValue(node.Id, out var nodes))
         {
-            var slotMetadata = slotElements[slot];
-
-            for (var index = 0; index < slotMetadata.WorkingSize; index++)
+            foreach (var outputNode in nodes)
             {
-                var connectionResult = FindConnectionFromValueInput(node.Id, slot, index);
-                if (!connectionResult.IsSuccess) continue;
-
-                var outputNodeResult = getGraphElement<Node>(connectionResult.Value.OutputId);
-                if (!outputNodeResult.IsSuccess) throw outputNodeResult.Exception;
-
-                var outputNode = outputNodeResult.Value;
-
                 if (outputNode.Metadata.Shared.IsFlow)
                 {
                     c.CreateMemory(outputNode);
@@ -1066,7 +1157,43 @@ public class NodeGraph
                 await processNode(outputNode, c);
             }
         }
+        else
+        {
+            var metadata = node.Metadata;
+            var slotElements = metadata.Elements[ConnectionPoint.ValueInput];
+
+            var backtrackList = new List<INode>();
+
+            for (var slot = 0; slot < metadata.Shared.ValueInputCount; slot++)
+            {
+                var slotMetadata = slotElements[slot];
+
+                for (var index = 0; index < slotMetadata.WorkingSize; index++)
+                {
+                    var connectionResult = FindConnectionFromValueInput(node.Id, slot, index);
+                    if (!connectionResult.IsSuccess) continue;
+
+                    var outputNodeResult = getGraphElement<Node>(connectionResult.Value.OutputId);
+                    if (!outputNodeResult.IsSuccess) throw outputNodeResult.Exception;
+
+                    var outputNode = outputNodeResult.Value;
+                    backtrackList.Add(outputNode);
+
+                    if (outputNode.Metadata.Shared.IsFlow)
+                    {
+                        c.CreateMemory(outputNode);
+                        continue;
+                    }
+
+                    await processNode(outputNode, c);
+                }
+            }
+
+            cachedBacktracks[node.Id] = backtrackList.ToArray();
+        }
     }
+
+    private readonly Dictionary<Guid, List<INode[]>> cachedPaths = [];
 
     /// <summary>
     /// Triggers the source node immediately if <paramref name="sourceNode"/> is a trigger node, otherwise walks forward to get all the nodes that are trigger nodes and triggers those
@@ -1087,16 +1214,26 @@ public class NodeGraph
         if (!hasProcessed) return;
 
         var pathList = new List<INode[]>();
-        var currPath = new Stack<INode>();
 
-        for (var slot = 0; slot < sourceNode.Metadata.Shared.ValueOutputCount; slot++)
+        if (cachedPaths.TryGetValue(sourceNode.Id, out var localPathList))
         {
-            var valueOutput = sourceNode.Metadata.Elements[ConnectionPoint.ValueOutput][slot];
+            pathList = localPathList;
+        }
+        else
+        {
+            var currPath = new Stack<INode>();
 
-            for (var index = 0; index < valueOutput.WorkingSize; index++)
+            for (var slot = 0; slot < sourceNode.Metadata.Shared.ValueOutputCount; slot++)
             {
-                await walkForward(pathList, currPath, sourceNode, slot, index);
+                var valueOutput = sourceNode.Metadata.Elements[ConnectionPoint.ValueOutput][slot];
+
+                for (var index = 0; index < valueOutput.WorkingSize; index++)
+                {
+                    await walkForward(pathList, currPath, sourceNode, slot, index);
+                }
             }
+
+            cachedPaths[sourceNode.Id] = pathList;
         }
 
         // we want to process every non-trigger node before processing the trigger nodes so that
@@ -1206,4 +1343,8 @@ public class NodeGraph
         graphChanges.AddedComments.Add(comment);
         return comment;
     }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

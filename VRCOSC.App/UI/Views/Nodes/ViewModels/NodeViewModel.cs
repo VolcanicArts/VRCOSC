@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using VRCOSC.App.Nodes;
@@ -77,4 +78,33 @@ public class NodeViewModel : GridGraphElementViewModel
     }
 
     public void NotifyProperty(string propertyName) => OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+}
+
+public partial class DisplayNodeBaseViewModel : NodeViewModel
+{
+    private readonly Repeater repeater;
+    private object? value { get; set; }
+
+    public object? Uivalue { get; private set; }
+
+    public DisplayNodeBaseViewModel(INode node)
+        : base(node)
+    {
+        var displayNode = (IDisplayNode)node;
+        displayNode.OnValueChanged += newValue => value = newValue;
+        value = displayNode.GetValue();
+        repeater = new Repeater($"{nameof(DisplayNodeBaseViewModel)}-updater", updatePublicValue);
+    }
+
+    public void Start() => repeater.Start(TimeSpan.FromMilliseconds(20), true);
+
+    private Task updatePublicValue()
+    {
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            Uivalue = value;
+            OnPropertyChanged(nameof(Uivalue));
+        });
+        return Task.CompletedTask;
+    }
 }

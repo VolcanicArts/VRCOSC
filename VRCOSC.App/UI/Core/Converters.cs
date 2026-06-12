@@ -97,6 +97,18 @@ public class ColorToWindowsColorConverter : IValueConverter
     }
 }
 
+public class TimeSpanToStringConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not TimeSpan timeSpan) return null;
+
+        return $"{timeSpan.TotalMilliseconds:0.00}ms";
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
 public class StringIsNotNullOrEmptyConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

@@ -10,6 +10,10 @@ using VRCOSC.App.Nodes.Metadata;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Utils;
 
+// ReSharper disable UnusedTypeParameter
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Global
+
 namespace VRCOSC.App.Nodes;
 
 [AttributeUsage(AttributeTargets.Class)]
@@ -114,7 +118,10 @@ public interface IValueInputList : IValueInputBase
 
 public interface IValueInputList<out T> : IValueInputList;
 
-public interface IValueOutputBase : IValueElement;
+public interface IValueOutputBase : IValueElement
+{
+    bool IsDirty { get; set; }
+}
 
 public interface IValueOutput : IValueOutputBase;
 
@@ -140,7 +147,7 @@ public interface IContextStore<T> : IContextStore, IStore<T>;
 public abstract class NodeElement : INodeElement
 {
     public Node Owner { get; set; } = null!;
-    public INodeElementMetadata Metadata { get; set; }
+    public INodeElementMetadata Metadata { get; set; } = null!;
     public string Name { get; }
 
     public bool IsConnected
@@ -215,7 +222,7 @@ public class ValueInput<T>([CallerMemberName] string name = "", T defaultValue =
         {
             _field = value;
 
-            if (!Owner.Metadata.Shared.IsFlowInput)
+            if (!Owner.Metadata.Shared.IsFlowInput && !Owner.Metadata.Shared.IsSelfUpdating)
                 _ = Owner.ContainingGraph.TriggerTree(Owner);
         }
     }
@@ -236,11 +243,14 @@ public class ValueInputList<T>([CallerMemberName] string name = "") : ValueEleme
 
 public class ValueOutput<T>([CallerMemberName] string name = "") : ValueElement<T>(name), IValueOutput<T>
 {
+    public bool IsDirty { get; set; }
+
     public void Write(T value, IPulseContext c) => c.Write(this, value);
 }
 
 public class ValueOutputList<T>([CallerMemberName] string name = "") : ValueElement<T>(name), IValueOutputList<T>
 {
+    public bool IsDirty { get; set; }
     public int Count => Metadata.Size;
 
     public void Write(int index, T value, IPulseContext c) => c.Write(this, index, value);
@@ -274,7 +284,9 @@ public record ImpulseDefinition(string Name, object[] Values);
 
 internal interface IDisplayNode
 {
-    public void Clear();
+    Action<object?>? OnValueChanged { get; set; }
+    object? GetValue();
+    void Clear();
 }
 
 public interface IModuleNodeEventHandler

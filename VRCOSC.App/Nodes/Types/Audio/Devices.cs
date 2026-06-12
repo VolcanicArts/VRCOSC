@@ -16,5 +16,11 @@ public sealed class AudioPlaybackDeviceSourceNode() : ValueSourceNode<AudioPlayb
     [InputMode(InputModes.Inline)]
     public ValueInput<string> Name = new();
 
-    protected override AudioPlaybackDevice? ComputeValue(IPulseContext c) => AudioManager.GetInstance().PlaybackDevices.FirstOrDefault(d => d.Info!.Value.Name == Name.Read(c));
+    protected override AudioPlaybackDevice? ComputeValue(IPulseContext c)
+    {
+        var name = Name.Read(c);
+        if (string.IsNullOrWhiteSpace(name)) return null;
+
+        return AudioManager.GetInstance().PlaybackDevices.FirstOrDefault(d => d.Info!.Value.Name == name);
+    }
 }

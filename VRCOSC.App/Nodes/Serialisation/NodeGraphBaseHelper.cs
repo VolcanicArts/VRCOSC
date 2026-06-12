@@ -24,8 +24,8 @@ public static class NodeGraphBaseHelper
         if (type.Contains("DirectSendParameterNode"))
             return type.Replace("DirectSendParameterNode", "SendParameterNode");
 
-        if (type.Contains("LogNode"))
-            return type.Replace("LogNode", "LogNode<System.String>");
+        if (type.Contains("RichTextNode"))
+            return type.Replace("RichTextNode", "ValueNode<System.String>");
 
         return type;
     }
@@ -51,7 +51,8 @@ public static class NodeGraphBaseHelper
             { "ImpulseSendNode", ("text", typeof(string), 0) },
             //{ "GamepadSourceNode", ("text", typeof(string), 0) },
             { "KeybindSourceNode", ("keybind", typeof(Keybind), 0) },
-            { "ValueNode", ("value", null, 0) }
+            { "ValueNode", ("value", null, 0) },
+            { "RichTextNode", ("value", null, 0) }
         };
 
         var matching = migrations.FirstOrDefault(m => originalType.Contains(m.Key) && propertyKey == m.Value.PropertyKey);
@@ -108,7 +109,8 @@ public static class NodeGraphBaseHelper
         catch (Exception e)
         {
             Logger.Error(e, $"Unable to convert {value?.GetType().GetFriendlyName() ?? "null"} to {targetType.GetFriendlyName()}");
-            throw;
+            outValue = null;
+            return false;
         }
     }
 
@@ -122,7 +124,12 @@ public static class NodeGraphBaseHelper
             try
             {
                 if (remapIds && idMapping.ContainsKey(sV.Id)) continue;
-                if (!TypeResolver.TryConstruct(sV.Type, out var variableType)) continue;
+
+                if (!TypeResolver.TryConstruct(sV.Type, out var variableType))
+                {
+                    Logger.Log($"Unable to construct variable type {sV.Type}");
+                    continue;
+                }
 
                 var valueParseSuccessful = tryConvertToTargetType(sV.Value, variableType, out var variableValue);
                 var variableId = remapIds ? Guid.NewGuid() : sV.Id;
@@ -142,7 +149,12 @@ public static class NodeGraphBaseHelper
             try
             {
                 var serialisedType = RunTypeMigration(sN.Type);
-                if (!TypeResolver.TryConstruct(serialisedType, out var nodeType)) continue;
+
+                if (!TypeResolver.TryConstruct(serialisedType, out var nodeType))
+                {
+                    Logger.Log($"Unable to construct node type {serialisedType}");
+                    continue;
+                }
 
                 var nodeId = remapIds ? Guid.NewGuid() : sN.Id;
                 if (remapIds) idMapping.Add(sN.Id, nodeId);

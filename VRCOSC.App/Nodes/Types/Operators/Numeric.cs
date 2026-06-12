@@ -52,9 +52,15 @@ public sealed class MultiSubtractNode<T> : ValueComputeNode<T> where T : ISubtra
 
 #endregion
 
+#region Multiply
+
 [Node("Multiply", "Operators/Numeric")]
 [NodeCollapsed(EFontAwesomeIcon.Solid_Asterisk)]
-public sealed class MultiplyNode<T>() : SimpleResultComputeNode<T>((a, b) => a * b) where T : IMultiplyOperators<T, T, T>;
+public class MultiplyNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a * b) where TLeft : IMultiplyOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class MultiplyNode<TLeft, TRight> : MultiplyNode<TLeft, TRight, TLeft> where TLeft : IMultiplyOperators<TLeft, TRight, TLeft> where TRight : notnull;
+
+public sealed class MultiplyNode<T> : MultiplyNode<T, T> where T : IMultiplyOperators<T, T, T>;
 
 [Node("Multiply (Multi)", "Operators/Numeric")]
 public sealed class MultiMultiplyNode<T> : ValueComputeNode<T> where T : IMultiplyOperators<T, T, T>
@@ -66,29 +72,79 @@ public sealed class MultiMultiplyNode<T> : ValueComputeNode<T> where T : IMultip
     protected override T ComputeValue(IPulseContext c) => Inputs.Read(c).Aggregate((curr, next) => curr * next);
 }
 
+#endregion
+
+#region Divide
+
 [Node("Divide", "Operators/Numeric")]
 [NodeCollapsed(EFontAwesomeIcon.Solid_Divide)]
-public sealed class DivideNode<T>() : SimpleResultComputeNode<T>((a, b) => a / b) where T : IDivisionOperators<T, T, T>;
+public class DivideNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a / b) where TLeft : IDivisionOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class DivideNode<TLeft, TRight> : DivideNode<TLeft, TRight, TLeft> where TLeft : IDivisionOperators<TLeft, TRight, TLeft> where TRight : notnull;
+
+public sealed class DivideNode<T> : DivideNode<T, T> where T : IDivisionOperators<T, T, T>;
+
+#endregion
+
+#region Modulo
 
 [Node("Modulo", "Operators/Numeric")]
 [NodeCollapsed(EFontAwesomeIcon.Solid_Percent)]
-public sealed class ModuloNode<T>() : SimpleResultComputeNode<T>((a, b) => a % b) where T : IModulusOperators<T, T, T>;
+public class ModuloNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a % b) where TLeft : IModulusOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class ModuloNode<TLeft, TRight> : ModuloNode<TLeft, TRight, TLeft> where TLeft : IModulusOperators<TLeft, TRight, TLeft> where TRight : notnull;
+
+public sealed class ModuloNode<T> : ModuloNode<T, T> where T : IModulusOperators<T, T, T>;
+
+#endregion
+
+#region Greater Than
 
 [Node("Greater Than", "Operators/Numeric")]
 [NodeCollapsed(EFontAwesomeIcon.Solid_GreaterThan)]
-public sealed class GreaterThanNode<T>() : SimpleResultComputeNode<T, bool>((a, b) => a > b) where T : IComparisonOperators<T, T, bool>;
+public class GreaterThanNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a > b) where TLeft : IComparisonOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class GreaterThanNode<TLeft, TRight> : GreaterThanNode<TLeft, TRight, bool> where TLeft : IComparisonOperators<TLeft, TRight, bool> where TRight : notnull;
+
+public sealed class GreaterThanNode<T> : GreaterThanNode<T, T> where T : IComparisonOperators<T, T, bool>;
+
+#endregion
+
+#region Greater Than Or Equal
 
 [Node("Greater Than Or Equal", "Operators/Numeric")]
 [NodeCollapsed(EFontAwesomeIcon.Solid_GreaterThanEqual)]
-public sealed class GreaterThanOrEqualNode<T>() : SimpleResultComputeNode<T, bool>((a, b) => a >= b) where T : IComparisonOperators<T, T, bool>;
+public class GreaterThanOrEqualNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a >= b) where TLeft : IComparisonOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class GreaterThanOrEqualNode<TLeft, TRight> : GreaterThanOrEqualNode<TLeft, TRight, bool> where TLeft : IComparisonOperators<TLeft, TRight, bool> where TRight : notnull;
+
+public sealed class GreaterThanOrEqualNode<T> : GreaterThanOrEqualNode<T, T> where T : IComparisonOperators<T, T, bool>;
+
+#endregion
+
+#region Less Than
 
 [Node("Less Than", "Operators/Numeric")]
 [NodeCollapsed(EFontAwesomeIcon.Solid_LessThan)]
-public sealed class LessThanNode<T>() : SimpleResultComputeNode<T, bool>((a, b) => a < b) where T : IComparisonOperators<T, T, bool>;
+public class LessThanNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a < b) where TLeft : IComparisonOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class LessThanNode<TLeft, TRight> : LessThanNode<TLeft, TRight, bool> where TLeft : IComparisonOperators<TLeft, TRight, bool> where TRight : notnull;
+
+public sealed class LessThanNode<T> : LessThanNode<T, T> where T : IComparisonOperators<T, T, bool>;
+
+#endregion
+
+#region Less Than Or Equal
 
 [Node("Less Than Or Equal", "Operators/Numeric")]
 [NodeCollapsed(EFontAwesomeIcon.Solid_LessThanEqual)]
-public sealed class LessThanOrEqualNode<T>() : SimpleResultComputeNode<T, bool>((a, b) => a <= b) where T : IComparisonOperators<T, T, bool>;
+public class LessThanOrEqualNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a <= b) where TLeft : IComparisonOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class LessThanOrEqualNode<TLeft, TRight> : LessThanOrEqualNode<TLeft, TRight, bool> where TLeft : IComparisonOperators<TLeft, TRight, bool> where TRight : notnull;
+
+public sealed class LessThanOrEqualNode<T> : LessThanOrEqualNode<T, T> where T : IComparisonOperators<T, T, bool>;
+
+#endregion
 
 [Node("Increment", "Operators/Numeric")]
 [NodeCollapsed(EFontAwesomeIcon.Solid_Plus, EFontAwesomeIcon.Solid_1)]

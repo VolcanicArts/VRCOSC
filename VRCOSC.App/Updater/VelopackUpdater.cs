@@ -5,7 +5,6 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
-using NuGet.Versioning;
 using Velopack;
 using Velopack.Sources;
 using VRCOSC.App.Settings;
