@@ -255,7 +255,7 @@ public partial class NodeGraphView
                     GraphContainer.Focus();
                 });
 
-                NodeManager.GetInstance().StartStopUpdate(true);
+                NodeManager.GetInstance().SlowUpdateThread(false);
             }
         }
         catch (Exception e)

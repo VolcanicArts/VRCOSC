@@ -201,20 +201,9 @@ public class NodeManager
         }
     }
 
-    public void StartStopUpdate(bool running)
-    {
-        if (running && updateThread is null)
-        {
-            _ = Start();
-            return;
-        }
+    private bool useSlowUpdate;
 
-        if (!running && updateThread is not null)
-        {
-            _ = Stop();
-            return;
-        }
-    }
+    public void SlowUpdateThread(bool slow) => useSlowUpdate = slow;
 
     public async Task Start()
     {
@@ -241,9 +230,16 @@ public class NodeManager
                     var sleepTarget = UPDATE_DELAY - elapsed;
                     var targetTime = elapsed + sleepTarget;
 
-                    while (stopwatch.Elapsed < targetTime)
+                    if (useSlowUpdate)
                     {
-                        Thread.SpinWait(10);
+                        Thread.Sleep(UPDATE_DELAY);
+                    }
+                    else
+                    {
+                        while (stopwatch.Elapsed < targetTime)
+                        {
+                            Thread.SpinWait(10);
+                        }
                     }
                 }
             }

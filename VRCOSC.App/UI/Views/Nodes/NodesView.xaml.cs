@@ -68,7 +68,7 @@ public partial class NodesView
 
         if (!viewCache.TryGetValue(nodeGraph.Id, out var view))
         {
-            NodeManager.GetInstance().StartStopUpdate(false);
+            NodeManager.GetInstance().SlowUpdateThread(true);
             view = new NodeGraphView(nodeGraph);
             viewCache[nodeGraph.Id] = view;
         }
