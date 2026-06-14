@@ -210,7 +210,7 @@ internal class AppManager : IVRCClientEventHandler
         return parameterCache.SingleOrDefault(p => p.Key.Name == name).Value.Parameter;
     }
 
-    public VRChatParameter? GetParameter<T>(string name) where T : unmanaged
+    public VRChatParameter? GetParameter<T>(string name)
     {
         var definition = new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>());
         if (parameterCache.TryGetValue(definition, out var record)) return record.Parameter;
@@ -223,24 +223,35 @@ internal class AppManager : IVRCClientEventHandler
         return parameterCache.Where(p => pattern.IsMatch(p.Key.Name)).OrderByDescending(p => p.Value.Timestamp).FirstOrDefault().Value.Parameter;
     }
 
-    public VRChatParameter? GetParameter<T>(Regex pattern) where T : unmanaged
+    public VRChatParameter? GetParameter<T>(Regex pattern)
     {
         var type = ParameterTypeFactory.CreateFrom<T>();
         return parameterCache.Where(p => p.Key.Type == type && pattern.IsMatch(p.Key.Name)).OrderByDescending(p => p.Value.Timestamp).FirstOrDefault().Value.Parameter;
     }
 
-    public T GetParameterValue<T>(Regex pattern) where T : unmanaged
+    public T GetParameterValue<T>(Regex pattern)
     {
-        return GetParameter<T>(pattern)?.GetValue<T>() ?? default;
+        var parameter = GetParameter<T>(pattern);
+        return parameter is null ? default! : parameter.GetValue<T>();
     }
 
-    public TemplatedVRChatParameter? GetTemplatedParameter<T>(Regex pattern) where T : unmanaged
+    public TemplatedVRChatParameter? GetTemplatedParameter<T>(Regex pattern)
     {
         var parameter = GetParameter<T>(pattern);
         return parameter is not null ? new TemplatedVRChatParameter(pattern, parameter) : null;
     }
 
-    public void SendToAllParameter<T>(string pattern, T value) => SendToAllParameter(TemplatedVRChatParameter.TemplateAsRegex(pattern), value);
+    public void SendToAllParameter<T>(string pattern, T value)
+    {
+        if (!VRChatClient.IsInAvatar)
+        {
+            // Fallback to sending without pattern matching
+            sendParameter(pattern, value);
+            return;
+        }
+
+        SendToAllParameter(TemplatedVRChatParameter.TemplateAsRegex(pattern), value);
+    }
 
     public void SendToAllParameter<T>(Regex pattern, T value)
     {
@@ -398,7 +409,7 @@ internal class AppManager : IVRCClientEventHandler
         }
     }
 
-    private void sendParameter(string parameterName, object value)
+    private void sendParameter<T>(string parameterName, T value)
     {
         VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{parameterName}", value);
     }

@@ -880,7 +880,8 @@ public abstract class Module
     /// </summary>
     /// <param name="name">The name of the parameter</param>
     /// <param name="value">The value to set the parameter to</param>
-    protected void SendParameter(string name, object value)
+    /// <typeparam name="T">Can be of type bool, int, or float</typeparam>
+    protected void SendParameter<T>(string name, T value)
     {
         AppManager.GetInstance().SendToAllParameter(name, value);
     }
@@ -893,7 +894,8 @@ public abstract class Module
     /// <param name="blockEvents">Whether to block <see cref="OnAnyParameterReceived"/> from running until we acknowledge a response. This is helpful to prevent unwanted loopbacks</param>
     /// <param name="timeout">The timeout at which waiting fails. Defaults to 0.5 seconds</param>
     /// <returns>True if the parameter was acknowledged, false if the parameter doesn't exist or VRChat is closed</returns>
-    protected async Task<bool> SendParameterAndWait(string name, object value, bool blockEvents = false, TimeSpan timeout = default)
+    /// <typeparam name="T">Can be of type bool, int, or float</typeparam>
+    protected async Task<bool> SendParameterAndWait<T>(string name, T value, bool blockEvents = false, TimeSpan timeout = default)
     {
         if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(0.5f);
 
@@ -926,7 +928,8 @@ public abstract class Module
     /// </summary>
     /// <param name="lookup">The lookup of the parameter</param>
     /// <param name="value">The value to set the parameter to</param>
-    protected void SendParameter(Enum lookup, object value)
+    /// <typeparam name="T">Can be of type bool, int, or float</typeparam>
+    protected void SendParameter<T>(Enum lookup, T value)
     {
         if (!Parameters.TryGetValue(lookup, out var moduleParameter))
         {
@@ -947,7 +950,8 @@ public abstract class Module
     /// <param name="blockEvents">Whether to block <see cref="OnRegisteredParameterReceived"/> from running until we acknowledge a response. This is helpful to prevent unwanted loopbacks</param>
     /// <param name="timeout">The timeout at which waiting fails. Defaults to 0.5 seconds</param>
     /// <returns>True if the parameter was acknowledged, false if the parameter doesn't exist or VRChat is closed</returns>
-    protected async Task<bool> SendParameterAndWait(Enum lookup, object value, bool blockEvents = false, TimeSpan timeout = default)
+    /// <typeparam name="T">Can be of type bool, int, or float</typeparam>
+    protected async Task<bool> SendParameterAndWait<T>(Enum lookup, T value, bool blockEvents = false, TimeSpan timeout = default)
     {
         if (timeout == TimeSpan.Zero) timeout = TimeSpan.FromSeconds(0.5f);
 
