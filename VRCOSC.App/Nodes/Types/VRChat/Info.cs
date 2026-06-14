@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Parameters;
@@ -25,9 +24,9 @@ public sealed class VRChatStateSourceNode : Node, IContinuousNode
     public ValueOutput<bool> IsInInstance = new();
     public ValueOutput<bool> IsInAvatar = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
-        var client = c.GetClient();
+        var client = AppManager.GetInstance().VRChatClient;
         IsOpen.Write(client.IsOpen, c);
         IsLoggedIn.Write(client.IsLoggedIn, c);
         IsInInstance.Write(client.IsInInstance, c);
@@ -39,19 +38,19 @@ public sealed class VRChatStateSourceNode : Node, IContinuousNode
 [Node("User Source", "VRChat")]
 public sealed class VRChatUserSourceNode() : ValueSourceNode<User?>("User")
 {
-    protected override User? ComputeValue(PulseContext c) => c.GetClient().User;
+    protected override User? ComputeValue(IPulseContext c) => AppManager.GetInstance().VRChatClient.User;
 }
 
 [Node("Avatar Source", "VRChat")]
 public sealed class VRChatAvatarSourceNode() : ValueSourceNode<Avatar?>("Avatar")
 {
-    protected override Avatar? ComputeValue(PulseContext c) => c.GetClient().Avatar;
+    protected override Avatar? ComputeValue(IPulseContext c) => AppManager.GetInstance().VRChatClient.Avatar;
 }
 
 [Node("Instance Source", "VRChat")]
 public sealed class VRChatInstanceSourceNode() : ValueSourceNode<Instance?>("Instance")
 {
-    protected override Instance? ComputeValue(PulseContext c) => c.GetClient().Instance;
+    protected override Instance? ComputeValue(IPulseContext c) => AppManager.GetInstance().VRChatClient.Instance;
 }
 
 [Node("Unpack User", "VRChat/Structs/User")]
@@ -61,7 +60,7 @@ public sealed class UserUnpackNode : Node
     public ValueOutput<string> UserId = new("Id");
     public ValueOutput<string> Username = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var user = User.Read(c);
         if (user is null) return Task.CompletedTask;
@@ -78,7 +77,7 @@ public sealed class UserPackNode : ValueComputeNode<User?>
     public ValueInput<string?> UserId = new("Id");
     public ValueInput<string?> Username = new("Username");
 
-    protected override User? ComputeValue(PulseContext c)
+    protected override User? ComputeValue(IPulseContext c)
     {
         var userId = UserId.Read(c);
         var username = Username.Read(c) ?? string.Empty;
@@ -87,6 +86,7 @@ public sealed class UserPackNode : ValueComputeNode<User?>
 }
 
 [Node("Unpack Instance", "VRChat/Structs/Instance")]
+[NodeForceReprocess]
 public sealed class InstanceUnpackNode : Node, IActiveUpdateNode
 {
     public int UpdateOffset => 0;
@@ -102,9 +102,9 @@ public sealed class InstanceUnpackNode : Node, IActiveUpdateNode
     public ValueOutput<bool> AgeGated = new();
     public ValueOutput<bool> HasQueue = new();
     public ValueOutput<World> World = new();
-    public ValueOutput<IReadOnlyList<User>?> Users = new();
+    public ValueOutput<IEnumerable<User>?> Users = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var instance = Instance.Read(c);
         if (instance is null) return Task.CompletedTask;
@@ -117,11 +117,11 @@ public sealed class InstanceUnpackNode : Node, IActiveUpdateNode
         AgeGated.Write(instance.AgeGated, c);
         HasQueue.Write(instance.HasQueue, c);
         World.Write(instance.World, c);
-        Users.Write(instance.Users.ToImmutableList(), c);
+        Users.Write(instance.Users.ToList(), c);
         return Task.CompletedTask;
     }
 
-    public Task<bool> OnUpdate(PulseContext c)
+    public Task<bool> OnUpdate(IPulseContext c)
     {
         var instance = Instance.Read(c);
         var storedUsers = userStore.Read(c);
@@ -153,7 +153,7 @@ public sealed class WorldUnpackNode : Node
     public ValueOutput<string> WorldId = new("Id");
     public ValueOutput<string> Name = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var world = World.Read(c);
         if (world is null) return Task.CompletedTask;
@@ -170,7 +170,7 @@ public sealed class WorldPackNode : ValueComputeNode<World?>
     public ValueInput<string?> WorldId = new("Id");
     public ValueInput<string?> Name = new();
 
-    protected override World? ComputeValue(PulseContext c)
+    protected override World? ComputeValue(IPulseContext c)
     {
         var worldId = WorldId.Read(c);
         var name = Name.Read(c) ?? string.Empty;
@@ -184,16 +184,16 @@ public sealed class AvatarUnpackNode : Node
     public ValueInput<Avatar?> Avatar = new();
     public ValueOutput<string> AvatarId = new("Id");
     public ValueOutput<string> Name = new();
-    public ValueOutput<IReadOnlyList<ParameterDefinition>> Parameters = new();
+    public ValueOutput<IEnumerable<ParameterDefinition>> Parameters = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var avatar = Avatar.Read(c);
         if (avatar is null) return Task.CompletedTask;
 
         AvatarId.Write(avatar.Id, c);
         Name.Write(avatar.Name, c);
-        Parameters.Write(avatar.Parameters.ToImmutableList(), c);
+        Parameters.Write(avatar.Parameters.ToList(), c);
         return Task.CompletedTask;
     }
 }
@@ -204,7 +204,7 @@ public sealed class AvatarPackNode : ValueComputeNode<Avatar?>
     public ValueInput<string?> AvatarId = new("Id");
     public ValueInput<string?> Name = new();
 
-    protected override Avatar? ComputeValue(PulseContext c)
+    protected override Avatar? ComputeValue(IPulseContext c)
     {
         var avatarId = AvatarId.Read(c);
         var name = Name.Read(c) ?? string.Empty;
@@ -222,9 +222,9 @@ public sealed class AvatarHeightDataNode : Node, IContinuousNode
     public ValueOutput<float> EyeHeightMax = new();
     public ValueOutput<bool> ScalingAllowed = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
-        var avatar = c.GetClient().Avatar;
+        var avatar = AppManager.GetInstance().VRChatClient.Avatar;
         if (avatar is null) return Task.CompletedTask;
 
         EyeHeight.Write(avatar.EyeHeight, c);
@@ -243,7 +243,7 @@ public sealed class ParameterDefinitionUnpackNode : Node
     public ValueOutput<string> Name = new();
     public ValueOutput<ParameterType> Type = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var definition = Definition.Read(c);
         if (definition is null) return Task.CompletedTask;
@@ -260,7 +260,7 @@ public sealed class ParameterDefinitionPackNode : ValueComputeNode<ParameterDefi
     public ValueInput<string?> Name = new();
     public ValueInput<ParameterType> Type = new();
 
-    protected override ParameterDefinition? ComputeValue(PulseContext c)
+    protected override ParameterDefinition? ComputeValue(IPulseContext c)
     {
         var name = Name.Read(c);
         var type = Type.Read(c);

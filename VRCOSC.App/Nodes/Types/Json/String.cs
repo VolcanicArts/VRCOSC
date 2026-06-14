@@ -12,5 +12,5 @@ public class JsonToStringNode : ValueComputeNode<string>
     public ValueInput<JsonNode> JsonNode = new();
     public ValueInput<JsonSerializerOptions?> Options = new();
 
-    protected override string ComputeValue(PulseContext c) => JsonNode.Read(c)?.ToJsonString(Options.Read(c))!;
+    protected override string ComputeValue(IPulseContext c) => JsonNode.Read(c)?.ToJsonString(Options.Read(c))!;
 }

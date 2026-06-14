@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections;
 using System.Globalization;
 using System.Reflection;
 using System.Windows;
@@ -9,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using VRCOSC.App.Utils;
+using Color = VRCOSC.App.Utils.Color;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -16,14 +18,136 @@ namespace VRCOSC.App.UI.Core;
 
 public class ObjectToStringConverter : IValueConverter
 {
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) => value?.ToString() ?? "null";
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is null) return "null";
+
+        var stringifiedValue = value.ToString();
+
+        if (stringifiedValue == value.GetType().ToString())
+            return value.GetType().GetFriendlyName();
+
+        return stringifiedValue ?? "null";
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class ColorToBrushConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is ColorHSL colorHsl)
+        {
+            var colorHslAsColor = colorHsl.AsColor;
+            var r = colorHslAsColor._r * colorHslAsColor._a;
+            var g = colorHslAsColor._g * colorHslAsColor._a;
+            var b = colorHslAsColor._b * colorHslAsColor._a;
+            return new SolidColorBrush(System.Windows.Media.Color.FromScRgb(1, r, g, b));
+        }
+
+        if (value is Color color)
+        {
+            var r = color._r * color._a;
+            var g = color._g * color._a;
+            var b = color._b * color._a;
+            return new SolidColorBrush(System.Windows.Media.Color.FromScRgb(1, r, g, b));
+        }
+
+        return new SolidColorBrush(System.Windows.Media.Color.FromScRgb(1, 0, 0, 0));
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class ColorToWindowsColorConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is ColorHSL colorHsl)
+        {
+            var colorHslAsColor = colorHsl.AsColor;
+            return System.Windows.Media.Color.FromScRgb(1, colorHslAsColor._r, colorHslAsColor._g, colorHslAsColor._b);
+        }
+
+        if (value is Color color)
+        {
+            return System.Windows.Media.Color.FromScRgb(1, color._r, color._g, color._b);
+        }
+
+        return System.Windows.Media.Color.FromScRgb(1, 0, 0, 0);
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is System.Windows.Media.Color color)
+        {
+            if (targetType == typeof(Color))
+            {
+                return new Color(color.ScR, color.ScG, color.ScB, color.ScA);
+            }
+
+            if (targetType == typeof(ColorHSL))
+            {
+                return new Color(color.ScR, color.ScG, color.ScB, color.ScA).AsColorHSL;
+            }
+        }
+
+        return Color.Black;
+    }
+}
+
+public class TimeSpanToStringConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not TimeSpan timeSpan) return null;
+
+        return $"{timeSpan.TotalMilliseconds:0.00}ms";
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class StringIsNotNullOrEmptyConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not string strValue) return null;
+
+        return !string.IsNullOrEmpty(strValue);
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class StringIsNotNullOrEmptyVisibilityConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not string strValue) return Visibility.Collapsed;
+
+        return !string.IsNullOrEmpty(strValue) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class StringIsNullOrEmptyConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not string strValue) return null;
+
+        return string.IsNullOrEmpty(strValue);
+    }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }
 
 public class NullToVisibilityConverter : IValueConverter
 {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         return value is null ? Visibility.Collapsed : Visibility.Visible;
     }
@@ -73,7 +197,7 @@ public class BoolToThicknessConverter : IValueConverter
 
 public class StringToVisibilityConverter : IValueConverter
 {
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not string strValue) return Visibility.Collapsed;
 
@@ -124,9 +248,8 @@ public class TypeToFriendlyNameConverter : IValueConverter
     {
         if (value is null) return "NULL TYPE";
 
-        if (!value.GetType().IsAssignableTo(typeof(Type))) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
+        if (value is not Type typeValue) throw new Exception($"{nameof(value)} is not a {nameof(Type)}");
 
-        var typeValue = (Type)value;
         return typeValue.GetFriendlyName();
     }
 
@@ -207,4 +330,29 @@ public class BorderClipConverter : IMultiValueConverter
     }
 
     public object[]? ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => null;
+}
+
+public class CollectionIsEmptyToVisibilityConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not ICollection enumerable) return null;
+
+        return enumerable.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
+}
+
+public class EnumGetValuesConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not Type type) return null;
+        if (!type.IsEnum) return null;
+
+        return Enum.GetValues(type);
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => null;
 }

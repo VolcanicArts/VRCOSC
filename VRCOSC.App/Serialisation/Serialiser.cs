@@ -191,6 +191,10 @@ public abstract class Serialiser<TReference, TSerialisable> : ISerialiser where 
                     outValue = new DateTimeOffset(localDateTime, TimeZoneInfo.Local.GetUtcOffset(localDateTime));
                     return true;
 
+                case string timeSpanStr when targetType == typeof(TimeSpan):
+                    outValue = TimeSpan.Parse(timeSpanStr);
+                    return true;
+
                 default:
                     outValue = Convert.ChangeType(value, targetType);
                     return true;

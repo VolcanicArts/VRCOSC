@@ -11,7 +11,7 @@ public sealed class DollyImportNode : TryActionAsyncNode
 {
     public ValueInput<string> Path = new();
 
-    protected override Task<bool> TryActionAsync(PulseContext c)
+    protected override Task<bool> TryActionAsync(IPulseContext c)
     {
         var path = Path.Read(c);
 
@@ -28,7 +28,7 @@ public sealed class DollyExportNode : TryActionAsyncNode
 {
     public ValueInput<string> Path = new();
 
-    protected override async Task<bool> TryActionAsync(PulseContext c)
+    protected override async Task<bool> TryActionAsync(IPulseContext c)
     {
         var path = Path.Read(c);
 
@@ -42,9 +42,9 @@ public sealed class DollyExportNode : TryActionAsyncNode
 [Node("Dolly Play", "VRChat/Dolly")]
 public sealed class DollyPlayNode : ActionNode
 {
-    public ValueInput<int> Delay = new();
+    public ValueInput<int> Delay = new("Delay (s)");
 
-    protected override void DoAction(PulseContext c)
+    protected override void DoAction(IPulseContext c)
     {
         var delay = Delay.Read(c);
 
@@ -58,5 +58,5 @@ public sealed class DollyPlayNode : ActionNode
 [Node("Dolly Stop", "VRChat/Dolly")]
 public sealed class DollyStopNode : ActionNode
 {
-    protected override void DoAction(PulseContext c) => DollyManager.GetInstance().Stop();
+    protected override void DoAction(IPulseContext c) => DollyManager.GetInstance().Stop();
 }

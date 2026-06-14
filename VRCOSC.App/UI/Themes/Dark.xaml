@@ -1,5 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="CBackground1Color">#FF0F0F0F</Color>
+    <Color x:Key="CBackground4Color">#FF1A1A1A</Color>
     <Brush x:Key="CBackground1">#FF0F0F0F</Brush>
     <Brush x:Key="CBackground2">#FF1F1F1F</Brush>
     <Brush x:Key="CBackground3">#FF292929</Brush>
@@ -23,4 +25,7 @@
     <Brush x:Key="CYellow">#FFF1C40F</Brush>
     <Brush x:Key="COrange">#FFE67E22</Brush>
     <Brush x:Key="CChatBoxBackground">#FF27272C</Brush>
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
+    </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

@@ -12,5 +12,5 @@ public abstract class ValueSourceNode<T>(string resultName = "") : ValueComputeN
 
 public abstract class SimpleValueSourceNode<T>(Func<T> func, string resultName = "") : ValueSourceNode<T>(resultName)
 {
-    protected override T ComputeValue(PulseContext c) => func();
+    protected override T ComputeValue(IPulseContext c) => func();
 }

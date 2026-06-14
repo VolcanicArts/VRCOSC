@@ -14,7 +14,7 @@ public interface IGraphVariable
     public bool IsPersistent();
     public Type GetValueType();
     public object GetValue();
-}
+};
 
 public class GraphVariable<T> : IGraphVariable
 {

@@ -6,17 +6,17 @@ using System.Linq;
 
 namespace VRCOSC.App.Nodes.Types.Collections;
 
-[Node("Dictionary Count", "Collections")]
+[Node("Dictionary Count", "Collections/Dictionary")]
 [NodeCollapsed]
 public sealed class DictionaryCountNode<TKey, TValue>() : SimpleValueTransformNode<Dictionary<TKey, TValue>?, int>(dictionary => dictionary?.Count ?? 0) where TKey : notnull;
 
-[Node("Dictionary Key To Value", "Collections")]
+[Node("Dictionary Key To Value", "Collections/Dictionary")]
 public sealed class DictionaryKeyToValueNode<TKey, TValue>() : ValueComputeNode<TValue>("Value") where TKey : notnull
 {
     public ValueInput<Dictionary<TKey, TValue>> Dictionary = new();
     public ValueInput<TKey> Key = new();
 
-    protected override TValue ComputeValue(PulseContext c)
+    protected override TValue ComputeValue(IPulseContext c)
     {
         var dictionary = Dictionary.Read(c);
         if (dictionary is null) return default!;
@@ -28,13 +28,13 @@ public sealed class DictionaryKeyToValueNode<TKey, TValue>() : ValueComputeNode<
     }
 }
 
-[Node("Dictionary Add Element", "Collections")]
+[Node("Dictionary Add Element", "Collections/Dictionary/Modifiers")]
 public sealed class DictionaryElementAddNode<TKey, TValue> : ActionValueComputeNode<Dictionary<TKey, TValue>?> where TKey : notnull
 {
     public ValueInput<Dictionary<TKey, TValue>?> Dictionary = new();
     public ValueInput<KeyValuePair<TKey, TValue>> Element = new();
 
-    protected override Dictionary<TKey, TValue>? ComputeValue(PulseContext c)
+    protected override Dictionary<TKey, TValue>? ComputeValue(IPulseContext c)
     {
         var dictionary = Dictionary.Read(c);
         if (dictionary is null) return null;
@@ -47,13 +47,13 @@ public sealed class DictionaryElementAddNode<TKey, TValue> : ActionValueComputeN
     }
 }
 
-[Node("Dictionary Remove Key", "Collections")]
+[Node("Dictionary Remove Key", "Collections/Dictionary/Modifiers")]
 public sealed class DictionaryKeyRemoveNode<TKey, TValue> : ActionValueComputeNode<Dictionary<TKey, TValue>?> where TKey : notnull
 {
     public ValueInput<Dictionary<TKey, TValue>?> Dictionary = new();
     public ValueInput<TKey> Key = new();
 
-    protected override Dictionary<TKey, TValue>? ComputeValue(PulseContext c)
+    protected override Dictionary<TKey, TValue>? ComputeValue(IPulseContext c)
     {
         var dictionary = Dictionary.Read(c);
         if (dictionary is null) return null;

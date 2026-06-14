@@ -29,7 +29,7 @@ public sealed class StringScrollNode : ActionValueComputeNode<string>
     public GlobalStore<ScrollDirection> PreviousScrollDirection = new();
     public GlobalStore<bool> PreviousOnlyScrollWhenTruncated = new();
 
-    protected override string ComputeValue(PulseContext c)
+    protected override string ComputeValue(IPulseContext c)
     {
         var input = Input.Read(c);
 

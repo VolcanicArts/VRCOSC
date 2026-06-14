@@ -3,12 +3,20 @@
 
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using FontAwesome6;
 
 namespace VRCOSC.App.Nodes.Types.Operators;
 
-[Node("Add", "Operators/Numeric", EFontAwesomeIcon.Solid_Plus)]
-public sealed class AddNode<T>() : SimpleResultComputeNode<T>((a, b) => a + b) where T : IAdditionOperators<T, T, T>;
+#region Add
+
+[Node("Add", "Operators/Numeric")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Plus)]
+public class AddNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a + b) where TLeft : IAdditionOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class AddNode<TLeft, TRight> : AddNode<TLeft, TRight, TLeft> where TLeft : IAdditionOperators<TLeft, TRight, TLeft> where TRight : notnull;
+
+public sealed class AddNode<T> : AddNode<T, T> where T : IAdditionOperators<T, T, T>;
 
 [Node("Add (Multi)", "Operators/Numeric")]
 public sealed class MultiAddNode<T> : ValueComputeNode<T> where T : IAdditionOperators<T, T, T>
@@ -17,11 +25,20 @@ public sealed class MultiAddNode<T> : ValueComputeNode<T> where T : IAdditionOpe
 
     public ValueInputList<T> Inputs = new();
 
-    protected override T ComputeValue(PulseContext c) => Inputs.Read(c).Aggregate((curr, next) => curr + next);
+    protected override T ComputeValue(IPulseContext c) => Inputs.Read(c).Aggregate((curr, next) => curr + next);
 }
 
-[Node("Subtract", "Operators/Numeric", EFontAwesomeIcon.Solid_Minus)]
-public sealed class SubtractNode<T>() : SimpleResultComputeNode<T>((a, b) => a - b) where T : ISubtractionOperators<T, T, T>;
+#endregion
+
+#region Subtract
+
+[Node("Subtract", "Operators/Numeric")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Minus)]
+public class SubtractNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a - b) where TLeft : ISubtractionOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class SubtractNode<TLeft, TRight> : SubtractNode<TLeft, TRight, TLeft> where TLeft : ISubtractionOperators<TLeft, TRight, TLeft> where TRight : notnull;
+
+public sealed class SubtractNode<T> : SubtractNode<T, T> where T : ISubtractionOperators<T, T, T>;
 
 [Node("Subtract (Multi)", "Operators/Numeric")]
 public sealed class MultiSubtractNode<T> : ValueComputeNode<T> where T : ISubtractionOperators<T, T, T>
@@ -30,11 +47,20 @@ public sealed class MultiSubtractNode<T> : ValueComputeNode<T> where T : ISubtra
 
     public ValueInputList<T> Inputs = new();
 
-    protected override T ComputeValue(PulseContext c) => Inputs.Read(c).Aggregate((curr, next) => curr - next);
+    protected override T ComputeValue(IPulseContext c) => Inputs.Read(c).Aggregate((curr, next) => curr - next);
 }
 
-[Node("Multiply", "Operators/Numeric", EFontAwesomeIcon.Solid_Asterisk)]
-public sealed class MultiplyNode<T>() : SimpleResultComputeNode<T>((a, b) => a * b) where T : IMultiplyOperators<T, T, T>;
+#endregion
+
+#region Multiply
+
+[Node("Multiply", "Operators/Numeric")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Asterisk)]
+public class MultiplyNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a * b) where TLeft : IMultiplyOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class MultiplyNode<TLeft, TRight> : MultiplyNode<TLeft, TRight, TLeft> where TLeft : IMultiplyOperators<TLeft, TRight, TLeft> where TRight : notnull;
+
+public sealed class MultiplyNode<T> : MultiplyNode<T, T> where T : IMultiplyOperators<T, T, T>;
 
 [Node("Multiply (Multi)", "Operators/Numeric")]
 public sealed class MultiMultiplyNode<T> : ValueComputeNode<T> where T : IMultiplyOperators<T, T, T>
@@ -43,33 +69,89 @@ public sealed class MultiMultiplyNode<T> : ValueComputeNode<T> where T : IMultip
 
     public ValueInputList<T> Inputs = new();
 
-    protected override T ComputeValue(PulseContext c) => Inputs.Read(c).Aggregate((curr, next) => curr * next);
+    protected override T ComputeValue(IPulseContext c) => Inputs.Read(c).Aggregate((curr, next) => curr * next);
 }
 
-[Node("Divide", "Operators/Numeric", EFontAwesomeIcon.Solid_Divide)]
-public sealed class DivideNode<T>() : SimpleResultComputeNode<T>((a, b) => a / b) where T : IDivisionOperators<T, T, T>;
+#endregion
 
-[Node("Modulo", "Operators/Numeric", EFontAwesomeIcon.Solid_Percent)]
-public sealed class ModuloNode<T>() : SimpleResultComputeNode<T>((a, b) => a % b) where T : IModulusOperators<T, T, T>;
+#region Divide
 
-[Node("Greater Than", "Operators/Numeric", EFontAwesomeIcon.Solid_GreaterThan)]
-public sealed class GreaterThanNode<T>() : SimpleResultComputeNode<T, bool>((a, b) => a > b) where T : IComparisonOperators<T, T, bool>;
+[Node("Divide", "Operators/Numeric")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Divide)]
+public class DivideNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a / b) where TLeft : IDivisionOperators<TLeft, TRight, TResult> where TRight : notnull;
 
-[Node("Greater Than Or Equal", "Operators/Numeric", EFontAwesomeIcon.Solid_GreaterThanEqual)]
-public sealed class GreaterThanOrEqualNode<T>() : SimpleResultComputeNode<T, bool>((a, b) => a >= b) where T : IComparisonOperators<T, T, bool>;
+public class DivideNode<TLeft, TRight> : DivideNode<TLeft, TRight, TLeft> where TLeft : IDivisionOperators<TLeft, TRight, TLeft> where TRight : notnull;
 
-[Node("Less Than", "Operators/Numeric", EFontAwesomeIcon.Solid_LessThan)]
-public sealed class LessThanNode<T>() : SimpleResultComputeNode<T, bool>((a, b) => a < b) where T : IComparisonOperators<T, T, bool>;
+public sealed class DivideNode<T> : DivideNode<T, T> where T : IDivisionOperators<T, T, T>;
 
-[Node("Less Than Or Equal", "Operators/Numeric", EFontAwesomeIcon.Solid_LessThanEqual)]
-public sealed class LessThanOrEqualNode<T>() : SimpleResultComputeNode<T, bool>((a, b) => a <= b) where T : IComparisonOperators<T, T, bool>;
+#endregion
+
+#region Modulo
+
+[Node("Modulo", "Operators/Numeric")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Percent)]
+public class ModuloNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a % b) where TLeft : IModulusOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class ModuloNode<TLeft, TRight> : ModuloNode<TLeft, TRight, TLeft> where TLeft : IModulusOperators<TLeft, TRight, TLeft> where TRight : notnull;
+
+public sealed class ModuloNode<T> : ModuloNode<T, T> where T : IModulusOperators<T, T, T>;
+
+#endregion
+
+#region Greater Than
+
+[Node("Greater Than", "Operators/Numeric")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_GreaterThan)]
+public class GreaterThanNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a > b) where TLeft : IComparisonOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class GreaterThanNode<TLeft, TRight> : GreaterThanNode<TLeft, TRight, bool> where TLeft : IComparisonOperators<TLeft, TRight, bool> where TRight : notnull;
+
+public sealed class GreaterThanNode<T> : GreaterThanNode<T, T> where T : IComparisonOperators<T, T, bool>;
+
+#endregion
+
+#region Greater Than Or Equal
+
+[Node("Greater Than Or Equal", "Operators/Numeric")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_GreaterThanEqual)]
+public class GreaterThanOrEqualNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a >= b) where TLeft : IComparisonOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class GreaterThanOrEqualNode<TLeft, TRight> : GreaterThanOrEqualNode<TLeft, TRight, bool> where TLeft : IComparisonOperators<TLeft, TRight, bool> where TRight : notnull;
+
+public sealed class GreaterThanOrEqualNode<T> : GreaterThanOrEqualNode<T, T> where T : IComparisonOperators<T, T, bool>;
+
+#endregion
+
+#region Less Than
+
+[Node("Less Than", "Operators/Numeric")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_LessThan)]
+public class LessThanNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a < b) where TLeft : IComparisonOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class LessThanNode<TLeft, TRight> : LessThanNode<TLeft, TRight, bool> where TLeft : IComparisonOperators<TLeft, TRight, bool> where TRight : notnull;
+
+public sealed class LessThanNode<T> : LessThanNode<T, T> where T : IComparisonOperators<T, T, bool>;
+
+#endregion
+
+#region Less Than Or Equal
+
+[Node("Less Than Or Equal", "Operators/Numeric")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_LessThanEqual)]
+public class LessThanOrEqualNode<TLeft, TRight, TResult>() : SimpleResultComputeNode<TLeft, TRight, TResult>((a, b) => a <= b) where TLeft : IComparisonOperators<TLeft, TRight, TResult> where TRight : notnull;
+
+public class LessThanOrEqualNode<TLeft, TRight> : LessThanOrEqualNode<TLeft, TRight, bool> where TLeft : IComparisonOperators<TLeft, TRight, bool> where TRight : notnull;
+
+public sealed class LessThanOrEqualNode<T> : LessThanOrEqualNode<T, T> where T : IComparisonOperators<T, T, bool>;
+
+#endregion
 
 [Node("Increment", "Operators/Numeric")]
-[NodeCollapsed]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Plus, EFontAwesomeIcon.Solid_1)]
 public sealed class IncrementNode<T>() : SimpleValueTransformNode<T>(v => ++v) where T : IIncrementOperators<T>;
 
 [Node("Decrement", "Operators/Numeric")]
-[NodeCollapsed]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Minus, EFontAwesomeIcon.Solid_1)]
 public sealed class DecrementNode<T>() : SimpleValueTransformNode<T>(v => --v) where T : IDecrementOperators<T>;
 
 [Node("Minimum", "Operators/Numeric")]
@@ -77,7 +159,7 @@ public sealed class MinimumNode<T> : ValueComputeNode<T> where T : IComparisonOp
 {
     public ValueInputList<T> Inputs = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var inputs = Inputs.Read(c);
 
@@ -97,7 +179,7 @@ public sealed class MaximumNode<T> : ValueComputeNode<T> where T : IComparisonOp
 {
     public ValueInputList<T> Inputs = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var inputs = Inputs.Read(c);
 
@@ -109,6 +191,42 @@ public sealed class MaximumNode<T> : ValueComputeNode<T> where T : IComparisonOp
         }
 
         return max;
+    }
+}
+
+[Node("Velocity", "Operators/Numeric")]
+[NodeCollapsed]
+public sealed class VelocityNode<T> : Node, IContinuousNode where T : IFloatingPoint<T>
+{
+    public int UpdateOffset => 0;
+
+    public GlobalStore<bool> HasPreviousValue = new();
+    public GlobalStore<T> PrevValue = new();
+
+    public ValueInput<T> Input = new();
+    public ValueOutput<T> Velocity = new();
+
+    protected override Task Process(IPulseContext c)
+    {
+        const double delta_time = 1d / 100d;
+
+        var current = Input.Read(c);
+
+        if (!HasPreviousValue.Read(c))
+        {
+            PrevValue.Write(current, c);
+            HasPreviousValue.Write(true, c);
+
+            Velocity.Write(T.Zero, c);
+            return Task.CompletedTask;
+        }
+
+        var delta = current - PrevValue.Read(c);
+        var metres = double.CreateChecked(delta);
+
+        Velocity.Write(T.CreateChecked(metres / delta_time), c);
+        PrevValue.Write(current, c);
+        return Task.CompletedTask;
     }
 }
 

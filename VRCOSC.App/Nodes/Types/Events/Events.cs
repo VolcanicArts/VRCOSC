@@ -8,15 +8,15 @@ namespace VRCOSC.App.Nodes.Types.Events;
 [Node("On Start", "Events")]
 public sealed class OnStartNode : Node
 {
-    public FlowContinuation Next = new();
+    public FlowOutput Next = new();
 
-    protected override Task Process(PulseContext c) => Next.Execute(c);
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 }
 
 [Node("On Stop", "Events")]
 public sealed class OnStopNode : Node
 {
-    public FlowContinuation Next = new();
+    public FlowOutput Next = new();
 
-    protected override Task Process(PulseContext c) => Next.Execute(c);
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 }

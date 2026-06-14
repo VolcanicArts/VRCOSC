@@ -6,26 +6,23 @@ using Newtonsoft.Json;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
-namespace VRCOSC.App.Nodes.Serialisation;
+namespace VRCOSC.App.Nodes.Serialisation.V1;
 
-public class NodePresetSerialiser : ProfiledSerialiser<NodePreset, SerialisableNodePreset>
+public class NodePresetSerialiserV1 : ProfiledSerialiser<NodePreset, SerialisableNodePresetV1>
 {
     protected override string Directory => Path.Join(base.Directory, "nodes", "presets");
     protected override string FileName => $"{Reference.Id}.json";
     protected override Formatting Format => Formatting.None;
 
-    public NodePresetSerialiser(Storage storage, NodePreset reference)
+    public NodePresetSerialiserV1(Storage storage, NodePreset reference)
         : base(storage, reference)
     {
     }
 
-    protected override bool ExecuteAfterDeserialisation(SerialisableNodePreset data)
+    protected override bool ExecuteAfterDeserialisation(SerialisableNodePresetV1 data)
     {
+        Reference.Id = data.Id;
         Reference.Name.Value = data.Name;
-        Reference.Nodes = data.Nodes;
-        Reference.Connections = data.Connections;
-        Reference.Groups = data.Groups;
-        Reference.Variables = data.Variables;
-        return false;
+        return true;
     }
 }

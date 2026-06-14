@@ -7,23 +7,23 @@ using VRCOSC.App.SDK.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Keybind;
 
-[Node("Press Keybind", "Keybind")]
+[Node("Press Keybind", "Input/Keybind")]
 public sealed class KeybindPressNode : AsyncActionNode
 {
     public ValueInput<SDK.Utils.Keybind> Keybind = new();
-    public ValueInput<int> DurationMilliseconds = new();
+    public ValueInput<int> Duration = new("Duration (ms)", 25);
 
-    protected override async Task DoActionAsync(PulseContext c)
+    protected override async Task DoActionAsync(IPulseContext c)
     {
         var keybind = Keybind.Read(c);
         if (keybind is null) return;
 
-        await KeySimulator.PressKeybind(keybind, DurationMilliseconds.Read(c));
+        await KeySimulator.PressKeybind(keybind, Duration.Read(c));
         await Next.Execute(c);
     }
 }
 
-[Node("Hold/Release Keybind", "Keybind")]
+[Node("Hold/Release Keybind", "Input/Keybind")]
 public sealed class KeybindHoldReleaseNode : AsyncActionNode
 {
     public GlobalStore<bool> PrevCondition = new();
@@ -31,7 +31,7 @@ public sealed class KeybindHoldReleaseNode : AsyncActionNode
     public ValueInput<SDK.Utils.Keybind> Keybind = new();
     public ValueInput<bool> Condition = new();
 
-    protected override async Task DoActionAsync(PulseContext c)
+    protected override async Task DoActionAsync(IPulseContext c)
     {
         var keybind = Keybind.Read(c);
         if (keybind is null) return;
@@ -56,14 +56,19 @@ public sealed class KeybindHoldReleaseNode : AsyncActionNode
     }
 }
 
-[Node("Keybind Source", "Keybind")]
-public sealed class KeybindSourceNode() : ValueSourceNode<bool>("Down"), IHasKeybindProperty
+[Node("Keybind Source", "Input/Keybind")]
+public sealed class KeybindSourceNode() : ValueSourceNode<bool>("Down")
 {
-    [NodeProperty("keybind")]
-    public SDK.Utils.Keybind Keybind { get; set; } = new();
+    [InputMode(InputModes.Inline)]
+    public ValueInput<SDK.Utils.Keybind> Keybind = new();
 
-    protected override bool ComputeValue(PulseContext c)
-        => (Keybind.Modifiers.Count != 0 || Keybind.Keys.Count != 0)
-           && Keybind.Modifiers.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key))
-           && Keybind.Keys.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key));
+    protected override bool ComputeValue(IPulseContext c)
+    {
+        var keybind = Keybind.Read(c);
+        if (keybind is null) return false;
+
+        return (keybind.Modifiers.Count != 0 || keybind.Keys.Count != 0)
+               && keybind.Modifiers.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key))
+               && keybind.Keys.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key));
+    }
 }

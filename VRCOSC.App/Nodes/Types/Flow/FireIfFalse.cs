@@ -8,11 +8,11 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 [Node("Fire If False", "Flow")]
 public sealed class FireIfFalseNode : Node
 {
-    public FlowContinuation Next = new();
+    public FlowOutput Next = new();
 
     public ValueInput<bool> Condition = new();
 
-    protected override Task Process(PulseContext c) => Next.Execute(c);
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    protected override bool ShouldProcess(PulseContext c) => !Condition.Read(c);
+    protected override bool ShouldProcess(IPulseContext c) => !Condition.Read(c);
 }

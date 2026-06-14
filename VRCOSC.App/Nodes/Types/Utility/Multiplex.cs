@@ -8,22 +8,27 @@ namespace VRCOSC.App.Nodes.Types.Utility;
 [Node("Conditional", "Utility")]
 public sealed class ConditionalNode<T> : ValueComputeNode<T>
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<bool> Condition = new();
+
     public ValueInput<T> True = new();
     public ValueInput<T> False = new();
 
-    protected override T ComputeValue(PulseContext c) => Condition.Read(c) ? True.Read(c) : False.Read(c);
+    protected override T ComputeValue(IPulseContext c) => Condition.Read(c) ? True.Read(c) : False.Read(c);
 }
 
 [Node("Multiplex", "Utility")]
+[NodeForceReprocess]
 public sealed class MultiplexNode<T> : Node
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<int> Index = new();
+
     public ValueInputList<T> Inputs = new();
     public ValueOutput<T> Element = new();
     public ValueOutput<int> InputCount = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var index = Index.Read(c);
         var inputs = Inputs.Read(c);
@@ -37,19 +42,22 @@ public sealed class MultiplexNode<T> : Node
 }
 
 [Node("Demultiplex", "Utility")]
+[NodeForceReprocess]
 public sealed class DemultiplexNode<T> : Node
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<int> Index = new();
+
     public ValueInput<T> Value = new();
     public ValueInput<T> DefaultValue = new();
     public ValueOutputList<T> Outputs = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var index = Index.Read(c);
         var value = Value.Read(c);
         var defaultValue = DefaultValue.Read(c);
-        var length = Outputs.Length(c);
+        var length = Outputs.Count;
 
         for (var i = 0; i < length; i++)
         {

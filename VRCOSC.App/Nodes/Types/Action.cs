@@ -6,46 +6,48 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types;
 
-public abstract class AsyncActionNode : Node, IFlowInput
+public abstract class AsyncActionNode : Node
 {
-    public FlowContinuation Next = new();
+    public FlowInput FlowInput = new();
+    public FlowOutput Next = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task Process(IPulseContext c)
     {
         await DoActionAsync(c);
         await Next.Execute(c);
     }
 
-    protected abstract Task DoActionAsync(PulseContext c);
+    protected abstract Task DoActionAsync(IPulseContext c);
 }
 
 public abstract class SimpleAsyncActionNode(Func<Task> action) : AsyncActionNode
 {
-    protected override Task DoActionAsync(PulseContext c) => action();
+    protected override Task DoActionAsync(IPulseContext c) => action();
 }
 
 public abstract class ActionNode : AsyncActionNode
 {
-    protected override Task DoActionAsync(PulseContext c)
+    protected override Task DoActionAsync(IPulseContext c)
     {
         DoAction(c);
         return Task.CompletedTask;
     }
 
-    protected abstract void DoAction(PulseContext c);
+    protected abstract void DoAction(IPulseContext c);
 }
 
 public abstract class SimpleActionNode(Action action) : ActionNode
 {
-    protected override void DoAction(PulseContext c) => action();
+    protected override void DoAction(IPulseContext c) => action();
 }
 
-public abstract class TryActionAsyncNode : Node, IFlowInput
+public abstract class TryActionAsyncNode : Node
 {
-    public FlowContinuation OnSuccess = new();
-    public FlowContinuation OnFail = new();
+    public FlowInput FlowInput = new();
+    public FlowOutput OnSuccess = new("On Success");
+    public FlowOutput OnFail = new("On Fail");
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task Process(IPulseContext c)
     {
         bool result = false;
 
@@ -64,16 +66,16 @@ public abstract class TryActionAsyncNode : Node, IFlowInput
             await OnFail.Execute(c);
     }
 
-    protected abstract Task<bool> TryActionAsync(PulseContext c);
+    protected abstract Task<bool> TryActionAsync(IPulseContext c);
 }
 
 public abstract class TryActionNode : TryActionAsyncNode
 {
-    protected override Task<bool> TryActionAsync(PulseContext c)
+    protected override Task<bool> TryActionAsync(IPulseContext c)
     {
         var result = TryAction(c);
         return Task.FromResult(result);
     }
 
-    protected abstract bool TryAction(PulseContext c);
+    protected abstract bool TryAction(IPulseContext c);
 }

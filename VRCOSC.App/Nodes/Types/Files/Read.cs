@@ -14,7 +14,7 @@ public sealed class FileExistsNode() : SimpleValueTransformNode<string, bool>(Fi
 [Node("File Read", "Files")]
 public sealed class FileReadTextNode() : HandleFilePathTransformAsyncNode<string>("Contents")
 {
-    protected override Task<string> HandlePathAsync(string path, PulseContext c) => File.ReadAllTextAsync(path, c.Token);
+    protected override Task<string> HandlePathAsync(string path, IPulseContext c) => c.Run(File.ReadAllTextAsync(path));
 }
 
 [Node("File Get Attributes", "Files")]

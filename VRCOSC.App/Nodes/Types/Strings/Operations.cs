@@ -14,7 +14,7 @@ public sealed class StringCompareNode : ValueComputeNode<int>
     public ValueInput<string?> B = new();
     public ValueInput<StringComparison> Comparison = new();
 
-    protected override int ComputeValue(PulseContext c) => string.Compare(A.Read(c), B.Read(c), Comparison.Read(c));
+    protected override int ComputeValue(IPulseContext c) => string.Compare(A.Read(c), B.Read(c), Comparison.Read(c));
 }
 
 [Node("Join", "Strings")]
@@ -23,7 +23,7 @@ public sealed class StringJoinNode : ValueComputeNode<string>
     public ValueInput<string?> Separator = new();
     public ValueInputList<string?> Inputs = new();
 
-    protected override string ComputeValue(PulseContext c) => string.Join(Separator.Read(c), Inputs.Read(c));
+    protected override string ComputeValue(IPulseContext c) => string.Join(Separator.Read(c), Inputs.Read(c));
 }
 
 [Node("Contains", "Strings")]
@@ -33,7 +33,7 @@ public sealed class StringContainsNode : ValueComputeNode<bool>
     public ValueInput<string?> Value = new();
     public ValueInput<StringComparison> Comparison = new();
 
-    protected override bool ComputeValue(PulseContext c)
+    protected override bool ComputeValue(IPulseContext c)
     {
         var input = Input.Read(c);
         var value = Value.Read(c);
@@ -71,7 +71,7 @@ public sealed class StringSubstringNode : ValueComputeNode<string?>
     public ValueInput<int> Index = new();
     public ValueInput<int> Length = new();
 
-    protected override string? ComputeValue(PulseContext c)
+    protected override string? ComputeValue(IPulseContext c)
     {
         var input = Input.Read(c);
         var index = Index.Read(c);
@@ -97,7 +97,7 @@ public sealed class StringEndsWithNode : ValueComputeNode<bool>
     public ValueInput<string?> Check = new();
     public ValueInput<StringComparison> Comparison = new();
 
-    protected override bool ComputeValue(PulseContext c)
+    protected override bool ComputeValue(IPulseContext c)
     {
         var input = Input.Read(c);
         var check = Check.Read(c);
@@ -116,7 +116,7 @@ public sealed class StringStartsWithNode : ValueComputeNode<bool>
     public ValueInput<string?> Check = new();
     public ValueInput<StringComparison> Comparison = new();
 
-    protected override bool ComputeValue(PulseContext c)
+    protected override bool ComputeValue(IPulseContext c)
     {
         var input = Input.Read(c);
         var check = Check.Read(c);
@@ -131,8 +131,10 @@ public sealed class StringStartsWithNode : ValueComputeNode<bool>
 [Node("Parse", "Strings")]
 public sealed class StringParseNode<T> : TryValueComputeNode<T> where T : IParsable<T>
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<string?> Input = new();
-    public ValueInput<CultureInfo> Culture = new("Culture", CultureInfo.CurrentCulture);
 
-    protected override Result<T> TryComputeValue(PulseContext c) => T.TryParse(Input.Read(c), Culture.Read(c), out var parsedInput) ? parsedInput : Result<T>.Fail();
+    public ValueInput<CultureInfo> Culture = new(defaultValue: CultureInfo.CurrentCulture);
+
+    protected override Result<T> TryComputeValue(IPulseContext c) => T.TryParse(Input.Read(c), Culture.Read(c), out var parsedInput) ? parsedInput : Result<T>.Fail();
 }

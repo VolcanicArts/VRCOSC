@@ -5,8 +5,84 @@ using System.Numerics;
 
 namespace VRCOSC.App.Utils;
 
+public enum EasingMode
+{
+    Linear,
+    QuadraticIn,
+    QuadraticOut,
+    QuadraticInOut,
+    CubicIn,
+    CubicOut,
+    CubicInOut,
+    QuarticIn,
+    QuarticOut,
+    QuarticInOut,
+    QuinticIn,
+    QuinticOut,
+    QuinticInOut,
+    SinIn,
+    SinOut,
+    SinInOut,
+    ExponentialIn,
+    ExponentialOut,
+    ExponentialInOut,
+    CircularIn,
+    CircularOut,
+    CircularInOut,
+    ElasticIn,
+    ElasticOut,
+    ElasticInOut,
+    BackIn,
+    BackOut,
+    BackInOut,
+    BounceIn,
+    BounceOut,
+    BounceInOut
+}
+
 public static class Easing
 {
+    public static T Apply<T>(T t, EasingMode easing = EasingMode.Linear) where T : IFloatingPointIeee754<T>
+    {
+        t = T.Clamp(t, T.Zero, T.One);
+
+        return easing switch
+        {
+            EasingMode.Linear => t,
+            EasingMode.QuadraticIn => Quadratic.In(t),
+            EasingMode.QuadraticOut => Quadratic.Out(t),
+            EasingMode.QuadraticInOut => Quadratic.InOut(t),
+            EasingMode.CubicIn => Cubic.In(t),
+            EasingMode.CubicOut => Cubic.Out(t),
+            EasingMode.CubicInOut => Cubic.InOut(t),
+            EasingMode.QuarticIn => Quartic.In(t),
+            EasingMode.QuarticOut => Quartic.Out(t),
+            EasingMode.QuarticInOut => Quartic.InOut(t),
+            EasingMode.QuinticIn => Quintic.In(t),
+            EasingMode.QuinticOut => Quintic.Out(t),
+            EasingMode.QuinticInOut => Quintic.InOut(t),
+            EasingMode.SinIn => Sinusoidal.In(t),
+            EasingMode.SinOut => Sinusoidal.Out(t),
+            EasingMode.SinInOut => Sinusoidal.InOut(t),
+            EasingMode.ExponentialIn => Exponential.In(t),
+            EasingMode.ExponentialOut => Exponential.Out(t),
+            EasingMode.ExponentialInOut => Exponential.InOut(t),
+            EasingMode.CircularIn => Circular.In(t),
+            EasingMode.CircularOut => Circular.Out(t),
+            EasingMode.CircularInOut => Circular.InOut(t),
+            EasingMode.ElasticIn => Elastic.In(t),
+            EasingMode.ElasticOut => Elastic.Out(t),
+            EasingMode.ElasticInOut => Elastic.InOut(t),
+            EasingMode.BackIn => Back.In(t),
+            EasingMode.BackOut => Back.Out(t),
+            EasingMode.BackInOut => Back.InOut(t),
+            EasingMode.BounceIn => Bounce.In(t),
+            EasingMode.BounceOut => Bounce.Out(t),
+            EasingMode.BounceInOut => Bounce.InOut(t),
+            _ => t,
+        };
+    }
+
     public static class Quadratic
     {
         public static T In<T>(T k) where T : IFloatingPointIeee754<T>

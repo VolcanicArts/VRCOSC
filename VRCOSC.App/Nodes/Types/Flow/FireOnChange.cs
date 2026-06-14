@@ -9,13 +9,13 @@ namespace VRCOSC.App.Nodes.Types.Flow;
 
 public abstract class FireOnBaseNode<T> : Node
 {
-    public FlowContinuation Next = new();
+    public FlowOutput Next = new();
 
     public GlobalStore<T> PrevValue = new();
 
-    protected override Task Process(PulseContext c) => Next.Execute(c);
+    protected override Task Process(IPulseContext c) => Next.Execute(c);
 
-    protected override bool ShouldProcess(PulseContext c)
+    protected override bool ShouldProcess(IPulseContext c)
     {
         var value = GetValue(c);
         var prevValue = PrevValue.Read(c);
@@ -24,7 +24,7 @@ public abstract class FireOnBaseNode<T> : Node
         return ShouldFire(value, prevValue);
     }
 
-    protected abstract T GetValue(PulseContext c);
+    protected abstract T GetValue(IPulseContext c);
 
     protected abstract bool ShouldFire(T value, T prevValue);
 }
@@ -34,7 +34,7 @@ public sealed class FireOnChangeNode<T> : FireOnBaseNode<T>
 {
     public ValueInput<T> Value = new();
 
-    protected override T GetValue(PulseContext c) => Value.Read(c);
+    protected override T GetValue(IPulseContext c) => Value.Read(c);
 
     protected override bool ShouldFire(T value, T prevValue) => !EqualityComparer<T>.Default.Equals(value, prevValue);
 }
@@ -44,7 +44,7 @@ public sealed class FireOnTrueNode : FireOnBaseNode<bool>
 {
     public ValueInput<bool> Condition = new();
 
-    protected override bool GetValue(PulseContext c) => Condition.Read(c);
+    protected override bool GetValue(IPulseContext c) => Condition.Read(c);
 
     protected override bool ShouldFire(bool value, bool prevValue) => value && !prevValue;
 }
@@ -54,7 +54,7 @@ public sealed class FireOnFalseNode : FireOnBaseNode<bool>
 {
     public ValueInput<bool> Condition = new();
 
-    protected override bool GetValue(PulseContext c) => Condition.Read(c);
+    protected override bool GetValue(IPulseContext c) => Condition.Read(c);
 
     protected override bool ShouldFire(bool value, bool prevValue) => !value && prevValue;
 }
@@ -64,19 +64,19 @@ public sealed class FireOnChangeMultiNode<T> : Node
 {
     public override string DisplayName => "Fire On Change";
 
-    public FlowContinuation Next = new();
+    public FlowOutput Next = new();
 
-    public GlobalStore<List<T>> PrevValues = new();
+    public GlobalStore<IReadOnlyList<T>> PrevValues = new();
 
     public ValueInputList<T> Values = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         PrevValues.Write(Values.Read(c), c);
         return Next.Execute(c);
     }
 
-    protected override bool ShouldProcess(PulseContext c)
+    protected override bool ShouldProcess(IPulseContext c)
     {
         var inputs = Values.Read(c);
         var values = PrevValues.Read(c);
@@ -93,19 +93,19 @@ public sealed class FireOnChangeEnumerableNode<T> : Node, IActiveUpdateNode
 
     public int UpdateOffset => 0;
 
-    public FlowContinuation Next = new();
+    public FlowOutput Next = new();
 
     public GlobalStore<IEnumerable<T>> EnumerableStore = new();
 
     public ValueInput<IEnumerable<T>> Enumerable = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         EnumerableStore.Write(Enumerable.Read(c), c);
         return Next.Execute(c);
     }
 
-    public Task<bool> OnUpdate(PulseContext c)
+    public Task<bool> OnUpdate(IPulseContext c)
     {
         var prevValues = EnumerableStore.Read(c);
         var values = Enumerable.Read(c);

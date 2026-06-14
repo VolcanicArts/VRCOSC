@@ -1,37 +1,46 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using VRCOSC.App.Utils;
+using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Color;
 
-[Node("Pack ColorHSL", "Color")]
-public sealed class ColorHSLPackNode() : ValueComputeNode<ColorHSL>("Color")
+[Node("Pack Color", "Color")]
+public sealed class ColorPackNode() : ValueComputeNode<Utils.Color>(nameof(Utils.Color))
 {
-    public ValueInput<int> Hue = new();
-    public ValueInput<float> Saturation = new();
-    public ValueInput<float> Lightness = new();
+    public ValueInput<float> R = new();
+    public ValueInput<float> G = new();
+    public ValueInput<float> B = new();
+    public ValueInput<float> A = new(defaultValue: 1f);
 
-    protected override ColorHSL ComputeValue(PulseContext c)
+    protected override Utils.Color ComputeValue(IPulseContext c)
     {
-        var hue = Hue.Read(c) % 360;
-        var saturation = float.Clamp(Saturation.Read(c), 0f, 1f);
-        var lightness = float.Clamp(Lightness.Read(c), 0f, 1f);
-        return new ColorHSL(hue, saturation, lightness);
+        var r = float.Clamp(R.Read(c), 0f, 1f);
+        var g = float.Clamp(G.Read(c), 0f, 1f);
+        var b = float.Clamp(B.Read(c), 0f, 1f);
+        var a = float.Clamp(A.Read(c), 0f, 1f);
+        return new Utils.Color(r, g, b, a);
     }
 }
 
-[Node("Unpack ColorHSL", "Color")]
-public sealed class ColorHSLUnpackNode() : ValueConsumeNode<ColorHSL>("Color")
+[Node("Unpack Color", "Color")]
+public sealed class ColorUnpackNode : Node
 {
-    public ValueOutput<int> Hue = new();
-    public ValueOutput<float> Saturation = new();
-    public ValueOutput<float> Lightness = new();
+    [InputMode(InputModes.Connection)]
+    public ValueInput<Utils.Color> Color = new();
 
-    protected override void ConsumeValue(ColorHSL color, PulseContext c)
+    public ValueOutput<float> R = new();
+    public ValueOutput<float> G = new();
+    public ValueOutput<float> B = new();
+    public ValueOutput<float> A = new();
+
+    protected override Task Process(IPulseContext c)
     {
-        Hue.Write(color.Hue, c);
-        Saturation.Write(color.Saturation, c);
-        Lightness.Write(color.Lightness, c);
+        var color = Color.Read(c);
+        R.Write(color.R, c);
+        G.Write(color.G, c);
+        B.Write(color.B, c);
+        A.Write(color.A, c);
+        return Task.CompletedTask;
     }
 }

@@ -16,42 +16,45 @@ public static class TypeColorExtensions
     private static readonly (float H, float S, float L) decimal_base = (240f / 360f, 0f, 1f);
     private static readonly uint[] crc_table = generateCrcTable();
 
-    public static SolidColorBrush GetTypeBrush(this Type type) => toBrush(GetTypeColor(type));
-
-    public static Color GetTypeColor(this Type type)
+    extension(Type type)
     {
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) type = type.GenericTypeArguments[0];
+        public SolidColorBrush GetTypeBrush() => toBrush(type.GetTypeColor());
 
-        if (type == typeof(bool)) return fromHsl(0, 0, 0.6f);
-        if (type == typeof(char)) return fromHsl(30f / 360f, 7f / 85f, 50f / 85f);
-        if (type == typeof(string)) return fromHsl(30f / 360f, 7f / 85f, 75f / 85f);
-
-        if (tryGetNumericHsl(type, out var baseHsl, out var t))
+        public System.Windows.Media.Color GetTypeColor()
         {
-            if (type == typeof(decimal))
-                return hslToColor(decimal_base);
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)) type = type.GenericTypeArguments[0];
 
-            var lerped = (
-                H: baseHsl.H,
-                S: lerp(0.5f, 0.8f, t),
-                L: lerp(0.4f, 0.7f, t)
-            );
-            return hslToColor(lerped);
+            if (type == typeof(bool)) return fromHsl(0, 0, 0.6f);
+            if (type == typeof(char)) return fromHsl(30f / 360f, 7f / 85f, 50f / 85f);
+            if (type == typeof(string)) return fromHsl(30f / 360f, 7f / 85f, 75f / 85f);
+
+            if (tryGetNumericHsl(type, out var baseHsl, out var t))
+            {
+                if (type == typeof(decimal))
+                    return hslToColor(decimal_base);
+
+                var lerped = (
+                    H: baseHsl.H,
+                    S: lerp(0.5f, 0.8f, t),
+                    L: lerp(0.4f, 0.7f, t)
+                );
+                return hslToColor(lerped);
+            }
+
+            var nameBytes = Encoding.UTF8.GetBytes(type.Name);
+            var crc = nameBytes.Aggregate(0xFFFFFFFFu, (current, b) => crc_table[(current ^ b) & 0xFF] ^ current >> 8);
+            crc ^= 0xFFFFFFFFu;
+
+            var hByte = (byte)(crc >> 24);
+            var sByte = (byte)(crc >> 16);
+            var lByte = (byte)(crc >> 8);
+
+            var h = hByte / 255f;
+            var s = lerpUnclamped(0.25f, 0.75f, sByte / 255f);
+            var l = lerpUnclamped(0.25f, 1f, lByte / 255f);
+
+            return fromHsl(h, s, l);
         }
-
-        var nameBytes = Encoding.UTF8.GetBytes(type.Name);
-        var crc = nameBytes.Aggregate(0xFFFFFFFFu, (current, b) => crc_table[(current ^ b) & 0xFF] ^ current >> 8);
-        crc ^= 0xFFFFFFFFu;
-
-        var hByte = (byte)(crc >> 24);
-        var sByte = (byte)(crc >> 16);
-        var lByte = (byte)(crc >> 8);
-
-        var h = hByte / 255f;
-        var s = lerpUnclamped(0.25f, 0.75f, sByte / 255f);
-        var l = lerpUnclamped(0.25f, 1f, lByte / 255f);
-
-        return fromHsl(h, s, l);
     }
 
     private static bool tryGetNumericHsl(Type type, out (float H, float S, float L) baseHsl, out float t)
@@ -142,7 +145,7 @@ public static class TypeColorExtensions
         return tbl;
     }
 
-    private static Color hslToColor((float H, float S, float L) hsl)
+    private static System.Windows.Media.Color hslToColor((float H, float S, float L) hsl)
     {
         double h = hsl.H, s = hsl.S, l = hsl.L;
         double r, g, b;
@@ -160,7 +163,7 @@ public static class TypeColorExtensions
             b = hueToRgb(p, q, h - 1.0 / 3);
         }
 
-        return Color.FromArgb(
+        return System.Windows.Media.Color.FromArgb(
             255,
             (byte)Math.Round(r * 255),
             (byte)Math.Round(g * 255),
@@ -186,14 +189,14 @@ public static class TypeColorExtensions
         => a + (b - a) * t;
 
     // Helpers to wrap System.Drawing.Color → SolidColorBrush
-    private static SolidColorBrush toBrush(Color dc)
+    private static SolidColorBrush toBrush(System.Windows.Media.Color dc)
     {
-        var mc = Color.FromArgb(dc.A, dc.R, dc.G, dc.B);
+        var mc = System.Windows.Media.Color.FromArgb(dc.A, dc.R, dc.G, dc.B);
         var b = new SolidColorBrush(mc);
         b.Freeze();
         return b;
     }
 
-    private static Color fromHsl(float h, float s, float l)
+    private static System.Windows.Media.Color fromHsl(float h, float s, float l)
         => hslToColor((h, s, l));
 }

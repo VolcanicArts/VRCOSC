@@ -29,7 +29,7 @@ public sealed class SteamVRDeviceInfoNode() : ValueConsumeNode<TrackedDevice?>("
     public ValueOutput<bool> IsCharging = new();
     public ValueOutput<float> Battery = new();
 
-    protected override void ConsumeValue(TrackedDevice? device, PulseContext c)
+    protected override void ConsumeValue(TrackedDevice? device, IPulseContext c)
     {
         if (device is null) return;
 
@@ -40,6 +40,7 @@ public sealed class SteamVRDeviceInfoNode() : ValueConsumeNode<TrackedDevice?>("
 }
 
 [Node("Device Transform", "SteamVR")]
+[NodeCollapsed]
 public sealed class SteamVRDeviceTransformSourceNode() : SimpleValueTransformNode<TrackedDevice?, Transform>(d => d?.Transform ?? Transform.Identity, "Device", "Transform"), IContinuousNode
 {
     public int UpdateOffset => 0;

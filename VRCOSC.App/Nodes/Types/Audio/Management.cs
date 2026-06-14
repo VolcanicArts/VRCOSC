@@ -14,7 +14,7 @@ public sealed class AudioCreatePlayerNode() : TryValueComputeNode<ISoundPlayer?>
     public ValueInput<AudioPlaybackDevice> Device = new();
     public ValueInput<string?> FilePath = new();
 
-    protected override Result<ISoundPlayer?> TryComputeValue(PulseContext c)
+    protected override Result<ISoundPlayer?> TryComputeValue(IPulseContext c)
     {
         var device = Device.Read(c);
         var filePath = FilePath.Read(c);

@@ -6,13 +6,13 @@ using System.Linq;
 
 namespace VRCOSC.App.Nodes.Types.Collections;
 
-[Node("Split Dictionary", "Collections")]
+[Node("Split Dictionary", "Collections/Dictionary")]
 public sealed class SplitDictionaryNode<TKey, TValue> : ValueConsumeNode<Dictionary<TKey, TValue>?> where TKey : notnull
 {
     public ValueOutput<List<TKey>> Keys = new();
     public ValueOutput<List<TValue>> Values = new();
 
-    protected override void ConsumeValue(Dictionary<TKey, TValue>? dictionary, PulseContext c)
+    protected override void ConsumeValue(Dictionary<TKey, TValue>? dictionary, IPulseContext c)
     {
         if (dictionary is null) return;
 
@@ -21,13 +21,13 @@ public sealed class SplitDictionaryNode<TKey, TValue> : ValueConsumeNode<Diction
     }
 }
 
-[Node("Split KeyValuePair", "Collections")]
+[Node("Split KeyValuePair", "Collections/Dictionary")]
 public sealed class SplitKeyValuePairNode<TKey, TValue> : ValueConsumeNode<KeyValuePair<TKey, TValue>> where TKey : notnull
 {
     public ValueOutput<TKey> Key = new();
     public ValueOutput<TValue> Value = new();
 
-    protected override void ConsumeValue(KeyValuePair<TKey, TValue> pair, PulseContext c)
+    protected override void ConsumeValue(KeyValuePair<TKey, TValue> pair, IPulseContext c)
     {
         Key.Write(pair.Key, c);
         Value.Write(pair.Value, c);

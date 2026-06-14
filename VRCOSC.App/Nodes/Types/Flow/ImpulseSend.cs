@@ -6,91 +6,48 @@ using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
-[Node("Impulse Send", "Flow/Impulse Send")]
-public sealed class ImpulseSendNode : Node, IImpulseSender, IFlowInput, IHasTextProperty
+[Node("Impulse Send", "Flow")]
+public class ImpulseSendNode : AsyncActionNode, IImpulseSender
 {
-    public FlowContinuation Next = new();
+    public ValueInput<string> Name = new();
 
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
-    protected override async Task Process(PulseContext c)
+    protected override async Task DoActionAsync(IPulseContext c)
     {
-        await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, []), c);
+        var name = Name.Read(c);
+        if (string.IsNullOrEmpty(name)) return;
+
+        var data = GetImpulseData(c);
+        await ContainingGraph.TriggerImpulse(new ImpulseDefinition(name, data), c);
         await Next.Execute(c);
     }
+
+    protected virtual object[] GetImpulseData(IPulseContext c) => [];
 }
 
-[Node("Impulse Send With Data", "Flow/Impulse Send")]
-public sealed class ImpulseSendNode<T1> : Node, IImpulseSender, IFlowInput, IHasTextProperty
+public class ImpulseSendNode<T1> : ImpulseSendNode
 {
-    public FlowContinuation Next = new();
-
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
     public ValueInput<T1> First = new(typeof(T1).GetFriendlyName());
 
-    protected override async Task Process(PulseContext c)
-    {
-        await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!]), c);
-        await Next.Execute(c);
-    }
+    protected override object[] GetImpulseData(IPulseContext c) => [First.Read(c)!];
 }
 
-[Node("Impulse Send With Data 2", "Flow/Impulse Send")]
-public sealed class ImpulseSendNode<T1, T2> : Node, IImpulseSender, IFlowInput, IHasTextProperty
+public class ImpulseSendNode<T1, T2> : ImpulseSendNode<T1>
 {
-    public FlowContinuation Next = new();
-
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
-    public ValueInput<T1> First = new(typeof(T1).GetFriendlyName());
     public ValueInput<T2> Second = new(typeof(T2).GetFriendlyName());
 
-    protected override async Task Process(PulseContext c)
-    {
-        await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!]), c);
-        await Next.Execute(c);
-    }
+    protected override object[] GetImpulseData(IPulseContext c) => [First.Read(c)!, Second.Read(c)!];
 }
 
-[Node("Impulse Send With Data 3", "Flow/Impulse Send")]
-public sealed class ImpulseSendNode<T1, T2, T3> : Node, IImpulseSender, IFlowInput, IHasTextProperty
+public class ImpulseSendNode<T1, T2, T3> : ImpulseSendNode<T1, T2>
 {
-    public FlowContinuation Next = new();
-
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
-    public ValueInput<T1> First = new(typeof(T1).GetFriendlyName());
-    public ValueInput<T2> Second = new(typeof(T2).GetFriendlyName());
     public ValueInput<T3> Third = new(typeof(T3).GetFriendlyName());
 
-    protected override async Task Process(PulseContext c)
-    {
-        await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!, Third.Read(c)!]), c);
-        await Next.Execute(c);
-    }
+    protected override object[] GetImpulseData(IPulseContext c) => [First.Read(c)!, Second.Read(c)!, Third.Read(c)!];
 }
 
-[Node("Impulse Send With Data 4", "Flow/Impulse Send")]
-public sealed class ImpulseSendNode<T1, T2, T3, T4> : Node, IImpulseSender, IFlowInput, IHasTextProperty
+public sealed class ImpulseSendNode<T1, T2, T3, T4> : ImpulseSendNode<T1, T2, T3>
 {
-    public FlowContinuation Next = new();
-
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
-    public ValueInput<T1> First = new(typeof(T1).GetFriendlyName());
-    public ValueInput<T2> Second = new(typeof(T2).GetFriendlyName());
-    public ValueInput<T3> Third = new(typeof(T3).GetFriendlyName());
     public ValueInput<T4> Fourth = new(typeof(T4).GetFriendlyName());
 
-    protected override async Task Process(PulseContext c)
-    {
-        await c.Graph.TriggerImpulse(new ImpulseDefinition(Text, [First.Read(c)!, Second.Read(c)!, Third.Read(c)!, Fourth.Read(c)!]), c);
-        await Next.Execute(c);
-    }
+    protected override object[] GetImpulseData(IPulseContext c) => [First.Read(c)!, Second.Read(c)!, Third.Read(c)!, Fourth.Read(c)!];
 }

@@ -16,9 +16,9 @@ public sealed class PlayerMovementNode : Node, IContinuousNode
     public ValueOutput<float> AngularY = new();
     public ValueOutput<float> Upright = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
-        var player = c.GetClient().Player;
+        var player = AppManager.GetInstance().VRChatClient.Player;
 
         Velocity.Write(new Vector3(player.VelocityX, player.VelocityY, player.VelocityZ), c);
         AngularY.Write(player.AngularY, c);
@@ -37,9 +37,9 @@ public sealed class PlayerGestureNode : Node, IContinuousNode
     public ValueOutput<GestureType> RightType = new();
     public ValueOutput<float> RightWeight = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
-        var player = c.GetClient().Player;
+        var player = AppManager.GetInstance().VRChatClient.Player;
 
         LeftType.Write(player.GestureTypeLeft, c);
         RightType.Write(player.GestureTypeRight, c);
@@ -57,9 +57,9 @@ public sealed class PlayerVoiceNode : Node, IContinuousNode
     public ValueOutput<Viseme> Viseme = new();
     public ValueOutput<float> Voice = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
-        var player = c.GetClient().Player;
+        var player = AppManager.GetInstance().VRChatClient.Player;
 
         Viseme.Write(player.Viseme, c);
         Voice.Write(player.Voice, c);
@@ -81,9 +81,9 @@ public sealed class PlayerIdentityNode : Node, IContinuousNode
     public ValueOutput<bool> Grounded = new();
     public ValueOutput<TrackingType> TrackingType = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
-        var player = c.GetClient().Player;
+        var player = AppManager.GetInstance().VRChatClient.Player;
 
         IsVR.Write(player.IsVR, c);
         IsMuted.Write(player.IsMuted, c);
@@ -108,9 +108,9 @@ public sealed class PlayerSizeNode : Node, IContinuousNode
     public ValueOutput<float> EyeHeightAsMeters = new();
     public ValueOutput<float> EyeHeightAsPercent = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
-        var player = c.GetClient().Player;
+        var player = AppManager.GetInstance().VRChatClient.Player;
 
         ScaleModified.Write(player.ScaleModified, c);
         ScaleFactor.Write(player.ScaleFactor, c);

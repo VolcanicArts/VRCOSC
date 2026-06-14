@@ -6,8 +6,13 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FontAwesome6;
-using VRCOSC.App.SDK.Utils;
+using VRCOSC.App.Nodes.Metadata;
+using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Utils;
+
+// ReSharper disable UnusedTypeParameter
+// ReSharper disable UnusedType.Global
+// ReSharper disable UnusedMember.Global
 
 namespace VRCOSC.App.Nodes;
 
@@ -15,26 +20,9 @@ namespace VRCOSC.App.Nodes;
 public class NodeAttribute : Attribute
 {
     public string Title { get; }
-    public string? Path { get; }
-    public EFontAwesomeIcon Icon { get; }
+    public string Path { get; }
 
-    internal NodeAttribute(string title, string path, EFontAwesomeIcon icon = EFontAwesomeIcon.None)
-    {
-        if (string.IsNullOrWhiteSpace(title)) throw new Exception("A title must be provided for a node");
-
-        Title = title;
-        Path = path;
-        Icon = icon;
-    }
-
-    public NodeAttribute(string title)
-    {
-        if (string.IsNullOrWhiteSpace(title)) throw new Exception("A title must be provided for a node");
-
-        Title = title;
-    }
-
-    public NodeAttribute(string title, string path)
+    public NodeAttribute(string title, string path = "")
     {
         if (string.IsNullOrWhiteSpace(title)) throw new Exception("A title must be provided for a node");
 
@@ -44,29 +32,22 @@ public class NodeAttribute : Attribute
 }
 
 [AttributeUsage(AttributeTargets.Class)]
-public class NodeGenericTypeFilterAttribute : Attribute
+public class NodeGenerics(params Type[] types) : Attribute
 {
-    public Type[] Types { get; }
-
-    public NodeGenericTypeFilterAttribute(params Type[] types)
-    {
-        Types = types;
-    }
+    public Type[] Types { get; } = types;
 }
 
 [AttributeUsage(AttributeTargets.Property)]
-public class NodePropertyAttribute : Attribute
+public class NodePropertyAttribute(string name) : Attribute
 {
-    public string SerialisedName { get; }
-
-    public NodePropertyAttribute(string serialisedName)
-    {
-        SerialisedName = serialisedName;
-    }
+    public string Name { get; } = name;
 }
 
 [AttributeUsage(AttributeTargets.Class)]
-public class NodeCollapsedAttribute : Attribute;
+public class NodeCollapsedAttribute(params EFontAwesomeIcon[]? icons) : Attribute
+{
+    public EFontAwesomeIcon[]? Icons { get; } = icons;
+}
 
 /// <inheritdoc />
 /// <summary>
@@ -82,139 +63,216 @@ public class NodeForceReprocessAttribute : Attribute;
 [AttributeUsage(AttributeTargets.Class)]
 public class NodeNoCancelAttribute : Attribute;
 
-public interface INodeAttribute
+[AttributeUsage(AttributeTargets.Field)]
+public class InputMode(InputModes modes) : Attribute
 {
-    public int Index { get; internal set; }
-    public string Name { get; init; }
+    public InputModes Modes { get; } = modes;
 }
 
-public interface IFlow : INodeAttribute;
-
-public class FlowCall : IFlow
+public interface INodeElement
 {
-    public int Index { get; set; }
-    public string Name { get; init; }
+    Node Owner { get; set; }
+    string Name { get; }
+    INodeElementMetadata Metadata { get; internal set; }
+    bool IsConnected { get; internal set; }
+    Action? OnIsConnectedChanged { get; set; }
+}
 
-    public FlowCall([CallerMemberName] string name = "")
+public interface IFlowElement : INodeElement;
+
+public interface IFlowInputBase : IFlowElement;
+
+public interface IFlowInput : IFlowInputBase;
+
+public interface IFlowInputList : IFlowInputBase;
+
+public interface IFlowOutputBase : IFlowElement
+{
+    bool Scope { get; }
+}
+
+public interface IFlowOutput : IFlowOutputBase;
+
+public interface IFlowOutputList : IFlowOutputBase;
+
+public interface IValueElement : INodeElement;
+
+public interface IValueInputBase : IValueElement;
+
+public interface IValueInput : IValueInputBase
+{
+    object? GetField();
+    void SetField(object? value);
+}
+
+public interface IValueInput<out T> : IValueInput
+{
+    T DefaultValue { get; }
+    T Field { get; }
+}
+
+public interface IValueInputList : IValueInputBase
+{
+    int Count { get; }
+}
+
+public interface IValueInputList<out T> : IValueInputList;
+
+public interface IValueOutputBase : IValueElement
+{
+    bool IsDirty { get; set; }
+}
+
+public interface IValueOutput : IValueOutputBase;
+
+public interface IValueOutput<out T> : IValueOutput;
+
+public interface IValueOutputList : IValueOutputBase;
+
+public interface IValueOutputList<out T> : IValueOutputList;
+
+public interface IStore
+{
+    Type Type { get; }
+}
+
+public interface IStore<T> : IStore;
+
+public interface IGlobalStore<T> : IStore<T>;
+
+public interface IContextStore : IStore;
+
+public interface IContextStore<T> : IContextStore, IStore<T>;
+
+public abstract class NodeElement : INodeElement
+{
+    public Node Owner { get; set; } = null!;
+    public INodeElementMetadata Metadata { get; set; } = null!;
+    public string Name { get; }
+
+    public bool IsConnected
+    {
+        get;
+        set
+        {
+            if (EqualityComparer<bool>.Default.Equals(field, value)) return;
+
+            field = value;
+            OnIsConnectedChanged?.Invoke();
+        }
+    }
+
+    public Action? OnIsConnectedChanged { get; set; }
+
+    protected NodeElement(string name = "")
     {
         Name = name.ToSentence();
     }
-
-    public Task Execute(PulseContext context) => context.Execute(this);
 }
 
-public class FlowContinuation : IFlow
-{
-    public int Index { get; set; }
-    public string Name { get; init; }
+public class FlowElement(string name = "") : NodeElement(name), IFlowElement;
 
-    public FlowContinuation([CallerMemberName] string name = "")
+public class FlowInput(string name = "") : FlowElement(name), IFlowInput
+{
+    public bool IsSource(IPulseContext c) => c.IsSource(this);
+}
+
+public class FlowInputList(string name = "") : FlowElement(name), IFlowInputList
+{
+    public int Count => Metadata.Size;
+
+    public bool IsSource(int index, IPulseContext c) => c.IsSource(this, index);
+}
+
+public class FlowOutput(string name = "", bool scope = false) : FlowElement(name), IFlowOutput
+{
+    public bool Scope { get; } = scope;
+
+    public Task Execute(IPulseContext c) => c.Execute(this);
+}
+
+public class FlowOutputList(string name = "", bool scope = false) : FlowElement(name), IFlowOutputList
+{
+    public bool Scope { get; } = scope;
+
+    public int Count => Metadata.Size;
+
+    public Task Execute(int index, IPulseContext c) => c.Execute(this, index);
+}
+
+public abstract class ValueElement<T>(string name = "") : NodeElement(name), IValueElement;
+
+[Flags]
+public enum InputModes
+{
+    Connection = 1 << 0,
+    Inline = 1 << 1
+}
+
+public class ValueInput<T>([CallerMemberName] string name = "", T defaultValue = default!) : ValueElement<T>(name), IValueInput<T>
+{
+    public T DefaultValue { get; } = defaultValue;
+
+    private T _field = defaultValue;
+
+    public T Field
     {
-        Name = name.ToSentence();
+        get => _field;
+        set
+        {
+            _field = value;
+
+            if (!Owner.Metadata.Shared.IsFlowInput && !Owner.Metadata.Shared.IsSelfUpdating)
+                _ = Owner.ContainingGraph.TriggerTree(Owner);
+        }
     }
 
-    public Task Execute(PulseContext context) => context.Execute(this);
+    public T Read(IPulseContext c) => c.Read(this);
+
+    public object? GetField() => _field;
+
+    public void SetField(object? value) => _field = (T)value!;
 }
 
-public interface IStore;
-
-public class ContextStore<T> : IStore
+public class ValueInputList<T>([CallerMemberName] string name = "") : ValueElement<T>(name), IValueInputList<T>
 {
-    public T Read(PulseContext c) => c.ReadStore(this);
-    public void Write(T value, PulseContext c) => c.WriteStore(this, value);
+    public int Count => Metadata.Size;
+
+    public IReadOnlyList<T> Read(IPulseContext c) => c.Read(this);
 }
 
-public class GlobalStore<T> : IStore
+public class ValueOutput<T>([CallerMemberName] string name = "") : ValueElement<T>(name), IValueOutput<T>
 {
-    public T Read(PulseContext c) => c.Graph.ReadStore(this, c);
-    public void Write(T value, PulseContext c) => c.Graph.WriteStore(this, value, c);
+    public bool IsDirty { get; set; }
+
+    public void Write(T value, IPulseContext c) => c.Write(this, value);
 }
 
-public interface IValueInput : INodeAttribute
+public class ValueOutputList<T>([CallerMemberName] string name = "") : ValueElement<T>(name), IValueOutputList<T>
 {
-    public object? GetDefaultValue();
+    public bool IsDirty { get; set; }
+    public int Count => Metadata.Size;
+
+    public void Write(int index, T value, IPulseContext c) => c.Write(this, index, value);
 }
 
-public interface IValueOutput : INodeAttribute;
-
-public class ValueInput<T> : IValueInput
+public class GlobalStore<T> : IGlobalStore<T>
 {
-    public int Index { get; set; }
-    public string Name { get; init; }
+    public Type Type => typeof(T);
 
-    internal T DefaultValue { get; }
-    public object? GetDefaultValue() => DefaultValue;
+    public void Write(T value, IPulseContext c) => c.Write(this, value);
 
-    public ValueInput([CallerMemberName] string name = "", T defaultValue = default!)
-    {
-        Name = name.ToSentence();
-        DefaultValue = defaultValue;
-    }
-
-    public T Read(PulseContext c) => c.Read(this);
+    public T Read(IPulseContext c) => c.Read(this);
 }
-
-public class ValueOutput<T> : IValueOutput
-{
-    public int Index { get; set; }
-    public string Name { get; init; }
-
-    public ValueOutput([CallerMemberName] string name = "")
-    {
-        Name = name.ToSentence();
-    }
-
-    public void Write(T value, PulseContext c) => c.Write(this, value);
-}
-
-public class ValueInputList<T> : IValueInput
-{
-    public int Index { get; set; }
-    public string Name { get; init; }
-    public object? GetDefaultValue() => null;
-
-    public ValueInputList([CallerMemberName] string name = "")
-    {
-        Name = name.ToSentence();
-    }
-
-    public List<T> Read(PulseContext c) => c.Read(this);
-}
-
-public class ValueOutputList<T> : IValueOutput
-{
-    public int Index { get; set; }
-    public string Name { get; init; }
-
-    public ValueOutputList([CallerMemberName] string name = "")
-    {
-        Name = name.ToSentence();
-    }
-
-    public int Length(PulseContext c) => c.Peek().VariableSize.ValueOutputSize;
-
-    public void Write(int index, T value, PulseContext c) => c.Write(this, index, value);
-}
-
-public interface IHasTextProperty
-{
-    public string Text { get; set; }
-}
-
-public interface IHasKeybindProperty
-{
-    public Keybind Keybind { get; set; }
-}
-
-public interface IFlowInput;
 
 public interface IImpulseNode;
 
 public interface IImpulseSender : IImpulseNode;
 
-public interface IImpulseReceiver : IImpulseNode, IHasTextProperty
+public interface IImpulseReceiver : IImpulseNode
 {
-    public void WriteOutputs(object[] values, PulseContext c);
+    public bool CanReceive(string name, IPulseContext c);
+    public void WriteOutputs(object[] values, IPulseContext c);
 }
 
 public interface IHasVariableReference
@@ -226,12 +284,14 @@ public record ImpulseDefinition(string Name, object[] Values);
 
 internal interface IDisplayNode
 {
-    public void Clear();
+    Action<object?>? OnValueChanged { get; set; }
+    object? GetValue();
+    void Clear();
 }
 
 public interface IModuleNodeEventHandler
 {
-    public Task Write(object[] args, PulseContext c);
+    public Task Write(object[] args, IPulseContext c);
 }
 
 /// <summary>
@@ -240,21 +300,21 @@ public interface IModuleNodeEventHandler
 public interface IUpdateNode
 {
     int UpdateOffset { get; }
-    void OnUpdate(PulseContext c);
+    void OnUpdate(IPulseContext c);
 }
 
 /// <summary>
 /// An actively updating node that can read inputs/stores and write outputs/stores in <see cref="OnUpdate"/>.
-/// If <see cref="OnUpdate"/> returns true it will process and notify nodes down flow of the <see cref="ValueOutput{T}"/> changes, otherwise it will not process
+/// If <see cref="OnUpdate"/> returns true it will process and notify nodes down flow of the <see cref="IValueOutputBase"/> changes, otherwise it will not process
 /// </summary>
 public interface IActiveUpdateNode
 {
     int UpdateOffset { get; }
-    Task<bool> OnUpdate(PulseContext c);
+    Task<bool> OnUpdate(IPulseContext c);
 }
 
 /// <summary>
-/// Processes this node every update, and if any value output has changed, notifies nodes down flow of the changes
+/// Processes this node every update, and if any <see cref="IValueOutputBase"/> has changed, notifies nodes down flow of the changes
 /// </summary>
 public interface IContinuousNode
 {

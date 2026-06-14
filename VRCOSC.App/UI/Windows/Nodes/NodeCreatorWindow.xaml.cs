@@ -2,7 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -14,61 +14,72 @@ namespace VRCOSC.App.UI.Windows.Nodes;
 
 public partial class NodeCreatorWindow : IManagedWindow
 {
-    public NodeGraph NodeGraph { get; }
+    private readonly NodeTypeMetadata metadata;
 
-    public Type NodeType { get; }
+    public Type? ConstructedType { get; private set; }
 
-    //public Dictionary<string, Type> CommonTypesSource => NodeConstants.COMMON_TYPES.ToDictionary(type => type.GetFriendlyName(), type => type);
-    public Dictionary<string, Type> CommonTypesSource => new();
-
-    public Type? ConstructedType;
-
-    public NodeCreatorWindow(NodeGraph nodeGraph, Type nodeType)
+    public NodeCreatorWindow(NodeTypeMetadata metadata)
     {
-        NodeGraph = nodeGraph;
-        NodeType = nodeType;
+        this.metadata = metadata;
         InitializeComponent();
-        DataContext = this;
 
-        Title = $"Creating {nodeType.GetFriendlyName()}";
-        TitleText.Text = nodeType.GetGenericArguments().Length > 1 ? "Types:" : "Type:";
-        updateText(string.Empty);
+        Title = $"Creating {metadata.Shared.Name} Node";
+        TitleText.Text = metadata.LinkedTypes.Any(t => t.GetGenericArguments().Length > 1) ? "Types:" : "Type:";
+        updateText(null);
+        Loaded += OnLoaded;
+    }
+
+    private void OnLoaded(object? sender, RoutedEventArgs e)
+    {
         GenericArgumentText.Focus();
     }
 
-    public object GetComparer() => NodeType;
-
     private void GenericArgumentText_OnTextChanged(object sender, TextChangedEventArgs e)
     {
-        var text = GenericArgumentText.Text;
-        updateText(text);
+        updateText(GenericArgumentText.Text);
     }
 
-    private void updateText(string text)
+    private void updateText(string? text)
     {
-        if (TypeResolver.TryConstructGenericType(text, NodeType, out var constructedType))
+        var nonGenericType = metadata.LinkedTypes.SingleOrDefault(t => !t.IsGenericType);
+
+        if (string.IsNullOrEmpty(text) && nonGenericType is not null)
         {
-            FormedTypeText.Text = constructedType.GetFriendlyName();
+            FormedTypeText.Text = nonGenericType.GetFriendlyName();
             FormedTypeText.FontStyle = FontStyles.Normal;
-            CreateNodeButton.Visibility = Visibility.Visible;
-            ConstructedType = constructedType;
+            ConstructedType = nonGenericType;
+            return;
         }
-        else
-        {
-            FormedTypeText.Text = "null";
-            FormedTypeText.FontStyle = FontStyles.Italic;
-            CreateNodeButton.Visibility = Visibility.Collapsed;
-            ConstructedType = null;
-        }
-    }
 
-    private void CreateNodeButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        Close();
+        if (text is not null)
+        {
+            Type? constructedType = null;
+
+            foreach (var type in metadata.LinkedTypes)
+            {
+                if (!TypeResolver.TryConstructGenericType(text, type, out constructedType)) continue;
+
+                break;
+            }
+
+            if (constructedType is not null)
+            {
+                FormedTypeText.Text = constructedType.GetFriendlyName();
+                FormedTypeText.FontStyle = FontStyles.Normal;
+                ConstructedType = constructedType;
+                return;
+            }
+        }
+
+        FormedTypeText.Text = "null";
+        FormedTypeText.FontStyle = FontStyles.Italic;
+        ConstructedType = null;
     }
 
     private void GenericArgumentText_OnKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Enter && ConstructedType is not null) Close();
     }
+
+    public object GetComparer() => metadata;
 }

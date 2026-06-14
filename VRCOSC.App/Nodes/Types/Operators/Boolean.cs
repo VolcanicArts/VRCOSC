@@ -20,7 +20,7 @@ public sealed class BooleanMultiAndNode : ValueComputeNode<bool>
 
     public ValueInputList<bool> Values = new();
 
-    protected override bool ComputeValue(PulseContext c) => Values.Read(c).All(v => v);
+    protected override bool ComputeValue(IPulseContext c) => Values.Read(c).All(v => v);
 }
 
 [Node("OR", "Operators/Boolean")]
@@ -34,7 +34,7 @@ public sealed class BooleanMultiOrNode : ValueComputeNode<bool>
 
     public ValueInputList<bool> Values = new();
 
-    protected override bool ComputeValue(PulseContext c) => Values.Read(c).Any(v => v);
+    protected override bool ComputeValue(IPulseContext c) => Values.Read(c).Any(v => v);
 }
 
 [Node("NAND", "Operators/Boolean")]
@@ -48,7 +48,7 @@ public sealed class BooleanMultiNandNode : ValueComputeNode<bool>
 
     public ValueInputList<bool> Values = new();
 
-    protected override bool ComputeValue(PulseContext c) => !Values.Read(c).All(v => v);
+    protected override bool ComputeValue(IPulseContext c) => !Values.Read(c).All(v => v);
 }
 
 [Node("NOR", "Operators/Boolean")]
@@ -62,7 +62,7 @@ public sealed class BooleanMultiNorNode : ValueComputeNode<bool>
 
     public ValueInputList<bool> Values = new();
 
-    protected override bool ComputeValue(PulseContext c) => !Values.Read(c).Any(v => v);
+    protected override bool ComputeValue(IPulseContext c) => !Values.Read(c).Any(v => v);
 }
 
 [Node("XOR", "Operators/Boolean")]
@@ -76,7 +76,7 @@ public sealed class BooleanMultiXorNode : ValueComputeNode<bool>
 
     public ValueInputList<bool> Values = new();
 
-    protected override bool ComputeValue(PulseContext c) => Values.Read(c).Aggregate((curr, value) => curr ^ value);
+    protected override bool ComputeValue(IPulseContext c) => Values.Read(c).Aggregate((curr, value) => curr ^ value);
 }
 
 [Node("XNOR", "Operators/Boolean")]
@@ -90,5 +90,5 @@ public sealed class BooleanMultiXnorNode : ValueComputeNode<bool>
 
     public ValueInputList<bool> Values = new();
 
-    protected override bool ComputeValue(PulseContext c) => !Values.Read(c).Aggregate((curr, value) => curr ^ value);
+    protected override bool ComputeValue(IPulseContext c) => !Values.Read(c).Aggregate((curr, value) => curr ^ value);
 }

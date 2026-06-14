@@ -8,11 +8,13 @@ namespace VRCOSC.App.Nodes.Types.Math;
 [Node("Clamp", "Math/Clamp")]
 public sealed class ClampNode<T> : ValueComputeNode<T> where T : INumber<T>
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<T> Value = new();
+
     public ValueInput<T> Min = new();
     public ValueInput<T> Max = new();
 
-    protected override T ComputeValue(PulseContext c) => T.Clamp(Value.Read(c), Min.Read(c), Max.Read(c));
+    protected override T ComputeValue(IPulseContext c) => T.Clamp(Value.Read(c), Min.Read(c), Max.Read(c));
 }
 
 [Node("Clamp 0,1", "Math/Clamp")]

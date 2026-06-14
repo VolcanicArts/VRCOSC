@@ -17,7 +17,7 @@ public sealed class EnumerableContainsNode<T>() : SimpleResultComputeNode<IEnume
 [Node("Enumerable Element At", "Collections/Enumerable")]
 public sealed class EnumerableElementAtNode<T>() : ResultComputeNode<IEnumerable<T>?, int, T>("Enumerable", "Index", "Element")
 {
-    protected override T ComputeResult(IEnumerable<T>? enumerable, int index)
+    protected override T ComputeResult(IEnumerable<T>? enumerable, int index, IPulseContext c)
     {
         if (enumerable is null || index < 0 || index >= enumerable.Count()) return default!;
 
@@ -29,7 +29,7 @@ public sealed class EnumerableElementAtNode<T>() : ResultComputeNode<IEnumerable
 [NodeCollapsed]
 public sealed class EnumerableFirstNode<T> : ValueTransformNode<IEnumerable<T>?, T>
 {
-    protected override T TransformValue(IEnumerable<T>? enumerable, PulseContext c)
+    protected override T TransformValue(IEnumerable<T>? enumerable, IPulseContext c)
         => enumerable is not null ? enumerable.First() : default!;
 }
 
@@ -37,7 +37,7 @@ public sealed class EnumerableFirstNode<T> : ValueTransformNode<IEnumerable<T>?,
 [NodeCollapsed]
 public sealed class EnumerableLastNode<T> : ValueTransformNode<IEnumerable<T>?, T>
 {
-    protected override T TransformValue(IEnumerable<T>? enumerable, PulseContext c)
+    protected override T TransformValue(IEnumerable<T>? enumerable, IPulseContext c)
         => enumerable is not null ? enumerable.Last() : default!;
 }
 
@@ -58,9 +58,9 @@ public sealed class EnumerableReverseNode<T>() : SimpleValueTransformNode<IEnume
 public sealed class EnumerableDistinctNode<T>() : SimpleValueTransformNode<IEnumerable<T>?>(enumerable => enumerable?.Distinct() ?? null);
 
 [Node("Enumerable Concat", "Collections/Enumerable")]
-public sealed class EnumerableConcatNode<T>() : ResultComputeNode<IEnumerable<T>?>("First", "Second", "Enumerable")
+public sealed class EnumerableConcatNode<T>() : ResultComputeNode<IEnumerable<T>>("First", "Second", "Enumerable")
 {
-    protected override IEnumerable<T>? ComputeResult(IEnumerable<T>? first, IEnumerable<T>? second)
+    protected override IEnumerable<T> ComputeResult(IEnumerable<T>? first, IEnumerable<T>? second, IPulseContext c)
     {
         first ??= Enumerable.Empty<T>();
         second ??= Enumerable.Empty<T>();
@@ -81,7 +81,7 @@ public sealed class EnumerableElementInsertNode<T> : TryValueComputeNode<IEnumer
     public ValueInput<int> Index = new();
     public ValueInput<T> Element = new();
 
-    protected override Result<IEnumerable<T>> TryComputeValue(PulseContext c)
+    protected override Result<IEnumerable<T>> TryComputeValue(IPulseContext c)
     {
         var enumerable = Enumerable.Read(c);
 
@@ -112,7 +112,7 @@ public sealed class EnumerableElementInsertNode<T> : TryValueComputeNode<IEnumer
 [Node("Enumerable Add Element", "Collections/Enumerable/Modifiers")]
 public sealed class EnumerableElementAddNode<T>() : TryResultComputeNode<IEnumerable<T>?, T, IEnumerable<T>?>("Enumerable", "Element", "Enumerable")
 {
-    protected override Result<IEnumerable<T>?> TryComputeResult(IEnumerable<T>? enumerable, T element, PulseContext c)
+    protected override Result<IEnumerable<T>?> TryComputeResult(IEnumerable<T>? enumerable, T element, IPulseContext c)
     {
         if (enumerable is null)
             return Result<IEnumerable<T>?>.Fail();
@@ -126,7 +126,7 @@ public sealed class EnumerableElementAddNode<T>() : TryResultComputeNode<IEnumer
 [Node("Enumerable Remove Element", "Collections/Enumerable/Modifiers")]
 public sealed class EnumerableElementRemoveNode<T>() : TryResultComputeNode<IEnumerable<T>?, T, IEnumerable<T>?>("Enumerable", "Element", "Enumerable")
 {
-    protected override Result<IEnumerable<T>?> TryComputeResult(IEnumerable<T>? enumerable, T element, PulseContext c)
+    protected override Result<IEnumerable<T>?> TryComputeResult(IEnumerable<T>? enumerable, T element, IPulseContext c)
     {
         if (enumerable is null)
             return Result<IEnumerable<T>?>.Fail();
@@ -141,7 +141,7 @@ public sealed class EnumerableElementRemoveNode<T>() : TryResultComputeNode<IEnu
 [Node("Enumerable Remove Index", "Collections/Enumerable/Modifiers")]
 public sealed class EnumerableIndexRemoveNode<T>() : TryResultComputeNode<IEnumerable<T>?, int, IEnumerable<T>?>("Enumerable", "Index", "Enumerable")
 {
-    protected override Result<IEnumerable<T>?> TryComputeResult(IEnumerable<T>? enumerable, int index, PulseContext c)
+    protected override Result<IEnumerable<T>?> TryComputeResult(IEnumerable<T>? enumerable, int index, IPulseContext c)
     {
         if (enumerable is null)
             return Result<IEnumerable<T>?>.Fail();

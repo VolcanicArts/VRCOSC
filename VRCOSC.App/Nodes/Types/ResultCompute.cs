@@ -19,15 +19,15 @@ public abstract class ResultComputeNode<TLeft, TRight, TResult> : ValueComputeNo
         B = new ValueInput<TRight>(string.IsNullOrEmpty(bName) ? "B" : bName);
     }
 
-    protected override TResult ComputeValue(PulseContext c)
+    protected override TResult ComputeValue(IPulseContext c)
     {
         var a = A.Read(c);
         var b = B.Read(c);
 
-        return ComputeResult(a, b);
+        return ComputeResult(a, b, c);
     }
 
-    protected abstract TResult ComputeResult(TLeft a, TRight b);
+    protected abstract TResult ComputeResult(TLeft a, TRight b, IPulseContext c);
 }
 
 public abstract class ResultComputeNode<TInput, TResult>(string aName = "", string bName = "", string resultName = "") : ResultComputeNode<TInput, TInput, TResult>(aName, bName, resultName);
@@ -36,17 +36,17 @@ public abstract class ResultComputeNode<T>(string aName = "", string bName = "",
 
 public abstract class SimpleResultComputeNode<TLeft, TRight, TResult>(Func<TLeft, TRight, TResult> func, string aName = "", string bName = "", string resultName = "") : ResultComputeNode<TLeft, TRight, TResult>(aName, bName, resultName)
 {
-    protected override TResult ComputeResult(TLeft a, TRight b) => func(a, b);
+    protected override TResult ComputeResult(TLeft a, TRight b, IPulseContext c) => func(a, b);
 }
 
 public abstract class SimpleResultComputeNode<TInput, TResult>(Func<TInput, TInput, TResult> func, string aName = "", string bName = "", string resultName = "") : ResultComputeNode<TInput, TResult>(aName, bName, resultName)
 {
-    protected override TResult ComputeResult(TInput a, TInput b) => func(a, b);
+    protected override TResult ComputeResult(TInput a, TInput b, IPulseContext c) => func(a, b);
 }
 
 public abstract class SimpleResultComputeNode<T>(Func<T, T, T> func, string aName = "", string bName = "", string resultName = "") : ResultComputeNode<T>(aName, bName, resultName)
 {
-    protected override T ComputeResult(T a, T b) => func(a, b);
+    protected override T ComputeResult(T a, T b, IPulseContext c) => func(a, b);
 }
 
 public abstract class TryResultComputeAsyncNode<TLeft, TRight, TResult> : TryValueComputeAsyncNode<TResult>
@@ -61,7 +61,7 @@ public abstract class TryResultComputeAsyncNode<TLeft, TRight, TResult> : TryVal
         B = new ValueInput<TRight>(string.IsNullOrEmpty(bName) ? "B" : bName);
     }
 
-    protected override async Task<Result<TResult>> TryComputeValueAsync(PulseContext c)
+    protected override async Task<Result<TResult>> TryComputeValueAsync(IPulseContext c)
     {
         try
         {
@@ -75,12 +75,12 @@ public abstract class TryResultComputeAsyncNode<TLeft, TRight, TResult> : TryVal
         }
     }
 
-    protected abstract Task<Result<TResult>> TryComputeResultAsync(TLeft a, TRight b, PulseContext c);
+    protected abstract Task<Result<TResult>> TryComputeResultAsync(TLeft a, TRight b, IPulseContext c);
 }
 
 public abstract class TryResultComputeNode<TLeft, TRight, TResult>(string aName = "", string bName = "", string resultName = "") : TryResultComputeAsyncNode<TLeft, TRight, TResult>(aName, bName, resultName)
 {
-    protected override Task<Result<TResult>> TryComputeResultAsync(TLeft a, TRight b, PulseContext c) => Task.FromResult(TryComputeResult(a, b, c));
+    protected override Task<Result<TResult>> TryComputeResultAsync(TLeft a, TRight b, IPulseContext c) => Task.FromResult(TryComputeResult(a, b, c));
 
-    protected abstract Result<TResult> TryComputeResult(TLeft a, TRight b, PulseContext c);
+    protected abstract Result<TResult> TryComputeResult(TLeft a, TRight b, IPulseContext c);
 }

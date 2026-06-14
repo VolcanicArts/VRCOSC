@@ -10,7 +10,7 @@ namespace VRCOSC.App.Nodes.Types.Process;
 [NodeCollapsed]
 public sealed class ForegroundProcessNode() : SimpleValueSourceNode<System.Diagnostics.Process?>(ProcessExtensions.GetForegroundProcess);
 
-[Node("Process Info", "Process/Info")]
+[Node("Unpack Process Info", "Process")]
 public sealed class ProcessInfoNode() : ValueConsumeNode<System.Diagnostics.Process?>(nameof(Process)), IContinuousNode
 {
     public int UpdateOffset => 0;
@@ -19,7 +19,7 @@ public sealed class ProcessInfoNode() : ValueConsumeNode<System.Diagnostics.Proc
     public ValueOutput<string?> Name = new();
     public ValueOutput<DateTime> StartTime = new();
 
-    protected override void ConsumeValue(System.Diagnostics.Process? process, PulseContext c)
+    protected override void ConsumeValue(System.Diagnostics.Process? process, IPulseContext c)
     {
         if (process is null) return;
 

@@ -32,6 +32,8 @@ public struct Transform
     }
 
     public static Transform Identity => new();
+
+    public override string ToString() => $"{Position} : {Rotation.ToEulerDegrees()}";
 }
 
 public static class TransformExtensions

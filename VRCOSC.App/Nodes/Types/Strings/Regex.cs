@@ -7,23 +7,26 @@ using VRCOSC.App.Utils;
 namespace VRCOSC.App.Nodes.Types.Strings;
 
 [Node("Regex Match", "Strings/Regex")]
-public sealed class RegexMatchNode : TryValueComputeNode<Match>, IHasTextProperty
+public sealed class RegexMatchNode : TryValueComputeNode<Match>
 {
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
+    public ValueInput<string?> Regex = new();
     public ValueInput<string?> Input = new("String");
+
+    [InputMode(InputModes.Connection)]
     public ValueInput<RegexOptions> Options = new();
 
-    protected override Result<Match> TryComputeValue(PulseContext c)
+    protected override Result<Match> TryComputeValue(IPulseContext c)
     {
         var input = Input.Read(c);
         if (input is null) return Result<Match>.Fail();
 
+        var regex = Regex.Read(c);
+        if (string.IsNullOrEmpty(regex)) return Result<Match>.Fail();
+
         try
         {
             var options = Options.Read(c);
-            return Regex.Match(input, Text, options);
+            return System.Text.RegularExpressions.Regex.Match(input, regex, options);
         }
         catch
         {
@@ -33,15 +36,15 @@ public sealed class RegexMatchNode : TryValueComputeNode<Match>, IHasTextPropert
 }
 
 [Node("Regex Matches", "Strings/Regex")]
-public sealed class RegexMatchesNode : TryValueComputeNode<MatchCollection>, IHasTextProperty
+public sealed class RegexMatchesNode : TryValueComputeNode<MatchCollection>
 {
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
+    public ValueInput<string> RegexStr = new("Regex");
     public ValueInput<string?> Input = new("String");
+
+    [InputMode(InputModes.Connection)]
     public ValueInput<RegexOptions> Options = new();
 
-    protected override Result<MatchCollection> TryComputeValue(PulseContext c)
+    protected override Result<MatchCollection> TryComputeValue(IPulseContext c)
     {
         var input = Input.Read(c);
         if (input is null) return Result<MatchCollection>.Fail();
@@ -49,7 +52,7 @@ public sealed class RegexMatchesNode : TryValueComputeNode<MatchCollection>, IHa
         try
         {
             var options = Options.Read(c);
-            return Regex.Matches(input, Text, options);
+            return Regex.Matches(input, RegexStr.Read(c), options);
         }
         catch
         {
@@ -59,15 +62,15 @@ public sealed class RegexMatchesNode : TryValueComputeNode<MatchCollection>, IHa
 }
 
 [Node("Regex Is Match", "Strings/Regex")]
-public sealed class RegexIsMatchNode : ValueSourceNode<bool>, IHasTextProperty
+public sealed class RegexIsMatchNode : ValueSourceNode<bool>
 {
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
+    public ValueInput<string> RegexStr = new("Regex");
     public ValueInput<string?> Input = new("String");
+
+    [InputMode(InputModes.Connection)]
     public ValueInput<RegexOptions> Options = new();
 
-    protected override bool ComputeValue(PulseContext c)
+    protected override bool ComputeValue(IPulseContext c)
     {
         var input = Input.Read(c);
         if (input is null) return false;
@@ -75,7 +78,7 @@ public sealed class RegexIsMatchNode : ValueSourceNode<bool>, IHasTextProperty
         try
         {
             var options = Options.Read(c);
-            return Regex.IsMatch(input, Text, options);
+            return Regex.IsMatch(input, RegexStr.Read(c), options);
         }
         catch
         {
@@ -85,16 +88,16 @@ public sealed class RegexIsMatchNode : ValueSourceNode<bool>, IHasTextProperty
 }
 
 [Node("Regex Replace", "Strings/Regex")]
-public sealed class RegexReplaceNode : TryValueComputeNode<string>, IHasTextProperty
+public sealed class RegexReplaceNode : TryValueComputeNode<string>
 {
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
+    public ValueInput<string> RegexStr = new("Regex");
     public ValueInput<string?> Input = new("String");
     public ValueInput<string> Replacement = new();
+
+    [InputMode(InputModes.Connection)]
     public ValueInput<RegexOptions> Options = new();
 
-    protected override Result<string> TryComputeValue(PulseContext c)
+    protected override Result<string> TryComputeValue(IPulseContext c)
     {
         var input = Input.Read(c);
         if (input is null) return Result<string>.Fail();
@@ -103,7 +106,7 @@ public sealed class RegexReplaceNode : TryValueComputeNode<string>, IHasTextProp
         {
             var replacement = Replacement.Read(c);
             var options = Options.Read(c);
-            return Regex.Replace(input, Text, replacement, options);
+            return Regex.Replace(input, RegexStr.Read(c), replacement, options);
         }
         catch
         {
@@ -113,15 +116,15 @@ public sealed class RegexReplaceNode : TryValueComputeNode<string>, IHasTextProp
 }
 
 [Node("Regex Split", "Strings/Regex")]
-public sealed class RegexSplitNode : TryValueComputeNode<string[]>, IHasTextProperty
+public sealed class RegexSplitNode : TryValueComputeNode<string[]>
 {
-    [NodeProperty("text")]
-    public string Text { get; set; } = string.Empty;
-
+    public ValueInput<string> RegexStr = new("Regex");
     public ValueInput<string?> Input = new("String");
+
+    [InputMode(InputModes.Connection)]
     public ValueInput<RegexOptions> Options = new();
 
-    protected override Result<string[]> TryComputeValue(PulseContext c)
+    protected override Result<string[]> TryComputeValue(IPulseContext c)
     {
         var input = Input.Read(c);
         if (input is null) return Result<string[]>.Fail();
@@ -129,7 +132,7 @@ public sealed class RegexSplitNode : TryValueComputeNode<string[]>, IHasTextProp
         try
         {
             var options = Options.Read(c);
-            return Regex.Split(input, Text, options);
+            return Regex.Split(input, RegexStr.Read(c), options);
         }
         catch
         {
@@ -164,7 +167,7 @@ public sealed class GetGroupByIndexNode : TryValueComputeNode<Group>
     public ValueInput<GroupCollection?> Groups = new();
     public ValueInput<int> Index = new();
 
-    protected override Result<Group> TryComputeValue(PulseContext c)
+    protected override Result<Group> TryComputeValue(IPulseContext c)
     {
         var groups = Groups.Read(c);
         var index = Index.Read(c);
@@ -182,7 +185,7 @@ public sealed class GetGroupByNameNode : TryValueComputeNode<Group>
     public ValueInput<GroupCollection?> Groups = new();
     public ValueInput<string> Name = new();
 
-    protected override Result<Group> TryComputeValue(PulseContext c)
+    protected override Result<Group> TryComputeValue(IPulseContext c)
     {
         var groups = Groups.Read(c);
         var name = Name.Read(c);
@@ -236,7 +239,7 @@ public sealed class GetCaptureByIndexNode : TryValueComputeNode<Capture>
     public ValueInput<CaptureCollection?> Captures = new();
     public ValueInput<int> Index = new();
 
-    protected override Result<Capture> TryComputeValue(PulseContext c)
+    protected override Result<Capture> TryComputeValue(IPulseContext c)
     {
         var captures = Captures.Read(c);
         var index = Index.Read(c);
@@ -270,7 +273,7 @@ public sealed class GetMatchByIndexNode : TryValueComputeNode<Match>
     public ValueInput<MatchCollection?> Matches = new();
     public ValueInput<int> Index = new();
 
-    protected override Result<Match> TryComputeValue(PulseContext c)
+    protected override Result<Match> TryComputeValue(IPulseContext c)
     {
         var matches = Matches.Read(c);
         var index = Index.Read(c);

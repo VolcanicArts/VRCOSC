@@ -3,6 +3,8 @@
 
 using System;
 using System.Linq;
+using VRCOSC.App.SDK.Utils;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes;
 
@@ -23,17 +25,20 @@ public static class NodeConstants
         typeof(decimal),
     };
 
-    public static readonly Type[] INPUT_TYPES = new[]
+    public static readonly Type[] TEXTBOX_TYPES = new[]
     {
-        typeof(string),
-        typeof(bool)
+        typeof(string)
     }.Concat(NUMERIC_TYPES).ToArray();
 
-    public static readonly Type[] COMMON_TYPES = new[]
+    public static readonly Type[] INPUT_TYPES = new[]
     {
         typeof(bool),
-        typeof(int),
-        typeof(float),
-        typeof(string)
-    };
+        typeof(Keybind),
+        typeof(DateTime),
+        typeof(TimeSpan),
+        typeof(Color),
+        typeof(ColorHSL)
+    }.Concat(TEXTBOX_TYPES).ToArray();
+
+    public static bool IsInputType(Type type) => INPUT_TYPES.Contains(type) || type.IsEnum;
 }

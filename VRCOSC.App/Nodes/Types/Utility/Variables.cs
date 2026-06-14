@@ -12,7 +12,7 @@ public sealed class DriveVariableNode<T> : Node, IUpdateNode, IHasVariableRefere
     public int UpdateOffset => 1;
     public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
 
-    private GraphVariable<T> graphVariable => (GraphVariable<T>)NodeGraph.GraphVariables[VariableId];
+    private GraphVariable<T> graphVariable => (GraphVariable<T>)ContainingGraph.GraphVariables[VariableId];
 
     public GlobalStore<T> CurrValue = new();
 
@@ -21,37 +21,37 @@ public sealed class DriveVariableNode<T> : Node, IUpdateNode, IHasVariableRefere
 
     public ValueInput<T> Value = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         CurrValue.Write(Value.Read(c), c);
         return Task.CompletedTask;
     }
 
-    public void OnUpdate(PulseContext c) => graphVariable.Write(CurrValue.Read(c));
+    public void OnUpdate(IPulseContext c) => graphVariable.Write(CurrValue.Read(c));
 }
 
-[Node("Direct Write Variable")]
+[Node("Write Variable")]
 public sealed class DirectWriteVariableNode<T> : ActionNode, IHasVariableReference
 {
     public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
 
-    private GraphVariable<T> graphVariable => (GraphVariable<T>)NodeGraph.GraphVariables[VariableId];
+    private GraphVariable<T> graphVariable => (GraphVariable<T>)ContainingGraph.GraphVariables[VariableId];
 
     [NodeProperty("variable_id")]
     public Guid VariableId { get; set; }
 
     public ValueInput<T> Value = new();
 
-    protected override void DoAction(PulseContext c) => graphVariable.Write(Value.Read(c));
+    protected override void DoAction(IPulseContext c) => graphVariable.Write(Value.Read(c));
 }
 
-[Node("Indirect Write Variable", "Variables")]
+[Node("Write Variable", "Variables")]
 public sealed class IndirectWriteVariableNode<T> : ActionNode
 {
     public ValueInput<GraphVariable<T>> Reference = new();
     public ValueInput<T> Value = new();
 
-    protected override void DoAction(PulseContext c) => Reference.Read(c)?.Write(Value.Read(c));
+    protected override void DoAction(IPulseContext c) => Reference.Read(c)?.Write(Value.Read(c));
 }
 
 [Node("Variable Reference")]
@@ -59,15 +59,15 @@ public sealed class VariableReferenceNode<T>() : ValueComputeNode<GraphVariable<
 {
     public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
 
-    private GraphVariable<T> graphVariable => (GraphVariable<T>)NodeGraph.GraphVariables[VariableId];
+    private GraphVariable<T> graphVariable => (GraphVariable<T>)ContainingGraph.GraphVariables[VariableId];
 
     [NodeProperty("variable_id")]
     public Guid VariableId { get; set; }
 
-    protected override GraphVariable<T> ComputeValue(PulseContext c) => graphVariable;
+    protected override GraphVariable<T> ComputeValue(IPulseContext c) => graphVariable;
 }
 
-[Node("Variable Reference To Value", "Variables")]
+[Node("Variable Ref To Value", "Variables")]
 [NodeForceReprocess]
 public sealed class VariableReferenceToValueNode<T>() : SimpleValueTransformNode<GraphVariable<T>?, T>(r => r is null ? default! : r.Value.Value, "Reference", "Value"), IContinuousNode
 {
@@ -82,10 +82,10 @@ public sealed class VariableSourceNode<T>() : ValueSourceNode<T>("Value"), IHasV
 
     public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
 
-    private GraphVariable<T> graphVariable => (GraphVariable<T>)NodeGraph.GraphVariables[VariableId];
+    private GraphVariable<T> graphVariable => (GraphVariable<T>)ContainingGraph.GraphVariables[VariableId];
 
     [NodeProperty("variable_id")]
     public Guid VariableId { get; set; }
 
-    protected override T ComputeValue(PulseContext c) => graphVariable.Value.Value;
+    protected override T ComputeValue(IPulseContext c) => graphVariable.Value.Value;
 }

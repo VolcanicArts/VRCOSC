@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -198,7 +197,7 @@ internal class AppManager : IVRCClientEventHandler
             }
 
             case AvatarPreChangeClientEvent:
-                // we only want to avatar data on avatar events if it was recent
+                // we only want to update avatar data on avatar events if it was recent
                 if (@event.Timestamp >= DateTime.Now - TimeSpan.FromSeconds(1))
                     VRChatClient.UpdateAvatar(null);
 
@@ -206,14 +205,62 @@ internal class AppManager : IVRCClientEventHandler
         }
     }
 
-    public VRChatParameter? GetParameter<T>(string name) => parameterCache.GetValueOrDefault(new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>())).Parameter;
-    public VRChatParameter? GetParameter(string name) => parameterCache.SingleOrDefault(p => p.Value.Parameter.Name == name).Value.Parameter;
+    public VRChatParameter? GetParameter(string name)
+    {
+        return parameterCache.SingleOrDefault(p => p.Key.Name == name).Value.Parameter;
+    }
 
-    public TemplatedVRChatParameter? GetParameter<T>(Regex pattern)
+    public VRChatParameter? GetParameter<T>(string name)
+    {
+        var definition = new ParameterDefinition(name, ParameterTypeFactory.CreateFrom<T>());
+        if (parameterCache.TryGetValue(definition, out var record)) return record.Parameter;
+
+        return null;
+    }
+
+    public VRChatParameter? GetParameter(Regex pattern)
+    {
+        return parameterCache.Where(p => pattern.IsMatch(p.Key.Name)).OrderByDescending(p => p.Value.Timestamp).FirstOrDefault().Value.Parameter;
+    }
+
+    public VRChatParameter? GetParameter<T>(Regex pattern)
     {
         var type = ParameterTypeFactory.CreateFrom<T>();
-        var parameter = parameterCache.Where(p => p.Key.Type == type).OrderByDescending(p => p.Value.Timestamp).FirstOrDefault(p => pattern.IsMatch(p.Value.Parameter.Name)).Value.Parameter;
+        return parameterCache.Where(p => p.Key.Type == type && pattern.IsMatch(p.Key.Name)).OrderByDescending(p => p.Value.Timestamp).FirstOrDefault().Value.Parameter;
+    }
+
+    public T GetParameterValue<T>(Regex pattern)
+    {
+        var parameter = GetParameter<T>(pattern);
+        return parameter is null ? default! : parameter.GetValue<T>();
+    }
+
+    public TemplatedVRChatParameter? GetTemplatedParameter<T>(Regex pattern)
+    {
+        var parameter = GetParameter<T>(pattern);
         return parameter is not null ? new TemplatedVRChatParameter(pattern, parameter) : null;
+    }
+
+    public void SendToAllParameter<T>(string pattern, T value)
+    {
+        if (!VRChatClient.IsInAvatar)
+        {
+            // Fallback to sending without pattern matching
+            sendParameter(pattern, value);
+            return;
+        }
+
+        SendToAllParameter(TemplatedVRChatParameter.TemplateAsRegex(pattern), value);
+    }
+
+    public void SendToAllParameter<T>(Regex pattern, T value)
+    {
+        if (!VRChatClient.IsInAvatar) return;
+
+        foreach (var def in VRChatClient.Avatar.Parameters.Where(def => pattern.IsMatch(def.Name)))
+        {
+            VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{def.Name}", value);
+        }
     }
 
     public static bool IsAdministrator => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
@@ -362,7 +409,7 @@ internal class AppManager : IVRCClientEventHandler
         }
     }
 
-    private void sendParameter(string parameterName, object value)
+    private void sendParameter<T>(string parameterName, T value)
     {
         VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{parameterName}", value);
     }

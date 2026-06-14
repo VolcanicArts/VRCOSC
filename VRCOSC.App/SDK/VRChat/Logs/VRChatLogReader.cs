@@ -75,6 +75,9 @@ internal static class VRChatLogReader
 
     private static Task process()
     {
+        if (!AppManager.GetInstance().VRChatClient.IsOpen)
+            return Task.CompletedTask;
+
         try
         {
             readLinesToFileEnd();

@@ -13,13 +13,19 @@ namespace VRCOSC;
 
 public static class Program
 {
+#if DEBUG
+    public const string APP_NAME = "VRCOSC-Dev";
+#else
+    public const string APP_NAME = "VRCOSC";
+#endif
+
     private static MainApp app = null!;
     private static MainWindow window = null!;
 
     [STAThread]
     public static void Main(string[] args)
     {
-        const string mutex_name = @"Global\VRCOSC_SingleInstanceMutex";
+        const string mutex_name = @$"Global\{APP_NAME}_SingleInstanceMutex";
         using var mutex = new Mutex(true, mutex_name, out bool isFirstInstance);
 
         if (!isFirstInstance)
@@ -41,7 +47,7 @@ public static class Program
     {
         try
         {
-            using var client = new NamedPipeClientStream(".", "VRCOSC_IPC", PipeDirection.Out);
+            using var client = new NamedPipeClientStream(".", $"{APP_NAME}_IPC", PipeDirection.Out);
             client.Connect(500);
             using var writer = new StreamWriter(client);
             writer.AutoFlush = true;
@@ -60,7 +66,7 @@ public static class Program
             {
                 try
                 {
-                    using var server = new NamedPipeServerStream("VRCOSC_IPC", PipeDirection.In);
+                    using var server = new NamedPipeServerStream($"{APP_NAME}_IPC", PipeDirection.In);
                     server.WaitForConnection();
 
                     using var reader = new StreamReader(server);

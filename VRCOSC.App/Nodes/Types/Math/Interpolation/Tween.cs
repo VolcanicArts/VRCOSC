@@ -4,44 +4,43 @@
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Math.Interpolation;
 
 [Node("Tween", "Math/Interpolation")]
-public sealed class TweenNode<T> : Node, IFlowInput where T : INumber<T>
+public sealed class TweenNode<T> : Node where T : INumber<T>
 {
-    public FlowCall OnUpdate = new();
-    public FlowContinuation OnFinished = new();
+    public FlowInput FlowInput = new();
+    public FlowOutput OnUpdate = new("On Update", scope: true);
+    public FlowOutput OnFinished = new("On Finished");
 
     public ValueInput<T> From = new();
     public ValueInput<T> To = new();
-    public ValueInput<float> TimeMilliseconds = new();
+    public ValueInput<int> Duration = new("Duration (ms)");
+    public ValueInput<EasingMode> Easing = new(defaultValue: EasingMode.Linear);
     public ValueOutput<T> Value = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task Process(IPulseContext c)
     {
-        var startTime = DateTime.Now;
-        var milliseconds = TimeMilliseconds.Read(c);
-        var endTime = startTime + TimeSpan.FromMilliseconds(milliseconds);
+        var milliseconds = Duration.Read(c);
+        var from = From.Read(c);
+        var to = To.Read(c);
+        var easing = Easing.Read(c);
 
         var t = 0d;
+        var startTime = DateTime.Now;
+        var endTime = startTime + TimeSpan.FromMilliseconds(milliseconds);
+        var timeDiff = endTime - startTime;
+        var updateDelay = TimeSpan.FromSeconds(1d / 100d);
 
         do
         {
-            t = double.Clamp((DateTime.Now - startTime) / (endTime - startTime), 0d, 1d);
-
-            var fromDouble = double.CreateSaturating(From.Read(c));
-            var toDouble = double.CreateSaturating(To.Read(c));
-            var valueDouble = fromDouble + (toDouble - fromDouble) * t;
-
-            var value = T.CreateSaturating(valueDouble);
-            Value.Write(value, c);
-
+            t = double.Clamp((DateTime.Now - startTime) / timeDiff, 0d, 1d);
+            Value.Write(Utils.Interpolation.Ease(from, to, t, easing), c);
             await OnUpdate.Execute(c);
-            await Task.Delay(TimeSpan.FromSeconds(1d / 60d));
-        } while (!c.IsCancelled && System.Math.Abs(t - 1d) > double.Epsilon);
-
-        if (c.IsCancelled) return;
+            await c.Run(Task.Delay(updateDelay));
+        } while (!c.IsCancelled && double.Abs(t - 1d) > 1e-4);
 
         Value.Write(default!, c);
         await OnFinished.Execute(c);

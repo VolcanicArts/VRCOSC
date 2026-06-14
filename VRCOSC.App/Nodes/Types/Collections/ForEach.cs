@@ -7,15 +7,16 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Collections;
 
 [Node("For Each", "Collections")]
-public sealed class ForEachNode<T> : Node, IFlowInput
+public sealed class ForEachNode<T> : Node
 {
-    public FlowCall OnIteration = new();
-    public FlowContinuation OnEnd = new();
+    public FlowInput FlowInput = new();
+    public FlowOutput OnIteration = new("On Iteration", scope: true);
+    public FlowOutput OnEnd = new("On End");
 
     public ValueInput<IEnumerable<T>> Enumerable = new();
     public ValueOutput<T> Element = new();
 
-    protected override async Task Process(PulseContext c)
+    protected override async Task Process(IPulseContext c)
     {
         var enumerable = Enumerable.Read(c);
         if (enumerable is null) return;

@@ -12,7 +12,7 @@ namespace VRCOSC.App.Nodes.Types.Json;
 [NodeCollapsed]
 public class JsonObjectToDictionaryNode<T> : ValueTransformNode<JsonObject, Dictionary<string, T>>
 {
-    protected override Dictionary<string, T> TransformValue(JsonObject value, PulseContext c)
+    protected override Dictionary<string, T> TransformValue(JsonObject value, IPulseContext c)
     {
         if (value is null) return [];
 
@@ -41,14 +41,14 @@ public class JsonObjectToDictionaryNode<T> : ValueTransformNode<JsonObject, Dict
 [NodeCollapsed]
 public class DictionaryToJsonObjectNode<T> : ValueTransformNode<Dictionary<string, T>, JsonObject?>
 {
-    protected override JsonObject? TransformValue(Dictionary<string, T> value, PulseContext c) => value is null ? null : (JsonObject)JsonSerializer.SerializeToNode(value, options: null)!;
+    protected override JsonObject? TransformValue(Dictionary<string, T> value, IPulseContext c) => value is null ? null : (JsonObject)JsonSerializer.SerializeToNode(value, options: null)!;
 }
 
 [Node("JsonArray To Enumerable", "Json")]
 [NodeCollapsed]
 public class JsonArrayToEnumerableNode<T> : ValueTransformNode<JsonArray, List<T>>
 {
-    protected override List<T> TransformValue(JsonArray value, PulseContext c)
+    protected override List<T> TransformValue(JsonArray value, IPulseContext c)
     {
         try
         {
@@ -68,5 +68,5 @@ public class JsonArrayToEnumerableNode<T> : ValueTransformNode<JsonArray, List<T
 [NodeCollapsed]
 public class EnumerableToJsonArrayNode<T> : ValueTransformNode<List<T>, JsonArray?>
 {
-    protected override JsonArray? TransformValue(List<T> value, PulseContext c) => value is null ? null : (JsonArray)JsonSerializer.SerializeToNode(value, options: null)!;
+    protected override JsonArray? TransformValue(List<T> value, IPulseContext c) => value is null ? null : (JsonArray)JsonSerializer.SerializeToNode(value, options: null)!;
 }

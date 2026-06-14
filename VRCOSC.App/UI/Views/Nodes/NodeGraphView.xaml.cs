@@ -1,34 +1,32 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
+using ColorPicker;
 using VRCOSC.App.Nodes;
-using VRCOSC.App.Nodes.Serialisation;
+using VRCOSC.App.Nodes.Metadata;
+using VRCOSC.App.Nodes.Serialisation.V2;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Nodes.Types.Inputs;
 using VRCOSC.App.Nodes.Types.Utility;
-using VRCOSC.App.SDK.Utils;
 using VRCOSC.App.UI.Core;
+using VRCOSC.App.UI.Views.Nodes.ViewModels;
 using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
-using Xceed.Wpf.Toolkit;
+using Xceed.Wpf.AvalonDock.Controls;
+using Color = VRCOSC.App.Utils.Color;
 using Expression = org.mariuszgromada.math.mxparser.Expression;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MenuItem = System.Windows.Controls.MenuItem;
@@ -37,85 +35,354 @@ using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using TextBox = System.Windows.Controls.TextBox;
 using Vector = System.Windows.Vector;
 
-// ReSharper disable CollectionNeverQueried.Global
-// ReSharper disable TypeWithSuspiciousEqualityIsUsedInRecord.Global
-
 namespace VRCOSC.App.UI.Views.Nodes;
 
-public partial class NodeGraphView : INotifyPropertyChanged
+public partial class NodeGraphView
 {
+    public const double GRAPH_SIZE = 50_000;
     public const double SNAP_DISTANCE = 25d / 2d;
-    public const double BACKGROUND_SNAP_DISTANCE = SNAP_DISTANCE * 2d;
-    public const double SIGNIFICANT_SNAP_STEP = 20d;
-    public Padding GroupPadding { get; } = new(30, 55, 30, 30);
-    public Padding SelectionPadding { get; } = new((int)(SNAP_DISTANCE * 0.75), (int)(SNAP_DISTANCE * 0.75), (int)(SNAP_DISTANCE * 0.75), (int)(SNAP_DISTANCE * 0.75));
-
+    public const MouseButton GRAPH_INTERACT_BUTTON = MouseButton.Left;
     public const MouseButton GRAPH_DRAG_BUTTON = MouseButton.Middle;
-    public const MouseButton GRAPH_ITEM_DRAG_BUTTON = MouseButton.Left;
+    public const MouseButton GRAPH_SECONDARY_BUTTON = MouseButton.Right;
+    public Padding GroupPadding { get; } = new(30, 55, 30, 25);
+    public Padding SelectionPadding { get; } = new((int)(SNAP_DISTANCE * 1.5f), (int)(SNAP_DISTANCE * 1.5f), (int)(SNAP_DISTANCE * 1.5f), (int)(SNAP_DISTANCE * 1.5f));
+
+    public double GraphSize => GRAPH_SIZE;
 
     public NodeGraph Graph { get; }
 
-    public ObservableCollection<GraphItem> GraphItems { get; } = [];
-    public ObservableCollection<ConnectionItem> ConnectionItems { get; } = [];
-
-    private WindowManager nodeCreatorWindowManager = null!;
-    private WindowManager presetCreatorWindowManager = null!;
-    private WindowManager variableCreatorWindowManager = null!;
+    public ObservableCollection<GraphElementViewModel> GraphElements { get; } = [];
+    public ObservableCollection<IGraphVariable> GraphVariablesSource { get; } = [];
 
     private bool hasLoaded;
-    private Point graphContextMenuPosition;
 
-    private GraphDrag? graphDrag;
-    private GraphItemDrag? graphItemDrag;
-    private NodeGroupGraphItemDrag? nodeGroupGraphItemGrab;
-    private ConnectionDrag? connectionDrag;
+    private WindowManager nodeCreatorWindowManager = null!;
+    private WindowManager variableCreatorWindowManager = null!;
+    private WindowManager presetCreatorWindowManager = null!;
+
+    public Observable<bool> ShowDetails { get; } = new(true);
+
     private SelectionCreate? selectionCreate;
     private SelectionDrag? selectionDrag;
-
-    private GraphItemSelection? selection;
-    private NodePreset? copyPasteHolder;
-
-    public bool ContentVisible
-    {
-        get;
-        set
-        {
-            if (value == field) return;
-
-            field = value;
-            OnPropertyChanged();
-        }
-    } = true;
-
-    public ObservableCollection<IGraphVariable> GraphVariablesSource { get; } = new();
+    private ElementsSelection? elementsSelection;
 
     public NodeGraphView(NodeGraph graph)
     {
-        Graph = graph;
-
         InitializeComponent();
-        DataContext = this;
-
+        Graph = graph;
+        Graph.OnMarkedDirty += onGraphMarkedDirty;
         Loaded += OnLoaded;
-        KeyDown += OnKeyDown;
-
-        Graph.OnMarkedDirty += OnGraphMarkedDirty;
+        DataContext = this;
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        Focus();
-
         if (hasLoaded) return;
 
         nodeCreatorWindowManager = new WindowManager(this);
-        presetCreatorWindowManager = new WindowManager(this);
         variableCreatorWindowManager = new WindowManager(this);
-
-        Task.Run(Graph.MarkDirtyAsync);
+        presetCreatorWindowManager = new WindowManager(this);
+        refreshContextMenu();
+        centerGraph();
+        Task.Run(Graph.MarkDirty);
     }
 
-    private void OnKeyDown(object sender, KeyEventArgs e)
+    #region Util
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static T snapToGrid<T>(T value) where T : IFloatingPointIeee754<T>
+    {
+        var snapDistance = T.CreateChecked(SNAP_DISTANCE);
+        var offset = T.CreateChecked(0.5d);
+        return T.Round((value + offset) / snapDistance) * snapDistance - offset;
+    }
+
+    #endregion
+
+    #region Records
+
+    private record ElementOffset(GridGraphElementViewModel ViewModel, Point Offset);
+
+    private record ConnectionDrag(FrameworkElement Control, INodeElement Element, int SlotIndex);
+
+    private record SelectionCreate(Point Point);
+
+    private record SelectionDrag(Vector Offset, Vector OffsetFromGrid);
+
+    private record ElementsSelection(GridGraphElementViewModel[] Items);
+
+    private record GroupDrag(Vector Offset, Vector OffsetFromGrid, GroupViewModel GroupVm, IEnumerable<GridGraphElementViewModel> Items);
+
+    #endregion
+
+    #region Marked Dirty
+
+    private async Task onGraphMarkedDirty(GraphChanges changes)
+    {
+        try
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+
+            if (changes.RemovedNodes.Count != 0)
+                GraphElements.RemoveIf(item => item is NodeViewModel vm && changes.RemovedNodes.Contains(vm.Node));
+
+            if (changes.RemovedConnections.Count != 0)
+                GraphElements.RemoveIf(item => item is ConnectionViewModel vm && changes.RemovedConnections.Contains(vm.Connection));
+
+            if (changes.RemovedGroups.Count != 0)
+                GraphElements.RemoveIf(item => item is GroupViewModel vm && changes.RemovedGroups.Contains(vm.Group));
+
+            if (changes.RemovedComments.Count != 0)
+                GraphElements.RemoveIf(item => item is CommentViewModel vm && changes.RemovedComments.Contains(vm.Comment));
+
+            Logger.Log($"Finished removing elements in {stopwatch.Elapsed}", LoggingTarget.Information);
+            stopwatch.Restart();
+
+            var addedNodes = new List<NodeViewModel>();
+            var addedConnections = new List<ConnectionViewModel>();
+            var addedGroups = new List<GroupViewModel>();
+            var addedComments = new List<CommentViewModel>();
+
+            var offset = GraphElements.Count;
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                GraphVariablesSource.Clear();
+                GraphVariablesSource.AddRange(Graph.GraphVariables.Values.OrderBy(v => v.GetName()).ThenBy(v => v.GetValueType().GetFriendlyName()));
+
+                addedNodes.AddRange(changes.AddedNodes.Select(node =>
+                {
+                    if (node is IDisplayNode) return new DisplayNodeBaseViewModel(node);
+
+                    return new NodeViewModel(node);
+                }).ToList());
+                addedConnections.AddRange(changes.AddedConnections.Select(connection => new ConnectionViewModel(connection)).ToList());
+                addedComments.AddRange(changes.AddedComments.Select(comment => new CommentViewModel(comment)).ToList());
+                addedGroups.AddRange(changes.AddedGroups.Select(group => new GroupViewModel(group)).ToList());
+
+                GraphElements.AddRange(addedNodes);
+                GraphElements.AddRange(addedConnections);
+                GraphElements.AddRange(addedComments);
+                GraphElements.AddRange(addedGroups);
+
+                Logger.Log($"Finished adding elements in {stopwatch.Elapsed}", LoggingTarget.Information);
+                stopwatch.Restart();
+            });
+
+            await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Loaded);
+
+            Logger.Log($"Finished wait for load in {stopwatch.Elapsed}", LoggingTarget.Information);
+            stopwatch.Restart();
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                for (var i = 0; i < addedNodes.Count; i++)
+                {
+                    var nodeVm = addedNodes[i];
+                    var itemContainer = (FrameworkElement)GraphElementItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + i);
+                    var nodeContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
+
+                    if (nodeVm is DisplayNodeBaseViewModel dnbvm) dnbvm.Start();
+
+                    nodeVm.Control = nodeContainer;
+                    populateNodeViewModel(nodeVm);
+                    updateGridGraphElementPosition(nodeVm, nodeVm.Position);
+                }
+
+                Logger.Log($"Finished populating nodes in {stopwatch.Elapsed}", LoggingTarget.Information);
+                stopwatch.Restart();
+
+                offset += addedNodes.Count;
+
+                for (var i = 0; i < addedConnections.Count; i++)
+                {
+                    var connectionVm = addedConnections[i];
+                    var itemContainer = (FrameworkElement)GraphElementItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + i);
+                    var connectionContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
+
+                    connectionVm.Control = connectionContainer;
+                    connectionVm.ZIndex = -10;
+                    updateConnectionViewModelPoints(connectionVm);
+                    connectionVm.IsVisible = true;
+                }
+
+                Logger.Log($"Finished populating connections in {stopwatch.Elapsed}", LoggingTarget.Information);
+                stopwatch.Restart();
+
+                offset += addedConnections.Count;
+
+                for (var i = 0; i < addedComments.Count; i++)
+                {
+                    var commentVm = addedComments[i];
+                    var itemContainer = (FrameworkElement)GraphElementItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + i);
+                    var commentContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
+
+                    commentVm.Control = commentContainer;
+                    updateCommentSnap(commentVm);
+                }
+
+                Logger.Log($"Finished populating comments in {stopwatch.Elapsed}", LoggingTarget.Information);
+                stopwatch.Restart();
+
+                offset += addedComments.Count;
+
+                for (var i = 0; i < addedGroups.Count; i++)
+                {
+                    var groupVm = addedGroups[i];
+                    var itemContainer = (FrameworkElement)GraphElementItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + i);
+                    var groupContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
+
+                    groupVm.Control = groupContainer;
+                    updateGroupViewModel(groupVm, false);
+                }
+
+                foreach (var groupVm in addedGroups)
+                {
+                    updateGroupViewModel(groupVm);
+                }
+
+                Logger.Log($"Finished populating groups in {stopwatch.Elapsed}", LoggingTarget.Information);
+                stopwatch.Restart();
+            }, DispatcherPriority.Background);
+
+            if (!hasLoaded)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    hasLoaded = true;
+                    LoadingOverlay.FadeOut(250);
+                    GraphContainer.Focus();
+                });
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "Error occured when handling dirty graph");
+        }
+    }
+
+    #endregion
+
+    #region View Model Populators
+
+    private static List<FrameworkElement>[] getElementControls(List<FrameworkElement> searchList, INodeSharedMetadata metadata, ConnectionPoint connectionPoint, int slotCount)
+    {
+        var listControlName = connectionPoint switch
+        {
+            ConnectionPoint.FlowOutput => "FlowOutputListTemplateInstance",
+            ConnectionPoint.FlowInput => "FlowInputListTemplateInstance",
+            ConnectionPoint.ValueOutput => "ValueOutputListTemplateInstance",
+            ConnectionPoint.ValueInput => "ValueInputListTemplateInstance",
+            _ => throw new ArgumentOutOfRangeException(nameof(connectionPoint), connectionPoint, null)
+        };
+
+        var listViewModelType = connectionPoint switch
+        {
+            ConnectionPoint.FlowOutput => typeof(NodeFlowOutputListViewModel),
+            ConnectionPoint.FlowInput => typeof(NodeFlowInputListViewModel),
+            ConnectionPoint.ValueOutput => typeof(NodeValueOutputListViewModel),
+            ConnectionPoint.ValueInput => typeof(NodeValueInputListViewModel),
+            _ => throw new ArgumentOutOfRangeException(nameof(connectionPoint), connectionPoint, null)
+        };
+
+        var viewModelType = connectionPoint switch
+        {
+            ConnectionPoint.FlowOutput => typeof(NodeFlowOutputViewModel),
+            ConnectionPoint.FlowInput => typeof(NodeFlowInputViewModel),
+            ConnectionPoint.ValueOutput => typeof(NodeValueOutputViewModel),
+            ConnectionPoint.ValueInput => typeof(NodeValueInputViewModel),
+            _ => throw new ArgumentOutOfRangeException(nameof(connectionPoint), connectionPoint, null)
+        };
+
+        const string control_name = "ConnectionPointContainer";
+        var controls = new List<FrameworkElement>[slotCount];
+
+        for (var slot = 0; slot < slotCount; slot++)
+        {
+            var elementSharedMetadata = metadata.Elements[connectionPoint][slot];
+            controls[slot] = [];
+
+            if (!elementSharedMetadata.IsList)
+            {
+                var slotElement = searchList.SingleOrDefault(c => c.Name == control_name && c.Tag?.GetType() == viewModelType && ((ConnectionPointViewModel)c.Tag).Element.Metadata.Shared.Slot == slot);
+
+                // ValueNode doesn't need a connection point for collapsed inputs
+                if (slotElement is null) continue;
+
+                controls[slot].Add(slotElement);
+            }
+            else
+            {
+                var slotElements = searchList.Single(c => c.Name == listControlName && c.Tag?.GetType() == listViewModelType && ((ConnectionPointListViewModel)c.Tag).Element.Metadata.Shared.Slot == slot)
+                                             .FindVisualChildren<FrameworkElement>().Where(c => c.Name == control_name && c.Tag?.GetType() == viewModelType);
+                controls[slot].AddRange(slotElements);
+            }
+        }
+
+        return controls;
+    }
+
+    private void populateNodeViewModel(NodeViewModel vm)
+    {
+        var visualChildren = vm.Control.FindVisualChildren<FrameworkElement>().ToList();
+        var sharedMetadata = vm.Node.Metadata.Shared;
+
+        if (sharedMetadata.IsFlowOutput)
+            vm.FlowOutputControls = getElementControls(visualChildren, sharedMetadata, ConnectionPoint.FlowOutput, sharedMetadata.FlowOutputCount);
+
+        if (sharedMetadata.IsFlowInput)
+            vm.FlowInputControls = getElementControls(visualChildren, sharedMetadata, ConnectionPoint.FlowInput, sharedMetadata.FlowInputCount);
+
+        if (sharedMetadata.IsValueOutput)
+            vm.ValueOutputControls = getElementControls(visualChildren, sharedMetadata, ConnectionPoint.ValueOutput, sharedMetadata.ValueOutputCount);
+
+        if (sharedMetadata.IsValueInput)
+            vm.ValueInputControls = getElementControls(visualChildren, sharedMetadata, ConnectionPoint.ValueInput, sharedMetadata.ValueInputCount);
+
+        populateNodeViewModelSnapOffset(vm);
+    }
+
+    private void updateConnectionViewModelPoints(ConnectionViewModel vm)
+    {
+        var outputNodeVm = GraphElements.OfType<NodeViewModel>().Single(n => n.Node.Id == vm.Connection.OutputId);
+        var inputNodeVm = GraphElements.OfType<NodeViewModel>().Single(n => n.Node.Id == vm.Connection.InputId);
+
+        updateConnectionOfNode(vm, outputNodeVm);
+        updateConnectionOfNode(vm, inputNodeVm);
+        vm.CreatePath();
+    }
+
+    private void populateNodeViewModelSnapOffset(NodeViewModel vm)
+    {
+        var control = getSnappingControl(vm);
+        vm.SnappingControl = control;
+
+        var controlPos = control.TranslatePoint(new Point(control.ActualWidth / 2d, control.ActualHeight / 2d), GraphContainer);
+        var xOffset = controlPos.X - vm.Position.X;
+        var yOffset = controlPos.Y - vm.Position.Y;
+        vm.SnapOffset = new Point(xOffset, yOffset);
+    }
+
+    private static FrameworkElement getSnappingControl(NodeViewModel vm)
+    {
+        var metadata = vm.Node.Metadata.Shared;
+
+        if (metadata.IsFlowOutput) return vm.FlowOutputControls[0][0];
+        if (metadata.IsFlowInput) return vm.FlowInputControls[0][0];
+        if (metadata.IsValueOutput) return vm.ValueOutputControls[0][0];
+        if (metadata.IsValueInput) return vm.ValueInputControls[0][0];
+
+        throw new Exception($"Unable to get snapping control for node {vm.Node}");
+    }
+
+    #endregion
+
+    #region GraphControl
+
+    private Point lastGraphPointerPos;
+
+    protected override void OnKeyDown(KeyEventArgs e)
     {
         if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) && e.Key == Key.C)
         {
@@ -133,615 +400,363 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         if (e.Key == Key.Space)
         {
-            resetCanvasPosition();
+            centerGraph();
             e.Handled = true;
             return;
         }
 
-        if (e.Key == Key.Delete && selection is not null)
+        if (e.Key == Key.Delete)
         {
-            deleteSelection().Forget();
-            e.Handled = true;
+            if (elementsSelection is not null)
+            {
+                deleteSelection().Forget();
+                e.Handled = true;
+            }
+
             return;
         }
     }
 
-    private async Task OnGraphMarkedDirty()
+    private NodePreset? copyPasteHolder;
+
+    private void executeCopy()
     {
-        if (!hasLoaded)
+        if (elementsSelection is null) return;
+
+        var position = (TranslateTransform)SelectionVisual.RenderTransform;
+
+        var nodeVms = elementsSelection.Items.OfType<NodeViewModel>().ToList();
+        var nodeIds = nodeVms.Select(vm => vm.Node.Id).ToList();
+
+        copyPasteHolder = new NodePreset
         {
-            // let the UI update for a bit to ensure animations stay smooth
-            await Task.Delay(150);
-        }
-
-        if (Graph.RemovedNodes.Count != 0)
-            GraphItems.RemoveIf(item => item is NodeGraphItem nodeGraphItem && Graph.RemovedNodes.Contains(nodeGraphItem.Node));
-
-        if (Graph.RemovedConnections.Count != 0)
-            ConnectionItems.RemoveIf(item => Graph.RemovedConnections.Contains(item.Connection));
-
-        if (Graph.RemovedGroups.Count != 0)
-            GraphItems.RemoveIf(item => item is NodeGroupGraphItem nodeGroupGraphItem && Graph.RemovedGroups.Contains(nodeGroupGraphItem.Group));
-
-        var addedNodes = Graph.AddedNodes.Select(node => new NodeGraphItem(node)).ToList();
-        var addedConnections = Graph.AddedConnections;
-        var addedGroups = Graph.AddedGroups.Select(group => new NodeGroupGraphItem(group)).ToList();
-
-        var offset = GraphItems.Count;
-
-        await Dispatcher.InvokeAsync(() =>
-        {
-            if (!hasLoaded)
-                drawGraphBackground();
-
-            RefreshContextMenu();
-
-            GraphVariablesSource.Clear();
-            GraphVariablesSource.AddRange(Graph.GraphVariables.Values.OrderBy(v => v.GetName()).ThenBy(v => v.GetValueType().GetFriendlyName()));
-
-            GraphItems.AddRange(addedNodes);
-            GraphItems.AddRange(addedGroups);
-        });
-
-        await Dispatcher.InvokeAsync(() =>
-        {
-            for (var i = 0; i < addedNodes.Count; i++)
+            Structure =
             {
-                var nodeGraphItem = addedNodes[i];
-                var itemContainer = (FrameworkElement)GraphItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + i);
-                var nodeContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
-
-                nodeGraphItem.Element = nodeContainer;
-                populateNodeGraphItem(nodeGraphItem);
-                updateGraphItemPosition(nodeGraphItem, nodeGraphItem.Node.NodePosition);
-            }
-
-            for (var i = 0; i < addedGroups.Count; i++)
-            {
-                var nodeGroupGraphItem = addedGroups[i];
-                var itemContainer = (FrameworkElement)GraphItemsControl.ItemContainerGenerator.ContainerFromIndex(offset + addedNodes.Count + i);
-                var groupContainer = (FrameworkElement)VisualTreeHelper.GetChild(itemContainer, 0);
-
-                nodeGroupGraphItem.Element = groupContainer;
-                updateNodeGroupGraphItem(nodeGroupGraphItem);
-            }
-
-            drawNodeConnections(addedConnections);
-        }, DispatcherPriority.Render);
-
-        if (!hasLoaded)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                hasLoaded = true;
-                Graph.UILoaded = true;
-                LoadingOverlay.FadeOut(250);
-            });
-        }
-    }
-
-    public void RefreshContextMenu()
-    {
-        ContextMenuBuilder.Refresh();
-        GraphContainer.ContextMenu!.Items.Clear();
-        GraphContainer.ContextMenu!.Items.Add(ContextMenuBuilder.GraphCreateNodeContextSubMenu.Value);
-        GraphContainer.ContextMenu!.Items.Add(ContextMenuBuilder.GraphPresetContextSubMenu.Value);
-    }
-
-    #region Graph Background
-
-    private void drawGraphBackground()
-    {
-        var backgroundVisual = createTiledGrid();
-
-        var brush = new VisualBrush(backgroundVisual)
-        {
-            TileMode = TileMode.Tile,
-            Viewport = new Rect(0, 0, BACKGROUND_SNAP_DISTANCE * SIGNIFICANT_SNAP_STEP, BACKGROUND_SNAP_DISTANCE * SIGNIFICANT_SNAP_STEP),
-            ViewportUnits = BrushMappingMode.Absolute,
-            AlignmentX = AlignmentX.Left,
-            AlignmentY = AlignmentY.Top,
-            Stretch = Stretch.None
-        };
-
-        GraphBackground.Background = brush;
-    }
-
-    private DrawingVisual createTiledGrid()
-    {
-        const double tile_size = BACKGROUND_SNAP_DISTANCE * SIGNIFICANT_SNAP_STEP;
-
-        const double line_thickness = 1.0;
-        const double offset = line_thickness / 2.0;
-
-        var visual = new DrawingVisual();
-        using var dc = visual.RenderOpen();
-
-        var minorPen = new Pen((Brush)FindResource("CBackground1"), line_thickness);
-        var majorPen = new Pen((Brush)FindResource("CBackground8"), line_thickness);
-
-        for (var i = 0; i <= SIGNIFICANT_SNAP_STEP; i++)
-        {
-            if (i % SIGNIFICANT_SNAP_STEP == 0) continue;
-
-            var x = i * BACKGROUND_SNAP_DISTANCE + offset;
-            dc.DrawLine(minorPen, new Point(x, 0), new Point(x, tile_size));
-        }
-
-        for (var i = 0; i <= SIGNIFICANT_SNAP_STEP; i++)
-        {
-            if (i % SIGNIFICANT_SNAP_STEP == 0) continue;
-
-            var y = i * BACKGROUND_SNAP_DISTANCE + offset;
-            dc.DrawLine(minorPen, new Point(0, y), new Point(tile_size, y));
-        }
-
-        for (var i = 0; i <= SIGNIFICANT_SNAP_STEP; i++)
-        {
-            if (i % SIGNIFICANT_SNAP_STEP != 0) continue;
-
-            var x = i * BACKGROUND_SNAP_DISTANCE + offset;
-            dc.DrawLine(majorPen, new Point(x, 0), new Point(x, tile_size));
-        }
-
-        for (var i = 0; i <= SIGNIFICANT_SNAP_STEP; i++)
-        {
-            if (i % SIGNIFICANT_SNAP_STEP != 0) continue;
-
-            var y = i * BACKGROUND_SNAP_DISTANCE + offset;
-            dc.DrawLine(majorPen, new Point(0, y), new Point(tile_size, y));
-        }
-
-        return visual;
-    }
-
-    #endregion
-
-    #region Utility
-
-    private void snapPointToGrid(ref Point point)
-    {
-        point.X = double.Round(point.X / SNAP_DISTANCE) * SNAP_DISTANCE;
-        point.Y = double.Round(point.Y / SNAP_DISTANCE) * SNAP_DISTANCE;
-    }
-
-    private void deselectGraphItems()
-    {
-        selection = null;
-        SelectionVisual.Visibility = Visibility.Collapsed;
-    }
-
-    private void drawNodeConnections(Node node)
-    {
-        var connections = Graph.Connections.Values.Where(c => c.InputNodeId == node.Id || c.OutputNodeId == node.Id);
-        drawNodeConnections(connections);
-    }
-
-    private void drawNodeConnections(IEnumerable<NodeConnection> connections)
-    {
-        foreach (var connection in connections)
-        {
-            try
-            {
-                var foundConnection = ConnectionItems.SingleOrDefault(c => c == new ConnectionItem(connection, new Path()));
-
-                if (foundConnection is not null)
-                    updateConnectionItemPath(foundConnection);
-                else
-                    ConnectionItems.Add(new ConnectionItem(connection, createConnectionPath(connection)));
-            }
-            catch (Exception e)
-            {
-                ExceptionHandler.Handle(e);
-            }
-        }
-    }
-
-    private void populateNodeGraphItem(NodeGraphItem item)
-    {
-        if (item.Node.Metadata.IsFlowInput)
-        {
-            item.FlowInputs = new FrameworkElement[1];
-
-            for (var i = 0; i < item.FlowInputs.Length; i++)
-            {
-                var slotName = $"flow_input_{i}";
-                var slotElement = item.Element.FindVisualChildWhere<FrameworkElement>(element => element.Tag is string slotTag && slotTag == slotName);
-                Debug.Assert(slotElement is not null);
-                item.FlowInputs[i] = slotElement;
-            }
-        }
-
-        if (item.Node.Metadata.IsFlowOutput)
-        {
-            item.FlowOutputs = new FrameworkElement[item.Node.Metadata.FlowCount];
-
-            for (var i = 0; i < item.FlowOutputs.Length; i++)
-            {
-                var slotName = $"flow_output_{i}";
-                var slotElement = item.Element.FindVisualChildWhere<FrameworkElement>(element => element.Tag is string slotTag && slotTag == slotName);
-                Debug.Assert(slotElement is not null);
-                item.FlowOutputs[i] = slotElement;
-            }
-        }
-
-        if (item.Node.Metadata.IsValueInput)
-        {
-            item.ValueInputs = new FrameworkElement[item.Node.VirtualValueInputCount()];
-
-            for (var i = 0; i < item.ValueInputs.Length; i++)
-            {
-                var slotName = $"value_input_{i}";
-                var slotElement = item.Element.FindVisualChildWhere<FrameworkElement>(element => element.Tag is string slotTag && slotTag == slotName);
-                Debug.Assert(slotElement is not null);
-                item.ValueInputs[i] = slotElement;
-            }
-        }
-
-        if (item.Node.Metadata.IsValueOutput)
-        {
-            item.ValueOutputs = new FrameworkElement[item.Node.VirtualValueOutputCount()];
-
-            for (var i = 0; i < item.ValueOutputs.Length; i++)
-            {
-                var slotName = $"value_output_{i}";
-                var slotElement = item.Element.FindVisualChildWhere<FrameworkElement>(element => element.Tag is string slotTag && slotTag == slotName);
-                Debug.Assert(slotElement is not null);
-                item.ValueOutputs[i] = slotElement;
-            }
-        }
-
-        populateNodeGraphItemSnapOffset(item);
-    }
-
-    private void populateNodeGraphItemSnapOffset(NodeGraphItem item)
-    {
-        var snapElement = getSnappingSlotElement(item);
-        var snapElementPos = snapElement.TranslatePoint(new Point(0, 0), GraphContainer) + new Vector(snapElement.ActualWidth / 2d, snapElement.ActualHeight / 2d);
-
-        item.SnapOffset = new Vector(snapElementPos.X - item.PosX, snapElementPos.Y - item.PosY);
-    }
-
-    private FrameworkElement getSnappingSlotElement(NodeGraphItem item)
-    {
-        if (item.Node.Metadata.IsFlowOutput)
-            return item.FlowOutputs[0];
-
-        if (item.Node.Metadata.IsFlowInput)
-            return item.FlowInputs[0];
-
-        if (item.Node.Metadata.IsValueOutput)
-            return item.ValueOutputs[0];
-
-        if (item.Node.Metadata.IsValueInput)
-            return item.ValueInputs[0];
-
-        throw new InvalidOperationException();
-    }
-
-    private FrameworkElement getOutputSlotElementForConnection(NodeConnection connection)
-    {
-        var nodeGraphItem = GraphItems.OfType<NodeGraphItem>().Single(item => item.Node.Id == connection.OutputNodeId);
-        return connection.ConnectionType == ConnectionType.Flow ? nodeGraphItem.FlowOutputs[connection.OutputSlot] : nodeGraphItem.ValueOutputs[connection.OutputSlot];
-    }
-
-    private FrameworkElement getInputSlotElementForConnection(NodeConnection connection)
-    {
-        var nodeGraphItem = GraphItems.OfType<NodeGraphItem>().Single(item => item.Node.Id == connection.InputNodeId);
-        return connection.ConnectionType == ConnectionType.Flow ? nodeGraphItem.FlowInputs[connection.InputSlot] : nodeGraphItem.ValueInputs[connection.InputSlot];
-    }
-
-    private void updateConnectionItemPath(ConnectionItem item)
-    {
-        var path = item.Path;
-        var connection = item.Connection;
-
-        var startPoint = getConnectionPointRelativeToGraph(getOutputSlotElementForConnection(connection));
-        var endPoint = getConnectionPointRelativeToGraph(getInputSlotElementForConnection(connection));
-
-        var (controlPoint1, controlPoint2) = getBezierControlPoints(startPoint, endPoint);
-
-        var pathGeometry = (PathGeometry)path.Data;
-        var pathFigure = pathGeometry.Figures[0];
-        var bezierSegment = (BezierSegment)pathFigure.Segments[0];
-
-        pathFigure.StartPoint = startPoint;
-        bezierSegment.Point1 = controlPoint1;
-        bezierSegment.Point2 = controlPoint2;
-        bezierSegment.Point3 = endPoint;
-
-        if (connection.ConnectionType == ConnectionType.Value)
-        {
-            var startColor = connection.OutputType!.GetTypeBrush().Color;
-            var endColor = connection.InputType!.GetTypeBrush().Color;
-            path.Stroke = createGradientBrush(startPoint, endPoint, startColor, endColor);
-        }
-    }
-
-    private Path createConnectionPath(NodeConnection connection)
-    {
-        var startPoint = getConnectionPointRelativeToGraph(getOutputSlotElementForConnection(connection));
-        var endPoint = getConnectionPointRelativeToGraph(getInputSlotElementForConnection(connection));
-
-        var (controlPoint1, controlPoint2) = getBezierControlPoints(startPoint, endPoint);
-
-        var pathFigure = new PathFigure
-        {
-            StartPoint = startPoint,
-            Segments = { new BezierSegment(controlPoint1, controlPoint2, endPoint, true) }
-        };
-
-        var path = new Path
-        {
-            Data = new PathGeometry { Figures = { pathFigure } },
-            StrokeThickness = 2
-        };
-
-        if (connection.ConnectionType == ConnectionType.Flow)
-        {
-            path.Stroke = Brushes.DeepSkyBlue;
-        }
-        else
-        {
-            var startColor = connection.OutputType!.GetTypeBrush().Color;
-            var endColor = connection.InputType!.GetTypeBrush().Color;
-            path.Stroke = createGradientBrush(startPoint, endPoint, startColor, endColor);
-        }
-
-        return path;
-    }
-
-    private Point getConnectionPointRelativeToGraph(FrameworkElement element)
-    {
-        var centerOffset = new Vector(element.Width / 2d, element.Height / 2d);
-        return element.TranslatePoint(new Point(0, 0), GraphContainer) + centerOffset;
-    }
-
-    private (Point cp1, Point cp2) getBezierControlPoints(Point startPoint, Point endPoint)
-    {
-        var minDelta = Math.Min(Math.Abs(endPoint.Y - startPoint.Y) / 2d, 50d);
-        var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.5d, minDelta);
-
-        return (Point.Add(startPoint, new Vector(delta, 0)), Point.Add(endPoint, new Vector(-delta, 0)));
-    }
-
-    private LinearGradientBrush createGradientBrush(Point startPoint, Point endPoint, Color startColor, Color endColor)
-    {
-        var x = Math.Min(startPoint.X, endPoint.X);
-        var y = Math.Min(startPoint.Y, endPoint.Y);
-        var width = Math.Abs(endPoint.X - startPoint.X);
-        var height = Math.Abs(endPoint.Y - startPoint.Y);
-
-        width = width == 0 ? 1 : width;
-        height = height == 0 ? 1 : height;
-
-        var bounds = new Rect(x, y, width, height);
-
-        var relativeStart = new Point((startPoint.X - bounds.X) / bounds.Width,
-            (startPoint.Y - bounds.Y) / bounds.Height);
-
-        var relativeEnd = new Point((endPoint.X - bounds.X) / bounds.Width,
-            (endPoint.Y - bounds.Y) / bounds.Height);
-
-        return new LinearGradientBrush(startColor, endColor, relativeStart, relativeEnd)
-        {
-            MappingMode = BrushMappingMode.RelativeToBoundingBox
-        };
-    }
-
-    private void updateNodeGroupGraphItem(NodeGroupGraphItem item)
-    {
-        var nodeGraphItems = GraphItems.OfType<NodeGraphItem>().Where(nodeGraphItem => item.Group.Nodes.Contains(nodeGraphItem.Node.Id)).ToList();
-
-        foreach (var nodeGraphItem in nodeGraphItems)
-        {
-            var index = GraphItems.IndexOf(nodeGraphItem);
-            GraphItems.Move(index, GraphItems.Count - 1);
-        }
-
-        var topLeft = new Point(GraphContainer.Width, GraphContainer.Height);
-        var bottomRight = new Point(0, 0);
-
-        foreach (var nodeGraphItem in nodeGraphItems)
-        {
-            topLeft.X = Math.Min(topLeft.X, nodeGraphItem.PosX - GroupPadding.Left);
-            topLeft.Y = Math.Min(topLeft.Y, nodeGraphItem.PosY - GroupPadding.Top);
-            bottomRight.X = Math.Max(bottomRight.X, nodeGraphItem.PosX + nodeGraphItem.Element.ActualWidth + GroupPadding.Right);
-            bottomRight.Y = Math.Max(bottomRight.Y, nodeGraphItem.PosY + nodeGraphItem.Element.ActualHeight + GroupPadding.Bottom);
-        }
-
-        var width = bottomRight.X - topLeft.X;
-        var height = bottomRight.Y - topLeft.Y;
-
-        width = Math.Max(width, 0);
-        height = Math.Max(height, 0);
-
-        item.UpdatePos(topLeft);
-        item.Width = width;
-        item.Height = height;
-    }
-
-    private void refreshGraphItemPosition(GraphItem item)
-    {
-        updateGraphItemPosition(item, new Point(item.PosX, item.PosY));
-    }
-
-    private bool updateGraphItemPosition(GraphItem item, Point position)
-    {
-        position.X = Math.Clamp(position.X, 0, GraphContainer.Width - item.Element.ActualWidth);
-        position.Y = Math.Clamp(position.Y, 0, GraphContainer.Height - item.Element.ActualHeight);
-
-        position.X += item.SnapOffset.X;
-        position.Y += item.SnapOffset.Y;
-
-        snapPointToGrid(ref position);
-
-        position.X -= item.SnapOffset.X;
-        position.Y -= item.SnapOffset.Y;
-
-        var positionChanged = Math.Abs(position.X - item.PosX) > double.Epsilon || Math.Abs(position.Y - item.PosY) > double.Epsilon;
-        if (!positionChanged) return false;
-
-        item.UpdatePos(position);
-        return true;
-    }
-
-    private (TranslateTransform Translation, ScaleTransform Scale) getGraphTransform()
-    {
-        return ((TranslateTransform)InnerContainer.RenderTransform, (ScaleTransform)OuterContainer.RenderTransform);
-    }
-
-    private void resetCanvasPosition()
-    {
-        graphDrag = null;
-
-        var graphTranslation = getGraphTransform().Translation;
-        if (graphTranslation.X == 0 && graphTranslation.Y == 0) return;
-
-        var pf = new PathFigure
-        {
-            StartPoint = new Point(graphTranslation.X, graphTranslation.Y),
-            Segments = new PathSegmentCollection
-            {
-                new LineSegment(new Point(0, 0), isStroked: true)
+                Nodes = nodeVms.Select(nodeVm => new SerialisableNode((Node)nodeVm.Node)).ToList(),
+                Connections = Graph.Connections.Where(c => nodeIds.Contains(c.OutputId) && nodeIds.Contains(c.InputId)).Select(c => new SerialisableConnection(c)).ToList(),
+                Groups = Graph.Groups.Values.Where(g => g.Nodes.All(nodeId => nodeVms.Select(item => item.Node.Id).Contains(nodeId))).Select(group => new SerialisableNodeGroup(group)).ToList(),
+                Comments = elementsSelection.Items.OfType<CommentViewModel>().Select(commentVm => new SerialisableComment(commentVm.Comment)).ToList()
             }
         };
 
-        var pg = new PathGeometry(new[] { pf });
-
-        var animX = new DoubleAnimationUsingPath
+        foreach (var node in copyPasteHolder.Structure.Nodes)
         {
-            PathGeometry = pg,
-            Duration = TimeSpan.FromSeconds(0.5f),
-            Source = PathAnimationSource.X,
-            FillBehavior = FillBehavior.Stop,
-            AccelerationRatio = 0.5,
-            DecelerationRatio = 0.5
-        };
-
-        var animY = new DoubleAnimationUsingPath
-        {
-            PathGeometry = pg,
-            Duration = TimeSpan.FromSeconds(0.5f),
-            Source = PathAnimationSource.Y,
-            FillBehavior = FillBehavior.Stop,
-            AccelerationRatio = 0.5,
-            DecelerationRatio = 0.5
-        };
-
-        animX.Completed += (_, _) => graphTranslation.X = 0;
-        animY.Completed += (_, _) => graphTranslation.Y = 0;
-
-        Storyboard.SetTarget(animX, InnerContainer);
-        Storyboard.SetTargetProperty(animX, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.X)"));
-
-        Storyboard.SetTarget(animY, InnerContainer);
-        Storyboard.SetTargetProperty(animY, new PropertyPath("(UIElement.RenderTransform).(TranslateTransform.Y)"));
-
-        var sb = new Storyboard();
-        sb.Children.Add(animX);
-        sb.Children.Add(animY);
-        sb.Begin();
-    }
-
-    #endregion
-
-    #region OuterContainer
-
-    private void OuterContainer_OnMouseDown(object sender, MouseButtonEventArgs e)
-    {
-        Focus();
-
-        if (e.ChangedButton == GRAPH_DRAG_BUTTON)
-        {
-            Debug.Assert(graphDrag is null);
-
-            e.Handled = true;
-
-            var mousePos = Mouse.GetPosition(OuterContainer);
-            var graphTransform = getGraphTransform();
-            var offset = mousePos - new Point(graphTransform.Translation.X, graphTransform.Translation.Y);
-
-            graphDrag = new GraphDrag(offset);
-            OuterContainer.CaptureMouse();
+            node.Position = new Vector2(node.Position.X - (float)position.X, node.Position.Y - (float)position.Y);
         }
 
-        if (e.ChangedButton == GRAPH_ITEM_DRAG_BUTTON)
+        foreach (var comment in copyPasteHolder.Structure.Comments)
         {
-            Debug.Assert(selectionCreate is null);
+            comment.Position = new Vector2(comment.Position.X - (float)position.X, comment.Position.Y - (float)position.Y);
+        }
+    }
 
-            e.Handled = true;
+    private async Task executePaste()
+    {
+        if (copyPasteHolder is null) return;
 
-            var mousePos = Mouse.GetPosition(GraphContainer);
-            selectionCreate = new SelectionCreate(mousePos);
+        var offset = getSnappedMousePos();
+        Logger.Log($"Pasting at {offset}", LoggingTarget.Information);
+        var newNodes = copyPasteHolder.SpawnTo(Graph, offset);
+        await Graph.MarkDirtyAsync();
+        shrinkWrapSelection(newNodes);
+    }
+
+    protected override void OnMouseDown(MouseButtonEventArgs e)
+    {
+        lastGraphPointerPos = e.GetPosition(GraphContainer);
+        if (e.Handled) return;
+
+        // StandardColorPicker doesn't block events. We'll do it manually
+        if (IsMouseCapturedByDescendantOf<PickerControlBase>()) return;
+
+        if (!GraphContainer.IsFocused)
+        {
+            GraphContainer.Focus();
+            Graph.Serialise();
+        }
+
+        handleMouseUpdates(e);
+    }
+
+    public static DependencyObject? GetParent(DependencyObject obj) =>
+        obj is Visual or System.Windows.Media.Media3D.Visual3D ? VisualTreeHelper.GetParent(obj) : LogicalTreeHelper.GetParent(obj);
+
+    public static bool IsMouseCapturedByDescendantOf<T>() where T : DependencyObject
+    {
+        if (Mouse.Captured is not DependencyObject current)
+            return false;
+
+        while (current != null)
+        {
+            if (current is T)
+                return true;
+
+            current = GetParent(current);
+        }
+
+        return false;
+    }
+
+    protected override void OnMouseMove(MouseEventArgs e)
+    {
+        updateGridGraphElementDrag(e);
+        updateGraphDrag(e);
+        updateConnectionDrag();
+        updateGroupDrag();
+        updateSelectionCreate();
+        updateSelectionDrag();
+    }
+
+    protected override void OnMouseUp(MouseButtonEventArgs e)
+    {
+        handleMouseUpdates(e);
+    }
+
+    private void handleMouseUpdates(MouseButtonEventArgs e)
+    {
+        if (e is { ChangedButton: GRAPH_DRAG_BUTTON, ButtonState: MouseButtonState.Pressed } && graphDragMousePos is null)
+        {
+            graphDragMousePos = e.GetPosition(this);
+            GraphContainer.CaptureMouse();
+        }
+
+        if (e is { ChangedButton: GRAPH_DRAG_BUTTON, ButtonState: MouseButtonState.Released } && graphDragMousePos is not null)
+        {
+            graphDragMousePos = null;
+            GraphContainer.ReleaseMouseCapture();
+        }
+
+        if (e is { ChangedButton: GRAPH_INTERACT_BUTTON } && connectionDrag is not null)
+        {
+            endConnectionDrag();
+        }
+
+        if (e is { ChangedButton: GRAPH_INTERACT_BUTTON, ButtonState: MouseButtonState.Pressed } && selectionCreate is null)
+        {
+            selectionCreate = new SelectionCreate(e.GetPosition(GraphContainer));
             SelectionVisual.Visibility = Visibility.Visible;
-            OuterContainer.CaptureMouse();
-        }
-    }
-
-    private void OuterContainer_OnMouseUp(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ChangedButton == GRAPH_DRAG_BUTTON && graphDrag is not null)
-        {
-            e.Handled = true;
-            graphDrag = null;
-            OuterContainer.ReleaseMouseCapture();
+            GraphContainer.CaptureMouse();
         }
 
-        if (e.ChangedButton == GRAPH_ITEM_DRAG_BUTTON && graphItemDrag is not null)
+        if (e is { ChangedButton: GRAPH_INTERACT_BUTTON, ButtonState: MouseButtonState.Released } && selectionCreate is not null)
         {
-            checkForGroupAdditions();
-            e.Handled = true;
-            graphItemDrag = null;
-            OuterContainer.ReleaseMouseCapture();
-        }
-
-        if (e.ChangedButton == GRAPH_ITEM_DRAG_BUTTON && nodeGroupGraphItemGrab is not null)
-        {
-            e.Handled = true;
-            nodeGroupGraphItemGrab = null;
-            OuterContainer.ReleaseMouseCapture();
-        }
-
-        if (e.ChangedButton == GRAPH_ITEM_DRAG_BUTTON && connectionDrag is not null)
-        {
-            e.Handled = true;
-            connectionDrag = null;
-            OuterContainer.ReleaseMouseCapture();
-            stopConnectionDrag();
-        }
-
-        if (e.ChangedButton == GRAPH_ITEM_DRAG_BUTTON && selectionCreate is not null)
-        {
-            e.Handled = true;
             selectionCreate = null;
-            OuterContainer.ReleaseMouseCapture();
+            GraphContainer.ReleaseMouseCapture();
             shrinkWrapSelection();
         }
 
-        if (e.ChangedButton == GRAPH_ITEM_DRAG_BUTTON && selectionDrag is not null)
+        if (e is { ChangedButton: GRAPH_INTERACT_BUTTON, ButtonState: MouseButtonState.Released } && groupDrag is not null)
         {
-            e.Handled = true;
-            selectionDrag = null;
-            OuterContainer.ReleaseMouseCapture();
+            groupDrag = null;
+            GraphContainer.ReleaseMouseCapture();
+            Graph.Serialise();
         }
 
-        Graph.Serialise();
+        if (e is { ChangedButton: GRAPH_INTERACT_BUTTON, ButtonState: MouseButtonState.Released } && selectionDrag is not null)
+        {
+            selectionDrag = null;
+            GraphContainer.ReleaseMouseCapture();
+            Graph.Serialise();
+        }
+
+        if (e is { ChangedButton: GRAPH_SECONDARY_BUTTON, ButtonState: MouseButtonState.Released } && connectionDrag is not null)
+        {
+            var success = createNodeFromDrag();
+
+            if (success)
+            {
+                e.Handled = true;
+                endConnectionDrag();
+                Graph.MarkDirty();
+            }
+        }
     }
+
+    private void refreshContextMenu()
+    {
+        var contextMenu = GraphContainer.ContextMenu!;
+        contextMenu.Items.Clear();
+        contextMenu.Items.Add(GraphContextMenuBuilder.Items.Value);
+
+        var addComment = new MenuItem
+        {
+            Header = "Add Comment",
+        };
+
+        addComment.Click += AddComment_OnClick;
+
+        contextMenu.Items.Add(addComment);
+    }
+
+    private void AddComment_OnClick(object sender, RoutedEventArgs e)
+    {
+        var comment = Graph.AddComment();
+        comment.Position.Value = getSnappedMousePos();
+        Graph.MarkDirty();
+    }
+
+    private void updateCommentSnap(CommentViewModel vm)
+    {
+        vm.SnapOffset = new Point(vm.Control.ActualWidth / 2d, 0d);
+        vm.SetPosition(new Point(snapToGrid(vm.Position.X + vm.SnapOffset.X) - vm.SnapOffset.X, snapToGrid(vm.Position.Y + vm.SnapOffset.Y) - vm.SnapOffset.Y));
+    }
+
+    #endregion
+
+    #region GraphTransform
+
+    private Vector2 getSnappedMousePos()
+    {
+        var mousePos = Mouse.GetPosition(GraphContainer);
+        return new Vector2((float)snapToGrid(mousePos.X), (float)snapToGrid(mousePos.Y));
+    }
+
+    private MatrixTransform graphTransform => (MatrixTransform)GraphContainer.RenderTransform!;
+
+    private Point? graphDragMousePos;
+
+    private void centerGraph()
+    {
+        var viewportWidth = GraphCanvas.ActualWidth;
+        var viewportHeight = GraphCanvas.ActualHeight;
+
+        var graphWidth = GraphContainer.ActualWidth;
+        var graphHeight = GraphContainer.ActualHeight;
+
+        var m = Matrix.Identity;
+        m.Translate((viewportWidth - graphWidth) * 0.5, (viewportHeight - graphHeight) * 0.5);
+        m.Scale(1d, 1d);
+        ShowDetails.Value = true;
+        graphTransform.Matrix = m;
+    }
+
+    private void updateGraphDrag(MouseEventArgs e)
+    {
+        if (graphDragMousePos is null) return;
+
+        var current = e.GetPosition(this);
+        var delta = current - graphDragMousePos.Value;
+        graphDragMousePos = current;
+
+        var translation = Matrix.Identity;
+        translation.Translate(delta.X, delta.Y);
+
+        graphTransform.Matrix *= translation;
+    }
+
+    protected override void OnMouseWheel(MouseWheelEventArgs e)
+    {
+        GraphContainer.Focus();
+
+        var m = graphTransform.Matrix;
+
+        var zoomFactor = double.Pow(1.1d, e.Delta / 120d);
+        var oldScale = m.M11;
+        var newScale = double.Clamp(oldScale * zoomFactor, 0.025d, 5.0d);
+        var k = newScale / oldScale;
+        if (double.Abs(k - 1.0d) < 1e-6d) return;
+
+        var pivotLocal = m;
+        pivotLocal.Invert();
+        var pivotLocalPoint = pivotLocal.Transform(e.GetPosition(this));
+
+        var z = Matrix.Identity;
+        z.ScaleAt(k, k, pivotLocalPoint.X, pivotLocalPoint.Y);
+
+        graphTransform.Matrix = z * graphTransform.Matrix;
+
+        ShowDetails.Value = newScale >= 0.4d;
+    }
+
+    #endregion
+
+    #region GridGraphElement
+
+    private ElementOffset? draggingGridGraphElement;
+    private GroupDrag? groupDrag;
+
+    private void GridGraphElementContainer_OnMouseDown(object? sender, MouseButtonEventArgs e)
+    {
+        if (e.Handled) return;
+
+        // StandardColorPicker doesn't block events. We'll do it manually
+        if (IsMouseCapturedByDescendantOf<PickerControlBase>()) return;
+
+        if (e is not { ChangedButton: GRAPH_INTERACT_BUTTON, ButtonState: MouseButtonState.Pressed }) return;
+
+        var control = (FrameworkElement)sender!;
+        var graphElementViewModel = (GridGraphElementViewModel)control.Tag!;
+        control.CaptureMouse();
+        e.Handled = true;
+
+        var index = GraphElements.IndexOf(graphElementViewModel);
+        GraphElements.Move(index, GraphElements.Count - 1);
+
+        var offset = e.GetPosition(GraphContainer) - graphElementViewModel.Position;
+        draggingGridGraphElement = new ElementOffset(graphElementViewModel, new Point(offset.X, offset.Y));
+    }
+
+    private void GridGraphElementContainer_OnMouseUp(object? sender, MouseButtonEventArgs e)
+    {
+        if (e.Handled) return;
+
+        if (e is { ChangedButton: GRAPH_INTERACT_BUTTON, ButtonState: MouseButtonState.Released } && connectionDrag is null)
+        {
+            var control = (FrameworkElement)sender!;
+            checkForGroupAdditions();
+            control.ReleaseMouseCapture();
+            e.Handled = true;
+            draggingGridGraphElement = null;
+            Graph.Serialise();
+        }
+    }
+
+    private void updateGridGraphElementDrag(MouseEventArgs e)
+    {
+        if (draggingGridGraphElement is null) return;
+
+        var newPos = e.GetPosition(GraphContainer) - draggingGridGraphElement.Offset;
+        updateGridGraphElementPosition(draggingGridGraphElement.ViewModel, new Point(newPos.X, newPos.Y));
+
+        if (draggingGridGraphElement.ViewModel is NodeViewModel nodeVm)
+            updateGroupOfNode(nodeVm);
+    }
+
+    private void updateGridGraphElementPosition(GridGraphElementViewModel vm, Point position)
+    {
+        var x = position.X;
+        var y = position.Y;
+
+        x = double.Clamp(x, 0, GraphContainer.ActualWidth - vm.Control.ActualWidth);
+        y = double.Clamp(y, 0, GraphContainer.ActualHeight - vm.Control.ActualHeight);
+
+        x = snapToGrid(x + vm.SnapOffset.X) - vm.SnapOffset.X;
+        y = snapToGrid(y + vm.SnapOffset.Y) - vm.SnapOffset.Y;
+
+        vm.SetPosition(new Point(x, y));
+
+        if (vm is NodeViewModel nodeVm)
+            updateNodeViewModelConnections(nodeVm);
+    }
+
+    #endregion
+
+    private NodeViewModel getNodeViewModel(INode node) => GraphElements.OfType<NodeViewModel>().Single(vm => vm.Node == node);
 
     private void checkForGroupAdditions()
     {
-        Debug.Assert(graphItemDrag is not null);
-        if (graphItemDrag.Item is not NodeGraphItem nodeGraphItem) return;
+        if (draggingGridGraphElement is null) return;
 
-        if (Graph.Groups.Values.Any(nodeGroup => nodeGroup.Nodes.Contains(nodeGraphItem.Node.Id))) return;
+        if (draggingGridGraphElement.ViewModel is not NodeViewModel nodeVm) return;
 
-        NodeGroupGraphItem? groupToUpdate = null;
+        if (Graph.Groups.Values.Any(nodeGroup => nodeGroup.Nodes.Contains(nodeVm.Node.Id))) return;
 
-        foreach (var groupItem in GraphItems.OfType<NodeGroupGraphItem>())
+        GroupViewModel? groupToUpdate = null;
+
+        foreach (var groupItem in GraphElements.OfType<GroupViewModel>())
         {
             var mousePos = Mouse.GetPosition(GraphContainer);
-            var bounds = new Rect(groupItem.PosX, groupItem.PosY, groupItem.Width, groupItem.Height);
+            var bounds = new Rect(groupItem.Position.X, groupItem.Position.Y, groupItem.Width, groupItem.Height);
 
             if (!bounds.Contains(mousePos)) continue;
 
@@ -750,164 +765,376 @@ public partial class NodeGraphView : INotifyPropertyChanged
 
         if (groupToUpdate is not null)
         {
-            groupToUpdate.Group.Nodes.Add(nodeGraphItem.Node.Id);
-            updateNodeGroupGraphItem(groupToUpdate);
+            groupToUpdate.Group.Nodes.Add(nodeVm.Node.Id);
+            updateGroupViewModel(groupToUpdate);
         }
     }
 
-    private void OuterContainer_OnMouseMove(object sender, MouseEventArgs e)
+    private void updateGroupViewModel(GroupViewModel groupVm, bool updateIndexes = true)
     {
-        updateGraphDrag();
-        updateGraphItemDrag();
-        updateNodeGroupGraphItemDrag();
-        updateConnectionDrag();
-        updateSelectionCreate();
-        updateSelectionDrag();
-    }
+        var nodeVms = GraphElements.OfType<NodeViewModel>().Where(nodeVm => groupVm.Group.Nodes.Contains(nodeVm.Node.Id)).ToList();
 
-    private void OuterContainer_OnMouseWheel(object sender, MouseWheelEventArgs e)
-    {
-        var direction = e.Delta > 0;
-
-        const double zoom_factor = 1.1;
-        const double min_scale = 0.05;
-        const double max_scale = 3.0;
-
-        var graphTransform = getGraphTransform();
-
-        if (direction)
+        if (updateIndexes)
         {
-            graphTransform.Scale.ScaleX = Math.Min(graphTransform.Scale.ScaleX * zoom_factor, max_scale);
-            graphTransform.Scale.ScaleY = Math.Min(graphTransform.Scale.ScaleY * zoom_factor, max_scale);
-        }
-        else
-        {
-            graphTransform.Scale.ScaleX = Math.Max(graphTransform.Scale.ScaleX / zoom_factor, min_scale);
-            graphTransform.Scale.ScaleY = Math.Max(graphTransform.Scale.ScaleY / zoom_factor, min_scale);
-        }
-
-        ContentVisible = graphTransform.Scale.ScaleX >= 0.4d;
-
-        updateGraphDrag();
-        updateGraphItemDrag();
-        updateNodeGroupGraphItemDrag();
-        updateConnectionDrag();
-        updateSelectionCreate();
-        updateSelectionDrag();
-    }
-
-    private void executeCopy()
-    {
-        if (selection is null) return;
-
-        var position = (TranslateTransform)SelectionVisual.RenderTransform;
-
-        copyPasteHolder = new NodePreset
-        {
-            Nodes = selection.Items.OfType<NodeGraphItem>().Select(nodeGraphItem => new SerialisableNode(nodeGraphItem.Node)).ToList(),
-            Connections = selection.Connections.Select(connection => new SerialisableConnection(connection)).ToList(),
-            Groups = Graph.Groups.Values.Where(g => g.Nodes.All(nodeId => selection.Items.OfType<NodeGraphItem>().Select(item => item.Node.Id).Contains(nodeId))).Select(group => new SerialisableNodeGroup(group)).ToList()
-        };
-
-        foreach (var node in copyPasteHolder.Nodes)
-        {
-            node.Position = new Vector2(node.Position.X - (float)position.X, node.Position.Y - (float)position.Y);
-        }
-    }
-
-    private async Task executePaste()
-    {
-        if (copyPasteHolder is null) return;
-
-        var graphTransform = getGraphTransform();
-        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
-        var newNodes = copyPasteHolder.SpawnTo(Graph, offset);
-        await Graph.MarkDirtyAsync();
-        shrinkWrapSelection(newNodes);
-    }
-
-    private void updateGraphDrag()
-    {
-        if (graphDrag is null) return;
-
-        var mousePos = Mouse.GetPosition(OuterContainer);
-        var newPos = mousePos - graphDrag.Offset;
-        var graphBounds = new Point(GraphContainer.Width - GraphContainer.Width / 2d, GraphContainer.Height - GraphContainer.Height / 2d);
-
-        newPos.X = Math.Clamp(newPos.X, -graphBounds.X, graphBounds.X);
-        newPos.Y = Math.Clamp(newPos.Y, -graphBounds.Y, graphBounds.Y);
-
-        var canvasPosition = getGraphTransform();
-        canvasPosition.Translation.X = newPos.X;
-        canvasPosition.Translation.Y = newPos.Y;
-    }
-
-    private void updateGraphItemDrag()
-    {
-        if (graphItemDrag is null) return;
-
-        var mousePos = Mouse.GetPosition(GraphContainer);
-        var newPos = new Point(mousePos.X - graphItemDrag.Offset.X, mousePos.Y - graphItemDrag.Offset.Y);
-
-        var hasUpdated = updateGraphItemPosition(graphItemDrag.Item, newPos);
-        if (!hasUpdated) return;
-
-        if (graphItemDrag.Item is NodeGraphItem nodeGraphItem)
-        {
-            drawNodeConnections(nodeGraphItem.Node);
-
-            var group = Graph.Groups.Values.SingleOrDefault(group => group.Nodes.Contains(nodeGraphItem.Node.Id));
-
-            if (group is not null)
+            foreach (var nodeGraphItem in nodeVms)
             {
-                updateNodeGroupGraphItem(GraphItems.OfType<NodeGroupGraphItem>().Single(nodeGroupItem => nodeGroupItem.Group.Id == group.Id));
+                var index = GraphElements.IndexOf(nodeGraphItem);
+                GraphElements.Move(index, GraphElements.Count - 1);
             }
         }
 
-        if (graphItemDrag.Item is NodeGroupGraphItem nodeGroupGraphItem)
+        var topLeft = new Point(GraphContainer.ActualWidth, GraphContainer.ActualHeight);
+        var bottomRight = new Point(0, 0);
+
+        foreach (var nodeGraphItem in nodeVms)
         {
-            updateNodeGroupGraphItem(nodeGroupGraphItem);
+            topLeft.X = Math.Min(topLeft.X, nodeGraphItem.Position.X - GroupPadding.Left);
+            topLeft.Y = Math.Min(topLeft.Y, nodeGraphItem.Position.Y - GroupPadding.Top);
+            bottomRight.X = Math.Max(bottomRight.X, nodeGraphItem.Position.X + nodeGraphItem.Control.ActualWidth + GroupPadding.Right);
+            bottomRight.Y = Math.Max(bottomRight.Y, nodeGraphItem.Position.Y + nodeGraphItem.Control.ActualHeight + GroupPadding.Bottom);
+        }
+
+        var width = bottomRight.X - topLeft.X;
+        var height = bottomRight.Y - topLeft.Y;
+
+        width = Math.Max(width, 0);
+        height = Math.Max(height, 0);
+
+        groupVm.SetPosition(topLeft);
+        groupVm.Width = width;
+        groupVm.Height = height;
+    }
+
+    private void updateGroupDrag()
+    {
+        if (groupDrag is null) return;
+
+        var mousePos = Mouse.GetPosition(GraphContainer);
+
+        var rawGroupPos = new Point(
+            mousePos.X - groupDrag.Offset.X,
+            mousePos.Y - groupDrag.Offset.Y
+        );
+
+        var clampedGroupPos = new Point(
+            double.Clamp(rawGroupPos.X, 0, GraphContainer.ActualWidth - groupDrag.GroupVm.Width),
+            double.Clamp(rawGroupPos.Y, 0, GraphContainer.ActualHeight - groupDrag.GroupVm.Height)
+        );
+
+        var rawDesiredPos = new Point(
+            clampedGroupPos.X - groupDrag.OffsetFromGrid.X,
+            clampedGroupPos.Y - groupDrag.OffsetFromGrid.Y
+        );
+
+        var snappedDesiredPos = new Point(
+            snapToGrid(rawDesiredPos.X),
+            snapToGrid(rawDesiredPos.Y)
+        );
+
+        var currentGroupPos = groupDrag.GroupVm.Position;
+
+        var compensatedCurrentPos = new Point(
+            currentGroupPos.X - groupDrag.OffsetFromGrid.X,
+            currentGroupPos.Y - groupDrag.OffsetFromGrid.Y
+        );
+
+        var snappedCurrentPos = new Point(
+            snapToGrid(compensatedCurrentPos.X),
+            snapToGrid(compensatedCurrentPos.Y)
+        );
+
+        if (double.Abs(snappedDesiredPos.X - snappedCurrentPos.X) < 0.01 &&
+            double.Abs(snappedDesiredPos.Y - snappedCurrentPos.Y) < 0.01)
+            return;
+
+        var delta = new Vector(
+            snappedDesiredPos.X - snappedCurrentPos.X,
+            snappedDesiredPos.Y - snappedCurrentPos.Y
+        );
+
+        foreach (var graphItem in groupDrag.Items)
+        {
+            graphItem.SetPosition(new Point(
+                graphItem.Position.X + delta.X,
+                graphItem.Position.Y + delta.Y
+            ));
+
+            if (graphItem is NodeViewModel nodeVm)
+                updateNodeViewModelConnections(nodeVm);
+        }
+
+        updateGroupViewModel(groupDrag.GroupVm);
+    }
+
+    #region Connections
+
+    private Dictionary<Guid, ConnectionViewModel> getConnectionViewModels(IEnumerable<IConnection> connections)
+    {
+        var dict = new Dictionary<Guid, ConnectionViewModel>();
+
+        foreach (var connection in connections)
+        {
+            var vm = GraphElements.OfType<ConnectionViewModel>().Single(vm => vm.Connection.Id == connection.Id);
+            dict.Add(connection.Id, vm);
+        }
+
+        return dict;
+    }
+
+    private void updateNodeViewModelConnections(NodeViewModel nodeVm)
+    {
+        var nodeId = nodeVm.Node.Id;
+        var connections = Graph.GetConnectionsForNode(nodeId).ToList();
+        var connectionViewModels = getConnectionViewModels(connections);
+
+        foreach (var connection in connections)
+        {
+            var connectionVm = connectionViewModels[connection.Id];
+            updateConnectionOfNode(connectionVm, nodeVm);
+            connectionVm.CreatePath();
         }
     }
 
-    private void updateNodeGroupGraphItemDrag()
+    private void updateConnectionOfNode(ConnectionViewModel connectionVm, NodeViewModel nodeVm)
     {
-        if (nodeGroupGraphItemGrab is null) return;
+        var connection = connectionVm.Connection;
+        var nodeId = nodeVm.Node.Id;
 
-        var mousePos = Mouse.GetPosition(GraphContainer);
-        var currPos = new Point(nodeGroupGraphItemGrab.Item.PosX, nodeGroupGraphItemGrab.Item.PosY) - nodeGroupGraphItemGrab.OffsetFromGrid;
-        var newPos = mousePos - nodeGroupGraphItemGrab.Offset - nodeGroupGraphItemGrab.OffsetFromGrid;
-        var groupGraphItem = nodeGroupGraphItemGrab.Item;
-
-        newPos.X = Math.Clamp(newPos.X, 0, GraphContainer.Width - groupGraphItem.Element.ActualWidth);
-        newPos.Y = Math.Clamp(newPos.Y, 0, GraphContainer.Height - groupGraphItem.Element.ActualHeight);
-
-        snapPointToGrid(ref newPos);
-
-        var delta = new Vector(newPos.X - currPos.X, newPos.Y - currPos.Y);
-
-        var positionChanged = Math.Abs(delta.X) >= SNAP_DISTANCE || Math.Abs(delta.Y) >= SNAP_DISTANCE;
-        if (!positionChanged) return;
-
-        foreach (var graphItem in nodeGroupGraphItemGrab.Items)
+        if (connection.OutputId == nodeId)
         {
-            graphItem.UpdatePos(new Point(graphItem.PosX + delta.X, graphItem.PosY + delta.Y));
+            if (connection is IFlowConnection)
+            {
+                var control = nodeVm.FlowOutputControls[connection.OutputSlot][connection.OutputSlotIndex];
+                var offset = new Point(control.ActualWidth / 2d, control.ActualHeight / 2d);
+                connectionVm.StartPoint = control.TranslatePoint(offset, GraphContainer);
+            }
+
+            if (connection is IValueConnection)
+            {
+                var control = nodeVm.ValueOutputControls[connection.OutputSlot][connection.OutputSlotIndex];
+                var offset = new Point(control.ActualWidth / 2d, control.ActualHeight / 2d);
+                connectionVm.StartPoint = control.TranslatePoint(offset, GraphContainer);
+            }
         }
 
-        drawNodeConnections(nodeGroupGraphItemGrab.Connections);
-        groupGraphItem.UpdatePos(newPos + nodeGroupGraphItemGrab.OffsetFromGrid);
+        if (connection.InputId == nodeId)
+        {
+            if (connection is IFlowConnection)
+            {
+                var control = nodeVm.FlowInputControls[connection.InputSlot][connection.InputSlotIndex];
+                var offset = new Point(control.ActualWidth / 2d, control.ActualHeight / 2d);
+                connectionVm.EndPoint = control.TranslatePoint(offset, GraphContainer);
+            }
+
+            if (connection is IValueConnection)
+            {
+                var control = nodeVm.ValueInputControls[connection.InputSlot][connection.InputSlotIndex];
+                var offset = new Point(control.ActualWidth / 2d, control.ActualHeight / 2d);
+                connectionVm.EndPoint = control.TranslatePoint(offset, GraphContainer);
+            }
+        }
+    }
+
+    #endregion
+
+    #region ConnectionDrag
+
+    private ConnectionDrag? connectionDrag;
+
+    private bool createNodeFromDrag()
+    {
+        Debug.Assert(connectionDrag is not null);
+
+        var element = connectionDrag.Element;
+        var slotIndex = connectionDrag.SlotIndex;
+        var position = getSnappedMousePos();
+
+        var isFlowInput = element.GetType().IsAssignableTo(typeof(IFlowInputBase));
+        var isFlowOutput = element.GetType().IsAssignableTo(typeof(IFlowOutputBase));
+        var isValueInput = element.GetType().IsAssignableTo(typeof(IValueInputBase));
+        var isValueOutput = element.GetType().IsAssignableTo(typeof(IValueOutputBase));
+
+        if (isFlowInput)
+        {
+            var nodeResult = Graph.AddNode(typeof(ButtonNode));
+            if (!nodeResult.IsSuccess) return false;
+
+            var node = nodeResult.Value;
+            node.Metadata.Position = position;
+
+            var connectionResult = Graph.CreateConnection(node.Metadata.ElementInstancesFor(ConnectionPoint.FlowOutput)[0], 0, element, slotIndex);
+            if (!connectionResult.IsSuccess) return false;
+
+            return true;
+        }
+
+        if (isFlowOutput)
+        {
+            var nodeResult = Graph.AddNode(typeof(FlowDisplayNode));
+            if (!nodeResult.IsSuccess) return false;
+
+            var node = nodeResult.Value;
+            node.Metadata.Position = position;
+
+            var connectionResult = Graph.CreateConnection(element, slotIndex, node.Metadata.ElementInstancesFor(ConnectionPoint.FlowInput)[0], 0);
+            if (!connectionResult.IsSuccess) return false;
+
+            return true;
+        }
+
+        if (isValueInput && NodeConstants.IsInputType(Nullable.GetUnderlyingType(element.Metadata.Shared.ValueType) ?? element.Metadata.Shared.ValueType))
+        {
+            var nodeType = typeof(ValueNode<>).MakeGenericType(element.Metadata.Shared.ValueType);
+            var nodeResult = Graph.AddNode(nodeType);
+            if (!nodeResult.IsSuccess) return false;
+
+            var node = nodeResult.Value;
+            node.Metadata.Position = position;
+
+            if (!element.Metadata.Shared.IsList)
+                ((IValueInput)node.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput)[0]).SetField(((IValueInput)element).GetField());
+
+            var connectionResult = Graph.CreateConnection(node.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput)[0], 0, element, slotIndex);
+            if (!connectionResult.IsSuccess) return false;
+
+            return true;
+        }
+
+        if (isValueOutput)
+        {
+            var nodeResult = Graph.AddNode(typeof(DisplayNode<>).MakeGenericType(element.Metadata.Shared.ValueType));
+            if (!nodeResult.IsSuccess) return false;
+
+            var node = nodeResult.Value;
+            node.Metadata.Position = position;
+
+            var connectionResult = Graph.CreateConnection(element, slotIndex, node.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput)[0], 0);
+            if (!connectionResult.IsSuccess) return false;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private void startConnectionDrag(ConnectionPointViewModel vm, FrameworkElement source)
+    {
+        Debug.Assert(connectionDrag is null);
+
+        var element = vm.Element;
+        var node = element.Owner;
+
+        if (element is IValueInputBase)
+        {
+            var existingConnection = Graph.Connections.FirstOrDefault(c => c is IValueConnection && c.InputId == node.Id && c.InputSlot == element.Metadata.Shared.Slot && c.InputSlotIndex == vm.Index);
+
+            if (existingConnection is not null)
+            {
+                var outputNodeVm = GraphElements.OfType<NodeViewModel>().Single(nodeVm => nodeVm.Node.Id == existingConnection.OutputId);
+                var outputNode = outputNodeVm.Node;
+                var outputElement = outputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput)[existingConnection.OutputSlot];
+
+                Graph.RemoveConnection(existingConnection);
+                Graph.MarkDirty();
+
+                connectionDrag = new ConnectionDrag(outputNodeVm.ValueOutputControls[existingConnection.OutputSlot][existingConnection.OutputSlotIndex], outputElement, existingConnection.OutputSlotIndex);
+            }
+        }
+
+        if (element is IFlowInputBase)
+        {
+            var existingConnection = Graph.Connections.FirstOrDefault(c => c is IFlowConnection && c.InputId == node.Id && c.InputSlot == element.Metadata.Shared.Slot && c.InputSlotIndex == vm.Index);
+
+            if (existingConnection is not null)
+            {
+                var outputNodeVm = GraphElements.OfType<NodeViewModel>().Single(nodeVm => nodeVm.Node.Id == existingConnection.OutputId);
+                var outputNode = outputNodeVm.Node;
+                var outputElement = outputNode.Metadata.ElementInstancesFor(ConnectionPoint.FlowOutput)[existingConnection.OutputSlot];
+
+                Graph.RemoveConnection(existingConnection);
+                Graph.MarkDirty();
+
+                connectionDrag = new ConnectionDrag(outputNodeVm.FlowOutputControls[existingConnection.OutputSlot][existingConnection.OutputSlotIndex], outputElement, existingConnection.OutputSlotIndex);
+            }
+        }
+
+        connectionDrag ??= new ConnectionDrag(source, vm.Element, vm.Index);
+        ConnectionDragPath.Visibility = Visibility.Visible;
+        updateConnectionDrag();
+    }
+
+    private void endConnectionDrag()
+    {
+        ConnectionDragPath.Visibility = Visibility.Collapsed;
+        connectionDrag = null;
+    }
+
+    private void Connection_OnMouseDown(object? sender, MouseButtonEventArgs e)
+    {
+        if (connectionDrag is not null) return;
+
+        if (e.ChangedButton != MouseButton.Left || e.ButtonState != MouseButtonState.Pressed) return;
+
+        var control = (FrameworkElement)sender!;
+        var vm = (ConnectionPointViewModel)control.Tag!;
+
+        startConnectionDrag(vm, control);
+        Mouse.Capture(null);
+        e.Handled = true;
+    }
+
+    private void Connection_OnMouseUp(object? sender, MouseButtonEventArgs e)
+    {
+        if (connectionDrag is null) return;
+        if (e.ChangedButton != GRAPH_INTERACT_BUTTON || e.ButtonState != MouseButtonState.Released) return;
+
+        var control = (FrameworkElement)sender!;
+        var connectionViewModel = (ConnectionPointViewModel)control.Tag!;
+        e.Handled = true;
+
+        var originElement = connectionDrag.Element;
+        var originSlotIndex = connectionDrag.SlotIndex;
+
+        INodeElement outputElement;
+        int outputSlotIndex;
+
+        INodeElement inputElement;
+        int inputSlotIndex;
+
+        if (originElement is IValueOutputBase or IFlowOutputBase)
+        {
+            outputElement = originElement;
+            outputSlotIndex = originSlotIndex;
+            inputElement = connectionViewModel.Element;
+            inputSlotIndex = connectionViewModel.Index;
+        }
+        else
+        {
+            outputElement = connectionViewModel.Element;
+            outputSlotIndex = connectionViewModel.Index;
+            inputElement = originElement;
+            inputSlotIndex = originSlotIndex;
+        }
+
+        var result = Graph.CreateConnection(outputElement, outputSlotIndex, inputElement, inputSlotIndex);
+
+        if (!result.IsSuccess)
+            Logger.Error(result.Exception, nameof(Connection_OnMouseUp));
+        else
+            Graph.MarkDirty();
+
+        endConnectionDrag();
     }
 
     private void updateConnectionDrag()
     {
         if (connectionDrag is null) return;
 
-        var element = connectionDrag.OriginElement;
-        var offset = new Vector(element.Width / 2d, element.Height / 2d);
+        var element = connectionDrag.Control;
+        var offset = new Point(connectionDrag.Control.ActualWidth / 2d, connectionDrag.Control.ActualHeight / 2d);
+        var isReversed = connectionDrag.Element is IFlowInputBase or IValueInputBase;
 
-        var isReversed = connectionDrag.Origin is ConnectionDragOrigin.FlowInput or ConnectionDragOrigin.ValueInput;
-
-        var startPoint = element.TranslatePoint(new Point(0, 0), GraphContainer) + offset;
+        var startPoint = element.TranslatePoint(offset, GraphContainer);
         var endPoint = Mouse.GetPosition(GraphContainer);
         var minDelta = Math.Min(Math.Abs(endPoint.Y - startPoint.Y) / 2d, 50d);
         var delta = Math.Max(Math.Abs(endPoint.X - startPoint.X) * 0.5d, minDelta);
@@ -924,17 +1151,171 @@ public partial class NodeGraphView : INotifyPropertyChanged
         curve.Point3 = endPoint;
     }
 
+    private void updateGroupOfNode(NodeViewModel nodeVm)
+    {
+        var groupVm = GraphElements.OfType<GroupViewModel>().SingleOrDefault(groupVm => groupVm.Group.Nodes.Contains(nodeVm.Node.Id));
+
+        if (groupVm is not null)
+            updateGroupViewModel(groupVm, false);
+    }
+
+    #endregion
+
+    private void GraphContextMenu_NodeEntry_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var control = (FrameworkElement)sender!;
+        var entry = (ContextMenuNodeEntry)control.Tag!;
+
+        var nodeTypeMetadata = NodeTypeManager.Data[entry.TypeLookup];
+
+        if (nodeTypeMetadata.LinkedTypes.Any(t => t.IsGenericType) && entry.FilteredGeneric is null)
+        {
+            var window = new NodeCreatorWindow(nodeTypeMetadata);
+            nodeCreatorWindowManager.TrySpawnChild(window);
+
+            window.Closed += (_, _) =>
+            {
+                if (window.ConstructedType is null) return;
+
+                var result = Graph.AddNode(window.ConstructedType, position: new Vector2(snapToGrid((float)lastGraphPointerPos.X), snapToGrid((float)lastGraphPointerPos.Y)));
+
+                if (!result.IsSuccess)
+                    Logger.Error(result.Exception, nameof(GraphContextMenu_NodeEntry_OnClick));
+
+                Graph.MarkDirty();
+            };
+
+            window.Show();
+        }
+        else
+        {
+            if (entry.FilteredGeneric is not null)
+            {
+                var type = nodeTypeMetadata.Shared.Type.MakeGenericType(entry.FilteredGeneric);
+                var result = Graph.AddNode(type, position: new Vector2(snapToGrid((float)lastGraphPointerPos.X), snapToGrid((float)lastGraphPointerPos.Y)));
+
+                if (!result.IsSuccess)
+                    Logger.Error(result.Exception, nameof(GraphContextMenu_NodeEntry_OnClick));
+                else
+                {
+                    Graph.MarkDirty();
+                }
+            }
+            else
+            {
+                var result = Graph.AddNode(nodeTypeMetadata.Shared.Type, position: new Vector2(snapToGrid((float)lastGraphPointerPos.X), snapToGrid((float)lastGraphPointerPos.Y)));
+
+                if (!result.IsSuccess)
+                    Logger.Error(result.Exception, nameof(GraphContextMenu_NodeEntry_OnClick));
+                else
+                {
+                    Graph.MarkDirty();
+                }
+            }
+        }
+    }
+
+    private void ListElementAdd_OnClick(object sender, RoutedEventArgs e)
+    {
+        var control = (FrameworkElement)sender!;
+        var vm = (ConnectionPointListViewModel)control.Tag!;
+        var element = vm.Element;
+        var currentSize = element.Metadata.Size;
+
+        e.Handled = true;
+
+        element.Metadata.Size = ++currentSize;
+        vm.AddItem();
+
+        var nodeVm = getNodeViewModel(element.Owner);
+
+        Dispatcher.Invoke(() =>
+        {
+            populateNodeViewModel(nodeVm);
+            updateNodeViewModelConnections(nodeVm);
+        }, DispatcherPriority.Render);
+
+        _ = Graph.TriggerTree(vm.Element.Owner);
+        _ = Graph.MarkDirty();
+    }
+
+    private void ListElementRemove_OnClick(object sender, RoutedEventArgs e)
+    {
+        var control = (FrameworkElement)sender!;
+        var vm = (ConnectionPointListViewModel)control.Tag!;
+        var element = vm.Element;
+        var currentSize = element.Metadata.Size;
+
+        e.Handled = true;
+
+        if (currentSize - 1 == 0) return;
+
+        var connection = Graph.Connections.SingleOrDefault(c => c.OutputId == element.Owner.Id && c.OutputSlot == element.Metadata.Shared.Slot && c.OutputSlotIndex == currentSize - 1
+                                                                || c.InputId == element.Owner.Id && c.InputSlot == element.Metadata.Shared.Slot && c.InputSlotIndex == currentSize - 1);
+
+        if (connection is not null)
+            Graph.RemoveConnection(connection);
+
+        element.Metadata.Size = --currentSize;
+        vm.RemoveItem();
+
+        var nodeVm = getNodeViewModel(element.Owner);
+
+        Dispatcher.Invoke(() =>
+        {
+            populateNodeViewModel(nodeVm);
+            updateNodeViewModelConnections(nodeVm);
+        }, DispatcherPriority.Render);
+
+        _ = Graph.TriggerTree(vm.Element.Owner);
+        _ = Graph.MarkDirty();
+    }
+
+    private void ButtonNode_OnClick(object sender, RoutedEventArgs e)
+    {
+        var control = (FrameworkElement)sender!;
+        var vm = (NodeViewModel)control.Tag!;
+
+        e.Handled = true;
+        _ = Graph.TriggerTree(vm.Node);
+    }
+
+    private void ElementContextMenu_DeleteClick(object? sender, RoutedEventArgs e)
+    {
+        var control = (FrameworkElement)sender!;
+        var vm = (GridGraphElementViewModel)control.Tag!;
+
+        e.Handled = true;
+
+        if (vm is NodeViewModel nodeVm)
+        {
+            var groupVm = GraphElements.OfType<GroupViewModel>().SingleOrDefault(groupVm => groupVm.Group.Nodes.Contains(nodeVm.Node.Id));
+            Graph.RemoveNode(nodeVm.Node.Id);
+
+            if (groupVm is not null)
+                updateGroupViewModel(groupVm, false);
+
+            Graph.MarkDirty();
+        }
+
+        if (vm is CommentViewModel commentVm)
+        {
+            Graph.RemoveComment(commentVm.Comment.Id);
+            Graph.MarkDirty();
+        }
+    }
+
     private void updateSelectionCreate()
     {
         if (selectionCreate is null) return;
 
         var mousePos = Mouse.GetPosition(GraphContainer);
 
-        var posX = Math.Min(mousePos.X, selectionCreate.Position.X);
-        var posY = Math.Min(mousePos.Y, selectionCreate.Position.Y);
+        var posX = double.Min(mousePos.X, selectionCreate.Point.X);
+        var posY = double.Min(mousePos.Y, selectionCreate.Point.Y);
 
-        var width = Math.Abs(mousePos.X - selectionCreate.Position.X);
-        var height = Math.Abs(mousePos.Y - selectionCreate.Position.Y);
+        var width = double.Abs(mousePos.X - selectionCreate.Point.X);
+        var height = double.Abs(mousePos.Y - selectionCreate.Point.Y);
 
         SelectionVisual.Width = width;
         SelectionVisual.Height = height;
@@ -948,81 +1329,121 @@ public partial class NodeGraphView : INotifyPropertyChanged
     {
         if (selectionDrag is null) return;
 
-        Debug.Assert(selection is not null);
+        Debug.Assert(elementsSelection is not null);
 
         var mousePos = Mouse.GetPosition(GraphContainer);
         var transform = (TranslateTransform)SelectionVisual.RenderTransform;
-        var currPos = new Point(transform.X, transform.Y) - selection.OffsetFromGrid;
-        var newPos = mousePos - selectionDrag.Offset - selection.OffsetFromGrid;
 
-        newPos.X = Math.Clamp(newPos.X, 0, GraphContainer.Width - SelectionVisual.ActualWidth);
-        newPos.Y = Math.Clamp(newPos.Y, 0, GraphContainer.Height - SelectionVisual.ActualHeight);
+        var rawSelectionPos = new Point(
+            mousePos.X - selectionDrag.Offset.X,
+            mousePos.Y - selectionDrag.Offset.Y
+        );
 
-        snapPointToGrid(ref newPos);
+        var clampedSelectionPos = new Point(
+            double.Clamp(rawSelectionPos.X, 0, GraphContainer.ActualWidth - SelectionVisual.ActualWidth),
+            double.Clamp(rawSelectionPos.Y, 0, GraphContainer.ActualHeight - SelectionVisual.ActualHeight)
+        );
 
-        var delta = new Point(newPos.X - currPos.X, newPos.Y - currPos.Y);
+        var rawDesiredPos = new Point(
+            clampedSelectionPos.X - selectionDrag.OffsetFromGrid.X,
+            clampedSelectionPos.Y - selectionDrag.OffsetFromGrid.Y
+        );
 
-        var positionChanged = Math.Abs(delta.X) >= SNAP_DISTANCE || Math.Abs(delta.Y) >= SNAP_DISTANCE;
-        if (!positionChanged) return;
+        var snappedDesiredPos = new Point(
+            snapToGrid(rawDesiredPos.X),
+            snapToGrid(rawDesiredPos.Y)
+        );
 
-        transform.X = newPos.X + selection.OffsetFromGrid.X;
-        transform.Y = newPos.Y + selection.OffsetFromGrid.Y;
+        var currentSelectionPos = new Point(transform.X, transform.Y);
 
-        foreach (var item in selection.Items)
+        var compensatedCurrentPos = new Point(
+            currentSelectionPos.X - selectionDrag.OffsetFromGrid.X,
+            currentSelectionPos.Y - selectionDrag.OffsetFromGrid.Y
+        );
+
+        var snappedCurrentPos = new Point(
+            snapToGrid(compensatedCurrentPos.X),
+            snapToGrid(compensatedCurrentPos.Y)
+        );
+
+        if (double.Abs(snappedDesiredPos.X - snappedCurrentPos.X) < 0.01 &&
+            double.Abs(snappedDesiredPos.Y - snappedCurrentPos.Y) < 0.01)
+            return;
+
+        var delta = new Point(
+            snappedDesiredPos.X - snappedCurrentPos.X,
+            snappedDesiredPos.Y - snappedCurrentPos.Y
+        );
+
+        transform.X = currentSelectionPos.X + delta.X;
+        transform.Y = currentSelectionPos.Y + delta.Y;
+
+        var groupVms = GraphElements.OfType<GroupViewModel>();
+        var groupUpdates = new List<GroupViewModel>();
+
+        foreach (var item in elementsSelection.Items)
         {
-            updateGraphItemPosition(item, new Point(item.PosX + delta.X, item.PosY + delta.Y));
+            updateGridGraphElementPosition(item, new Point(item.Position.X + delta.X, item.Position.Y + delta.Y));
+
+            if (item is NodeViewModel nodeVm)
+            {
+                updateNodeViewModelConnections(nodeVm);
+
+                foreach (var groupVm in groupVms)
+                {
+                    if (groupVm.Group.Nodes.Contains(nodeVm.Node.Id)) groupUpdates.Add(groupVm);
+                }
+            }
         }
 
-        drawNodeConnections(selection.Connections);
-
-        foreach (var nodeGroupGraphItem in GraphItems.OfType<NodeGroupGraphItem>().ToList())
+        foreach (var groupVm in groupUpdates.DistinctBy(groupVm => groupVm.Group.Id))
         {
-            updateNodeGroupGraphItem(nodeGroupGraphItem);
+            updateGroupViewModel(groupVm);
         }
     }
 
-    private void shrinkWrapSelection(IEnumerable<Guid>? forceToNodes = null)
+    private void shrinkWrapSelection(IEnumerable<Guid>? forceElements = null)
     {
         var bounds = new Rect(0, 0, SelectionVisual.ActualWidth, SelectionVisual.ActualHeight);
 
         var topLeft = new Point(GraphContainer.ActualWidth, GraphContainer.ActualHeight);
         var bottomRight = new Point(0, 0);
 
-        var items = new List<GraphItem>();
+        var elements = new List<GridGraphElementViewModel>();
 
-        foreach (var graphItem in GraphItems.OfType<NodeGraphItem>())
+        foreach (var graphItem in GraphElements.OfType<GridGraphElementViewModel>())
         {
-            var element = graphItem.Element;
+            var element = graphItem.Control;
+            var position = graphItem.Position;
             var startPoint = element.TranslatePoint(new Point(0, 0), SelectionVisual);
             var endPoint = element.TranslatePoint(new Point(element.ActualWidth, element.ActualHeight), SelectionVisual);
 
-            var nodeContainerPosition = (TranslateTransform)element.RenderTransform;
-
-            if (forceToNodes is null)
+            if (forceElements is null)
             {
                 if (bounds.Contains(startPoint) && bounds.Contains(endPoint))
                 {
-                    topLeft.X = Math.Min(topLeft.X, nodeContainerPosition.X);
-                    topLeft.Y = Math.Min(topLeft.Y, nodeContainerPosition.Y);
-                    bottomRight.X = Math.Max(bottomRight.X, nodeContainerPosition.X + element.ActualWidth);
-                    bottomRight.Y = Math.Max(bottomRight.Y, nodeContainerPosition.Y + element.ActualHeight);
-                    items.Add(graphItem);
+                    topLeft.X = Math.Min(topLeft.X, position.X);
+                    topLeft.Y = Math.Min(topLeft.Y, position.Y);
+                    bottomRight.X = Math.Max(bottomRight.X, position.X + element.ActualWidth);
+                    bottomRight.Y = Math.Max(bottomRight.Y, position.Y + element.ActualHeight);
+                    elements.Add(graphItem);
                 }
             }
             else
             {
-                if (forceToNodes.Contains(graphItem.Node.Id))
+                if (graphItem is NodeViewModel nodeVm && forceElements.Contains(nodeVm.Node.Id)
+                    || graphItem is CommentViewModel commentVm && forceElements.Contains(commentVm.Comment.Id))
                 {
-                    topLeft.X = Math.Min(topLeft.X, nodeContainerPosition.X);
-                    topLeft.Y = Math.Min(topLeft.Y, nodeContainerPosition.Y);
-                    bottomRight.X = Math.Max(bottomRight.X, nodeContainerPosition.X + element.ActualWidth);
-                    bottomRight.Y = Math.Max(bottomRight.Y, nodeContainerPosition.Y + element.ActualHeight);
-                    items.Add(graphItem);
+                    topLeft.X = Math.Min(topLeft.X, position.X);
+                    topLeft.Y = Math.Min(topLeft.Y, position.Y);
+                    bottomRight.X = Math.Max(bottomRight.X, position.X + element.ActualWidth);
+                    bottomRight.Y = Math.Max(bottomRight.Y, position.Y + element.ActualHeight);
+                    elements.Add(graphItem);
                 }
             }
         }
 
-        if (items.Count == 0)
+        if (elements.Count == 0)
         {
             deselectGraphItems();
             return;
@@ -1040,126 +1461,18 @@ public partial class NodeGraphView : INotifyPropertyChanged
         selectionTransform.X = topLeft.X;
         selectionTransform.Y = topLeft.Y;
 
-        var offsetFromGrid = new Vector(topLeft.X % SNAP_DISTANCE, topLeft.Y % SNAP_DISTANCE);
-
-        var connections = items.OfType<NodeGraphItem>()
-                               .SelectMany(nodeGraphItem => Graph.Connections.Values.Where(c => c.InputNodeId == nodeGraphItem.Node.Id || c.OutputNodeId == nodeGraphItem.Node.Id))
-                               .Distinct();
-
-        selection = new GraphItemSelection(offsetFromGrid, items.ToArray(), connections.ToArray());
+        elementsSelection = new ElementsSelection(elements.ToArray());
         SelectionVisual.Visibility = Visibility.Visible;
     }
 
-    #endregion
-
-    #region GraphContainer
-
-    private void GraphContainer_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+    private void deselectGraphItems()
     {
-        graphContextMenuPosition = Mouse.GetPosition(GraphContainer);
-
-        if (connectionDrag is not null)
-        {
-            var node = connectionDrag.NodeGraphItem.Node;
-            var slot = connectionDrag.Slot;
-            var mousePos = Mouse.GetPosition(GraphContainer);
-
-            if (connectionDrag.Origin == ConnectionDragOrigin.ValueInput)
-            {
-                var slotInputType = node.GetTypeOfInputSlot(slot);
-
-                var isNullable = false;
-
-                if (slotInputType.IsGenericType && slotInputType.GetGenericTypeDefinition() == typeof(Nullable<>))
-                {
-                    slotInputType = slotInputType.GenericTypeArguments[0];
-                    isNullable = true;
-                }
-
-                if (NodeConstants.INPUT_TYPES.Contains(slotInputType) || slotInputType.IsAssignableTo(typeof(Enum)) || slotInputType == typeof(Keybind))
-                {
-                    e.Handled = true;
-
-                    var type = typeof(ValueNode<>).MakeGenericType(slotInputType);
-                    var outputNode = Graph.AddNode(type, mousePos);
-
-                    if (!(slot >= node.Metadata.InputsCount && node.Metadata.ValueInputHasVariableSize) && !isNullable)
-                        outputNode.GetType().GetProperty("Value")!.SetValue(outputNode, node.Metadata.Inputs[slot].DefaultValue);
-
-                    Graph.CreateValueConnection(outputNode.Id, 0, node.Id, slot);
-                    Graph.MarkDirty();
-                    stopConnectionDrag();
-                    return;
-                }
-            }
-
-            if (connectionDrag.Origin == ConnectionDragOrigin.ValueOutput)
-            {
-                var slotOutputType = node.GetTypeOfOutputSlot(slot);
-
-                e.Handled = true;
-
-                var type = typeof(DisplayNode<>).MakeGenericType(slotOutputType);
-                var inputNode = Graph.AddNode(type, mousePos);
-                Graph.CreateValueConnection(node.Id, slot, inputNode.Id, 0);
-                Graph.MarkDirty();
-                stopConnectionDrag();
-                return;
-            }
-
-            if (connectionDrag.Origin == ConnectionDragOrigin.FlowInput)
-            {
-                e.Handled = true;
-
-                var outputNode = Graph.AddNode(typeof(ButtonNode), mousePos);
-                Graph.CreateFlowConnection(outputNode.Id, 0, node.Id);
-                Graph.MarkDirty();
-                stopConnectionDrag();
-                return;
-            }
-        }
+        elementsSelection = null;
+        SelectionVisual.Visibility = Visibility.Collapsed;
     }
-
-    #endregion
-
-    #region NodeContainer
-
-    private void NodeContainer_OnMouseDown(object sender, MouseButtonEventArgs e)
-    {
-        Focus();
-
-        var element = (FrameworkElement)sender;
-        var graphItem = (NodeGraphItem)element.Tag;
-
-        if (e.ChangedButton == GRAPH_ITEM_DRAG_BUTTON)
-        {
-            e.Handled = true;
-
-            var mousePos = Mouse.GetPosition(GraphContainer);
-            var nodePos = new Point(graphItem.PosX, graphItem.PosY);
-            var offset = mousePos - nodePos;
-
-            var groupItem = GraphItems.OfType<NodeGroupGraphItem>().SingleOrDefault(groupItem => groupItem.Group.Nodes.Contains(graphItem.Node.Id));
-
-            if (groupItem is not null)
-                updateNodeGroupGraphItem(groupItem);
-
-            var index = GraphItems.IndexOf(graphItem);
-            GraphItems.Move(index, GraphItems.Count - 1);
-
-            graphItemDrag = new GraphItemDrag(offset, graphItem);
-            OuterContainer.CaptureMouse();
-        }
-    }
-
-    #endregion
-
-    #region GroupContainer
 
     private void GroupContainer_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
-        Focus();
-
         if (Keyboard.IsKeyDown(Key.LeftCtrl))
         {
             e.Handled = true;
@@ -1167,601 +1480,60 @@ public partial class NodeGraphView : INotifyPropertyChanged
             var mousePos = Mouse.GetPosition(GraphContainer);
             selectionCreate = new SelectionCreate(mousePos);
             SelectionVisual.Visibility = Visibility.Visible;
-            OuterContainer.CaptureMouse();
+            GraphContainer.CaptureMouse();
             return;
         }
 
         var element = (FrameworkElement)sender;
-        var nodeGroupGraphItem = (NodeGroupGraphItem)element.Tag;
+        var groupVm = (GroupViewModel)element.Tag;
 
-        if (e.ChangedButton == GRAPH_ITEM_DRAG_BUTTON)
+        if (e.ChangedButton == GRAPH_INTERACT_BUTTON)
         {
             e.Handled = true;
 
             var mousePos = Mouse.GetPosition(GraphContainer);
-            var groupPos = new Point(nodeGroupGraphItem.PosX, nodeGroupGraphItem.PosY);
+            var groupPos = groupVm.Position;
             var offset = mousePos - groupPos;
 
-            var nodeGraphItems = GraphItems.OfType<NodeGraphItem>()
-                                           .Where(nodeGraphItem => nodeGroupGraphItem.Group.Nodes.Contains(nodeGraphItem.Node.Id))
-                                           .ToList();
-
-            var connections = nodeGraphItems.SelectMany(nodeGraphItem => Graph.Connections.Values.Where(c => c.InputNodeId == nodeGraphItem.Node.Id || c.OutputNodeId == nodeGraphItem.Node.Id))
-                                            .Distinct();
+            var nodeVms = GraphElements.OfType<NodeViewModel>()
+                                       .Where(nodeGraphItem => groupVm.Group.Nodes.Contains(nodeGraphItem.Node.Id))
+                                       .ToList();
 
             var offsetFromGrid = new Vector(groupPos.X % SNAP_DISTANCE, groupPos.Y % SNAP_DISTANCE);
 
-            var groupGraphItemIndex = GraphItems.IndexOf(nodeGroupGraphItem);
-            GraphItems.Move(groupGraphItemIndex, GraphItems.Count - 1);
+            var groupGraphItemIndex = GraphElements.IndexOf(groupVm);
+            GraphElements.Move(groupGraphItemIndex, GraphElements.Count - 1);
 
-            foreach (var nodeGraphItem in nodeGraphItems)
+            foreach (var nodeVm in nodeVms)
             {
-                var index = GraphItems.IndexOf(nodeGraphItem);
-                GraphItems.Move(index, GraphItems.Count - 1);
+                var index = GraphElements.IndexOf(nodeVm);
+                GraphElements.Move(index, GraphElements.Count - 1);
             }
 
-            nodeGroupGraphItemGrab = new NodeGroupGraphItemDrag(offset, offsetFromGrid, nodeGroupGraphItem, nodeGraphItems, connections);
-            OuterContainer.CaptureMouse();
+            groupDrag = new GroupDrag(offset, offsetFromGrid, groupVm, nodeVms);
+            GraphContainer.CaptureMouse();
 
             deselectGraphItems();
         }
     }
 
-    #endregion
-
-    #region Selection Visual
-
     private void SelectionVisual_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
-        Focus();
-
         var element = (FrameworkElement)sender;
         var position = (TranslateTransform)element.RenderTransform;
 
-        if (e.ChangedButton == GRAPH_ITEM_DRAG_BUTTON)
+        if (e.ChangedButton == GRAPH_INTERACT_BUTTON && e.ButtonState == MouseButtonState.Pressed)
         {
             e.Handled = true;
 
             var mousePos = Mouse.GetPosition(GraphContainer);
             var selectionPos = new Point(position.X, position.Y);
             var offset = mousePos - selectionPos;
+            var offsetFromGrid = new Vector(selectionPos.X % SNAP_DISTANCE, selectionPos.Y % SNAP_DISTANCE);
 
-            selectionDrag = new SelectionDrag(offset);
-            OuterContainer.CaptureMouse();
+            selectionDrag = new SelectionDrag(offset, offsetFromGrid);
+            GraphContainer.CaptureMouse();
         }
-    }
-
-    #endregion
-
-    #region Context Menus
-
-    private void GraphContextMenu_NodeTypeItemClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var nodeType = (Type)element.Tag;
-
-        if (nodeType.IsGenericTypeDefinition)
-        {
-            var nodeCreatorWindow = new NodeCreatorWindow(Graph, nodeType);
-
-            nodeCreatorWindow.Closed += (_, _) =>
-            {
-                if (nodeCreatorWindow.ConstructedType is null) return;
-
-                Graph.AddNode(nodeCreatorWindow.ConstructedType, graphContextMenuPosition);
-                Graph.MarkDirty();
-            };
-
-            nodeCreatorWindowManager.TrySpawnChild(nodeCreatorWindow);
-        }
-        else
-        {
-            Graph.AddNode(nodeType, graphContextMenuPosition);
-            Graph.MarkDirty();
-        }
-    }
-
-    private void GraphContextMenu_PresetItemClick(object sender, RoutedEventArgs e)
-    {
-        run().Forget();
-        return;
-
-        async Task run()
-        {
-            var element = (FrameworkElement)sender;
-            var preset = (NodePreset)element.Tag;
-
-            var newNodes = preset.SpawnTo(Graph, graphContextMenuPosition);
-            await Graph.MarkDirtyAsync();
-            shrinkWrapSelection(newNodes);
-        }
-    }
-
-    private void NodeContextMenu_DeleteClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var nodeGraphItem = (NodeGraphItem)element.Tag;
-
-        var groupToUpdate = GraphItems.OfType<NodeGroupGraphItem>().SingleOrDefault(nodeGroupGraphItem => nodeGroupGraphItem.Group.Nodes.Contains(nodeGraphItem.Node.Id));
-
-        if (groupToUpdate is not null)
-        {
-            groupToUpdate.Group.Nodes.Remove(nodeGraphItem.Node.Id);
-            updateNodeGroupGraphItem(groupToUpdate);
-        }
-
-        Graph.DeleteNode(nodeGraphItem.Node.Id);
-        Graph.MarkDirty();
-    }
-
-    private void GroupContextMenu_DissolveClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var nodeGroupGraphItem = (NodeGroupGraphItem)element.Tag;
-
-        Graph.DeleteGroup(nodeGroupGraphItem.Group.Id);
-        Graph.MarkDirty();
-    }
-
-    private void GroupContextMenu_DeleteClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var nodeGroupGraphItem = (NodeGroupGraphItem)element.Tag;
-
-        foreach (var node in nodeGroupGraphItem.Group.Nodes.ToList())
-        {
-            Graph.DeleteNode(node);
-        }
-
-        Graph.DeleteGroup(nodeGroupGraphItem.Group.Id);
-        Graph.MarkDirty();
-    }
-
-    private void SelectionContextMenu_CreateGroupClick(object sender, RoutedEventArgs e)
-    {
-        Debug.Assert(selection is not null);
-
-        Graph.AddGroup(selection.Items.OfType<NodeGraphItem>().Select(item => item.Node.Id));
-        Graph.MarkDirty();
-        deselectGraphItems();
-    }
-
-    private void SelectionContextMenu_SaveAsPresetClick(object sender, RoutedEventArgs e)
-    {
-        Debug.Assert(selection is not null);
-
-        var selectedNodes = selection.Items.OfType<NodeGraphItem>().Select(item => item.Node.Id).ToList();
-        var position = (TranslateTransform)SelectionVisual.RenderTransform;
-
-        var presetCreatorWindow = new PresetCreatorWindow();
-
-        presetCreatorWindow.Closed += (_, _) =>
-        {
-            if (string.IsNullOrEmpty(presetCreatorWindow.PresetName)) return;
-
-            Graph.CreatePreset(presetCreatorWindow.PresetName, selectedNodes, (float)position.X, (float)position.Y);
-        };
-
-        presetCreatorWindowManager.TrySpawnChild(presetCreatorWindow);
-        deselectGraphItems();
-    }
-
-    private void SelectionContextMenu_DeleteAllClick(object sender, RoutedEventArgs e)
-    {
-        deleteSelection().Forget();
-    }
-
-    private async Task deleteSelection()
-    {
-        Debug.Assert(selection is not null);
-
-        var groupsToUpdate = new List<NodeGroupGraphItem>();
-
-        foreach (var item in selection.Items)
-        {
-            if (item is NodeGraphItem nodeGraphItem)
-            {
-                var groupItem = GraphItems.OfType<NodeGroupGraphItem>().SingleOrDefault(groupItem => groupItem.Group.Nodes.Contains(nodeGraphItem.Node.Id));
-                if (groupItem is not null && !groupsToUpdate.Contains(groupItem)) groupsToUpdate.Add(groupItem);
-
-                Graph.DeleteNode(nodeGraphItem.Node.Id);
-            }
-        }
-
-        await Graph.MarkDirtyAsync();
-
-        foreach (var nodeGroupGraphItem in groupsToUpdate)
-        {
-            updateNodeGroupGraphItem(nodeGroupGraphItem);
-        }
-
-        deselectGraphItems();
-    }
-
-    #endregion
-
-    #region Connection Points
-
-    private (ConnectionType Type, int Slot) connectionDataFromElement(FrameworkElement element)
-    {
-        var split = ((string)element.Tag).Split('_');
-        return (split[0] == "flow" ? ConnectionType.Flow : ConnectionType.Value, int.Parse(split[2]));
-    }
-
-    private void startConnectionDrag(ConnectionDragOrigin source, FrameworkElement sourceElement)
-    {
-        Debug.Assert(connectionDrag is null);
-
-        var nodeGraphItem = ((ConnectionViewModel)sourceElement.DataContext).NodeGraphItem;
-        var (_, slot) = connectionDataFromElement(sourceElement);
-
-        if (source == ConnectionDragOrigin.ValueInput)
-        {
-            var existingConnection = Graph.Connections.Values.FirstOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == slot);
-
-            if (existingConnection is not null)
-            {
-                var outputNodeGraphItem = GraphItems.OfType<NodeGraphItem>().Single(outputNodeGraphItem => outputNodeGraphItem.Node.Id == existingConnection.OutputNodeId);
-
-                Graph.RemoveConnection(existingConnection);
-                Graph.MarkDirty();
-
-                connectionDrag = new ConnectionDrag(ConnectionDragOrigin.ValueOutput, outputNodeGraphItem, existingConnection.OutputSlot,
-                    outputNodeGraphItem.ValueOutputs[existingConnection.OutputSlot]);
-            }
-        }
-
-        if (source == ConnectionDragOrigin.FlowInput)
-        {
-            var existingConnection = Graph.Connections.Values.FirstOrDefault(c => c.ConnectionType == ConnectionType.Flow && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == slot);
-
-            if (existingConnection is not null)
-            {
-                var outputNodeGraphItem = GraphItems.OfType<NodeGraphItem>().Single(outputNodeGraphItem => outputNodeGraphItem.Node.Id == existingConnection.OutputNodeId);
-
-                Graph.RemoveConnection(existingConnection);
-                Graph.MarkDirty();
-
-                connectionDrag = new ConnectionDrag(ConnectionDragOrigin.FlowOutput, outputNodeGraphItem, existingConnection.OutputSlot,
-                    outputNodeGraphItem.FlowOutputs[existingConnection.OutputSlot]);
-            }
-        }
-
-        connectionDrag ??= new ConnectionDrag(source, nodeGraphItem, slot, sourceElement);
-        ConnectionDragPath.Visibility = Visibility.Visible;
-        updateConnectionDrag();
-    }
-
-    private void stopConnectionDrag()
-    {
-        connectionDrag = null;
-        ConnectionDragPath.Visibility = Visibility.Collapsed;
-    }
-
-    private void stopConnectionDragAndCreate(ConnectionDragOrigin destination, FrameworkElement destinationElement)
-    {
-        Debug.Assert(connectionDrag is not null);
-
-        var nodeGraphItem = ((ConnectionViewModel)destinationElement.DataContext).NodeGraphItem;
-        var (_, slot) = connectionDataFromElement(destinationElement);
-
-        if (connectionDrag.Origin == ConnectionDragOrigin.FlowInput && destination == ConnectionDragOrigin.FlowOutput)
-        {
-            Graph.CreateFlowConnection(nodeGraphItem.Node.Id, slot, connectionDrag.NodeGraphItem.Node.Id);
-            Graph.MarkDirty();
-        }
-
-        if (connectionDrag.Origin == ConnectionDragOrigin.FlowOutput && destination == ConnectionDragOrigin.FlowInput)
-        {
-            Graph.CreateFlowConnection(connectionDrag.NodeGraphItem.Node.Id, connectionDrag.Slot, nodeGraphItem.Node.Id);
-            Graph.MarkDirty();
-        }
-
-        if (connectionDrag.Origin == ConnectionDragOrigin.ValueInput && destination == ConnectionDragOrigin.ValueOutput)
-        {
-            Graph.CreateValueConnection(nodeGraphItem.Node.Id, slot, connectionDrag.NodeGraphItem.Node.Id, connectionDrag.Slot);
-            Graph.MarkDirty();
-        }
-
-        if (connectionDrag.Origin == ConnectionDragOrigin.ValueOutput && destination == ConnectionDragOrigin.ValueInput)
-        {
-            Graph.CreateValueConnection(connectionDrag.NodeGraphItem.Node.Id, connectionDrag.Slot, nodeGraphItem.Node.Id, slot);
-            Graph.MarkDirty();
-        }
-
-        stopConnectionDrag();
-    }
-
-    private void ConnectionInput_OnMouseDown(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ChangedButton != GRAPH_ITEM_DRAG_BUTTON) return;
-
-        Debug.Assert(connectionDrag is null);
-
-        e.Handled = true;
-        var element = (FrameworkElement)sender;
-        var (type, _) = connectionDataFromElement(element);
-        startConnectionDrag(type == ConnectionType.Flow ? ConnectionDragOrigin.FlowInput : ConnectionDragOrigin.ValueInput, element);
-    }
-
-    private void ConnectionInput_OnMouseUp(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ChangedButton != GRAPH_ITEM_DRAG_BUTTON) return;
-        if (connectionDrag is null) return;
-
-        e.Handled = true;
-        var element = (FrameworkElement)sender;
-        var (type, _) = connectionDataFromElement(element);
-        stopConnectionDragAndCreate(type == ConnectionType.Flow ? ConnectionDragOrigin.FlowInput : ConnectionDragOrigin.ValueInput, element);
-    }
-
-    private void ConnectionOutput_OnMouseDown(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ChangedButton != GRAPH_ITEM_DRAG_BUTTON) return;
-
-        Debug.Assert(connectionDrag is null);
-
-        e.Handled = true;
-        var element = (FrameworkElement)sender;
-        var (type, _) = connectionDataFromElement(element);
-
-        startConnectionDrag(type == ConnectionType.Flow ? ConnectionDragOrigin.FlowOutput : ConnectionDragOrigin.ValueOutput, element);
-    }
-
-    private void ConnectionOutput_OnMouseUp(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ChangedButton != GRAPH_ITEM_DRAG_BUTTON) return;
-        if (connectionDrag is null) return;
-
-        e.Handled = true;
-        var element = (FrameworkElement)sender;
-        var (type, _) = connectionDataFromElement(element);
-        stopConnectionDragAndCreate(type == ConnectionType.Flow ? ConnectionDragOrigin.FlowOutput : ConnectionDragOrigin.ValueOutput, element);
-    }
-
-    #endregion
-
-    #region NodeGraph Title
-
-    public bool GraphTitleEditing
-    {
-        get;
-        set
-        {
-            if (value == field) return;
-
-            field = value;
-            OnPropertyChanged();
-        }
-    }
-
-    private void NodeGraphTitle_MouseDown(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ClickCount != 2) return;
-
-        e.Handled = true;
-        GraphTitleEditing = true;
-        NodeGraphTitleTextBox.Focus();
-    }
-
-    private void NodeGraphTitleTextBoxContainer_OnMouseUp(object sender, MouseButtonEventArgs e)
-    {
-        e.Handled = true;
-    }
-
-    private void NodeGraphTitleTextBox_LostFocus(object sender, RoutedEventArgs e)
-    {
-        e.Handled = true;
-
-        GraphTitleEditing = false;
-
-        if (string.IsNullOrEmpty(NodeGraphTitleTextBox.Text))
-        {
-            Graph.Name.Value = "New Graph";
-            return;
-        }
-
-        Graph.Name.Value = NodeGraphTitleTextBox.Text;
-        Graph.Serialise();
-    }
-
-    private void NodeGraphTitleTextBox_KeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Enter)
-        {
-            e.Handled = true;
-            Focus();
-        }
-    }
-
-    #endregion
-
-    private void GroupTitle_MouseDown(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ClickCount != 2) return;
-
-        e.Handled = true;
-
-        var element = (FrameworkElement)sender;
-        var nodeGroupGraphItem = (NodeGroupGraphItem)element.Tag;
-
-        nodeGroupGraphItem.Editing = true;
-
-        element.Parent.FindVisualChild<TextBox>("GroupTitleTextBox")!.Focus();
-    }
-
-    private void GroupTitleTextBoxContainer_OnMouseUp(object sender, MouseButtonEventArgs e)
-    {
-        e.Handled = true;
-    }
-
-    private void GroupTitleTextBox_LostFocus(object sender, RoutedEventArgs e)
-    {
-        e.Handled = true;
-
-        var element = (FrameworkElement)sender;
-        var nodeGroupGraphItem = (NodeGroupGraphItem)element.Tag;
-
-        nodeGroupGraphItem.Editing = false;
-        Graph.Serialise();
-    }
-
-    private void GroupTitleTextBox_KeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.Enter)
-        {
-            e.Handled = true;
-            Focus();
-        }
-    }
-
-    private void ButtonNode_OnClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var nodeGraphItem = (NodeGraphItem)element.Tag;
-
-        Graph.StartFlow(nodeGraphItem.Node).Forget();
-    }
-
-    private void EnumValueNode_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        run().Forget();
-        return;
-
-        async Task run()
-        {
-            var element = (FrameworkElement)sender;
-            var nodeGraphItem = (NodeGraphItem)element.Tag;
-
-            if (!hasLoaded) return;
-
-            // force off the UI thread to wait for a new render
-            await Task.Delay(1);
-
-            Dispatcher.Invoke(() =>
-            {
-                populateNodeGraphItemSnapOffset(nodeGraphItem);
-                refreshGraphItemPosition(nodeGraphItem);
-                drawNodeConnections(nodeGraphItem.Node);
-            }, DispatcherPriority.Render);
-        }
-    }
-
-    private void InputVariableSize_IncreaseOnClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var nodeGraphItem = (NodeGraphItem)element.Tag;
-
-        nodeGraphItem.Node.VariableSize.ValueInputSize++;
-
-        Graph.Serialise();
-
-        var valueInputItemsControl = nodeGraphItem.ValueInputs.Last().FindVisualParent<ItemsControl>("ValueInputItemsControl")!;
-        valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
-
-        Dispatcher.Invoke(() => populateNodeGraphItem(nodeGraphItem), DispatcherPriority.Render);
-        Graph.TriggerTree(nodeGraphItem.Node).Forget();
-    }
-
-    private void InputVariableSize_DecreaseOnClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var nodeGraphItem = (NodeGraphItem)element.Tag;
-
-        if (nodeGraphItem.Node.VariableSize.ValueInputSize == 1) return;
-
-        var inputSlot = nodeGraphItem.Node.Metadata.InputsCount - 1 + (nodeGraphItem.Node.VariableSize.ValueInputSize - 1);
-        var connectionToRemove = Graph.Connections.Values.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.InputNodeId == nodeGraphItem.Node.Id && c.InputSlot == inputSlot);
-
-        if (connectionToRemove is not null)
-        {
-            Graph.RemoveConnection(connectionToRemove);
-            Graph.MarkDirty();
-        }
-
-        nodeGraphItem.Node.VariableSize.ValueInputSize--;
-
-        Graph.Serialise();
-
-        var valueInputItemsControl = nodeGraphItem.ValueInputs.Last().FindVisualParent<ItemsControl>("ValueInputItemsControl")!;
-        valueInputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
-
-        Dispatcher.Invoke(() => populateNodeGraphItem(nodeGraphItem), DispatcherPriority.Render);
-        Graph.TriggerTree(nodeGraphItem.Node).Forget();
-    }
-
-    private void OutputVariableSize_IncreaseOnClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var nodeGraphItem = (NodeGraphItem)element.Tag;
-
-        nodeGraphItem.Node.VariableSize.ValueOutputSize++;
-
-        Graph.Serialise();
-
-        var valueOutputItemsControl = nodeGraphItem.ValueOutputs.Last().FindVisualParent<ItemsControl>("ValueOutputItemsControl")!;
-        valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
-
-        Dispatcher.Invoke(() => populateNodeGraphItem(nodeGraphItem), DispatcherPriority.Render);
-        Graph.TriggerTree(nodeGraphItem.Node).Forget();
-    }
-
-    private void OutputVariableSize_DecreaseOnClick(object sender, RoutedEventArgs e)
-    {
-        var element = (FrameworkElement)sender;
-        var nodeGraphItem = (NodeGraphItem)element.Tag;
-
-        if (nodeGraphItem.Node.VariableSize.ValueOutputSize == 1) return;
-
-        var outputSLot = nodeGraphItem.Node.Metadata.OutputsCount - 1 + (nodeGraphItem.Node.VariableSize.ValueOutputSize - 1);
-        var connectionToRemove = Graph.Connections.Values.SingleOrDefault(c => c.ConnectionType == ConnectionType.Value && c.OutputNodeId == nodeGraphItem.Node.Id && c.OutputSlot == outputSLot);
-
-        if (connectionToRemove is not null)
-        {
-            Graph.RemoveConnection(connectionToRemove);
-            Graph.MarkDirty();
-        }
-
-        nodeGraphItem.Node.VariableSize.ValueOutputSize--;
-
-        Graph.Serialise();
-
-        var valueOutputItemsControl = nodeGraphItem.ValueOutputs.Last().FindVisualParent<ItemsControl>("ValueOutputItemsControl")!;
-        valueOutputItemsControl.GetBindingExpression(ItemsControl.ItemsSourceProperty)!.UpdateTarget();
-
-        Dispatcher.Invoke(() => populateNodeGraphItem(nodeGraphItem), DispatcherPriority.Render);
-        Graph.TriggerTree(nodeGraphItem.Node).Forget();
-    }
-
-    private void TextBoxValueOutputOnlyNodeTemplate_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
-    {
-        var textBox = (TextBox)sender;
-        var nodeGraphItem = (NodeGraphItem)textBox.Tag;
-
-        var type = nodeGraphItem.Node.Metadata.Outputs[0].Type;
-        var text = textBox.Text;
-
-        try
-        {
-            if (!type.IsAssignableTo(typeof(INumber<>).MakeGenericType(type)) || !typeof(double).TryCreateConverter(type, out var converter)) return;
-
-            var expression = new Expression(text);
-            expression.disableImpliedMultiplicationMode();
-            var result = expression.calculate();
-
-            var convertedResult = converter.DynamicInvoke(result)!;
-            textBox.Text = convertedResult.ToString()!;
-        }
-        catch
-        {
-        }
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
     private void VariableAdd_OnClick(object sender, RoutedEventArgs e)
@@ -1779,18 +1551,23 @@ public partial class NodeGraphView : INotifyPropertyChanged
         variableCreatorWindowManager.TrySpawnChild(window);
     }
 
+    private void addVariableNode(Type type, IGraphVariable graphVariable)
+    {
+        var window = Window.GetWindow(this)!;
+        var offset = window.TranslatePoint(new Point(window.ActualWidth / 2d, window.ActualHeight / 2d), GraphContainer);
+        var nodeResult = Graph.AddNode(type, null, new Vector2((float)snapToGrid(offset.X), (float)snapToGrid(offset.Y)));
+        Debug.Assert(nodeResult.IsSuccess);
+        var variableReference = (IHasVariableReference)nodeResult.Value;
+        variableReference.VariableId = graphVariable.GetId();
+        Graph.MarkDirty();
+    }
+
     private void CreateVariableSource_OnClick(object sender, RoutedEventArgs e)
     {
         e.Handled = true;
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
-
-        var graphTransform = getGraphTransform();
-        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
-
-        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(VariableSourceNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
-        variableReference.VariableId = graphVariable.GetId();
-        Graph.MarkDirty();
+        addVariableNode(typeof(VariableSourceNode<>).MakeGenericType(graphVariable.GetValueType()), graphVariable);
     }
 
     private void CreateVariableReference_OnClick(object sender, RoutedEventArgs e)
@@ -1798,13 +1575,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         e.Handled = true;
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
-
-        var graphTransform = getGraphTransform();
-        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
-
-        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(VariableReferenceNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
-        variableReference.VariableId = graphVariable.GetId();
-        Graph.MarkDirty();
+        addVariableNode(typeof(VariableReferenceNode<>).MakeGenericType(graphVariable.GetValueType()), graphVariable);
     }
 
     private void CreateVariableWrite_OnClick(object sender, RoutedEventArgs e)
@@ -1812,13 +1583,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         e.Handled = true;
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
-
-        var graphTransform = getGraphTransform();
-        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
-
-        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(DirectWriteVariableNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
-        variableReference.VariableId = graphVariable.GetId();
-        Graph.MarkDirty();
+        addVariableNode(typeof(DirectWriteVariableNode<>).MakeGenericType(graphVariable.GetValueType()), graphVariable);
     }
 
     private void CreateVariableDrive_OnClick(object sender, RoutedEventArgs e)
@@ -1826,13 +1591,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         e.Handled = true;
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
-
-        var graphTransform = getGraphTransform();
-        var offset = new Point(-graphTransform.Translation.X + 25000, -graphTransform.Translation.Y + 25000);
-
-        var variableReference = (IHasVariableReference)Graph.AddNode(typeof(DriveVariableNode<>).MakeGenericType(graphVariable.GetValueType()), offset);
-        variableReference.VariableId = graphVariable.GetId();
-        Graph.MarkDirty();
+        addVariableNode(typeof(DriveVariableNode<>).MakeGenericType(graphVariable.GetValueType()), graphVariable);
     }
 
     private void DeleteVariable_OnClick(object sender, RoutedEventArgs e)
@@ -1841,7 +1600,7 @@ public partial class NodeGraphView : INotifyPropertyChanged
         var item = (MenuItem)sender;
         var graphVariable = (IGraphVariable)item.Tag;
 
-        var result = MessageBox.Show(Window.GetWindow(item)!,
+        var result = MessageBox.Show(Window.GetWindow(this),
             "Are you sure you want to delete this variable?\n\nThis will remove all nodes that reference this variable",
             "Variable Delete Warning",
             MessageBoxButton.YesNo,
@@ -1852,169 +1611,214 @@ public partial class NodeGraphView : INotifyPropertyChanged
         Graph.DeleteVariable(graphVariable);
         Graph.MarkDirty();
     }
-}
 
-public class PlainTextFormatter : ITextFormatter
-{
-    public string GetText(FlowDocument document)
+    private void GroupContextMenu_DissolveClick(object sender, RoutedEventArgs e)
     {
-        var text = new TextRange(document.ContentStart, document.ContentEnd).Text;
-        return text.EndsWith(Environment.NewLine) ? text.Remove(text.Length - Environment.NewLine.Length, Environment.NewLine.Length) : text;
+        var element = (FrameworkElement)sender;
+        var groupVm = (GroupViewModel)element.Tag;
+
+        Graph.DeleteGroup(groupVm.Group.Id);
+        Graph.MarkDirty();
     }
 
-    public void SetText(FlowDocument document, string text)
+    private void GroupContextMenu_DeleteClick(object sender, RoutedEventArgs e)
     {
-        new TextRange(document.ContentStart, document.ContentEnd).Text = text;
-    }
-}
+        var element = (FrameworkElement)sender;
+        var groupVm = (GroupViewModel)element.Tag;
 
-public enum ConnectionDragOrigin
-{
-    FlowOutput,
-    FlowInput,
-    ValueOutput,
-    ValueInput
-}
-
-public record SelectionCreate(Point Position);
-
-public record GraphItemSelection(Vector OffsetFromGrid, GraphItem[] Items, NodeConnection[] Connections);
-
-public record GraphDrag(Vector Offset);
-
-public record GraphItemDrag(Vector Offset, GraphItem Item) : GraphDrag(Offset);
-
-public record NodeGroupGraphItemDrag(Vector Offset, Vector OffsetFromGrid, NodeGroupGraphItem Item, IEnumerable<GraphItem> Items, IEnumerable<NodeConnection> Connections) : GraphDrag(Offset);
-
-public record ConnectionDrag(ConnectionDragOrigin Origin, NodeGraphItem NodeGraphItem, int Slot, FrameworkElement OriginElement);
-
-public record SelectionDrag(Vector Offset) : GraphDrag(Offset);
-
-public record GraphItem : INotifyPropertyChanged
-{
-    public FrameworkElement Element { get; set; } = null!;
-    public Vector SnapOffset { get; set; }
-
-    public double PosX
-    {
-        get;
-        private set
+        foreach (var node in groupVm.Group.Nodes.ToList())
         {
-            if (value.Equals(field)) return;
+            Graph.RemoveNode(node);
+        }
 
-            field = value;
-            OnPropertyChanged();
+        Graph.DeleteGroup(groupVm.Group.Id);
+        Graph.MarkDirty();
+    }
+
+    private void SelectionContextMenu_CreateGroupClick(object sender, RoutedEventArgs e)
+    {
+        Debug.Assert(elementsSelection is not null);
+
+        Graph.AddGroup(elementsSelection.Items.OfType<NodeViewModel>().Select(item => item.Node.Id));
+        Graph.MarkDirty();
+        deselectGraphItems();
+    }
+
+    private void SelectionContextMenu_SaveAsPresetClick(object sender, RoutedEventArgs e)
+    {
+        Debug.Assert(elementsSelection is not null);
+
+        var selectedNodes = elementsSelection.Items.OfType<NodeViewModel>().Select(nodeVm => nodeVm.Node.Id).ToList();
+        var selectedComments = elementsSelection.Items.OfType<CommentViewModel>().Select(commentVm => commentVm.Comment.Id).ToList();
+        var position = (TranslateTransform)SelectionVisual.RenderTransform;
+
+        var presetCreatorWindow = new PresetCreatorWindow();
+
+        presetCreatorWindow.Closed += (_, _) =>
+        {
+            if (string.IsNullOrEmpty(presetCreatorWindow.PresetName)) return;
+
+            Graph.CreatePreset(presetCreatorWindow.PresetName, selectedNodes, selectedComments, (float)position.X, (float)position.Y);
+        };
+
+        presetCreatorWindowManager.TrySpawnChild(presetCreatorWindow);
+        deselectGraphItems();
+    }
+
+    private void SelectionContextMenu_DeleteAllClick(object sender, RoutedEventArgs e)
+    {
+        deleteSelection().Forget();
+    }
+
+    private async Task deleteSelection()
+    {
+        Debug.Assert(elementsSelection is not null);
+
+        var groups = GraphElements.OfType<GroupViewModel>().ToList();
+        var groupsToUpdate = new List<GroupViewModel>();
+
+        foreach (var item in elementsSelection.Items)
+        {
+            if (item is NodeViewModel nodeVm)
+            {
+                var groupVm = groups.SingleOrDefault(groupVm => groupVm.Group.Nodes.Contains(nodeVm.Node.Id));
+
+                if (groupVm is not null)
+                {
+                    groupVm.Group.Nodes.Remove(nodeVm.Node.Id);
+
+                    if (!groupsToUpdate.Contains(groupVm))
+                        groupsToUpdate.Add(groupVm);
+                }
+
+                Graph.RemoveNode(nodeVm.Node.Id);
+            }
+
+            if (item is CommentViewModel commentVm)
+            {
+                Graph.RemoveComment(commentVm.Comment.Id);
+            }
+        }
+
+        foreach (var groupVm in groupsToUpdate.Where(vm => vm.Group.Nodes.Count == 0).ToList())
+        {
+            Graph.DeleteGroup(groupVm.Group.Id);
+            groupsToUpdate.Remove(groupVm);
+        }
+
+        deselectGraphItems();
+
+        await Graph.MarkDirtyAsync();
+
+        foreach (var groupVm in groupsToUpdate)
+        {
+            updateGroupViewModel(groupVm);
         }
     }
 
-    public double PosY
+    private void OnGraphTitleEditCompleted(object sender, RoutedEventArgs e)
     {
-        get;
-        private set
-        {
-            if (value.Equals(field)) return;
+        Graph.Serialise();
+    }
 
-            field = value;
-            OnPropertyChanged();
+    private void OnGroupTitleEditCompleted(object sender, RoutedEventArgs e)
+    {
+        Graph.Serialise();
+    }
+
+    private void VariableName_EditCompleted(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var variable = (IGraphVariable)element.Tag;
+
+        foreach (var nodeVm in GraphElements.OfType<NodeViewModel>().Where(nodeVm => nodeVm.Node is IHasVariableReference varRef && varRef.VariableId == variable.GetId()))
+        {
+            nodeVm.NotifyProperty(nameof(NodeViewModel.DisplayName));
+        }
+
+        Graph.Serialise();
+    }
+
+    private void Comment_EditCompleted(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var commentVm = (CommentViewModel)element.Tag;
+
+        Dispatcher.Invoke(() => { }, DispatcherPriority.Loaded);
+        updateCommentSnap(commentVm);
+
+        Graph.Serialise();
+    }
+
+    public async void SpawnPreset(NodePreset preset)
+    {
+        var window = Window.GetWindow(this)!;
+        var offset = window.TranslatePoint(new Point(window.ActualWidth / 2d, window.ActualHeight / 2d), GraphContainer);
+        var newNodes = preset.SpawnTo(Graph, new Vector2((float)snapToGrid(offset.X), (float)snapToGrid(offset.Y)));
+        await Graph.MarkDirtyAsync();
+        shrinkWrapSelection(newNodes);
+    }
+
+    private void PickerControlBase_OnColorChanged(object sender, RoutedEventArgs e)
+    {
+        var element = (PickerControlBase)sender;
+
+        if (element.Tag is NodeViewModel nodeVm)
+        {
+            Debug.Assert(nodeVm.Node.Metadata.Shared.Type.GetGenericTypeDefinition() == typeof(ValueNode<>));
+
+            if (nodeVm.Node.Metadata.Shared.TypeGenerics[0] == typeof(Color))
+            {
+                nodeVm.Node.GetType().GetProperty(nameof(ValueNode<>.Value))!.SetValue(nodeVm.Node, new Color(element.SelectedColor));
+            }
+
+            if (nodeVm.Node.Metadata.Shared.TypeGenerics[0] == typeof(ColorHSL))
+            {
+                nodeVm.Node.GetType().GetProperty(nameof(ValueNode<>.Value))!.SetValue(nodeVm.Node, new Color(element.SelectedColor).AsColorHSL);
+            }
+
+            if (!nodeVm.Node.Metadata.Shared.IsFlowInput)
+                Graph.TriggerTree(nodeVm.Node).Forget();
+        }
+
+        if (element.Tag is NodeValueInputViewModel valueInputVm)
+        {
+            if (valueInputVm.Element.Metadata.Shared.ValueType == typeof(Color))
+            {
+                ((IValueInput)valueInputVm.Element).SetField(new Color(element.SelectedColor));
+            }
+
+            if (valueInputVm.Element.Metadata.Shared.ValueType == typeof(ColorHSL))
+            {
+                ((IValueInput)valueInputVm.Element).SetField(new Color(element.SelectedColor).AsColorHSL);
+            }
+
+            if (!valueInputVm.Element.Owner.Metadata.Shared.IsFlowInput)
+                Graph.TriggerTree(valueInputVm.Element.Owner).Forget();
         }
     }
 
-    public virtual void UpdatePos(Point position)
+    private void TextBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
     {
-        PosX = position.X;
-        PosY = position.Y;
-    }
+        var textBox = (TextBox)sender;
+        var inputVm = (NodeValueInputViewModel)textBox.Tag!;
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+        var type = inputVm.Element.Metadata.Shared.ValueType;
+        var text = textBox.Text;
 
-    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-}
-
-public record NodeGraphItem : GraphItem
-{
-    public Node Node { get; }
-    public FrameworkElement[] FlowInputs { get; set; } = Array.Empty<FrameworkElement>();
-    public FrameworkElement[] FlowOutputs { get; set; } = Array.Empty<FrameworkElement>();
-    public FrameworkElement[] ValueInputs { get; set; } = Array.Empty<FrameworkElement>();
-    public FrameworkElement[] ValueOutputs { get; set; } = Array.Empty<FrameworkElement>();
-
-    public NodeGraphItem(Node node)
-    {
-        Node = node;
-    }
-
-    public override void UpdatePos(Point position)
-    {
-        base.UpdatePos(position);
-        Node.NodePosition = position;
-    }
-
-    public virtual bool Equals(NodeGraphItem? other) => Node.Id == other?.Node.Id;
-
-    public override int GetHashCode() => Node.Id.GetHashCode();
-}
-
-public record NodeGroupGraphItem : GraphItem
-{
-    public NodeGroup Group { get; }
-
-    public bool Editing
-    {
-        get;
-        set
+        try
         {
-            if (value == field) return;
+            var iNumberType = typeof(INumber<>).MakeGenericType(type);
+            if (!iNumberType.IsAssignableFrom(type)) return;
 
-            field = value;
-            OnPropertyChanged();
+            var expression = new Expression(text);
+            expression.disableImpliedMultiplicationMode();
+            var result = expression.calculate();
+
+            textBox.Text = Convert.ChangeType(result, type).ToString() ?? textBox.Text;
+        }
+        catch
+        {
         }
     }
-
-    public double Width
-    {
-        get;
-        set
-        {
-            if (value.Equals(field)) return;
-
-            field = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public double Height
-    {
-        get;
-        set
-        {
-            if (value.Equals(field)) return;
-
-            field = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public NodeGroupGraphItem(NodeGroup group)
-    {
-        Group = group;
-    }
-}
-
-public record ConnectionItem
-{
-    public NodeConnection Connection { get; }
-    public Path Path { get; }
-
-    public ConnectionItem(NodeConnection connection, Path path)
-    {
-        Connection = connection;
-        Path = path;
-    }
-
-    public virtual bool Equals(ConnectionItem? other) => Connection == other?.Connection;
-
-    public override int GetHashCode() => Connection.GetHashCode();
 }

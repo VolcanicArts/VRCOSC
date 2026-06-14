@@ -27,7 +27,7 @@ public partial class AppDebugView
         Logger.NewEntry += onLogEntry;
     }
 
-    public Observable<string> Port9000BoundProcess { get; } = new(string.Empty);
+    public Observable<string> Port9000BoundProcess { get; } = new("UNKNOWN");
 
     public string LanipOfDevice
     {
@@ -41,35 +41,35 @@ public partial class AppDebugView
                 if (ip.AddressFamily == AddressFamily.InterNetwork) return ip.ToString();
             }
 
-            return string.Empty;
+            return "UNKNOWN";
         }
     }
 
-    private DTWrapper? port9000DispatcherTimer;
+    private Repeater? port9000DispatcherTimer;
 
     public Observable<bool> EnableAppDebug => SettingsManager.GetInstance().GetObservable<bool>(VRCOSCSetting.EnableAppDebug);
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        port9000DispatcherTimer = new DTWrapper($"{nameof(AppDebugView)}-{nameof(updatePort9000Process)}", TimeSpan.FromSeconds(5), true, updatePort9000Process);
-        port9000DispatcherTimer.Start();
+        port9000DispatcherTimer = new Repeater($"{nameof(AppDebugView)}-{nameof(updatePort9000Process)}", updatePort9000Process);
+        port9000DispatcherTimer.Start(TimeSpan.FromSeconds(5), true);
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
-        port9000DispatcherTimer?.Stop();
-        port9000DispatcherTimer = null;
+        _ = port9000DispatcherTimer?.StopAsync();
     }
 
-    private void updatePort9000Process() => Task.Run(async () =>
+    private async Task updatePort9000Process()
     {
         var boundProcess = await executePowerShellCommand("Get-Process -Id (Get-NetUDPEndpoint -LocalPort 9000).OwningProcess | Select-Object -ExpandProperty ProcessName");
-        Dispatcher.Invoke(() => Port9000BoundProcess.Value = $"{(boundProcess ?? "Nothing").ReplaceLineEndings(string.Empty)}");
-    });
+        await Dispatcher.InvokeAsync(() => Port9000BoundProcess.Value = $"{(boundProcess ?? "Nothing").ReplaceLineEndings(string.Empty)}");
+    }
 
     private void onLogEntry(LogEntry e) => Dispatcher.Invoke(() =>
     {
-        if (e.LoggerName != "module-debug" || AppManager.GetInstance().State.Value == AppManagerState.Stopped || AppManager.GetInstance().State.Value == AppManagerState.Waiting) return;
+        var appState = AppManager.GetInstance().State.Value;
+        if (e.LoggerName != "module-debug" || appState is AppManagerState.Stopped or AppManagerState.Waiting) return;
 
         var dateTimeText = $"[{DateTime.Now:HH:mm:ss}] {e.Message}";
 

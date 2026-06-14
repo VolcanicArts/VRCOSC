@@ -36,14 +36,6 @@ public partial class NodesView
         };
     }
 
-    public void RefreshAllContextMenus()
-    {
-        foreach (var nodeGraphView in viewCache.Values)
-        {
-            nodeGraphView.RefreshContextMenu();
-        }
-    }
-
     private void setActiveTab(bool presetTab)
     {
         if (presetTab)
@@ -72,6 +64,8 @@ public partial class NodesView
 
     private void showNodeGraph(NodeGraph nodeGraph)
     {
+        selectedGraph?.Serialise();
+
         if (!viewCache.TryGetValue(nodeGraph.Id, out var view))
         {
             view = new NodeGraphView(nodeGraph);
@@ -98,7 +92,8 @@ public partial class NodesView
             var filePath = await Platform.PickFileAsync(".json");
             if (filePath is null) return;
 
-            NodeManager.GetInstance().ImportGraph(filePath);
+            var graph = NodeManager.GetInstance().ImportGraph(filePath);
+            showNodeGraph(graph);
         }
         catch (Exception ex)
         {
@@ -127,14 +122,19 @@ public partial class NodesView
         var result = MessageBox.Show("Are you sure you want to delete this graph?", "Graph Delete Warning", MessageBoxButton.YesNo);
         if (result != MessageBoxResult.Yes) return;
 
-        var index = Math.Max(0, NodeManager.GetInstance().Graphs.IndexOf(graph) - 1);
+        var indexOfGraph = NodeManager.GetInstance().Graphs.IndexOf(graph);
+        int index = indexOfGraph - 1;
 
-        NodeManager.GetInstance().Graphs.Remove(graph);
+        if (indexOfGraph == 0)
+            index = 1;
+
+        if (indexOfGraph == NodeManager.GetInstance().Graphs.Count - 1)
+            index = NodeManager.GetInstance().Graphs.Count - 2;
 
         if (selectedGraph == graph)
-        {
             showNodeGraph(NodeManager.GetInstance().Graphs[index]);
-        }
+
+        NodeManager.GetInstance().Graphs.Remove(graph);
     }
 
     private void GraphsTab_OnMouseDown(object sender, MouseButtonEventArgs e)
@@ -211,5 +211,13 @@ public partial class NodesView
         {
             nodeGraph.MarkDirty();
         }
+    }
+
+    private void SpawnPreset_OnClick(object sender, RoutedEventArgs e)
+    {
+        var element = (FrameworkElement)sender;
+        var preset = (NodePreset)element.Tag;
+
+        ((NodeGraphView)ActiveField.Content).SpawnPreset(preset);
     }
 }

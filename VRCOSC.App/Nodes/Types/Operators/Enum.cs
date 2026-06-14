@@ -11,7 +11,7 @@ public sealed class EnumFlagCreateNode<T> : ValueComputeNode<T> where T : struct
 {
     public ValueInputList<T> Flags = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var flags = Flags.Read(c);
         var result = flags.Aggregate(0ul, (current, flag) => current | Convert.ToUInt64(flag));
@@ -22,10 +22,12 @@ public sealed class EnumFlagCreateNode<T> : ValueComputeNode<T> where T : struct
 [Node("Has Flag", "Operators/Enum")]
 public sealed class EnumHasFlagNode<T>() : ValueComputeNode<bool>("Has Flag") where T : struct, Enum
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<T> Flags = new();
+
     public ValueInput<T> Flag = new();
 
-    protected override bool ComputeValue(PulseContext c)
+    protected override bool ComputeValue(IPulseContext c)
     {
         var flags = Convert.ToUInt64(Flags.Read(c));
         var flag = Convert.ToUInt64(Flag.Read(c));
@@ -36,10 +38,12 @@ public sealed class EnumHasFlagNode<T>() : ValueComputeNode<bool>("Has Flag") wh
 [Node("Flag Add", "Operators/Enum")]
 public sealed class EnumFlagAddNode<T>() : ActionValueComputeNode<T>("Flags") where T : struct, Enum
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<T> Flags = new();
+
     public ValueInput<T> NewFlag = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var flags = Convert.ToUInt64(Flags.Read(c));
         var newFlag = Convert.ToUInt64(NewFlag.Read(c));
@@ -50,10 +54,12 @@ public sealed class EnumFlagAddNode<T>() : ActionValueComputeNode<T>("Flags") wh
 [Node("Flag Remove", "Operators/Enum")]
 public sealed class EnumFlagRemoveNode<T>() : ActionValueComputeNode<T>("Flags") where T : struct, Enum
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<T> Flags = new();
+
     public ValueInput<T> OldFlag = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var flags = Convert.ToUInt64(Flags.Read(c));
         var oldFlag = Convert.ToUInt64(OldFlag.Read(c));
@@ -64,10 +70,12 @@ public sealed class EnumFlagRemoveNode<T>() : ActionValueComputeNode<T>("Flags")
 [Node("Flag Toggle", "Operators/Enum")]
 public sealed class EnumFlagToggleNode<T>() : ActionValueComputeNode<T>("Flags") where T : struct, Enum
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<T> Flags = new();
+
     public ValueInput<T> Flag = new();
 
-    protected override T ComputeValue(PulseContext c)
+    protected override T ComputeValue(IPulseContext c)
     {
         var flags = Convert.ToUInt64(Flags.Read(c));
         var flag = Convert.ToUInt64(Flag.Read(c));

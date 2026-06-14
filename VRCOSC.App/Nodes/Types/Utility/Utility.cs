@@ -17,7 +17,7 @@ public sealed class FloatProgressVisualNode : ValueComputeNode<string>
     public ValueInput<string> Start = new(defaultValue: "\u2523");
     public ValueInput<string> End = new(defaultValue: "\u252B");
 
-    protected override string ComputeValue(PulseContext c)
+    protected override string ComputeValue(IPulseContext c)
     {
         var input = Input.Read(c);
         var resolution = Resolution.Read(c);
@@ -59,7 +59,7 @@ public sealed class ChangesPerSecondNode<T> : Node, IContinuousNode
 
     public GlobalStore<State> StateStore = new();
 
-    protected override Task Process(PulseContext c)
+    protected override Task Process(IPulseContext c)
     {
         var state = StateStore.Read(c);
 

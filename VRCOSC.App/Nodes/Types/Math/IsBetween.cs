@@ -12,5 +12,5 @@ public sealed class IsBetweenNode<T> : ValueComputeNode<bool> where T : ICompari
     public ValueInput<T> Min = new();
     public ValueInput<T> Max = new();
 
-    protected override bool ComputeValue(PulseContext c) => Value.Read(c) >= Min.Read(c) && Value.Read(c) <= Max.Read(c);
+    protected override bool ComputeValue(IPulseContext c) => Value.Read(c) >= Min.Read(c) && Value.Read(c) <= Max.Read(c);
 }

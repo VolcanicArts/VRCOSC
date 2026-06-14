@@ -4,26 +4,29 @@
 namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Write Context Store", "Flow/Stores")]
-public sealed class ContextStoreWriteNode<T> : ActionNode, IHasTextProperty
+public sealed class ContextStoreWriteNode<T> : ActionNode
 {
-    [NodeProperty("key")]
-    public string Text { get; set; } = string.Empty;
-
+    public ValueInput<string> Name = new();
     public ValueInput<T> Value = new();
 
-    protected override void DoAction(PulseContext c)
+    protected override void DoAction(IPulseContext c)
     {
-        if (string.IsNullOrWhiteSpace(Text)) return;
+        var name = Name.Read(c);
+        if (string.IsNullOrWhiteSpace(name)) return;
 
-        c.WriteKeyedStore(Text, Value.Read(c));
+        c.WriteContextStore(name, Value.Read(c));
     }
 }
 
 [Node("Context Store Source", "Flow/Stores")]
-public sealed class ContextStoreSourceNode<T> : ValueComputeNode<T>, IHasTextProperty
+public sealed class ContextStoreSourceNode<T> : ValueComputeNode<T>
 {
-    [NodeProperty("key")]
-    public string Text { get; set; } = string.Empty;
+    [InputMode(InputModes.Inline)]
+    public ValueInput<string> Name = new();
 
-    protected override T ComputeValue(PulseContext c) => string.IsNullOrWhiteSpace(Text) ? default! : c.ReadKeyedStore<T>(Text);
+    protected override T ComputeValue(IPulseContext c)
+    {
+        var name = Name.Read(c);
+        return string.IsNullOrWhiteSpace(name) ? default! : c.ReadContextStore<T>(name);
+    }
 }

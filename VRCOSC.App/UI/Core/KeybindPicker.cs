@@ -19,7 +19,8 @@ namespace VRCOSC.App.UI.Core;
 public class KeybindPicker : UserControl
 {
     public static readonly DependencyProperty KeybindProperty =
-        DependencyProperty.Register(nameof(Keybind), typeof(Keybind), typeof(KeybindPicker), new PropertyMetadata(new Keybind()));
+        DependencyProperty.Register(nameof(Keybind), typeof(Keybind), typeof(KeybindPicker),
+            new FrameworkPropertyMetadata(new Keybind(), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, null, null, true, UpdateSourceTrigger.PropertyChanged));
 
     public Keybind Keybind
     {
@@ -39,24 +40,20 @@ public class KeybindPicker : UserControl
     public KeybindPicker()
     {
         MouseDown += KeybindPicker_OnMouseDown;
-        MouseUp += KeybindPicker_OnMouseUp;
         PreviewKeyDown += KeybindPicker_OnPreviewKeyDown;
         PreviewKeyUp += KeybindPicker_OnPreviewKeyUp;
     }
 
     private void KeybindPicker_OnMouseDown(object sender, MouseButtonEventArgs e)
     {
+        if (e.ChangedButton != MouseButton.Left) return;
+
         Focus();
         e.Handled = true;
 
         Modifiers.Clear();
         Keys.Clear();
         keyDownCount = 0;
-    }
-
-    private void KeybindPicker_OnMouseUp(object sender, MouseButtonEventArgs e)
-    {
-        e.Handled = true;
     }
 
     private void KeybindPicker_OnPreviewKeyUp(object sender, KeyEventArgs e)

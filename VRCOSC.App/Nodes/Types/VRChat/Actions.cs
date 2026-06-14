@@ -4,15 +4,13 @@
 namespace VRCOSC.App.Nodes.Types.VRChat;
 
 [Node("Set Avatar Eye Height", "VRChat/Avatar/Actions")]
-public sealed class AvatarSetEyeHeightNode : ActionNode
+public sealed class AvatarSetEyeHeightNode() : ActionValueConsumeNode<float>("Height (m)")
 {
-    public ValueInput<float> Meters = new();
-
-    protected override void DoAction(PulseContext c)
+    protected override void ConsumeValue(float height, IPulseContext c)
     {
-        var client = c.GetClient();
+        var client = AppManager.GetInstance().VRChatClient;
         if (!client.IsInAvatar) return;
 
-        client.Avatar.SetEyeHeight(Meters.Read(c));
+        client.Avatar.SetEyeHeight(height);
     }
 }
