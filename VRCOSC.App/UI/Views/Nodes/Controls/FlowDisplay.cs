@@ -3,11 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using VRCOSC.App.Nodes.Types.Utility;
 using VRCOSC.App.UI.Views.Nodes.ViewModels;
 
@@ -18,8 +20,9 @@ namespace VRCOSC.App.UI.Views.Nodes.Controls;
 public class FlowDisplay : Control
 {
     private Canvas? animationCanvas;
-    private TextBlock? spawnCountDisplay;
-    private Queue<DateTime> spawnTimestamps = new();
+    private DispatcherTimer updateCountTimer = null!;
+    private readonly Stopwatch spawnerStopwatch = Stopwatch.StartNew();
+    private readonly Queue<double> spawnTimestamps = new();
 
     static FlowDisplay()
     {
@@ -122,7 +125,6 @@ public class FlowDisplay : Control
     {
         base.OnApplyTemplate();
         animationCanvas = GetTemplateChild("AnimationCanvas") as Canvas;
-        spawnCountDisplay = GetTemplateChild("SpawnCountDisplay") as TextBlock;
 
         if (animationCanvas == null)
             throw new InvalidOperationException($"{nameof(FlowDisplay)} template must contain a Canvas named 'AnimationCanvas'.");
@@ -130,14 +132,15 @@ public class FlowDisplay : Control
 
     private void UpdateSpawnCount()
     {
-        var oneSecondAgo = DateTime.Now.AddSeconds(-1);
+        var currentMs = spawnerStopwatch.Elapsed.TotalMilliseconds;
+        var oneSecondAgoMs = currentMs - 1000;
 
-        while (spawnTimestamps.Count > 0 && spawnTimestamps.Peek() <= oneSecondAgo)
+        while (spawnTimestamps.Count > 0 && spawnTimestamps.Peek() < oneSecondAgoMs)
         {
             spawnTimestamps.Dequeue();
         }
 
-        Dispatcher.Invoke(() => SpawnsPerSecond = spawnTimestamps.Count);
+        SpawnsPerSecond = spawnTimestamps.Count;
     }
 
     private void FlowDisplay_Loaded(object sender, RoutedEventArgs e)
@@ -146,6 +149,10 @@ public class FlowDisplay : Control
 
         animationCanvas.Width = ActualWidth;
         animationCanvas.Height = ActualHeight;
+
+        updateCountTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(20) };
+        updateCountTimer.Tick += (_, _) => UpdateSpawnCount();
+        updateCountTimer.Start();
     }
 
     private void FlowDisplay_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -156,17 +163,12 @@ public class FlowDisplay : Control
 
     private void bind(FlowDisplayNode node) => node.OnCall += Spawn;
 
-    public void Spawn() => Dispatcher.Invoke(() =>
+    public void Spawn() => Task.Run(() => Dispatcher.Invoke(() =>
     {
-        if (animationCanvas == null)
-            return;
+        if (animationCanvas == null) return;
+        if (ActualWidth <= 0 || ActualHeight <= 0) return;
 
-        if (ActualWidth <= 0 || ActualHeight <= 0)
-            return;
-
-        spawnTimestamps.Enqueue(DateTime.Now);
-
-        UpdateSpawnCount();
+        spawnTimestamps.Enqueue(spawnerStopwatch.Elapsed.TotalMilliseconds);
 
         var animatedBorder = new Border
         {
@@ -189,15 +191,9 @@ public class FlowDisplay : Control
             Duration = new Duration(TimeSpan.FromMilliseconds(AnimationDuration))
         };
 
-        moveAnimation.Completed += async (_, _) =>
-        {
-            animationCanvas.Children.Remove(animatedBorder);
-            await Task.Delay(100);
-            UpdateSpawnCount();
-        };
-
+        moveAnimation.Completed += (_, _) => animationCanvas.Children.Remove(animatedBorder);
         animatedBorder.BeginAnimation(Canvas.LeftProperty, moveAnimation);
-    });
+    }));
 
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
     {

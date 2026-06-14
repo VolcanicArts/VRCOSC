@@ -18,6 +18,7 @@ internal record FlowSource(int Slot, int Index);
 public interface IPulseContext
 {
     bool IsCancelled { get; }
+    double DeltaTime { get; }
 
     Task Run(Task task);
     Task<T> Run<T>(Task<T> task);
@@ -64,6 +65,9 @@ public class PulseContext : IPulseContext
     internal Guid Peek() => _exectution.Peek();
 
     public bool IsCancelled => Source.Token.IsCancellationRequested;
+    public double DeltaTime => DeltaTimeInternal != 0d ? DeltaTimeInternal : _baseContext?.DeltaTime ?? 0d;
+
+    internal double DeltaTimeInternal { get; set; }
 
     public Task Run(Task task) => task.WaitAsync(Source.Token);
     public Task<T> Run<T>(Task<T> task) => task.WaitAsync(Source.Token);

@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using MeaMod.DNS.Server;
 using VRCOSC.App.Modules;
@@ -85,14 +84,12 @@ public class NodeGraph : INotifyPropertyChanged
         cacheNodeTypes();
         await triggerOnStartNodes();
         await processAllTriggerNodes();
-        startUpdate();
+        updateStopwatch = new Stopwatch();
     }
 
     public async Task Stop()
     {
         if (!Running.Value) return;
-
-        await updateTokenSource!.CancelAsync();
 
         try
         {
@@ -785,9 +782,6 @@ public class NodeGraph : INotifyPropertyChanged
         }
     }
 
-    private Thread? updateThread;
-    private CancellationTokenSource? updateTokenSource;
-
     private INode[] continuousNodes { get; set; } = [];
     private INode[] activeUpdateNodes { get; set; } = [];
     private INode[] updateNodes { get; set; } = [];
@@ -862,82 +856,65 @@ public class NodeGraph : INotifyPropertyChanged
 
     private long updateCount;
     private TimeSpan recentUpdateTotal = TimeSpan.Zero;
-    private readonly TimeSpan updateDelay = TimeSpan.FromMilliseconds(10);
     private const int fps_update_count = 10;
     private const int fps_extra_update_count = 250;
+    private Stopwatch updateStopwatch;
 
-    private void startUpdate()
+    public async Task Update()
     {
-        updateTokenSource = new();
+        var targetUpdateDelay = NodeManager.UPDATE_DELAY.TotalMilliseconds;
+        updateStopwatch.Restart();
 
-        updateThread = new Thread(async () =>
+        foreach (var node in continuousNodes)
         {
-            try
+            var c = new PulseContext(this)
             {
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
+                DeltaTimeInternal = targetUpdateDelay
+            };
+            await TriggerTree(node, c, null, _ => node.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput).Any(vo => ((IValueOutputBase)vo).IsDirty));
+        }
 
-                while (!updateTokenSource.IsCancellationRequested)
-                {
-                    stopwatch.Restart();
-
-                    foreach (var node in continuousNodes)
-                    {
-                        await TriggerTree(node, null, null, _ => node.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput).Any(vo => ((IValueOutputBase)vo).IsDirty));
-                    }
-
-                    foreach (var node in activeUpdateNodes)
-                    {
-                        await TriggerTree(node, null, newC => ((IActiveUpdateNode)node).OnUpdate(newC));
-                    }
-
-                    foreach (var node in updateNodes)
-                    {
-                        var c = new PulseContext(this);
-                        c.Push(node.Id);
-                        ((IUpdateNode)node).OnUpdate(c);
-                    }
-
-                    updateCount++;
-                    var elapsed = stopwatch.Elapsed;
-                    recentUpdateTotal += elapsed;
-
-                    if (updateCount % fps_update_count == 0)
-                    {
-                        CurrentUpdateTime = recentUpdateTotal / fps_update_count;
-                        recentUpdateTotal = TimeSpan.Zero;
-                    }
-
-                    if (updateCount % fps_extra_update_count == 0)
-                    {
-                        LowestUpdateTime = TimeSpan.Zero;
-                        HighestUpdateTime = TimeSpan.Zero;
-                    }
-
-                    if (elapsed.TotalMilliseconds < LowestUpdateTime.TotalMilliseconds || LowestUpdateTime == TimeSpan.Zero)
-                        LowestUpdateTime = elapsed;
-
-                    if (elapsed.TotalMilliseconds > HighestUpdateTime.TotalMilliseconds || HighestUpdateTime == TimeSpan.Zero)
-                        HighestUpdateTime = elapsed;
-
-                    var totalElapsed = stopwatch.Elapsed;
-                    var sleepTime = updateDelay - totalElapsed;
-                    if (sleepTime.TotalMilliseconds < 0) sleepTime = TimeSpan.Zero;
-
-                    Thread.Sleep(sleepTime);
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, $"Pulse UpdateThread-{Id}");
-            }
-        })
+        foreach (var node in activeUpdateNodes)
         {
-            IsBackground = true,
-            Name = $"Pulse UpdateThread-{Id}"
-        };
+            var c = new PulseContext(this)
+            {
+                DeltaTimeInternal = targetUpdateDelay
+            };
+            await TriggerTree(node, c, newC => ((IActiveUpdateNode)node).OnUpdate(newC));
+        }
 
-        updateThread.Start();
+        foreach (var node in updateNodes)
+        {
+            var c = new PulseContext(this)
+            {
+                DeltaTimeInternal = targetUpdateDelay
+            };
+            c.Push(node.Id);
+            ((IUpdateNode)node).OnUpdate(c);
+        }
+
+        updateCount++;
+        var elapsed = updateStopwatch.Elapsed;
+
+        recentUpdateTotal += elapsed;
+
+        if (updateCount % fps_update_count == 0)
+        {
+            CurrentUpdateTime = recentUpdateTotal / fps_update_count;
+            recentUpdateTotal = TimeSpan.Zero;
+        }
+
+        if (updateCount % fps_extra_update_count == 0)
+        {
+            LowestUpdateTime = TimeSpan.Zero;
+            HighestUpdateTime = TimeSpan.Zero;
+        }
+
+        if (elapsed.TotalMilliseconds < LowestUpdateTime.TotalMilliseconds || LowestUpdateTime == TimeSpan.Zero)
+            LowestUpdateTime = elapsed;
+
+        if (elapsed.TotalMilliseconds > HighestUpdateTime.TotalMilliseconds || HighestUpdateTime == TimeSpan.Zero)
+            HighestUpdateTime = elapsed;
     }
 
     public void CreatePreset(string name, List<Guid> nodeIds, List<Guid> commentIds, float posX, float posY)

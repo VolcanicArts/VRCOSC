@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Profiles;
@@ -18,6 +20,8 @@ public class NodeManager
     private static NodeManager? instance;
     internal static NodeManager GetInstance() => instance ??= new NodeManager();
 
+    public static readonly TimeSpan UPDATE_DELAY = TimeSpan.FromMilliseconds(10);
+
     private string graphsPath => AppManager.GetInstance().Storage.GetFullPath(Path.Join("profiles", ProfileManager.GetInstance().ActiveProfile.Value.ID.ToString(), "nodes", "graphs"));
     private string presetsPath => AppManager.GetInstance().Storage.GetFullPath(Path.Join("profiles", ProfileManager.GetInstance().ActiveProfile.Value.ID.ToString(), "nodes", "presets"));
 
@@ -28,6 +32,9 @@ public class NodeManager
     public Observable<bool> Loaded { get; } = new();
 
     private List<Guid> runningGraphs { get; } = [];
+
+    private Thread? updateThread;
+    private CancellationTokenSource? updateTokenSource;
 
     public void Load()
     {
@@ -198,16 +205,57 @@ public class NodeManager
     {
         if (!Loaded.Value) return;
 
+        updateTokenSource = new();
+
+        updateThread = new Thread(async () =>
+        {
+            var stopwatch = Stopwatch.StartNew();
+
+            try
+            {
+                while (!updateTokenSource.IsCancellationRequested)
+                {
+                    stopwatch.Restart();
+
+                    foreach (var graph in Graphs.Where(g => g.Enabled.Value))
+                    {
+                        await graph.Update();
+                    }
+
+                    var elapsed = stopwatch.Elapsed;
+                    var sleepTarget = UPDATE_DELAY - elapsed;
+                    var targetTime = elapsed + sleepTarget;
+
+                    while (stopwatch.Elapsed < targetTime)
+                    {
+                        Thread.SpinWait(10);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Pulse Update Thread");
+            }
+        })
+        {
+            IsBackground = true,
+            Name = "Pulse Update"
+        };
+
         foreach (var graph in Graphs.Where(g => g.Enabled.Value))
         {
             runningGraphs.Add(graph.Id);
             await graph.Start();
         }
+
+        updateThread.Start();
     }
 
     public async Task Stop()
     {
         if (!Loaded.Value) return;
+
+        await updateTokenSource!.CancelAsync();
 
         foreach (var graphId in runningGraphs)
         {
