@@ -201,6 +201,21 @@ public class NodeManager
         }
     }
 
+    public void StartStopUpdate(bool running)
+    {
+        if (running && updateThread is null)
+        {
+            _ = Start();
+            return;
+        }
+
+        if (!running && updateThread is not null)
+        {
+            _ = Stop();
+            return;
+        }
+    }
+
     public async Task Start()
     {
         if (!Loaded.Value) return;
@@ -256,6 +271,7 @@ public class NodeManager
         if (!Loaded.Value) return;
 
         await updateTokenSource!.CancelAsync();
+        updateThread = null;
 
         foreach (var graphId in runningGraphs)
         {

@@ -254,6 +254,8 @@ public partial class NodeGraphView
                     LoadingOverlay.FadeOut(250);
                     GraphContainer.Focus();
                 });
+
+                NodeManager.GetInstance().StartStopUpdate(true);
             }
         }
         catch (Exception e)
