@@ -22,17 +22,24 @@ public abstract class FireWhileBase(Func<bool, bool> checkCondition) : Node, IAc
     public Task<bool> OnUpdate(IPulseContext c)
     {
         var delay = Delay.Read(c);
-        var accumulated = LastUpdateStore.Read(c);
         var condition = Condition.Read(c);
-        accumulated += c.DeltaTime;
 
-        if (accumulated >= delay && checkCondition(condition))
+        if (checkCondition(condition))
         {
-            LastUpdateStore.Write(accumulated - delay, c);
-            return Task.FromResult(true);
+            var accumulated = LastUpdateStore.Read(c);
+            accumulated += c.DeltaTime;
+
+            if (accumulated >= delay)
+            {
+                LastUpdateStore.Write(accumulated - delay, c);
+                return Task.FromResult(true);
+            }
+
+            LastUpdateStore.Write(accumulated, c);
+            return Task.FromResult(false);
         }
 
-        LastUpdateStore.Write(accumulated, c);
+        LastUpdateStore.Write(0, c);
         return Task.FromResult(false);
     }
 }
