@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Utility;
 
@@ -48,18 +47,15 @@ public sealed class OwONode() : ConstantNode<string>("What's this?");
 
 [Node("Changes Per Second", "Utility")]
 [NodeCollapsed]
-public sealed class ChangesPerSecondNode<T> : Node, IContinuousNode
+public sealed class ChangesPerSecondNode<T> : ValueTransformNode<T, float>, IContinuousNode
 {
     public int UpdateOffset => 1;
 
     private const int capacity = 256;
 
-    public ValueInput<T> Value = new();
-    public ValueOutput<float> ChangesPerSecond = new();
-
     public GlobalStore<State> StateStore = new();
 
-    protected override Task Process(IPulseContext c)
+    protected override float TransformValue(T value, IPulseContext c)
     {
         var state = StateStore.Read(c);
 
@@ -69,7 +65,6 @@ public sealed class ChangesPerSecondNode<T> : Node, IContinuousNode
             StateStore.Write(state, c);
         }
 
-        var value = Value.Read(c);
         var now = Stopwatch.GetTimestamp() * (1.0 / Stopwatch.Frequency);
 
         if (!state.HasLastValue)
@@ -96,8 +91,23 @@ public sealed class ChangesPerSecondNode<T> : Node, IContinuousNode
             state.Count--;
         }
 
-        ChangesPerSecond.Write(state.Count, c);
-        return Task.CompletedTask;
+        return calculateChangesPerSecond(state);
+    }
+
+    private static float calculateChangesPerSecond(State state)
+    {
+        if (state.Count == 0) return 0f;
+        if (state.Count == 1) return 1f;
+
+        var firstChangeTime = state.Times[state.Head];
+        var lastChangeTime = state.Times[(state.Head + state.Count - 1) % capacity];
+        var elapsedSeconds = lastChangeTime - firstChangeTime;
+
+        if (elapsedSeconds <= 0)
+            return state.Count;
+
+        var changesPerSecond = (state.Count - 1) / elapsedSeconds;
+        return (float)System.Math.Round(changesPerSecond, 0);
     }
 
     public sealed record State

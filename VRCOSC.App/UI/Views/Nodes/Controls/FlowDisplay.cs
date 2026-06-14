@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,6 +25,9 @@ public class FlowDisplay : Control
     private readonly Stopwatch spawnerStopwatch = Stopwatch.StartNew();
     private readonly Queue<double> spawnTimestamps = new();
 
+    private readonly Queue<Border> availableBorders = new();
+    private readonly HashSet<Border> activeBorders = new();
+
     static FlowDisplay()
     {
         DefaultStyleKeyProperty.OverrideMetadata(
@@ -36,6 +40,24 @@ public class FlowDisplay : Control
         Loaded += FlowDisplay_Loaded;
         DataContextChanged += FlowDisplay_DataContextChanged;
     }
+
+    /// <summary>
+    /// Gets or sets the maximum number of concurrent animations.
+    /// Borders are pre-created and reused up to this count.
+    /// Default is 100.
+    /// </summary>
+    public int MaxConcurrentAnimations
+    {
+        get => (int)GetValue(MaxConcurrentAnimationsProperty);
+        set => SetValue(MaxConcurrentAnimationsProperty, value);
+    }
+
+    public static readonly DependencyProperty MaxConcurrentAnimationsProperty =
+        DependencyProperty.Register(
+            nameof(MaxConcurrentAnimations),
+            typeof(int),
+            typeof(FlowDisplay),
+            new PropertyMetadata(100));
 
     /// <summary>
     /// Gets or sets the speed of the animation in milliseconds (duration for full traverse).
@@ -108,18 +130,18 @@ public class FlowDisplay : Control
     /// <summary>
     /// Gets the current number of spawns per second.
     /// </summary>
-    public int SpawnsPerSecond
+    public double SpawnsPerSecond
     {
-        get => (int)GetValue(SpawnsPerSecondProperty);
+        get => (double)GetValue(SpawnsPerSecondProperty);
         private set => SetValue(SpawnsPerSecondProperty, value);
     }
 
     public static readonly DependencyProperty SpawnsPerSecondProperty =
         DependencyProperty.Register(
             nameof(SpawnsPerSecond),
-            typeof(int),
+            typeof(double),
             typeof(FlowDisplay),
-            new PropertyMetadata(0));
+            new PropertyMetadata(0.0));
 
     public override void OnApplyTemplate()
     {
@@ -128,6 +150,28 @@ public class FlowDisplay : Control
 
         if (animationCanvas == null)
             throw new InvalidOperationException($"{nameof(FlowDisplay)} template must contain a Canvas named 'AnimationCanvas'.");
+    }
+
+    private void InitializeBorderPool(int maxAnimations)
+    {
+        availableBorders.Clear();
+        activeBorders.Clear();
+
+        for (int i = 0; i < maxAnimations; i++)
+        {
+            var border = new Border
+            {
+                Width = BorderWidth,
+                Height = ActualHeight,
+                Background = BorderColor,
+                Opacity = 0.9,
+                CornerRadius = BorderCornerRadius,
+                Visibility = Visibility.Hidden
+            };
+
+            animationCanvas?.Children.Add(border);
+            availableBorders.Enqueue(border);
+        }
     }
 
     private void UpdateSpawnCount()
@@ -140,7 +184,23 @@ public class FlowDisplay : Control
             spawnTimestamps.Dequeue();
         }
 
-        SpawnsPerSecond = spawnTimestamps.Count;
+        if (spawnTimestamps.Count == 0)
+        {
+            SpawnsPerSecond = 0d;
+        }
+        else if (spawnTimestamps.Count == 1)
+        {
+            SpawnsPerSecond = 1d;
+        }
+        else
+        {
+            var firstSpawnTime = spawnTimestamps.First();
+            var lastSpawnTime = spawnTimestamps.Last();
+            var elapsedMs = lastSpawnTime - firstSpawnTime;
+
+            var projectedUps = (spawnTimestamps.Count - 1) / (elapsedMs / 1000.0);
+            SpawnsPerSecond = Math.Round(projectedUps, 0);
+        }
     }
 
     private void FlowDisplay_Loaded(object sender, RoutedEventArgs e)
@@ -150,7 +210,9 @@ public class FlowDisplay : Control
         animationCanvas.Width = ActualWidth;
         animationCanvas.Height = ActualHeight;
 
-        updateCountTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(20) };
+        InitializeBorderPool(MaxConcurrentAnimations);
+
+        updateCountTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
         updateCountTimer.Tick += (_, _) => UpdateSpawnCount();
         updateCountTimer.Start();
     }
@@ -167,22 +229,17 @@ public class FlowDisplay : Control
     {
         if (animationCanvas == null) return;
         if (ActualWidth <= 0 || ActualHeight <= 0) return;
+        if (availableBorders.Count == 0) return;
 
         spawnTimestamps.Enqueue(spawnerStopwatch.Elapsed.TotalMilliseconds);
 
-        var animatedBorder = new Border
-        {
-            Width = BorderWidth,
-            Height = ActualHeight,
-            Background = BorderColor,
-            Opacity = 0.9,
-            CornerRadius = BorderCornerRadius
-        };
+        var animatedBorder = availableBorders.Dequeue();
+        activeBorders.Add(animatedBorder);
 
-        animationCanvas.Children.Add(animatedBorder);
-
+        animatedBorder.Visibility = Visibility.Visible;
         Canvas.SetLeft(animatedBorder, 0);
         Canvas.SetTop(animatedBorder, 0);
+        animatedBorder.BeginAnimation(Canvas.LeftProperty, null);
 
         var moveAnimation = new DoubleAnimation
         {
@@ -191,7 +248,13 @@ public class FlowDisplay : Control
             Duration = new Duration(TimeSpan.FromMilliseconds(AnimationDuration))
         };
 
-        moveAnimation.Completed += (_, _) => animationCanvas.Children.Remove(animatedBorder);
+        moveAnimation.Completed += (_, _) =>
+        {
+            animatedBorder.Visibility = Visibility.Hidden;
+            activeBorders.Remove(animatedBorder);
+            availableBorders.Enqueue(animatedBorder);
+        };
+
         animatedBorder.BeginAnimation(Canvas.LeftProperty, moveAnimation);
     }));
 
@@ -202,5 +265,11 @@ public class FlowDisplay : Control
 
         animationCanvas.Width = sizeInfo.NewSize.Width;
         animationCanvas.Height = sizeInfo.NewSize.Height;
+
+        // Update border heights if canvas size changed
+        foreach (var border in availableBorders.Concat(activeBorders))
+        {
+            border.Height = sizeInfo.NewSize.Height;
+        }
     }
 }
