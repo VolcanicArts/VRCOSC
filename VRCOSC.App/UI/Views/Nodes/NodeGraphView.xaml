@@ -341,7 +341,9 @@
                 <TextBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="12"
                          AcceptsReturn="{Binding Element.Owner.Metadata.Shared.TypeGenerics[0], Converter={StaticResource TypeIsStringConverter}}"
                          AcceptsTab="{Binding Element.Owner.Metadata.Shared.TypeGenerics[0], Converter={StaticResource TypeIsStringConverter}}"
+                         LostKeyboardFocus="TextBox_LostKeyboardFocus"
                          MinLines="0"
+                         Tag="{Binding}"
                          VerticalContentAlignment="Center"
                          Text="{Binding Element.Field}">
                 </TextBox>
@@ -361,6 +363,8 @@
                                            TextAlignment="Left"
                                            Padding="0 -1 0 0"
                                            Height="18"
+                                           Tag="{Binding}"
+                                           LostKeyboardFocus="TextBox_LostKeyboardFocus"
                                            KeepWatermarkOnGotFocus="True"
                                            Watermark="{Binding Element.Name, Mode=OneTime}"
                                            Background="{DynamicResource CBackground3}"

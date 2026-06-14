@@ -27,10 +27,12 @@ using VRCOSC.App.UI.Windows.Nodes;
 using VRCOSC.App.Utils;
 using Xceed.Wpf.AvalonDock.Controls;
 using Color = VRCOSC.App.Utils.Color;
+using Expression = org.mariuszgromada.math.mxparser.Expression;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MenuItem = System.Windows.Controls.MenuItem;
 using MessageBox = System.Windows.MessageBox;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using TextBox = System.Windows.Controls.TextBox;
 using Vector = System.Windows.Vector;
 
 namespace VRCOSC.App.UI.Views.Nodes;
@@ -1793,6 +1795,30 @@ public partial class NodeGraphView
 
             if (!valueInputVm.Element.Owner.Metadata.Shared.IsFlowInput)
                 Graph.TriggerTree(valueInputVm.Element.Owner).Forget();
+        }
+    }
+
+    private void TextBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    {
+        var textBox = (TextBox)sender;
+        var inputVm = (NodeValueInputViewModel)textBox.Tag!;
+
+        var type = inputVm.Element.Metadata.Shared.ValueType;
+        var text = textBox.Text;
+
+        try
+        {
+            var iNumberType = typeof(INumber<>).MakeGenericType(type);
+            if (!iNumberType.IsAssignableFrom(type)) return;
+
+            var expression = new Expression(text);
+            expression.disableImpliedMultiplicationMode();
+            var result = expression.calculate();
+
+            textBox.Text = Convert.ChangeType(result, type).ToString() ?? textBox.Text;
+        }
+        catch
+        {
         }
     }
 }
