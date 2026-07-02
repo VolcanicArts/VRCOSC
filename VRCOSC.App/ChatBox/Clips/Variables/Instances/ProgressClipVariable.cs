@@ -1,8 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
-
 namespace VRCOSC.App.ChatBox.Clips.Variables.Instances;
 
 public class ProgressClipVariable : ClipVariable
@@ -26,7 +24,7 @@ public class ProgressClipVariable : ClipVariable
     public string VisualLine { get; set; } = "\u2501";
 
     [ClipVariableOption("visual_line_complete", "Visual Line Complete", "The character to be shown on the visual behind the position")]
-    public string VisualLineComplete { get; set; } = string.Empty;
+    public string VisualLineComplete { get; set; } = "\u2501";
 
     [ClipVariableOption("visual_position", "Visual Position", "The character to be shown on the visual where the position is")]
     public string VisualPosition { get; set; } = "\u25CF";
@@ -51,6 +49,7 @@ public class ProgressClipVariable : ClipVariable
         clone.UseVisual = UseVisual;
         clone.VisualResolution = VisualResolution;
         clone.VisualLine = VisualLine;
+        clone.VisualLineComplete = VisualLineComplete;
         clone.VisualPosition = VisualPosition;
         clone.VisualStart = VisualStart;
         clone.VisualEnd = VisualEnd;
@@ -91,6 +90,6 @@ public class ProgressClipVariable : ClipVariable
             return visual;
         }
 
-        return $"{(int)MathF.Round(floatValue * 100f)}%";
+        return floatValue.ToString("0%");
     }
 }
