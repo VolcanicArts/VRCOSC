@@ -2,30 +2,23 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Utility;
 
 [Node("Drive Variable")]
-public sealed class DriveVariableNode<T> : Node, IUpdateNode, IHasVariableReference
+public sealed class DriveVariableNode<T> : ValueConsumeNode<T>, IUpdateNode, IHasVariableReference
 {
     public int UpdateOffset => 1;
     public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
 
-    private GraphVariable<T> graphVariable => (GraphVariable<T>)ContainingGraph.GraphVariables[VariableId];
+    private GraphVariable<T> graphVariable => field ??= (GraphVariable<T>)ContainingGraph.GraphVariables[VariableId];
 
     public GlobalStore<T> CurrValue = new();
 
     [NodeProperty("variable_id")]
     public Guid VariableId { get; set; }
 
-    public ValueInput<T> Value = new();
-
-    protected override Task Process(IPulseContext c)
-    {
-        CurrValue.Write(Value.Read(c), c);
-        return Task.CompletedTask;
-    }
+    protected override void ConsumeValue(T value, IPulseContext c) => CurrValue.Write(value, c);
 
     public void OnUpdate(IPulseContext c) => graphVariable.Write(CurrValue.Read(c));
 }
@@ -35,7 +28,7 @@ public sealed class DirectWriteVariableNode<T> : ActionNode, IHasVariableReferen
 {
     public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
 
-    private GraphVariable<T> graphVariable => (GraphVariable<T>)ContainingGraph.GraphVariables[VariableId];
+    private GraphVariable<T> graphVariable => field ??= (GraphVariable<T>)ContainingGraph.GraphVariables[VariableId];
 
     [NodeProperty("variable_id")]
     public Guid VariableId { get; set; }
@@ -59,7 +52,7 @@ public sealed class VariableReferenceNode<T>() : ValueComputeNode<GraphVariable<
 {
     public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
 
-    private GraphVariable<T> graphVariable => (GraphVariable<T>)ContainingGraph.GraphVariables[VariableId];
+    private GraphVariable<T> graphVariable => field ??= (GraphVariable<T>)ContainingGraph.GraphVariables[VariableId];
 
     [NodeProperty("variable_id")]
     public Guid VariableId { get; set; }
@@ -82,7 +75,7 @@ public sealed class VariableSourceNode<T>() : ValueSourceNode<T>("Value"), IHasV
 
     public override string DisplayName => $"{base.DisplayName}\n{graphVariable.Name.Value}";
 
-    private GraphVariable<T> graphVariable => (GraphVariable<T>)ContainingGraph.GraphVariables[VariableId];
+    private GraphVariable<T> graphVariable => field ??= (GraphVariable<T>)ContainingGraph.GraphVariables[VariableId];
 
     [NodeProperty("variable_id")]
     public Guid VariableId { get; set; }

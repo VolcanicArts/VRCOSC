@@ -8,33 +8,35 @@ namespace VRCOSC.App.Nodes;
 
 public interface IGraphVariable
 {
-    public void Reset();
-    public Guid GetId();
-    public string GetName();
-    public bool IsPersistent();
-    public Type GetValueType();
-    public object GetValue();
+    Observable<string> Name { get; }
+
+    void Reset();
+    Guid GetId();
+    string GetName();
+    bool IsPersistent();
+    Type GetValueType();
+    object GetValue();
 };
 
 public class GraphVariable<T> : IGraphVariable
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Observable<string> Name { get; } = new("New Variable");
-    public Observable<bool> Persistent { get; } = new();
+    public bool Persistent { get; }
     public Observable<T> Value { get; } = new();
     public Type ValueType => typeof(T);
 
     public GraphVariable(string name, bool persistent)
     {
         Name.Value = name;
-        Persistent.Value = persistent;
+        Persistent = persistent;
     }
 
     public GraphVariable(Guid id, string name, bool persistent, T value)
     {
         Id = id;
         Name.Value = name;
-        Persistent.Value = persistent;
+        Persistent = persistent;
         Value.Value = value;
     }
 
@@ -42,28 +44,20 @@ public class GraphVariable<T> : IGraphVariable
     {
         Id = id;
         Name.Value = name;
-        Persistent.Value = persistent;
+        Persistent = persistent;
     }
 
     public void Reset()
     {
-        if (Persistent.Value) return;
+        if (Persistent) return;
 
         Value.SetDefault();
     }
 
     public Guid GetId() => Id;
-
     public string GetName() => Name.Value;
-
-    public bool IsPersistent() => Persistent.Value;
-
-    public Type GetValueType() => typeof(T);
-
+    public bool IsPersistent() => Persistent;
+    public Type GetValueType() => ValueType;
     public object GetValue() => Value.Value!;
-
-    public void Write(T newValue)
-    {
-        Value.Value = newValue;
-    }
+    public void Write(T newValue) => Value.Value = newValue;
 }
