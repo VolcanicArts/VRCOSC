@@ -18,6 +18,9 @@
              d:DesignHeight="1920" d:DesignWidth="1080"
              Focusable="True"
              d:DataContext="{d:DesignInstance nodes:NodeGraphView}">
+    <UserControl.InputBindings>
+        <KeyBinding Key="A" Modifiers="Ctrl" Command="{Binding OpenAdvancedNodeCreatorWindowCommand}" />
+    </UserControl.InputBindings>
     <UserControl.Resources>
         <core:ObjectToStringConverter x:Key="ObjectToStringConverter"/>
         <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -1403,7 +1406,7 @@
                                                                        TextAlignment="Center" />
                                                         </Grid>
                                                     </Border>
-                                                    <fa6:ImageAwesome Visibility="{Binding Persistent.Value, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                    <fa6:ImageAwesome Visibility="{Binding Persistent, Converter={StaticResource BoolToVisibilityConverter}}"
                                                                       HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5" Icon="Solid_FloppyDisk"
                                                                       PrimaryColor="{DynamicResource CBlue}" Width="17" Height="17" ToolTip="This variable is persistent"/>
                                                 </Grid>

@@ -10,11 +10,13 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using ColorPicker;
+using CommunityToolkit.Mvvm.Input;
 using VRCOSC.App.Nodes;
 using VRCOSC.App.Nodes.Metadata;
 using VRCOSC.App.Nodes.Serialisation.V2;
@@ -59,6 +61,7 @@ public partial class NodeGraphView
     private WindowManager nodeCreatorWindowManager = null!;
     private WindowManager variableCreatorWindowManager = null!;
     private WindowManager presetCreatorWindowManager = null!;
+    private WindowManager advancedNodeCreatorWindowManager = null!;
 
     public Observable<bool> ShowDetails { get; } = new(true);
 
@@ -66,12 +69,15 @@ public partial class NodeGraphView
     private SelectionDrag? selectionDrag;
     private ElementsSelection? elementsSelection;
 
+    public ICommand OpenAdvancedNodeCreatorWindowCommand { get; }
+
     public NodeGraphView(NodeGraph graph)
     {
         InitializeComponent();
         Graph = graph;
         Graph.OnMarkedDirty += onGraphMarkedDirty;
         Loaded += OnLoaded;
+        OpenAdvancedNodeCreatorWindowCommand = new RelayCommand(openAdvancedNodeCreatorWindow);
         DataContext = this;
     }
 
@@ -82,9 +88,29 @@ public partial class NodeGraphView
         nodeCreatorWindowManager = new WindowManager(this);
         variableCreatorWindowManager = new WindowManager(this);
         presetCreatorWindowManager = new WindowManager(this);
+        advancedNodeCreatorWindowManager = new WindowManager(this);
         refreshContextMenu();
         centerGraph();
         Task.Run(Graph.MarkDirty);
+    }
+
+    private void openAdvancedNodeCreatorWindow()
+    {
+        var window = new AdvancedNodeCreatorWindow();
+        advancedNodeCreatorWindowManager.TrySpawnChild(window);
+
+        window.Closed += (_, _) =>
+        {
+            if (window.ConstructedType is null) return;
+
+            var centerPoint = getCenterPoint();
+            var result = Graph.AddNode(window.ConstructedType, position: new Vector2(snapToGrid((float)centerPoint.X), snapToGrid((float)centerPoint.Y)));
+
+            if (!result.IsSuccess)
+                Logger.Error(result.Exception, nameof(GraphContextMenu_NodeEntry_OnClick));
+
+            Graph.MarkDirty();
+        };
     }
 
     #region Util
@@ -372,6 +398,16 @@ public partial class NodeGraphView
 
         if (metadata.IsFlowOutput) return vm.FlowOutputControls[0][0];
         if (metadata.IsFlowInput) return vm.FlowInputControls[0][0];
+
+        if (metadata is { IsCollapsed: true, IsValueInput: true, IsValueOutput: true })
+        {
+            var outputIsOdd = metadata.ValueOutputCount % 2 == 1;
+            var inputIsOdd = metadata.ValueInputCount % 2 == 1;
+
+            if (outputIsOdd) return vm.ValueOutputControls[(int)MathF.Round(metadata.ValueOutputCount / 2f)][0];
+            if (inputIsOdd) return vm.ValueInputControls[(int)MathF.Round(metadata.ValueInputCount / 2f)][0];
+        }
+
         if (metadata.IsValueOutput) return vm.ValueOutputControls[0][0];
         if (metadata.IsValueInput) return vm.ValueInputControls[0][0];
 
@@ -485,8 +521,12 @@ public partial class NodeGraphView
 
     public static bool IsMouseCapturedByDescendantOf<T>() where T : DependencyObject
     {
-        if (Mouse.Captured is not DependencyObject current)
+        DependencyObject? current = null;
+
+        if (Mouse.Captured is not DependencyObject)
             return false;
+
+        current = (DependencyObject)Mouse.Captured;
 
         while (current != null)
         {
@@ -497,6 +537,14 @@ public partial class NodeGraphView
         }
 
         return false;
+    }
+
+    private Point getCenterPoint()
+    {
+        var container = this.FindVisualParent<Grid>("NodeViewContainer")!;
+        var snappedCenter = new Point(snapToGrid(container.ActualWidth / 2d), snapToGrid(container.ActualHeight / 2d));
+        var windowToGraph = container.TransformToDescendant(GraphContainer);
+        return windowToGraph.Transform(snappedCenter);
     }
 
     protected override void OnMouseMove(MouseEventArgs e)
@@ -582,7 +630,7 @@ public partial class NodeGraphView
 
         var addComment = new MenuItem
         {
-            Header = "Add Comment",
+            Header = "Add Comment"
         };
 
         addComment.Click += AddComment_OnClick;
@@ -747,9 +795,7 @@ public partial class NodeGraphView
 
     private void checkForGroupAdditions()
     {
-        if (draggingGridGraphElement is null) return;
-
-        if (draggingGridGraphElement.ViewModel is not NodeViewModel nodeVm) return;
+        if (draggingGridGraphElement?.ViewModel is not NodeViewModel nodeVm) return;
 
         if (Graph.Groups.Values.Any(nodeGroup => nodeGroup.Nodes.Contains(nodeVm.Node.Id))) return;
 
@@ -1219,7 +1265,7 @@ public partial class NodeGraphView
 
     private void ListElementAdd_OnClick(object sender, RoutedEventArgs e)
     {
-        var control = (FrameworkElement)sender!;
+        var control = (FrameworkElement)sender;
         var vm = (ConnectionPointListViewModel)control.Tag!;
         var element = vm.Element;
         var currentSize = element.Metadata.Size;
@@ -1243,7 +1289,7 @@ public partial class NodeGraphView
 
     private void ListElementRemove_OnClick(object sender, RoutedEventArgs e)
     {
-        var control = (FrameworkElement)sender!;
+        var control = (FrameworkElement)sender;
         var vm = (ConnectionPointListViewModel)control.Tag!;
         var element = vm.Element;
         var currentSize = element.Metadata.Size;
@@ -1275,7 +1321,7 @@ public partial class NodeGraphView
 
     private void ButtonNode_OnClick(object sender, RoutedEventArgs e)
     {
-        var control = (FrameworkElement)sender!;
+        var control = (FrameworkElement)sender;
         var vm = (NodeViewModel)control.Tag!;
 
         e.Handled = true;
@@ -1754,9 +1800,7 @@ public partial class NodeGraphView
 
     public async void SpawnPreset(NodePreset preset)
     {
-        var window = Window.GetWindow(this)!;
-        var offset = window.TranslatePoint(new Point(window.ActualWidth / 2d, window.ActualHeight / 2d), GraphContainer);
-        var newNodes = preset.SpawnTo(Graph, new Vector2((float)snapToGrid(offset.X), (float)snapToGrid(offset.Y)));
+        var newNodes = preset.SpawnTo(Graph, getCenterPoint().AsVector);
         await Graph.MarkDirtyAsync();
         shrinkWrapSelection(newNodes);
     }

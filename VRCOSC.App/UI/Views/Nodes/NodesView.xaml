@@ -10,7 +10,7 @@
     <UserControl.Resources>
         <core:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterInverted" True="Collapsed" False="Visible"/>
     </UserControl.Resources>
-    <Grid>
+    <Grid x:Name="NodeViewContainer">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>

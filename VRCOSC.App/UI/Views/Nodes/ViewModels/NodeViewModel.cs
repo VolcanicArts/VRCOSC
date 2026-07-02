@@ -92,7 +92,7 @@ public partial class DisplayNodeBaseViewModel : NodeViewModel
     {
         var displayNode = (IDisplayNode)node;
         displayNode.OnValueChanged += newValue => value = newValue;
-        value = displayNode.GetValue();
+        Uivalue = value = displayNode.GetValue();
         repeater = new Repeater($"{nameof(DisplayNodeBaseViewModel)}-updater", updatePublicValue);
     }
 
