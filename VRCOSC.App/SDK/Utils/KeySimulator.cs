@@ -66,11 +66,14 @@ public class Keybind
     [JsonProperty("keys")]
     public List<Key> Keys { get; set; } = [];
 
+    [JsonIgnore]
+    public Key[] AllKeys => field ??= Modifiers.Concat(Keys).ToArray();
+
     public override string ToString()
     {
         if (Modifiers.Count == 0 && Keys.Count == 0) return "None";
 
-        return string.Join(" + ", Modifiers.Concat(Keys).Select(key => key.ToReadableString()));
+        return string.Join(" + ", AllKeys.Select(key => key.ToReadableString()));
     }
 }
 

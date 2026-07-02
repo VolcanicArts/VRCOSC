@@ -58,7 +58,7 @@ internal class AppManager : IVRCClientEventHandler
 
     public Observable<AppManagerState> State { get; } = new(AppManagerState.Stopped);
     public Observable<DateTime> LastStartedTime { get; } = new();
-    public Observable<Theme> ProxyTheme { get; } = new(Theme.Dark);
+    public Observable<Theme> ProxyTheme { get; } = new();
 
     public ConnectionManager ConnectionManager = null!;
     public VRChatOSCClient VRChatOscClient = null!;
@@ -66,8 +66,8 @@ internal class AppManager : IVRCClientEventHandler
     public ChatBoxWorldBlacklist ChatBoxWorldBlacklist = null!;
     public WhisperSpeechEngine SpeechEngine = null!;
     public GlobalKeyboardHook GlobalKeyboardHook { get; } = new();
-    public OpenVRManager OpenVRManager { get; private set; }
-    public SteamVRManager SteamVRManager { get; private set; }
+    public OpenVRManager OpenVRManager { get; private set; } = null!;
+    public SteamVRManager SteamVRManager { get; private set; } = null!;
 
     private Repeater vrchatCheckTask = null!;
 
@@ -255,7 +255,12 @@ internal class AppManager : IVRCClientEventHandler
 
     public void SendToAllParameter<T>(Regex pattern, T value)
     {
-        if (!VRChatClient.IsInAvatar) return;
+        if (!VRChatClient.IsInAvatar)
+        {
+            // Fallback to sending without pattern matching
+            sendParameter(pattern.ToString(), value);
+            return;
+        }
 
         foreach (var def in VRChatClient.Avatar.Parameters.Where(def => pattern.IsMatch(def.Name)))
         {

@@ -221,7 +221,7 @@ public class NodeManager
                 {
                     stopwatch.Restart();
 
-                    foreach (var graph in Graphs.Where(g => g.Enabled.Value))
+                    foreach (var graph in Graphs.Where(g => g.Enabled.Value && g.Running.Value))
                     {
                         await graph.Update();
                     }

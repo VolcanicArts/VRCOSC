@@ -2,8 +2,10 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Input;
@@ -23,8 +25,7 @@ internal class GlobalKeyboardHook : IDisposable
     private readonly ManualResetEventSlim hookReady = new();
     private volatile bool stopRequested;
 
-    private readonly Dictionary<Key, bool> keyStates = new();
-    private readonly Lock stateLock = new();
+    private readonly ConcurrentDictionary<Key, bool> keyStates = new();
 
     public bool IsEnabled { get; private set; }
 
@@ -34,11 +35,8 @@ internal class GlobalKeyboardHook : IDisposable
         hookId = new HHOOK(IntPtr.Zero);
     }
 
-    public bool GetKeyState(Key key)
-    {
-        lock (stateLock)
-            return keyStates.GetValueOrDefault(key, false);
-    }
+    public bool AreAllKeysPressed(IEnumerable<Key> keys) => keys.All(IsKeyPressed);
+    public bool IsKeyPressed(Key key) => keyStates.GetValueOrDefault(key, false);
 
     public unsafe void Enable()
     {
@@ -95,7 +93,7 @@ internal class GlobalKeyboardHook : IDisposable
         hookThread = null;
         hookNativeThreadId = 0;
 
-        lock (stateLock) keyStates.Clear();
+        keyStates.Clear();
 
         IsEnabled = false;
     }
@@ -141,8 +139,7 @@ internal class GlobalKeyboardHook : IDisposable
         var key = KeyInterop.KeyFromVirtualKey((int)info.vkCode);
         var isKeyDown = msg is wm_keydown or wm_syskeydown;
 
-        lock (stateLock)
-            keyStates[key] = isKeyDown;
+        keyStates[key] = isKeyDown;
 
         return PInvoke.CallNextHookEx(hookId, nCode, wParam, lParam);
     }

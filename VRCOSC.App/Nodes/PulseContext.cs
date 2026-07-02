@@ -88,7 +88,7 @@ public class PulseContext : IPulseContext
         var flowSource = new FlowSource(connection.InputSlot, connection.InputSlotIndex);
 
         _flowSources.Push(flowSource);
-        await _graph.ProcessNode(connection.InputId, scope ? new PulseContext(this, _graph) : this);
+        await _graph.ProcessNode(connection.InputId, scope ? new PulseContext(this, _graph, Source) : this);
         _flowSources.Pop();
     }
 
@@ -102,7 +102,7 @@ public class PulseContext : IPulseContext
         if (!connectionResult.IsSuccess) return Task.CompletedTask;
 
         var connection = connectionResult.Value;
-        return _graph.ProcessNode(connection.InputId, scope ? new PulseContext(this, _graph) : this);
+        return _graph.ProcessNode(connection.InputId, scope ? new PulseContext(this, _graph, Source) : this);
     }
 
     internal bool HasMemory(Guid nodeId) => Memory.ContainsKey(nodeId) || (_baseContext?.HasMemory(nodeId) ?? false);

@@ -884,10 +884,12 @@ public class NodeGraph : INotifyPropertyChanged
     private TimeSpan recentUpdateTotal = TimeSpan.Zero;
     private const int fps_update_count = 10;
     private const int fps_extra_update_count = 250;
-    private Stopwatch updateStopwatch;
+    private Stopwatch updateStopwatch = null!;
 
     public async Task Update()
     {
+        Debug.Assert(Running.Value);
+
         var targetUpdateDelay = NodeManager.UPDATE_DELAY.TotalMilliseconds;
         updateStopwatch.Restart();
 
