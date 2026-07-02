@@ -47,7 +47,9 @@ public class OpenVRManager
     public bool IsDashboardVisible { get; private set; }
     public bool IsUserPresent { get; private set; }
 
-    private ConcurrentDictionary<uint, TrackedDevice> devices { get; } = [];
+    private readonly ConcurrentDictionary<uint, TrackedDevice> devices = [];
+    private readonly ConcurrentDictionary<DeviceRole, TrackedDevice> devicesRoles = [];
+    private readonly ConcurrentDictionary<string, TrackedDevice> devicesSerial = [];
 
     public IReadOnlyList<TrackedDevice> Devices => devices.Values.ToImmutableList();
 
@@ -71,8 +73,10 @@ public class OpenVRManager
         fastUpdate.Start(TimeSpan.FromSeconds(1d / fast_ups), true);
     }
 
-    public TrackedDevice? GetTrackedDevice(string serialNumber) => devices.Values.SingleOrDefault(d => d.SerialNumber == serialNumber);
-    public TrackedDevice? GetTrackedDevice(DeviceRole role) => role == DeviceRole.Unset ? null : devices.Values.SingleOrDefault(d => d.Role == role);
+    public TrackedDevice? GetTrackedDevice(uint index) => devices.GetValueOrDefault(index);
+    public TrackedDevice? GetTrackedDevice(DeviceRole role) => devicesRoles.GetValueOrDefault(role);
+    public TrackedDevice? GetTrackedDevice(string serialNumber) => devicesSerial.GetValueOrDefault(serialNumber);
+
     public HMD? GetHMD() => (HMD?)GetTrackedDevice(DeviceRole.Head);
     public Controller? GetLeftController() => (Controller?)GetTrackedDevice(DeviceRole.LeftHand);
     public Controller? GetRightController() => (Controller?)GetTrackedDevice(DeviceRole.RightHand);
@@ -141,7 +145,7 @@ public class OpenVRManager
     {
         if (!Initialised) return;
 
-        var hmd = (HMD?)GetTrackedDevice(DeviceRole.Head);
+        var hmd = GetHMD();
 
         if (hmd is null || !hmd.IsConnected)
         {
@@ -193,6 +197,23 @@ public class OpenVRManager
         return new Transform(p, r);
     }
 
+    private void addDevice(TrackedDevice device)
+    {
+        devices[device.Index] = device;
+        devicesSerial[device.SerialNumber] = device;
+
+        if (device.Role != DeviceRole.Unset)
+            devicesRoles[device.Role] = device;
+    }
+
+    private void removeDevice(uint index)
+    {
+        if (!devices.TryRemove(index, out var removedDevice)) return;
+
+        devicesRoles.TryRemove(removedDevice.Role, out _);
+        devicesSerial.TryRemove(removedDevice.SerialNumber, out _);
+    }
+
     private void onSlowUpdate()
     {
         if (!Initialised) return;
@@ -214,19 +235,19 @@ public class OpenVRManager
                 if (existingDevice.SerialNumber == serial && existingDevice.Role == role && isDeviceTypeCorrect(existingDevice, role))
                     continue;
 
-                devices.Remove(index, out _);
+                removeDevice(index);
             }
 
-            var roleDevice = GetTrackedDevice(role);
+            var currentDeviceWithRole = GetTrackedDevice(role);
 
-            if (roleDevice is not null && devices.TryGetValue(roleDevice.Index, out var oldDevice))
+            if (currentDeviceWithRole is not null)
             {
-                if (oldDevice.SerialNumber != serial)
-                    devices.Remove(roleDevice.Index, out _);
+                if (currentDeviceWithRole.SerialNumber != serial)
+                    removeDevice(currentDeviceWithRole.Index);
             }
 
             var device = createDevice(index, serial, dongle, role);
-            devices.TryAdd(index, device);
+            addDevice(device);
         }
 
         foreach (var index in OpenVRHelper.GetAllDeviceIndexes())
@@ -237,7 +258,7 @@ public class OpenVRManager
             var dongle = OpenVRHelper.GetStringTrackedDeviceProperty(index, ETrackedDeviceProperty.Prop_ConnectedWirelessDongle_String);
 
             var device = createDevice(index, serial, dongle, DeviceRole.Unset);
-            devices.TryAdd(index, device);
+            addDevice(device);
         }
 
         foreach (var device in devices.Values)
@@ -250,7 +271,7 @@ public class OpenVRManager
     {
         DeviceRole.Head => device is HMD,
         DeviceRole.LeftHand or DeviceRole.RightHand => device is Controller,
-        _ => device.GetType() == typeof(TrackedDevice),
+        _ => true
     };
 
     private TrackedDevice createDevice(uint index, string serial, string dongle, DeviceRole role)
