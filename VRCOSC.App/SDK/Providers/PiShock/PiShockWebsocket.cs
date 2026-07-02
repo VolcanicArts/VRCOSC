@@ -14,7 +14,7 @@ internal record PiShockPublishOperationResponse
     public bool IsError { get; set; }
 
     [JsonPropertyName("Message")]
-    public string Message { get; set; }
+    public string? Message { get; set; }
 }
 
 internal record PiShockPublishOperation

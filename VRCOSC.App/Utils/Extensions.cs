@@ -70,46 +70,52 @@ public static class UIExtensions
 
 public static class EnumerableExtensions
 {
-    public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> action)
+    extension<T>(IEnumerable<T> enumerable)
     {
-        foreach (var item in enumerable)
-            action(item);
-    }
+        public void ForEach(Action<T> action)
+        {
+            foreach (var item in enumerable)
+                action(item);
+        }
 
-    /// <summary>
-    /// Checks to see if source contains the same contents as other without having to sort and call SequenceEquals
-    /// </summary>
-    public static bool ContainsSame<T>(this IEnumerable<T> source, IEnumerable<T> other)
-    {
-        var sourceList = source.ToList();
-        var otherList = other.ToList();
+        /// <summary>
+        /// Checks to see if source contains the same contents as other without having to sort and call SequenceEquals
+        /// </summary>
+        public bool ContainsSame(IEnumerable<T> other)
+        {
+            var sourceList = enumerable.ToList();
+            var otherList = other.ToList();
 
-        return sourceList.Count == otherList.Count && sourceList.All(otherList.Contains);
+            return sourceList.Count == otherList.Count && sourceList.All(otherList.Contains);
+        }
     }
 }
 
 public static class CollectionExtensions
 {
-    public static void AddRange<T>(this ICollection<T> collection, IEnumerable<T> items)
+    extension<T>(ICollection<T> collection)
     {
-        foreach (var item in items)
-            collection.Add(item);
-    }
-
-    /// <summary>
-    /// Removes elements based on a predicate
-    /// </summary>
-    /// <returns>The removed items</returns>
-    public static ICollection<T> RemoveIf<T>(this ICollection<T> collection, Func<T, bool> predicate)
-    {
-        var itemsToRemove = collection.Where(predicate.Invoke).ToList();
-
-        foreach (var itemToRemove in itemsToRemove)
+        public void AddRange(IEnumerable<T> items)
         {
-            collection.Remove(itemToRemove);
+            foreach (var item in items)
+                collection.Add(item);
         }
 
-        return itemsToRemove;
+        /// <summary>
+        /// Removes elements based on a predicate
+        /// </summary>
+        /// <returns>The removed items</returns>
+        public ICollection<T> RemoveIf(Func<T, bool> predicate)
+        {
+            var itemsToRemove = collection.Where(predicate.Invoke).ToList();
+
+            foreach (var itemToRemove in itemsToRemove)
+            {
+                collection.Remove(itemToRemove);
+            }
+
+            return itemsToRemove;
+        }
     }
 }
 
@@ -342,24 +348,30 @@ public static class KeyExtensions
 
 public static class MemberInfoExtensions
 {
-    public static bool TryGetCustomAttribute<T>(this MemberInfo info, [NotNullWhen(true)] out T? attribute) where T : Attribute
+    extension(MemberInfo info)
     {
-        attribute = info.GetCustomAttribute<T>();
-        return attribute is not null;
-    }
+        public bool TryGetCustomAttribute<T>([NotNullWhen(true)] out T? attribute) where T : Attribute
+        {
+            attribute = info.GetCustomAttribute<T>();
+            return attribute is not null;
+        }
 
-    public static bool HasCustomAttribute<T>(this MemberInfo info) where T : Attribute => info.GetCustomAttribute<T>() is not null;
+        public bool HasCustomAttribute<T>() where T : Attribute => info.GetCustomAttribute<T>() is not null;
+    }
 }
 
 public static class ParameterInfoExtensions
 {
-    public static bool TryGetCustomAttribute<T>(this ParameterInfo info, [NotNullWhen(true)] out T? attribute) where T : Attribute
+    extension(ParameterInfo info)
     {
-        attribute = info.GetCustomAttribute<T>();
-        return attribute is not null;
-    }
+        public bool TryGetCustomAttribute<T>([NotNullWhen(true)] out T? attribute) where T : Attribute
+        {
+            attribute = info.GetCustomAttribute<T>();
+            return attribute is not null;
+        }
 
-    public static bool HasCustomAttribute<T>(this ParameterInfo info) where T : Attribute => info.GetCustomAttribute<T>() is not null;
+        public bool HasCustomAttribute<T>() where T : Attribute => info.GetCustomAttribute<T>() is not null;
+    }
 }
 
 public static class TypeExtensions
@@ -427,144 +439,151 @@ public static class TypeExtensions
 
             return fields;
         }
-    }
 
-    public static object? CreateDefault(this Type type) => type.IsValueType && !type.IsAssignableTo(typeof(Nullable<>)) ? Activator.CreateInstance(type) : null;
+        public object? CreateDefault() => type.IsValueType && !type.IsAssignableTo(typeof(Nullable<>)) ? Activator.CreateInstance(type) : null;
 
-    public static Type? GetConstructedGenericBase(this Type typeToCheck, Type genericDef)
-    {
-        if (!genericDef.IsGenericTypeDefinition)
-            throw new ArgumentException("Must be an open generic, e.g. typeof(MyBase<>)", nameof(genericDef));
-
-        var cur = typeToCheck;
-
-        while (cur != null && cur != typeof(object))
+        public Type? GetConstructedGenericBase(Type genericDef)
         {
-            var bt = cur.BaseType;
+            if (!genericDef.IsGenericTypeDefinition)
+                throw new ArgumentException("Must be an open generic, e.g. typeof(MyBase<>)", nameof(genericDef));
 
-            if (bt is { IsGenericType: true } &&
-                bt.GetGenericTypeDefinition() == genericDef)
+            var cur = type;
+
+            while (cur != null && cur != typeof(object))
             {
-                return bt;
+                var bt = cur.BaseType;
+
+                if (bt is { IsGenericType: true } &&
+                    bt.GetGenericTypeDefinition() == genericDef)
+                {
+                    return bt;
+                }
+
+                cur = bt;
             }
 
-            cur = bt;
+            return null;
         }
 
-        return null;
-    }
+        public bool IsSubclassOfRawGeneric(Type genericTypeDefinition)
+        {
+            if (!genericTypeDefinition.IsGenericTypeDefinition)
+                throw new ArgumentException("Must be a generic type definition, e.g. typeof(B<>)", nameof(genericTypeDefinition));
 
-    public static bool IsSubclassOfRawGeneric(this Type typeToCheck, Type genericTypeDefinition)
-    {
-        if (!genericTypeDefinition.IsGenericTypeDefinition)
-            throw new ArgumentException("Must be a generic type definition, e.g. typeof(B<>)", nameof(genericTypeDefinition));
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == genericTypeDefinition) return true;
+            if (type.GetInterfaces().Any(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == genericTypeDefinition)) return true;
 
-        if (typeToCheck.IsGenericType && typeToCheck.GetGenericTypeDefinition() == genericTypeDefinition) return true;
-        if (typeToCheck.GetInterfaces().Any(iface => iface.IsGenericType && iface.GetGenericTypeDefinition() == genericTypeDefinition)) return true;
+            var baseType = type.BaseType;
+            return baseType != null && IsSubclassOfRawGeneric(baseType, genericTypeDefinition);
+        }
 
-        var baseType = typeToCheck.BaseType;
-        return baseType != null && IsSubclassOfRawGeneric(baseType, genericTypeDefinition);
+        /// <summary>
+        /// Core formatter: walks the Type (and its nested generic args), consulting the parallel nullInfo tree.
+        /// </summary>
+        public string GetFriendlyName(bool includeNamespace = false, bool includeGenerics = true, NullabilityInfo? nullInfo = null)
+        {
+            // 1) Handle Nullable<T> on value types
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                // unwrap T and its nullability info
+                var innerType = type.GetGenericArguments()[0];
+                return innerType.GetFriendlyName(includeNamespace) + "?";
+            }
+
+            // 2) Handle generic types (e.g. Dictionary<,>, IList<> on interfaces, etc.)
+            string baseName;
+
+            if (type.IsGenericParameter)
+            {
+                baseName = includeNamespace ? type.FullName! : type.Name;
+            }
+            else if (type.IsGenericType)
+            {
+                // strip the `1, `2, etc.
+                var name = includeNamespace ? type.FullName! : type.Name;
+                var idx = name.IndexOf('`');
+                if (idx >= 0) name = name[..idx];
+
+                if (includeGenerics)
+                {
+                    // recurse into each argument, carrying along its nullInfo
+                    var args = type.GetGenericArguments();
+
+                    var argNames = args
+                                   .Select((argType, i) => argType.GetFriendlyName(includeNamespace, includeGenerics, nullInfo?.GenericTypeArguments[i]))
+                                   .ToArray();
+
+                    baseName = $"{name}<{string.Join(", ", argNames)}>";
+                }
+                else
+                {
+                    baseName = name;
+                }
+            }
+            else
+            {
+                // simple non‐generic
+                baseName = includeNamespace ? type.FullName! : type.toReadableName();
+            }
+
+            // 3) If this is a reference type (class, interface, delegate, array, etc.)
+            //    and the metadata says it's nullable, append “?”
+            if (!type.IsValueType && nullInfo?.ReadState == NullabilityState.Nullable)
+            {
+                baseName += "?";
+            }
+
+            return baseName;
+        }
+
+        private string toReadableName()
+        {
+            if (type.IsEnum) return type.Name;
+            if (type == typeof(object)) return "object";
+
+            return Type.GetTypeCode(type) switch
+            {
+                TypeCode.Empty => "null",
+                TypeCode.Boolean => "bool",
+                TypeCode.Char => "char",
+                TypeCode.Byte => "byte",
+                TypeCode.SByte => "sbyte",
+                TypeCode.Int16 => "short",
+                TypeCode.UInt16 => "ushort",
+                TypeCode.Int32 => "int",
+                TypeCode.UInt32 => "uint",
+                TypeCode.Int64 => "long",
+                TypeCode.UInt64 => "ulong",
+                TypeCode.Single => "float",
+                TypeCode.Double => "double",
+                TypeCode.Decimal => "decimal",
+                TypeCode.String => "string",
+                _ => type.Name
+            };
+        }
+
+        public bool HasConstructorThatAccepts(params Type[] parameterTypes)
+        {
+            return type.GetConstructors().Any(constructorInfo =>
+            {
+                var parameters = constructorInfo.GetParameters();
+                return parameters.Length == parameterTypes.Length && !parameters.Where((parameterInfo, i) => !parameterInfo.ParameterType.IsAssignableTo(parameterTypes[i])).Any();
+            });
+        }
     }
 
     public static string GetFriendlyName(this ParameterInfo pi)
     {
         var ctx = new NullabilityInfoContext();
         var nullInfo = ctx.Create(pi);
-        return pi.ParameterType.GetFriendlyName(false, nullInfo);
+        return pi.ParameterType.GetFriendlyName(false, true, nullInfo);
     }
 
     public static string GetFriendlyName(this PropertyInfo pi)
     {
         var ctx = new NullabilityInfoContext();
         var nullInfo = ctx.Create(pi);
-        return pi.PropertyType.GetFriendlyName(false, nullInfo);
-    }
-
-    /// <summary>
-    /// Core formatter: walks the Type (and its nested generic args), consulting the parallel nullInfo tree.
-    /// </summary>
-    public static string GetFriendlyName(this Type t, bool includeNamespace = false, NullabilityInfo? nullInfo = null)
-    {
-        // 1) Handle Nullable<T> on value types
-        if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>))
-        {
-            // unwrap T and its nullability info
-            var innerType = t.GetGenericArguments()[0];
-            return innerType.GetFriendlyName(includeNamespace) + "?";
-        }
-
-        // 2) Handle generic types (e.g. Dictionary<,>, IList<> on interfaces, etc.)
-        string baseName;
-
-        if (t.IsGenericParameter)
-        {
-            baseName = includeNamespace ? t.FullName! : t.Name;
-        }
-        else if (t.IsGenericType)
-        {
-            // strip the `1, `2, etc.
-            var name = includeNamespace ? t.FullName! : t.Name;
-            var idx = name.IndexOf('`');
-            if (idx >= 0) name = name[..idx];
-
-            // recurse into each argument, carrying along its nullInfo
-            var args = t.GetGenericArguments();
-
-            var argNames = args
-                           .Select((argType, i) => argType.GetFriendlyName(includeNamespace, nullInfo?.GenericTypeArguments[i]))
-                           .ToArray();
-
-            baseName = $"{name}<{string.Join(", ", argNames)}>";
-        }
-        else
-        {
-            // simple non‐generic
-            baseName = includeNamespace ? t.FullName! : t.toReadableName();
-        }
-
-        // 3) If this is a reference type (class, interface, delegate, array, etc.)
-        //    and the metadata says it's nullable, append “?”
-        if (!t.IsValueType && nullInfo?.ReadState == NullabilityState.Nullable)
-        {
-            baseName += "?";
-        }
-
-        return baseName;
-    }
-
-    private static string toReadableName(this Type type)
-    {
-        if (type.IsEnum) return type.Name;
-        if (type == typeof(object)) return "object";
-
-        return Type.GetTypeCode(type) switch
-        {
-            TypeCode.Empty => "null",
-            TypeCode.Boolean => "bool",
-            TypeCode.Char => "char",
-            TypeCode.Byte => "byte",
-            TypeCode.SByte => "sbyte",
-            TypeCode.Int16 => "short",
-            TypeCode.UInt16 => "ushort",
-            TypeCode.Int32 => "int",
-            TypeCode.UInt32 => "uint",
-            TypeCode.Int64 => "long",
-            TypeCode.UInt64 => "ulong",
-            TypeCode.Single => "float",
-            TypeCode.Double => "double",
-            TypeCode.Decimal => "decimal",
-            TypeCode.String => "string",
-            _ => type.Name
-        };
-    }
-
-    public static bool HasConstructorThatAccepts(this Type targetType, params Type[] parameterTypes)
-    {
-        return targetType.GetConstructors().Any(constructorInfo =>
-        {
-            var parameters = constructorInfo.GetParameters();
-            return parameters.Length == parameterTypes.Length && !parameters.Where((parameterInfo, i) => !parameterInfo.ParameterType.IsAssignableTo(parameterTypes[i])).Any();
-        });
+        return pi.PropertyType.GetFriendlyName(false, true, nullInfo);
     }
 }
 
@@ -615,13 +634,7 @@ public static class ProcessExtensions
 
     public static float RetrieveProcessVolume(string? processName) => getProcessAudioVolume(processName)?.Volume ?? 1f;
 
-    public static void SetProcessVolume(string? processName, float percentage)
-    {
-        var processAudioVolume = getProcessAudioVolume(processName);
-        if (processAudioVolume is null) return;
-
-        processAudioVolume.Volume = percentage;
-    }
+    public static void SetProcessVolume(string? processName, float percentage) => getProcessAudioVolume(processName)?.Volume = percentage;
 
     public static void SetWindowVisibility(this Process process, bool visible)
     {
@@ -700,7 +713,7 @@ public static class JsonPathExtensions
     {
         if (destinationType == typeof(JsonArray))
         {
-            return new JsonArray(matches.Select(m => m.Value.DeepClone()).ToArray());
+            return new JsonArray(matches.Select(m => m.Value!.DeepClone()).ToArray());
         }
 
         var elementType =

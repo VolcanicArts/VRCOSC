@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Newtonsoft.Json;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -55,7 +56,7 @@ public sealed class Observable<T> : IObservable, INotifyPropertyChanged, IEquata
 
     public T DefaultValue { get; }
 
-    private readonly object notifyLock = new();
+    private readonly Lock notifyLock = new();
     private readonly List<Action> noValueActions = new();
     private readonly List<Action<T>> actions = new();
 

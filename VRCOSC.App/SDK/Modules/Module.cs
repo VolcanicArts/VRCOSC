@@ -325,15 +325,6 @@ public abstract class Module
 
     #region SDK
 
-    /// <summary>
-    /// Retrieves the player instance that gives you information about the local player, their built-in avatar parameters, and input controls
-    /// </summary>
-    [Obsolete("Use GetClient().Player instead")]
-    public Player GetPlayer() => AppManager.GetInstance().VRChatClient.Player;
-
-    [Obsolete("Use GetClient().Instance instead")]
-    public Instance GetInstance() => AppManager.GetInstance().VRChatClient.Instance;
-
     public VRChatClient GetClient() => AppManager.GetInstance().VRChatClient;
 
     /// <summary>
