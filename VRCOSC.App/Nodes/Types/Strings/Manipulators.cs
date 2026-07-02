@@ -18,7 +18,7 @@ public enum ScrollDirection
 [Node("String Scroll", "Strings")]
 public sealed class StringScrollNode : ActionValueComputeNode<string>
 {
-    public ValueInput<string> Input = new();
+    public ValueInput<string> StrInput = new("Input");
     public ValueInput<int?> TruncateLength = new();
     public ValueInput<ScrollDirection> ScrollDirection = new();
     public ValueInput<string> JoinString = new();
@@ -31,7 +31,7 @@ public sealed class StringScrollNode : ActionValueComputeNode<string>
 
     protected override string ComputeValue(IPulseContext c)
     {
-        var input = Input.Read(c);
+        var input = StrInput.Read(c);
 
         if (string.IsNullOrWhiteSpace(input))
         {

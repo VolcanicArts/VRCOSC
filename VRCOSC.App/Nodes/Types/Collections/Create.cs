@@ -13,13 +13,13 @@ public sealed class CreateListNode<T> : Node
 {
     public ValueInputList<T> Inputs = new();
     public ValueOutput<List<T>> Output = new();
-    public ValueOutput<int> InputCount = new("Input Count");
+    public ValueOutput<int> InputCount = new();
 
     protected override Task Process(IPulseContext c)
     {
         var list = Inputs.Read(c).ToList();
         Output.Write(list, c);
-        InputCount.Write(list.Count, c);
+        InputCount.Write(Inputs.Count, c);
         return Task.CompletedTask;
     }
 }
@@ -29,60 +29,32 @@ public sealed class CreateDictionaryNode<TKey, TValue> : Node where TKey : notnu
 {
     public ValueInputList<KeyValuePair<TKey, TValue>> Inputs = new();
     public ValueOutput<Dictionary<TKey, TValue>> Output = new();
-    public ValueOutput<int> InputCount = new("Input Count");
+    public ValueOutput<int> InputCount = new();
 
     protected override Task Process(IPulseContext c)
     {
         var dictionary = new Dictionary<TKey, TValue>();
         var inputs = Inputs.Read(c).ToList();
-        inputs.RemoveAll(pair => pair.Key is null);
+        inputs.RemoveAll(kvp => kvp.Key is null);
         dictionary.AddRange(inputs);
 
         Output.Write(dictionary, c);
-        InputCount.Write(dictionary.Count, c);
+        InputCount.Write(Inputs.Count, c);
         return Task.CompletedTask;
     }
 }
 
 [Node("Pack KeyValuePair", "Collections/Dictionary")]
 [NodeCollapsed]
-public sealed class CreateKeyValuePairNode<TKey, TValue> : Node where TKey : notnull
+public sealed class CreateKeyValuePairNode<TKey, TValue>() : SimpleResultComputeNode<TKey, TValue, KeyValuePair<TKey, TValue>>((key, value) => new KeyValuePair<TKey, TValue>(key, value), "Key", "Value") where TKey : notnull
 {
     public override string DisplayName => "Pack KVP";
-
-    public ValueInput<TKey> Key = new();
-    public ValueInput<TValue> Value = new();
-    public ValueOutput<KeyValuePair<TKey, TValue>> Output = new();
-
-    protected override Task Process(IPulseContext c)
-    {
-        Output.Write(new KeyValuePair<TKey, TValue>(Key.Read(c), Value.Read(c)), c);
-        return Task.CompletedTask;
-    }
 }
 
 [Node("Empty Dictionary", "Collections/Dictionary")]
 [NodeCollapsed]
-public sealed class EmptyDictionaryNode<TKey, TValue> : Node where TKey : notnull
-{
-    public ValueOutput<Dictionary<TKey, TValue>> Dictionary = new();
-
-    protected override Task Process(IPulseContext c)
-    {
-        Dictionary.Write(new Dictionary<TKey, TValue>(), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class EmptyDictionaryNode<TKey, TValue>() : SimpleValueComputeNode<Dictionary<TKey, TValue>>(() => new Dictionary<TKey, TValue>(), "Dictionary") where TKey : notnull;
 
 [Node("Empty List", "Collections/Enumerable")]
 [NodeCollapsed]
-public sealed class EmptyListNode<T> : Node
-{
-    public ValueOutput<List<T>> List = new();
-
-    protected override Task Process(IPulseContext c)
-    {
-        List.Write(new List<T>(), c);
-        return Task.CompletedTask;
-    }
-}
+public sealed class EmptyListNode<T>() : SimpleValueComputeNode<List<T>>(() => new List<T>(), "List");

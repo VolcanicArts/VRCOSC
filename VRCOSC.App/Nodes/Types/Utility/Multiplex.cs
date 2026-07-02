@@ -34,7 +34,7 @@ public sealed class MultiplexNode<T> : Node
         var inputs = Inputs.Read(c);
         InputCount.Write(inputs.Count, c);
 
-        if (index >= inputs.Count) return Task.CompletedTask;
+        if (index >= inputs.Count || index < 0) return Task.CompletedTask;
 
         Element.Write(inputs[index], c);
         return Task.CompletedTask;

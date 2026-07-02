@@ -6,6 +6,7 @@ using System.Numerics;
 namespace VRCOSC.App.Nodes.Types.Math.Transform;
 
 [Node("Unpack Transform", "Math/Transform")]
+[NodeCollapsed]
 public sealed class TransformUnpackNode() : ValueConsumeNode<Utils.Transform>(nameof(Utils.Transform))
 {
     public ValueOutput<Vector3> Position = new();
@@ -19,6 +20,7 @@ public sealed class TransformUnpackNode() : ValueConsumeNode<Utils.Transform>(na
 }
 
 [Node("Pack Transform", "Math/Transform")]
+[NodeCollapsed]
 public sealed class TransformPackNode() : ValueComputeNode<Utils.Transform>(nameof(Utils.Transform))
 {
     public ValueInput<Vector3> Position = new();

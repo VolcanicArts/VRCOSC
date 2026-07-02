@@ -3,11 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Utility;
 
-public abstract class DisplayNodeBase<T> : Node, IDisplayNode
+public abstract class DisplayNodeBase<T> : ValueConsumeNode<T>, IDisplayNode
 {
     public T Value
     {
@@ -23,17 +22,13 @@ public abstract class DisplayNodeBase<T> : Node, IDisplayNode
 
     public Action<object?>? OnValueChanged { get; set; }
 
-    [InputMode(InputModes.Connection)]
-    public ValueInput<T> Input = new();
-
     public object? GetValue() => Value;
 
     public void Clear() => Value = default!;
 
-    protected override Task Process(IPulseContext c)
+    protected override void ConsumeValue(T value, IPulseContext c)
     {
-        Value = Input.Read(c);
-        return Task.CompletedTask;
+        Value = value;
     }
 }
 
@@ -45,11 +40,10 @@ public sealed class PassthroughDisplayNode<T> : DisplayNodeBase<T>
 {
     public ValueOutput<T> Output = new();
 
-    protected override Task Process(IPulseContext c)
+    protected override void ConsumeValue(T value, IPulseContext c)
     {
-        base.Process(c);
-        Output.Write(Input.Read(c), c);
-        return Task.CompletedTask;
+        base.ConsumeValue(value, c);
+        Output.Write(value, c);
     }
 }
 

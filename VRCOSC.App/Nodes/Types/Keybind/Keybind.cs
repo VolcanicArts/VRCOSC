@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System.Linq;
 using System.Threading.Tasks;
 using VRCOSC.App.SDK.Utils;
 
@@ -65,10 +64,8 @@ public sealed class KeybindSourceNode() : ValueSourceNode<bool>("Down")
     protected override bool ComputeValue(IPulseContext c)
     {
         var keybind = Keybind.Read(c);
-        if (keybind is null) return false;
+        if (keybind is null || keybind.AllKeys.Length == 0) return false;
 
-        return (keybind.Modifiers.Count != 0 || keybind.Keys.Count != 0)
-               && keybind.Modifiers.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key))
-               && keybind.Keys.All(key => AppManager.GetInstance().GlobalKeyboardHook.GetKeyState(key));
+        return AppManager.GetInstance().GlobalKeyboardHook.AreAllKeysPressed(keybind.AllKeys);
     }
 }

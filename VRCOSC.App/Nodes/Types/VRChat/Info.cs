@@ -17,7 +17,7 @@ public sealed class VRChatIsOpenNode() : SimpleValueSourceNode<bool>(() => AppMa
 [Node("VRChat State Source", "VRChat")]
 public sealed class VRChatStateSourceNode : Node, IContinuousNode
 {
-    public int UpdateOffset => 0;
+    public int UpdateOffset => -2;
 
     public ValueOutput<bool> IsOpen = new();
     public ValueOutput<bool> IsLoggedIn = new();
@@ -215,7 +215,7 @@ public sealed class AvatarPackNode : ValueComputeNode<Avatar?>
 [Node("Avatar Height", "VRChat/Avatar/Info")]
 public sealed class AvatarHeightDataNode : Node, IContinuousNode
 {
-    public int UpdateOffset => 0;
+    public int UpdateOffset => -1;
 
     public ValueOutput<float> EyeHeight = new();
     public ValueOutput<float> EyeHeightMin = new();

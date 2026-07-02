@@ -14,7 +14,7 @@ public abstract class FireWhileBase(Func<bool, bool> checkCondition) : Node, IAc
 
     public FlowOutput Next = new();
 
-    public ValueInput<int> Delay = new("Delay (ms)");
+    public ValueInput<int> Delay = new("Delay (ms)", 10);
     public ValueInput<bool> Condition = new();
 
     protected override Task Process(IPulseContext c) => Next.Execute(c);
