@@ -157,6 +157,14 @@ public class Timeline : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+
+    public void UpdateUI()
+    {
+        foreach (var clip in Clips)
+        {
+            clip.UpdateUI();
+        }
+    }
 }
 
 public record DroppableArea(int Layer, int Start, int End);

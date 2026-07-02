@@ -45,8 +45,15 @@ public class Clip : INotifyPropertyChanged
             var finalDict = new Dictionary<string, List<ClipVariableReference>>();
 
             var builtInVariables = new List<ClipVariableReference>();
-            ChatBoxManager.GetInstance().VariableReferences.Where(clipVariableReference => clipVariableReference.ModuleID is null).OrderBy(reference => reference.DisplayName.Value).ForEach(clipVariableReference => builtInVariables.Add(clipVariableReference));
+            var pulseVariables = new List<ClipVariableReference>();
+            var variableReferences = ChatBoxManager.GetInstance().VariableReferences;
+
+            variableReferences.Where(vr => vr.ModuleID is null).OrderBy(vr => vr.DisplayName.Value).ForEach(builtInVariables.Add);
+            variableReferences.Where(vr => vr.ModuleID == "internal.pulse").OrderBy(vr => vr.DisplayName.Value).ForEach(pulseVariables.Add);
             finalDict.Add("Built-In", builtInVariables);
+
+            if (pulseVariables.Count != 0)
+                finalDict.Add("Pulse", pulseVariables);
 
             var modules = LinkedModules.Select(moduleID => ModuleManager.GetInstance().GetModuleOfID(moduleID)).Where(module => module.Enabled.Value || !SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.FilterByEnabledModules)).OrderBy(module => module.Title);
 

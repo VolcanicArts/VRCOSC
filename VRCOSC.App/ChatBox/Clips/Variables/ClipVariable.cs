@@ -24,7 +24,13 @@ public abstract class ClipVariable
     {
         get
         {
-            var moduleName = ModuleID is null ? "Built-In" : ModuleManager.GetInstance().GetModuleOfID(ModuleID).Title;
+            var moduleName = ModuleID switch
+            {
+                null => "Built-In",
+                "internal.pulse" => "Pulse",
+                _ => ModuleManager.GetInstance().GetModuleOfID(ModuleID).Title
+            };
+
             return $"{moduleName} - {DisplayName}";
         }
     }

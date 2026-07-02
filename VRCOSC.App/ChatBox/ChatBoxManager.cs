@@ -297,7 +297,7 @@ public class ChatBoxManager : INotifyPropertyChanged
         return Task.CompletedTask;
     }
 
-    private string routerChatBoxInput;
+    private string routerChatBoxInput = string.Empty;
 
     public void SetRouterChatBoxInput(string text)
     {
@@ -471,6 +471,7 @@ public class ChatBoxManager : INotifyPropertyChanged
     public void CreateVariable(ClipVariableReference reference)
     {
         VariableReferences.Add(reference);
+        Timeline.UpdateUI();
     }
 
     public void DeleteVariable(string moduleID, string variableID)

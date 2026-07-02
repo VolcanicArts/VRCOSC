@@ -13,7 +13,7 @@ public class ClipVariableReference
     internal Type ClipVariableType { get; init; } = null!;
     internal Type ValueType { get; init; } = null!;
 
-    public Observable<string> DisplayName { get; } = new("INVALID");
+    public Observable<string> DisplayName { get; internal set; } = new("INVALID");
 
     internal Observable<object> Value = new();
 

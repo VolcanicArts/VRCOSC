@@ -11,6 +11,9 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MeaMod.DNS.Server;
+using VRCOSC.App.ChatBox;
+using VRCOSC.App.ChatBox.Clips.Variables;
+using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Nodes.Metadata;
 using VRCOSC.App.Nodes.Serialisation.V1;
@@ -743,12 +746,37 @@ public class NodeGraph : INotifyPropertyChanged
 
     #endregion
 
-    public void CreateVariable(Type variableType, string name, bool persistent)
+    public void CreateVariable(Type variableType, string name, bool persistent, Guid? idOverride = null, object? initialValue = null)
     {
-        var variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [name, persistent])!;
+        IGraphVariable variable;
+
+        if (idOverride is null)
+            variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [name, persistent])!;
+        else
+            variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [idOverride, name, persistent, initialValue])!;
+
         GraphVariables.TryAdd(variable.GetId(), variable);
 
-        Serialise();
+        if (variableType != typeof(string)) return;
+
+        var displayName = new Observable<string>();
+        variable.Name.Subscribe(newName => displayName.Value = $"Pulse {newName}", true);
+
+        var reference = new ClipVariableReference
+        {
+            ModuleID = "internal.pulse",
+            VariableID = variable.GetId().ToString(),
+            DisplayName = variable.Name,
+            ClipVariableType = typeof(PulseClipVariable),
+            ValueType = typeof(string),
+            Value =
+            {
+                // References are required to have a value to be executed, but PulseClipVariable doesn't use it
+                Value = "INTERNAL"
+            }
+        };
+
+        ChatBoxManager.GetInstance().CreateVariable(reference);
     }
 
     public void DeleteVariable(IGraphVariable variable)
@@ -762,8 +790,6 @@ public class NodeGraph : INotifyPropertyChanged
         }
 
         GraphVariables.Remove(variable.GetId(), out _);
-
-        Serialise();
     }
 
     private async Task processAllTriggerNodes()
