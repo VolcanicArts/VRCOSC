@@ -135,8 +135,7 @@ public static class NodeGraphBaseHelper
                 var variableId = remapIds ? Guid.NewGuid() : sV.Id;
                 if (remapIds) idMapping[sV.Id] = variableId;
 
-                var variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [variableId, sV.Name, sV.Persistent, valueParseSuccessful ? variableValue : variableType.CreateDefault()])!;
-                targetGraph.GraphVariables.TryAdd(variableId, variable);
+                targetGraph.CreateVariable(variableType, sV.Name, sV.Persistent, variableId, valueParseSuccessful ? variableValue : variableType.CreateDefault());
             }
             catch (Exception e)
             {

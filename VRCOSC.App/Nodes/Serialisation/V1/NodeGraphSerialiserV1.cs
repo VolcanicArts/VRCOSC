@@ -43,15 +43,9 @@ public class NodeGraphSerialiserV1 : ProfiledSerialiser<NodeGraph, SerialisableN
                 }
 
                 if (TryConvertToTargetType(sV.Value, variableType, out var variableValue))
-                {
-                    var variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [sV.Id, sV.Name, sV.Persistent, variableValue])!;
-                    Reference.GraphVariables.TryAdd(sV.Id, variable);
-                }
+                    Reference.CreateVariable(variableType, sV.Name, sV.Persistent, sV.Id, variableValue);
                 else
-                {
-                    var variable = (IGraphVariable)Activator.CreateInstance(typeof(GraphVariable<>).MakeGenericType(variableType), args: [sV.Id, sV.Name, sV.Persistent])!;
-                    Reference.GraphVariables.TryAdd(sV.Id, variable);
-                }
+                    Reference.CreateVariable(variableType, sV.Name, sV.Persistent, sV.Id, variableType.CreateDefault());
             }
             catch (Exception e)
             {
