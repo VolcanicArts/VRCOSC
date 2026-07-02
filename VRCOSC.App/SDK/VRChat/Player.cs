@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using VRCOSC.App.OSC.VRChat;
+using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
 
 // ReSharper disable UnusedMember.Global
@@ -12,30 +13,30 @@ namespace VRCOSC.App.SDK.VRChat;
 
 public sealed class Player
 {
-    public Viseme Viseme => (Viseme)getParameter<int>(VRChatAvatarParameter.Viseme);
-    public float Voice => getParameter<float>(VRChatAvatarParameter.Voice);
-    public GestureType GestureTypeLeft => (GestureType)getParameter<int>(VRChatAvatarParameter.GestureLeft);
-    public GestureType GestureTypeRight => (GestureType)getParameter<int>(VRChatAvatarParameter.GestureRight);
-    public float GestureLeftWeight => getParameter<float>(VRChatAvatarParameter.GestureLeftWeight);
-    public float GestureRightWeight => getParameter<float>(VRChatAvatarParameter.GestureRightWeight);
-    public float AngularY => getParameter<float>(VRChatAvatarParameter.AngularY);
-    public float VelocityX => getParameter<float>(VRChatAvatarParameter.VelocityX);
-    public float VelocityY => getParameter<float>(VRChatAvatarParameter.VelocityY);
-    public float VelocityZ => getParameter<float>(VRChatAvatarParameter.VelocityZ);
-    public float Upright => getParameter<float>(VRChatAvatarParameter.Upright);
-    public bool Grounded => getParameter<bool>(VRChatAvatarParameter.Grounded);
-    public bool Seated => getParameter<bool>(VRChatAvatarParameter.Seated);
-    public bool AFK => getParameter<bool>(VRChatAvatarParameter.AFK);
-    public TrackingType TrackingType => (TrackingType)getParameter<int>(VRChatAvatarParameter.TrackingType);
-    public bool IsVR => getParameter<int>(VRChatAvatarParameter.VRMode) == 1;
-    public bool IsMuted => getParameter<bool>(VRChatAvatarParameter.MuteSelf);
-    public bool InStation => getParameter<bool>(VRChatAvatarParameter.InStation);
-    public bool Earmuffs => getParameter<bool>(VRChatAvatarParameter.Earmuffs);
-    public bool ScaleModified => getParameter<bool>(VRChatAvatarParameter.ScaleModified);
-    public float ScaleFactor => getParameter<float>(VRChatAvatarParameter.ScaleFactor);
-    public float ScaleFactorInverse => getParameter<float>(VRChatAvatarParameter.ScaleFactorInverse);
-    public float EyeHeightAsMeters => getParameter<float>(VRChatAvatarParameter.EyeHeightAsMeters);
-    public float EyeHeightAsPercent => getParameter<float>(VRChatAvatarParameter.EyeHeightAsPercent);
+    public Viseme Viseme { get; private set; }
+    public float Voice { get; private set; }
+    public GestureType GestureTypeLeft { get; private set; }
+    public GestureType GestureTypeRight { get; private set; }
+    public float GestureLeftWeight { get; private set; }
+    public float GestureRightWeight { get; private set; }
+    public float AngularY { get; private set; }
+    public float VelocityX { get; private set; }
+    public float VelocityY { get; private set; }
+    public float VelocityZ { get; private set; }
+    public float Upright { get; private set; }
+    public bool Grounded { get; private set; }
+    public bool Seated { get; private set; }
+    public bool AFK { get; private set; }
+    public TrackingType TrackingType { get; private set; }
+    public bool IsVR { get; private set; }
+    public bool IsMuted { get; private set; }
+    public bool InStation { get; private set; }
+    public bool Earmuffs { get; private set; }
+    public bool ScaleModified { get; private set; }
+    public float ScaleFactor { get; private set; }
+    public float ScaleFactorInverse { get; private set; }
+    public float EyeHeightAsMeters { get; private set; }
+    public float EyeHeightAsPercent { get; private set; }
 
     private readonly VRChatOSCClient oscClient;
 
@@ -46,13 +47,117 @@ public sealed class Player
 
     private static string actionToAddress(VRChatButtonInput action) => $"/input/{action}";
     private static string actionToAddress(VRChatAxesInput action) => $"/input/{action}";
-    private static T getParameter<T>(VRChatAvatarParameter parameterName) where T : unmanaged => AppManager.GetInstance().GetParameter<T>(parameterName.ToString())?.GetValue<T>() ?? default;
 
     private async Task sendAndReset(VRChatButtonInput action)
     {
         oscClient.Send(actionToAddress(action), 1);
         await Task.Delay(50);
         oscClient.Send(actionToAddress(action), 0);
+    }
+
+    internal void UpdateParameterValue(VRChatParameter parameter)
+    {
+        var name = parameter.Name;
+        var type = parameter.Type;
+
+        switch (name)
+        {
+            case nameof(VRChatAvatarParameter.Viseme) when type == ParameterType.Int:
+                Viseme = (Viseme)parameter.GetValue<int>();
+                break;
+
+            case nameof(VRChatAvatarParameter.Voice) when type == ParameterType.Float:
+                Voice = parameter.GetValue<float>();
+                break;
+
+            case nameof(VRChatAvatarParameter.GestureLeft) when type == ParameterType.Int:
+                GestureTypeLeft = (GestureType)parameter.GetValue<int>();
+                break;
+
+            case nameof(VRChatAvatarParameter.GestureLeftWeight) when type == ParameterType.Float:
+                GestureLeftWeight = parameter.GetValue<float>();
+                break;
+
+            case nameof(VRChatAvatarParameter.GestureRight) when type == ParameterType.Int:
+                GestureTypeRight = (GestureType)parameter.GetValue<int>();
+                break;
+
+            case nameof(VRChatAvatarParameter.GestureRightWeight) when type == ParameterType.Float:
+                GestureRightWeight = parameter.GetValue<float>();
+                break;
+
+            case nameof(VRChatAvatarParameter.AngularY) when type == ParameterType.Float:
+                AngularY = parameter.GetValue<float>();
+                break;
+
+            case nameof(VRChatAvatarParameter.VelocityX) when type == ParameterType.Float:
+                VelocityX = parameter.GetValue<float>();
+                break;
+
+            case nameof(VRChatAvatarParameter.VelocityY) when type == ParameterType.Float:
+                VelocityY = parameter.GetValue<float>();
+                break;
+
+            case nameof(VRChatAvatarParameter.VelocityZ) when type == ParameterType.Float:
+                VelocityZ = parameter.GetValue<float>();
+                break;
+
+            case nameof(VRChatAvatarParameter.Upright) when type == ParameterType.Float:
+                Upright = parameter.GetValue<float>();
+                break;
+
+            case nameof(VRChatAvatarParameter.Grounded) when type == ParameterType.Bool:
+                Grounded = parameter.GetValue<bool>();
+                break;
+
+            case nameof(VRChatAvatarParameter.Seated) when type == ParameterType.Bool:
+                Seated = parameter.GetValue<bool>();
+                break;
+
+            case nameof(VRChatAvatarParameter.AFK) when type == ParameterType.Bool:
+                AFK = parameter.GetValue<bool>();
+                break;
+
+            case nameof(VRChatAvatarParameter.TrackingType) when type == ParameterType.Int:
+                TrackingType = (TrackingType)parameter.GetValue<int>();
+                break;
+
+            case nameof(VRChatAvatarParameter.VRMode) when type == ParameterType.Int:
+                IsVR = parameter.GetValue<int>() == 1;
+                break;
+
+            case nameof(VRChatAvatarParameter.MuteSelf) when type == ParameterType.Bool:
+                IsMuted = parameter.GetValue<bool>();
+                break;
+
+            case nameof(VRChatAvatarParameter.InStation) when type == ParameterType.Bool:
+                InStation = parameter.GetValue<bool>();
+                break;
+
+            case nameof(VRChatAvatarParameter.Earmuffs) when type == ParameterType.Bool:
+                Earmuffs = parameter.GetValue<bool>();
+                break;
+
+            case nameof(VRChatAvatarParameter.ScaleModified) when type == ParameterType.Bool:
+                ScaleModified = parameter.GetValue<bool>();
+                break;
+
+            case nameof(VRChatAvatarParameter.ScaleFactor) when type == ParameterType.Float:
+                ScaleFactor = parameter.GetValue<float>();
+                break;
+
+            case nameof(VRChatAvatarParameter.ScaleFactorInverse) when type == ParameterType.Float:
+                ScaleFactorInverse = parameter.GetValue<float>();
+                break;
+
+            case nameof(VRChatAvatarParameter.EyeHeightAsMeters) when type == ParameterType.Float:
+                EyeHeightAsMeters = parameter.GetValue<float>();
+                break;
+
+            case nameof(VRChatAvatarParameter.EyeHeightAsPercent) when type == ParameterType.Float:
+                EyeHeightAsPercent = parameter.GetValue<float>();
+                break;
+        }
     }
 
     internal void ResetAll()

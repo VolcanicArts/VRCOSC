@@ -312,6 +312,9 @@ internal class AppManager : IVRCClientEventHandler
             if (message.IsAvatarParameter)
             {
                 var parameter = new VRChatParameter(message);
+
+                VRChatClient.Player.UpdateParameterValue(parameter);
+
                 parameterCache[parameter.GetDefinition()] = (DateTime.Now, parameter);
 
                 if (Enum.TryParse<VRChatAvatarParameter>(parameter.Name, out _))
@@ -348,6 +351,7 @@ internal class AppManager : IVRCClientEventHandler
             foreach (var parameter in parameters)
             {
                 parameterCache[parameter.GetDefinition()] = (DateTime.Now, parameter);
+                VRChatClient.Player.UpdateParameterValue(parameter);
             }
 
             VRChatClient.UpdateAvatar(new Avatar(avatarId, avatarConfig.Name, parameters.Select(x => x.GetDefinition()).ToArray()));
