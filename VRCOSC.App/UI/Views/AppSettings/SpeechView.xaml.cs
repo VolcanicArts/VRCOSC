@@ -18,7 +18,7 @@ namespace VRCOSC.App.UI.Views.AppSettings;
 
 public partial class SpeechView
 {
-    private readonly AudioEndpointNotificationClient audioEndpointNotificationClient = new();
+    private AudioEndpointNotificationClient? audioEndpointNotificationClient;
 
     public SpeechView()
     {
@@ -26,9 +26,6 @@ public partial class SpeechView
         DataContext = this;
         Loaded += OnLoaded;
         Unloaded += OnUnloaded;
-
-        audioEndpointNotificationClient.DeviceChanged += (_, _, _) => onDefaultDeviceChanged();
-        audioEndpointNotificationClient.DeviceListChanged += updateInputDeviceList;
     }
 
     private void onDefaultDeviceChanged()
@@ -43,16 +40,21 @@ public partial class SpeechView
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         updateInputDeviceList();
-
+        audioEndpointNotificationClient = new();
+        audioEndpointNotificationClient.DeviceChanged += (_, _, _) => onDefaultDeviceChanged();
+        audioEndpointNotificationClient.DeviceListChanged += updateInputDeviceList;
         AudioDeviceHelper.RegisterCallbackClient(audioEndpointNotificationClient);
-
         SettingsManager.GetInstance().GetObservable<SpeechModel>(VRCOSCSetting.SpeechModel).Subscribe(onSpeechModelUpdate, true);
         SettingsManager.GetInstance().GetObservable<string>(VRCOSCSetting.SelectedMicrophoneID).Subscribe(onSelectedMicrophoneUpdate, true);
     }
 
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
-        AudioDeviceHelper.UnRegisterCallbackClient(audioEndpointNotificationClient);
+        if (audioEndpointNotificationClient is not null)
+        {
+            AudioDeviceHelper.UnRegisterCallbackClient(audioEndpointNotificationClient);
+            audioEndpointNotificationClient = null;
+        }
 
         audioCapture?.StopCapture();
         audioCapture = null;
