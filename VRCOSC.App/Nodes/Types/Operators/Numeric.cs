@@ -198,9 +198,8 @@ public sealed class MaximumNode<T> : ValueComputeNode<T> where T : IComparisonOp
 [NodeCollapsed]
 public sealed class VelocityNode<T> : Node, IContinuousNode where T : IFloatingPoint<T>
 {
-    public int UpdateOffset => 0;
+    public int UpdateOffset => 1;
 
-    public GlobalStore<bool> HasPreviousValue = new();
     public GlobalStore<T> PrevValue = new();
 
     public ValueInput<T> Input = new();
@@ -208,23 +207,13 @@ public sealed class VelocityNode<T> : Node, IContinuousNode where T : IFloatingP
 
     protected override Task Process(IPulseContext c)
     {
-        const double delta_time = 1d / 100d;
-
         var current = Input.Read(c);
+        var deltaTimeSeconds = c.DeltaTime / 1000d;
+        var prev = PrevValue.Read(c);
+        var delta = current - prev;
+        var velocity = double.CreateChecked(delta) / deltaTimeSeconds;
 
-        if (!HasPreviousValue.Read(c))
-        {
-            PrevValue.Write(current, c);
-            HasPreviousValue.Write(true, c);
-
-            Velocity.Write(T.Zero, c);
-            return Task.CompletedTask;
-        }
-
-        var delta = current - PrevValue.Read(c);
-        var metres = double.CreateChecked(delta);
-
-        Velocity.Write(T.CreateChecked(metres / delta_time), c);
+        Velocity.Write(T.CreateChecked(velocity), c);
         PrevValue.Write(current, c);
         return Task.CompletedTask;
     }
