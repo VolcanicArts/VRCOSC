@@ -814,34 +814,33 @@ public class NodeGraph : INotifyPropertyChanged
     private INode[] startNodes { get; set; } = [];
     private INode[] stopNodes { get; set; } = [];
 
-    private Dictionary<Guid, Dictionary<int, Dictionary<int, IRef>>> cachedValueOutputs { get; } = [];
+    private Dictionary<Guid, Dictionary<int, Dictionary<int, IRef?>>> cachedValueOutputs { get; } = [];
 
-    internal void CacheValueOutput<T>(Guid nodeId, int slot, int index, IRef value)
+    internal void CacheValueOutput(Guid nodeId, int slot, int index, IRef value)
     {
         cachedValueOutputs[nodeId][slot][index] = value;
     }
 
-    internal Ref<T> GetCachedValueOutput<T>(Guid nodeId, int slot, int index)
+    internal IRef? GetCachedValueOutput(Guid nodeId, int slot, int index)
     {
         if (!cachedValueOutputs.TryGetValue(nodeId, out var nodeOutputs))
         {
-            nodeOutputs = new Dictionary<int, Dictionary<int, IRef>>();
+            nodeOutputs = new Dictionary<int, Dictionary<int, IRef?>>();
             cachedValueOutputs[nodeId] = nodeOutputs;
         }
 
         if (!nodeOutputs.TryGetValue(slot, out var nodeOutputsSlot))
         {
-            nodeOutputsSlot = new Dictionary<int, IRef>();
+            nodeOutputsSlot = new Dictionary<int, IRef?>();
             nodeOutputs[slot] = nodeOutputsSlot;
         }
 
         if (!nodeOutputsSlot.TryGetValue(index, out var value))
         {
-            value = new Ref<T>();
             nodeOutputsSlot[index] = value;
         }
 
-        return (Ref<T>)value;
+        return value;
     }
 
     public TimeSpan HighestUpdateTime
@@ -899,7 +898,27 @@ public class NodeGraph : INotifyPropertyChanged
             {
                 DeltaTimeInternal = targetUpdateDelay
             };
-            await TriggerTree(node, c, null, _ => node.Metadata.ElementInstancesFor(ConnectionPoint.ValueOutput).Any(vo => ((IValueOutputBase)vo).IsDirty));
+
+            await TriggerTree(node, c, null, postC =>
+            {
+                var isDirty = false;
+
+                foreach (var valueOutputMetadata in node.Metadata.Elements[ConnectionPoint.ValueOutput])
+                {
+                    for (var i = 0; i < valueOutputMetadata.WorkingSize; i++)
+                    {
+                        var value = postC.Memory[node.Id][valueOutputMetadata.Shared.Slot][i];
+                        var cachedValue = GetCachedValueOutput(node.Id, valueOutputMetadata.Shared.Slot, i);
+
+                        if (cachedValue is null || !cachedValue.Equals(value))
+                            isDirty = true;
+
+                        CacheValueOutput(node.Id, valueOutputMetadata.Shared.Slot, i, value);
+                    }
+                }
+
+                return isDirty;
+            });
         }
 
         foreach (var node in activeUpdateNodes)
@@ -1072,7 +1091,6 @@ public class NodeGraph : INotifyPropertyChanged
         if (!node.Metadata.Shared.NoCancel)
         {
             var newTask = Task.Run(() => node.IProcess(c)).ContinueWith(__ => { cancelTasks.TryRemove(node.Id, out _); }, TaskContinuationOptions.OnlyOnRanToCompletion);
-
             cancelTasks.TryAdd(node.Id, new FlowTask(newTask, c));
         }
         else

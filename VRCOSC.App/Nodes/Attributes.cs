@@ -118,10 +118,7 @@ public interface IValueInputList : IValueInputBase
 
 public interface IValueInputList<out T> : IValueInputList;
 
-public interface IValueOutputBase : IValueElement
-{
-    bool IsDirty { get; set; }
-}
+public interface IValueOutputBase : IValueElement;
 
 public interface IValueOutput : IValueOutputBase;
 
@@ -243,14 +240,11 @@ public class ValueInputList<T>([CallerMemberName] string name = "") : ValueEleme
 
 public class ValueOutput<T>([CallerMemberName] string name = "") : ValueElement<T>(name), IValueOutput<T>
 {
-    public bool IsDirty { get; set; }
-
     public void Write(T value, IPulseContext c) => c.Write(this, value);
 }
 
 public class ValueOutputList<T>([CallerMemberName] string name = "") : ValueElement<T>(name), IValueOutputList<T>
 {
-    public bool IsDirty { get; set; }
     public int Count => Metadata.Size;
 
     public void Write(int index, T value, IPulseContext c) => c.Write(this, index, value);
