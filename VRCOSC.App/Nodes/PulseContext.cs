@@ -64,7 +64,7 @@ public class PulseContext : IPulseContext
     internal void Pop() => _exectution.Pop();
     internal Guid Peek() => _exectution.Peek();
 
-    public bool IsCancelled => Source.Token.IsCancellationRequested;
+    public bool IsCancelled => Source.IsCancellationRequested;
     public double DeltaTime => DeltaTimeInternal != 0d ? DeltaTimeInternal : _baseContext?.DeltaTime ?? 0d;
 
     internal double DeltaTimeInternal { get; set; }
