@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Numerics;
+using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Math.Map;
 
@@ -16,17 +17,22 @@ public class RemapNode<TFrom, TTo> : ValueComputeNode<TTo> where TFrom : INumber
     public ValueInput<TTo> ToMin = new();
     public ValueInput<TTo> ToMax = new();
     public ValueInput<bool> Clamp = new();
+    public ValueInput<EasingMode> Easing = new();
 
     protected override TTo ComputeValue(IPulseContext c)
     {
         var value = Value.Read(c);
         var fromMin = FromMin.Read(c);
         var fromMax = FromMax.Read(c);
+        var toMin = ToMin.Read(c);
+        var toMax = ToMax.Read(c);
+        var clamp = Clamp.Read(c);
+        var easing = Easing.Read(c);
 
-        if (Clamp.Read(c))
+        if (clamp)
             value = TFrom.Clamp(value, fromMin, fromMax);
 
-        return Utils.Interpolation.Map(value, fromMin, fromMax, ToMin.Read(c), ToMax.Read(c));
+        return Utils.Interpolation.Map(value, fromMin, fromMax, toMin, toMax, easing);
     }
 }
 

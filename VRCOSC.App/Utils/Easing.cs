@@ -44,8 +44,6 @@ public static class Easing
 {
     public static T Apply<T>(T t, EasingMode easing = EasingMode.Linear) where T : IFloatingPointIeee754<T>
     {
-        t = T.Clamp(t, T.Zero, T.One);
-
         return easing switch
         {
             EasingMode.Linear => t,

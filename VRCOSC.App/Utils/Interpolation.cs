@@ -22,8 +22,12 @@ public static class Interpolation
     }
 
     public static TTo Map<TFrom, TTo>(TFrom source, TFrom sMin, TFrom sMax, TTo dMin, TTo dMax) where TFrom : INumberBase<TFrom> where TTo : INumberBase<TTo>
+        => Map(source, sMin, sMax, dMin, dMax, EasingMode.Linear);
+
+    public static TTo Map<TFrom, TTo>(TFrom source, TFrom sMin, TFrom sMax, TTo dMin, TTo dMax, EasingMode easing) where TFrom : INumberBase<TFrom> where TTo : INumberBase<TTo>
     {
         var t = double.CreateSaturating(source - sMin) / double.CreateSaturating(sMax - sMin);
+        t = Ease(0d, 1d, t, easing);
         return dMin + TTo.CreateSaturating(double.CreateSaturating(dMax - dMin) * t);
     }
 
