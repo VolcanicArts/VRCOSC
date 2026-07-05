@@ -1,7 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
 using System.Numerics;
 
 namespace VRCOSC.App.Utils;
@@ -31,18 +30,22 @@ public struct Transform
         return new Transform(relativePosition, relativeRotation);
     }
 
+    public Transform Apply(Transform parent)
+    {
+        var worldPosition = parent.Position + Vector3.Transform(Position, parent.Rotation);
+        var worldRotation = parent.Rotation * Rotation;
+        return new Transform(worldPosition, worldRotation);
+    }
+
     public static Transform Identity => new();
 
-    public override string ToString() => $"{Position} : {Rotation.ToEulerDegrees()}";
+    public override string ToString() => $"{Position:F3} : {Rotation.ToEulerDegrees():F3}";
 }
 
 public static class TransformExtensions
 {
     extension(Vector3 v)
     {
-        /// <summary>
-        /// Quaternion ← Euler (DEGREES). Convention: X=Pitch, Y=Yaw, Z=Roll, order Y→X→Z (YXZ).
-        /// </summary>
         public Quaternion ToQuaternion()
         {
             var pitch = float.DegreesToRadians(v.X);
@@ -54,42 +57,21 @@ public static class TransformExtensions
 
     extension(Quaternion q)
     {
-        /// <summary>
-        /// Euler (DEGREES) ← Quaternion. Convention: X=Pitch, Y=Yaw, Z=Roll, order Y→X→Z (YXZ).
-        /// Robust near gimbal lock (|Yaw|≈90°) and clamps asin input.
-        /// </summary>
         public Vector3 ToEulerDegrees()
         {
             q = Quaternion.Normalize(q);
-            var (w, x, y, z) = (q.W, q.X, q.Y, q.Z);
 
-            // Yaw (Y) is the middle angle for YXZ
-            var siny = 2f * (w * y - z * x);
-            var yaw = MathF.Asin(float.Clamp(siny, -1f, 1f));
+            var x = q.X;
+            var y = q.Y;
+            var z = q.Z;
+            var w = q.W;
 
-            // Singularity when |siny|≈1 → |yaw|≈90°
-            const float eps = 1e-6f;
+            var sinp = float.Clamp(2f * (w * x - y * z), -1f, 1f);
+            var pitch = float.Asin(sinp);
+            var yaw = float.Atan2(2f * (w * y + z * x), 1f - 2f * (x * x + y * y));
+            var roll = float.Atan2(2f * (w * z + x * y), 1f - 2f * (x * x + z * z));
 
-            if (MathF.Abs(siny) > 1f - eps)
-            {
-                // Canonicalize by preserving Pitch (X), zeroing Roll (Z).
-                var pitch = MathF.Atan2(2f * (w * x - y * z), 1f - 2f * (x * x + z * z));
-                const float roll = 0f;
-                return new Vector3(float.RadiansToDegrees(pitch), float.RadiansToDegrees(yaw), float.RadiansToDegrees(roll));
-            }
-
-            {
-                // Regular case
-                var sinp = 2f * (w * x + y * z);
-                var cosp = 1f - 2f * (x * x + y * y);
-                var pitch = MathF.Atan2(sinp, cosp);
-
-                var sinr = 2f * (w * z + x * y);
-                var cosr = 1f - 2f * (y * y + z * z);
-                var roll = MathF.Atan2(sinr, cosr);
-
-                return new Vector3(float.RadiansToDegrees(pitch), float.RadiansToDegrees(yaw), float.RadiansToDegrees(roll));
-            }
+            return new Vector3(float.RadiansToDegrees(pitch), float.RadiansToDegrees(yaw), float.RadiansToDegrees(roll));
         }
     }
 }

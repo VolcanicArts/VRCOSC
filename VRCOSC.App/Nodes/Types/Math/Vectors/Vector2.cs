@@ -4,6 +4,7 @@
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using FontAwesome6;
 
 namespace VRCOSC.App.Nodes.Types.Math.Vectors;
 
@@ -28,6 +29,38 @@ public sealed class UnpackVector2Node() : ValueConsumeNode<Vector2>("Vector")
         Y.Write(vector.Y, c);
     }
 }
+
+[Node("Add", "Math/Vector2")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Plus)]
+public sealed class Vector2AddNode() : SimpleResultComputeNode<Vector2>((a, b) => a + b);
+
+[Node("Subtract", "Math/Vector2")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Minus)]
+public sealed class Vector2SubtractNode() : SimpleResultComputeNode<Vector2>((a, b) => a - b);
+
+[Node("Multiply", "Math/Vector2")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Asterisk)]
+public sealed class Vector2MultiplyNode() : SimpleResultComputeNode<Vector2>((a, b) => a * b);
+
+[Node("Transform", "Math/Vector2")]
+[NodeCollapsed]
+public sealed class Vector2TransformNode() : SimpleResultComputeNode<Vector2, System.Numerics.Quaternion, Vector2>(Vector2.Transform);
+
+[Node("Up", "Math/Vector2/Units")]
+[NodeCollapsed]
+public sealed class Vector2UnitUpNode() : ConstantNode<Vector2>(Vector2.UnitY);
+
+[Node("Down", "Math/Vector2/Units")]
+[NodeCollapsed]
+public sealed class Vector2UnitDownNode() : ConstantNode<Vector2>(-Vector2.UnitY);
+
+[Node("Right", "Math/Vector2/Units")]
+[NodeCollapsed]
+public sealed class Vector2UnitRightNode() : ConstantNode<Vector2>(Vector2.UnitX);
+
+[Node("Left", "Math/Vector2/Units")]
+[NodeCollapsed]
+public sealed class Vector2UnitLeftNode() : ConstantNode<Vector2>(-Vector2.UnitX);
 
 [Node("Distance", "Math/Vector2")]
 [NodeCollapsed]

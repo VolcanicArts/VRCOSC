@@ -21,7 +21,7 @@ public sealed class QuaternionToEulerNode : ValueComputeNode<Vector3>
 [NodeCollapsed]
 public sealed class EulerToQuaternionNode() : SimpleValueTransformNode<Vector3, System.Numerics.Quaternion>(v => v.ToQuaternion());
 
-[Node("Multiply Quaternion", "Math/Quaternion")]
+[Node("Quaternion Multiply", "Math/Quaternion")]
 [NodeCollapsed(EFontAwesomeIcon.Solid_Asterisk)]
 public sealed class QuaternionMultiplyNode : ValueComputeNode<System.Numerics.Quaternion>
 {
@@ -116,25 +116,23 @@ public sealed class QuaternionNormalizeNode : ValueComputeNode<System.Numerics.Q
     protected override System.Numerics.Quaternion ComputeValue(IPulseContext c) => System.Numerics.Quaternion.Normalize(Quaternion.Read(c));
 }
 
-[Node("Transform Vector by Quaternion", "Math/Quaternion")]
-[NodeCollapsed]
-public sealed class QuaternionTransformVectorNode : ValueComputeNode<Vector3>
+[Node("Quaternion Add Euler", "Math/Quaternion")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Plus)]
+public sealed class QuaternionAddEulerNode : ValueComputeNode<System.Numerics.Quaternion>
 {
     public ValueInput<System.Numerics.Quaternion> Quaternion = new(defaultValue: System.Numerics.Quaternion.Identity);
     public ValueInput<Vector3> Vector = new(defaultValue: Vector3.Zero);
 
-    protected override Vector3 ComputeValue(IPulseContext c)
+    protected override System.Numerics.Quaternion ComputeValue(IPulseContext c)
     {
         var q = Quaternion.Read(c);
         var v = Vector.Read(c);
-        var qv = new System.Numerics.Quaternion(v.X, v.Y, v.Z, 0);
-        var result = q * qv * System.Numerics.Quaternion.Conjugate(q);
-        return new Vector3(result.X, result.Y, result.Z);
+        var qv = v.ToQuaternion();
+        return q * qv;
     }
 }
 
 [Node("Quaternion Slerp", "Math/Quaternion")]
-[NodeCollapsed]
 public sealed class QuaternionSlerpNode : ValueComputeNode<System.Numerics.Quaternion>
 {
     public ValueInput<System.Numerics.Quaternion> A = new(defaultValue: System.Numerics.Quaternion.Identity);

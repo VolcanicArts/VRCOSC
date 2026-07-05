@@ -4,6 +4,7 @@
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using FontAwesome6;
 
 namespace VRCOSC.App.Nodes.Types.Math.Vectors;
 
@@ -31,6 +32,46 @@ public sealed class UnpackVector3Node() : ValueConsumeNode<Vector3>("Vector")
         Z.Write(vector.Z, c);
     }
 }
+
+[Node("Add", "Math/Vector3")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Plus)]
+public sealed class Vector3AddNode() : SimpleResultComputeNode<Vector3>((a, b) => a + b);
+
+[Node("Subtract", "Math/Vector3")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Minus)]
+public sealed class Vector3SubtractNode() : SimpleResultComputeNode<Vector3>((a, b) => a - b);
+
+[Node("Multiply", "Math/Vector3")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Asterisk)]
+public sealed class Vector3MultiplyNode() : SimpleResultComputeNode<Vector3>((a, b) => a * b);
+
+[Node("Transform", "Math/Vector3")]
+[NodeCollapsed]
+public sealed class Vector3TransformNode() : SimpleResultComputeNode<Vector3, System.Numerics.Quaternion, Vector3>(Vector3.Transform);
+
+[Node("Forward", "Math/Vector3/Units")]
+[NodeCollapsed]
+public sealed class Vector3UnitForwardNode() : ConstantNode<Vector3>(Vector3.UnitZ);
+
+[Node("Backward", "Math/Vector3/Units")]
+[NodeCollapsed]
+public sealed class Vector3UnitBackwardNode() : ConstantNode<Vector3>(-Vector3.UnitZ);
+
+[Node("Up", "Math/Vector3/Units")]
+[NodeCollapsed]
+public sealed class Vector3UnitUpNode() : ConstantNode<Vector3>(Vector3.UnitY);
+
+[Node("Down", "Math/Vector3/Units")]
+[NodeCollapsed]
+public sealed class Vector3UnitDownNode() : ConstantNode<Vector3>(-Vector3.UnitY);
+
+[Node("Right", "Math/Vector3/Units")]
+[NodeCollapsed]
+public sealed class Vector3UnitRightNode() : ConstantNode<Vector3>(Vector3.UnitX);
+
+[Node("Left", "Math/Vector3/Units")]
+[NodeCollapsed]
+public sealed class Vector3UnitLeftNode() : ConstantNode<Vector3>(-Vector3.UnitX);
 
 [Node("Distance", "Math/Vector3")]
 [NodeCollapsed]
