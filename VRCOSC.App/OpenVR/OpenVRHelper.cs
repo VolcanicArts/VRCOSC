@@ -51,6 +51,9 @@ internal static class OpenVRHelper
         var poses = new TrackedDevicePose_t[Valve.VR.OpenVR.k_unMaxTrackedDeviceCount];
         Valve.VR.OpenVR.System.GetDeviceToAbsoluteTrackingPose(ETrackingUniverseOrigin.TrackingUniverseStanding, 0, poses);
 
+        // We must flip the Z to go from OVR (z into the screen) to Unity (z out of the screen)
+        var flipZ = Matrix4x4.CreateScale(1f, 1f, -1f);
+
         for (var i = 0; i < poses.Length; i++)
         {
             var pose = poses[i];
@@ -63,16 +66,18 @@ internal static class OpenVRHelper
 
             var mat = pose.mDeviceToAbsoluteTracking;
 
-            var position = new Vector3(mat.m3, mat.m7, mat.m11);
-
-            var matrix = new Matrix4x4(
-                mat.m0, mat.m1, mat.m2, 0,
-                mat.m4, mat.m5, mat.m6, 0,
-                mat.m8, mat.m9, mat.m10, 0,
-                0, 0, 0, 1
+            var ovrMatrix = new Matrix4x4
+            (
+                mat.m0, mat.m4, mat.m8, 0f,
+                mat.m1, mat.m5, mat.m9, 0f,
+                mat.m2, mat.m6, mat.m10, 0f,
+                mat.m3, mat.m7, mat.m11, 1f
             );
 
-            var rotation = Quaternion.CreateFromRotationMatrix(matrix);
+            var finalMatrix = flipZ * ovrMatrix * flipZ;
+
+            var position = finalMatrix.Translation;
+            var rotation = Quaternion.CreateFromRotationMatrix(finalMatrix);
 
             transforms[i] = new Transform(position, rotation);
         }
