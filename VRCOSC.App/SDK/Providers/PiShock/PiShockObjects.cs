@@ -9,27 +9,36 @@ namespace VRCOSC.App.SDK.Providers.PiShock;
 internal class PiShockUser
 {
     [JsonPropertyName("UserId")]
-    public int UserId { get; set; }
+    public int Id { get; set; }
+
+    [JsonPropertyName("Username")]
+    public string Username { get; set; } = null!;
 }
 
-internal class PiShockClient
+internal class PiShockHub
 {
-    [JsonPropertyName("name")]
-    public string Name { get; set; } = null!;
+    [JsonPropertyName("HubId")]
+    public int Id { get; set; }
 
-    [JsonPropertyName("clientId")]
-    public int ClientId { get; set; }
+    [JsonPropertyName("Name")]
+    public string Name { get; set; } = null!;
 }
 
 internal class PiShockShocker
 {
-    [JsonPropertyName("clientId")]
-    public int ClientId { get; set; }
+    [JsonPropertyName("Id")]
+    public int Id { get; set; }
 
-    [JsonPropertyName("shockerId")]
-    public int ShockerId { get; set; }
+    [JsonPropertyName("OwnerId")]
+    public int OwnerId { get; set; }
 
-    [JsonPropertyName("shareCode")]
+    [JsonPropertyName("ClientId")]
+    public int HubId { get; set; }
+
+    [JsonPropertyName("Name")]
+    public string Name { get; set; } = null!;
+
+    [JsonPropertyName("ShareCode")]
     public string ShareCode { get; set; } = null!;
 }
 

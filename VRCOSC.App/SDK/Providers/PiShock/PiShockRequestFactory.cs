@@ -2,8 +2,6 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -13,88 +11,81 @@ namespace VRCOSC.App.SDK.Providers.PiShock;
 
 internal static class PiShockRequestFactory
 {
+    private const string api_uri = "https://api.pishock.com";
     private static readonly HttpClient http_client = new();
 
-    private const string auth_endpoint = "https://auth.pishock.com/Auth";
-    private const string api_endpoint = "https://ps.pishock.com/PiShock";
-    private const string claim_endpoint = "https://api.pishock.com/Share";
-
-    private static void validateArguments(int userId, string apiKey)
+    private static HttpRequestMessage constructRequest(HttpMethod method, string endpoint, string username, string apiKey)
     {
-        ArgumentOutOfRangeException.ThrowIfLessThan(userId, 0);
-        ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
-    }
-
-    public static async Task<Result<PiShockUser>> AuthenticateUser(string username, string apiKey)
-    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(endpoint);
         ArgumentException.ThrowIfNullOrWhiteSpace(username);
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
 
-        var requestEndpoint = $"{auth_endpoint}/GetUserIfAPIKeyValid?apikey={apiKey}&username={username}";
-        var requestUri = new Uri(requestEndpoint);
-
-        var response = await http_client.GetAsync(requestUri);
-
-        if (!response.IsSuccessStatusCode)
-            return new Exception($"Failed to authenticate user. Response status code: {response.StatusCode}");
-
-        var content = await response.Content.ReadAsStringAsync();
-
-        if (string.IsNullOrWhiteSpace(content))
-            return new Exception("Failed to authenticate user. Response content was empty");
-
-        var deserializeResult = JsonSerializerSafe.TryDeserialize<PiShockUser>(content);
-
-        if (!deserializeResult.IsSuccess)
-            return new Exception("Failed to authenticate user. Response content contains invalid JSON");
-
-        var data = deserializeResult.Value;
-
-        return data;
+        var request = new HttpRequestMessage(method, new Uri($"{api_uri}/{endpoint}"));
+        request.Headers.Add("X-PiShock-Username", username);
+        request.Headers.Add("X-PiShock-Api-Key", apiKey);
+        return request;
     }
 
-    public static async Task<Result<PiShockClient[]>> GetUserDevices(int userId, string apiKey)
+    /// <summary>
+    /// Requests the account info for the provided <paramref name="username"/> and <paramref name="apiKey"/>
+    /// </summary>
+    public static async Task<Result<PiShockUser>> GetUser(string username, string apiKey)
     {
-        validateArguments(userId, apiKey);
-
-        var requestEndpoint = $"{api_endpoint}/GetUserDevices?UserId={userId}&Token={apiKey}&api=true";
-        var requestUri = new Uri(requestEndpoint);
-
-        var response = await http_client.GetAsync(requestUri);
+        var request = constructRequest(HttpMethod.Get, "Account", username, apiKey);
+        var response = await http_client.SendAsync(request);
 
         if (!response.IsSuccessStatusCode)
-            return new Exception($"Failed to get user devices. Response status code: {response.StatusCode}");
+            return new Exception($"Failed to get user. Response status code: {response.StatusCode}");
 
         var content = await response.Content.ReadAsStringAsync();
 
         if (string.IsNullOrWhiteSpace(content))
-            return new Exception("Failed to get user devices. Response content was empty");
+            return new Exception("Failed to get user. Response content was empty");
 
-        var deserializeResult = JsonSerializerSafe.TryDeserialize<PiShockClient[]>(content);
+        var userResult = JsonSerializerSafe.TryDeserialize<PiShockUser>(content);
 
-        if (!deserializeResult.IsSuccess)
-            return new Exception("Failed to get user devices. Response content contains invalid JSON");
+        if (!userResult.IsSuccess)
+            return new Exception("Failed to get user. Response content contains invalid JSON");
 
-        var data = deserializeResult.Value;
+        return userResult.Value;
+    }
+
+    /// <summary>
+    /// Gets all hubs associated with the provided <paramref name="username"/> and <paramref name="apiKey"/>
+    /// </summary>
+    public static async Task<Result<PiShockHub[]>> GetHubs(string username, string apiKey)
+    {
+        var request = constructRequest(HttpMethod.Get, "Hub", username, apiKey);
+        var response = await http_client.SendAsync(request);
+
+        if (!response.IsSuccessStatusCode)
+            return new Exception($"Failed to get hubs. Response status code: {response.StatusCode}");
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        if (string.IsNullOrWhiteSpace(content))
+            return new Exception("Failed to get hubs. Response content was empty");
+
+        var hubsResult = JsonSerializerSafe.TryDeserialize<PiShockHub[]>(content);
+
+        if (!hubsResult.IsSuccess)
+            return new Exception("Failed to get hubs. Response content contains invalid JSON");
+
+        var data = hubsResult.Value;
 
         if (data.Length == 0)
-            return new Exception("Failed to get user devices. No devices found");
+            return new Exception("Failed to get hubs. No hubs found");
 
         return data;
     }
 
     /// <summary>
-    /// Gets all the sharecode shareIDs from a provided <paramref name="userId"/> and <paramref name="apiKey"/>
+    /// Gets all the shared shockers associated with the provided <paramref name="username"/> and <paramref name="apiKey"/>
     /// </summary>
-    /// <returns>A dictionary of "Owner's Username - Sharecode Share ID Array"</returns>
-    public static async Task<Result<Dictionary<string, int[]>>> GetShareCodesByOwner(int userId, string apiKey)
+    public static async Task<Result<PiShockShocker[]>> GetShockers(string username, string apiKey)
     {
-        validateArguments(userId, apiKey);
-
-        var requestEndpoint = $"{api_endpoint}/GetShareCodesByOwner?UserId={userId}&Token={apiKey}&api=true";
-        var requestUri = new Uri(requestEndpoint);
-
-        var response = await http_client.GetAsync(requestUri);
+        var request = constructRequest(HttpMethod.Get, "Share/GetShared", username, apiKey);
+        var response = await http_client.SendAsync(request);
 
         if (!response.IsSuccessStatusCode)
             return new Exception($"Failed to get sharecodes by owner. Response status code: {response.StatusCode}");
@@ -104,59 +95,23 @@ internal static class PiShockRequestFactory
         if (string.IsNullOrWhiteSpace(content))
             return new Exception("Failed to get sharecodes by owner. Response content was empty");
 
-        var deserializeResult = JsonSerializerSafe.TryDeserialize<Dictionary<string, int[]>>(content);
+        var shockersResult = JsonSerializerSafe.TryDeserialize<PiShockShocker[]>(content);
 
-        if (!deserializeResult.IsSuccess)
+        if (!shockersResult.IsSuccess)
             return new Exception("Failed to get sharecodes by owner. Response content contains invalid JSON");
 
-        var data = deserializeResult.Value;
-
-        return data;
+        return shockersResult.Value;
     }
 
     /// <summary>
-    /// Gets all the shockers from a provided <paramref name="userId"/> and <paramref name="apiKey"/> and <paramref name="shareIDs"/>
+    /// Claims all the <paramref name="sharecodes"/> for a provided <paramref name="username"/> and <paramref name="apiKey"/>
     /// </summary>
-    /// <returns>A dictionary of "Owner's Username - Shocker Array"</returns>
-    public static async Task<Result<Dictionary<string, PiShockShocker[]>>> GetShockersByShareIDs(int userId, string apiKey, IEnumerable<int> shareIDs)
-    {
-        validateArguments(userId, apiKey);
-
-        var requestEndpoint = $"{api_endpoint}/GetShockersByShareIds?UserId={userId}&Token={apiKey}&api=true&{string.Join('&', shareIDs.Select(shareId => $"shareIds={shareId}"))}";
-        var requestUri = new Uri(requestEndpoint);
-
-        var response = await http_client.GetAsync(requestUri);
-
-        if (!response.IsSuccessStatusCode)
-            return new Exception($"Failed to get shockers from share IDs. Response status code: {response.StatusCode}");
-
-        var content = await response.Content.ReadAsStringAsync();
-
-        if (string.IsNullOrWhiteSpace(content))
-            return new Exception("Failed to get shockers from share IDs. Response content was empty");
-
-        var deserializeResult = JsonSerializerSafe.TryDeserialize<Dictionary<string, PiShockShocker[]>>(content);
-
-        if (!deserializeResult.IsSuccess)
-            return new Exception("Failed to get shockers from share IDs. Response content contains invalid JSON");
-
-        var data = deserializeResult.Value;
-
-        return data;
-    }
-
     public static async Task<Result> ClaimSharecodes(string username, string apiKey, string[] sharecodes)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(username);
-        ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
         ArgumentOutOfRangeException.ThrowIfEqual(sharecodes.Length, 0, nameof(sharecodes));
 
-        var requestUri = new Uri(claim_endpoint);
-        var request = new HttpRequestMessage(HttpMethod.Put, requestUri);
-        request.Headers.Add("X-PiShock-Username", username);
-        request.Headers.Add("X-PiShock-Api-Key", apiKey);
+        var request = constructRequest(HttpMethod.Put, "Share", username, apiKey);
         request.Content = JsonContent.Create(new { Shares = sharecodes });
-
         var response = await http_client.SendAsync(request);
 
         if (!response.IsSuccessStatusCode)
