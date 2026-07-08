@@ -7,12 +7,15 @@ namespace VRCOSC.App.SDK.Providers.PiShock;
 
 public static class PiShockExtensions
 {
-    internal static string ToCode(this PiShockMode mode) => mode switch
+    extension(PiShockMode mode)
     {
-        PiShockMode.Shock => "s",
-        PiShockMode.Vibrate => "v",
-        PiShockMode.Beep => "b",
-        PiShockMode.End => "e",
-        _ => throw new ArgumentOutOfRangeException()
-    };
+        public string ToCode() => mode switch
+        {
+            PiShockMode.Shock => "s",
+            PiShockMode.Vibrate => "v",
+            PiShockMode.Beep => "b",
+            PiShockMode.End => "e",
+            _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
+        };
+    }
 }
