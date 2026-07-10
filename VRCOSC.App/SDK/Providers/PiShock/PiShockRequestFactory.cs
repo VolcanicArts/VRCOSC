@@ -2,6 +2,7 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -61,6 +62,9 @@ internal static class PiShockRequestFactory
         if (!response.IsSuccessStatusCode)
             return new Exception($"Failed to get hubs. Response status code: {response.StatusCode}");
 
+        if (response.StatusCode == HttpStatusCode.NoContent)
+            return new Exception("Failed to get hubs. Response showed no hubs on account");
+
         var content = await response.Content.ReadAsStringAsync();
 
         if (string.IsNullOrWhiteSpace(content))
@@ -71,12 +75,7 @@ internal static class PiShockRequestFactory
         if (!hubsResult.IsSuccess)
             return new Exception("Failed to get hubs. Response content contains invalid JSON");
 
-        var data = hubsResult.Value;
-
-        if (data.Length == 0)
-            return new Exception("Failed to get hubs. No hubs found");
-
-        return data;
+        return hubsResult.Value;
     }
 
     /// <summary>
@@ -89,6 +88,9 @@ internal static class PiShockRequestFactory
 
         if (!response.IsSuccessStatusCode)
             return new Exception($"Failed to get sharecodes by owner. Response status code: {response.StatusCode}");
+
+        if (response.StatusCode == HttpStatusCode.NoContent)
+            return Array.Empty<PiShockShocker>();
 
         var content = await response.Content.ReadAsStringAsync();
 
