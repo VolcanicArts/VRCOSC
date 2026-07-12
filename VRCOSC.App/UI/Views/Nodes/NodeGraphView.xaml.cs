@@ -422,6 +422,8 @@ public partial class NodeGraphView
 
     protected override void OnKeyDown(KeyEventArgs e)
     {
+        if (!hasLoaded) return;
+
         if (e.KeyboardDevice.IsKeyDown(Key.LeftCtrl) && e.Key == Key.C)
         {
             executeCopy();
@@ -501,6 +503,8 @@ public partial class NodeGraphView
 
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
+        if (!hasLoaded) return;
+
         lastGraphPointerPos = e.GetPosition(GraphContainer);
         if (e.Handled) return;
 
@@ -549,6 +553,8 @@ public partial class NodeGraphView
 
     protected override void OnMouseMove(MouseEventArgs e)
     {
+        if (!hasLoaded) return;
+
         updateGridGraphElementDrag(e);
         updateGraphDrag(e);
         updateConnectionDrag();
@@ -559,6 +565,8 @@ public partial class NodeGraphView
 
     protected override void OnMouseUp(MouseButtonEventArgs e)
     {
+        if (!hasLoaded) return;
+
         handleMouseUpdates(e);
     }
 

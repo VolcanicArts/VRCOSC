@@ -1424,11 +1424,12 @@
             </Border>
         </Grid>
         <Grid x:Name="LoadingOverlay">
-            <Border Background="{DynamicResource CBackground1}" />
-            <core:SpacedStackPanel Orientation="Vertical" Spacing="5" VerticalAlignment="Center">
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource CForeground1}" TextAlignment="Center" FontSize="30"
-                           Text="Loading Graph..." />
-            </core:SpacedStackPanel>
+            <Border Background="{DynamicResource CBackground1}">
+                <core:SpacedStackPanel Orientation="Vertical" Spacing="5" VerticalAlignment="Center">
+                    <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource CForeground1}" TextAlignment="Center" FontSize="30"
+                               Text="Loading Graph..." />
+                </core:SpacedStackPanel>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>
