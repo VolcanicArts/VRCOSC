@@ -15,7 +15,7 @@ namespace VRCOSC.App.Nodes.Types.Web;
 
 public abstract class HttpNode(HttpMethod method) : TryActionAsyncNode
 {
-    private readonly HttpClient client = new();
+    public GlobalStore<HttpClient> ClientStore = new();
 
     public ValueInput<string> URL = new();
     public ValueInput<Dictionary<string, string>> Headers = new();
@@ -32,8 +32,17 @@ public abstract class HttpNode(HttpMethod method) : TryActionAsyncNode
         var headers = Headers.Read(c);
         headers ??= new Dictionary<string, string>();
 
+        var client = ClientStore.Read(c);
+
+        if (client is null)
+        {
+            client = new HttpClient();
+            ClientStore.Write(client, c);
+        }
+
         try
         {
+            client.Timeout = TimeSpan.FromMilliseconds(Timeout.Read(c));
             using var request = new HttpRequestMessage(method, new Uri(url));
             await ModifyRequest(request, c);
 
@@ -42,7 +51,7 @@ public abstract class HttpNode(HttpMethod method) : TryActionAsyncNode
             foreach (var header in headers)
                 request.Headers.Add(header.Key, header.Value);
 
-            var response = await c.Run(client.SendAsync(request).WaitAsync(TimeSpan.FromMilliseconds(Timeout.Read(c))));
+            var response = await c.Run(client.SendAsync(request));
             StatusCode.Write(response.StatusCode, c);
 
             var responseHeaders = response.Headers.ToDictionary(h => h.Key, h => string.Join(", ", h.Value));
