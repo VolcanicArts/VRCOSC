@@ -7,5 +7,6 @@ namespace VRCOSC.App.OSC;
 
 public static class OSCPatterns
 {
-    public static string ToPattern(string str) => $"^(?:{Regex.Escape(str).Replace(@"\*", @"(\S*?)")})$";
+    public static string ToReceivePattern(string str) => $"^(?:{Regex.Escape(str).Replace(@"\*", @"(\S*?)")})$";
+    public static string ToSendPattern(string str) => $"^{Regex.Escape(str).Replace(@"\*", @"\S*?")}$";
 }

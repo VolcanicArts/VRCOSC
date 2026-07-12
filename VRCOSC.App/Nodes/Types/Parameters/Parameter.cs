@@ -26,7 +26,7 @@ public sealed class SendParameterNode<T> : ActionNode where T : unmanaged
         var name = Name.Read(c);
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        appManager.SendToAllParameter(pattern.Get(OSCPatterns.ToPattern(name)), Value.Read(c));
+        appManager.SendToAllParameter(pattern.Get(OSCPatterns.ToSendPattern(name)), name, Value.Read(c));
     }
 }
 
@@ -58,7 +58,7 @@ public sealed class DriveParameterNode<T> : Node, IUpdateNode where T : unmanage
         var name = Name.Read(c);
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        appManager.SendToAllParameter(pattern.Get(OSCPatterns.ToPattern(name)), CurrValue.Read(c));
+        appManager.SendToAllParameter(pattern.Get(OSCPatterns.ToSendPattern(name)), name, CurrValue.Read(c));
     }
 }
 
@@ -142,7 +142,7 @@ public sealed class ParameterSourceNode<T>() : ValueSourceNode<T>("Value") where
 
         return string.IsNullOrWhiteSpace(name)
             ? default
-            : appManager.GetParameterValue<T>(pattern.Get(OSCPatterns.ToPattern(name)));
+            : appManager.GetParameterValue<T>(pattern.Get(OSCPatterns.ToReceivePattern(name)));
     }
 }
 
@@ -173,11 +173,11 @@ public sealed class PhysboneParameterSourceNode : Node, IContinuousNode
         var name = Name.Read(c);
         if (string.IsNullOrWhiteSpace(name)) return Task.CompletedTask;
 
-        Grabbed.Write(appManager.GetParameterValue<bool>(grabbedPattern.Get(OSCPatterns.ToPattern($"{name}_IsGrabbed"))), c);
-        Posed.Write(appManager.GetParameterValue<bool>(posedPattern.Get(OSCPatterns.ToPattern($"{name}_IsPosed"))), c);
-        Angle.Write(appManager.GetParameterValue<float>(anglePattern.Get(OSCPatterns.ToPattern($"{name}_Angle"))), c);
-        Stretch.Write(appManager.GetParameterValue<float>(stretchPattern.Get(OSCPatterns.ToPattern($"{name}_Stretch"))), c);
-        Squish.Write(appManager.GetParameterValue<float>(squishPattern.Get(OSCPatterns.ToPattern($"{name}_Squish"))), c);
+        Grabbed.Write(appManager.GetParameterValue<bool>(grabbedPattern.Get(OSCPatterns.ToReceivePattern($"{name}_IsGrabbed"))), c);
+        Posed.Write(appManager.GetParameterValue<bool>(posedPattern.Get(OSCPatterns.ToReceivePattern($"{name}_IsPosed"))), c);
+        Angle.Write(appManager.GetParameterValue<float>(anglePattern.Get(OSCPatterns.ToReceivePattern($"{name}_Angle"))), c);
+        Stretch.Write(appManager.GetParameterValue<float>(stretchPattern.Get(OSCPatterns.ToReceivePattern($"{name}_Stretch"))), c);
+        Squish.Write(appManager.GetParameterValue<float>(squishPattern.Get(OSCPatterns.ToReceivePattern($"{name}_Squish"))), c);
         return Task.CompletedTask;
     }
 }
@@ -205,9 +205,9 @@ public sealed class RaycastParameterSourceNode : Node, IContinuousNode
         var name = Name.Read(c);
         if (string.IsNullOrWhiteSpace(name)) return Task.CompletedTask;
 
-        Hit.Write(appManager.GetParameterValue<bool>(hitPattern.Get(OSCPatterns.ToPattern($"{name}_Hit"))), c);
-        Ratio.Write(appManager.GetParameterValue<float>(ratioPattern.Get(OSCPatterns.ToPattern($"{name}_Ratio"))), c);
-        Distance.Write(appManager.GetParameterValue<float>(distancePattern.Get(OSCPatterns.ToPattern($"{name}_Distance"))), c);
+        Hit.Write(appManager.GetParameterValue<bool>(hitPattern.Get(OSCPatterns.ToReceivePattern($"{name}_Hit"))), c);
+        Ratio.Write(appManager.GetParameterValue<float>(ratioPattern.Get(OSCPatterns.ToReceivePattern($"{name}_Ratio"))), c);
+        Distance.Write(appManager.GetParameterValue<float>(distancePattern.Get(OSCPatterns.ToReceivePattern($"{name}_Distance"))), c);
         return Task.CompletedTask;
     }
 }
@@ -232,7 +232,7 @@ public class WildcardParameterSourceNode<T, W0> : Node, IContinuousNode where T 
         var name = Name.Read(c);
         if (string.IsNullOrWhiteSpace(name)) return Task.CompletedTask;
 
-        var parameter = appManager.GetTemplatedParameter<T>(pattern.Get(OSCPatterns.ToPattern(name)));
+        var parameter = appManager.GetTemplatedParameter<T>(pattern.Get(OSCPatterns.ToReceivePattern(name)));
         if (parameter is null) return Task.CompletedTask;
         if (!ValidateWildcards(parameter)) return Task.CompletedTask;
 

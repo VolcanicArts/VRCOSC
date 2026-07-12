@@ -235,7 +235,7 @@ public abstract class Module
 
             var validReadParameters = Parameters.Where(parameter => !string.IsNullOrWhiteSpace(parameter.Value.Name.Value) && parameter.Value.Mode.HasFlag(ParameterMode.Read) && parameter.Value.Enabled.Value).ToList();
             readParameters.AddRange(validReadParameters);
-            parameterNameRegex.AddRange(validReadParameters.Select(pair => new KeyValuePair<Enum, Regex>(pair.Key, new Regex(OSCPatterns.ToPattern(pair.Value.Name.Value)))));
+            parameterNameRegex.AddRange(validReadParameters.Select(pair => new KeyValuePair<Enum, Regex>(pair.Key, new Regex(OSCPatterns.ToReceivePattern(pair.Value.Name.Value)))));
 
             loadPersistentProperties();
 

@@ -241,28 +241,21 @@ internal class AppManager : IVRCClientEventHandler
         return parameter is not null ? new TemplatedVRChatParameter(pattern, parameter) : null;
     }
 
-    public void SendToAllParameter<T>(string pattern, T value)
+    public void SendToAllParameter<T>(string namePattern, T value)
     {
-        if (!VRChatClient.IsInAvatar)
-        {
-            // Fallback to sending without pattern matching
-            sendParameter(pattern, value);
-            return;
-        }
-
-        SendToAllParameter(new Regex(OSCPatterns.ToPattern(pattern)), value);
+        SendToAllParameter(new Regex(OSCPatterns.ToSendPattern(namePattern)), namePattern, value);
     }
 
-    public void SendToAllParameter<T>(Regex pattern, T value)
+    public void SendToAllParameter<T>(Regex namePattern, string fallbackName, T value)
     {
         if (!VRChatClient.IsInAvatar)
         {
             // Fallback to sending without pattern matching
-            sendParameter(pattern.ToString(), value);
+            sendParameter(fallbackName, value);
             return;
         }
 
-        foreach (var def in VRChatClient.Avatar.Parameters.Where(def => pattern.IsMatch(def.Name)))
+        foreach (var def in VRChatClient.Avatar.Parameters.Where(def => namePattern.IsMatch(def.Name)))
         {
             VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{def.Name}", value);
         }

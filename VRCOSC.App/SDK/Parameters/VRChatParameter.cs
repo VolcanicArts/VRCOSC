@@ -118,7 +118,7 @@ public record TemplatedVRChatParameter : VRChatParameter
     internal TemplatedVRChatParameter(string template, VRChatParameter other)
         : base(other)
     {
-        templateRegex = new Regex(OSCPatterns.ToPattern(template));
+        templateRegex = new Regex(OSCPatterns.ToReceivePattern(template));
         decodeWildcards();
     }
 
