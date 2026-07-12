@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.IO;
 using Newtonsoft.Json;
 using VRCOSC.App.Serialisation;
@@ -21,9 +22,9 @@ public class NodeGraphSerialiser : ProfiledSerialiser<NodeGraph, SerialisableNod
 
     protected override bool ExecuteAfterDeserialisation(SerialisableNodeGraph data)
     {
-        Reference.Id = data.Id;
+        Reference.Id = Reference.FromImport ? Guid.NewGuid() : data.Id;
         Reference.Name.Value = data.Name;
-        Reference.Enabled.Value = data.Enabled;
+        Reference.Enabled.Value = Reference.FromImport || data.Enabled;
         NodeGraphBaseHelper.Deserialise(data, Reference, Reference.FromImport);
         return false;
     }
