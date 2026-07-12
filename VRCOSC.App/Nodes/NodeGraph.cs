@@ -1039,9 +1039,7 @@ public class NodeGraph : INotifyPropertyChanged
         }
 
         if (!nodeStore.TryGetValue(globalStore, out var iRef))
-        {
-            return default!;
-        }
+            return globalStore.DefaultValue;
 
         return (T)iRef.GetValue()!;
     }

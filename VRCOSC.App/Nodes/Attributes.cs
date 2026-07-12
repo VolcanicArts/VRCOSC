@@ -133,13 +133,16 @@ public interface IStore
     Type Type { get; }
 }
 
-public interface IStore<T> : IStore;
+public interface IStore<out T> : IStore
+{
+    T DefaultValue { get; }
+}
 
-public interface IGlobalStore<T> : IStore<T>;
+public interface IGlobalStore<out T> : IStore<T>;
 
 public interface IContextStore : IStore;
 
-public interface IContextStore<T> : IContextStore, IStore<T>;
+public interface IContextStore<out T> : IContextStore, IStore<T>;
 
 public abstract class NodeElement : INodeElement
 {
@@ -253,6 +256,12 @@ public class ValueOutputList<T>([CallerMemberName] string name = "") : ValueElem
 public class GlobalStore<T> : IGlobalStore<T>
 {
     public Type Type => typeof(T);
+    public T DefaultValue { get; }
+
+    public GlobalStore(T defaultValue = default!)
+    {
+        DefaultValue = defaultValue;
+    }
 
     public void Write(T value, IPulseContext c) => c.Write(this, value);
 
