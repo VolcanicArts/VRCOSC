@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace VRCOSC.App.Nodes.Types.Flow;
 
 [Node("Fire On Interval", "Flow")]
-public sealed class FireOnIntervalNode : Node, IActiveUpdateNode
+public sealed class FireOnIntervalNode : Node, IContinuousNode
 {
     public int UpdateOffset => 0;
 
@@ -17,9 +17,7 @@ public sealed class FireOnIntervalNode : Node, IActiveUpdateNode
 
     public ValueInput<int> Interval = new("Interval (ms)");
 
-    protected override Task Process(IPulseContext c) => Next.Execute(c);
-
-    public Task<bool> OnUpdate(IPulseContext c)
+    protected override async Task Process(IPulseContext c)
     {
         var delay = Interval.Read(c);
         var dateTimeNow = DateTime.Now;
@@ -28,9 +26,8 @@ public sealed class FireOnIntervalNode : Node, IActiveUpdateNode
         if (shouldContinue)
         {
             LastUpdateStore.Write(dateTimeNow, c);
-            return Task.FromResult(true);
+            await Next.Execute(c);
+            return;
         }
-
-        return Task.FromResult(false);
     }
 }
