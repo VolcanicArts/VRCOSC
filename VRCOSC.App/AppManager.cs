@@ -250,7 +250,7 @@ internal class AppManager : IVRCClientEventHandler
             return;
         }
 
-        SendToAllParameter(TemplatedVRChatParameter.TemplateAsRegex(pattern), value);
+        SendToAllParameter(new Regex(OSCPatterns.ToPattern(pattern)), value);
     }
 
     public void SendToAllParameter<T>(Regex pattern, T value)

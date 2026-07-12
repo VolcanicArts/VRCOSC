@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
 
 namespace VRCOSC.App.SDK.Parameters;
@@ -103,8 +104,6 @@ public partial record VRChatParameter
 
 public record TemplatedVRChatParameter : VRChatParameter
 {
-    public static Regex TemplateAsRegex(string template) => new($"^(?:{Regex.Escape(template).Replace(@"\*", @"(\S*?)")})$");
-
     private Regex templateRegex { get; }
 
     private List<Wildcard> wildcards { get; } = [];
@@ -119,7 +118,7 @@ public record TemplatedVRChatParameter : VRChatParameter
     internal TemplatedVRChatParameter(string template, VRChatParameter other)
         : base(other)
     {
-        templateRegex = TemplateAsRegex(template);
+        templateRegex = new Regex(OSCPatterns.ToPattern(template));
         decodeWildcards();
     }
 

@@ -2,8 +2,8 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Parameters;
 using VRCOSC.App.Utils;
@@ -14,8 +14,9 @@ namespace VRCOSC.App.Nodes.Types.Parameters;
 [NodeGenerics(typeof(bool), typeof(int), typeof(float))]
 public sealed class SendParameterNode<T> : ActionNode where T : unmanaged
 {
-    public GlobalStore<string> PrevName = new();
-    public GlobalStore<Regex> CurrPattern = new();
+    private AppManager appManager => field ??= AppManager.GetInstance();
+
+    private readonly RegexCache pattern = new();
 
     public ValueInput<string> Name = new();
     public ValueInput<T> Value = new();
@@ -25,16 +26,7 @@ public sealed class SendParameterNode<T> : ActionNode where T : unmanaged
         var name = Name.Read(c);
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        var pattern = CurrPattern.Read(c);
-
-        if (name != PrevName.Read(c))
-        {
-            pattern = TemplatedVRChatParameter.TemplateAsRegex(name);
-            CurrPattern.Write(pattern, c);
-            PrevName.Write(name, c);
-        }
-
-        AppManager.GetInstance().SendToAllParameter(pattern, Value.Read(c));
+        appManager.SendToAllParameter(pattern.Get(OSCPatterns.ToPattern(name)), Value.Read(c));
     }
 }
 
@@ -44,8 +36,10 @@ public sealed class DriveParameterNode<T> : Node, IUpdateNode where T : unmanage
 {
     public int UpdateOffset => 2;
 
-    public GlobalStore<string> PrevName = new();
-    public GlobalStore<Regex> CurrPattern = new();
+    private AppManager appManager => field ??= AppManager.GetInstance();
+
+    private readonly RegexCache pattern = new();
+
     public GlobalStore<T> CurrValue = new();
 
     [InputMode(InputModes.Inline)]
@@ -64,16 +58,7 @@ public sealed class DriveParameterNode<T> : Node, IUpdateNode where T : unmanage
         var name = Name.Read(c);
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        var pattern = CurrPattern.Read(c);
-
-        if (name != PrevName.Read(c))
-        {
-            pattern = TemplatedVRChatParameter.TemplateAsRegex(name);
-            CurrPattern.Write(pattern, c);
-            PrevName.Write(name, c);
-        }
-
-        AppManager.GetInstance().SendToAllParameter(pattern, CurrValue.Read(c));
+        appManager.SendToAllParameter(pattern.Get(OSCPatterns.ToPattern(name)), CurrValue.Read(c));
     }
 }
 
@@ -144,8 +129,9 @@ public sealed class ParameterSourceNode<T>() : ValueSourceNode<T>("Value") where
 {
     public override int UpdateOffset => -2;
 
-    public GlobalStore<string> PrevName = new();
-    public GlobalStore<Regex> CurrPattern = new();
+    private AppManager appManager => field ??= AppManager.GetInstance();
+
+    private readonly RegexCache pattern = new();
 
     [InputMode(InputModes.Inline)]
     public ValueInput<string> Name = new();
@@ -153,30 +139,10 @@ public sealed class ParameterSourceNode<T>() : ValueSourceNode<T>("Value") where
     protected override T ComputeValue(IPulseContext c)
     {
         var name = Name.Read(c);
-        if (string.IsNullOrWhiteSpace(name)) return default;
 
-        var pattern = CurrPattern.Read(c);
-
-        if (name != PrevName.Read(c))
-        {
-            pattern = TemplatedVRChatParameter.TemplateAsRegex(name);
-            CurrPattern.Write(pattern, c);
-            PrevName.Write(name, c);
-        }
-
-        return AppManager.GetInstance().GetParameterValue<T>(pattern);
-    }
-}
-
-[Node("Read Parameter")]
-[NodeGenerics(typeof(bool), typeof(int), typeof(float))]
-public sealed class ReadParameterNode<T>() : ActionValueTransformNode<string?, T>("Name", "Value") where T : unmanaged
-{
-    protected override T TransformValue(string? name, IPulseContext c)
-    {
-        if (string.IsNullOrEmpty(name)) return default;
-
-        return AppManager.GetInstance().GetParameter<T>(name)?.GetValue<T>() ?? default;
+        return string.IsNullOrWhiteSpace(name)
+            ? default
+            : appManager.GetParameterValue<T>(pattern.Get(OSCPatterns.ToPattern(name)));
     }
 }
 
@@ -185,12 +151,13 @@ public sealed class PhysboneParameterSourceNode : Node, IContinuousNode
 {
     public int UpdateOffset => -2;
 
-    public GlobalStore<string> PrevName = new();
-    public GlobalStore<Regex> GrabbedCurrPattern = new();
-    public GlobalStore<Regex> PosedCurrPattern = new();
-    public GlobalStore<Regex> AngleCurrPattern = new();
-    public GlobalStore<Regex> StretchCurrPattern = new();
-    public GlobalStore<Regex> SquishCurrPattern = new();
+    private AppManager appManager => field ??= AppManager.GetInstance();
+
+    private readonly RegexCache grabbedPattern = new();
+    private readonly RegexCache posedPattern = new();
+    private readonly RegexCache anglePattern = new();
+    private readonly RegexCache stretchPattern = new();
+    private readonly RegexCache squishPattern = new();
 
     [InputMode(InputModes.Inline)]
     public ValueInput<string> Name = new();
@@ -206,33 +173,11 @@ public sealed class PhysboneParameterSourceNode : Node, IContinuousNode
         var name = Name.Read(c);
         if (string.IsNullOrWhiteSpace(name)) return Task.CompletedTask;
 
-        var grabbedPattern = GrabbedCurrPattern.Read(c);
-        var posedPattern = PosedCurrPattern.Read(c);
-        var anglePattern = AngleCurrPattern.Read(c);
-        var stretchPattern = StretchCurrPattern.Read(c);
-        var squishPattern = SquishCurrPattern.Read(c);
-
-        if (name != PrevName.Read(c))
-        {
-            Logger.Log("Invalidating parameter name", LoggingTarget.Information);
-            grabbedPattern = TemplatedVRChatParameter.TemplateAsRegex($"{name}_IsGrabbed");
-            posedPattern = TemplatedVRChatParameter.TemplateAsRegex($"{name}_IsPosed");
-            anglePattern = TemplatedVRChatParameter.TemplateAsRegex($"{name}_Angle");
-            stretchPattern = TemplatedVRChatParameter.TemplateAsRegex($"{name}_Stretch");
-            squishPattern = TemplatedVRChatParameter.TemplateAsRegex($"{name}_Squish");
-            GrabbedCurrPattern.Write(grabbedPattern, c);
-            PosedCurrPattern.Write(posedPattern, c);
-            AngleCurrPattern.Write(anglePattern, c);
-            StretchCurrPattern.Write(stretchPattern, c);
-            SquishCurrPattern.Write(squishPattern, c);
-            PrevName.Write(name, c);
-        }
-
-        Grabbed.Write(AppManager.GetInstance().GetParameterValue<bool>(grabbedPattern), c);
-        Posed.Write(AppManager.GetInstance().GetParameterValue<bool>(posedPattern), c);
-        Angle.Write(AppManager.GetInstance().GetParameterValue<float>(anglePattern), c);
-        Stretch.Write(AppManager.GetInstance().GetParameterValue<float>(stretchPattern), c);
-        Squish.Write(AppManager.GetInstance().GetParameterValue<float>(squishPattern), c);
+        Grabbed.Write(appManager.GetParameterValue<bool>(grabbedPattern.Get(OSCPatterns.ToPattern($"{name}_IsGrabbed"))), c);
+        Posed.Write(appManager.GetParameterValue<bool>(posedPattern.Get(OSCPatterns.ToPattern($"{name}_IsPosed"))), c);
+        Angle.Write(appManager.GetParameterValue<float>(anglePattern.Get(OSCPatterns.ToPattern($"{name}_Angle"))), c);
+        Stretch.Write(appManager.GetParameterValue<float>(stretchPattern.Get(OSCPatterns.ToPattern($"{name}_Stretch"))), c);
+        Squish.Write(appManager.GetParameterValue<float>(squishPattern.Get(OSCPatterns.ToPattern($"{name}_Squish"))), c);
         return Task.CompletedTask;
     }
 }
@@ -242,10 +187,11 @@ public sealed class RaycastParameterSourceNode : Node, IContinuousNode
 {
     public int UpdateOffset => -2;
 
-    public GlobalStore<string> PrevName = new();
-    public GlobalStore<Regex> HitCurrPattern = new();
-    public GlobalStore<Regex> RatioCurrPattern = new();
-    public GlobalStore<Regex> DistanceCurrPattern = new();
+    private AppManager appManager => field ??= AppManager.GetInstance();
+
+    private readonly RegexCache hitPattern = new();
+    private readonly RegexCache ratioPattern = new();
+    private readonly RegexCache distancePattern = new();
 
     [InputMode(InputModes.Inline)]
     public ValueInput<string> Name = new();
@@ -259,24 +205,9 @@ public sealed class RaycastParameterSourceNode : Node, IContinuousNode
         var name = Name.Read(c);
         if (string.IsNullOrWhiteSpace(name)) return Task.CompletedTask;
 
-        var hitPattern = HitCurrPattern.Read(c);
-        var ratioPattern = RatioCurrPattern.Read(c);
-        var distancePattern = DistanceCurrPattern.Read(c);
-
-        if (name != PrevName.Read(c))
-        {
-            hitPattern = TemplatedVRChatParameter.TemplateAsRegex($"{name}_Hit");
-            ratioPattern = TemplatedVRChatParameter.TemplateAsRegex($"{name}_Ratio");
-            distancePattern = TemplatedVRChatParameter.TemplateAsRegex($"{name}_Distance");
-            HitCurrPattern.Write(hitPattern, c);
-            RatioCurrPattern.Write(ratioPattern, c);
-            DistanceCurrPattern.Write(distancePattern, c);
-            PrevName.Write(name, c);
-        }
-
-        Hit.Write(AppManager.GetInstance().GetParameterValue<bool>(hitPattern), c);
-        Ratio.Write(AppManager.GetInstance().GetParameterValue<float>(ratioPattern), c);
-        Distance.Write(AppManager.GetInstance().GetParameterValue<float>(distancePattern), c);
+        Hit.Write(appManager.GetParameterValue<bool>(hitPattern.Get(OSCPatterns.ToPattern($"{name}_Hit"))), c);
+        Ratio.Write(appManager.GetParameterValue<float>(ratioPattern.Get(OSCPatterns.ToPattern($"{name}_Ratio"))), c);
+        Distance.Write(appManager.GetParameterValue<float>(distancePattern.Get(OSCPatterns.ToPattern($"{name}_Distance"))), c);
         return Task.CompletedTask;
     }
 }
@@ -285,6 +216,10 @@ public sealed class RaycastParameterSourceNode : Node, IContinuousNode
 public class WildcardParameterSourceNode<T, W0> : Node, IContinuousNode where T : unmanaged
 {
     public int UpdateOffset => -2;
+
+    private AppManager appManager => field ??= AppManager.GetInstance();
+
+    private readonly RegexCache pattern = new();
 
     [InputMode(InputModes.Inline)]
     public ValueInput<string> Name = new();
@@ -297,11 +232,8 @@ public class WildcardParameterSourceNode<T, W0> : Node, IContinuousNode where T 
         var name = Name.Read(c);
         if (string.IsNullOrWhiteSpace(name)) return Task.CompletedTask;
 
-        var textRegex = TemplatedVRChatParameter.TemplateAsRegex(name);
-
-        var parameter = AppManager.GetInstance().GetTemplatedParameter<T>(textRegex);
+        var parameter = appManager.GetTemplatedParameter<T>(pattern.Get(OSCPatterns.ToPattern(name)));
         if (parameter is null) return Task.CompletedTask;
-
         if (!ValidateWildcards(parameter)) return Task.CompletedTask;
 
         Value.Write(parameter.GetValue<T>(), c);

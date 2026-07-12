@@ -18,6 +18,7 @@ using VRCOSC.App.ChatBox.Clips.Variables.Instances;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Nodes;
 using VRCOSC.App.OpenVR;
+using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Handlers;
 using VRCOSC.App.SDK.Modules.Attributes.Settings;
@@ -234,7 +235,7 @@ public abstract class Module
 
             var validReadParameters = Parameters.Where(parameter => !string.IsNullOrWhiteSpace(parameter.Value.Name.Value) && parameter.Value.Mode.HasFlag(ParameterMode.Read) && parameter.Value.Enabled.Value).ToList();
             readParameters.AddRange(validReadParameters);
-            parameterNameRegex.AddRange(validReadParameters.Select(pair => new KeyValuePair<Enum, Regex>(pair.Key, TemplatedVRChatParameter.TemplateAsRegex(pair.Value.Name.Value))));
+            parameterNameRegex.AddRange(validReadParameters.Select(pair => new KeyValuePair<Enum, Regex>(pair.Key, new Regex(OSCPatterns.ToPattern(pair.Value.Name.Value)))));
 
             loadPersistentProperties();
 
