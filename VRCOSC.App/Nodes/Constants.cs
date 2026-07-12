@@ -12,8 +12,6 @@ public static class NodeConstants
 {
     public static readonly Type[] NUMERIC_TYPES = new[]
     {
-        typeof(byte),
-        typeof(sbyte),
         typeof(short),
         typeof(ushort),
         typeof(int),
@@ -27,6 +25,8 @@ public static class NodeConstants
 
     public static readonly Type[] TEXTBOX_TYPES = new[]
     {
+        typeof(byte),
+        typeof(sbyte),
         typeof(string)
     }.Concat(NUMERIC_TYPES).ToArray();
 
