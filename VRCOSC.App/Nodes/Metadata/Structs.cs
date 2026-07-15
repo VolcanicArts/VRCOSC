@@ -75,6 +75,7 @@ public interface INodeSharedMetadata
     bool NoCancel { get; }
     bool IsContinuous { get; }
     bool IsActiveUpdate { get; }
+    bool IsUpdate { get; }
 
     int FlowOutputCount { get; }
     int FlowInputCount { get; }
@@ -91,6 +92,7 @@ public interface INodeSharedMetadata
     bool IsFlow { get; }
     bool IsValue { get; }
     bool IsSelfUpdating { get; }
+    bool IsOnGraphUpdate { get; }
     bool IsValueInputTrigger { get; }
     bool IsFlowOutputOnly { get; }
     bool IsAnyTrigger { get; }
@@ -117,6 +119,7 @@ public sealed class NodeSharedMetadata : INodeSharedMetadata
     public required bool NoCancel { get; init; }
     public required bool IsContinuous { get; init; }
     public required bool IsActiveUpdate { get; init; }
+    public required bool IsUpdate { get; init; }
 
     public int FlowOutputCount => Elements[ConnectionPoint.FlowOutput].Length;
     public int FlowInputCount => Elements[ConnectionPoint.FlowInput].Length;
@@ -133,6 +136,7 @@ public sealed class NodeSharedMetadata : INodeSharedMetadata
     public bool IsFlow => IsFlowInput || IsFlowOutput;
     public bool IsValue => IsValueInput || IsValueOutput;
     public bool IsSelfUpdating => IsContinuous || IsActiveUpdate;
+    public bool IsOnGraphUpdate => IsSelfUpdating || IsUpdate;
     public bool IsValueInputTrigger => !IsSelfUpdating && ((!IsFlowInput && IsFlowOutput && IsValueInput) || (!IsFlow && IsValueInput && !IsValueOutput)) && !HasAllInlineOnly;
     public bool IsFlowOutputOnly => !IsValue && !IsFlowInput && IsFlowOutput;
     public bool IsAnyTrigger => IsValueInputTrigger || IsFlowOutputOnly;

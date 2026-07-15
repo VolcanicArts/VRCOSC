@@ -118,29 +118,32 @@
         <DataTemplate x:Key="NodeHeaderTemplate" DataType="{x:Type viewModels:NodeViewModel}">
             <Border Background="{DynamicResource CBackground1}"
                     VerticalAlignment="Top"
-                    IsHitTestVisible="False"
                     Padding="5 2 5 4"
                     CornerRadius="10 10 0 0">
-                <Grid RowDefinitions="Auto,Auto"
-                      Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
-                    <TextBlock Grid.Row="0"
-                               Foreground="{DynamicResource CForeground1}"
-                               Text="{Binding DisplayName}"
-                               FontSize="14"
-                               Padding="10 0"
-                               FontWeight="Regular"
-                               VerticalAlignment="Top"
-                               TextWrapping="WrapWithOverflow"
-                               TextAlignment="Center" />
-                    <TextBlock Grid.Row="1"
-                               Visibility="{Binding GenericTypesToString, Converter={StaticResource StringIsNotNullOrEmptyVisibilityConverter}, Mode=OneTime}"
-                               Foreground="{DynamicResource CForeground3}"
-                               Text="{Binding GenericTypesToString, Mode=OneTime}"
-                               FontSize="10"
-                               FontWeight="Regular"
-                               VerticalAlignment="Top"
-                               TextWrapping="WrapWithOverflow"
-                               TextAlignment="Center" />
+                <Grid Visibility="{Binding ShowDetails.Value, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Converter={StaticResource BoolToVisibilityConverterHidden}}">
+                    <Grid RowDefinitions="Auto,Auto">
+                        <TextBlock Grid.Row="0"
+                                   Foreground="{DynamicResource CForeground1}"
+                                   Text="{Binding DisplayName}"
+                                   FontSize="14"
+                                   Padding="10 0"
+                                   FontWeight="Regular"
+                                   VerticalAlignment="Top"
+                                   TextWrapping="WrapWithOverflow"
+                                   TextAlignment="Center" />
+                        <TextBlock Grid.Row="1"
+                                   Visibility="{Binding GenericTypesToString, Converter={StaticResource StringIsNotNullOrEmptyVisibilityConverter}, Mode=OneTime}"
+                                   Foreground="{DynamicResource CForeground3}"
+                                   Text="{Binding GenericTypesToString, Mode=OneTime}"
+                                   FontSize="10"
+                                   FontWeight="Regular"
+                                   VerticalAlignment="Top"
+                                   TextWrapping="WrapWithOverflow"
+                                   TextAlignment="Center" />
+                    </Grid>
+                    <fa6:ImageAwesome
+                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 3 0 0" Width="10" Height="10"
+                        Visibility="{Binding Node.Metadata.Shared.IsOnGraphUpdate, Mode=OneTime, Converter={StaticResource BoolToVisibilityConverter}}" Icon="Solid_Rotate" PrimaryColor="{DynamicResource CBlueL}" ToolTip="This node is continuously updating"/>
                 </Grid>
             </Border>
         </DataTemplate>

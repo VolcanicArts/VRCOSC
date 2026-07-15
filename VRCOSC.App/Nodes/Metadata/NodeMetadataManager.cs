@@ -152,6 +152,7 @@ public static class NodeMetadataManager
         var noCancel = nodeType.HasCustomAttribute<NodeNoCancelAttribute>();
         var isContinuous = nodeType.GetInterfaces().Contains(typeof(IContinuousNode));
         var isActiveUpdate = nodeType.GetInterfaces().Contains(typeof(IActiveUpdateNode));
+        var isUpdate = nodeType.GetInterfaces().Contains(typeof(IUpdateNode));
 
         var moduleNodeInterface = nodeType.GetInterfaces().SingleOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IModuleNode<>));
 
@@ -174,7 +175,8 @@ public static class NodeMetadataManager
             IsCollapsed = collapsedAttribute is not null,
             NoCancel = noCancel,
             IsContinuous = isContinuous,
-            IsActiveUpdate = isActiveUpdate
+            IsActiveUpdate = isActiveUpdate,
+            IsUpdate = isUpdate
         };
 
         sharedMetadata[nodeType] = metadata;
