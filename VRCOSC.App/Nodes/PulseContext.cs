@@ -29,6 +29,7 @@ public interface IPulseContext
     internal bool IsSource(IFlowInputList flowInputList, int slotIndex);
     internal T Read<T>(IValueInput<T> valueInput);
     internal IReadOnlyList<T> Read<T>(IValueInputList<T> valueInputList);
+    internal T Read<T>(IValueInputList<T> valueInputList, int slotIndex);
     internal void Write<T>(IValueOutput<T> valueOutput, T value);
     internal void Write<T>(IValueOutputList<T> valueOutputList, int slotIndex, T value);
     internal void Write<T>(IGlobalStore<T> store, T value);
@@ -214,6 +215,25 @@ public class PulseContext : IPulseContext
         }
 
         return values;
+    }
+
+    public T Read<T>(IValueInputList<T> valueInputList, int slotIndex)
+    {
+        var currentId = Peek();
+        var slot = valueInputList.Metadata.Shared.Slot;
+
+        T value = default!;
+
+        var connectionResult = _graph.FindConnectionFromValueInput(currentId, slot, slotIndex);
+
+        if (connectionResult.IsSuccess)
+        {
+            var connection = connectionResult.Value;
+            var result = tryReadValue<T>(connection.OutputId, connection.OutputSlot, connection.OutputSlotIndex, out var localValue);
+            value = result ? localValue : default!;
+        }
+
+        return value;
     }
 
     public void Write<T>(IValueOutput<T> valueOutput, T value) => writeValue(Peek(), valueOutput.Metadata.Shared.Slot, 0, value);

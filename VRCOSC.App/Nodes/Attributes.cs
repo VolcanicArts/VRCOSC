@@ -239,6 +239,7 @@ public class ValueInputList<T>([CallerMemberName] string name = "") : ValueEleme
     public int Count => Metadata.Size;
 
     public IReadOnlyList<T> Read(IPulseContext c) => c.Read(this);
+    public T Read(int index, IPulseContext c) => c.Read(this, index);
 }
 
 public class ValueOutput<T>([CallerMemberName] string name = "") : ValueElement<T>(name), IValueOutput<T>

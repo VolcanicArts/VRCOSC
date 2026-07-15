@@ -30,13 +30,12 @@ public sealed class MultiplexNode<T> : Node
 
     protected override Task Process(IPulseContext c)
     {
+        InputCount.Write(Inputs.Count, c);
+
         var index = Index.Read(c);
-        var inputs = Inputs.Read(c);
-        InputCount.Write(inputs.Count, c);
+        if (index >= Inputs.Count || index < 0) return Task.CompletedTask;
 
-        if (index >= inputs.Count || index < 0) return Task.CompletedTask;
-
-        Element.Write(inputs[index], c);
+        Element.Write(Inputs.Read(index, c), c);
         return Task.CompletedTask;
     }
 }
