@@ -409,11 +409,11 @@ public partial class ChatBoxView
             Keyboard.ClearFocus();
     }
 
-    private async void ImportButton_OnClick(object sender, RoutedEventArgs e)
+    private void ImportButton_OnClick(object sender, RoutedEventArgs e)
     {
         try
         {
-            var filePath = await Platform.PickFileAsync(".json");
+            var filePath = Platform.PickFileJson();
             if (filePath is null) return;
 
             ChatBoxManager.GetInstance().Deserialise(filePath);

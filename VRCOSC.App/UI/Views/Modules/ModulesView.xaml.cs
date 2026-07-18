@@ -32,14 +32,14 @@ public partial class ModulesView
         prefabsWindowManager = new WindowManager(this);
     }
 
-    private async void ImportButton_OnClick(object sender, RoutedEventArgs e)
+    private void ImportButton_OnClick(object sender, RoutedEventArgs e)
     {
         try
         {
             var element = (FrameworkElement)sender;
             var module = (Module)element.Tag;
 
-            var filePath = await Platform.PickFileAsync(".json");
+            var filePath = Platform.PickFileJson();
             if (filePath is null) return;
 
             module.ImportConfig(filePath).Forget();

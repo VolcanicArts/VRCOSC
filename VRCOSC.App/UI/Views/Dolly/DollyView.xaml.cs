@@ -84,11 +84,11 @@ public partial class DollyView
         }
     }
 
-    private async void ImportFile_OnClick(object sender, RoutedEventArgs e)
+    private void ImportFile_OnClick(object sender, RoutedEventArgs e)
     {
         try
         {
-            var filePath = await Platform.PickFileAsync(".json");
+            var filePath = Platform.PickFileJson();
             if (filePath is null) return;
 
             DollyManager.GetInstance().ImportFile(filePath);

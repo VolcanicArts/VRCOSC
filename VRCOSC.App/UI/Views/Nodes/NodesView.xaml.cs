@@ -86,11 +86,11 @@ public partial class NodesView
         showNodeGraph(newGraph);
     }
 
-    private async void ImportGraph_OnClick(object sender, RoutedEventArgs e)
+    private void ImportGraph_OnClick(object sender, RoutedEventArgs e)
     {
         try
         {
-            var filePath = await Platform.PickFileAsync(".json");
+            var filePath = Platform.PickFileJson();
             if (filePath is null) return;
 
             var graph = NodeManager.GetInstance().ImportGraph(filePath);
@@ -164,11 +164,11 @@ public partial class NodesView
         NodeManager.GetInstance().ShowExternally(graph);
     }
 
-    private async void ImportPreset_OnClick(object sender, RoutedEventArgs e)
+    private void ImportPreset_OnClick(object sender, RoutedEventArgs e)
     {
         try
         {
-            var filePath = await Platform.PickFileAsync(".json");
+            var filePath = Platform.PickFileJson();
             if (filePath is null) return;
 
             NodeManager.GetInstance().ImportPreset(filePath);
@@ -176,7 +176,7 @@ public partial class NodesView
             // we need to refresh the context menu to add the imported preset
             foreach (var nodeGraph in GraphsSource.Where(g => g.UILoaded))
             {
-                await nodeGraph.MarkDirtyAsync();
+                nodeGraph.MarkDirty().Forget();
             }
         }
         catch (Exception ex)

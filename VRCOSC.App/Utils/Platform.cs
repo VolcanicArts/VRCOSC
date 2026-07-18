@@ -4,44 +4,42 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
-using Windows.Storage.Pickers;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Graphics.Dwm;
 using Windows.Win32.Graphics.Gdi;
 using Windows.Win32.UI.Shell.Common;
-using WinRT.Interop;
+using Microsoft.Win32;
 
 namespace VRCOSC.App.Utils;
 
 public static class Platform
 {
-    public static async Task<string?> PickFileAsync(string filter)
+    public static string? PickFileJson() => PickFile("JSON|*.json");
+
+    public static string? PickFile(string filter)
     {
         try
         {
-            var picker = new FileOpenPicker
+            var downloads = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+
+            var dialog = new OpenFileDialog
             {
-                SuggestedStartLocation = PickerLocationId.Downloads,
-                FileTypeFilter = { filter }
+                Filter = filter,
+                InitialDirectory = downloads
             };
 
-            var mainWindow = Application.Current.MainWindow;
-            if (mainWindow is null) return string.Empty;
+            var result = dialog.ShowDialog(Application.Current.MainWindow);
+            if (!result.HasValue) throw new InvalidOperationException("Unable to open file picker");
 
-            var mainWindowHandle = new WindowInteropHelper(mainWindow).EnsureHandle();
-
-            InitializeWithWindow.Initialize(picker, mainWindowHandle);
-
-            return (await picker.PickSingleFileAsync())?.Path;
+            return result.Value ? dialog.FileName : null;
         }
         catch (Exception e)
         {
-            ExceptionHandler.Handle(e, $"{nameof(PickFileAsync)} has experienced an issue");
-            return string.Empty;
+            ExceptionHandler.Handle(e, $"{nameof(PickFile)} has experienced an issue");
+            return null;
         }
     }
 
