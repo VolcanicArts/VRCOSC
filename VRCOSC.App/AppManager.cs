@@ -563,11 +563,11 @@ internal class AppManager : IVRCClientEventHandler
 
     private async Task startAsync()
     {
-        if (ModuleManager.GetInstance().GetEnabledModulesOfType<ISpeechHandler>().Any() && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.SpeechEnabled))
+        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.SpeechEnabled))
         {
             if (SettingsManager.GetInstance().GetValue<SpeechModel>(VRCOSCSetting.SpeechModel) == SpeechModel.Custom && string.IsNullOrWhiteSpace(SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SpeechModelPath)))
             {
-                var result = MessageBox.Show("You have enabled modules that require the speech engine.\nWould you like to automatically set it up?", "Set Up Speech Engine?", MessageBoxButton.YesNo);
+                var result = MessageBox.Show("You have enabled the speech engine with no model installed.\nWould you like to automatically set it up?", "Set Up Speech Engine?", MessageBoxButton.YesNo);
 
                 if (result == MessageBoxResult.Yes)
                 {
@@ -580,7 +580,7 @@ internal class AppManager : IVRCClientEventHandler
             }
         }
 
-        if (ModuleManager.GetInstance().GetEnabledModulesOfType<ISpeechHandler>().Any() && SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.SpeechEnabled))
+        if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.SpeechEnabled))
         {
             SpeechEngine.Initialise();
         }
