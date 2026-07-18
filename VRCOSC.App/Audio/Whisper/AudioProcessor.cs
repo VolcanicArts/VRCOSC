@@ -15,7 +15,8 @@ namespace VRCOSC.App.Audio.Whisper;
 internal class AudioProcessor
 {
     private readonly AudioCapture? audioCapture;
-    private WhisperProcessor? whisper;
+    private WhisperFactory? factory;
+    private WhisperProcessor? processor;
 
     private const int default_samples_to_check = 24000; // sample rate is 16000 so check the last 1.5 seconds of audio
 
@@ -50,7 +51,8 @@ internal class AudioProcessor
         try
         {
             var options = WhisperFactoryOptions.Default with { GpuDevice = SettingsManager.GetInstance().GetValue<int>(VRCOSCSetting.SpeechGPU) };
-            var builder = WhisperFactory.FromPath(modelFilePath, options).CreateBuilder();
+            factory = WhisperFactory.FromPath(modelFilePath, options);
+            var builder = factory.CreateBuilder();
 
             builder = builder.WithProbabilities()
                              .WithThreads(8)
@@ -69,11 +71,11 @@ internal class AudioProcessor
             // WithLanguageDetection
             // WithLanguage(targetLanguage)
 
-            whisper = builder.Build();
+            processor = builder.Build();
         }
         catch (Exception e)
         {
-            whisper = null;
+            processor = null;
             ExceptionHandler.Handle(e, "The Whisper model path is empty or incorrect. Please go into the app's speech settings and select a model");
         }
     }
@@ -85,7 +87,7 @@ internal class AudioProcessor
 
         buildWhisperProcessor();
 
-        if (whisper is null || audioCapture is null) return;
+        if (processor is null || audioCapture is null) return;
 
         audioCapture.ClearBuffer();
         audioCapture.StartCapture();
@@ -95,10 +97,16 @@ internal class AudioProcessor
     {
         audioCapture?.StopCapture();
 
-        if (whisper is not null)
+        if (processor is not null)
         {
-            await whisper.DisposeAsync();
-            whisper = null;
+            await processor.DisposeAsync();
+            processor = null;
+        }
+
+        if (factory is not null)
+        {
+            factory.Dispose();
+            factory = null;
         }
     }
 
@@ -185,11 +193,11 @@ internal class AudioProcessor
     {
         try
         {
-            if (whisper is null) return null;
+            if (processor is null) return null;
 
             var segmentData = new List<SegmentData>();
 
-            await foreach (var result in whisper.ProcessAsync(data))
+            await foreach (var result in processor.ProcessAsync(data))
             {
                 segmentData.Add(result);
             }
