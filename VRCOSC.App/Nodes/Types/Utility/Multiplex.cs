@@ -1,6 +1,8 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Utility;
@@ -15,6 +17,23 @@ public sealed class ConditionalNode<T> : ValueComputeNode<T>
     public ValueInput<T> False = new();
 
     protected override T ComputeValue(IPulseContext c) => Condition.Read(c) ? True.Read(c) : False.Read(c);
+}
+
+[Node("Value Map", "Utility")]
+public sealed class ValueMapNode<TIn, TOut> : ValueComputeNode<TOut>
+{
+    [InputMode(InputModes.Connection)]
+    public ValueInput<TIn> Value = new();
+
+    public ValueInputList<KeyValuePair<TIn, TOut>> Pairs = new();
+
+    protected override TOut ComputeValue(IPulseContext c)
+    {
+        var value = Value.Read(c);
+        var pairs = Pairs.Read(c);
+        var result = pairs.FirstOrDefault(kvp => EqualityComparer<TIn>.Default.Equals(kvp.Key, value));
+        return result.Value;
+    }
 }
 
 [Node("Multiplex", "Utility")]
