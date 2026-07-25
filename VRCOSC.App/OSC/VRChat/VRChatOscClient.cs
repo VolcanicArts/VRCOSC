@@ -162,13 +162,38 @@ public class VRChatOSCClient
         {
             var rawName = node.FullPath[(VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS.Length + 1)..];
 
-            VRChatParameter? parameter = node.OscType switch
+            VRChatParameter? parameter;
+
+            switch (node.OscType)
             {
-                "f" => new VRChatParameter(rawName, (float)(double)node.Value[0]),
-                "i" => new VRChatParameter(rawName, (int)(long)node.Value[0]),
-                "T" => new VRChatParameter(rawName, (bool)node.Value[0]), // T gets returned for true and false
-                _ => null
-            };
+                case "f":
+                {
+                    var value = node.Value[0];
+                    var parameterValue = value is double valueDouble ? (float)valueDouble : 0f;
+                    parameter = new VRChatParameter(rawName, parameterValue);
+                    break;
+                }
+
+                case "i":
+                {
+                    var value = node.Value[0];
+                    var parameterValue = value is long valueLong ? (int)valueLong : 0;
+                    parameter = new VRChatParameter(rawName, parameterValue);
+                    break;
+                }
+
+                case "T": // T gets returned for true and false
+                {
+                    var value = node.Value[0];
+                    var parameterValue = value is true;
+                    parameter = new VRChatParameter(rawName, parameterValue);
+                    break;
+                }
+
+                default:
+                    parameter = null;
+                    break;
+            }
 
             if (parameter is null)
                 Logger.Error(new Exception($"Invalid type '{node.OscType}' for OSCQuery node {node.FullPath}"), "Error encountered when auditing nodes");
