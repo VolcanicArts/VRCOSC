@@ -240,9 +240,6 @@ public class WindowsMediaProvider
 
             SessionStates.RemoveIf(pair => !cachedSessions.Select(cachedSession => cachedSession.SourceAppUserModelId).Contains(pair.Key));
 
-            if (focusedSessionId is not null && !SessionStates.ContainsKey(focusedSessionId))
-                SetFocusedSession(null);
-
             currentSessionId ??= sessionManager?.GetCurrentSession()?.SourceAppUserModelId;
 
             if (currentSessionId is not null && !SessionStates.ContainsKey(currentSessionId))
