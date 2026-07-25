@@ -71,18 +71,29 @@ public class PackageManager
 
     public async Task RefreshAllSources(bool forceRemoteGrab)
     {
-        if (forceRemoteGrab)
+        try
         {
-            Sources.Clear();
-            builtinSources.ForEach(source => Sources.Add(source));
-            await loadCommunityPackages();
+            if (forceRemoteGrab)
+            {
+                Sources.Clear();
+                builtinSources.ForEach(source => Sources.Add(source));
+                await loadCommunityPackages();
+            }
+
+            // TODO: Split into 5s/10s and request in those groups
+            var tasks = Sources.Select(packageSource => packageSource.Refresh(forceRemoteGrab));
+            await Task.WhenAll(tasks);
+
+            if (forceRemoteGrab) CacheExpireTime = DateTime.Now + TimeSpan.FromDays(1);
         }
-
-        // TODO: Split into 5s/10s and request in those groups
-        var tasks = Sources.Select(packageSource => packageSource.Refresh(forceRemoteGrab));
-        await Task.WhenAll(tasks);
-
-        if (forceRemoteGrab) CacheExpireTime = DateTime.Now + TimeSpan.FromDays(1);
+        catch (ApiException apiException)
+        {
+            ExceptionHandler.Handle(apiException, "GitHub is experiencing an outage. Unable to refresh package sources");
+        }
+        catch (TimeoutException timeoutException)
+        {
+            ExceptionHandler.Handle(timeoutException, "GitHub is experiencing an outage. Unable to refresh package sources");
+        }
     }
 
     public async Task UpdateAllInstalledPackages(bool includePreRelease)
