@@ -15,7 +15,7 @@ namespace VRCOSC.App.Nodes.Types.Web;
 
 public abstract class HttpNode(HttpMethod method) : TryActionAsyncNode
 {
-    public GlobalStore<HttpClient> ClientStore = new();
+    public GlobalStore<HttpClient> ClientStore = new(defaultValue: new HttpClient());
 
     public ValueInput<string> URL = new();
     public ValueInput<Dictionary<string, string>> Headers = new();
@@ -33,12 +33,6 @@ public abstract class HttpNode(HttpMethod method) : TryActionAsyncNode
         headers ??= new Dictionary<string, string>();
 
         var client = ClientStore.Read(c);
-
-        if (client is null)
-        {
-            client = new HttpClient();
-            ClientStore.Write(client, c);
-        }
 
         try
         {
