@@ -25,8 +25,7 @@ public class PiShockProvider
     };
 
     private readonly Lock sharedShockersLock = new();
-    private readonly string username;
-    private readonly string apiKey;
+    private readonly PiShockCredentials credentials;
 
     private WebSocketClient? webSocket;
     private TokenSourceTask? serialTask;
@@ -38,11 +37,7 @@ public class PiShockProvider
 
     public PiShockProvider(string username, string apiKey)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(username);
-        ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
-
-        this.username = username;
-        this.apiKey = apiKey;
+        credentials = new PiShockCredentials(username, apiKey);
     }
 
     public async Task<bool> Initialise()
@@ -51,17 +46,17 @@ public class PiShockProvider
 
         try
         {
-            var authResult = await populateUser();
-            if (!authResult) return false;
+            var userPopulated = await populateUser();
+            if (!userPopulated) return false;
 
             // TODO: Waiting for GET /Hub to go live
-            //var refreshClientResult = await populateHub();
-            //if (!refreshClientResult) return false;
+            //var hubPopulated = await populateHub();
+            //if (!hubPopulated) return false;
 
-            var shockersResult = await populateShockers();
-            if (!shockersResult.IsSuccess) return false;
+            var shockersPopulated = await populateShockers();
+            if (!shockersPopulated.IsSuccess) return false;
 
-            webSocket = new WebSocketClient($"{broker_endpoint}?Username={username}&ApiKey={apiKey}", 2000, 3);
+            webSocket = new WebSocketClient($"{broker_endpoint}?Username={credentials.Username}&ApiKey={credentials.ApiKey}", 2000, 3);
             webSocket.OnWsDisconnected += () => initialised = false;
             await webSocket.ConnectAsync();
 
@@ -112,7 +107,7 @@ public class PiShockProvider
 
     private async Task<bool> populateUser()
     {
-        var userResult = await PiShockRequestFactory.GetUser(username, apiKey);
+        var userResult = await PiShockRequestFactory.GetUser(credentials);
 
         if (!userResult.IsSuccess)
         {
@@ -128,7 +123,7 @@ public class PiShockProvider
 
     private async Task<bool> populateHub()
     {
-        var hubsResult = await PiShockRequestFactory.GetHubs(username, apiKey);
+        var hubsResult = await PiShockRequestFactory.GetHubs(credentials);
 
         if (!hubsResult.IsSuccess)
         {
@@ -137,14 +132,14 @@ public class PiShockProvider
             return false;
         }
 
-        var devices = hubsResult.Value;
-        hubId = devices[0].Id;
+        var hubs = hubsResult.Value;
+        hubId = hubs[0].Id;
         return true;
     }
 
     private async Task<Result> populateShockers()
     {
-        var shockersResult = await PiShockRequestFactory.GetShockers(username, apiKey);
+        var shockersResult = await PiShockRequestFactory.GetSharedShockers(credentials);
 
         if (!shockersResult.IsSuccess)
         {
@@ -326,7 +321,7 @@ public class PiShockProvider
 
         if (missingShareCodes.Length != 0)
         {
-            var claimed = await PiShockRequestFactory.ClaimSharecodes(username, apiKey, missingShareCodes);
+            var claimed = await PiShockRequestFactory.ClaimSharecodes(credentials, missingShareCodes);
             if (!claimed.IsSuccess) return new PiShockResult(false, claimed.Exception.ToString());
 
             var refreshResult = await populateShockers();
@@ -377,7 +372,7 @@ public class PiShockProvider
                         Type = "sc",
                         Warning = false,
                         Hold = false,
-                        Origin = $"{AppManager.APP_NAME}-{username}"
+                        Origin = $"{AppManager.APP_NAME}-{credentials.Username}"
                     }
                 }
             }).ToArray()
