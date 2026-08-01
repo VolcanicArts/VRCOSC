@@ -233,6 +233,7 @@ public abstract class ClipVariable
             ClipVariableCaseMode.Default => formattedValue,
             ClipVariableCaseMode.Lower => formattedValue.ToLower(CultureInfo.CurrentCulture),
             ClipVariableCaseMode.Upper => formattedValue.ToUpper(CultureInfo.CurrentCulture),
+            ClipVariableCaseMode.Title => CultureInfo.CurrentCulture.TextInfo.ToTitleCase(formattedValue),
             _ => throw new ArgumentOutOfRangeException()
         };
 
@@ -261,7 +262,8 @@ public enum ClipVariableCaseMode
 {
     Default,
     Lower,
-    Upper
+    Upper,
+    Title
 }
 
 public class RenderableClipVariableOption
