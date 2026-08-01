@@ -115,12 +115,12 @@ internal class ModuleManager : INotifyPropertyChanged
 
         await AppManager.GetInstance().StopAsync();
 
-        NodeManager.GetInstance().Unload();
         ChatBoxManager.GetInstance().Unload();
+        NodeManager.GetInstance().Unload();
         UnloadAllModules();
         LoadAllModules(filePathOverrides);
-        ChatBoxManager.GetInstance().Load();
         NodeManager.GetInstance().Load();
+        ChatBoxManager.GetInstance().Load();
     }
 
     public void UnloadAllModules()

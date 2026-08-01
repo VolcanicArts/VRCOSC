@@ -726,8 +726,8 @@ internal class AppManager : IVRCClientEventHandler
             await StopAsync();
         }
 
-        NodeManager.GetInstance().Unload();
         ChatBoxManager.GetInstance().Unload();
+        NodeManager.GetInstance().Unload();
         ModuleManager.GetInstance().UnloadAllModules();
         DollyManager.GetInstance().Unload();
 
@@ -735,8 +735,8 @@ internal class AppManager : IVRCClientEventHandler
 
         DollyManager.GetInstance().Load();
         ModuleManager.GetInstance().LoadAllModules();
-        ChatBoxManager.GetInstance().Load();
         NodeManager.GetInstance().Load();
+        ChatBoxManager.GetInstance().Load();
         RouterManager.GetInstance().Load();
 
         if (beforeState == AppManagerState.Started)
