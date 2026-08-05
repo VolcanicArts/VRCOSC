@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using VRCOSC.App.OpenVR;
 using VRCOSC.App.OpenVR.Device;
@@ -25,9 +26,10 @@ public class SteamVRManager
         if (!File.Exists(OpenVRManager.VRPATH_FILE)) return;
 
         var openVRPaths = JsonSerializer.Deserialize<OpenVRPaths>(File.ReadAllText(OpenVRManager.VRPATH_FILE));
-        if (openVRPaths is null) return;
 
-        var runtimePath = openVRPaths.Runtime[0];
+        var runtimePath = openVRPaths?.Runtime.FirstOrDefault(s => s.Contains("SteamVR"));
+        if (runtimePath is null) return;
+
         lighthouseConsoleExe = Path.Join(runtimePath, "tools", "lighthouse", "bin", "win64", "lighthouse_console.exe");
     }
 
