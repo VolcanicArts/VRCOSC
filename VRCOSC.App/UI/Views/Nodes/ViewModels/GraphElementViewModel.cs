@@ -1,6 +1,7 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -16,6 +17,8 @@ public abstract partial class GraphElementViewModel : ObservableObject
 
 public abstract partial class GridGraphElementViewModel : GraphElementViewModel
 {
+    public abstract Guid Id { get; }
+
     [ObservableProperty]
     private Point position;
 

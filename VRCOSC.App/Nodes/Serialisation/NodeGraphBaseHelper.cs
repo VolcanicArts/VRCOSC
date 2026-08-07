@@ -116,7 +116,7 @@ public static class NodeGraphBaseHelper
 
     public static IEnumerable<Guid> Deserialise(SerialisableNodeGraphBase baseElements, NodeGraph targetGraph, bool remapIds = false, Vector2 offset = new())
     {
-        var nodeIds = new List<Guid>();
+        var elementIds = new List<Guid>();
         var idMapping = new Dictionary<Guid, Guid>();
 
         foreach (var sV in baseElements.Variables)
@@ -162,7 +162,7 @@ public static class NodeGraphBaseHelper
                 if (!nodeResult.IsSuccess) continue;
 
                 var node = nodeResult.Value;
-                nodeIds.Add(node.Id);
+                elementIds.Add(node.Id);
                 node.Metadata.Position = sN.Position + offset;
 
                 if (sN.Sizes is not null)
@@ -270,26 +270,6 @@ public static class NodeGraphBaseHelper
             }
         }
 
-        foreach (var sG in baseElements.Groups)
-        {
-            try
-            {
-                var groupNodeIds = sG.Nodes.Select(nodeId => remapIds ? idMapping[nodeId] : nodeId).ToList();
-                groupNodeIds.RemoveAll(nodeId => !targetGraph.Elements.ContainsKey(nodeId));
-                if (groupNodeIds.Count == 0) continue;
-
-                var groupId = remapIds ? Guid.NewGuid() : sG.Id;
-                if (remapIds) idMapping[sG.Id] = groupId;
-
-                var group = targetGraph.AddGroup(groupNodeIds, groupId);
-                group.Title.Value = sG.Title;
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, "Error creating a group when deserialising");
-            }
-        }
-
         foreach (var sC in baseElements.Comments)
         {
             try
@@ -300,6 +280,7 @@ public static class NodeGraphBaseHelper
                 var comment = targetGraph.AddComment(commentId);
                 comment.Position.Value = sC.Position + offset;
                 comment.Text.Value = sC.Text;
+                elementIds.Add(commentId);
             }
             catch (Exception e)
             {
@@ -307,6 +288,29 @@ public static class NodeGraphBaseHelper
             }
         }
 
-        return nodeIds;
+        foreach (var sG in baseElements.Groups)
+        {
+            try
+            {
+                var groupNodeIds = sG.Nodes.Select(nodeId => remapIds ? idMapping[nodeId] : nodeId).ToList();
+                groupNodeIds.RemoveAll(nodeId => !targetGraph.Elements.ContainsKey(nodeId));
+                var groupCommentIds = sG.Comments.Select(commentId => remapIds ? idMapping[commentId] : commentId).ToList();
+                groupCommentIds.RemoveAll(commentId => !targetGraph.Elements.ContainsKey(commentId));
+
+                if (groupNodeIds.Count == 0 && groupCommentIds.Count == 0) continue;
+
+                var groupId = remapIds ? Guid.NewGuid() : sG.Id;
+                if (remapIds) idMapping[sG.Id] = groupId;
+
+                var group = targetGraph.AddGroup(groupNodeIds, groupCommentIds, groupId);
+                group.Title.Value = sG.Title;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e, "Error creating a group when deserialising");
+            }
+        }
+
+        return elementIds;
     }
 }

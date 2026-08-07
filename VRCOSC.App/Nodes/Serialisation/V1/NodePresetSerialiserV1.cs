@@ -2,7 +2,9 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.IO;
+using System.Linq;
 using Newtonsoft.Json;
+using VRCOSC.App.Nodes.Serialisation.V2;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
 
@@ -23,6 +25,13 @@ public class NodePresetSerialiserV1 : ProfiledSerialiser<NodePreset, Serialisabl
     {
         Reference.Id = data.Id;
         Reference.Name.Value = data.Name;
+
+        // Migration
+        Reference.Structure.Nodes = data.Nodes.Select(v1 => new SerialisableNode(v1)).ToList();
+        Reference.Structure.Connections = data.Connections.Select(v1 => new SerialisableConnection(v1, Reference.Structure.Nodes)).ToList();
+        Reference.Structure.Groups = data.Groups.Select(v1 => new SerialisableGroup(v1)).ToList();
+        Reference.Structure.Variables = data.Variables.Select(v1 => new SerialisableGraphVariable(v1)).ToList();
+
         return true;
     }
 }

@@ -209,7 +209,7 @@ public class NodeGraph : INotifyPropertyChanged
         var group = Groups.Values.SingleOrDefault(g => g.Nodes.Contains(id));
         group?.Nodes.Remove(id);
 
-        if (group?.Nodes.Count == 0)
+        if (group?.Nodes.Count == 0 && group.Comments.Count == 0)
         {
             Groups.TryRemove(group.Id, out _);
             graphChanges.RemovedGroups.Add(group);
@@ -223,10 +223,18 @@ public class NodeGraph : INotifyPropertyChanged
 
     public void RemoveComment(Guid id)
     {
-        if (Elements.TryRemove(id, out var comment))
+        if (!Elements.TryRemove(id, out var comment)) return;
+
+        var group = Groups.Values.SingleOrDefault(g => g.Comments.Contains(id));
+        group?.Comments.Remove(id);
+
+        if (group?.Nodes.Count == 0 && group.Comments.Count == 0)
         {
-            graphChanges.RemovedComments.Add((Comment)comment);
+            Groups.TryRemove(group.Id, out _);
+            graphChanges.RemovedGroups.Add(group);
         }
+
+        graphChanges.RemovedComments.Add((Comment)comment);
     }
 
     #region Connections
@@ -728,10 +736,11 @@ public class NodeGraph : INotifyPropertyChanged
 
     #endregion
 
-    public NodeGroup AddGroup(IEnumerable<Guid> initialNodes, Guid? id = null)
+    public NodeGroup AddGroup(IEnumerable<Guid> initialNodes, IEnumerable<Guid> initialComments, Guid? id = null)
     {
         var nodeGroup = new NodeGroup();
         nodeGroup.Nodes.AddRange(initialNodes);
+        nodeGroup.Comments.AddRange(initialComments);
         if (id.HasValue) nodeGroup.Id = id.Value;
         Groups.TryAdd(nodeGroup.Id, nodeGroup);
         graphChanges.AddedGroups.Add(nodeGroup);
@@ -973,7 +982,7 @@ public class NodeGraph : INotifyPropertyChanged
             {
                 Nodes = nodeIds.Select(id => new SerialisableNode((Node)Elements[id])).ToList(),
                 Connections = Connections.Where(c => nodeIds.Contains(c.OutputId) && nodeIds.Contains(c.InputId)).Select(c => new SerialisableConnection(c)).ToList(),
-                Groups = Groups.Values.Where(g => g.Nodes.All(nodeIds.Contains)).Select(g => new SerialisableNodeGroup(g)).ToList(),
+                Groups = Groups.Values.Where(g => g.Nodes.All(nodeIds.Contains)).Select(g => new SerialisableGroup(g)).ToList(),
                 Variables = nodeIds.Select(id => (Node)Elements[id]).OfType<IHasVariableReference>().Select(node => new SerialisableGraphVariable(GraphVariables[node.VariableId])).ToList(),
                 Comments = commentIds.Select(id => new SerialisableComment((Comment)Elements[id])).ToList()
             }

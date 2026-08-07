@@ -474,7 +474,7 @@ public partial class NodeGraphView
             {
                 Nodes = nodeVms.Select(nodeVm => new SerialisableNode((Node)nodeVm.Node)).ToList(),
                 Connections = Graph.Connections.Where(c => nodeIds.Contains(c.OutputId) && nodeIds.Contains(c.InputId)).Select(c => new SerialisableConnection(c)).ToList(),
-                Groups = Graph.Groups.Values.Where(g => g.Nodes.All(nodeId => nodeVms.Select(item => item.Node.Id).Contains(nodeId))).Select(group => new SerialisableNodeGroup(group)).ToList(),
+                Groups = Graph.Groups.Values.Where(g => g.Nodes.All(nodeId => nodeVms.Select(item => item.Node.Id).Contains(nodeId))).Select(group => new SerialisableGroup(group)).ToList(),
                 Comments = elementsSelection.Items.OfType<CommentViewModel>().Select(commentVm => new SerialisableComment(commentVm.Comment)).ToList()
             }
         };
@@ -496,9 +496,9 @@ public partial class NodeGraphView
 
         var offset = getSnappedMousePos();
         Logger.Log($"Pasting at {offset}", LoggingTarget.Information);
-        var newNodes = copyPasteHolder.SpawnTo(Graph, offset);
+        var newElements = copyPasteHolder.SpawnTo(Graph, offset);
         await Graph.MarkDirtyAsync();
-        shrinkWrapSelection(newNodes);
+        shrinkWrapSelection(newElements);
     }
 
     protected override void OnMouseDown(MouseButtonEventArgs e)
@@ -778,6 +778,9 @@ public partial class NodeGraphView
 
         if (draggingGridGraphElement.ViewModel is NodeViewModel nodeVm)
             updateGroupOfNode(nodeVm);
+
+        if (draggingGridGraphElement.ViewModel is CommentViewModel commentVm)
+            updateGroupOfComment(commentVm);
     }
 
     private void updateGridGraphElementPosition(GridGraphElementViewModel vm, Point position)
@@ -803,38 +806,69 @@ public partial class NodeGraphView
 
     private void checkForGroupAdditions()
     {
-        if (draggingGridGraphElement?.ViewModel is not NodeViewModel nodeVm) return;
-
-        if (Graph.Groups.Values.Any(nodeGroup => nodeGroup.Nodes.Contains(nodeVm.Node.Id))) return;
-
-        GroupViewModel? groupToUpdate = null;
-
-        foreach (var groupItem in GraphElements.OfType<GroupViewModel>())
+        if (draggingGridGraphElement?.ViewModel is NodeViewModel nodeVm)
         {
-            var mousePos = Mouse.GetPosition(GraphContainer);
-            var bounds = new Rect(groupItem.Position.X, groupItem.Position.Y, groupItem.Width, groupItem.Height);
+            if (Graph.Groups.Values.Any(nodeGroup => nodeGroup.Nodes.Contains(nodeVm.Node.Id))) return;
 
-            if (!bounds.Contains(mousePos)) continue;
+            GroupViewModel? groupToUpdate = null;
 
-            groupToUpdate = groupItem;
+            foreach (var groupItem in GraphElements.OfType<GroupViewModel>())
+            {
+                var mousePos = Mouse.GetPosition(GraphContainer);
+                var bounds = new Rect(groupItem.Position.X, groupItem.Position.Y, groupItem.Width, groupItem.Height);
+
+                if (!bounds.Contains(mousePos)) continue;
+
+                groupToUpdate = groupItem;
+            }
+
+            if (groupToUpdate is not null)
+            {
+                groupToUpdate.Group.Nodes.Add(nodeVm.Node.Id);
+                updateGroupViewModel(groupToUpdate);
+            }
         }
 
-        if (groupToUpdate is not null)
+        if (draggingGridGraphElement?.ViewModel is CommentViewModel commentVm)
         {
-            groupToUpdate.Group.Nodes.Add(nodeVm.Node.Id);
-            updateGroupViewModel(groupToUpdate);
+            if (Graph.Groups.Values.Any(nodeGroup => nodeGroup.Comments.Contains(commentVm.Comment.Id))) return;
+
+            GroupViewModel? groupToUpdate = null;
+
+            foreach (var groupItem in GraphElements.OfType<GroupViewModel>())
+            {
+                var mousePos = Mouse.GetPosition(GraphContainer);
+                var bounds = new Rect(groupItem.Position.X, groupItem.Position.Y, groupItem.Width, groupItem.Height);
+
+                if (!bounds.Contains(mousePos)) continue;
+
+                groupToUpdate = groupItem;
+            }
+
+            if (groupToUpdate is not null)
+            {
+                groupToUpdate.Group.Comments.Add(commentVm.Comment.Id);
+                updateGroupViewModel(groupToUpdate);
+            }
         }
     }
 
     private void updateGroupViewModel(GroupViewModel groupVm, bool updateIndexes = true)
     {
         var nodeVms = GraphElements.OfType<NodeViewModel>().Where(nodeVm => groupVm.Group.Nodes.Contains(nodeVm.Node.Id)).ToList();
+        var commentVms = GraphElements.OfType<CommentViewModel>().Where(commentVm => groupVm.Group.Comments.Contains(commentVm.Comment.Id)).ToList();
 
         if (updateIndexes)
         {
             foreach (var nodeGraphItem in nodeVms)
             {
                 var index = GraphElements.IndexOf(nodeGraphItem);
+                GraphElements.Move(index, GraphElements.Count - 1);
+            }
+
+            foreach (var commentGraphItem in commentVms)
+            {
+                var index = GraphElements.IndexOf(commentGraphItem);
                 GraphElements.Move(index, GraphElements.Count - 1);
             }
         }
@@ -848,6 +882,14 @@ public partial class NodeGraphView
             topLeft.Y = Math.Min(topLeft.Y, nodeGraphItem.Position.Y - GroupPadding.Top);
             bottomRight.X = Math.Max(bottomRight.X, nodeGraphItem.Position.X + nodeGraphItem.Control.ActualWidth + GroupPadding.Right);
             bottomRight.Y = Math.Max(bottomRight.Y, nodeGraphItem.Position.Y + nodeGraphItem.Control.ActualHeight + GroupPadding.Bottom);
+        }
+
+        foreach (var commentGraphItem in commentVms)
+        {
+            topLeft.X = Math.Min(topLeft.X, commentGraphItem.Position.X - GroupPadding.Left);
+            topLeft.Y = Math.Min(topLeft.Y, commentGraphItem.Position.Y - GroupPadding.Top);
+            bottomRight.X = Math.Max(bottomRight.X, commentGraphItem.Position.X + commentGraphItem.Control.ActualWidth + GroupPadding.Right);
+            bottomRight.Y = Math.Max(bottomRight.Y, commentGraphItem.Position.Y + commentGraphItem.Control.ActualHeight + GroupPadding.Bottom);
         }
 
         var width = bottomRight.X - topLeft.X;
@@ -1215,6 +1257,14 @@ public partial class NodeGraphView
             updateGroupViewModel(groupVm, false);
     }
 
+    private void updateGroupOfComment(CommentViewModel commentVm)
+    {
+        var groupVm = GraphElements.OfType<GroupViewModel>().SingleOrDefault(groupVm => groupVm.Group.Comments.Contains(commentVm.Comment.Id));
+
+        if (groupVm is not null)
+            updateGroupViewModel(groupVm, false);
+    }
+
     #endregion
 
     private void GraphContextMenu_NodeEntry_OnClick(object? sender, RoutedEventArgs e)
@@ -1356,7 +1406,12 @@ public partial class NodeGraphView
 
         if (vm is CommentViewModel commentVm)
         {
+            var groupVm = GraphElements.OfType<GroupViewModel>().SingleOrDefault(groupVm => groupVm.Group.Comments.Contains(commentVm.Comment.Id));
             Graph.RemoveComment(commentVm.Comment.Id);
+
+            if (groupVm is not null)
+                updateGroupViewModel(groupVm, false);
+
             Graph.MarkDirty();
         }
     }
@@ -1450,6 +1505,14 @@ public partial class NodeGraphView
                     if (groupVm.Group.Nodes.Contains(nodeVm.Node.Id)) groupUpdates.Add(groupVm);
                 }
             }
+
+            if (item is CommentViewModel commentVm)
+            {
+                foreach (var groupVm in groupVms)
+                {
+                    if (groupVm.Group.Comments.Contains(commentVm.Comment.Id)) groupUpdates.Add(groupVm);
+                }
+            }
         }
 
         foreach (var groupVm in groupUpdates.DistinctBy(groupVm => groupVm.Group.Id))
@@ -1467,7 +1530,7 @@ public partial class NodeGraphView
 
         var elements = new List<GridGraphElementViewModel>();
 
-        foreach (var graphItem in GraphElements.OfType<GridGraphElementViewModel>())
+        foreach (var graphItem in GraphElements.Where(vm => vm.GetType() != typeof(GroupViewModel)).OfType<GridGraphElementViewModel>())
         {
             var element = graphItem.Control;
             var position = graphItem.Position;
@@ -1553,20 +1616,28 @@ public partial class NodeGraphView
 
             var nodeVms = GraphElements.OfType<NodeViewModel>()
                                        .Where(nodeGraphItem => groupVm.Group.Nodes.Contains(nodeGraphItem.Node.Id))
+                                       .Cast<GridGraphElementViewModel>()
                                        .ToList();
+
+            var commentVms = GraphElements.OfType<CommentViewModel>()
+                                          .Where(commentVm => groupVm.Group.Comments.Contains(commentVm.Comment.Id))
+                                          .Cast<GridGraphElementViewModel>()
+                                          .ToList();
+
+            var elementVms = nodeVms.Concat(commentVms);
 
             var offsetFromGrid = new Vector(groupPos.X % SNAP_DISTANCE, groupPos.Y % SNAP_DISTANCE);
 
             var groupGraphItemIndex = GraphElements.IndexOf(groupVm);
             GraphElements.Move(groupGraphItemIndex, GraphElements.Count - 1);
 
-            foreach (var nodeVm in nodeVms)
+            foreach (var elementVm in elementVms)
             {
-                var index = GraphElements.IndexOf(nodeVm);
+                var index = GraphElements.IndexOf(elementVm);
                 GraphElements.Move(index, GraphElements.Count - 1);
             }
 
-            groupDrag = new GroupDrag(offset, offsetFromGrid, groupVm, nodeVms);
+            groupDrag = new GroupDrag(offset, offsetFromGrid, groupVm, elementVms);
             GraphContainer.CaptureMouse();
 
             deselectGraphItems();
@@ -1687,6 +1758,11 @@ public partial class NodeGraphView
             Graph.RemoveNode(node);
         }
 
+        foreach (var comment in groupVm.Group.Comments.ToList())
+        {
+            Graph.RemoveComment(comment);
+        }
+
         Graph.DeleteGroup(groupVm.Group.Id);
         Graph.MarkDirty();
     }
@@ -1695,7 +1771,9 @@ public partial class NodeGraphView
     {
         Debug.Assert(elementsSelection is not null);
 
-        Graph.AddGroup(elementsSelection.Items.OfType<NodeViewModel>().Select(item => item.Node.Id));
+        var nodes = elementsSelection.Items.OfType<NodeViewModel>().Select(item => item.Node.Id);
+        var comments = elementsSelection.Items.OfType<CommentViewModel>().Select(item => item.Comment.Id);
+        Graph.AddGroup(nodes, comments);
         Graph.MarkDirty();
         deselectGraphItems();
     }
@@ -1752,11 +1830,21 @@ public partial class NodeGraphView
 
             if (item is CommentViewModel commentVm)
             {
+                var groupVm = groups.SingleOrDefault(groupVm => groupVm.Group.Comments.Contains(commentVm.Comment.Id));
+
                 Graph.RemoveComment(commentVm.Comment.Id);
+
+                if (groupVm is not null)
+                {
+                    groupVm.Group.Comments.Remove(commentVm.Comment.Id);
+
+                    if (!groupsToUpdate.Contains(groupVm))
+                        groupsToUpdate.Add(groupVm);
+                }
             }
         }
 
-        foreach (var groupVm in groupsToUpdate.Where(vm => vm.Group.Nodes.Count == 0).ToList())
+        foreach (var groupVm in groupsToUpdate.Where(vm => vm.Group.Nodes.Count == 0 && vm.Group.Comments.Count == 0).ToList())
         {
             Graph.DeleteGroup(groupVm.Group.Id);
             groupsToUpdate.Remove(groupVm);

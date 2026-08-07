@@ -198,7 +198,7 @@ public class NodeGraphSerialiserV1 : ProfiledSerialiser<NodeGraph, SerialisableN
 
                 var groupId = Guid.NewGuid();
                 idMapping[sG.Id] = groupId;
-                var group = Reference.AddGroup(groupNodeIds, groupId);
+                var group = Reference.AddGroup(groupNodeIds, [], groupId);
                 group.Title.Value = sG.Title;
             }
             catch (Exception e)

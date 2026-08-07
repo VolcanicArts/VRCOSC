@@ -7,6 +7,7 @@ using System.Linq;
 using System.Numerics;
 using Newtonsoft.Json;
 using VRCOSC.App.Nodes.Metadata;
+using VRCOSC.App.Nodes.Serialisation.V1;
 using VRCOSC.App.Nodes.Types;
 using VRCOSC.App.Serialisation;
 using VRCOSC.App.Utils;
@@ -23,7 +24,7 @@ public class SerialisableNodeGraphBase : SerialisableVersion
     public List<SerialisableConnection> Connections { get; set; } = [];
 
     [JsonProperty("groups")]
-    public List<SerialisableNodeGroup> Groups { get; set; } = [];
+    public List<SerialisableGroup> Groups { get; set; } = [];
 
     [JsonProperty("variables")]
     public List<SerialisableGraphVariable> Variables { get; set; } = [];
@@ -58,7 +59,7 @@ public class SerialisableNodeGraph : SerialisableNodeGraphBase
         Enabled = nodeGraph.Enabled.Value;
         Nodes = nodeGraph.Elements.Values.OfType<Node>().Select(node => new SerialisableNode(node)).ToList();
         Connections = nodeGraph.Connections.Select(connection => new SerialisableConnection(connection)).ToList();
-        Groups = nodeGraph.Groups.Values.Where(g => g.Nodes.Any()).Select(group => new SerialisableNodeGroup(group)).ToList();
+        Groups = nodeGraph.Groups.Values.Where(g => g.Nodes.Any() || g.Comments.Any()).Select(group => new SerialisableGroup(group)).ToList();
         Variables = nodeGraph.GraphVariables.Values.Select(variable => new SerialisableGraphVariable(variable)).ToList();
         Comments = nodeGraph.Elements.Values.OfType<Comment>().Select(comment => new SerialisableComment(comment)).ToList();
     }
@@ -88,6 +89,34 @@ public class SerialisableNode
     [JsonConstructor]
     public SerialisableNode()
     {
+    }
+
+    public SerialisableNode(SerialisableNodeV1 v1)
+    {
+        var type = NodeGraphBaseHelper.RunTypeMigration(v1.Type);
+
+        Id = v1.Id;
+        Type = type;
+        Position = v1.Position;
+        Properties = v1.Properties;
+
+        if (v1.ValueInputSize.HasValue)
+        {
+            Sizes ??= [];
+
+            var metadata = NodeMetadataManager.GetFor(TypeResolver.Construct(type)!);
+            Sizes[(int)ConnectionPoint.ValueInput] = new int[metadata.Value.ValueInputCount];
+            Sizes[(int)ConnectionPoint.ValueInput][metadata.Value.ValueInputCount - 1] = v1.ValueInputSize.Value;
+        }
+
+        if (v1.ValueOutputSize.HasValue)
+        {
+            Sizes ??= [];
+
+            var metadata = NodeMetadataManager.GetFor(TypeResolver.Construct(type)!);
+            Sizes[(int)ConnectionPoint.ValueOutput] = new int[metadata.Value.ValueOutputCount];
+            Sizes[(int)ConnectionPoint.ValueOutput][metadata.Value.ValueOutputCount - 1] = v1.ValueOutputSize.Value;
+        }
     }
 
     public SerialisableNode(Node node)
@@ -170,6 +199,37 @@ public class SerialisableConnection
     {
     }
 
+    public SerialisableConnection(SerialisableConnectionV1 v1, List<SerialisableNode> nodes)
+    {
+        Type = v1.Type == ConnectionType.Flow ? "f" : "v";
+        OutputId = v1.OutputNodeId;
+        InputId = v1.InputNodeId;
+
+        if (v1.Type == ConnectionType.Value)
+        {
+            var outputNodeMetadata = NodeMetadataManager.GetFor(TypeResolver.Construct(nodes.Single(sN => sN.Id == OutputId).Type)!).Value;
+            var inputNodeMetadata = NodeMetadataManager.GetFor(TypeResolver.Construct(nodes.Single(sN => sN.Id == InputId).Type)!).Value;
+
+            var (outputSlot, outputIndex) = v1.OutputNodeSlot >= outputNodeMetadata.ValueOutputCount
+                ? (outputNodeMetadata.ValueOutputCount - 1, v1.OutputNodeSlot - (outputNodeMetadata.ValueOutputCount - 1))
+                : (v1.OutputNodeSlot, 0);
+
+            var (inputSlot, inputIndex) = v1.InputNodeSlot >= inputNodeMetadata.ValueInputCount
+                ? (inputNodeMetadata.ValueInputCount - 1, v1.InputNodeSlot - (inputNodeMetadata.ValueInputCount - 1))
+                : (v1.InputNodeSlot, 0);
+
+            OutputSlot = outputSlot;
+            OutputSlotIndex = outputIndex;
+            InputSlot = inputSlot;
+            InputSlotIndex = inputIndex;
+        }
+        else
+        {
+            OutputSlot = v1.OutputNodeSlot;
+            InputSlot = v1.InputNodeSlot;
+        }
+    }
+
     public SerialisableConnection(IConnection connection)
     {
         Type = connection is IFlowConnection ? "f" : "v";
@@ -182,7 +242,7 @@ public class SerialisableConnection
     }
 }
 
-public class SerialisableNodeGroup
+public class SerialisableGroup
 {
     [JsonProperty("id")]
     public Guid Id { get; set; }
@@ -193,16 +253,27 @@ public class SerialisableNodeGroup
     [JsonProperty("nodes")]
     public List<Guid> Nodes { get; set; } = [];
 
+    [JsonProperty("comments")]
+    public List<Guid> Comments { get; set; } = [];
+
     [JsonConstructor]
-    public SerialisableNodeGroup()
+    public SerialisableGroup()
     {
     }
 
-    public SerialisableNodeGroup(NodeGroup group)
+    public SerialisableGroup(SerialisableNodeGroupV1 v1)
+    {
+        Id = v1.Id;
+        Title = v1.Title;
+        Nodes = v1.Nodes;
+    }
+
+    public SerialisableGroup(NodeGroup group)
     {
         Id = group.Id;
         Title = group.Title.Value;
         Nodes = group.Nodes.ToList();
+        Comments = group.Comments.ToList();
     }
 }
 
@@ -226,6 +297,15 @@ public class SerialisableGraphVariable
     [JsonConstructor]
     public SerialisableGraphVariable()
     {
+    }
+
+    public SerialisableGraphVariable(SerialisableGraphVariableV1 v1)
+    {
+        Id = v1.Id;
+        Name = v1.Name;
+        Persistent = v1.Persistent;
+        Type = v1.Type;
+        Value = v1.Value;
     }
 
     public SerialisableGraphVariable(IGraphVariable variable)
@@ -255,7 +335,7 @@ public class SerialisableComment
     public SerialisableComment()
     {
     }
-
+    
     public SerialisableComment(IComment comment)
     {
         Id = comment.Id;
@@ -285,6 +365,7 @@ public class SerialisableNodePreset : SerialisableNodeGraphBase
         Id = nodePreset.Id;
         Name = nodePreset.Name.Value;
         Nodes = nodePreset.Structure.Nodes;
+        Comments = nodePreset.Structure.Comments;
         Connections = nodePreset.Structure.Connections;
         Groups = nodePreset.Structure.Groups;
         Variables = nodePreset.Structure.Variables;

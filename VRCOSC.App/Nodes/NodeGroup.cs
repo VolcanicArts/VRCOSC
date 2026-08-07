@@ -12,4 +12,5 @@ public class NodeGroup
     public Guid Id { get; set; } = Guid.NewGuid();
     public Observable<string> Title { get; } = new("New Group");
     public ObservableCollection<Guid> Nodes { get; } = [];
+    public ObservableCollection<Guid> Comments { get; } = [];
 }

@@ -54,6 +54,8 @@ public class NodeViewModel : GridGraphElementViewModel
         };
     }
 
+    public override Guid Id => Node.Id;
+
     public INode Node { get; }
 
     public string DisplayName => Node.DisplayName;

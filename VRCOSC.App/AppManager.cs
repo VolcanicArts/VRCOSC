@@ -255,7 +255,9 @@ internal class AppManager : IVRCClientEventHandler
             return;
         }
 
-        foreach (var def in VRChatClient.Avatar.Parameters.Where(def => namePattern.IsMatch(def.Name)))
+        var type = ParameterTypeFactory.CreateFrom<T>();
+
+        foreach (var def in VRChatClient.Avatar.Parameters.Where(def => namePattern.IsMatch(def.Name) && def.Type == type))
         {
             VRChatOscClient.Send($"{VRChatOSCConstants.ADDRESS_AVATAR_PARAMETERS}/{def.Name}", value);
         }
