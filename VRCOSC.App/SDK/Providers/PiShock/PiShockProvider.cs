@@ -154,10 +154,20 @@ public class PiShockProvider
 
         var shockers = shockersResult.Value;
 
-        // if we cannot get any shockers someone might be generating their first sharecode so return true
-        if (shockers.Length == 0) return true;
+        Logger.Log($"{nameof(PiShockProvider)} found {shockers.Length} shared shockers");
 
-        // TODO: Remove when populateHubId is migrated
+        // if we cannot get any shockers someone might be generating their first sharecode so return true
+        if (shockers.Length == 0)
+        {
+            lock (sharedShockersLock)
+            {
+                availableShockers.Clear();
+            }
+
+            return true;
+        }
+
+        // TODO: Remove when populateHubId is fixed
         hubId = shockers.FirstOrDefault(s => s.OwnerId == userId)?.HubId ?? -1;
 
         lock (sharedShockersLock)

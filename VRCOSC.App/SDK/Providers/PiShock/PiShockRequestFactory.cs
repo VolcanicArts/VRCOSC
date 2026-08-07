@@ -1,7 +1,8 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -89,6 +90,9 @@ internal static class PiShockRequestFactory
 
         if (!response.IsSuccessStatusCode)
             return new Exception($"Failed to get sharecodes by owner. Response status code: {response.StatusCode}");
+
+        if (response.StatusCode == HttpStatusCode.NoContent)
+            return Array.Empty<PiShockShocker>();
 
         var content = await response.Content.ReadAsStringAsync();
 
