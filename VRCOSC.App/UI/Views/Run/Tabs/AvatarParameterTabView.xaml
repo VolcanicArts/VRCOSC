@@ -26,15 +26,21 @@
                             </Border.Background>
                             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="15" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" MinWidth="15" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0"
-                                           Text="{Binding Name, Mode=OneTime}"
-                                           Foreground="{DynamicResource CForeground2}"
-                                           FontSize="14" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
-                                           TextWrapping="NoWrap" />
+                                <TextBox
+                                    Grid.Column="0"
+                                    Text="{Binding Name, Mode=OneTime}"
+                                    IsReadOnly="True"
+                                    BorderThickness="0"
+                                    Foreground="{DynamicResource CForeground2}"
+                                    Background="Transparent"
+                                    Padding="0"
+                                    FontSize="14" VerticalAlignment="Center"
+                                    TextWrapping="NoWrap"
+                                    FocusVisualStyle="{x:Null}" />
                                 <TextBlock Grid.Column="2"
                                            Text="{Binding Value.Value, Mode=OneWay}"
                                            Foreground="{DynamicResource CForeground2}"
