@@ -62,10 +62,12 @@ public sealed class RegexMatchesNode : TryValueComputeNode<MatchCollection>
 }
 
 [Node("Regex Is Match", "Strings/Regex")]
-public sealed class RegexIsMatchNode : ValueSourceNode<bool>
+public sealed class RegexIsMatchNode : ValueComputeNode<bool>
 {
-    public ValueInput<string> RegexStr = new("Regex");
+    [InputMode(InputModes.Connection)]
     public ValueInput<string?> Input = new("String");
+
+    public ValueInput<string> RegexStr = new("Regex");
 
     [InputMode(InputModes.Connection)]
     public ValueInput<RegexOptions> Options = new();
