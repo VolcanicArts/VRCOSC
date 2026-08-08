@@ -222,7 +222,7 @@ public class ValueInput<T>([CallerMemberName] string name = "", T defaultValue =
         {
             _field = value;
 
-            if (!Owner.Metadata.Shared.IsFlowInput && !Owner.Metadata.Shared.IsSelfUpdating)
+            if (Owner.Metadata.Shared.ReceivesValueUpdates)
                 _ = Owner.ContainingGraph.TriggerTree(Owner);
         }
     }

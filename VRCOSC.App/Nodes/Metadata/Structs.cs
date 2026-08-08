@@ -96,6 +96,7 @@ public interface INodeSharedMetadata
     bool IsValueInputTrigger { get; }
     bool IsFlowOutputOnly { get; }
     bool IsAnyTrigger { get; }
+    bool ReceivesValueUpdates { get; }
 
     bool IsSourceNode { get; }
     bool IsDriveNode { get; }
@@ -140,6 +141,7 @@ public sealed class NodeSharedMetadata : INodeSharedMetadata
     public bool IsValueInputTrigger => !IsSelfUpdating && ((!IsFlowInput && IsFlowOutput && IsValueInput) || (!IsFlow && IsValueInput && !IsValueOutput)) && !HasAllInlineOnly;
     public bool IsFlowOutputOnly => !IsValue && !IsFlowInput && IsFlowOutput;
     public bool IsAnyTrigger => IsValueInputTrigger || IsFlowOutputOnly;
+    public bool ReceivesValueUpdates => !IsFlowInput && !IsSelfUpdating;
 
     public bool HasAnyInline => IsValueInput && Elements[ConnectionPoint.ValueInput].Any(e => e.IsInlineable);
     public bool HasAllInlineOnly => IsValueInput && Elements[ConnectionPoint.ValueInput].All(e => e.IsInlineable && e.Modes == InputModes.Inline);

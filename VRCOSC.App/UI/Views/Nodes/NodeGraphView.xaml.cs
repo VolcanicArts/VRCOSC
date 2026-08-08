@@ -1341,8 +1341,10 @@ public partial class NodeGraphView
             updateNodeViewModelConnections(nodeVm);
         }, DispatcherPriority.Render);
 
-        _ = Graph.TriggerTree(vm.Element.Owner);
-        _ = Graph.MarkDirty();
+        if (vm.Element.Owner.Metadata.Shared.ReceivesValueUpdates)
+            Graph.TriggerTree(vm.Element.Owner).Forget();
+
+        Graph.MarkDirty();
     }
 
     private void ListElementRemove_OnClick(object sender, RoutedEventArgs e)
@@ -1373,8 +1375,10 @@ public partial class NodeGraphView
             updateNodeViewModelConnections(nodeVm);
         }, DispatcherPriority.Render);
 
-        _ = Graph.TriggerTree(vm.Element.Owner);
-        _ = Graph.MarkDirty();
+        if (vm.Element.Owner.Metadata.Shared.ReceivesValueUpdates)
+            Graph.TriggerTree(vm.Element.Owner).Forget();
+
+        Graph.MarkDirty();
     }
 
     private void ButtonNode_OnClick(object sender, RoutedEventArgs e)
@@ -1919,7 +1923,7 @@ public partial class NodeGraphView
                 nodeVm.Node.GetType().GetProperty(nameof(ValueNode<>.Value))!.SetValue(nodeVm.Node, new Color(element.SelectedColor).AsColorHSL);
             }
 
-            if (!nodeVm.Node.Metadata.Shared.IsFlowInput)
+            if (nodeVm.Node.Metadata.Shared.ReceivesValueUpdates)
                 Graph.TriggerTree(nodeVm.Node).Forget();
         }
 
@@ -1935,7 +1939,7 @@ public partial class NodeGraphView
                 ((IValueInput)valueInputVm.Element).SetField(new Color(element.SelectedColor).AsColorHSL);
             }
 
-            if (!valueInputVm.Element.Owner.Metadata.Shared.IsFlowInput)
+            if (valueInputVm.Element.Owner.Metadata.Shared.ReceivesValueUpdates)
                 Graph.TriggerTree(valueInputVm.Element.Owner).Forget();
         }
     }

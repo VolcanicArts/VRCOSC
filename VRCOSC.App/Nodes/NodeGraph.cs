@@ -276,10 +276,8 @@ public class NodeGraph : INotifyPropertyChanged
 
             Connections.Add(connection);
 
-            if (!inputElement.Metadata.Shared.IsFlow)
-            {
+            if (inputElement.Metadata.Shared.ReceivesValueUpdates)
                 TriggerTree(inputElement).Forget();
-            }
 
             return Result<IValueConnection[]>.Success([connection]);
         }
@@ -298,10 +296,8 @@ public class NodeGraph : INotifyPropertyChanged
             var conn2Result = createValueConnection(toStringNode.Id, 0, 0, inputType, inputId, inputSlot, inputSlotIndex, inputType);
             if (!conn2Result.IsSuccess) return conn2Result.Exception;
 
-            if (!inputElement.Metadata.Shared.IsValueInputTrigger)
-            {
+            if (inputElement.Metadata.Shared.ReceivesValueUpdates)
                 TriggerTree(inputElement).Forget();
-            }
 
             return Result<IValueConnection[]>.Success([conn1Result.Value[0], conn2Result.Value[0]]);
         }
@@ -320,10 +316,8 @@ public class NodeGraph : INotifyPropertyChanged
             var conn2Result = createValueConnection(castNode.Id, 0, 0, inputType, inputId, inputSlot, inputSlotIndex, inputType);
             if (!conn2Result.IsSuccess) return conn2Result.Exception;
 
-            if (!inputElement.Metadata.Shared.IsFlow)
-            {
+            if (inputElement.Metadata.Shared.ReceivesValueUpdates)
                 TriggerTree(inputElement).Forget();
-            }
 
             return Result<IValueConnection[]>.Success([conn1Result.Value[0], conn2Result.Value[0]]);
         }
@@ -1297,7 +1291,7 @@ public class NodeGraph : INotifyPropertyChanged
             var inputNode = (INode)Elements[connection.InputId];
 
             if (pathStack.Contains(inputNode)) continue;
-            if (inputNode.Metadata.Shared.IsFlowInput || inputNode.Metadata.Shared.IsSelfUpdating) continue;
+            if (!inputNode.Metadata.Shared.ReceivesValueUpdates) continue;
 
             pathStack.Push(inputNode);
 
