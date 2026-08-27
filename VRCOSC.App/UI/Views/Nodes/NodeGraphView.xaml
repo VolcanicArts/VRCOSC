@@ -946,10 +946,9 @@
                                     <fa6:FontAwesome Icon="{Binding Mode=OneTime}" FontSize="20"
                                             VerticalAlignment="Center"
                                             HorizontalAlignment="Center"
-                                            Foreground="{DynamicResource CForeground2}"
+                                            Foreground="{DynamicResource CForeground1}"
                                             Margin="0 5"
-                                            TextAlignment="Center"
-                                            FontWeight="SemiBold"/>
+                                            TextAlignment="Center"/>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
