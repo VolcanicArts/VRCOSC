@@ -11,8 +11,9 @@ namespace VRCOSC.App.Utils;
 
 public interface IRef
 {
-    public Type ValueType { get; }
-    public object? GetValue();
+    Type ValueType { get; }
+    object? GetValue();
+    void SetValue(object? value);
 }
 
 public class Ref<T> : IRef, IEqualityComparer<T>
@@ -32,6 +33,7 @@ public class Ref<T> : IRef, IEqualityComparer<T>
     }
 
     public object? GetValue() => Value;
+    public void SetValue(object? value) => Value = (T)value!;
 
     public bool Equals(T? x, T? y) => EqualityComparer<T>.Default.Equals(x, y);
 

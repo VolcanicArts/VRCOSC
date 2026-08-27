@@ -1169,19 +1169,48 @@ public class NodeGraph : INotifyPropertyChanged
 
     private readonly Dictionary<Guid, INode[]> cachedBacktracks = [];
 
+    private async Task backtrackNodeInner(INode outputNode, PulseContext c)
+    {
+        var metadata = outputNode.Metadata;
+
+        if (metadata.Shared.IsFlow)
+        {
+            c.CreateMemory(outputNode);
+            return;
+        }
+
+        if (metadata.Shared.IsSelfUpdating)
+        {
+            c.CreateMemory(outputNode);
+
+            for (var slot = 0; slot < metadata.Shared.ValueOutputCount; slot++)
+            {
+                var elementMetadata = metadata.Elements[ConnectionPoint.ValueOutput][slot];
+                var workingSize = elementMetadata.WorkingSize;
+
+                for (var slotIndex = 0; slotIndex < workingSize; slotIndex++)
+                {
+                    var cachedValue = GetCachedValueOutput(outputNode.Id, slot, slotIndex);
+                    if (cachedValue is null) continue;
+
+                    c.Write(outputNode.Id, slot, slotIndex, cachedValue.GetValue());
+                    continue;
+                }
+            }
+
+            return;
+        }
+
+        await processNode(outputNode, c);
+    }
+
     private async Task backtrackNode(INode node, PulseContext c)
     {
         if (cachedBacktracks.TryGetValue(node.Id, out var nodes))
         {
             foreach (var outputNode in nodes)
             {
-                if (outputNode.Metadata.Shared.IsFlow)
-                {
-                    c.CreateMemory(outputNode);
-                    continue;
-                }
-
-                await processNode(outputNode, c);
+                await backtrackNodeInner(outputNode, c);
             }
         }
         else
@@ -1200,19 +1229,13 @@ public class NodeGraph : INotifyPropertyChanged
                     var connectionResult = FindConnectionFromValueInput(node.Id, slot, index);
                     if (!connectionResult.IsSuccess) continue;
 
-                    var outputNodeResult = getGraphElement<Node>(connectionResult.Value.OutputId);
-                    if (!outputNodeResult.IsSuccess) throw outputNodeResult.Exception;
+                    var connection = connectionResult.Value;
+                    var outputNodeResult = getGraphElement<Node>(connection.OutputId);
+                    Debug.Assert(outputNodeResult.IsSuccess);
 
                     var outputNode = outputNodeResult.Value;
                     backtrackList.Add(outputNode);
-
-                    if (outputNode.Metadata.Shared.IsFlow)
-                    {
-                        c.CreateMemory(outputNode);
-                        continue;
-                    }
-
-                    await processNode(outputNode, c);
+                    await backtrackNodeInner(outputNode, c);
                 }
             }
 

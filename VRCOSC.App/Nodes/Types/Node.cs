@@ -51,7 +51,7 @@ public interface INode : IGraphElement
 
 public abstract class Node : GraphElement, INode
 {
-    public INodeMetadata Metadata => NodeMetadataManager.GetFor(this).Value;
+    public INodeMetadata Metadata => field ??= NodeMetadataManager.GetFor(this).Value;
     public virtual string DisplayName => Metadata.Shared.Name;
     internal NodeGraph ContainingGraph { get; private set; } = null!;
 

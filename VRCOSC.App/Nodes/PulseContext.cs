@@ -168,10 +168,7 @@ public class PulseContext : IPulseContext
         Debug.Assert(memoryResult && memoryEntry is not null);
 
         var iRefStore = memoryEntry[slot][index];
-        Debug.Assert(iRefStore.ValueType == typeof(T));
-
-        var refStore = (Ref<T>)iRefStore;
-        refStore.Value = value;
+        iRefStore.SetValue(value);
     }
 
     public T Read<T>(IValueInput<T> valueInput)
@@ -235,6 +232,8 @@ public class PulseContext : IPulseContext
 
         return value;
     }
+
+    internal void Write<T>(Guid nodeId, int slot, int slotIndex, T value) => writeValue(nodeId, slot, slotIndex, value);
 
     public void Write<T>(IValueOutput<T> valueOutput, T value) => writeValue(Peek(), valueOutput.Metadata.Shared.Slot, 0, value);
 
