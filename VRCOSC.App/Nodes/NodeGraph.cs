@@ -204,6 +204,9 @@ public class NodeGraph : INotifyPropertyChanged
 
             if (inputConnection is IValueConnection)
                 inputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput)[inputConnection.InputSlot].IsConnected = false;
+
+            if (inputNode.Metadata.Shared.ReceivesValueUpdates)
+                _ = TriggerTree(inputNode);
         }
 
         var group = Groups.Values.SingleOrDefault(g => g.Nodes.Contains(id));
