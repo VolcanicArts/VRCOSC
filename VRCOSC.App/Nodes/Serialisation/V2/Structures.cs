@@ -106,7 +106,8 @@ public class SerialisableNode
 
             var metadata = NodeMetadataManager.GetFor(TypeResolver.Construct(type)!);
             Sizes[(int)ConnectionPoint.ValueInput] = new int[metadata.Value.ValueInputCount];
-            Sizes[(int)ConnectionPoint.ValueInput][metadata.Value.ValueInputCount - 1] = v1.ValueInputSize.Value;
+            var index = metadata.Value.Elements[ConnectionPoint.ValueInput].IndexOf(metadata.Value.Elements[ConnectionPoint.ValueInput].First(i => i.IsList));
+            Sizes[(int)ConnectionPoint.ValueInput][index] = v1.ValueInputSize.Value;
         }
 
         if (v1.ValueOutputSize.HasValue)
@@ -115,7 +116,8 @@ public class SerialisableNode
 
             var metadata = NodeMetadataManager.GetFor(TypeResolver.Construct(type)!);
             Sizes[(int)ConnectionPoint.ValueOutput] = new int[metadata.Value.ValueOutputCount];
-            Sizes[(int)ConnectionPoint.ValueOutput][metadata.Value.ValueOutputCount - 1] = v1.ValueOutputSize.Value;
+            var index = metadata.Value.Elements[ConnectionPoint.ValueOutput].IndexOf(metadata.Value.Elements[ConnectionPoint.ValueOutput].First(i => i.IsList));
+            Sizes[(int)ConnectionPoint.ValueOutput][index] = v1.ValueOutputSize.Value;
         }
     }
 
@@ -210,23 +212,44 @@ public class SerialisableConnection
             var outputNodeMetadata = NodeMetadataManager.GetFor(TypeResolver.Construct(nodes.Single(sN => sN.Id == OutputId).Type)!).Value;
             var inputNodeMetadata = NodeMetadataManager.GetFor(TypeResolver.Construct(nodes.Single(sN => sN.Id == InputId).Type)!).Value;
 
-            var (outputSlot, outputIndex) = v1.OutputNodeSlot >= outputNodeMetadata.ValueOutputCount
-                ? (outputNodeMetadata.ValueOutputCount - 1, v1.OutputNodeSlot - (outputNodeMetadata.ValueOutputCount - 1))
-                : (v1.OutputNodeSlot, 0);
+            if (outputNodeMetadata.Elements[ConnectionPoint.ValueOutput].Any(i => i.IsList))
+            {
+                var listSlot = outputNodeMetadata.Elements[ConnectionPoint.ValueOutput].IndexOf(outputNodeMetadata.Elements[ConnectionPoint.ValueOutput].First(i => i.IsList));
 
-            var (inputSlot, inputIndex) = v1.InputNodeSlot >= inputNodeMetadata.ValueInputCount
-                ? (inputNodeMetadata.ValueInputCount - 1, v1.InputNodeSlot - (inputNodeMetadata.ValueInputCount - 1))
-                : (v1.InputNodeSlot, 0);
+                if (v1.OutputNodeSlot >= listSlot)
+                {
+                    OutputSlot = listSlot;
+                    OutputSlotIndex = v1.OutputNodeSlot - listSlot;
+                }
+            }
+            else
+            {
+                OutputSlot = v1.OutputNodeSlot;
+                OutputSlotIndex = 0;
+            }
 
-            OutputSlot = outputSlot;
-            OutputSlotIndex = outputIndex;
-            InputSlot = inputSlot;
-            InputSlotIndex = inputIndex;
+            if (inputNodeMetadata.Elements[ConnectionPoint.ValueInput].Any(i => i.IsList))
+            {
+                var listSlot = inputNodeMetadata.Elements[ConnectionPoint.ValueInput].IndexOf(inputNodeMetadata.Elements[ConnectionPoint.ValueInput].First(i => i.IsList));
+
+                if (v1.InputNodeSlot >= listSlot)
+                {
+                    InputSlot = listSlot;
+                    InputSlotIndex = v1.InputNodeSlot - listSlot;
+                }
+            }
+            else
+            {
+                InputSlot = v1.InputNodeSlot;
+                InputSlotIndex = 0;
+            }
         }
         else
         {
             OutputSlot = v1.OutputNodeSlot;
+            OutputSlotIndex = 0;
             InputSlot = v1.InputNodeSlot;
+            InputSlotIndex = 0;
         }
     }
 
