@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Strings;
@@ -22,8 +23,13 @@ public sealed class StringJoinNode : ValueComputeNode<string>
 {
     public ValueInput<string?> Separator = new();
     public ValueInputList<string?> Inputs = new();
+    public ValueInput<bool> IncludeEmpty = new(defaultValue: true);
 
-    protected override string ComputeValue(IPulseContext c) => string.Join(Separator.Read(c), Inputs.Read(c));
+    protected override string ComputeValue(IPulseContext c)
+    {
+        var includeEmpty = IncludeEmpty.Read(c);
+        return string.Join(Separator.Read(c), Inputs.Read(c).Where(s => includeEmpty || !string.IsNullOrEmpty(s)));
+    }
 }
 
 [Node("Contains", "Strings")]
