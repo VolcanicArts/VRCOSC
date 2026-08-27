@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -227,6 +228,12 @@ internal class AppManager : IVRCClientEventHandler
     {
         var type = ParameterTypeFactory.CreateFrom<T>();
         return parameterCache.Where(p => p.Key.Type == type && pattern.IsMatch(p.Key.Name)).OrderByDescending(p => p.Value.Timestamp).FirstOrDefault().Value.Parameter;
+    }
+
+    public Dictionary<ParameterDefinition, T> GetParameters<T>(Regex pattern) where T : unmanaged
+    {
+        var type = ParameterTypeFactory.CreateFrom<T>();
+        return parameterCache.Where(pair => pattern.IsMatch(pair.Key.Name) && pair.Key.Type == type).ToDictionary(pair => pair.Key, pair => (T)pair.Value.Parameter.Value);
     }
 
     public T GetParameterValue<T>(Regex pattern)

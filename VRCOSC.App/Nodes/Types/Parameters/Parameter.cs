@@ -2,10 +2,13 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using VRCOSC.App.OSC;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.SDK.Parameters;
+using VRCOSC.App.SDK.VRChat;
 using VRCOSC.App.Utils;
 
 namespace VRCOSC.App.Nodes.Types.Parameters;
@@ -208,6 +211,57 @@ public sealed class RaycastParameterSourceNode : Node, IContinuousNode
         Hit.Write(appManager.GetParameterValue<bool>(hitPattern.Get(OSCPatterns.ToReceivePattern($"{name}_Hit"))), c);
         Ratio.Write(appManager.GetParameterValue<float>(ratioPattern.Get(OSCPatterns.ToReceivePattern($"{name}_Ratio"))), c);
         Distance.Write(appManager.GetParameterValue<float>(distancePattern.Get(OSCPatterns.ToReceivePattern($"{name}_Distance"))), c);
+        return Task.CompletedTask;
+    }
+}
+
+[Node("Contact Parameter Source", "VRChat/Parameters/Receive")]
+public sealed class ContactParameterSourceNode : Node, IContinuousNode
+{
+    public int UpdateOffset => -2;
+
+    private AppManager appManager => field ??= AppManager.GetInstance();
+
+    private readonly RegexCache senderTypePattern = new();
+    private readonly RegexCache senderLocalPositionXPattern = new();
+    private readonly RegexCache senderLocalPositionYPattern = new();
+    private readonly RegexCache senderLocalPositionZPattern = new();
+    private readonly RegexCache senderVelocityXPattern = new();
+    private readonly RegexCache senderVelocityYPattern = new();
+    private readonly RegexCache senderVelocityZPattern = new();
+    private readonly RegexCache proximitySpeedPattern = new();
+    private readonly RegexCache collisionTags = new();
+
+    [InputMode(InputModes.Inline)]
+    public ValueInput<string> Name = new();
+
+    public ValueOutput<ContactSenderType> SenderType = new();
+    public ValueOutput<Transform> SenderRelativeTransform = new();
+    public ValueOutput<Vector3> SenderRelativeVelocity = new();
+    public ValueOutput<float> ProximitySpeed = new();
+    public ValueOutput<IEnumerable<string>> CollisionTags = new();
+
+    protected override Task Process(IPulseContext c)
+    {
+        var name = Name.Read(c);
+        if (string.IsNullOrWhiteSpace(name)) return Task.CompletedTask;
+
+        var senderType = (ContactSenderType)appManager.GetParameterValue<int>(senderTypePattern.Get(OSCPatterns.ToReceivePattern($"{name}_SenderType")));
+        var senderLocalPositionX = appManager.GetParameterValue<float>(senderLocalPositionXPattern.Get(OSCPatterns.ToReceivePattern($"{name}_SenderLocalPositionX")));
+        var senderLocalPositionY = appManager.GetParameterValue<float>(senderLocalPositionYPattern.Get(OSCPatterns.ToReceivePattern($"{name}_SenderLocalPositionY")));
+        var senderLocalPositionZ = appManager.GetParameterValue<float>(senderLocalPositionZPattern.Get(OSCPatterns.ToReceivePattern($"{name}_SenderLocalPositionZ")));
+        var senderVelocityX = appManager.GetParameterValue<float>(senderVelocityXPattern.Get(OSCPatterns.ToReceivePattern($"{name}_SenderVelocityX")));
+        var senderVelocityY = appManager.GetParameterValue<float>(senderVelocityYPattern.Get(OSCPatterns.ToReceivePattern($"{name}_SenderVelocityY")));
+        var senderVelocityZ = appManager.GetParameterValue<float>(senderVelocityZPattern.Get(OSCPatterns.ToReceivePattern($"{name}_SenderVelocityZ")));
+        var proximitySpeed = appManager.GetParameterValue<float>(proximitySpeedPattern.Get(OSCPatterns.ToReceivePattern($"{name}_ProximitySpeed")));
+        var collisionTagParameters = appManager.GetParameters<bool>(collisionTags.Get(OSCPatterns.ToContactCollisionTagPattern(name)));
+
+        SenderType.Write(senderType, c);
+        SenderRelativeTransform.Write(new Transform(new Vector3(senderLocalPositionX, senderLocalPositionY, senderLocalPositionZ), Quaternion.Identity), c);
+        SenderRelativeVelocity.Write(new Vector3(senderVelocityX, senderVelocityY, senderVelocityZ), c);
+        ProximitySpeed.Write(proximitySpeed, c);
+        CollisionTags.Write(collisionTagParameters.Where(p => p.Value).Select(p => p.Key.Name.Split('_').Last()).ToList(), c);
+
         return Task.CompletedTask;
     }
 }
