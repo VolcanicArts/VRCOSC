@@ -12,9 +12,6 @@ public sealed class CurrentCultureConstantNode() : ConstantNode<CultureInfo>(Cul
 [Node("Invariant Culture", "Strings/Constants")]
 public sealed class InvariantCultureConstantNode() : ConstantNode<CultureInfo>(CultureInfo.InvariantCulture);
 
-[Node("String Null", "Strings/Constants")]
-public sealed class StringNullConstantNode() : ConstantNode<string?>(null);
-
 [Node("String Empty", "Strings/Constants")]
 public sealed class StringEmptyConstantNode() : ConstantNode<string>(string.Empty);
 

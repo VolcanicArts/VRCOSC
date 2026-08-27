@@ -27,6 +27,9 @@ public static class NodeGraphBaseHelper
         if (type.Contains("RichTextNode"))
             return type.Replace("RichTextNode", "ValueNode<System.String>");
 
+        if (type.Contains("StringNullConstantNode"))
+            return type.Replace("StringNullConstantNode", "NullConstantNode<System.String>");
+
         return type;
     }
 
