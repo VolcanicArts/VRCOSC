@@ -205,7 +205,7 @@ public class NodeGraph : INotifyPropertyChanged
             if (inputConnection is IValueConnection)
                 inputNode.Metadata.ElementInstancesFor(ConnectionPoint.ValueInput)[inputConnection.InputSlot].IsConnected = false;
 
-            if (inputNode.Metadata.Shared.ReceivesValueUpdates)
+            if (!inputNode.Metadata.Shared.IsFlowOutput)
                 _ = TriggerTree(inputNode);
         }
 
@@ -279,7 +279,7 @@ public class NodeGraph : INotifyPropertyChanged
 
             Connections.Add(connection);
 
-            if (inputElement.Metadata.Shared.ReceivesValueUpdates)
+            if (!inputElement.Metadata.Shared.IsFlowOutput)
                 TriggerTree(inputElement).Forget();
 
             return Result<IValueConnection[]>.Success([connection]);
@@ -299,7 +299,7 @@ public class NodeGraph : INotifyPropertyChanged
             var conn2Result = createValueConnection(toStringNode.Id, 0, 0, inputType, inputId, inputSlot, inputSlotIndex, inputType);
             if (!conn2Result.IsSuccess) return conn2Result.Exception;
 
-            if (inputElement.Metadata.Shared.ReceivesValueUpdates)
+            if (!inputElement.Metadata.Shared.IsFlowOutput)
                 TriggerTree(inputElement).Forget();
 
             return Result<IValueConnection[]>.Success([conn1Result.Value[0], conn2Result.Value[0]]);
@@ -319,7 +319,7 @@ public class NodeGraph : INotifyPropertyChanged
             var conn2Result = createValueConnection(castNode.Id, 0, 0, inputType, inputId, inputSlot, inputSlotIndex, inputType);
             if (!conn2Result.IsSuccess) return conn2Result.Exception;
 
-            if (inputElement.Metadata.Shared.ReceivesValueUpdates)
+            if (!inputElement.Metadata.Shared.IsFlowOutput)
                 TriggerTree(inputElement).Forget();
 
             return Result<IValueConnection[]>.Success([conn1Result.Value[0], conn2Result.Value[0]]);
@@ -907,6 +907,8 @@ public class NodeGraph : INotifyPropertyChanged
 
             await TriggerTree(node, c, null, postC =>
             {
+                if (!node.Metadata.Shared.IsValueOutput) return true;
+
                 var isDirty = false;
 
                 foreach (var valueOutputMetadata in node.Metadata.Elements[ConnectionPoint.ValueOutput])
@@ -1069,12 +1071,6 @@ public class NodeGraph : INotifyPropertyChanged
         Debug.Assert(node.Metadata.Shared.IsAnyTrigger);
 
         var c = baseContext is null ? new PulseContext(this) : new PulseContext(baseContext, this);
-
-        if (node.Metadata.Shared.IsValueInputTrigger)
-        {
-            await processNode(node, c, onPreProcess);
-            return;
-        }
 
         var shouldProcess = await checkShouldProcess(node, c);
         if (!shouldProcess) return;
@@ -1315,9 +1311,7 @@ public class NodeGraph : INotifyPropertyChanged
         foreach (var connection in connections)
         {
             var inputNode = (INode)Elements[connection.InputId];
-
             if (pathStack.Contains(inputNode)) continue;
-            if (!inputNode.Metadata.Shared.ReceivesValueUpdates) continue;
 
             pathStack.Push(inputNode);
 

@@ -6,41 +6,28 @@ using System.Threading.Tasks;
 
 namespace VRCOSC.App.Nodes.Types.Flow;
 
-public abstract class FireWhileBase(Func<bool, bool> checkCondition) : Node, IActiveUpdateNode
+public abstract class FireWhileBase(Func<bool, bool> checkCondition) : Node, IContinuousNode
 {
     public int UpdateOffset => 0;
 
-    public GlobalStore<double> LastUpdateStore = new();
+    public GlobalStore<DateTime> LastUpdateStore = new();
 
     public FlowOutput Next = new();
 
     public ValueInput<int> Delay = new("Delay (ms)", 10);
     public ValueInput<bool> Condition = new();
 
-    protected override Task Process(IPulseContext c) => Next.Execute(c);
+    protected override Task Process(IPulseContext c)
+    {
+        LastUpdateStore.Write(DateTime.Now, c);
+        return Next.Execute(c);
+    }
 
-    public Task<bool> OnUpdate(IPulseContext c)
+    protected override bool ShouldProcess(IPulseContext c)
     {
         var delay = Delay.Read(c);
-        var condition = Condition.Read(c);
-
-        if (checkCondition(condition))
-        {
-            var accumulated = LastUpdateStore.Read(c);
-            accumulated += c.DeltaTime;
-
-            if (accumulated >= delay)
-            {
-                LastUpdateStore.Write(accumulated - delay, c);
-                return Task.FromResult(true);
-            }
-
-            LastUpdateStore.Write(accumulated, c);
-            return Task.FromResult(false);
-        }
-
-        LastUpdateStore.Write(0, c);
-        return Task.FromResult(false);
+        var shouldContinue = (DateTime.Now - LastUpdateStore.Read(c)).TotalMilliseconds >= delay;
+        return shouldContinue && checkCondition(Condition.Read(c));
     }
 }
 
