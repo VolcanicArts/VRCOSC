@@ -24,30 +24,35 @@ public partial class ChatBoxPreviewView
         AppManager.GetInstance().VRChatOscClient.OnVRChatOSCMessageSent += OnVRChatOSCMessageSent;
     }
 
-    private void OnVRChatOSCMessageSent(VRChatOSCMessage message) => Dispatcher.Invoke(() =>
+    private void OnVRChatOSCMessageSent(VRChatOSCMessage message)
     {
         if (!message.IsChatboxInput) return;
 
-        var currentClip = ChatBoxManager.GetInstance().CurrentClip;
-        UseMinimalBackground.Value = (currentClip?.ShouldUseMinimalBackground() ?? false) || (ChatBoxManager.GetInstance().PulseText is not null && ChatBoxManager.GetInstance().PulseMinimalBackground);
-
-        var text = (string)message.ParameterValue;
-
-        if (ChatBoxText.Text != string.Empty && text == string.Empty)
+        Dispatcher.BeginInvoke(() =>
         {
-            ChatBoxContainer.FadeOutFromOne(200, () => ChatBoxText.Text = text);
-            return;
-        }
+            var currentClip = ChatBoxManager.GetInstance().CurrentClip;
 
-        if (ChatBoxText.Text == string.Empty && text != string.Empty)
-        {
+            UseMinimalBackground.Value = (currentClip?.ShouldUseMinimalBackground() ?? false)
+                                         || (ChatBoxManager.GetInstance().PulseText is not null && ChatBoxManager.GetInstance().PulseMinimalBackground);
+
+            var text = (string)message.ParameterValue;
+
+            if (ChatBoxText.Text != string.Empty && text == string.Empty)
+            {
+                ChatBoxContainer.FadeOutFromOne(200, () => ChatBoxText.Text = text);
+                return;
+            }
+
+            if (ChatBoxText.Text == string.Empty && text != string.Empty)
+            {
+                ChatBoxText.Text = text;
+                ChatBoxContainer.FadeInFromZero(200);
+                return;
+            }
+
             ChatBoxText.Text = text;
-            ChatBoxContainer.FadeInFromZero(200);
-            return;
-        }
-
-        ChatBoxText.Text = text;
-    });
+        });
+    }
 }
 
 public class ChatBoxPreviewBackgroundWidthConverter : IValueConverter
