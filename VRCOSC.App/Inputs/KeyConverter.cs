@@ -1,8 +1,6 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
-using System;
-
 namespace VRCOSC.App.Inputs;
 
 using System.Windows.Input;
@@ -149,7 +147,38 @@ public static class KeyConverter
         Key.OemPeriod => KeyCode.VcPeriod,
         Key.OemQuestion => KeyCode.VcSlash,
 
-        _ => throw new ArgumentOutOfRangeException(nameof(key), key, null)
+        Key.Apps => KeyCode.VcContextMenu,
+        Key.Sleep => KeyCode.VcSleep,
+        Key.Help => KeyCode.VcHelp,
+        Key.Clear or Key.OemClear => KeyCode.VcNumPadClear,
+        Key.Separator => KeyCode.VcNumPadSeparator,
+        Key.OemBackslash => KeyCode.VcSection,
+        Key.Oem8 => KeyCode.VcMisc,
+        Key.ImeProcessed => KeyCode.VcProcess,
+
+        Key.BrowserBack => KeyCode.VcBrowserBack,
+        Key.BrowserForward => KeyCode.VcBrowserForward,
+        Key.BrowserRefresh => KeyCode.VcBrowserRefresh,
+        Key.BrowserStop => KeyCode.VcBrowserStop,
+        Key.BrowserSearch => KeyCode.VcBrowserSearch,
+        Key.BrowserFavorites => KeyCode.VcBrowserFavorites,
+        Key.BrowserHome => KeyCode.VcBrowserHome,
+
+        Key.VolumeMute => KeyCode.VcVolumeMute,
+        Key.VolumeDown => KeyCode.VcVolumeDown,
+        Key.VolumeUp => KeyCode.VcVolumeUp,
+
+        Key.MediaNextTrack => KeyCode.VcMediaNext,
+        Key.MediaPreviousTrack => KeyCode.VcMediaPrevious,
+        Key.MediaStop => KeyCode.VcMediaStop,
+        Key.MediaPlayPause => KeyCode.VcMediaPlay,
+
+        Key.LaunchMail => KeyCode.VcAppMail,
+        Key.SelectMedia => KeyCode.VcMediaSelect,
+        Key.LaunchApplication1 => KeyCode.VcApp1,
+        Key.LaunchApplication2 => KeyCode.VcApp2,
+
+        _ => KeyCode.VcUndefined
     };
 
     public static Key ToWpf(this KeyCode key) => key switch
@@ -290,6 +319,38 @@ public static class KeyConverter
         KeyCode.VcPeriod => Key.OemPeriod,
         KeyCode.VcSlash => Key.OemQuestion,
 
-        _ => throw new ArgumentOutOfRangeException(nameof(key), key, null)
+        KeyCode.VcContextMenu => Key.Apps,
+        KeyCode.VcSleep => Key.Sleep,
+        KeyCode.VcHelp => Key.Help,
+        KeyCode.VcNumPadClear => Key.Clear,
+        KeyCode.VcNumPadSeparator => Key.Separator,
+        KeyCode.VcSection => Key.OemBackslash,
+        KeyCode.VcMisc => Key.Oem8,
+        KeyCode.VcProcess => Key.ImeProcessed,
+        KeyCode.VcNumPadEnter => Key.Enter, // WPF doesn't distinguish numpad Enter
+
+        KeyCode.VcBrowserBack => Key.BrowserBack,
+        KeyCode.VcBrowserForward => Key.BrowserForward,
+        KeyCode.VcBrowserRefresh => Key.BrowserRefresh,
+        KeyCode.VcBrowserStop => Key.BrowserStop,
+        KeyCode.VcBrowserSearch => Key.BrowserSearch,
+        KeyCode.VcBrowserFavorites => Key.BrowserFavorites,
+        KeyCode.VcBrowserHome => Key.BrowserHome,
+
+        KeyCode.VcVolumeMute => Key.VolumeMute,
+        KeyCode.VcVolumeDown => Key.VolumeDown,
+        KeyCode.VcVolumeUp => Key.VolumeUp,
+
+        KeyCode.VcMediaNext => Key.MediaNextTrack,
+        KeyCode.VcMediaPrevious => Key.MediaPreviousTrack,
+        KeyCode.VcMediaStop => Key.MediaStop,
+        KeyCode.VcMediaPlay => Key.MediaPlayPause,
+
+        KeyCode.VcAppMail => Key.LaunchMail,
+        KeyCode.VcMediaSelect => Key.SelectMedia,
+        KeyCode.VcApp1 => Key.LaunchApplication1,
+        KeyCode.VcApp2 => Key.LaunchApplication2,
+
+        _ => Key.None
     };
 }
