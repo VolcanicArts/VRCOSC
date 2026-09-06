@@ -1163,7 +1163,7 @@ public class NodeGraph : INotifyPropertyChanged
         return true;
     }
 
-    private readonly Dictionary<Guid, INode[]> cachedBacktracks = [];
+    private readonly ConcurrentDictionary<Guid, INode[]> cachedBacktracks = [];
 
     private async Task backtrackNodeInner(INode outputNode, PulseContext c)
     {
