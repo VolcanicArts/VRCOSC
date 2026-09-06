@@ -2,127 +2,44 @@
 // See the LICENSE file in the repository root for full license text.
 
 using System.Numerics;
-using System.Runtime.InteropServices;
-using Windows.Win32;
-using Windows.Win32.UI.Input.XboxController;
-using VRCOSC.App.Utils;
+using VRCOSC.App.Inputs;
 
 namespace VRCOSC.App.Nodes.Types.Input;
 
-[StructLayout(LayoutKind.Sequential)]
-public struct Gamepad
-{
-    public uint Index;
-
-    public Vector2 LeftStickPos;
-    public Vector2 RightStickPos;
-
-    public bool LeftStickClick;
-    public bool RightStickClick;
-
-    public float LeftTrigger;
-    public float RightTrigger;
-
-    public bool LeftShoulder;
-    public bool RightShoulder;
-
-    public bool DPadUp;
-    public bool DPadDown;
-    public bool DPadLeft;
-    public bool DPadRight;
-
-    public bool Start;
-    public bool Back;
-
-    public bool A;
-    public bool B;
-    public bool X;
-    public bool Y;
-}
-
 [Node("Gamepad Source", "Input/Gamepad")]
-public sealed class GamepadSourceNode() : ValueComputeNode<Gamepad>("Gamepad"), IUpdateNode
+public sealed class GamepadSourceNode() : ValueSourceNode<Gamepad>("Gamepad")
 {
-    public int UpdateOffset => 0;
+    private GlobalInputHandler globalInputHandler => AppManager.GetInstance().GlobalInputHandler;
 
     public GlobalStore<Gamepad> GamepadStore = new();
 
     [InputMode(InputModes.Inline)]
-    public ValueInput<uint> DeviceIndex = new();
+    public ValueInput<uint> DeviceId = new("Id");
 
-    protected override Gamepad ComputeValue(IPulseContext c) => GamepadStore.Read(c);
-
-    public void OnUpdate(IPulseContext c)
-    {
-        var deviceIndex = DeviceIndex.Read(c);
-
-        if (PInvoke.XInputGetState(deviceIndex, out var state) != 0)
-        {
-            GamepadStore.Write(new Gamepad(), c);
-            return;
-        }
-
-        var pad = state.Gamepad;
-
-        var gamepad = new Gamepad
-        {
-            Index = deviceIndex,
-
-            A = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_A),
-            B = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_B),
-            X = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_X),
-            Y = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_Y),
-
-            DPadUp = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_DPAD_UP),
-            DPadDown = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_DPAD_DOWN),
-            DPadLeft = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_DPAD_LEFT),
-            DPadRight = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_DPAD_RIGHT),
-
-            LeftShoulder = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_LEFT_SHOULDER),
-            RightShoulder = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_RIGHT_SHOULDER),
-
-            Start = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_START),
-            Back = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_BACK),
-
-            LeftStickClick = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_LEFT_THUMB),
-            RightStickClick = hasFlag(pad, XINPUT_GAMEPAD_BUTTON_FLAGS.XINPUT_GAMEPAD_RIGHT_THUMB),
-
-            LeftStickPos = new Vector2(remapStick(pad.sThumbLX), remapStick(pad.sThumbLY)),
-            RightStickPos = new Vector2(remapStick(pad.sThumbRX), remapStick(pad.sThumbRY)),
-
-            LeftTrigger = remapTrigger(pad.bLeftTrigger),
-            RightTrigger = remapTrigger(pad.bRightTrigger)
-        };
-
-        GamepadStore.Write(gamepad, c);
-        return;
-    }
-
-    private static float remapStick(short value) => Interpolation.Map(value, short.MinValue, short.MaxValue, -1f, 1f);
-    private static float remapTrigger(byte value) => Interpolation.Map(value, byte.MinValue, byte.MaxValue, 0f, 1f);
-    private static bool hasFlag(XINPUT_GAMEPAD pad, XINPUT_GAMEPAD_BUTTON_FLAGS flag) => ((ushort)pad.wButtons & (ushort)flag) != 0;
+    protected override Gamepad ComputeValue(IPulseContext c) => globalInputHandler.GetGamepad(DeviceId.Read(c));
 }
 
-[Node("Gamepad Set Vibration", "Input/Gamepad")]
+[Node("Gamepad Rumble", "Input/Gamepad")]
 public sealed class GamepadSetVibrationNode : ActionNode
 {
+    private GlobalInputHandler globalInputHandler => AppManager.GetInstance().GlobalInputHandler;
+
     public ValueInput<Gamepad> Gamepad = new();
     public ValueInput<float> IntensityHeavy = new();
     public ValueInput<float> IntensityLight = new();
+    public ValueInput<int> Duration = new("Duration (ms)");
 
     protected override void DoAction(IPulseContext c)
     {
         var gamepad = Gamepad.Read(c);
         var intensityHeavy = float.Clamp(IntensityHeavy.Read(c), 0f, 1f);
         var intensityLight = float.Clamp(IntensityLight.Read(c), 0f, 1f);
+        var duration = (uint)int.Clamp(Duration.Read(c), 0, int.MaxValue);
 
-        var vibration = new XINPUT_VIBRATION
-        {
-            wLeftMotorSpeed = (ushort)(intensityHeavy * ushort.MaxValue),
-            wRightMotorSpeed = (ushort)(intensityLight * ushort.MaxValue)
-        };
+        var convertedIntensityHeavy = (ushort)(intensityHeavy * ushort.MaxValue);
+        var convertedIntensityLight = (ushort)(intensityLight * ushort.MaxValue);
 
-        PInvoke.XInputSetState(gamepad.Index, vibration);
+        globalInputHandler.RumbleGamepad(gamepad, convertedIntensityHeavy, convertedIntensityLight, duration);
     }
 }
 
@@ -130,9 +47,14 @@ public abstract class GamepadConsumeNode() : ValueConsumeNode<Gamepad>(nameof(Ga
 {
     public int UpdateOffset => 0;
 
-    protected override void ConsumeValue(Gamepad value, IPulseContext c) => ConsumeGampad(value, c);
+    protected override void ConsumeValue(Gamepad value, IPulseContext c)
+    {
+        if (value is null) return;
 
-    protected abstract void ConsumeGampad(Gamepad gamepad, IPulseContext c);
+        ConsumeGamepad(value, c);
+    }
+
+    protected abstract void ConsumeGamepad(Gamepad gamepad, IPulseContext c);
 }
 
 [Node("Gamepad Left Stick", "Input/Gamepad")]
@@ -141,10 +63,10 @@ public sealed class GamepadLeftStickNode : GamepadConsumeNode
     public ValueOutput<Vector2> Position = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void ConsumeGampad(Gamepad gamepad, IPulseContext c)
+    protected override void ConsumeGamepad(Gamepad gamepad, IPulseContext c)
     {
-        Position.Write(gamepad.LeftStickPos, c);
-        Click.Write(gamepad.LeftStickClick, c);
+        Position.Write(gamepad.LeftStick.Position, c);
+        Click.Write(gamepad.LeftStick.Click, c);
     }
 }
 
@@ -154,10 +76,27 @@ public sealed class GamepadRightStickNode : GamepadConsumeNode
     public ValueOutput<Vector2> Position = new();
     public ValueOutput<bool> Click = new();
 
-    protected override void ConsumeGampad(Gamepad gamepad, IPulseContext c)
+    protected override void ConsumeGamepad(Gamepad gamepad, IPulseContext c)
     {
-        Position.Write(gamepad.RightStickPos, c);
-        Click.Write(gamepad.RightStickClick, c);
+        Position.Write(gamepad.RightStick.Position, c);
+        Click.Write(gamepad.RightStick.Click, c);
+    }
+}
+
+[Node("Gamepad Paddles", "Input/Gamepad")]
+public sealed class GamepadPaddlesNode : GamepadConsumeNode
+{
+    public ValueOutput<bool> Left1 = new();
+    public ValueOutput<bool> Left2 = new();
+    public ValueOutput<bool> Right1 = new();
+    public ValueOutput<bool> Right2 = new();
+
+    protected override void ConsumeGamepad(Gamepad gamepad, IPulseContext c)
+    {
+        Left1.Write(gamepad.LeftPaddle1, c);
+        Left2.Write(gamepad.LeftPaddle2, c);
+        Right1.Write(gamepad.RightPaddle1, c);
+        Right2.Write(gamepad.RightPaddle2, c);
     }
 }
 
@@ -167,7 +106,7 @@ public sealed class GamepadTriggersNode : GamepadConsumeNode
     public ValueOutput<float> Left = new();
     public ValueOutput<float> Right = new();
 
-    protected override void ConsumeGampad(Gamepad gamepad, IPulseContext c)
+    protected override void ConsumeGamepad(Gamepad gamepad, IPulseContext c)
     {
         Left.Write(gamepad.LeftTrigger, c);
         Right.Write(gamepad.RightTrigger, c);
@@ -180,7 +119,7 @@ public sealed class GamepadShouldersNode : GamepadConsumeNode
     public ValueOutput<bool> Left = new();
     public ValueOutput<bool> Right = new();
 
-    protected override void ConsumeGampad(Gamepad gamepad, IPulseContext c)
+    protected override void ConsumeGamepad(Gamepad gamepad, IPulseContext c)
     {
         Left.Write(gamepad.LeftShoulder, c);
         Right.Write(gamepad.RightShoulder, c);
@@ -195,7 +134,7 @@ public sealed class GamepadDPadNode : GamepadConsumeNode
     public ValueOutput<bool> Left = new();
     public ValueOutput<bool> Right = new();
 
-    protected override void ConsumeGampad(Gamepad gamepad, IPulseContext c)
+    protected override void ConsumeGamepad(Gamepad gamepad, IPulseContext c)
     {
         Up.Write(gamepad.DPadUp, c);
         Down.Write(gamepad.DPadDown, c);
@@ -207,20 +146,22 @@ public sealed class GamepadDPadNode : GamepadConsumeNode
 [Node("Gamepad Buttons", "Input/Gamepad")]
 public sealed class GamepadButtonsNode : GamepadConsumeNode
 {
-    public ValueOutput<bool> A = new();
-    public ValueOutput<bool> B = new();
-    public ValueOutput<bool> X = new();
-    public ValueOutput<bool> Y = new();
+    public ValueOutput<bool> South = new();
+    public ValueOutput<bool> East = new();
+    public ValueOutput<bool> West = new();
+    public ValueOutput<bool> North = new();
     public ValueOutput<bool> Start = new();
     public ValueOutput<bool> Back = new();
+    public ValueOutput<bool> Guide = new();
 
-    protected override void ConsumeGampad(Gamepad gamepad, IPulseContext c)
+    protected override void ConsumeGamepad(Gamepad gamepad, IPulseContext c)
     {
-        A.Write(gamepad.A, c);
-        B.Write(gamepad.B, c);
-        X.Write(gamepad.X, c);
-        Y.Write(gamepad.Y, c);
+        South.Write(gamepad.South, c);
+        East.Write(gamepad.East, c);
+        West.Write(gamepad.West, c);
+        North.Write(gamepad.North, c);
         Start.Write(gamepad.Start, c);
         Back.Write(gamepad.Back, c);
+        Guide.Write(gamepad.Guide, c);
     }
 }

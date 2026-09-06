@@ -24,5 +24,3 @@ GetMessage
 TranslateMessage
 DispatchMessage
 PostThreadMessage
-XInputGetState
-XInputSetState

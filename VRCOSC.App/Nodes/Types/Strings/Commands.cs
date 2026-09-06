@@ -12,7 +12,9 @@ public class ParseCommandNode : TryActionNode
 {
     public override string DisplayName => "Parse Command";
 
+    [InputMode(InputModes.Connection)]
     public ValueInput<string> Text = new();
+
     public ValueInput<string> Command = new();
     public ValueInput<CultureInfo> CultureInfo = new(defaultValue: System.Globalization.CultureInfo.CurrentCulture);
 

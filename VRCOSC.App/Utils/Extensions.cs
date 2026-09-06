@@ -171,16 +171,34 @@ public static class ObservableCollectionExtensions
 
 public static class TaskExtensions
 {
-    public static void Forget(this Task task)
+    extension(Task task)
     {
-        if (task.IsCompleted)
+        public void Forget()
         {
-            if (task.IsFaulted) ExceptionHandler.Handle(task.Exception!.GetBaseException(), "A forgotten task has thrown an exception");
-            return;
+            if (task.IsCompleted)
+            {
+                if (task.IsFaulted) ExceptionHandler.Handle(task.Exception!.GetBaseException(), "A forgotten task has thrown an exception");
+                return;
+            }
+
+            _ = task.ContinueWith(t => ExceptionHandler.Handle(t.Exception!.GetBaseException(), "A forgotten task has thrown an exception"),
+                TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
         }
 
-        _ = task.ContinueWith(t => ExceptionHandler.Handle(t.Exception!.GetBaseException(), "A forgotten task has thrown an exception"),
-            TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
+        public void FireAndForget(Action? onSuccess = null, Action<Exception>? onError = null)
+            => task.ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                {
+                    var exception = t.Exception;
+                    Debug.Assert(exception != null);
+                    onError?.Invoke(exception);
+                }
+                else
+                {
+                    onSuccess?.Invoke();
+                }
+            });
     }
 }
 

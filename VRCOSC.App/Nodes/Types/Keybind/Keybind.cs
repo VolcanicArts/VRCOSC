@@ -1,14 +1,17 @@
 ﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
+using System;
 using System.Threading.Tasks;
-using VRCOSC.App.SDK.Utils;
+using VRCOSC.App.Inputs;
 
 namespace VRCOSC.App.Nodes.Types.Keybind;
 
-[Node("Press Keybind", "Input/Keybind")]
+[Node("Press Keybind", "Input/Keyboard")]
 public sealed class KeybindPressNode : AsyncActionNode
 {
+    private GlobalInputHandler globalInputHandler => AppManager.GetInstance().GlobalInputHandler;
+
     public ValueInput<SDK.Utils.Keybind> Keybind = new();
     public ValueInput<int> Duration = new("Duration (ms)", 25);
 
@@ -17,14 +20,16 @@ public sealed class KeybindPressNode : AsyncActionNode
         var keybind = Keybind.Read(c);
         if (keybind is null) return;
 
-        await KeySimulator.PressKeybind(keybind, Duration.Read(c));
+        await globalInputHandler.PressKeybind(keybind, TimeSpan.FromMilliseconds(Duration.Read(c)));
         await Next.Execute(c);
     }
 }
 
-[Node("Hold/Release Keybind", "Input/Keybind")]
+[Node("Hold/Release Keybind", "Input/Keyboard")]
 public sealed class KeybindHoldReleaseNode : AsyncActionNode
 {
+    private GlobalInputHandler globalInputHandler => AppManager.GetInstance().GlobalInputHandler;
+
     public GlobalStore<bool> PrevCondition = new();
 
     public ValueInput<SDK.Utils.Keybind> Keybind = new();
@@ -39,7 +44,7 @@ public sealed class KeybindHoldReleaseNode : AsyncActionNode
 
         if (!PrevCondition.Read(c) && condition)
         {
-            await KeySimulator.HoldKeybind(keybind);
+            globalInputHandler.HoldKeybind(keybind);
             PrevCondition.Write(condition, c);
             await Next.Execute(c);
             return;
@@ -47,7 +52,7 @@ public sealed class KeybindHoldReleaseNode : AsyncActionNode
 
         if (PrevCondition.Read(c) && !condition)
         {
-            await KeySimulator.ReleaseKeybind(keybind);
+            globalInputHandler.ReleaseKeybind(keybind);
             PrevCondition.Write(condition, c);
             await Next.Execute(c);
             return;
@@ -55,7 +60,7 @@ public sealed class KeybindHoldReleaseNode : AsyncActionNode
     }
 }
 
-[Node("Keybind Source", "Input/Keybind")]
+[Node("Keybind Source", "Input/Keyboard")]
 public sealed class KeybindSourceNode() : ValueSourceNode<bool>("Down")
 {
     [InputMode(InputModes.Inline)]
@@ -66,6 +71,6 @@ public sealed class KeybindSourceNode() : ValueSourceNode<bool>("Down")
         var keybind = Keybind.Read(c);
         if (keybind is null || keybind.AllKeys.Length == 0) return false;
 
-        return AppManager.GetInstance().GlobalKeyboardHook.AreAllKeysPressed(keybind.AllKeys);
+        return AppManager.GetInstance().GlobalInputHandler.GetKeybindState(keybind);
     }
 }

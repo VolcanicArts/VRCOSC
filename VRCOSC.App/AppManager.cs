@@ -19,6 +19,7 @@ using VRCOSC.App.Audio;
 using VRCOSC.App.Audio.Whisper;
 using VRCOSC.App.ChatBox;
 using VRCOSC.App.Dolly;
+using VRCOSC.App.Inputs;
 using VRCOSC.App.Modules;
 using VRCOSC.App.Nodes;
 using VRCOSC.App.OpenVR;
@@ -66,9 +67,9 @@ internal class AppManager : IVRCClientEventHandler
     public VRChatClient VRChatClient = null!;
     public ChatBoxWorldBlacklist ChatBoxWorldBlacklist = null!;
     public WhisperSpeechEngine SpeechEngine = null!;
-    public GlobalKeyboardHook GlobalKeyboardHook { get; } = new();
     public OpenVRManager OpenVRManager { get; private set; } = null!;
     public SteamVRManager SteamVRManager { get; private set; } = null!;
+    public GlobalInputHandler GlobalInputHandler { get; private set; } = null!;
 
     private Repeater vrchatCheckTask = null!;
 
@@ -155,6 +156,7 @@ internal class AppManager : IVRCClientEventHandler
 
         OpenVRManager = new OpenVRManager();
         SteamVRManager = new SteamVRManager();
+        GlobalInputHandler = new GlobalInputHandler();
     }
 
     public async void HandleClientEvent(IVRChatClientEvent @event)
@@ -614,8 +616,8 @@ internal class AppManager : IVRCClientEventHandler
 
         if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.GlobalKeyboardHook))
         {
-            Logger.Log("Global keyboard hook has been enabled!");
-            GlobalKeyboardHook.Enable();
+            Logger.Log("Global input handler has been enabled!");
+            await GlobalInputHandler.Start();
         }
 
         State.Value = AppManagerState.Started;
@@ -679,12 +681,7 @@ internal class AppManager : IVRCClientEventHandler
 
         State.Value = AppManagerState.Stopping;
 
-        if (GlobalKeyboardHook.IsEnabled)
-        {
-            GlobalKeyboardHook.Disable();
-            Logger.Log("Global keyboard hook is disabled!");
-        }
-
+        await GlobalInputHandler.Stop();
         await SpeechEngine.Teardown();
         ProcessFPS.DisposeAll();
 

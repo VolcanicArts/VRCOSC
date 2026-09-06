@@ -25,15 +25,15 @@
     <ItemGroup>
         <PackageReference Include="CommandLineParser" Version="2.9.1" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-        <PackageReference Include="Extended.Wpf.Toolkit" Version="5.0.0" />
+        <PackageReference Include="Extended.Wpf.Toolkit" Version="5.1.2" />
         <PackageReference Include="Fastenshtein" Version="1.0.12" />
         <PackageReference Include="FontAwesome6.Fonts" Version="2.5.1" />
         <PackageReference Include="JsonPath.Net" Version="3.0.2" />
-        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.7-pre705" />
+        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.7-pre729" />
         <PackageReference Include="MathParser.org-mXparser" Version="6.1.1" />
         <PackageReference Include="MeaMod.DNS" Version="1.0.71" />
         <PackageReference Include="Microsoft.Management.Infrastructure" Version="3.0.0" />
-        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.298">
+        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.321">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -43,7 +43,10 @@
         <PackageReference Include="Octokit" Version="14.0.0" />
         <PackageReference Include="PixiEditor.ColorPicker" Version="3.4.2.3" />
         <PackageReference Include="PresentMonFps" Version="2.0.6" />
+        <PackageReference Include="SDL3-CS" Version="3.4.14.1" />
+        <PackageReference Include="SDL3-CS.Windows" Version="3.4.14.1" />
         <PackageReference Include="Semver" Version="3.0.0" />
+        <PackageReference Include="SharpHook" Version="8.0.0" />
         <PackageReference Include="SoundFlow" Version="1.4.1" />
         <PackageReference Include="TwitchLib.Api" Version="3.11.0-preview.218.c76ee84" />
         <PackageReference Include="TwitchLib.Api.Core" Version="3.11.0-preview.218.c76ee84" />
