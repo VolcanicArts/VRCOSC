@@ -29,7 +29,7 @@
         <PackageReference Include="Fastenshtein" Version="1.0.12" />
         <PackageReference Include="FontAwesome6.Fonts" Version="2.5.1" />
         <PackageReference Include="JsonPath.Net" Version="3.0.2" />
-        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.7-pre733" />
+        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.7-pre737" />
         <PackageReference Include="MathParser.org-mXparser" Version="6.1.1" />
         <PackageReference Include="MeaMod.DNS" Version="1.0.71" />
         <PackageReference Include="Microsoft.Management.Infrastructure" Version="3.0.0" />
@@ -37,7 +37,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.158" />
+        <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.161" />
         <PackageReference Include="NAudio" Version="2.3.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Octokit" Version="14.0.0" />
