@@ -276,6 +276,8 @@ public class NodeManager
 
             await graph.Stop();
         }
+
+        runningGraphs.Clear();
     }
 
     public void OnPartialSpeechResult(string result)
