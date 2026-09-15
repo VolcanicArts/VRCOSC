@@ -299,6 +299,9 @@ public class NodeGraph : INotifyPropertyChanged
             var conn2Result = createValueConnection(toStringNode.Id, 0, 0, inputType, inputId, inputSlot, inputSlotIndex, inputType);
             if (!conn2Result.IsSuccess) return conn2Result.Exception;
 
+            toStringNode.Metadata.Elements[ConnectionPoint.ValueInput][0].Instance.IsConnected = true;
+            inputElement.Metadata.Elements[ConnectionPoint.ValueInput][inputSlot].Instance.IsConnected = true;
+
             if (!inputElement.Metadata.Shared.IsFlowOutput)
                 TriggerTree(inputElement).Forget();
 
@@ -318,6 +321,9 @@ public class NodeGraph : INotifyPropertyChanged
 
             var conn2Result = createValueConnection(castNode.Id, 0, 0, inputType, inputId, inputSlot, inputSlotIndex, inputType);
             if (!conn2Result.IsSuccess) return conn2Result.Exception;
+
+            castNode.Metadata.Elements[ConnectionPoint.ValueInput][0].Instance.IsConnected = true;
+            inputElement.Metadata.Elements[ConnectionPoint.ValueInput][inputSlot].Instance.IsConnected = true;
 
             if (!inputElement.Metadata.Shared.IsFlowOutput)
                 TriggerTree(inputElement).Forget();
