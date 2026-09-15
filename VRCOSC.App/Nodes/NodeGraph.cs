@@ -1181,28 +1181,6 @@ public class NodeGraph : INotifyPropertyChanged
             return;
         }
 
-        if (metadata.Shared.IsSelfUpdating)
-        {
-            c.CreateMemory(outputNode);
-
-            for (var slot = 0; slot < metadata.Shared.ValueOutputCount; slot++)
-            {
-                var elementMetadata = metadata.Elements[ConnectionPoint.ValueOutput][slot];
-                var workingSize = elementMetadata.WorkingSize;
-
-                for (var slotIndex = 0; slotIndex < workingSize; slotIndex++)
-                {
-                    var cachedValue = GetCachedValueOutput(outputNode.Id, slot, slotIndex);
-                    if (cachedValue is null) continue;
-
-                    c.Write(outputNode.Id, slot, slotIndex, cachedValue.GetValue());
-                    continue;
-                }
-            }
-
-            return;
-        }
-
         await processNode(outputNode, c);
     }
 
