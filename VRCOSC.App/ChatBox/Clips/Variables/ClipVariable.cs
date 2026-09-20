@@ -145,108 +145,137 @@ public abstract class ClipVariable
     [ClipVariableOption("only_scroll_when_truncated", "Only Scroll When Truncated", "Should we only scroll when we've needed to truncate?")]
     public bool OnlyScrollWhenTruncated { get; set; }
 
+    public virtual bool IsDefault() => CaseMode == ClipVariableCaseMode.Default &&
+                                       TruncateLength == -1 &&
+                                       !IncludeEllipses &&
+                                       ScrollDirection == ClipVariableScrollDirection.Left &&
+                                       ScrollSpeed == 0 &&
+                                       JoinString == string.Empty &&
+                                       !OnlyScrollWhenTruncated;
+
     private int currentIndex;
     private bool bounceDirection;
     private ClipVariableScrollDirection previousScrollDirection;
     private bool previousOnlyScrollWhenTruncated;
 
-    public virtual bool IsDefault() => CaseMode == ClipVariableCaseMode.Default &&
-                                       TruncateLength == -1 &&
-                                       IncludeEllipses == false &&
-                                       ScrollDirection == ClipVariableScrollDirection.Left &&
-                                       ScrollSpeed == 0 &&
-                                       JoinString == string.Empty &&
-                                       OnlyScrollWhenTruncated == false;
-
-    // I hate all of this code. For the love of god redo this properly at some point so that it doesn't SUCK
-
     public string GetFormattedValue()
     {
-        if (previousScrollDirection != ClipVariableScrollDirection.Bounce && ScrollDirection == ClipVariableScrollDirection.Bounce)
-            currentIndex = 0;
-
-        previousScrollDirection = ScrollDirection;
-
-        if (OnlyScrollWhenTruncated != previousOnlyScrollWhenTruncated)
-        {
-            currentIndex = 0;
-            previousOnlyScrollWhenTruncated = OnlyScrollWhenTruncated;
-        }
+        updateState();
 
         var variableValue = ChatBoxManager.GetInstance().GetVariable(ModuleID, VariableID)!.Value.Value;
-        var formattedValue = variableValue is not null ? Format(variableValue) : string.Empty;
-        if (string.IsNullOrEmpty(formattedValue)) return string.Empty;
+        var value = variableValue is not null ? Format(variableValue) : string.Empty;
 
-        var formattedValueInfo = new StringInfo(formattedValue);
+        if (string.IsNullOrEmpty(value))
+            return string.Empty;
 
-        var willTruncate = TruncateLength >= 0 && formattedValueInfo.LengthInTextElements > TruncateLength;
-        var willScroll = (!OnlyScrollWhenTruncated || willTruncate) && ScrollSpeed > 0;
-        var addEllipses = IncludeEllipses && !willScroll && willTruncate;
+        var text = new StringInfo(value);
+        var isTruncated = TruncateLength >= 0 && text.LengthInTextElements > TruncateLength;
+        var isScrolling = ScrollSpeed > 0 && (!OnlyScrollWhenTruncated || isTruncated);
 
-        if (!willScroll) currentIndex = 0;
-
-        var stringInfo = new StringInfo(formattedValue);
-
-        if (willScroll && ScrollDirection == ClipVariableScrollDirection.Bounce && OnlyScrollWhenTruncated)
+        if (!isScrolling)
         {
-            var charsLeft = bounceDirection ? stringInfo.LengthInTextElements - currentIndex - TruncateLength : currentIndex;
-
-            if (charsLeft == 0)
-                bounceDirection = !bounceDirection;
-
-            var localScrollSpeed = ScrollSpeed;
-            localScrollSpeed = charsLeft != 0 ? Math.Min(localScrollSpeed, charsLeft) : localScrollSpeed;
-
-            formattedValue = stringInfo.SubstringByTextElements(currentIndex, TruncateLength);
-            currentIndex += bounceDirection ? localScrollSpeed : -localScrollSpeed;
-        }
-        else
-        {
-            if (willScroll && ScrollDirection != ClipVariableScrollDirection.Bounce)
-            {
-                if (!string.IsNullOrEmpty(JoinString)) formattedValue += JoinString;
-
-                switch (ScrollDirection)
-                {
-                    case ClipVariableScrollDirection.Right:
-                        currentIndex += ScrollSpeed;
-                        break;
-
-                    case ClipVariableScrollDirection.Left:
-                        currentIndex -= ScrollSpeed;
-                        break;
-                }
-            }
-
-            var localTruncateLength = TruncateLength;
-
-            if (addEllipses && stringInfo.LengthInTextElements > 3)
-                formattedValue = $"{stringInfo.SubstringByTextElements(0, localTruncateLength - 3)}...";
-
-            var localStringInfo = new StringInfo(formattedValue);
-            var position = currentIndex.Modulo(localStringInfo.LengthInTextElements);
-            formattedValue = cropAndWrapText(localStringInfo, position, localTruncateLength < 0 ? localStringInfo.LengthInTextElements : localTruncateLength);
+            currentIndex = 0;
+            return applyCase(truncate(text, IncludeEllipses && isTruncated));
         }
 
-        formattedValue = CaseMode switch
+        var result = ScrollDirection switch
         {
-            ClipVariableCaseMode.Default => formattedValue,
-            ClipVariableCaseMode.Lower => formattedValue.ToLower(CultureInfo.CurrentCulture),
-            ClipVariableCaseMode.Upper => formattedValue.ToUpper(CultureInfo.CurrentCulture),
-            ClipVariableCaseMode.Title => CultureInfo.CurrentCulture.TextInfo.ToTitleCase(formattedValue),
-            _ => throw new ArgumentOutOfRangeException()
+            ClipVariableScrollDirection.Bounce when OnlyScrollWhenTruncated => scrollBounce(text),
+            ClipVariableScrollDirection.Left => scrollLoop(text, -ScrollSpeed),
+            ClipVariableScrollDirection.Right => scrollLoop(text, ScrollSpeed),
+            _ => value
         };
 
-        return formattedValue;
+        return applyCase(result);
     }
 
-    private static string cropAndWrapText(StringInfo text, int position, int maxLength)
+    private void updateState()
     {
-        var endPos = Math.Min(position + maxLength, text.LengthInTextElements);
-        var subText = text.SubstringByTextElements(position, endPos - position);
-        var subTextInfo = new StringInfo(subText);
-        return endPos != text.LengthInTextElements ? subText : subText + text.SubstringByTextElements(0, Math.Min(maxLength - subTextInfo.LengthInTextElements, position));
+        var enteredBounce = previousScrollDirection != ClipVariableScrollDirection.Bounce && ScrollDirection == ClipVariableScrollDirection.Bounce;
+        var changedScrollWhenTruncated = OnlyScrollWhenTruncated != previousOnlyScrollWhenTruncated;
+
+        if (enteredBounce || changedScrollWhenTruncated)
+        {
+            currentIndex = 0;
+            bounceDirection = true;
+        }
+
+        previousScrollDirection = ScrollDirection;
+        previousOnlyScrollWhenTruncated = OnlyScrollWhenTruncated;
     }
+
+    private string scrollBounce(StringInfo text)
+    {
+        var maxIndex = text.LengthInTextElements - TruncateLength;
+        currentIndex = int.Clamp(currentIndex, 0, maxIndex);
+
+        var result = text.SubstringByTextElements(currentIndex, TruncateLength);
+        var distanceToEdge = bounceDirection ? maxIndex - currentIndex : currentIndex;
+
+        var movement = int.Min(ScrollSpeed, distanceToEdge);
+        currentIndex += bounceDirection ? movement : -movement;
+
+        if (currentIndex == 0 || currentIndex == maxIndex)
+            bounceDirection = !bounceDirection;
+
+        return result;
+    }
+
+    private string scrollLoop(StringInfo text, int offset)
+    {
+        var value = text.String;
+
+        if (!string.IsNullOrEmpty(JoinString))
+            value += JoinString;
+
+        var scrollingText = new StringInfo(value);
+
+        currentIndex += offset;
+        currentIndex = currentIndex.Modulo(scrollingText.LengthInTextElements);
+
+        var maxLength = TruncateLength < 0 ? scrollingText.LengthInTextElements : TruncateLength;
+        return cropAndWrap(scrollingText, currentIndex, maxLength);
+    }
+
+    private string truncate(StringInfo text, bool addEllipses)
+    {
+        if (TruncateLength < 0 || text.LengthInTextElements <= TruncateLength)
+            return text.String;
+
+        if (!addEllipses || TruncateLength <= 1)
+            return text.SubstringByTextElements(0, TruncateLength);
+
+        return text.SubstringByTextElements(0, TruncateLength - 1) + '…';
+    }
+
+    private static string cropAndWrap(StringInfo text, int position, int maxLength)
+    {
+        if (maxLength <= 0 || text.LengthInTextElements == 0)
+            return string.Empty;
+
+        position = position.Modulo(text.LengthInTextElements);
+
+        var end = int.Min(position + maxLength, text.LengthInTextElements);
+        var result = text.SubstringByTextElements(position, end - position);
+
+        if (end != text.LengthInTextElements) return result;
+
+        var remainingLength = maxLength - (end - position);
+
+        if (remainingLength > 0)
+            result += text.SubstringByTextElements(0, int.Min(remainingLength, position));
+
+        return result;
+    }
+
+    private string applyCase(string value) => CaseMode switch
+    {
+        ClipVariableCaseMode.Default => value,
+        ClipVariableCaseMode.Lower => value.ToLower(CultureInfo.CurrentCulture),
+        ClipVariableCaseMode.Upper => value.ToUpper(CultureInfo.CurrentCulture),
+        ClipVariableCaseMode.Title => CultureInfo.CurrentCulture.TextInfo.ToTitleCase(value),
+        _ => throw new ArgumentOutOfRangeException(nameof(CaseMode), CaseMode, $"{nameof(CaseMode)} is out of range for {nameof(ClipVariableCaseMode)}")
+    };
 
     protected abstract string Format(object value);
 }
