@@ -85,10 +85,10 @@
 				{
 					"inputs": {
 						"touch": {
-							"output": "/actions/main/in/left_primary_touch"
+							"output": "/actions/main/in/left_south_touch"
 						},
 						"click": {
-							"output": "/actions/main/in/left_primary_click"
+							"output": "/actions/main/in/left_south_click"
 						}
 					},
 					"mode": "button",
@@ -97,10 +97,10 @@
 				{
 					"inputs": {
 						"touch": {
-							"output": "/actions/main/in/left_secondary_touch"
+							"output": "/actions/main/in/left_north_touch"
 						},
 						"click": {
-							"output": "/actions/main/in/left_secondary_click"
+							"output": "/actions/main/in/left_north_click"
 						}
 					},
 					"mode": "button",
@@ -129,21 +129,6 @@
 					},
 					"mode": "trigger",
 					"path": "/user/hand/left/input/grip"
-				},
-				{
-					"inputs": {
-						"position": {
-							"output": "/actions/main/in/left_pad_position"
-						},
-						"touch": {
-							"output": "/actions/main/in/left_pad_touch"
-						},
-						"click": {
-							"output": "/actions/main/in/left_pad_click"
-						}
-					},
-					"mode": "trackpad",
-					"path": "/user/hand/left/input/trackpad"
 				},
 				{
 					"inputs": {
@@ -178,10 +163,10 @@
 				{
 					"inputs": {
 						"touch": {
-							"output": "/actions/main/in/right_primary_touch"
+							"output": "/actions/main/in/right_south_touch"
 						},
 						"click": {
-							"output": "/actions/main/in/right_primary_click"
+							"output": "/actions/main/in/right_south_click"
 						}
 					},
 					"mode": "button",
@@ -190,10 +175,10 @@
 				{
 					"inputs": {
 						"touch": {
-							"output": "/actions/main/in/right_secondary_touch"
+							"output": "/actions/main/in/right_north_touch"
 						},
 						"click": {
-							"output": "/actions/main/in/right_secondary_click"
+							"output": "/actions/main/in/right_north_click"
 						}
 					},
 					"mode": "button",
@@ -222,21 +207,6 @@
 					},
 					"mode": "trigger",
 					"path": "/user/hand/right/input/grip"
-				},
-				{
-					"inputs": {
-						"position": {
-							"output": "/actions/main/in/right_pad_position"
-						},
-						"touch": {
-							"output": "/actions/main/in/right_pad_touch"
-						},
-						"click": {
-							"output": "/actions/main/in/right_pad_click"
-						}
-					},
-					"mode": "trackpad",
-					"path": "/user/hand/right/input/trackpad"
 				}
 			]
 		}

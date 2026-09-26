@@ -30,6 +30,12 @@ public static class NodeGraphBaseHelper
         if (type.Contains("StringNullConstantNode"))
             return type.Replace("StringNullConstantNode", "NullConstantNode<System.String>");
 
+        if (type.Contains("SteamVRControllerPrimaryNode"))
+            return type.Replace("SteamVRControllerPrimaryNode", "SteamVRControllerButtonSouthNode");
+
+        if (type.Contains("SteamVRControllerSecondaryNode"))
+            return type.Replace("SteamVRControllerSecondaryNode", "SteamVRControllerButtonNorthNode");
+
         return type;
     }
 

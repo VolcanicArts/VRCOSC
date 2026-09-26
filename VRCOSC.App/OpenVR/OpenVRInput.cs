@@ -41,13 +41,22 @@ public class OpenVRInput
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_trigger_pull", ref leftControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_trigger_touch", ref leftControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_trigger_click", ref leftControllerActions[i++]);
-        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_primary_touch", ref leftControllerActions[i++]);
-        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_primary_click", ref leftControllerActions[i++]);
-        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_secondary_touch", ref leftControllerActions[i++]);
-        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_secondary_click", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_bumper_touch", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_bumper_click", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_north_touch", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_north_click", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_east_touch", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_east_click", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_south_touch", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_south_click", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_west_touch", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_west_click", ref leftControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_system_touch", ref leftControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_system_click", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_menu_touch", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_menu_click", ref leftControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_grip_pull", ref leftControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_grip_touch", ref leftControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_grip_click", ref leftControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_pad_position", ref leftControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/left_pad_touch", ref leftControllerActions[i++]);
@@ -64,13 +73,22 @@ public class OpenVRInput
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_trigger_pull", ref rightControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_trigger_touch", ref rightControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_trigger_click", ref rightControllerActions[i++]);
-        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_primary_touch", ref rightControllerActions[i++]);
-        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_primary_click", ref rightControllerActions[i++]);
-        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_secondary_touch", ref rightControllerActions[i++]);
-        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_secondary_click", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_bumper_touch", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_bumper_click", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_north_touch", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_north_click", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_east_touch", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_east_click", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_south_touch", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_south_click", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_west_touch", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_west_click", ref rightControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_system_touch", ref rightControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_system_click", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_menu_touch", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_menu_click", ref rightControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_grip_pull", ref rightControllerActions[i++]);
+        Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_grip_touch", ref rightControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_grip_click", ref rightControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_pad_position", ref rightControllerActions[i++]);
         Valve.VR.OpenVR.Input.GetActionHandle("/actions/main/in/right_pad_touch", ref rightControllerActions[i++]);
@@ -125,51 +143,66 @@ public class OpenVRInput
     private void updateDevices()
     {
         var leftController = manager.GetLeftController();
-        leftController?.Input = populateInputState(leftControllerActions);
+        leftController?.Input = createDeviceInput(leftControllerActions);
 
         var rightController = manager.GetRightController();
-        rightController?.Input = populateInputState(rightControllerActions);
+        rightController?.Input = createDeviceInput(rightControllerActions);
     }
 
-    private InputState populateInputState(ulong[] actions)
+    private static DeviceInput createDeviceInput(ulong[] actions)
     {
         var i = 0;
-        var state = new InputState();
+        var state = new DeviceInput();
 
         var stickX = OpenVRHelper.GetAnalogueInput(actions[i]).x;
         var stickY = OpenVRHelper.GetAnalogueInput(actions[i++]).y;
         var stickPosition = new Vector2(stickX, stickY);
         var stickTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
         var stickClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
-        state.Stick = new Stick(stickPosition, stickTouch, stickClick);
+        state.Stick = new Vector2Input(stickPosition, stickTouch, stickClick);
 
         var triggerPull = OpenVRHelper.GetAnalogueInput(actions[i++]).x;
         var triggerTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
         var triggerClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
-        state.Trigger = new Trigger(triggerPull, triggerTouch, triggerClick);
+        var bumperTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
+        var bumperClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
+        var trigger = new Vector1Input(triggerPull, triggerTouch, triggerClick);
+        var bumper = new BoolInput(bumperTouch, bumperClick);
+        state.Triggers = new Triggers(trigger, bumper);
 
-        var primaryTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
-        var primaryClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
-        state.Primary = new Button(primaryTouch, primaryClick);
-
-        var secondaryTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
-        var secondaryClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
-        state.Secondary = new Button(secondaryTouch, secondaryClick);
+        var northTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
+        var northClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
+        var eastTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
+        var eastClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
+        var southTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
+        var southClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
+        var westTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
+        var westClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
+        var north = new BoolInput(northTouch, northClick);
+        var east = new BoolInput(eastTouch, eastClick);
+        var south = new BoolInput(southTouch, southClick);
+        var west = new BoolInput(westTouch, westClick);
+        state.Buttons = new Buttons(north, east, south, west);
 
         var systemTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
         var systemClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
-        state.System = new Button(systemTouch, systemClick);
+        state.System = new BoolInput(systemTouch, systemClick);
+
+        var menuTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
+        var menuClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
+        state.Menu = new BoolInput(menuTouch, menuClick);
 
         var gripPull = OpenVRHelper.GetAnalogueInput(actions[i++]).x;
+        var gripTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
         var gripClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
-        state.Grip = new Grip(gripPull, gripClick);
+        state.Grip = new Vector1Input(gripPull, gripTouch, gripClick);
 
         var padX = OpenVRHelper.GetAnalogueInput(actions[i]).x;
         var padY = OpenVRHelper.GetAnalogueInput(actions[i++]).y;
         var padPosition = new Vector2(padX, padY);
         var padTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
         var padClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
-        state.Pad = new Pad(padPosition, padTouch, padClick);
+        state.Pad = new Vector2Input(padPosition, padTouch, padClick);
 
         var index = OpenVRHelper.GetAnalogueInput(actions[i++]).x;
         var middle = OpenVRHelper.GetAnalogueInput(actions[i++]).x;

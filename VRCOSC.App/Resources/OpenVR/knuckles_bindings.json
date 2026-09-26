@@ -85,10 +85,10 @@
 				{
 					"inputs": {
 						"touch": {
-							"output": "/actions/main/in/left_primary_touch"
+							"output": "/actions/main/in/left_south_touch"
 						},
 						"click": {
-							"output": "/actions/main/in/left_primary_click"
+							"output": "/actions/main/in/left_south_click"
 						}
 					},
 					"mode": "button",
@@ -97,10 +97,10 @@
 				{
 					"inputs": {
 						"touch": {
-							"output": "/actions/main/in/left_secondary_touch"
+							"output": "/actions/main/in/left_north_touch"
 						},
 						"click": {
-							"output": "/actions/main/in/left_secondary_click"
+							"output": "/actions/main/in/left_north_click"
 						}
 					},
 					"mode": "button",
@@ -224,10 +224,10 @@
 				{
 					"inputs": {
 						"touch": {
-							"output": "/actions/main/in/right_primary_touch"
+							"output": "/actions/main/in/right_south_touch"
 						},
 						"click": {
-							"output": "/actions/main/in/right_primary_click"
+							"output": "/actions/main/in/right_south_click"
 						}
 					},
 					"mode": "button",
@@ -236,10 +236,10 @@
 				{
 					"inputs": {
 						"touch": {
-							"output": "/actions/main/in/right_secondary_touch"
+							"output": "/actions/main/in/right_north_touch"
 						},
 						"click": {
-							"output": "/actions/main/in/right_secondary_click"
+							"output": "/actions/main/in/right_north_click"
 						}
 					},
 					"mode": "button",

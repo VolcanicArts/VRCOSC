@@ -5,96 +5,26 @@ using System.Numerics;
 
 namespace VRCOSC.App.OpenVR.Device;
 
-public struct InputState
+public record DeviceInput
 {
-    public Stick Stick;
-    public Trigger Trigger;
-    public Button Primary;
-    public Button Secondary;
-    public Button System;
-    public Grip Grip;
-    public Pad Pad;
+    public Vector2Input Stick;
+    public Triggers Triggers;
+    public Buttons Buttons;
+    public Vector1Input Grip;
+    public Vector2Input Pad;
     public Skeleton Skeleton;
+    public BoolInput System;
+    public BoolInput Menu;
 }
 
-public struct Button
-{
-    public bool Touch;
-    public bool Click;
+public record BoolInput(bool Touch, bool Click);
 
-    public Button(bool touch, bool click)
-    {
-        Touch = touch;
-        Click = click;
-    }
-}
+public record Vector2Input(Vector2 Position, bool Touch, bool Click) : BoolInput(Touch, Click);
 
-public struct Grip
-{
-    public float Pull;
-    public bool Click;
+public record Vector1Input(float Depth, bool Touch, bool Click) : BoolInput(Touch, Click);
 
-    public Grip(float pull, bool click)
-    {
-        Pull = pull;
-        Click = click;
-    }
-}
+public record Skeleton(float Index, float Middle, float Ring, float Pinky);
 
-public struct Trigger
-{
-    public float Pull;
-    public bool Touch;
-    public bool Click;
+public record Buttons(BoolInput North, BoolInput East, BoolInput South, BoolInput West);
 
-    public Trigger(float pull, bool touch, bool click)
-    {
-        Pull = pull;
-        Touch = touch;
-        Click = click;
-    }
-}
-
-public struct Stick
-{
-    public Vector2 Position;
-    public bool Touch;
-    public bool Click;
-
-    public Stick(Vector2 position, bool touch, bool click)
-    {
-        Position = position;
-        Touch = touch;
-        Click = click;
-    }
-}
-
-public struct Pad
-{
-    public Vector2 Position;
-    public bool Touch;
-    public bool Click;
-
-    public Pad(Vector2 position, bool touch, bool click)
-    {
-        Position = position;
-        Touch = touch;
-        Click = click;
-    }
-}
-
-public struct Skeleton
-{
-    public float Index;
-    public float Middle;
-    public float Ring;
-    public float Pinky;
-
-    public Skeleton(float index, float middle, float ring, float pinky)
-    {
-        Index = index;
-        Middle = middle;
-        Ring = ring;
-        Pinky = pinky;
-    }
-}
+public record Triggers(Vector1Input Trigger, BoolInput Bumper);

@@ -74,6 +74,7 @@
       <None Remove="Resources\OpenVR\action_manifest.json" />
       <EmbeddedResource Include="Resources\OpenVR\action_manifest.json" />
       <None Remove="Resources\OpenVR\knuckles_bindings.json" />
+      <EmbeddedResource Include="Resources\OpenVR\frame_controller_bindings.json" />
       <EmbeddedResource Include="Resources\OpenVR\knuckles_bindings.json" />
       <None Remove="Resources\OpenVR\oculus_touch_bindings.json" />
       <EmbeddedResource Include="Resources\OpenVR\oculus_touch_bindings.json" />

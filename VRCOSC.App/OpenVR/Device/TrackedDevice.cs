@@ -80,7 +80,7 @@ public record HMD : TrackedDevice
 
 public record Controller : TrackedDevice
 {
-    public InputState Input { get; internal set; }
+    public DeviceInput Input { get; internal set; }
 
     public Controller(uint index, string serialNumber, string dongleId, DeviceRole role)
         : base(index, serialNumber, dongleId, role)

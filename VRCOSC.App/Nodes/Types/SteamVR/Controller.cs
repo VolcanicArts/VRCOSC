@@ -20,21 +20,6 @@ public abstract class SteamVRControllerConsumeNode() : ValueConsumeNode<Controll
     protected abstract void ConsumeController(Controller controller, IPulseContext c);
 }
 
-[Node("Controller Trigger", "SteamVR/Input")]
-public sealed class SteamVRControllerTriggerNode : SteamVRControllerConsumeNode
-{
-    public ValueOutput<float> Pull = new();
-    public ValueOutput<bool> Touch = new();
-    public ValueOutput<bool> Click = new();
-
-    protected override void ConsumeController(Controller controller, IPulseContext c)
-    {
-        Pull.Write(controller.Input.Trigger.Pull, c);
-        Touch.Write(controller.Input.Trigger.Touch, c);
-        Click.Write(controller.Input.Trigger.Click, c);
-    }
-}
-
 [Node("Controller Stick", "SteamVR/Input")]
 public sealed class SteamVRControllerStickNode : SteamVRControllerConsumeNode
 {
@@ -44,35 +29,96 @@ public sealed class SteamVRControllerStickNode : SteamVRControllerConsumeNode
 
     protected override void ConsumeController(Controller controller, IPulseContext c)
     {
-        Position.Write(controller.Input.Stick.Position, c);
-        Touch.Write(controller.Input.Stick.Touch, c);
-        Click.Write(controller.Input.Stick.Click, c);
+        var stick = controller.Input.Stick;
+        Position.Write(stick.Position, c);
+        Touch.Write(stick.Touch, c);
+        Click.Write(stick.Click, c);
     }
 }
 
-[Node("Controller Primary", "SteamVR/Input")]
-public sealed class SteamVRControllerPrimaryNode : SteamVRControllerConsumeNode
+[Node("Controller Trigger", "SteamVR/Input")]
+public sealed class SteamVRControllerTriggerNode : SteamVRControllerConsumeNode
+{
+    public ValueOutput<float> Pull = new();
+    public ValueOutput<bool> Touch = new();
+    public ValueOutput<bool> Click = new();
+
+    protected override void ConsumeController(Controller controller, IPulseContext c)
+    {
+        var trigger = controller.Input.Triggers.Trigger;
+        Pull.Write(trigger.Depth, c);
+        Touch.Write(trigger.Touch, c);
+        Click.Write(trigger.Click, c);
+    }
+}
+
+[Node("Controller Bumper", "SteamVR/Input")]
+public sealed class SteamVRControllerBumperNode : SteamVRControllerConsumeNode
 {
     public ValueOutput<bool> Touch = new();
     public ValueOutput<bool> Click = new();
 
     protected override void ConsumeController(Controller controller, IPulseContext c)
     {
-        Touch.Write(controller.Input.Primary.Touch, c);
-        Click.Write(controller.Input.Primary.Click, c);
+        var bumper = controller.Input.Triggers.Bumper;
+        Touch.Write(bumper.Touch, c);
+        Click.Write(bumper.Click, c);
     }
 }
 
-[Node("Controller Secondary", "SteamVR/Input")]
-public sealed class SteamVRControllerSecondaryNode : SteamVRControllerConsumeNode
+[Node("Controller Button North", "SteamVR/Input")]
+public sealed class SteamVRControllerButtonNorthNode : SteamVRControllerConsumeNode
 {
     public ValueOutput<bool> Touch = new();
     public ValueOutput<bool> Click = new();
 
     protected override void ConsumeController(Controller controller, IPulseContext c)
     {
-        Touch.Write(controller.Input.Secondary.Touch, c);
-        Click.Write(controller.Input.Secondary.Click, c);
+        var button = controller.Input.Buttons.North;
+        Touch.Write(button.Touch, c);
+        Click.Write(button.Click, c);
+    }
+}
+
+[Node("Controller Button East", "SteamVR/Input")]
+public sealed class SteamVRControllerButtonEastNode : SteamVRControllerConsumeNode
+{
+    public ValueOutput<bool> Touch = new();
+    public ValueOutput<bool> Click = new();
+
+    protected override void ConsumeController(Controller controller, IPulseContext c)
+    {
+        var button = controller.Input.Buttons.East;
+        Touch.Write(button.Touch, c);
+        Click.Write(button.Click, c);
+    }
+}
+
+[Node("Controller Button South", "SteamVR/Input")]
+public sealed class SteamVRControllerButtonSouthNode : SteamVRControllerConsumeNode
+{
+    public ValueOutput<bool> Touch = new();
+    public ValueOutput<bool> Click = new();
+
+    protected override void ConsumeController(Controller controller, IPulseContext c)
+    {
+        var button = controller.Input.Buttons.South;
+        Touch.Write(button.Touch, c);
+        Click.Write(button.Click, c);
+    }
+}
+
+[Node("Controller Button West", "SteamVR/Input")]
+public sealed class SteamVRControllerButtonWestNode : SteamVRControllerConsumeNode
+{
+    public ValueOutput<bool> Touch = new();
+    public ValueOutput<bool> Click = new();
+
+    protected override void ConsumeController(Controller controller, IPulseContext c)
+    {
+        var button = controller.Input.Buttons.West;
+        Touch.Write(button.Touch, c);
+        Click.Write(button.Click, c);
     }
 }
 
@@ -84,8 +130,23 @@ public sealed class SteamVRControllerSystemNode : SteamVRControllerConsumeNode
 
     protected override void ConsumeController(Controller controller, IPulseContext c)
     {
-        Touch.Write(controller.Input.System.Touch, c);
-        Click.Write(controller.Input.System.Click, c);
+        var button = controller.Input.System;
+        Touch.Write(button.Touch, c);
+        Click.Write(button.Click, c);
+    }
+}
+
+[Node("Controller Menu", "SteamVR/Input")]
+public sealed class SteamVRControllerMenuNode : SteamVRControllerConsumeNode
+{
+    public ValueOutput<bool> Touch = new();
+    public ValueOutput<bool> Click = new();
+
+    protected override void ConsumeController(Controller controller, IPulseContext c)
+    {
+        var button = controller.Input.Menu;
+        Touch.Write(button.Touch, c);
+        Click.Write(button.Click, c);
     }
 }
 
@@ -93,12 +154,15 @@ public sealed class SteamVRControllerSystemNode : SteamVRControllerConsumeNode
 public sealed class SteamVRControllerGripNode : SteamVRControllerConsumeNode
 {
     public ValueOutput<float> Pull = new();
+    public ValueOutput<bool> Touch = new();
     public ValueOutput<bool> Click = new();
 
     protected override void ConsumeController(Controller controller, IPulseContext c)
     {
-        Pull.Write(controller.Input.Grip.Pull, c);
-        Click.Write(controller.Input.Grip.Click, c);
+        var grip = controller.Input.Grip;
+        Pull.Write(grip.Depth, c);
+        Touch.Write(grip.Touch, c);
+        Click.Write(grip.Click, c);
     }
 }
 
@@ -111,9 +175,10 @@ public sealed class SteamVRControllerPadNode : SteamVRControllerConsumeNode
 
     protected override void ConsumeController(Controller controller, IPulseContext c)
     {
-        Position.Write(controller.Input.Pad.Position, c);
-        Touch.Write(controller.Input.Pad.Touch, c);
-        Click.Write(controller.Input.Pad.Click, c);
+        var pad = controller.Input.Pad;
+        Position.Write(pad.Position, c);
+        Touch.Write(pad.Touch, c);
+        Click.Write(pad.Click, c);
     }
 }
 
@@ -127,9 +192,10 @@ public sealed class SteamVRControllerSkeletonNode : SteamVRControllerConsumeNode
 
     protected override void ConsumeController(Controller controller, IPulseContext c)
     {
-        Index.Write(controller.Input.Skeleton.Index, c);
-        Middle.Write(controller.Input.Skeleton.Middle, c);
-        Ring.Write(controller.Input.Skeleton.Ring, c);
-        Pinky.Write(controller.Input.Skeleton.Pinky, c);
+        var skeleton = controller.Input.Skeleton;
+        Index.Write(skeleton.Index, c);
+        Middle.Write(skeleton.Middle, c);
+        Ring.Write(skeleton.Ring, c);
+        Pinky.Write(skeleton.Pinky, c);
     }
 }

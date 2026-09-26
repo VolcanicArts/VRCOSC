@@ -55,17 +55,47 @@
         {
           "inputs": {
             "position": {
-              "output": "/actions/main/in/left_pad_position"
+              "output": "/actions/main/in/left_stick_position"
             },
             "touch": {
-              "output": "/actions/main/in/left_pad_touch"
+              "output": "/actions/main/in/left_stick_touch"
             },
             "click": {
-              "output": "/actions/main/in/left_pad_click"
+              "output": "/actions/main/in/left_stick_click"
             }
           },
           "mode": "trackpad",
           "path": "/user/hand/left/input/trackpad"
+        },
+        {
+          "inputs": {
+            "north": {
+              "output": "/actions/main/in/left_north_click"
+            },
+            "east": {
+              "output": "/actions/main/in/left_east_click"
+            },
+            "south": {
+              "output": "/actions/main/in/left_south_click"
+            },
+            "west": {
+              "output": "/actions/main/in/left_west_click"
+            }
+          },
+          "mode": "dpad",
+          "parameters": {
+            "sub_mode": "click"
+          },
+          "path": "/user/hand/left/input/trackpad"
+        },
+        {
+          "inputs" : {
+            "click" : {
+              "output" : "/actions/main/in/left_menu_click"
+            }
+          },
+          "mode" : "button",
+          "path" : "/user/hand/left/input/application_menu"
         },
         {
           "inputs": {
@@ -88,17 +118,47 @@
         {
           "inputs": {
             "position": {
-              "output": "/actions/main/in/right_pad_position"
+              "output": "/actions/main/in/right_stick_position"
             },
             "touch": {
-              "output": "/actions/main/in/right_pad_touch"
+              "output": "/actions/main/in/right_stick_touch"
             },
             "click": {
-              "output": "/actions/main/in/right_pad_click"
+              "output": "/actions/main/in/right_stick_click"
             }
           },
           "mode": "trackpad",
           "path": "/user/hand/right/input/trackpad"
+        },
+        {
+          "inputs": {
+            "north": {
+              "output": "/actions/main/in/right_north_click"
+            },
+            "east": {
+              "output": "/actions/main/in/right_east_click"
+            },
+            "south": {
+              "output": "/actions/main/in/right_south_click"
+            },
+            "west": {
+              "output": "/actions/main/in/right_west_click"
+            }
+          },
+          "mode": "dpad",
+          "parameters": {
+            "sub_mode": "click"
+          },
+          "path": "/user/hand/right/input/trackpad"
+        },
+        {
+          "inputs" : {
+            "click" : {
+              "output" : "/actions/main/in/right_menu_click"
+            }
+          },
+          "mode" : "button",
+          "path" : "/user/hand/right/input/application_menu"
         },
         {
           "inputs": {

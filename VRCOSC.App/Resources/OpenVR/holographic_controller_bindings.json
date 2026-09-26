@@ -58,10 +58,10 @@
 				{
 					"inputs": {
 						"touch": {
-							"output": "/actions/main/in/left_primary_touch"
+							"output": "/actions/main/in/left_menu_touch"
 						},
 						"click": {
-							"output": "/actions/main/in/left_primary_click"
+							"output": "/actions/main/in/left_menu_click"
 						}
 					},
 					"mode": "button",
@@ -135,6 +135,18 @@
 					},
 					"mode": "trackpad",
 					"path": "/user/hand/right/input/trackpad"
+				},
+				{
+					"inputs": {
+						"touch": {
+							"output": "/actions/main/in/right_menu_touch"
+						},
+						"click": {
+							"output": "/actions/main/in/right_menu_click"
+						}
+					},
+					"mode": "button",
+					"path": "/user/hand/right/input/application_menu"
 				}
 			]
 		}

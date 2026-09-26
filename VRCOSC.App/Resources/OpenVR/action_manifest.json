@@ -104,6 +104,10 @@
 		{
 			"controller_type": "vive_cosmos_controller",
 			"binding_url": "vive_cosmos_controller_bindings.json"
+		},
+		{
+			"controller_type": "frame_controller",
+			"binding_url": "frame_controller_bindings.json"
 		}
 	]
 }
