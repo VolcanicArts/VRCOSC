@@ -36,8 +36,8 @@ public class OpenVRManager
 
     private readonly OpenVRInput input;
     private readonly OVRMetadata metadata;
-    private readonly Repeater attemptInitialisationTask;
     private readonly Repeater fastUpdate;
+    private readonly Repeater attemptInitialisationTask;
 
     private int updateCounter;
 
@@ -67,7 +67,6 @@ public class OpenVRManager
         };
 
         attemptInitialisationTask = new Repeater($"{nameof(OpenVRManager)}-{nameof(attemptInitialisation)}", attemptInitialisation);
-        attemptInitialisationTask.Start(TimeSpan.FromSeconds(2d), true);
 
         fastUpdate = new Repeater($"{nameof(OpenVRManager)}-{nameof(onFastUpdate)}", onFastUpdate);
         fastUpdate.Start(TimeSpan.FromSeconds(1d / fast_ups), true);
@@ -87,6 +86,19 @@ public class OpenVRManager
         if (trackedDevice is null || !trackedDevice.IsConnected) return;
 
         OpenVRHelper.TriggerHaptic(input.GetHapticActionHandle(trackedDevice.Role), trackedDevice.Index, durationSeconds, frequency, amplitude);
+    }
+
+    public void Start()
+    {
+        attemptInitialisationTask.Start(TimeSpan.FromSeconds(2d), true);
+        Logger.Log($"Starting {nameof(OpenVRManager)} initialisation update");
+    }
+
+    public async Task Stop()
+    {
+        Logger.Log($"Stopping {nameof(OpenVRManager)} initialisation update");
+        await attemptInitialisationTask.StopAsync();
+        deinitialise();
     }
 
     private Task attemptInitialisation()

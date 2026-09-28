@@ -601,6 +601,7 @@ internal class AppManager : IVRCClientEventHandler
 
         await updateClientData();
 
+        OpenVRManager.Start();
         await AudioManager.GetInstance().Init();
         StartupManager.GetInstance().OpenFileLocations();
         await RouterManager.GetInstance().Start();
@@ -695,6 +696,7 @@ internal class AppManager : IVRCClientEventHandler
         VRChatOscClient.DisableSend();
         await RouterManager.GetInstance().Stop();
         await AudioManager.GetInstance().Stop();
+        await OpenVRManager.Stop();
 
         parameterCache.Clear();
         VRChatLogReader.DeRegister(this);
