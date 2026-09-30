@@ -438,6 +438,23 @@ public partial class NodeGraphView
             return;
         }
 
+        if (e.Key == Key.R)
+        {
+            if (connectionDrag is not null)
+            {
+                var success = createNodeFromDrag();
+
+                if (success)
+                {
+                    endConnectionDrag();
+                    Graph.MarkDirty().FireAndForget();
+                }
+            }
+
+            e.Handled = true;
+            return;
+        }
+
         if (e.Key == Key.Space)
         {
             centerGraph();
