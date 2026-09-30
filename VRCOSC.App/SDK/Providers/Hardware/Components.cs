@@ -103,9 +103,9 @@ public abstract class GPU : HardwareComponent
     protected override SensorInfo LoadInfo => new(SensorType.Load, "GPU Core");
     private readonly SensorInfo powerInfo = new(SensorType.Power, "GPU Package");
     private readonly SensorInfo temperatureInfo = new(SensorType.Temperature, "GPU Core");
-    private readonly SensorInfo memoryFreeInfo = new(SensorType.SmallData, "GPU Memory Free");
-    private readonly SensorInfo memoryUsedInfo = new(SensorType.SmallData, "GPU Memory Used", "D3D Dedicated Memory Used");
-    private readonly SensorInfo memoryTotalInfo = new(SensorType.SmallData, "GPU Memory Total");
+    private readonly SensorInfo memoryFreeInfo = new(SensorType.Data, "GPU Memory Free");
+    private readonly SensorInfo memoryUsedInfo = new(SensorType.Data, "GPU Memory Used", "D3D Dedicated Memory Used");
+    private readonly SensorInfo memoryTotalInfo = new(SensorType.Data, "GPU Memory Total");
 
     public int Power { get; private set; }
     public int Temperature { get; private set; }
