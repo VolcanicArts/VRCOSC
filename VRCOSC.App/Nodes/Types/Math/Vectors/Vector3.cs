@@ -1,4 +1,4 @@
-﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
@@ -45,6 +45,18 @@ public sealed class Vector3SubtractNode() : SimpleResultComputeNode<Vector3>((a,
 [Node("Multiply", "Math/Vector3")]
 [NodeCollapsed(EFontAwesomeIcon.Solid_Asterisk)]
 public sealed class Vector3MultiplyNode() : SimpleResultComputeNode<Vector3>((a, b) => a * b);
+
+[Node("Divide", "Math/Vector3")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Asterisk)]
+public sealed class Vector3DivideNode() : SimpleResultComputeNode<Vector3>((a, b) => a / b);
+
+[Node("Multiply Scalar", "Math/Vector3")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Asterisk)]
+public sealed class Vector3MultiplyScalarNode() : SimpleResultComputeNode<Vector3, float, Vector3>((a, b) => a * b);
+
+[Node("Divide Scalar", "Math/Vector3")]
+[NodeCollapsed(EFontAwesomeIcon.Solid_Asterisk)]
+public sealed class Vector3DivideScalarNode() : SimpleResultComputeNode<Vector3, float, Vector3>((a, b) => a / b);
 
 [Node("Transform", "Math/Vector3")]
 [NodeCollapsed]
