@@ -7,14 +7,14 @@ namespace VRCOSC.App.OpenVR.Device;
 
 public record DeviceInput
 {
-    public Vector2Input Stick;
-    public Triggers Triggers;
-    public Buttons Buttons;
-    public Vector1Input Grip;
-    public Vector2Input Pad;
-    public Skeleton Skeleton;
-    public BoolInput System;
-    public BoolInput Menu;
+    public required Vector2Input Stick { get; init; }
+    public required Triggers Triggers { get; init; }
+    public required Buttons Buttons { get; init; }
+    public required Vector1Input Grip { get; init; }
+    public required Vector2Input Pad { get; init; }
+    public required Skeleton Skeleton { get; init; }
+    public required BoolInput System { get; init; }
+    public required BoolInput Menu { get; init; }
 }
 
 public record BoolInput(bool Touch, bool Click);

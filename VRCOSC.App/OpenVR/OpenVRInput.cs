@@ -152,14 +152,12 @@ public class OpenVRInput
     private static DeviceInput createDeviceInput(ulong[] actions)
     {
         var i = 0;
-        var state = new DeviceInput();
 
         var stickX = OpenVRHelper.GetAnalogueInput(actions[i]).x;
         var stickY = OpenVRHelper.GetAnalogueInput(actions[i++]).y;
         var stickPosition = new Vector2(stickX, stickY);
         var stickTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
         var stickClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
-        state.Stick = new Vector2Input(stickPosition, stickTouch, stickClick);
 
         var triggerPull = OpenVRHelper.GetAnalogueInput(actions[i++]).x;
         var triggerTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
@@ -168,7 +166,6 @@ public class OpenVRInput
         var bumperClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
         var trigger = new Vector1Input(triggerPull, triggerTouch, triggerClick);
         var bumper = new BoolInput(bumperTouch, bumperClick);
-        state.Triggers = new Triggers(trigger, bumper);
 
         var northTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
         var northClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
@@ -182,34 +179,38 @@ public class OpenVRInput
         var east = new BoolInput(eastTouch, eastClick);
         var south = new BoolInput(southTouch, southClick);
         var west = new BoolInput(westTouch, westClick);
-        state.Buttons = new Buttons(north, east, south, west);
 
         var systemTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
         var systemClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
-        state.System = new BoolInput(systemTouch, systemClick);
 
         var menuTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
         var menuClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
-        state.Menu = new BoolInput(menuTouch, menuClick);
 
         var gripPull = OpenVRHelper.GetAnalogueInput(actions[i++]).x;
         var gripTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
         var gripClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
-        state.Grip = new Vector1Input(gripPull, gripTouch, gripClick);
 
         var padX = OpenVRHelper.GetAnalogueInput(actions[i]).x;
         var padY = OpenVRHelper.GetAnalogueInput(actions[i++]).y;
         var padPosition = new Vector2(padX, padY);
         var padTouch = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
         var padClick = OpenVRHelper.GetDigitalInput(actions[i++]).bState;
-        state.Pad = new Vector2Input(padPosition, padTouch, padClick);
 
         var index = OpenVRHelper.GetAnalogueInput(actions[i++]).x;
         var middle = OpenVRHelper.GetAnalogueInput(actions[i++]).x;
         var ring = OpenVRHelper.GetAnalogueInput(actions[i++]).x;
         var pinky = OpenVRHelper.GetAnalogueInput(actions[i++]).x;
-        state.Skeleton = new Skeleton(index, middle, ring, pinky);
 
-        return state;
+        return new DeviceInput
+        {
+            Stick = new Vector2Input(stickPosition, stickTouch, stickClick),
+            Triggers = new Triggers(trigger, bumper),
+            Buttons = new Buttons(north, east, south, west),
+            System = new BoolInput(systemTouch, systemClick),
+            Menu = new BoolInput(menuTouch, menuClick),
+            Grip = new Vector1Input(gripPull, gripTouch, gripClick),
+            Pad = new Vector2Input(padPosition, padTouch, padClick),
+            Skeleton = new Skeleton(index, middle, ring, pinky)
+        };
     }
 }
