@@ -61,8 +61,13 @@ public class GlobalInputHandler
         if (_updater is not null)
             await _updater.StopAsync();
 
-        if (_hook is not null && !_hook.IsDisposed)
+        if (_hook is not null)
+        {
+            if (_hook.IsRunning)
+                _hook.Stop();
+
             _hook.Dispose();
+        }
 
         if (_eventSimulator is not null && !_eventSimulator.IsDisposed)
             _eventSimulator.Dispose();
