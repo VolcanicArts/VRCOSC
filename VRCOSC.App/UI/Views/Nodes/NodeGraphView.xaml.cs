@@ -448,10 +448,10 @@ public partial class NodeGraphView
                 {
                     endConnectionDrag();
                     Graph.MarkDirty().FireAndForget();
+                    e.Handled = true;
                 }
             }
 
-            e.Handled = true;
             return;
         }
 
