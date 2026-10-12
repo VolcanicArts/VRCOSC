@@ -79,7 +79,7 @@ internal static class OpenVRHelper
             var position = finalMatrix.Translation;
             var rotation = Quaternion.CreateFromRotationMatrix(finalMatrix);
 
-            transforms[i] = new Transform(position, rotation);
+            transforms[i] = new Transform(position, rotation, Vector3.One);
         }
 
         return transforms;

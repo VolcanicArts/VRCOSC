@@ -257,7 +257,7 @@ public sealed class ContactParameterSourceNode : Node, IContinuousNode
         var collisionTagParameters = appManager.GetParameters<bool>(collisionTags.Get(OSCPatterns.ToContactCollisionTagPattern(name)));
 
         SenderType.Write(senderType, c);
-        SenderRelativeTransform.Write(new Transform(new Vector3(senderLocalPositionX, senderLocalPositionY, senderLocalPositionZ), Quaternion.Identity), c);
+        SenderRelativeTransform.Write(new Transform(new Vector3(senderLocalPositionX, senderLocalPositionY, senderLocalPositionZ), Quaternion.Identity, Vector3.One), c);
         SenderRelativeVelocity.Write(new Vector3(senderVelocityX, senderVelocityY, senderVelocityZ), c);
         ProximitySpeed.Write(proximitySpeed, c);
         CollisionTags.Write(collisionTagParameters.Where(p => p.Value).Select(p => p.Key.Name.Split('_').Last()).ToList(), c);

@@ -231,7 +231,7 @@ public class UserCamera
                 var data = message.Arguments;
                 var pos = new Vector3((float)data[0]!, (float)data[1]!, (float)data[2]!);
                 var rot = new Vector3((float)data[3]!, (float)data[4]!, (float)data[5]!);
-                Transform = new Transform(pos, rot.ToQuaternion());
+                Transform = new Transform(pos, rot.ToQuaternion(), Vector3.One);
                 break;
 
             default:
@@ -299,7 +299,7 @@ public class UserCamera
         if (address is null) return;
 
         var values = ((JArray)address.Value![0]).ToObject<double[]>()!;
-        Transform = new Transform(new Vector3((float)values[0], (float)values[1], (float)values[2]), new Vector3((float)values[3], (float)values[4], (float)values[5]).ToQuaternion());
+        Transform = new Transform(new Vector3((float)values[0], (float)values[1], (float)values[2]), new Vector3((float)values[3], (float)values[4], (float)values[5]).ToQuaternion(), Vector3.One);
     }
 
     private string inputToAddress(VRChatCameraInput input) => $"{VRChatOSCConstants.ADDRESS_USERCAMERA_PREFIX}/{input}";
