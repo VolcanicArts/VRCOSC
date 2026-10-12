@@ -28,6 +28,24 @@ public class CurrentWeather
     [JsonProperty("humidity")]
     public int Humidity;
 
+    [JsonProperty("feelslike_c")]
+    public float FeelsLikeC;
+
+    [JsonProperty("feelslike_f")]
+    public float FeelsLikeF;
+
+    [JsonProperty("wind_kph")]
+    public float WindKph;
+
+    [JsonProperty("wind_mph")]
+    public float WindMph;
+
+    [JsonProperty("wind_dir")]
+    public string WindDir = null!;
+
+    [JsonProperty("is_day")]
+    public int IsDay;
+
     [JsonProperty("condition")]
     public Condition Condition = null!;
 
