@@ -8,7 +8,9 @@ namespace VRCOSC.App.Nodes.Types.Math;
 [Node("Is Between", "Math")]
 public sealed class IsBetweenNode<T> : ValueComputeNode<bool> where T : IComparisonOperators<T, T, bool>
 {
+    [InputMode(InputModes.Connection)]
     public ValueInput<T> Value = new();
+
     public ValueInput<T> Min = new();
     public ValueInput<T> Max = new();
 

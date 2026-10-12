@@ -1,9 +1,8 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
 using System.Numerics;
-using System.Threading.Tasks;
 using FontAwesome6;
 
 namespace VRCOSC.App.Nodes.Types.Math.Vectors;
@@ -80,18 +79,13 @@ public sealed class Vector2UnitLeftNode() : ConstantNode<Vector2>(-Vector2.UnitX
 public sealed class Vector2DistanceNode() : SimpleResultComputeNode<Vector2, float>(Vector2.Distance);
 
 [Node("Contains", "Math/Vector2")]
-public sealed class Vector2ContainsNode : Node
+public sealed class Vector2ContainsNode : ValueComputeNode<bool>
 {
     public ValueInput<Vector2> A = new();
     public ValueInput<Vector2> B = new();
     public ValueInput<Vector2> Point = new();
-    public ValueOutput<bool> Result = new();
 
-    protected override Task Process(IPulseContext c)
-    {
-        Result.Write(isPointInBox(A.Read(c), B.Read(c), Point.Read(c)), c);
-        return Task.CompletedTask;
-    }
+    protected override bool ComputeValue(IPulseContext c) => isPointInBox(A.Read(c), B.Read(c), Point.Read(c));
 
     private static bool isPointInBox(Vector2 a, Vector2 b, Vector2 point)
     {
@@ -110,11 +104,6 @@ public sealed class Vector2ContainsNode : Node
 public sealed class Vector2DeltaNode : ValueTransformNode<Vector2>
 {
     public GlobalStore<Vector2> PrevValue = new();
-
-    protected override Task Process(IPulseContext c)
-    {
-        return Task.CompletedTask;
-    }
 
     protected override Vector2 TransformValue(Vector2 value, IPulseContext c)
     {

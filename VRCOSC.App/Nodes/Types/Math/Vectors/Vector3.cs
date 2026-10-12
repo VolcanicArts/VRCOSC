@@ -1,9 +1,8 @@
-// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
+﻿// Copyright (c) VolcanicArts. Licensed under the GPL-3.0 License.
 // See the LICENSE file in the repository root for full license text.
 
 using System;
 using System.Numerics;
-using System.Threading.Tasks;
 using FontAwesome6;
 
 namespace VRCOSC.App.Nodes.Types.Math.Vectors;
@@ -91,18 +90,13 @@ public sealed class Vector3UnitLeftNode() : ConstantNode<Vector3>(-Vector3.UnitX
 public sealed class Vector3DistanceNode() : SimpleResultComputeNode<Vector3, float>(Vector3.Distance);
 
 [Node("Contains", "Math/Vector3")]
-public sealed class Vector3ContainsNode : Node
+public sealed class Vector3ContainsNode : ValueComputeNode<bool>
 {
     public ValueInput<Vector3> A = new();
     public ValueInput<Vector3> B = new();
     public ValueInput<Vector3> Point = new();
-    public ValueOutput<bool> Result = new();
 
-    protected override Task Process(IPulseContext c)
-    {
-        Result.Write(isPointInBox(A.Read(c), B.Read(c), Point.Read(c)), c);
-        return Task.CompletedTask;
-    }
+    protected override bool ComputeValue(IPulseContext c) => isPointInBox(A.Read(c), B.Read(c), Point.Read(c));
 
     private static bool isPointInBox(Vector3 a, Vector3 b, Vector3 point)
     {
