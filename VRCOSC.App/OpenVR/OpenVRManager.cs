@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -189,24 +188,8 @@ public class OpenVRManager
                 continue;
             }
 
-            device.Transform = convertOpenVRTransformToEngineTransform(poses[device.Index]);
+            device.Transform = poses[device.Index];
         }
-    }
-
-    /// <summary>
-    /// OpenVR uses -Z as forward. Game engines like Unity or Godot use +Z as forward. We'll copy those to ensure compatibility with what users expect
-    /// </summary>
-    private static Transform convertOpenVRTransformToEngineTransform(Transform t)
-    {
-        // flip Z for position
-        var p = t.Position;
-        p.Z = -p.Z;
-
-        // flip Z for rotation: 180 around Y
-        var zFlip = Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI);
-        var r = zFlip * t.Rotation;
-
-        return new Transform(p, r);
     }
 
     private void addDevice(TrackedDevice device)
