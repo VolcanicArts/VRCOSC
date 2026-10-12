@@ -55,3 +55,27 @@ public sealed class TransformPositionAddNode() : SimpleResultComputeNode<Utils.T
 [Node("Add Rotation", "Math/Transform")]
 [NodeCollapsed(EFontAwesomeIcon.Solid_Plus)]
 public sealed class TransformRotationAddNode() : SimpleResultComputeNode<Utils.Transform, System.Numerics.Quaternion, Utils.Transform>((transform, rotation) => transform.Apply(new Utils.Transform(Vector3.Zero, rotation)));
+
+[Node("Forward", "Math/Transform")]
+[NodeCollapsed]
+public sealed class TransformForwardNode() : SimpleValueTransformNode<Utils.Transform, Vector3>(t => t.Forward);
+
+[Node("Backward", "Math/Transform")]
+[NodeCollapsed]
+public sealed class TransformBackwardNode() : SimpleValueTransformNode<Utils.Transform, Vector3>(t => t.Backward);
+
+[Node("Right", "Math/Transform")]
+[NodeCollapsed]
+public sealed class TransformRightNode() : SimpleValueTransformNode<Utils.Transform, Vector3>(t => t.Right);
+
+[Node("Left", "Math/Transform")]
+[NodeCollapsed]
+public sealed class TransformLeftNode() : SimpleValueTransformNode<Utils.Transform, Vector3>(t => t.Left);
+
+[Node("Up", "Math/Transform")]
+[NodeCollapsed]
+public sealed class TransformUpNode() : SimpleValueTransformNode<Utils.Transform, Vector3>(t => t.Up);
+
+[Node("Down", "Math/Transform")]
+[NodeCollapsed]
+public sealed class TransformDownNode() : SimpleValueTransformNode<Utils.Transform, Vector3>(t => t.Down);

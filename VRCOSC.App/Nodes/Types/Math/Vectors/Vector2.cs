@@ -18,6 +18,7 @@ public sealed class PackVector2Node : ValueComputeNode<Vector2>
 }
 
 [Node("Unpack Vector2", "Math/Vector2")]
+[NodeCollapsed]
 public sealed class UnpackVector2Node() : ValueConsumeNode<Vector2>("Vector")
 {
     public ValueOutput<float> X = new();
