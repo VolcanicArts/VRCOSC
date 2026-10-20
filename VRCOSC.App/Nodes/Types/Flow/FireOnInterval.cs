@@ -15,7 +15,7 @@ public sealed class FireOnIntervalNode : Node, IContinuousNode
 
     public FlowOutput Next = new();
 
-    public ValueInput<int> Interval = new("Interval (ms)");
+    public ValueInput<int> Interval = new("Interval (ms)", defaultValue: 10);
 
     protected override async Task Process(IPulseContext c)
     {
