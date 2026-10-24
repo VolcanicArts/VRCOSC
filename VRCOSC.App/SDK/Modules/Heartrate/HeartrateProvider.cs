@@ -47,6 +47,11 @@ public abstract class HeartrateProvider
     public Action<int>? OnHeartrateUpdate;
 
     /// <summary>
+    /// Called when this <see cref="HeartrateProvider"/> receives a battery level update
+    /// </summary>
+    public Action<float>? OnBatteryUpdate;
+
+    /// <summary>
     /// How long should we wait after the last <see cref="OnHeartrateUpdate"/> call until <see cref="IsReceiving"/> resolves to false
     /// </summary>
     protected virtual TimeSpan IsReceivingTimeout => TimeSpan.FromSeconds(30);

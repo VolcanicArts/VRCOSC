@@ -17,6 +17,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 
     private float currentValue;
     public int TargetValue { get; private set; }
+    public float BatteryPercentage { get; private set; }
 
     private float currentAverage;
     private int targetAverage;
@@ -52,6 +53,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         RegisterParameter<float>(HeartrateParameter.Normalised, "VRCOSC/Heartrate/Normalised", ParameterMode.Write, "Normalised", "The heartrate value normalised from the set bounds to 0-1");
         RegisterParameter<int>(HeartrateParameter.Average, "VRCOSC/Heartrate/Average", ParameterMode.Write, "Average", "The average of your heartrate");
         RegisterParameter<bool>(HeartrateParameter.Beat, "VRCOSC/Heartrate/Beat", ParameterMode.ReadWrite, "Beat", "Toggles value OR becomes true for 1 update (depending on the setting) when your heart beats");
+        RegisterParameter<float>(HeartrateParameter.Battery, "VRCOSC/Heartrate/Battery", ParameterMode.Write, "Battery", "The battery percentage of your heartrate device");
 
         RegisterParameter<bool>(HeartrateParameter.LegacyEnabled, "VRCOSC/Heartrate/Enabled", ParameterMode.Write, "Enabled", "Whether this module is connected and receiving values", true);
         RegisterParameter<float>(HeartrateParameter.LegacyUnits, "VRCOSC/Heartrate/Units", ParameterMode.Write, "Units", "The units digit 0-9 mapped to a float", true);
@@ -68,6 +70,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     {
         var currentReference = CreateVariable<int>(HeartrateVariable.Current, "Current")!;
         CreateVariable<int>(HeartrateVariable.Average, "Average");
+        CreateVariable<float>(HeartrateVariable.Battery, "Battery");
 
         CreateState(HeartrateState.Connected, "Connected", "Heartrate: {0}", new[] { currentReference });
         CreateState(HeartrateState.Disconnected, "Disconnected", string.Empty);
@@ -82,6 +85,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         TargetValue = 0;
         currentAverage = 0;
         targetAverage = 0;
+        BatteryPercentage = 0f;
         beatParameterValue = false;
         isReady = false;
         values.Clear();
@@ -101,6 +105,11 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
             {
                 values.Add(DateTimeOffset.Now, newHeartrate);
             }
+        };
+
+        HeartrateProvider.OnBatteryUpdate += newBattery =>
+        {
+            BatteryPercentage = newBattery;
         };
 
         await HeartrateProvider.Initialise();
@@ -147,6 +156,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
 
         SetVariableValue(HeartrateVariable.Current, 0);
         SetVariableValue(HeartrateVariable.Average, 0);
+        SetVariableValue(HeartrateVariable.Battery, 0f);
     }
 
     private async Task handleBeatParameter()
@@ -204,12 +214,14 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         {
             SetVariableValue(HeartrateVariable.Current, (int)currentValue);
             SetVariableValue(HeartrateVariable.Average, (int)currentAverage);
+            SetVariableValue(HeartrateVariable.Battery, BatteryPercentage);
             ChangeState(HeartrateState.Connected);
         }
         else
         {
             SetVariableValue(HeartrateVariable.Current, 0);
-            SetVariableValue(HeartrateParameter.Average, 0);
+            SetVariableValue(HeartrateVariable.Average, 0);
+            SetVariableValue(HeartrateVariable.Battery, 0f);
             ChangeState(HeartrateState.Disconnected);
         }
     }
@@ -268,12 +280,14 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
             SendParameter(HeartrateParameter.Normalised, normalisedHeartRate);
             SendParameter(HeartrateParameter.Value, (int)MathF.Round(currentValue));
             SendParameter(HeartrateParameter.Average, (int)MathF.Round(currentAverage));
+            SendParameter(HeartrateParameter.Battery, BatteryPercentage);
         }
         else
         {
             SendParameter(HeartrateParameter.Normalised, 0f);
             SendParameter(HeartrateParameter.Value, 0);
             SendParameter(HeartrateParameter.Average, 0);
+            SendParameter(HeartrateParameter.Battery, 0f);
         }
     }
 
@@ -319,6 +333,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
         Value,
         Average,
         Beat,
+        Battery,
         LegacyEnabled,
         LegacyUnits,
         LegacyTens,
@@ -334,6 +349,7 @@ public abstract class HeartrateModule<T> : Module where T : HeartrateProvider
     private enum HeartrateVariable
     {
         Current,
-        Average
+        Average,
+        Battery
     }
 }
