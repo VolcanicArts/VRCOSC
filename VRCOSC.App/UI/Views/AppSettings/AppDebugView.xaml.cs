@@ -68,8 +68,7 @@ public partial class AppDebugView
 
     private void onLogEntry(LogEntry e) => Dispatcher.Invoke(() =>
     {
-        var appState = AppManager.GetInstance().State.Value;
-        if (e.LoggerName != "module-debug" || appState is AppManagerState.Stopped or AppManagerState.Waiting) return;
+        if (e.LoggerName != "module-debug") return;
 
         var dateTimeText = $"[{DateTime.Now:HH:mm:ss}] {e.Message}";
 
