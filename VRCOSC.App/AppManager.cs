@@ -574,6 +574,20 @@ internal class AppManager : IVRCClientEventHandler
 
     private async Task startAsync()
     {
+        try
+        {
+            await startCoreAsync();
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"{nameof(AppManager)} experienced an exception while starting");
+            await StopAsync();
+            State.Value = AppManagerState.Stopped;
+        }
+    }
+
+    private async Task startCoreAsync()
+    {
         if (SettingsManager.GetInstance().GetValue<bool>(VRCOSCSetting.SpeechEnabled))
         {
             if (SettingsManager.GetInstance().GetValue<SpeechModel>(VRCOSCSetting.SpeechModel) == SpeechModel.Custom && string.IsNullOrWhiteSpace(SettingsManager.GetInstance().GetValue<string>(VRCOSCSetting.SpeechModelPath)))
@@ -682,21 +696,22 @@ internal class AppManager : IVRCClientEventHandler
 
         State.Value = AppManagerState.Stopping;
 
-        await GlobalInputHandler.Stop();
-        await SpeechEngine.Teardown();
-        ProcessFPS.DisposeAll();
+        // Isolate each step so a single failure can't skip the rest or leave state stuck on Stopping
+        await stopStepAsync(nameof(GlobalInputHandler), () => GlobalInputHandler.Stop());
+        await stopStepAsync(nameof(SpeechEngine), () => SpeechEngine.Teardown());
+        stopStep(nameof(ProcessFPS), ProcessFPS.DisposeAll);
 
-        await VRChatOscClient.DisableReceive();
+        await stopStepAsync(nameof(VRChatOscClient), () => VRChatOscClient.DisableReceive());
         VRChatOscClient.OnVRChatOSCMessageReceived -= onVRChatOSCMessageReceived;
 
-        await VRChatLogReader.Stop();
-        await NodeManager.GetInstance().Stop();
-        await ModuleManager.GetInstance().StopAsync();
-        await ChatBoxManager.GetInstance().Stop();
-        VRChatOscClient.DisableSend();
-        await RouterManager.GetInstance().Stop();
-        await AudioManager.GetInstance().Stop();
-        await OpenVRManager.Stop();
+        await stopStepAsync(nameof(VRChatLogReader), () => VRChatLogReader.Stop());
+        await stopStepAsync(nameof(NodeManager), () => NodeManager.GetInstance().Stop());
+        await stopStepAsync(nameof(ModuleManager), () => ModuleManager.GetInstance().StopAsync());
+        await stopStepAsync(nameof(ChatBoxManager), () => ChatBoxManager.GetInstance().Stop());
+        stopStep("VRChatOscClient send", VRChatOscClient.DisableSend);
+        await stopStepAsync(nameof(RouterManager), () => RouterManager.GetInstance().Stop());
+        await stopStepAsync(nameof(AudioManager), () => AudioManager.GetInstance().Stop());
+        await stopStepAsync(nameof(OpenVRManager), () => OpenVRManager.Stop());
 
         parameterCache.Clear();
         VRChatLogReader.DeRegister(this);
@@ -706,6 +721,30 @@ internal class AppManager : IVRCClientEventHandler
         VRChatClient.UpdateUser(null);
 
         State.Value = AppManagerState.Stopped;
+    }
+
+    private static async Task stopStepAsync(string name, Func<Task> step)
+    {
+        try
+        {
+            await step();
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"{name} experienced an exception while stopping");
+        }
+    }
+
+    private static void stopStep(string name, Action step)
+    {
+        try
+        {
+            step();
+        }
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"{name} experienced an exception while stopping");
+        }
     }
 
     #endregion

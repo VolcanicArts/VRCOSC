@@ -267,18 +267,26 @@ public abstract class Module
     {
         State.Value = ModuleState.Stopping;
 
-        if (GetType().IsAssignableTo(typeof(IVRCClientEventHandler)))
+        try
         {
-            VRChatLogReader.DeRegister((IVRCClientEventHandler)this);
+            if (GetType().IsAssignableTo(typeof(IVRCClientEventHandler)))
+            {
+                VRChatLogReader.DeRegister((IVRCClientEventHandler)this);
+            }
+
+            foreach (var updateTask in updateTasks) await updateTask.StopAsync();
+            updateTasks.Clear();
+            await OnModuleStop();
         }
-
-        foreach (var updateTask in updateTasks) await updateTask.StopAsync();
-        updateTasks.Clear();
-        await OnModuleStop();
-
-        savePersistentProperties();
-
-        State.Value = ModuleState.Stopped;
+        catch (Exception e)
+        {
+            ExceptionHandler.Handle(e, $"{FullID} experienced a problem while stopping");
+        }
+        finally
+        {
+            savePersistentProperties(); // save persistent data even if the module threw so it isn't lost
+            State.Value = ModuleState.Stopped;
+        }
     }
 
     private void initialiseUpdateAttributes(Type? type)
