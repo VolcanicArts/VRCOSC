@@ -112,6 +112,7 @@ public class ModulePersistentAttribute : Attribute
     /// <summary>
     /// Used to mark a field for being automatically loaded and saved when the <see cref="Module"/> starts and stops
     /// </summary>
+    /// <remarks>Call <c>SavePersistentProperties()</c> from the module to save all properties anytime to avoid data loss on crash</remarks>
     /// <param name="serialisedName">The name to serialise this property as</param>
     public ModulePersistentAttribute(string serialisedName)
     {

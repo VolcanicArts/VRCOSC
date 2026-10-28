@@ -94,6 +94,7 @@ public abstract class Module
     internal Type? RuntimeViewType { get; private set; }
 
     private bool isLoaded;
+    private volatile bool persistentPropertiesLoaded;
 
     public string Title => GetType().GetCustomAttribute<ModuleTitleAttribute>()?.Title ?? "PLACEHOLDER TITLE";
     public string TitleWithPackage => PackageID == "local" ? $"(Local) {Title}" : Title;
@@ -211,6 +212,7 @@ public abstract class Module
         if (PersistentProperties.Count == 0) return;
 
         persistenceSerialisationManager.Deserialise();
+        persistentPropertiesLoaded = true;
     }
 
     private void savePersistentProperties()
@@ -218,6 +220,13 @@ public abstract class Module
         if (PersistentProperties.Count == 0) return;
 
         persistenceSerialisationManager.Serialise();
+    }
+
+    protected void SavePersistentProperties()
+    {
+        if (!persistentPropertiesLoaded) return;
+
+        savePersistentProperties();
     }
 
     #endregion
@@ -258,6 +267,7 @@ public abstract class Module
         }
         catch (Exception e)
         {
+            persistentPropertiesLoaded = false;
             State.Value = ModuleState.Stopped;
             ExceptionHandler.Handle(e, $"{FullID} experienced a problem while starting");
         }
@@ -285,6 +295,7 @@ public abstract class Module
         finally
         {
             savePersistentProperties(); // save persistent data even if the module threw so it isn't lost
+            persistentPropertiesLoaded = false;
             State.Value = ModuleState.Stopped;
         }
     }
