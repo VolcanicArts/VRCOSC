@@ -57,6 +57,7 @@
         <PackageReference Include="TwitchLib.Api.Helix.Models" Version="3.11.0-preview.218.c76ee84" />
         <PackageReference Include="TwitchLib.EventSub.Core" Version="3.1.0-preview.81.5919dce" />
         <PackageReference Include="TwitchLib.EventSub.Websockets" Version="0.9.0-preview.91.e7a2a33" />
+        <PackageReference Include="UnitsNet" Version="5.75.1" />
         <PackageReference Include="Velopack" Version="1.2.161" />
         <PackageReference Include="VolcanicArts.FastOSC" Version="2.0.0" />
         <PackageReference Include="VolcanicArts.Libs.OpenVR" Version="2.5.1" />
