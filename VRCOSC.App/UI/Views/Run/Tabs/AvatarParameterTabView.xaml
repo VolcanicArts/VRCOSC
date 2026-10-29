@@ -9,14 +9,21 @@
              Background="Transparent"
              d:DesignWidth="900" d:DesignHeight="764">
     <UserControl.Resources>
+        <ContextMenu x:Key="ParameterContextMenu" x:Shared="False">
+            <MenuItem Header="Copy Name" Click="CopyName_OnClick" />
+            <MenuItem Header="Copy Value" Click="CopyValue_OnClick" />
+            <MenuItem Header="Copy Name and Value" Click="CopyNameAndValue_OnClick" />
+            <Separator />
+            <MenuItem Header="Select All" Click="SelectAll_OnClick" />
+        </ContextMenu>
         <core:AlternatingColourConverterMulti x:Key="AlternatingColourConverter" />
         <core:BindingProxy x:Key="CBackground3Proxy" Data="{DynamicResource CBackground3}"/>
         <core:BindingProxy x:Key="CBackground4Proxy" Data="{DynamicResource CBackground4}"/>
         <Style TargetType="ListViewItem">
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate>
-                        <Border Padding="7 2" Height="25">
+                    <ControlTemplate TargetType="ListViewItem">
+                        <Border Height="25">
                             <Border.Background>
                                 <MultiBinding Converter="{StaticResource AlternatingColourConverter}">
                                     <Binding RelativeSource="{RelativeSource Mode=TemplatedParent}" Path="(ItemsControl.AlternationIndex)" />
@@ -24,30 +31,32 @@
                                     <Binding Source="{StaticResource CBackground4Proxy}" Path="Data"/>
                                 </MultiBinding>
                             </Border.Background>
-                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" MinWidth="15" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <TextBox
-                                    Grid.Column="0"
-                                    Text="{Binding Name, Mode=OneTime}"
-                                    IsReadOnly="True"
-                                    BorderThickness="0"
-                                    Foreground="{DynamicResource CForeground2}"
-                                    Background="Transparent"
-                                    Padding="0"
-                                    FontSize="14" VerticalAlignment="Center"
-                                    TextWrapping="NoWrap"
-                                    FocusVisualStyle="{x:Null}" />
-                                <TextBlock Grid.Column="2"
-                                           Text="{Binding Value.Value, Mode=OneWay}"
-                                           Foreground="{DynamicResource CForeground2}"
-                                           FontSize="14" VerticalAlignment="Center"
-                                           HorizontalAlignment="Right" />
+                            <Grid>
+                                <Border x:Name="SelectionOverlay" Background="{DynamicResource CForeground3}" Opacity="0.25" Visibility="Collapsed" />
+                                <Grid Margin="7 2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" MinWidth="15" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Name, Mode=OneTime}"
+                                               Foreground="{DynamicResource CForeground2}"
+                                               FontSize="14" VerticalAlignment="Center"
+                                               TextWrapping="NoWrap" />
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding Value.Value, Mode=OneWay}"
+                                               Foreground="{DynamicResource CForeground2}"
+                                               FontSize="14" VerticalAlignment="Center"
+                                               HorizontalAlignment="Right" />
+                                </Grid>
                             </Grid>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="SelectionOverlay" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -63,9 +72,13 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="36"/>
         </Grid.RowDefinitions>
-        <core:HeaderFooterListView Grid.Column="0"
+        <core:HeaderFooterListView x:Name="OutgoingListView"
+                                   Grid.Column="0"
                                    Grid.Row="0"
                                    ItemsSource="{Binding OutgoingFiltered, Mode=OneWay}"
+                                   SelectionMode="Extended"
+                                   ContextMenu="{StaticResource ParameterContextMenu}"
+                                   KeyDown="ListView_OnKeyDown"
                                    HorizontalAlignment="Stretch"
                                    Background="Transparent"
                                    BorderThickness="0"
@@ -82,9 +95,13 @@
                 <Border Background="{DynamicResource CBackground1}" Height="5" />
             </core:HeaderFooterListView.Footer>
         </core:HeaderFooterListView>
-        <core:HeaderFooterListView Grid.Column="2"
+        <core:HeaderFooterListView x:Name="IncomingListView"
+                                   Grid.Column="2"
                                    Grid.Row="0"
                                    ItemsSource="{Binding IncomingFiltered, Mode=OneWay}"
+                                   SelectionMode="Extended"
+                                   ContextMenu="{StaticResource ParameterContextMenu}"
+                                   KeyDown="ListView_OnKeyDown"
                                    HorizontalAlignment="Stretch"
                                    Background="Transparent"
                                    BorderThickness="0"

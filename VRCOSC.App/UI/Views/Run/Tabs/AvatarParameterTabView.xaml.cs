@@ -4,8 +4,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 using VRCOSC.App.OSC.VRChat;
 using VRCOSC.App.Utils;
@@ -59,10 +63,70 @@ public partial class AvatarParameterTabView
 
     private void filter(string text)
     {
-        OutgoingFiltered.Clear();
-        OutgoingFiltered.AddRange(OutgoingStore.Values.Where(s => string.IsNullOrWhiteSpace(text) || s.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase)).OrderBy(s => s.Name));
-        IncomingFiltered.Clear();
-        IncomingFiltered.AddRange(IncomingStore.Values.Where(s => string.IsNullOrWhiteSpace(text) || s.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase)).OrderBy(s => s.Name));
+        refill(OutgoingListView, OutgoingFiltered, OutgoingStore, text);
+        refill(IncomingListView, IncomingFiltered, IncomingStore, text);
+    }
+
+    private static void refill(ListView listView, ObservableCollection<AvatarParameterStore> target, ObservableDictionary<string, AvatarParameterStore> source, string text)
+    {
+        var selectedNames = listView.SelectedItems.OfType<AvatarParameterStore>().Select(s => s.Name).ToHashSet();
+
+        target.Clear();
+        target.AddRange(source.Values.Where(s => string.IsNullOrWhiteSpace(text) || s.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase)).OrderBy(s => s.Name));
+
+        if (selectedNames.Count == 0) return;
+
+        foreach (var store in target.Where(s => selectedNames.Contains(s.Name)))
+        {
+            listView.SelectedItems.Add(store);
+        }
+    }
+
+    private static string formatValue(AvatarParameterStore store) => Convert.ToString(store.Value.Value, CultureInfo.InvariantCulture) ?? string.Empty;
+
+    private static void copyToClipboard(ListView listView, Func<AvatarParameterStore, string> selector)
+    {
+        var lines = listView.SelectedItems.OfType<AvatarParameterStore>().OrderBy(s => s.Name).Select(selector).ToList();
+        if (lines.Count == 0) return;
+
+        try
+        {
+            Clipboard.SetText(string.Join(Environment.NewLine, lines));
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "Failed to copy parameters to the clipboard");
+        }
+    }
+
+    private static ListView? getListViewFromMenuItem(object sender) => (sender as MenuItem)?.Parent is ContextMenu { PlacementTarget: ListView listView } ? listView : null;
+
+    private void ListView_OnKeyDown(object sender, KeyEventArgs e)
+    {
+        if (sender is not ListView listView || Keyboard.Modifiers != ModifierKeys.Control || e.Key != Key.C) return;
+
+        copyToClipboard(listView, s => $"{s.Name}={formatValue(s)}");
+        e.Handled = true;
+    }
+
+    private void CopyName_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (getListViewFromMenuItem(sender) is { } listView) copyToClipboard(listView, s => s.Name);
+    }
+
+    private void CopyValue_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (getListViewFromMenuItem(sender) is { } listView) copyToClipboard(listView, formatValue);
+    }
+
+    private void CopyNameAndValue_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (getListViewFromMenuItem(sender) is { } listView) copyToClipboard(listView, s => $"{s.Name}={formatValue(s)}");
+    }
+
+    private void SelectAll_OnClick(object sender, RoutedEventArgs e)
+    {
+        getListViewFromMenuItem(sender)?.SelectAll();
     }
 
     private void update(object? sender, EventArgs e)
