@@ -8,7 +8,10 @@ namespace VRCOSC.App.SDK.VRChat.Logs.Handlers;
 
 public class InstanceJoinedLogLineHandler : VRChatLogLineHandler
 {
-    public override Regex Regex => new("^.+Successfully joined room$");
+    // VRChat logs "Successfully joined room" as soon as the network room is joined, which is
+    // at the start of the loading screen (before the world is downloaded/loaded).
+    // "Finished entering world." is logged once loading has completed and the player is in the world.
+    public override Regex Regex => new(@"^.+Finished entering world\.$");
 
     public override IVRChatClientEvent HandleMatch(LogReaderState state, VRChatLogLineMatch logLine)
     {
